@@ -88,6 +88,11 @@ public class DatasetServiceMock implements DatasetService {
   }
 
   @Override
+  public PagingResponse<Dataset> listByType(DatasetType datasetType, @Nullable Pageable pageable) {
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  @Override
   public List<Metadata> listMetadata(UUID uuid, @Nullable MetadataType type) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
@@ -251,8 +256,8 @@ public class DatasetServiceMock implements DatasetService {
   @Override
   public List<Network> listNetworks(@NotNull UUID uuid) {
     throw new UnsupportedOperationException("Not implemented yet");
-  }  
-  
+  }
+
   @Override
   public PagingResponse<Dataset> listConstituents(@Nullable Pageable pageable) {
     throw new UnsupportedOperationException("Not implemented yet");

@@ -78,264 +78,227 @@ public class DatasetMockService implements DatasetSearchService, DatasetService 
 
   @Override
   public List<DatasetSearchResult> suggest(DatasetSuggestRequest suggestRequest) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
 
   @Override
   public PagingResponse<Dataset> listConstituents(UUID datasetKey, @Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listByCountry(@NotNull Country country, @Nullable DatasetType type,
     @Nullable Pageable page) {
-    // TODO: Write implementation
+    throw new UnsupportedOperationException("Not implemented yet");
+  }
+
+  @Override
+  public PagingResponse<Dataset> listByType(DatasetType datasetType, @Nullable Pageable pageable) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Metadata> listMetadata(UUID datasetKey, @Nullable MetadataType type) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public Metadata getMetadata(int metadataKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteMetadata(int metadataKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public Metadata insertMetadata(UUID datasetKey, InputStream document) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public InputStream getMetadataDocument(UUID datasetKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public InputStream getMetadataDocument(int metadataKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listDeleted(@Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listDuplicates(@Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listDatasetsWithNoEndpoint(@Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public UUID create(@NotNull Dataset entity) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void delete(@NotNull UUID key) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> list(@Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> search(String query, @Nullable Pageable page) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listByIdentifier(IdentifierType identifierType, String s,
     @Nullable Pageable pageable) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public PagingResponse<Dataset> listByIdentifier(String s, @Nullable Pageable pageable) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void update(@NotNull Dataset entity) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addComment(@NotNull UUID targetEntityKey, @NotNull Comment comment) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteComment(@NotNull UUID targetEntityKey, int commentKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Comment> listComments(@NotNull UUID targetEntityKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addContact(@NotNull UUID targetEntityKey, @NotNull Contact contact) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteContact(@NotNull UUID targetEntityKey, int contactKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Contact> listContacts(@NotNull UUID targetEntityKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void updateContact(@NotNull UUID targetEntityKey, @NotNull Contact contact) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addEndpoint(@NotNull UUID targetEntityKey, @NotNull Endpoint endpoint) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteEndpoint(@NotNull UUID targetEntityKey, int endpointKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Endpoint> listEndpoints(@NotNull UUID targetEntityKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addIdentifier(@NotNull UUID targetEntityKey, @NotNull Identifier identifier) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteIdentifier(@NotNull UUID targetEntityKey, int identifierKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Identifier> listIdentifiers(@NotNull UUID targetEntityKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addMachineTag(@NotNull UUID targetEntityKey, @NotNull MachineTag machineTag) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addMachineTag(@NotNull UUID targetEntityKey, @NotNull String namespace, @NotNull String name,
     @NotNull String value) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteMachineTag(@NotNull UUID targetEntityKey, int machineTagKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteMachineTags(@NotNull UUID targetEntityKey, @NotNull String namespace) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteMachineTags(@NotNull UUID targetEntityKey, @NotNull String namespace, @NotNull String name) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<MachineTag> listMachineTags(@NotNull UUID targetEntityKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addTag(@NotNull UUID targetEntityKey, @NotNull String value) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public int addTag(@NotNull UUID targetEntityKey, @NotNull Tag tag) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public void deleteTag(@NotNull UUID taggedEntityKey, int tagKey) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Tag> listTags(@NotNull UUID taggedEntityKey, @Nullable String owner) {
-    // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
   @Override
   public List<Network> listNetworks(@NotNull UUID uuid) {
     throw new UnsupportedOperationException("Not implemented yet");
-  }  
+  }
 
   @Override
   public PagingResponse<Dataset> listConstituents(@Nullable Pageable pageable) {
