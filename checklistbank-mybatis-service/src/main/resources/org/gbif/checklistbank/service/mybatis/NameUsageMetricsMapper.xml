@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.NameUsageMetricsMapper">
+
+  <sql id="select">usage_fk, count_p,count_c,count_o,count_f,count_g,count_sg,count_s,
+         count_children, count_descendants, count_synonyms
+  </sql>
+
+  <sql id="from">name_usage_metrics</sql>
+
+  <!--  A mapping to build a Image -->
+  <resultMap id="usageMetricsResultMap" type="NameUsageMetrics" autoMapping="true">
+    <id property="key" column="usage_fk"/>
+    <result property="numPhylum" column="count_p"/>
+    <result property="numClass" column="count_c"/>
+    <result property="numOrder" column="count_o"/>
+    <result property="numFamily" column="count_f"/>
+    <result property="numGenus" column="count_g"/>
+    <result property="numSubgenus" column="count_sg"/>
+    <result property="numSpecies" column="count_s"/>
+    <result property="numChildren" column="count_children"/>
+    <result property="numDescendants" column="count_descendants"/>
+    <result property="numSynonyms" column="count_synonyms"/>
+  </resultMap>
+
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="usageMetricsResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE usage_fk=#{key}
+  </select>
+
+
+</mapper>

@@ -1,0 +1,24 @@
+[ {
+  "key" : 1,
+  "nameKey" : 1,
+  "rank" : "KINGDOM"
+}, {
+  "key" : 2,
+  "nameKey" : 2,
+  "parentKey" : 1,
+  "rank" : "ORDER"
+}, {
+  "key" : 10,
+  "nameKey" : 10,
+  "rank" : "ORDER"
+}, {
+  "key" : -300,
+  "nameKey" : -300,
+  "parentKey" : 10,
+  "rank" : "GENUS"
+}, {
+  "key" : -301,
+  "nameKey" : -301,
+  "parentKey" : 2,
+  "rank" : "FAMILY"
+} ]

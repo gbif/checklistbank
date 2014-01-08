@@ -1,0 +1,63 @@
+!ANIMALIAANIMALIA	Animalia
+!ANIMALIANIMALIAA	Animalia
+9ANIMALI	Animalia
+ANIMALICHORDATA	Animalia
+ANIMALEPTESICUS	Animalia
+ANAMALIA	Animalia
+ANIMA	Animalia
+ANIMAL	Animalia
+ANIMALS	Animalia
+ANIMALA	Animalia
+ANIMALIA	Animalia
+ANIMALIAANIMALIA	Animalia
+ANIMALIANIMALIAA	Animalia
+ALGAE	
+Anamalia	Animalia
+Animal	Animalia
+Animala	Animalia
+Animaux	Animalia
+Arthropoda	Animalia
+Aves	Animalia
+BACTERIA	Bacteria
+Bikonta	Plantae
+CHROMISTA	Chromista
+Chlorobiota	Plantae
+Chloroplastida	Plantae
+Cyanobacteria	Bacteria
+Eubacteria	Bacteria
+Eukarya	
+FUNGI	Fungi
+FUNGI AND LICHENS	Fungi
+Fungi and Lichens	Fungi
+Hepaticae	Plantae
+INVERTEBRADOS	Animalia
+Lichenes	Fungi
+Lichens	Fungi
+Lichens	Fungi
+METAZOA	Animalia
+Metazoa	Animalia
+Monad	Protozoa
+Monera	Bacteria
+PLANT	Plantae
+PLANTAE	Plantae
+PLANTAE PLANTAE	Plantae
+PLANTAE&#39;???	Plantae
+PLANTE	Plantae
+PLANTEA	Plantae
+PROTEOBACTERIA	Bacteria
+PROTISTA	Protozoa
+PROTOCTISTA	Protozoa
+PROTOZOA	Protozoa
+Plant	Plantae
+Plante	Plantae
+Plantea	Plantae
+Plants	Plantae
+Proteobacteria	Bacteria
+Protista	Protozoa
+Protoctista	
+VANIMALIA	Animalia
+VERTEBRADOS	Animalia
+VIRUS	Viruses
+Viridaeplantae	Plantae
+Viridiplantae  Plantae
+Virus	Viruses

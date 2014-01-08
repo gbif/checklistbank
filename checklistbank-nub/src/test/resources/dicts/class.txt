@@ -1,0 +1,289 @@
+ACANTHARIA	Acantharea
+ACARPOMYXEA	Acarpomyxa
+ACIDOBACTERIA	Acidobacteria
+ACRANIA	Cephalochordata
+ACTINOBACTERIA	Actinobacteria
+ACTINOMYCETES	Actinobacteria
+ACTINOMYXEA	Myxosporea
+ACTINOSPOREA	Myxosporea
+ADENOPHOREA	Chromadorea
+AGARICOMYCETIDAE	Agaricomycetes
+AGARICOSTILBOMYCETIDAE	Agaricostilbomycetes
+AGLOSSOPSIDA	Lycopodiopsida
+ALLOMYCETES	Blastocladiomycetes
+ALPHA PROTEOBACTERIA	Alphaproteobacteria
+ALPHA SUBDIVISION	Alphaproteobacteria
+ALPHA SUBGROUP	Alphaproteobacteria
+ALPHABACTERIA	Alphaproteobacteria
+ALPHAPROTEOBACTERIA	Alphaproteobacteria
+AMPHINEURA	Polyplacophora
+ANAEROLINEAE	Anaerolineae
+ANAPSIDA	Reptilia
+ANDREAEIDAE	Andreaeopsida
+ANTHOCEROTOPSIDA	Anthocerotopsida
+APPENDICULARIA	Larvacea
+APSIDOSPONDYLI	Amphibia
+AQUIFICAE	Aquificae
+ARCHAEOBACTERIA	Methanobacteria
+ARCHAEOGLOBEA	Archaeoglobi
+ARCHAEOGLOBI	Archaeoglobi
+ARCHOSAURIA	Reptilia
+ARNAUDIA	Acantharia
+ARTHROPSIDA	Equisetopsida
+ARTICULATA	Articulata
+ASTERIAS PECTINATA	Crinoidea
+BACILLI	Bacilli
+BACILLUS	Bacilli
+BACTEROIDETES	Bacteroidia
+BACTEROIDIA	Bacteroidia
+BANGIOPHYCIDEAE	Bangiophyceae
+BETA PROTEOBACTERIA	Betaproteobacteria
+BETA SUBDIVISION	Betaproteobacteria
+BETA SUBGROUP	Betaproteobacteria
+BETAPROTEOBACTERIA	Betaproteobacteria
+BODONOPHYCEAE	Kinetoplastea
+BONY FISHES	Actinopterygii
+BREFELDIELLACEAE	Dothideomycetes
+CALDILINEAE	Caldilineae
+CALDISERICIA	Caldisericia
+CAMAROSPORIUM CORONILLAE	Camarosporium Coronillae
+CELLULOPHANA	Porifera Incertae Sedis
+CEPHALASPIDOMORPHA	Cephalaspidomorphi
+CEPHALASPIDOMORPHI	Agnatha
+CERACTINOMORPHA	Demospongiae
+CESTOIDEA	Cestoda
+CHAETOSPHAERIDIOPHYTA	Mesostigmatophyceae
+CHAETOTHYRIOMYCETES	Eurotiomycetes
+CHILOGNATHA	Diplopoda
+CHLAMYDOSPERMOPSIDA	Gnetopsida
+CHLOROBEA	Chlorobia
+CHLOROBIA	Chlorobia
+CHLOROFLECALES	Chloroflexi
+CHLOROFLEXACEAE	Chloroflexi
+CHLOROFLEXI	Chloroflexi
+CHLOROFLEXUS GROUP	Chloroflexi
+CHLOROMONADOPHYCEAE	Raphidophyceae
+CHOANITES	Porifera Incertae Sedis
+CHRYSIOGENES GROUP	Chrysiogenetes
+CHRYSIOGENETES	Chrysiogenetes
+CHRYSOMONADA	Chrysophyceae
+CHRYSOMONADIDA	Chrysophyceae
+CHRYSOPHYTA	Chrysophyceae
+CLOSTRIDIA	Clostridia
+COLLEMBOLA GROUP	Ellipura
+COLPODEA	Colpodea
+COMPSOPOGONOPHYCEAE	Compsopogonophyceae
+CONCENTRICYCLOIDEA	Asteroidea
+CONCENTRICYCLOIDEA	Asteroidea De
+CONCHIFERA	Bivalvia
+CONJUGATOPHYCEAE	Zygnemophyceae
+CRENARCHAEOTA	Thermoprotei
+CRINOZOA	Crinoidea
+CRYPTOMONADIDA	Cryptophyta
+CRYPTOPHYCEAE	Cryptophyta
+CYTOPHAGIA	Cytophagia
+DEFERRIBACTERES	Deferribacteres
+DEHALOCOCCOIDETES	Dehalococcoidetes
+DEINOCOCCI	Deinococci
+DELTA PROTEOBACTERIA	Deltaproteobacteria
+DELTA SUBDIVISION	Deltaproteobacteria
+DELTA SUBGROUP	Deltaproteobacteria
+DELTABACTERIA	Deltaproteobacteria
+DELTAPROTEOBACTERIA	Deltaproteobacteria
+DIAPSIDA	Reptilia
+DICOTYLEDONEAE	Magnoliopsida
+Dycotiledoneae	Magnoliopsida
+DICTYOGLOMI	Dictyoglomia
+DICTYOGLOMIA	Dictyoglomia
+DINOFLAGELLATA	Dinophyceae
+DINOFLAGELLIDA	Dinophyceae
+DINOPHYCIDAE	Dinophyceae
+DINOPHYSIPHYCEAE	Dinophyceae
+DINOPHYTA	Dinophyceae
+DIPLODIA HERBARUM	Diplodia Herbarum
+DIPLURATA	Diplura
+DISSIMILATORY SULFATE OR	Deltaproteobacteria
+DRIP CLADE	Ichthyosporea
+ELLIPLURA	Ellipura
+ELUSIMICROBIA	Elusimicrobia
+ENDOMICROBIA	Endomicrobia
+ENTOGNATHA	Diplura
+ENTOGNATHA	Ellipura
+ENTORRHIZOMYCETIDAE	Entorrhizomycetes
+ENTOTROPHI	Diplura
+EPSILON PROTEOBACTERIA	Epsilonproteobacteria
+EPSILON SUBDIVISION	Epsilonproteobacteria
+EPSILON SUBGROUP	Epsilonproteobacteria
+EPSILONPROTEOBACTERIA	Epsilonproteobacteria
+ERYSIPELOTRICHI	Erysipelotrichi
+EUCRINOIDEA	Crinoidea
+EUGLENOPHYCEAE	Euglenida
+EUSPORANGIOPSIDA	Filicopsida
+EXOBASIDIOMYCETIDAE	Exobasidiomycetes
+FILICOPSIDA	Polypodiopsida
+FILOSEA	Filosa
+FLAVOBACTERIA	Flavobacteria
+FLEXISTIPES GROUP	Deferribacteres
+FLORIDEOPHYCIDEAE	Florideophyceae
+FORAMINIFERIDA	Foraminifera
+GAMMA PROTEOBACTERIA	Gammaproteobacteria
+GAMMA SUBDIVISION	Gammaproteobacteria
+GAMMA SUBGROUP	Gammaproteobacteria
+GAMMAPROTEOBACTERIA	Gammaproteobacteria
+GAMOPHYCEAE	Zygnemophyceae
+GAMOPHYTA	Zygnemophyceae
+GASTEROMYCETES	Basidiomycetes
+GEMMATIMONADETES	Gemmatimonadetes
+GEOGLOSSOMYCETES	Geoglossomycetes
+GLAUCOPHYCEAE	Glaucocystophyceae
+GLAUCOPHYTA	Glaucocystophyceae
+GLOEOBACTERIA	Gloeobacteria
+GLOMOMYCETES	Glomeromycetes
+GLOSSOPSIDA	Lycopodiopsida
+GNETICAE	Gnetopsida
+GRANULORETSA	Granuloreticulosea
+GRANULORETSIA	Granuloreticulosea
+HADOBACTERIA	Deinococci
+HALOBACTERIA	Halobacteria
+HALOMEBACTERIA	Halobacteria
+HAPLOMITRIOPSIDA	Haplomitriopsida
+HAPTOPHYCEAE	Prymnesiophyceae
+HEMIASCOMYCETES	Saccharomycetes
+HETEROBASIDIOMYCETES	Tremellomycetes
+HETEROCHLORIDA	Xanthophyceae
+HIGH	Actinobacteria
+HOLOPHAGAE	Holophagae
+HOLOTHURIOIDEA	Holothuroidea
+HOLOTRICHA	Oligohymenophorea
+HOMOBASIDIOMYCETES	Agaricomycetes
+HYALOSPONGEA	Hexactinellida
+HYALOSPONGIAE	Hexactinellida
+HYMENOMYCETES	Basidiomycetes
+HYMENOMYCETIDAE	Agaricomycetes
+HYPHOCHYTRIDIOMYCETES	Hyphochytriomycetes
+HYPHOCHYTRIDIOMYCOTA	Hyphochytriomycetes
+HYPHOCHYTRIOMYCOTA	Hyphochytriomycetes
+IGNAVIBACTERIA	Ignavibacteria
+JUNGERMANNIOPSIDA	Jungermanniopsida
+KINETOPLASTIDA	Kinetoplastea
+KINETOPLASTIDA	Kinetoplastida
+KINORHYNCHA	Kinorhyncha
+KTEDOBACTERIA	Ktedonobacteria
+KTEDONOBACTERIA CORRIG	Ktedonobacteria
+LAMELLIBRANCHIATA	Bivalvia
+LARVACEA	Appendicularia
+LEIOSPOROCEROTOPSIDA	Leiosporocerotopsida
+LEPIDOSAURIA	Reptilia
+LEPOSPONDYLI	Amphibia
+LEPTOCARDIA	Cephalochordata
+LEPTOLIDA	Hydrozoa
+LEPTOSPORANGIOPSIDA	Filicopsida
+LILIATAE	Liliopsida
+LISSAMPHIBIA	Amphibia
+LOBOSA	Heterolobosea
+LOBOSEA	Lobosa
+LOPHURELLA	Porifera Incertae Sedis
+LORICATA	Polyplacophora
+LORICIFERA	Loricifera
+LYSAREUNICIDAE	Polychaeta
+MAGNOLIATAE	Magnoliopsida
+MARCHANTIOPSIDA	Marchantiopsida
+MAXILLIPODA	Maxillopoda
+MESOMYCETOZOA	Ichthyosporea
+MESOMYCETOZOEA	Ichthyosporea
+METHANOBACTERIA	Methanobacteria
+METHANOCOCCI	Methanococci
+METHANOMICROBIA	Methanomicrobia
+METHANOPYRI	Methanopyri
+METHANOTHERMEA	Methanococci
+MICROCORDYLA	Porifera Incertae Sedis
+MICROMONADOPHYCEAE	Prasinophyceae
+MOLLICUTES	Mollicutes
+MONOCOTYLEDONEAE	Liliopsida
+MYCOPLASMAS	Mollicutes
+MYXOPHYCEAE	Cyanophyceae
+NEGATIVICUTES	Negativicutes
+NEMATOMORPHA	Nematomorpha
+OEDIPODIOPSIDA	Oedipodiopsida
+OLIGOHYMENOPHORA	Oligohymenophorea
+OLIGOHYMENOPHORANS	Oligohymenophorea
+OPITUTAE	Opitutae
+OSTEICHTHYES	Actinopterygii
+PARAMYCETES	Mollicutes
+PELECYPODA	Bivalvia
+PHYCISPHAERAE	Phycisphaerae
+PLACIDIMONADEA	Placididea
+PLANCTOMYCETACIA	Planctomycetacia
+POLYCYSTINA	Polycystinea
+POLYTRICHIDAE	Polytrichopsida
+PRASINOMONADIDA	Prasinophyceae
+PRASINOMONADINA	Prasinophyceae
+PRASINOPHYTA	Prasinophyceae
+PROTEOBACTERIA ALPHA SUBDIVISION	Alphaproteobacteria
+PROTEOBACTERIA BETA SUBDIVISION	Betaproteobacteria
+PROTEOBACTERIA DELTA SUBDIVISION	Deltaproteobacteria
+PROTEOBACTERIA EPSILON SUBDIVISION	Epsilonproteobacteria
+PROTEOBACTERIA GAMMA SUBDIVISION	Gammaproteobacteria
+PROTOARCHAEA	Thermococci
+PROTOSTELIA	Protostelea
+PRYMNESIIDA	Prymnesiophyceae
+PSILOTOPSIDA	Psilopsida
+PTERASPIDOMORPHA	Pteraspidomorphi
+PURPLE BACTERIA	Alphaproteobacteria
+PURPLE BACTERIA	Betaproteobacteria
+PURPLE BACTERIA	Deltaproteobacteria
+PURPLE BACTERIA	Epsilonproteobacteria
+PURPLE BACTERIA	Gammaproteobacteria
+PYRRHOPHYTA	Dinophyceae
+PYRROPHYTA	Dinophyceae
+RAPHIDOPHYTA	Raphidophyceae
+SALIENTIA	Amphibia
+SCHIZOPYRENIDA	Amoebomastigota
+SCLEROSPONGIAE	Demospongiae
+SCYPHOMEDUSAE	Scyphozoa
+SEISONIDEA	Pararotatoria
+SILICOFLAGELLATA	Dictyochophyceae
+SOLENOGASTRES	Aplacophora
+SOLIBACTERES	Solibacteres
+SORBERACEA	Ascidiacea
+SPARTOBACTERIA	Spartobacteria
+SPHAGNIDAE	Sphagnopsida
+SPHENOPSIDA	Equisetopsida
+SPHINGOBACTERIA	Sphingobacteria
+SPIROCHAETES	Spirochaetes
+SPIROTRICHA	Spirotrichea
+SPIROTRICHIA	Spirotrichea
+SPIROTRICHS	Spirotrichea
+STROMATOPORATA	Stromatoporoidea
+SUBDIVISION	Spartobacteria
+SULFATE-OR SULFUR-REDUCING DISSIMILATORY	Deltaproteobacteria
+SULFATE-REDUCING OR SULFUR-REDUCING	Deltaproteobacteria
+SYNERGISTIA	Synergistia
+TAKAKIOPSIDA	Takakiopsida
+TELIOMYCETES	Ustilaginomycetes
+TETRACTINOMORPHA	Demospongiae
+TETRAPHIDOPSIDA	Tetraphidopsida
+THERMOCOCCI	Thermococci
+THERMODESULFOBACTERIA	Thermodesulfobacteria
+THERMODESULFOBACTERIUM GROUP	Thermodesulfobacteria
+THERMOLITHOBACTERIA	Thermolithobacteria
+THERMOMICROBIA	Thermomicrobia
+THERMOPLASMATA	Thermoplasmata
+THERMOPROTEI	Thermoprotei
+THERMOTOGAE	Thermotogae
+TOGOBACTERIA	Thermotogae
+TREMELLOMYCETES	Tremellomycetes
+TREMELLOMYCETIDAE	Tremellomycetes
+TREUBIOPSIDA	Haplomitriopsida
+TURBELLARIAN	Turbellaria
+UMBILICARINEAE	Lecanoromycetes
+USTIGOMYCETES	Ustilaginomycetes
+USTILAGINOMYCETIDAE	Ustilaginomycetes
+VERRUCOMICROBIA SUBDIVISION	Opitutae
+VERRUCOMICROBIA SUBDIVISION	Spartobacteria
+VERRUCOMICROBIAE	Verrucomicrobiae
+VESTIMENTIFERA	Pogonophora
+XIPHINEMATOBACTERIACEAE	Spartobacteria
+ZETAPROTEOBACTERIA	Zetaproteobacteria
+ZOOMASTIGOPHOREA	Zoomastigophora
+ZYGNEMATOPHYCEAE	Zygnemophyceae

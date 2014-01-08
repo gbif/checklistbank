@@ -1,0 +1,400 @@
+ "ARTHROPODA, SUBPHYLUM CRUSTACEA"	Arthropoda
+?? PORIFERA ??	Porifera
+?ARTHROPODA	Arthropoda
+ACANTHOCEPHALA	Acanthocephala
+ACANTHOCEPHALA	Acanthocephala
+ACANTOCEPHALA	Acanthocephala
+ACETOSPORA	Haplosporidia
+ACHORDAT	Chordata
+ACIDOBACTERIA	Acidobacteria
+ACIDOBACTERIA	Acidobacteria
+ACIDOBACTERIUM GROUP	Acidobacteria
+ACRITARCHA	Acritarcha
+ACTINOBACTERIA	Actinobacteria
+ACTINOBACTERIA	Actinobacteria
+ALLOMYCOTA	Blastocladiomycota
+AMINANAEROBIA	Synergistetes
+ANELIDA	Annelida
+ANELLIDA	Annelida
+ANFIBIOS	Chordata
+ANGIOSPERMAE	Magnoliophyta
+ANGIOSPERMAE	Magnoliophyta
+ANGIOSPERMOPHYTA	Magnoliophyta
+ANNELIDA	Annelida
+ANNELLIDA	Annelida
+ANTHOCEROPHYTA	Anthocerotophyta
+ANTHOCEROTAE (HORNWORTS)	Anthocerotophyta
+ANTHOCEROTOPHYTA	Anthocerotophyta
+ANTHOCEROTOPHYTA (HORNWORTS)	Anthocerotophyta
+ANTHOCEROTOPSIDA	Anthocerotophyta
+ANTHOPHYTA	Magnoliophyta
+ANTHOPHYTA (FLOWERING PLANTS)	Magnoliophyta
+ANTHROPODA	Arthropoda
+ANTOPHYTA	Magnoliophyta
+APICOMPLEXA	Apicomplexa
+AQUIFICAE	Aquificae
+AQUIFICAE	Aquificae
+AR+G278THROPODA	Arthropoda
+ARHTROPODA	Arthropoda
+ARTHOPODA	Arthropoda
+ARTHOPORDA	Arthropoda
+ARTHROPDOA	Arthropoda
+ARTHROPHYTA	Equisetophyta
+ARTHROPODA	Arthropoda
+ARTHROPODA - SUBPHYLUM CRUSTACEA	Arthropoda
+ARTHROPODA CHELICERATA	Arthropoda
+ARTHROPODA CRUSTACEA	Arthropoda
+ARTHROPODA HEXAPODA	Arthropoda
+ARTHROPODA: CRUSTACEA	Arthropoda
+ARTHROPOPDA	Arthropoda
+ARTROPODA	Arthropoda
+ASCOMYCETES	Ascomycota
+ASCOMYCETES	Ascomycota
+ASCOMYCOT	Ascomycota
+ASCOMYCOTA	Ascomycota
+ASCOMYCOTINA	Ascomycota
+ASCOMYCOTINA	Ascomycota
+ASCOMYOTA	Ascomycota
+ATHROPODA	Arthropoda
+AVES	Chordata
+BACILLARIOPHYCEAE	Bacillariophyta
+BACILLARIOPHYTA	Bacillariophyta
+BACILLARIOPHYTA ???	Bacillariophyta
+BACILLARIOPHYTA???	Bacillariophyta
+BACILLUS GROUP	Firmicutes
+BACTEROIDES-CYTOPHAGA	Bacteroidetes
+BACTEROIDETES	Bacteroidetes
+BACTEROIDETES	Bacteroidetes
+BASEDIOMYCOTINA	Basidiomycota
+BASIDIOMYCETINA	Basidiomycota
+BASIDIOMYCOT	Basidiomycota
+BASIDIOMYCOTA	Basidiomycota
+BASIDIOMYCOTINA	Basidiomycota
+BASIDIOMYCOTINA	Basidiomycota
+BCF GROUP	Bacteroidetes
+BIVALVIA	Mollusca
+BLODGETTIA	Ascomycota
+BRACHIOPODA	Brachiopoda
+BRACHIOPODA	Brachiopoda
+BRACHIPODA	Brachiopoda
+BRIOZOA	Bryozoa
+BRYOPHYTA	Bryophyta
+BRYOPHYTA (MOSSES)	Bryophyta
+BRYOPHYTA: MUSCI	Bryophyta
+BRYOPHYTES	Bryophyta
+BRYOPSIDA	Bryophyta
+BRYOZOA	Bryozoa
+BRYOZOA	Bryozoa
+BRYOZOA	Ectoprocta
+BRYOZOA (=POLYZOA)	Bryozoa
+BRYPHYTA	Bryophyta
+CALDISERICA	Caldiserica
+CEPHALORHYNCHA	Cephalorhyncha
+CERCOZOA	Cercozoa
+CERCOZOA NUCLEAR	Cercozoa
+CFB GROUP	Bacteroidetes
+CHAETOGNATHA	Chaetognatha
+CHLAMYDIAE	Chlamydiae
+CHLAMYDIAE	Chlamydiae
+CHLOROBI	Chlorobi
+CHLOROBI	Chlorobi
+CHLOROFLEXI	Chloroflexi
+CHLOROFLEXI	Chloroflexi
+CHLOROPHYCEAE	Chlorophyta
+CHLOROPHYCOPHYTA	Chlorophyta
+CHLOROPHYCOTA	Chlorophyta
+CHLOROPHYCOTA	Chlorophyta
+CHLOROPHYTA	Chlorophyta
+CHLOROPHYTA	Chlorophyta
+CHLOROPHYTA 	Chlorophyta
+CHOANOFLAGELLIDA	Choanozoa
+CHOANOZOA	Choanozoa
+CHOLOROPHYTA	Chlorophyta
+CHOR	Chordata
+CHORDAT	Chordata
+CHORDATA	Chordata
+CHORDATA (UROCHORDATA)	Chordata
+CHORDATA (VERTEBRATA)	Chordata
+CHORDATA - CHORDADIEREN	Chordata
+CHORDATA CEPHALOCHORDATA	Chordata
+CHORDATA UROCHORDATA	Chordata
+CHORDATA VERTEBRATA	Chordata
+CHORDATADATA	Chordata
+CHORDTATA	Chordata
+CHROMERIDA	Chromerida
+CHROMOPHYCOTA	Chrysomonada
+CHROMOPHYCOTA	Phaeophyceae
+CHRYSIOGENETES	Chrysiogenetes
+CHRYSOPHYTA	Chrysomonada
+CHYTRIDI.	Chytridiomycota
+CHYTRIDIO.	Chytridiomycota
+CHYTRIDIOM.	Chytridiomycota
+CHYTRIDIOMYCOTA	Chytridiomycota
+CILIOPHORA	Ciliophora
+CILIOPHORA 1	Ciliophora
+CILIOPHORA 2	Ciliophora
+CLOROPHYTA	Chlorophyta
+CLOSTRIDIAL FIRMICUTES	Firmicutes
+CLOSTRIDIUM GROUP FIRMICUTES	Firmicutes
+CNIDARIA	Cnidaria
+CNIDARIA (ANTHOZOA)	Cnidaria
+CNIDOSPORA	Myxozoa
+COCCOSTEUS	Chordata
+COLONIALES	Entoprocta
+CONIFEROPHYTA	Pinophyta
+CONIFEROPHYTA (CONIFERS)	Pinophyta
+CONIPHEROPHYTA	Pinophyta
+CRENARCHAEOTA	Crenarchaeota
+CRENARCHAEOTA	Crenarchaeota
+CRUSTACEA	Arthropoda
+CRYPTOPHYTA	Cryptophyta
+CRYPTOPHYTA NUCLEAR	Cryptophyta
+CTENOPHORA	Ctenophora
+CTENOPHORA	Ctenophora
+CYANOBACTERIA	Cyanobacteria
+CYANOPHYCEAE	Cyanobacteria
+CYANOPHYCOTA	Cyanobacteria
+CYANOPHYTA	Cyanobacteria
+CYANOPHYTA	Cyanophycota
+CYCADOPHYTA	Cycadophyta
+CYCADOPHYTA (CYCADS)	Cycadophyta
+CYCLIOPHORA	Cycliophora
+CYTOPHAGA-FLEXIBACTER	Bacteroidetes
+DEFERRIBACTERES	Deferribacteres
+DEFERRIBACTERES	Deferribacteres
+DEINOCOCCUS-THERMUS	Deinococcus-Thermus
+DEINOCOCCUS-THERMUS	Deinococcus-Thermus
+DEUTEROMYCETES	Deuteromycotina
+DIATOMEA	Bacillariophyta
+DIATOMEAE	Bacillariophyta
+DIATOMOPHYCEAE	Bacillariophyta
+DICTYOGLOMI	Dictyoglomi
+DICTYOGLOMUS GROUP	Dictyoglomi
+DINEMASPORIELLA	Ascomycota
+DINOFLAGELLATA	Dinomastigota
+DINOPHYCEAE	Dinophyta
+DINOPHYTA	Dinomastigota
+DINOPHYTA	Dinophyta
+DIVISION: CHLOROPHYTA	Chlorophyta
+DIVISION: MAGNOLIOPHYTA	Magnoliophyta
+ECHINODERMATA	Echinodermata
+ECHINODERMATATA	Echinodermata
+ECHIURA	Echiura
+ECHIURA?	Echiura
+ECHIURIDA	Echiura
+ECTOPROCTA	Bryozoa
+ECTOPROCTA	Ectoprocta
+ECTOPROCTA 	Ectoprocta
+ELUSIMICROBIA	Elusimicrobia
+ENDOPROCTA	Entoprocta
+ENTOPROCTA	Entoprocta
+ENTOPROCTA 	Entoprocta
+EOCYTA	Crenarchaeota
+EQUISETOPHYTA	Equisetophyta
+EUCILIATA	Ciliophora
+EUGLENOPHYCEAE	Euglenida
+EUGLENOPHYCOTA	Euglenozoa
+EUGLENOPHYTA	Discomitochondria
+EUGLENOPHYTA	Euglenida
+EUGLENOPHYTA	Euglenozoa
+EUGLENOPHYTA	Euglenozoa
+EUGLENOZOA	Euglenozoa
+EURYARCHAEOTA	Euryarchaeota
+EURYARCHAEOTA	Euryarchaeota
+EUSTIGMATOPHYTA	Eustigmatophyceae
+FIBROBACTER GROUP	Fibrobacteres
+FIBROBACTERES	Fibrobacteres
+FIBROBACTERES	Fibrobacteres
+FIBROBACTERIA	Fibrobacteres
+FIRMACUTES	Firmicutes
+FIRMICUTES	Firmicutes
+FIRMICUTES CORRIG	Firmicutes
+FLAGELLATES	Discomitochondria
+FUCOPHYCEAE	Phaeophyceae
+FUNGI	Deuteromycota
+FUSOBACTERIA	Fusobacteria
+FUSOBACTERIA	Fusobacteria
+GASTROTRICHA	Gastrotricha
+GEMMATIMONADETES	Gemmatimonadetes
+GEMMATIMONADETES	Gemmatimonadetes
+GINKGOPHYTA	Ginkgophyta
+GINKGOPHYTA (GINKGO)	Ginkgophyta
+GLOMEROMYCOTA	Glomeromycota
+GNATHOSTOMULIDA	Gnathostomulida
+GNETOPHYTA	Gnetophyta
+GNETOPHYTA (GNETAE)	Gnetophyta
+GNETOPHYTA (GNETOPHYTES)	Gnetophyta
+GRAM POSITIVE BACTERIA	Firmicutes
+GREEN SULFUR BACTERIA	Chlorobi
+HAPLARIELLA	Ascomycota
+HAPLOSPORIDA	Haplosporidia
+HAPTOPHYTA	Haptomonada
+HAPTOPHYTA	Haptophyta
+HEMICHORDATA	Hemichordata
+HEMICHORDATA?	Hemichordata
+HEMICHORDATA 	Hemichordata
+HEPATICAE	Bryophyta
+HEPATICAE (LIVERWORTS)	Bryophyta
+HEPATICOPHYTA	Bryophyta
+HEPATICOPSIDA	Bryophyta
+HEPATOPHYTA	Hepatophyta
+HERPS	Chordata
+HETEROCONTAE	Xanthophyceae
+HETEROKONTOPHYTA	Chrysomonada
+HYPHOCHYTRIOMYCOTA	Hyphochytriomycota
+KAMPTOZOA	Entoprocta
+KORARCHAEOTA	Korarchaeota
+LENTISPHAERAE	Lentisphaerae
+LENTISPHAERAE	Lentisphaerae
+LOPHOPHORATA	Brachiopoda
+LOW	Firmicutes
+LOXOSOMATIDA	Entoprocta
+LYCOPODIOPHYTA	Lycopodiophyta
+LYCOPODIOPHYTA (CLUBMOSSES & SPIKEMOSSES)	Lycopodiophyta
+MAGNOLIOPHYTA	Magnoliophyta
+MAGNOLIOPHYTA (ANGIOSPERMS)	Magnoliophyta
+MAGNOLIOPHYTA (FLOWERING PLANTS)	Magnoliophyta
+MAMMALIA	Chordata
+MARCHANTIOPHYTA	Marchantiophyta
+MARCHANTIOPHYTA (HEPATICS)	Marchantiophyta
+MASTIGOMYCOTINA	Chytridiomycota
+MESOZOA	Mesozoa
+MICROPHYLLOPHYTA	Lycopodiophyta
+MICROSPORA	Microspora
+MICROSPORA	Microsporidia
+MICROSPOREA	Microsporidia
+MICROSPORIDA	Microsporidia
+MOLLUSCA	Mollusca
+MOLLUSCA EGG CASES	Mollusca
+MOLLUSCAV	Mollusca
+MOLUSCA	Mollusca
+MONOCOTYLEDONAE	Magnoliophyta
+MUSCI	Bryophyta
+MUSCI (MOSSES)	Bryophyta
+MYCETOZOA	Mycetozoa
+MYXOSPORA	Myxozoa
+MYXOZOA	Myxozoa
+MYZOSTOMIDAE	Myzostomida
+NAMATODA	Nemata
+NANOARCHAEOTA	Nanoarchaeota
+NEMATA	Nemata
+NEMATODA	Nemata
+NEMATODA	Nemata
+NEMATOMORPHA	Nematomorpha
+NEMATOPHORA	Nematomorpha
+NEMERTEA	Nemertea
+NEMERTEA	Nemertina
+NEMERTEA?	Nemertea
+NEMERTINI	Nemertea
+NEMERTINI	Nemertina
+NEMOTODA	Nemata
+NITROSPIRA	Nitrospira
+NITROSPIRA GROUP	Nitrospirae
+NITROSPIRAE	Nitrospirae
+OCHROPHYTA	Ochrophyta
+ONYCHOPHORA	Onychophora
+ONYCHOPHORIDA	Onychophora
+ONYCHOPORA	Onychophora
+OOMYCOT.	Oomycota
+OOMYCOTA	Oomycota
+OXYGENIC PHOTOSYNTHETIC BACTERIA	Cyanobacteria
+OXYPHOTOBACTERIA	Cyanobacteria
+PARAZOA	Porifera
+PATELLINA	Ascomycota
+PEDICELLINIDA	Entoprocta
+PERCOLOZOA	Percolozoa
+PHAEOPHYCOPHYTA	Phaeophyta
+PHAEOPHYCOTA	Phaeophyta
+PHAEOPHYTA	Phaeophyceae
+PHORONIDA	Phoronida
+PHORONIDA	Phoronida
+PHORONIDAE	Phoronida
+PHORONIDEA	Phoronida
+PHYLUM ARTHROPODA	Arthropoda
+PINOPHYTA	Pinophyta
+PINOPHYTA (CONIFERS)	Pinophyta
+PINOPSIDA	Pinophyta
+PLANCTOMYCETES	Planctomycetes
+PLANCTOMYCETES	Planctomycetes
+Plantas	Magnoliophyta
+PLATHELMINTHES	Platyhelminthes
+PLATHYELMINTHES	Platyhelminthes
+PLATYHELMINTHA	Platyhelminthes
+PLATYHELMINTHES	Platyhelminthes
+PLATYHERMINTHES	Platyhelminthes
+POLYPODIOPHYTA	Pteridophyta
+PORIBACTERIA	Candidatus
+PORIFERA	Porifera
+PRASINOPHYTA	Prasinophyta
+PRIAPULIDA	Priapula
+PROTEOBACTERIA	Proteobacteria
+PROTEOBACTERIA	Proteobacteria
+PRYMNESIOPHYTA	Haptomonada
+PSILOPHYTA	Psilophyta
+PSILOPHYTA (PSILOTUM)	Psilophyta
+PSILOPHYTA (WHISK FERNS)	Psilophyta
+PSILOTOPHYTA	Psilophyta
+PSILOTOPHYTA	Psilophyta
+PTERIDOPHYTA	Pteridophyta
+PTERIDOPHYTA	Pteridophyta
+PTERIDOPHYTA (FERNS & HORSETAILS)	Pteridophyta
+PTERIDOPHYTAPTERIDOPHYTA	Pteridophyta
+PTERIDOPHYTES	Pteridophyta
+PTEROPHYTA	Pteridophyta
+PTEROPHYTA	Pteridophyta
+PTEROPHYTA (FERNS)	Pteridophyta
+REPTILES	Chordata
+RHODOPHYCEAE	Rhodophyta
+RHODOPHYCOTA	Rhodophyta
+RHODOPHYCOTA	Rhodophyta
+RHODOPHYTA	Rhodophyta
+RHODOPHYTA 	Rhodophyta
+RHODOPHYTA ET AL.	Rhodophyta
+RHOSOPHYCOTA	Rhodophyta
+RHYNCHOCOELA	Nemertea
+RHYNCHOCOELA	Nemertina
+ROTATORIA	Rotifera
+ROTIFERA	Rotifera
+SAGENISTA	Sagenista
+SARCOMASTIGOPHORA	Sarcomastigophora
+SIPUNCULA	Sipuncula
+SIPUNCULA 	Sipuncula
+SIPUNCULIDA	Sipuncula
+SIPUNCULOIDEA	Sipuncula
+SOLITARIA	Entoprocta
+SPERMATOPHYTAANGIOSPERMAE	Magnoliophyta
+SPIROCHAETAE	Spirochaetes
+SPIROCHAETES	Spirochaetes
+SPIROCHAETES	Spirochaetes
+SPORENDONEMA	Ascomycota
+STOMOCHORDATA	Hemichordata
+STREPTOPHYTA	Magnoliophyta
+SYNDERMATA	Rotifera
+SYNERGISTETES	Synergistetes
+TARDIGRADA	Tardigrada
+TENERICUTES	Tenericutes
+THAUMARCHAEOTA	Thaumarchaeota
+THERMODESULFOBACTERIA	Thermodesulfobacteria
+THERMODESULFOBACTERIA	Thermodesulfobacteria
+THERMODESULFOVIBRIO GROUP	Nitrospirae
+THERMOMICROBIA	Chloroflexi
+THERMOMICROBIA	Thermomicrobia
+THERMOTOGAE	Thermotogae
+THERMOTOGAE	Thermotogae
+THERMUS GROUP	Deinococcus-Thermus
+TRIBOPHYCEAE	Xanthophyceae
+UNDET. BRACHIOPODA	Brachiopoda
+UNDET. BRYOZOA	Bryozoa
+UNDET. ECHINODERMATA	Echinodermata
+URNATELLIDA	Entoprocta
+VERRUCOMICROBIA	Verrucomicrobia
+VERRUCOMICROBIA	Verrucomicrobia
+VERTEBRATA	Chordata
+XANTHOPHYTA	Xanthophyceae
+XENARCHAEA	Korarchaeota
+XENARCHAEOTA	Korarchaeota
+XENOPHYOPHORA	Xenophyophora
+ZYGOM.	Zygomycota
+ZYGOMYCOT.	Zygomycota
+ZYGOMYCOTA	Zygomycota
+ZYGOMYCOTINA	Zygomycota

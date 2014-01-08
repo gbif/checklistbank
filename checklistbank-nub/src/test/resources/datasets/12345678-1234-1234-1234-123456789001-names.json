@@ -1,0 +1,33 @@
+[
+{
+  "key" : 1,
+  "scientificName" : "Plantae",
+  "type" : "WELLFORMED",
+  "genusOrAbove" : "Plantae",
+  "authorsParsed" : true
+}, {
+    "key" : 2,
+   "scientificName" : "Rhamnales",
+   "type" : "WELLFORMED",
+   "genusOrAbove" : "Rhamnales",
+   "authorsParsed" : true
+ }, {
+    "key" : 10,
+    "scientificName" : "Asterales",
+    "type" : "WELLFORMED",
+    "genusOrAbove" : "Asterales",
+    "authorsParsed" : true
+}, {
+  "key" : -300,
+  "scientificName" : "Erfunden",
+  "type" : "WELLFORMED",
+  "genusOrAbove" : "Erfunden",
+  "authorsParsed" : true
+}, {
+  "key" : -301,
+  "scientificName" : "Erfundenidae",
+  "type" : "WELLFORMED",
+  "genusOrAbove" : "Erfundenidae",
+  "authorsParsed" : true
+}
+]

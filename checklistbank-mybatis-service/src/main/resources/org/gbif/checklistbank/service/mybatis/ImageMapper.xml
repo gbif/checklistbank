@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.ImageMapper">
+
+  <sql id="select">i.id, i.usage_fk, i.dataset_key, i.url, i.link, i.title, i.description, i.publisher, i.license, i.created, i.creator</sql>
+
+  <sql id="from">image i</sql>
+  <sql id="fromNub">JOIN nub_rel rel ON i.usage_fk=rel.usage_fk </sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+  <!--  A mapping to build a Image -->
+  <resultMap id="imageResultMap" type="Image" autoMapping="true">
+    <id property="key" column="id"/>
+    <result property="usageKey" column="usage_fk"/>
+    <result property="image" column="url"/>
+  </resultMap>
+
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="imageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.id=#{key}
+  </select>
+
+  <!-- get all verncular names linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="imageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.usage_fk=#{key}
+    ORDER BY i.rating, i.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all vernaculars by nub usage -->
+  <select id="listByNubUsage" parameterType="map" resultMap="imageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk=#{key}
+    ORDER BY i.rating, i.id
+    <include refid="page"/>
+  </select>
+
+</mapper>

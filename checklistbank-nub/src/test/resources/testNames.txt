@@ -1,0 +1,10 @@
+1	Acanthophora Hulst, 1896	Geometridae	Lepidoptera	Insecta	Arthropoda	Animalia	true	GENUS
+2	Acanthophora Borgmeier, 1922	Phoridae	Diptera	Insecta	Arthropoda	Animalia	false	GENUS
+3	Acanthophora Sollas, 1873		Astrophorida	Demospongea	Porifera	Animalia	false	GENUS
+4	Acanthophora Merrill, 1918	Araliaceae	Apiales	Magnoliopsida	Magnoliophyta	Plantae	false	GENUS
+5	Acanthophora J.V.F. Lamouroux, 1813	Rhodomelaceae	Ceramiales	Rhodophyceae	Rhodophyta	Plantae	false	GENUS
+6	Acanthophora				Acanthophora	Animalia	false	PHYLUM
+7	Abies alba Mill.	Piceaceae				Plantae	false	SPECIES
+8	Abies alberta	Piceaceae				Plantae	false	SPECIES
+9	Abies Mill.	Piceaceae				Plantae	false	GENUS
+10	Picea abies L.	Piceaceae				Plantae	true	SPECIES

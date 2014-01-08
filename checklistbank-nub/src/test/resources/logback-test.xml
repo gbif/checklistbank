@@ -1,0 +1,17 @@
+<configuration scan="true">
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %logger{36} %-5level %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.gbif.nub.lookup" level="WARN"/>
+  <!--
+  <logger name="org.gbif.nub" level="DEBUG"/>
+  <logger name="org.gbif.checklistbank.index" level="DEBUG"/>
+  -->
+  <root level="INFO">
+    <appender-ref ref="CONSOLE" />
+  </root>
+</configuration>

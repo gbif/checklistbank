@@ -1,0 +1,24 @@
+ChecklistBank Web services
+--------------------------
+
+To run this Web service you need to provide connection details for a ChecklistBank database.
+
+To do this you need to create a profile in your ~/.m2/settings.xml file. You can name it whatever you want but it must
+have four properties defined:
+
+  * checklistbank.db.driver
+  * checklistbank.db.url
+  * checklistbank.db.username
+  * checklistbank.db.password
+
+An example profile could look like this:
+
+  <profile>
+    <id>checklistbank-local-postgres</id>
+    <properties>
+      <checklistbank.db.driver>org.postgresql.Driver</checklistbank.db.driver>
+      <checklistbank.db.url>jdbc:postgresql://localhost/checklistbank</checklistbank.db.url>
+      <checklistbank.db.username>checklistbank</checklistbank.db.username>
+      <checklistbank.db.password>checklistbank</checklistbank.db.password>
+    </properties>
+  </profile>

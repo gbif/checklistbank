@@ -1,0 +1,50 @@
+#
+# Test file for the nub lookup service with known expected nubIDs
+# If the nub ids change, the file needs to be adapted to the new expected results
+# the additional columns given after NUB_XYZ_ID sometimes are leftovers from copy pasting from a HIVE query result - they dont harm!
+
+# nubID   KINGDOM   PHYLUM   CLASS   ORDER   FAMILY   GENUS   SCIENTIFIC_NAME   AUTHORSHIP  RANK
+# phylum / genus homonym
+"2295111","","Mollusca","Gastropoda","","Camaenidae","Chloritis","Chlorites","",""
+"2295111","","Mollusca","Gastropoda","","Camaenidae","Chloritis","Chloritis","",""
+"5304574","Plantae","","","","Dracaenaceae","Dracaena","Dracaena cinnabari Balf. f.","Balf.f.",""
+"8388","Eukarya","Fungi","Ascomycota","Ascomycota","Thelebolaceae","","Thelebolaceae","",""
+"5214860","Animalia","Chordata","Teleostei","Zeiformes","Zeidae","Zeus","Zeus faber","",""
+"8399","Eukarya","Fungi","Ascomycota","Ascomycota","Pezizaceae","","Pezizaceae","",""
+"4595589","Animalia","Mollusca","Bivalvia","Pectinoida","Pectinidae","Neithea","Neithea decemcostata","Drouet 1825",""
+"4595589","Animalia","Mollusca","Bivalvia","Pectinoida","Pectinidae","Neithea","Neithea","Drouet 1825",""
+"4959035","Animalia","Mollusca","Gastropoda","Neotaenioglossa","Fasciolariidae","Remera","Remera flexicostata","N. F. Sohl 1964",""
+"2415835","","","","","","","Gadus morhua","",""
+# very different classification, but straight binomial match: http://dev.gbif.org/issues/browse/CLB-118
+"5421896","PLANTAE","","BACILLARIOPHYCAE","CENTRALES","MELOSIRACEAE","Paralia","Paralia sulcata","",""
+"5421896","","","","","","","Paralia sulcata","",""
+# wrong families, but good authorship - we should match these
+"5255361","Plantae","","","","Pireniales 23a","Oidium","Oidium erysiphoides Fr.","Fr.",""
+"2757247","Plantae","","","","Zingiberaceae","Zingiber","Zingiber mollis Ridl.","Ridl.",""
+"2757821","","","","","Zingiberaceae","Globba","Globba racemosa Sm.","",""
+"2757250","","","","","Zingiberaceae","Zingiber","Zingiber banahaoense Mood & Theilade","",""
+"2752062","Plantae","","","","Dracaenaceae","Dracaena","Dracaena tonkinensis","",""
+"5358748","","","","","","","Trifolium repens","",""
+# currently 2 Euphorbiaceae in the nub - but should really match to the genus
+"3079410","Plantae","","","","Euphorbiaceae","Ashtonia","Ashtonia so","",""
+# genus homonym, but only 1 species
+"4404259","","","","","","Hydraena","Hydraena truncata Rey.","",""
+"6014709","Plantae","","","","Tulostomatales","Tulostoma","Tulostoma exasperatum Montag.","Montag.",""
+"5959160","","","Aves","","Pachycephalidae","","Pachycephala","",""
+"5779455","","","","","","","Arion lusitanicus seg","",""
+"5858758","","","","","","","Cornu aspersum","(Müller, 1774)",""
+"5369652","","","","","","","Geum urbanum","",""
+# manual hacked homonym
+"7","","","","","","","Radiolaria","",""
+"7","Animalia","","","","","","Radiolaria","",""
+# Expected NULL results, undecidable homonyms
+"","","","","","","","Viola","",""
+"","","","","","","Hydraena","Hydraena","",""
+# bad records, ok
+"","Eukarya","stramenopiles","environmental samples","","","","Environmental samples","",""
+# interrank homonym
+"","","","","","","","Ctenophora","",""
+"51","","","","","","","Ctenophora","","PHYLUM"
+"495","","","","","","","Anguilliformes","","ORDER"
+"495","","","","","","","Anguilliformes","",""
+"495","Animalia","","","","","","Anguilliformes","",""

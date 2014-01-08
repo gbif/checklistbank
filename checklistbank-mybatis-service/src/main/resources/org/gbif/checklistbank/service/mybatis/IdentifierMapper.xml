@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.IdentifierMapper">
+
+  <sql id="select">i.usage_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="selectNoUsageKey">i.id, i.dataset_key, i.identifier, i.type, i.title, i.subject</sql>
+
+  <sql id="from">identifier i</sql>
+  <sql id="fromNub">JOIN nub_rel rel ON rel.usage_fk=i.usage_fk</sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+  <!--  A mapping to build a Identifier -->
+  <resultMap id="identifierResultMap" type="Identifier" autoMapping="true">
+    <id property="key" column="id"/>
+  </resultMap>
+
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="identifierResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.id=#{key}
+  </select>
+
+  <!-- get all verncular names linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="identifierResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.usage_fk=#{key}
+    ORDER BY i.type, i.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all identifiers for a nub usage, ignoring sourceIds from other usages -->
+  <select id="listByNubUsage" parameterType="map" resultMap="identifierResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE (rel.nub_fk=#{key} AND i.type!='SOURCE_ID') OR i.usage_fk=#{key}
+    ORDER BY i.type, i.id
+    <include refid="page"/>
+  </select>
+
+
+  <!-- get all identifiers linked to a usage range -->
+  <select id="listByChecklistUsageRange" parameterType="map" resultMap="identifierResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.usage_fk between #{start} and #{end}
+  </select>
+
+  <!-- get all identifiers linked to a nub usage range ignoring sourceIds from other usages -->
+  <select id="listByNubUsageRange" parameterType="map" resultMap="identifierResultMap">
+    SELECT
+    <include refid="selectNub"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE (rel.nub_fk BETWEEN #{start} AND #{end} AND i.type!='SOURCE_ID') OR (i.usage_fk BETWEEN #{start} AND #{end})
+  </select>
+
+</mapper>

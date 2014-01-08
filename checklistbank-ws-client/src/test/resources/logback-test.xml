@@ -1,0 +1,21 @@
+<configuration>
+  <!-- for debugging -->
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="org.dbunit" level="WARN"/>
+  <logger name="java.sql" level="ERROR"/>
+  <!--
+  <logger name="org.gbif" level="DEBUG"/>
+  <logger name="org.apache.http.headers" level="DEBUG"/>
+  -->
+  <logger name="org.apache.http.wire" level="DEBUG"/>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+  </root>
+
+</configuration>

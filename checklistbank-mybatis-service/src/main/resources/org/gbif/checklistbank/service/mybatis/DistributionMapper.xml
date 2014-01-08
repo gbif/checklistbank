@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.DistributionMapper">
+
+  <sql id="select">
+    d.usage_fk AS usageKey,<include refid="selectNoUsageKey"/>
+  </sql>
+  <sql id="selectNub">
+    rel.nub_fk AS usageKey,<include refid="selectNoUsageKey"/>
+  </sql>
+  <sql id="selectNoUsageKey">
+    d.id, d.dataset_key, d.country, d.location_id, d.locality, d.remarks,c.citation,
+    d.occurrence_status, d.threat_status,d.establishment_means, d.appendix_cites
+  </sql>
+
+  <sql id="from">distribution d LEFT JOIN citation c ON d.source_fk=c.id</sql>
+  <sql id="fromNub">JOIN nub_rel rel ON rel.usage_fk=d.usage_fk</sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+  <!--  A mapping to build a Distribution -->
+  <resultMap id="distributionResultMap" type="Distribution" autoMapping="true">
+    <id property="key" column="id"/>
+    <result property="status" column="occurrence_status"/>
+    <result property="source" column="citation"/>
+  </resultMap>
+
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="distributionResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE d.id=#{key}
+  </select>
+
+  <!-- get all distributions linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="distributionResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE d.usage_fk=#{key}
+    ORDER BY d.country, d.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all distributions by nub usage -->
+  <select id="listByNubUsage" parameterType="map" resultMap="distributionResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk=#{key}
+    ORDER BY d.country, d.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all distributions linked to a usage range -->
+  <select id="listByChecklistUsageRange" parameterType="map" resultMap="distributionResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE d.usage_fk between #{start} and #{end}
+  </select>
+
+  <!-- get all distributions linked to a nub usage range -->
+  <select id="listByNubUsageRange" parameterType="map" resultMap="distributionResultMap">
+    SELECT
+    <include refid="selectNub"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk between #{start} and #{end}
+  </select>
+
+</mapper>
