@@ -549,6 +549,20 @@
       </properties>
     </profile>
 
+    <!-- uat profile uses the same database and lookup service on boma as the dev profile uses -->
+    <profile>
+      <id>uat</id>
+      <properties>
+        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/clb2</checklistbank.db.url>
+        <checklistbank.db.username>clb</checklistbank.db.username>
+        <!-- below here only used for BUILDING THE WARS, not for tests! -->
+        <checklistbank.db.partitions>2</checklistbank.db.partitions>
+        <checklistbank.db.connections>10</checklistbank.db.connections>
+        <checklistbank.solr.server>http://boma.gbif.org:8082/checklistbank-solr</checklistbank.solr.server>
+        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
+      </properties>
+    </profile>
+
     <profile>
       <id>dev</id>
       <properties>
