@@ -43,7 +43,7 @@
   <properties>
     <dwc-api.version>1.5-SNAPSHOT</dwc-api.version>
     <gbif-api.version>0.12-SNAPSHOT</gbif-api.version>
-    <gbif-common.version>0.14</gbif-common.version>
+    <gbif-common.version>0.15-SNAPSHOT</gbif-common.version>
     <gbif-common-mybatis.version>0.9</gbif-common-mybatis.version>
     <gbif-common-search.version>0.13</gbif-common-search.version>
     <gbif-common-service.version>0.8</gbif-common-service.version>
