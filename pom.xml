@@ -558,7 +558,7 @@
         <!-- below here only used for BUILDING THE WARS, not for tests! -->
         <checklistbank.db.partitions>2</checklistbank.db.partitions>
         <checklistbank.db.connections>10</checklistbank.db.connections>
-        <checklistbank.solr.server>http://appuat.gbif.org:8082/checklistbank-solr</checklistbank.solr.server>
+        <checklistbank.solr.server>http://apps.gbif-uat.org:8082/checklistbank-solr</checklistbank.solr.server>
         <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
       </properties>
     </profile>
