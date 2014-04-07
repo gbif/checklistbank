@@ -37,9 +37,6 @@ import java.util.Properties;
 public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
 
   private static final String PREFIX = "checklistbank.db.";
-  private static final String REG_USER = "checklistbank.registry.user";
-  private static final String REG_PASS = "checklistbank.registry.password";
-  private Properties properties;
   /**
    * Uses the given properties to configure the service.
    *
@@ -47,7 +44,6 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
    */
   public ChecklistBankServiceMyBatisModule(Properties properties) {
     super(PREFIX, properties);
-    this.properties = properties;
   }
 
   @Override
