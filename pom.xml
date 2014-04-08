@@ -50,7 +50,7 @@
     <gbif-common-test.version>0.6</gbif-common-test.version>
     <gbif-common-ws.version>0.13</gbif-common-ws.version>
     <gbif-httputils.version>0.5</gbif-httputils.version>
-    <registry-client.version>2.11</registry-client.version>
+    <registry-client.version>2.13</registry-client.version>
     <name-parser.version>2.4</name-parser.version>
     <dwca-reader.version>1.16</dwca-reader.version>
     <!-- external libs -->
