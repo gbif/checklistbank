@@ -1,0 +1,14 @@
+org.gbif.checklistbank.col
+org.gbif.checklistbank.dbunit
+org.gbif.checklistbank.index
+org.gbif.checklistbank.search
+org.gbif.checklistbank.service.mybatis
+org.gbif.checklistbank.service.mybatis.postgres
+org.gbif.checklistbank.ws
+org.gbif.checklistbank.ws.client
+org.gbif.checklistbank.ws.client.guice
+org.gbif.checklistbank.ws.nub
+org.gbif.checklistbank.ws.resources
+org.gbif.nub.build
+org.gbif.nub.lookup
+org.gbif.nub.lookup.similarity

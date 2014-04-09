@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright 2011 Global Biodiversity Information Facility (GBIF)<a name="line.2"></a>
+<span class="sourceLineNo">003</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * you may not use this file except in compliance with the License.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * You may obtain a copy of the License at<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * http://www.apache.org/licenses/LICENSE-2.0<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * Unless required by applicable law or agreed to in writing, software<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.8"></a>
+<span class="sourceLineNo">009</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * See the License for the specific language governing permissions and<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * limitations under the License.<a name="line.11"></a>
+<span class="sourceLineNo">012</span> */<a name="line.12"></a>
+<span class="sourceLineNo">013</span>package org.gbif.checklistbank.ws.client;<a name="line.13"></a>
+<span class="sourceLineNo">014</span><a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.gbif.api.model.checklistbank.Identifier;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.gbif.api.model.checklistbank.NameUsage;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.gbif.api.model.checklistbank.NameUsageMetrics;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.gbif.api.model.common.paging.PagingRequest;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.gbif.api.model.common.paging.PagingResponse;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.gbif.api.service.checklistbank.NameUsageService;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.gbif.api.vocabulary.IdentifierType;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.gbif.api.vocabulary.Origin;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.gbif.api.vocabulary.Rank;<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>import java.util.List;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import java.util.Locale;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import java.util.Set;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import java.util.UUID;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>import com.google.common.collect.Sets;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.junit.Test;<a name="line.31"></a>
+<span class="sourceLineNo">032</span><a name="line.32"></a>
+<span class="sourceLineNo">033</span>import static org.junit.Assert.assertEquals;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import static org.junit.Assert.assertFalse;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import static org.junit.Assert.assertNotNull;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import static org.junit.Assert.assertNull;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import static org.junit.Assert.assertTrue;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import static org.junit.Assert.fail;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class NameUsageWsClientIT extends ClientMyBatisITBase&lt;NameUsageService&gt; {<a name="line.40"></a>
+<span class="sourceLineNo">041</span><a name="line.41"></a>
+<span class="sourceLineNo">042</span>  private final int NOT_FOUND_KEY = -10;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>  public NameUsageWsClientIT() {<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    super(NameUsageService.class);<a name="line.45"></a>
+<span class="sourceLineNo">046</span>  }<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>  @Test<a name="line.48"></a>
+<span class="sourceLineNo">049</span>  public void testGet() {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    NameUsage nameUsage = wsClient.get(1, null);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    assertNotNull(nameUsage);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    assertEquals("Animalia", nameUsage.getScientificName());<a name="line.52"></a>
+<span class="sourceLineNo">053</span>  }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>  @Test<a name="line.55"></a>
+<span class="sourceLineNo">056</span>  public void testGetNotFound() {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    // null expected, 404 intercepted and converted to null thanks to HttpErrorResponseInterceptor<a name="line.57"></a>
+<span class="sourceLineNo">058</span>    assertNull(wsClient.get(NOT_FOUND_KEY, null));<a name="line.58"></a>
+<span class="sourceLineNo">059</span>  }<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>  /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   * Testing the locale dependent vernacular name string property.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>   */<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  @Test<a name="line.64"></a>
+<span class="sourceLineNo">065</span>  public void testGetWithLocale() {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>    int key = 100000025;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    NameUsage nameUsage = wsClient.get(key, Locale.ENGLISH);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    assertEquals("Eurasian Red Squirrel", nameUsage.getVernacularName());<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    nameUsage = wsClient.get(key, Locale.GERMAN);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    assertEquals("Europäisches Eichhörnchen", nameUsage.getVernacularName());<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  }<a name="line.72"></a>
+<span class="sourceLineNo">073</span><a name="line.73"></a>
+<span class="sourceLineNo">074</span>  @Test<a name="line.74"></a>
+<span class="sourceLineNo">075</span>  public void testGetWithLocaleNotFound() {<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    assertNull(wsClient.get(NOT_FOUND_KEY, Locale.ENGLISH));<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  }<a name="line.77"></a>
+<span class="sourceLineNo">078</span><a name="line.78"></a>
+<span class="sourceLineNo">079</span>  @Test<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  public void testListChildren() {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>    PagingResponse&lt;NameUsage&gt; children = wsClient.listChildren(100000005, Locale.ENGLISH, new PagingRequest(0, 20));<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    assertNotNull(children);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>    assertEquals(2, children.getResults().size());<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>  @Test<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  public void testListChildrenNotFound() {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>    PagingResponse&lt;NameUsage&gt; res = wsClient.listChildren(NOT_FOUND_KEY, Locale.ENGLISH, new PagingRequest());<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    NameUsageComponentWsClientITBase.assertEmptyResponse(res);<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  }<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>  @Test<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  public void testListParents() {<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    List&lt;NameUsage&gt; parents = wsClient.listParents(100000009, Locale.ENGLISH);<a name="line.94"></a>
+<span class="sourceLineNo">095</span>    assertNotNull(parents);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>    assertEquals(9, parents.size());<a name="line.96"></a>
+<span class="sourceLineNo">097</span>  }<a name="line.97"></a>
+<span class="sourceLineNo">098</span><a name="line.98"></a>
+<span class="sourceLineNo">099</span>  @Test<a name="line.99"></a>
+<span class="sourceLineNo">100</span>  public void testListParentsNotFound() {<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    List&lt;NameUsage&gt; res = wsClient.listParents(NOT_FOUND_KEY, Locale.ENGLISH);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>    assertNotNull(res);<a name="line.102"></a>
+<span class="sourceLineNo">103</span>    assertTrue(res.isEmpty());<a name="line.103"></a>
+<span class="sourceLineNo">104</span>  }<a name="line.104"></a>
+<span class="sourceLineNo">105</span><a name="line.105"></a>
+<span class="sourceLineNo">106</span>  @Test<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  public void testListRelated() {<a name="line.107"></a>
+<span class="sourceLineNo">108</span>    List&lt;NameUsage&gt; related = wsClient.listRelated(10, Locale.ENGLISH);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    assertNotNull(related);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    assertEquals(1, related.size());<a name="line.110"></a>
+<span class="sourceLineNo">111</span><a name="line.111"></a>
+<span class="sourceLineNo">112</span>    related = ddt.getService().listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    assertEquals(1, related.size());<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>    related = ddt.getService().listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    assertEquals(0, related.size());<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>  }<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>  @Test<a name="line.120"></a>
+<span class="sourceLineNo">121</span>  public void testListRelatedNotFound() {<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    List&lt;NameUsage&gt; res = wsClient.listRelated(NOT_FOUND_KEY, Locale.ENGLISH);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>    assertNotNull(res);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    assertTrue(res.isEmpty());<a name="line.124"></a>
+<span class="sourceLineNo">125</span>  }<a name="line.125"></a>
+<span class="sourceLineNo">126</span><a name="line.126"></a>
+<span class="sourceLineNo">127</span>  @Test<a name="line.127"></a>
+<span class="sourceLineNo">128</span>  public void testListSynonyms() {<a name="line.128"></a>
+<span class="sourceLineNo">129</span>    PagingResponse&lt;NameUsage&gt; synonyms = wsClient.listSynonyms(100000011, Locale.ENGLISH, new PagingRequest(0, 20));<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    assertNotNull(synonyms);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>    assertEquals(12, synonyms.getResults().size());<a name="line.131"></a>
+<span class="sourceLineNo">132</span>  }<a name="line.132"></a>
+<span class="sourceLineNo">133</span><a name="line.133"></a>
+<span class="sourceLineNo">134</span>  @Test<a name="line.134"></a>
+<span class="sourceLineNo">135</span>  public void testListSynonymsNotFound() {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    PagingResponse&lt;NameUsage&gt; synonyms = wsClient.listSynonyms(NOT_FOUND_KEY, Locale.ENGLISH, new PagingRequest(0, 20));<a name="line.136"></a>
+<span class="sourceLineNo">137</span>    NameUsageComponentWsClientITBase.assertEmptyResponse(synonyms);<a name="line.137"></a>
+<span class="sourceLineNo">138</span>  }<a name="line.138"></a>
+<span class="sourceLineNo">139</span><a name="line.139"></a>
+<span class="sourceLineNo">140</span>  @Test<a name="line.140"></a>
+<span class="sourceLineNo">141</span>  public void testGetMybatisStyle() {<a name="line.141"></a>
+<span class="sourceLineNo">142</span>    final NameUsage rodentia = wsClient.get(100000004, Locale.UK);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    final NameUsageMetrics rodentiaM = wsClient.getMetrics(100000004);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>    assertNotNull(rodentia);<a name="line.144"></a>
+<span class="sourceLineNo">145</span>    assertEquals((Integer) 10, rodentia.getNubKey());<a name="line.145"></a>
+<span class="sourceLineNo">146</span>    assertFalse(rodentia.isSynonym());<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    assertEquals("1000", rodentia.getSourceId());<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    assertEquals("Rodentia", rodentia.getCanonicalName());<a name="line.148"></a>
+<span class="sourceLineNo">149</span>    assertEquals("Rodentia Bowdich, 1821", rodentia.getScientificName());<a name="line.149"></a>
+<span class="sourceLineNo">150</span>    assertEquals("Bowdich, 1821", rodentia.getAuthorship());<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    assertEquals(Rank.ORDER, rodentia.getRank());<a name="line.151"></a>
+<span class="sourceLineNo">152</span>    assertEquals((Integer) 100000003, rodentia.getParentKey());<a name="line.152"></a>
+<span class="sourceLineNo">153</span><a name="line.153"></a>
+<span class="sourceLineNo">154</span>    assertEquals("Animalia", rodentia.getKingdom());<a name="line.154"></a>
+<span class="sourceLineNo">155</span>    assertEquals((Integer) 100000001, rodentia.getKingdomKey());<a name="line.155"></a>
+<span class="sourceLineNo">156</span><a name="line.156"></a>
+<span class="sourceLineNo">157</span>    assertEquals("Chordata", rodentia.getPhylum());<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    assertEquals((Integer) 100000002, rodentia.getPhylumKey());<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    assertEquals(0, rodentiaM.getNumPhylum());<a name="line.159"></a>
+<span class="sourceLineNo">160</span><a name="line.160"></a>
+<span class="sourceLineNo">161</span>    assertEquals("Mammalia", rodentia.getClazz());<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    assertEquals((Integer) 100000003, rodentia.getClassKey());<a name="line.162"></a>
+<span class="sourceLineNo">163</span>    assertEquals(0, rodentiaM.getNumClass());<a name="line.163"></a>
+<span class="sourceLineNo">164</span><a name="line.164"></a>
+<span class="sourceLineNo">165</span>    assertEquals(1, rodentiaM.getNumOrder());<a name="line.165"></a>
+<span class="sourceLineNo">166</span>    assertEquals(1, rodentiaM.getNumFamily());<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    assertEquals(2, rodentiaM.getNumGenus());<a name="line.167"></a>
+<span class="sourceLineNo">168</span>    assertEquals(3, rodentiaM.getNumSpecies());<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    assertEquals(8, rodentiaM.getNumSynonyms());<a name="line.169"></a>
+<span class="sourceLineNo">170</span>    assertEquals(1, rodentiaM.getNumChildren());<a name="line.170"></a>
+<span class="sourceLineNo">171</span>    assertEquals(24, rodentia.getNumDescendants());<a name="line.171"></a>
+<span class="sourceLineNo">172</span><a name="line.172"></a>
+<span class="sourceLineNo">173</span>    assertEquals(Origin.SOURCE, rodentia.getOrigin());<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), rodentia.getDatasetKey());<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    assertNull(rodentia.getPublishedIn());<a name="line.176"></a>
+<span class="sourceLineNo">177</span><a name="line.177"></a>
+<span class="sourceLineNo">178</span>    // identifiers are eagerly loaded<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    // &lt;identifier id="4" usage_fk="100000004" identifier="1000" type_fk="2007"/&gt;<a name="line.179"></a>
+<span class="sourceLineNo">180</span>    assertEquals(1, rodentia.getIdentifiers().size());<a name="line.180"></a>
+<span class="sourceLineNo">181</span>    assertEquals(rodentia.getKey(), rodentia.getIdentifiers().get(0).getUsageKey());<a name="line.181"></a>
+<span class="sourceLineNo">182</span>    assertEquals("1000", rodentia.getIdentifiers().get(0).getIdentifier());<a name="line.182"></a>
+<span class="sourceLineNo">183</span>    assertEquals(IdentifierType.SOURCE_ID, rodentia.getIdentifiers().get(0).getType());<a name="line.183"></a>
+<span class="sourceLineNo">184</span>    assertEquals("Hau Ruck", rodentia.getIdentifiers().get(0).getTitle());<a name="line.184"></a>
+<span class="sourceLineNo">185</span><a name="line.185"></a>
+<span class="sourceLineNo">186</span><a name="line.186"></a>
+<span class="sourceLineNo">187</span>    NameUsage squirrel = wsClient.get(100000025, Locale.UK);<a name="line.187"></a>
+<span class="sourceLineNo">188</span>    final NameUsageMetrics squirrelM = wsClient.getMetrics(100000025);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    assertNotNull(squirrel);<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    assertNull(squirrel.getNubKey());<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    assertFalse(squirrel.isSynonym());<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    assertEquals("Sciurus vulgaris", squirrel.getCanonicalName());<a name="line.192"></a>
+<span class="sourceLineNo">193</span>    assertEquals("Sciurus vulgaris Linnaeus, 1758", squirrel.getScientificName());<a name="line.193"></a>
+<span class="sourceLineNo">194</span>    assertEquals("Linnaeus, 1758", squirrel.getAuthorship());<a name="line.194"></a>
+<span class="sourceLineNo">195</span>    assertEquals("Eurasian Red Squirrel", squirrel.getVernacularName());<a name="line.195"></a>
+<span class="sourceLineNo">196</span>    assertEquals(Rank.SPECIES, squirrel.getRank());<a name="line.196"></a>
+<span class="sourceLineNo">197</span>    assertEquals((Integer) 100000024, squirrel.getParentKey());<a name="line.197"></a>
+<span class="sourceLineNo">198</span><a name="line.198"></a>
+<span class="sourceLineNo">199</span>    assertEquals("Animalia", squirrel.getKingdom());<a name="line.199"></a>
+<span class="sourceLineNo">200</span>    assertEquals((Integer) 100000001, squirrel.getKingdomKey());<a name="line.200"></a>
+<span class="sourceLineNo">201</span><a name="line.201"></a>
+<span class="sourceLineNo">202</span>    assertEquals("Chordata", squirrel.getPhylum());<a name="line.202"></a>
+<span class="sourceLineNo">203</span>    assertEquals((Integer) 100000002, squirrel.getPhylumKey());<a name="line.203"></a>
+<span class="sourceLineNo">204</span>    assertEquals(0, squirrelM.getNumPhylum());<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>    assertEquals("Mammalia", squirrel.getClazz());<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    assertEquals((Integer) 100000003, squirrel.getClassKey());<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    assertEquals(0, squirrelM.getNumClass());<a name="line.208"></a>
+<span class="sourceLineNo">209</span><a name="line.209"></a>
+<span class="sourceLineNo">210</span>    assertEquals("Rodentia", squirrel.getOrder());<a name="line.210"></a>
+<span class="sourceLineNo">211</span>    assertEquals((Integer) 100000004, squirrel.getOrderKey());<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    assertEquals(0, squirrelM.getNumOrder());<a name="line.212"></a>
+<span class="sourceLineNo">213</span><a name="line.213"></a>
+<span class="sourceLineNo">214</span>    assertEquals("Sciuridae", squirrel.getFamily());<a name="line.214"></a>
+<span class="sourceLineNo">215</span>    assertEquals((Integer) 100000005, squirrel.getFamilyKey());<a name="line.215"></a>
+<span class="sourceLineNo">216</span>    assertEquals(0, squirrelM.getNumFamily());<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>    assertEquals("Sciurus", squirrel.getGenus());<a name="line.218"></a>
+<span class="sourceLineNo">219</span>    assertEquals((Integer) 100000011, squirrel.getGenusKey());<a name="line.219"></a>
+<span class="sourceLineNo">220</span>    assertEquals(0, squirrelM.getNumGenus());<a name="line.220"></a>
+<span class="sourceLineNo">221</span><a name="line.221"></a>
+<span class="sourceLineNo">222</span>    assertEquals(1, squirrelM.getNumSpecies());<a name="line.222"></a>
+<span class="sourceLineNo">223</span>    assertEquals(9, squirrelM.getNumChildren());<a name="line.223"></a>
+<span class="sourceLineNo">224</span>    assertEquals(4, squirrelM.getNumSynonyms());<a name="line.224"></a>
+<span class="sourceLineNo">225</span><a name="line.225"></a>
+<span class="sourceLineNo">226</span>    assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), squirrel.getDatasetKey());<a name="line.226"></a>
+<span class="sourceLineNo">227</span>    assertEquals("Syst. Nat. , 10th ed. vol. 1 p. 63", squirrel.getPublishedIn());<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>    assertEquals("2010030", squirrel.getSourceId());<a name="line.229"></a>
+<span class="sourceLineNo">230</span><a name="line.230"></a>
+<span class="sourceLineNo">231</span><a name="line.231"></a>
+<span class="sourceLineNo">232</span>    // TEST VERNACULAR<a name="line.232"></a>
+<span class="sourceLineNo">233</span>    squirrel = wsClient.get(100000040, null);<a name="line.233"></a>
+<span class="sourceLineNo">234</span>    assertNull(squirrel.getVernacularName());<a name="line.234"></a>
+<span class="sourceLineNo">235</span><a name="line.235"></a>
+<span class="sourceLineNo">236</span>    squirrel = wsClient.get(100000040, Locale.GERMANY);<a name="line.236"></a>
+<span class="sourceLineNo">237</span>    assertEquals("Kaukasischen Eichhörnchen", squirrel.getVernacularName());<a name="line.237"></a>
+<span class="sourceLineNo">238</span><a name="line.238"></a>
+<span class="sourceLineNo">239</span>    // TEST non existing language VERNACULAR<a name="line.239"></a>
+<span class="sourceLineNo">240</span>    squirrel = wsClient.get(100000040, Locale.CHINESE);<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    assertEquals("Caucasian Squirrel", squirrel.getVernacularName());<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>    // TEST MULTIPLE IDENTIFIERS<a name="line.243"></a>
+<span class="sourceLineNo">244</span>    squirrel = wsClient.get(100000007, Locale.GERMANY);<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    Set&lt;Integer&gt; ids = Sets.newHashSet(7, 102, 103, 104, 105);<a name="line.245"></a>
+<span class="sourceLineNo">246</span>    for (Identifier id : squirrel.getIdentifiers()) {<a name="line.246"></a>
+<span class="sourceLineNo">247</span>      assertEquals(squirrel.getKey(), id.getUsageKey());<a name="line.247"></a>
+<span class="sourceLineNo">248</span>      switch (id.getKey()) {<a name="line.248"></a>
+<span class="sourceLineNo">249</span>        case 7:<a name="line.249"></a>
+<span class="sourceLineNo">250</span>          assertEquals("6905528", id.getIdentifier());<a name="line.250"></a>
+<span class="sourceLineNo">251</span>          assertEquals(IdentifierType.SOURCE_ID, id.getType());<a name="line.251"></a>
+<span class="sourceLineNo">252</span>          assertEquals("Bonjour mon capitain", id.getTitle());<a name="line.252"></a>
+<span class="sourceLineNo">253</span>          break;<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        case 102:<a name="line.254"></a>
+<span class="sourceLineNo">255</span>          assertEquals("http://www.catalogueoflife.org/details/species/id/6905528", id.getIdentifier());<a name="line.255"></a>
+<span class="sourceLineNo">256</span>          assertEquals(IdentifierType.URL, id.getType());<a name="line.256"></a>
+<span class="sourceLineNo">257</span>          assertNull(id.getTitle());<a name="line.257"></a>
+<span class="sourceLineNo">258</span>          break;<a name="line.258"></a>
+<span class="sourceLineNo">259</span>        case 103:<a name="line.259"></a>
+<span class="sourceLineNo">260</span>          assertEquals("urn:lsid:catalogueoflife.org:taxon:df0a319c-29c1-102b-9a4a-00304854f820:col20120721",<a name="line.260"></a>
+<span class="sourceLineNo">261</span>            id.getIdentifier());<a name="line.261"></a>
+<span class="sourceLineNo">262</span>          assertEquals(IdentifierType.LSID, id.getType());<a name="line.262"></a>
+<span class="sourceLineNo">263</span>          assertNull(id.getTitle());<a name="line.263"></a>
+<span class="sourceLineNo">264</span>          break;<a name="line.264"></a>
+<span class="sourceLineNo">265</span>        case 104:<a name="line.265"></a>
+<span class="sourceLineNo">266</span>          assertEquals("doi:10.1038/6905528", id.getIdentifier());<a name="line.266"></a>
+<span class="sourceLineNo">267</span>          assertEquals(IdentifierType.DOI, id.getType());<a name="line.267"></a>
+<span class="sourceLineNo">268</span>          assertNull(id.getTitle());<a name="line.268"></a>
+<span class="sourceLineNo">269</span>          break;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>        case 105:<a name="line.270"></a>
+<span class="sourceLineNo">271</span>          assertEquals("http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&amp;search_value=632417",<a name="line.271"></a>
+<span class="sourceLineNo">272</span>            id.getIdentifier());<a name="line.272"></a>
+<span class="sourceLineNo">273</span>          assertEquals(IdentifierType.URL, id.getType());<a name="line.273"></a>
+<span class="sourceLineNo">274</span>          assertNull(id.getTitle());<a name="line.274"></a>
+<span class="sourceLineNo">275</span>          break;<a name="line.275"></a>
+<span class="sourceLineNo">276</span>        default:<a name="line.276"></a>
+<span class="sourceLineNo">277</span>          fail("Unkown Identifier");<a name="line.277"></a>
+<span class="sourceLineNo">278</span>      }<a name="line.278"></a>
+<span class="sourceLineNo">279</span>      ids.remove(id.getKey());<a name="line.279"></a>
+<span class="sourceLineNo">280</span>    }<a name="line.280"></a>
+<span class="sourceLineNo">281</span>    assertTrue(ids.isEmpty());<a name="line.281"></a>
+<span class="sourceLineNo">282</span><a name="line.282"></a>
+<span class="sourceLineNo">283</span>    // TEST SYNONYM<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    NameUsage syn = wsClient.get(100000027, Locale.FRENCH);<a name="line.284"></a>
+<span class="sourceLineNo">285</span>    assertNotNull(syn);<a name="line.285"></a>
+<span class="sourceLineNo">286</span>    assertTrue(syn.isSynonym());<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    assertEquals("Sciurus nadymensis", syn.getCanonicalName());<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    assertEquals("Sciurus nadymensis Serebrennikov, 1928", syn.getScientificName());<a name="line.288"></a>
+<span class="sourceLineNo">289</span>    assertNull(syn.getVernacularName());<a name="line.289"></a>
+<span class="sourceLineNo">290</span>    assertEquals(Rank.SPECIES, syn.getRank());<a name="line.290"></a>
+<span class="sourceLineNo">291</span>    assertEquals((Integer) 100000024, syn.getParentKey());<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    assertEquals((Integer) 100000025, syn.getAcceptedKey());<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    assertEquals("Sciurus vulgaris Linnaeus, 1758", syn.getAccepted());<a name="line.293"></a>
+<span class="sourceLineNo">294</span>    assertFalse(syn.isProParte());<a name="line.294"></a>
+<span class="sourceLineNo">295</span>  }<a name="line.295"></a>
+<span class="sourceLineNo">296</span>}<a name="line.296"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

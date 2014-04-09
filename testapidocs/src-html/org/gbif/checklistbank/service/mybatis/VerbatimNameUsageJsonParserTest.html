@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.checklistbank.service.mybatis;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.model.checklistbank.VerbatimNameUsage;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.api.vocabulary.Extension;<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>import org.junit.Test;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>import static org.junit.Assert.assertEquals;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>public class VerbatimNameUsageJsonParserTest {<a name="line.10"></a>
+<span class="sourceLineNo">011</span><a name="line.11"></a>
+<span class="sourceLineNo">012</span>  @Test<a name="line.12"></a>
+<span class="sourceLineNo">013</span>  public void testJsonToVerbatim() throws Exception {<a name="line.13"></a>
+<span class="sourceLineNo">014</span>    final String json = "{\"id\":\"100\",\n" + " \"taxonomicStatus\":\"valid\",\n" + " \"taxonRank\":\"Species\",\n"<a name="line.14"></a>
+<span class="sourceLineNo">015</span>                        + " \"scientificNameAuthorship\":null,\n" + " \"parentNameUsageID\":\"86\",\n"<a name="line.15"></a>
+<span class="sourceLineNo">016</span>                        + " \"acceptedNameUsageID\":null,\n" + " \"scientificName\":\"Spirillum beijerinckii\",\n"<a name="line.16"></a>
+<span class="sourceLineNo">017</span>                        + " \"extensions\": {\n"<a name="line.17"></a>
+<span class="sourceLineNo">018</span>                        + "   \"VernacularName\" : [{\"vernacularName\":\"Strand\", \"language\":\"en\"}, {\"vernacularName\":\"Bönse\", \"language\":\"se\"}],\n"<a name="line.18"></a>
+<span class="sourceLineNo">019</span>                        + "   \"Distribution\" : [{\"hi\":\"ho\"}]\n" + " }}";<a name="line.19"></a>
+<span class="sourceLineNo">020</span>    VerbatimNameUsageJsonParser parser = new VerbatimNameUsageJsonParser();<a name="line.20"></a>
+<span class="sourceLineNo">021</span>    VerbatimNameUsage v = parser.jsonToVerbatim(json);<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>    assertEquals("100", v.getFields().get("id"));<a name="line.23"></a>
+<span class="sourceLineNo">024</span>    assertEquals("valid", v.getFields().get("taxonomicStatus"));<a name="line.24"></a>
+<span class="sourceLineNo">025</span>    assertEquals("Spirillum beijerinckii", v.getFields().get("scientificName"));<a name="line.25"></a>
+<span class="sourceLineNo">026</span>    assertEquals("86", v.getFields().get("parentNameUsageID"));<a name="line.26"></a>
+<span class="sourceLineNo">027</span>    assertEquals(2, v.getExtensions().get(Extension.VERNACULAR_NAME).size());<a name="line.27"></a>
+<span class="sourceLineNo">028</span>    assertEquals(1, v.getExtensions().get(Extension.DISTRIBUTION).size());<a name="line.28"></a>
+<span class="sourceLineNo">029</span>  }<a name="line.29"></a>
+<span class="sourceLineNo">030</span>}<a name="line.30"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

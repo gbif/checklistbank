@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>NubMatchingServiceImplTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../testapidocs/org/gbif/nub/lookup/NubMatchingServiceImplTest.html">View Javadoc</a></div><pre>
+
+<a class="jxr_linenumber" name="1" href="#1">1</a>   <strong class="jxr_keyword">package</strong> org.gbif.nub.lookup;
+<a class="jxr_linenumber" name="2" href="#2">2</a>   
+<a class="jxr_linenumber" name="3" href="#3">3</a>   <strong class="jxr_keyword">import</strong> org.gbif.api.model.checklistbank.ParsedName;
+<a class="jxr_linenumber" name="4" href="#4">4</a>   
+<a class="jxr_linenumber" name="5" href="#5">5</a>   <strong class="jxr_keyword">import</strong> org.junit.Test;
+<a class="jxr_linenumber" name="6" href="#6">6</a>   
+<a class="jxr_linenumber" name="7" href="#7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.Assert.assertEquals;
+<a class="jxr_linenumber" name="8" href="#8">8</a>   
+<a class="jxr_linenumber" name="9" href="#9">9</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../org/gbif/nub/lookup/NubMatchingServiceImplTest.html">NubMatchingServiceImplTest</a> {
+<a class="jxr_linenumber" name="10" href="#10">10</a>  
+<a class="jxr_linenumber" name="11" href="#11">11</a>    @Test
+<a class="jxr_linenumber" name="12" href="#12">12</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testInterpretGenus() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="13" href="#13">13</a>      ParsedName pn = <strong class="jxr_keyword">new</strong> ParsedName();
+<a class="jxr_linenumber" name="14" href="#14">14</a>      pn.setGenusOrAbove(<span class="jxr_string">"P."</span>);
+<a class="jxr_linenumber" name="15" href="#15">15</a>      pn.setSpecificEpithet(<span class="jxr_string">"concolor"</span>);
+<a class="jxr_linenumber" name="16" href="#16">16</a>      NubMatchingServiceImpl.interpretGenus(pn, <span class="jxr_string">"Puma"</span>);
+<a class="jxr_linenumber" name="17" href="#17">17</a>      assertEquals(<span class="jxr_string">"Puma concolor"</span>, pn.canonicalName());
+<a class="jxr_linenumber" name="18" href="#18">18</a>  
+<a class="jxr_linenumber" name="19" href="#19">19</a>  
+<a class="jxr_linenumber" name="20" href="#20">20</a>      pn.setGenusOrAbove(<span class="jxr_string">"P."</span>);
+<a class="jxr_linenumber" name="21" href="#21">21</a>      NubMatchingServiceImpl.interpretGenus(pn, <span class="jxr_string">"Felis"</span>);
+<a class="jxr_linenumber" name="22" href="#22">22</a>      assertEquals(<span class="jxr_string">"P. concolor"</span>, pn.canonicalName());
+<a class="jxr_linenumber" name="23" href="#23">23</a>    }
+<a class="jxr_linenumber" name="24" href="#24">24</a>  
+<a class="jxr_linenumber" name="25" href="#25">25</a>    @Test
+<a class="jxr_linenumber" name="26" href="#26">26</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNormConfidence2() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="27" href="#27">27</a>      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> x=80; x&lt;150; x++) {
+<a class="jxr_linenumber" name="28" href="#28">28</a>        System.out.println(x + <span class="jxr_string">" -&gt; "</span> + NubMatchingServiceImpl.normConfidence(x));
+<a class="jxr_linenumber" name="29" href="#29">29</a>      }
+<a class="jxr_linenumber" name="30" href="#30">30</a>    }
+<a class="jxr_linenumber" name="31" href="#31">31</a>  
+<a class="jxr_linenumber" name="32" href="#32">32</a>    @Test
+<a class="jxr_linenumber" name="33" href="#33">33</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">void</strong> testNormConfidence() <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="34" href="#34">34</a>      assertEquals(0, NubMatchingServiceImpl.normConfidence(0));
+<a class="jxr_linenumber" name="35" href="#35">35</a>      assertEquals(0, NubMatchingServiceImpl.normConfidence(-1));
+<a class="jxr_linenumber" name="36" href="#36">36</a>      assertEquals(0, NubMatchingServiceImpl.normConfidence(-10000));
+<a class="jxr_linenumber" name="37" href="#37">37</a>      assertEquals(1, NubMatchingServiceImpl.normConfidence(1));
+<a class="jxr_linenumber" name="38" href="#38">38</a>      assertEquals(10, NubMatchingServiceImpl.normConfidence(10));
+<a class="jxr_linenumber" name="39" href="#39">39</a>      assertEquals(20, NubMatchingServiceImpl.normConfidence(20));
+<a class="jxr_linenumber" name="40" href="#40">40</a>      assertEquals(30, NubMatchingServiceImpl.normConfidence(30));
+<a class="jxr_linenumber" name="41" href="#41">41</a>      assertEquals(50, NubMatchingServiceImpl.normConfidence(50));
+<a class="jxr_linenumber" name="42" href="#42">42</a>      assertEquals(60, NubMatchingServiceImpl.normConfidence(60));
+<a class="jxr_linenumber" name="43" href="#43">43</a>      assertEquals(70, NubMatchingServiceImpl.normConfidence(70));
+<a class="jxr_linenumber" name="44" href="#44">44</a>      assertEquals(80, NubMatchingServiceImpl.normConfidence(80));
+<a class="jxr_linenumber" name="45" href="#45">45</a>      assertEquals(85, NubMatchingServiceImpl.normConfidence(85));
+<a class="jxr_linenumber" name="46" href="#46">46</a>      assertEquals(88, NubMatchingServiceImpl.normConfidence(90));
+<a class="jxr_linenumber" name="47" href="#47">47</a>      assertEquals(89, NubMatchingServiceImpl.normConfidence(92));
+<a class="jxr_linenumber" name="48" href="#48">48</a>      assertEquals(91, NubMatchingServiceImpl.normConfidence(95));
+<a class="jxr_linenumber" name="49" href="#49">49</a>      assertEquals(92, NubMatchingServiceImpl.normConfidence(98));
+<a class="jxr_linenumber" name="50" href="#50">50</a>      assertEquals(92, NubMatchingServiceImpl.normConfidence(99));
+<a class="jxr_linenumber" name="51" href="#51">51</a>      assertEquals(93, NubMatchingServiceImpl.normConfidence(100));
+<a class="jxr_linenumber" name="52" href="#52">52</a>      assertEquals(95, NubMatchingServiceImpl.normConfidence(105));
+<a class="jxr_linenumber" name="53" href="#53">53</a>      assertEquals(96, NubMatchingServiceImpl.normConfidence(110));
+<a class="jxr_linenumber" name="54" href="#54">54</a>      assertEquals(97, NubMatchingServiceImpl.normConfidence(115));
+<a class="jxr_linenumber" name="55" href="#55">55</a>      assertEquals(99, NubMatchingServiceImpl.normConfidence(120));
+<a class="jxr_linenumber" name="56" href="#56">56</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(125));
+<a class="jxr_linenumber" name="57" href="#57">57</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(130));
+<a class="jxr_linenumber" name="58" href="#58">58</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(150));
+<a class="jxr_linenumber" name="59" href="#59">59</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(175));
+<a class="jxr_linenumber" name="60" href="#60">60</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(200));
+<a class="jxr_linenumber" name="61" href="#61">61</a>      assertEquals(100, NubMatchingServiceImpl.normConfidence(1000));
+<a class="jxr_linenumber" name="62" href="#62">62</a>    }
+<a class="jxr_linenumber" name="63" href="#63">63</a>  
+<a class="jxr_linenumber" name="64" href="#64">64</a>  }
+</pre>
+<hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
+</html>

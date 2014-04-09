@@ -1,0 +1,745 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package org.gbif.nub.build;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import org.gbif.api.model.checklistbank.NameUsageMatch;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import org.gbif.api.model.checklistbank.ParsedName;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.gbif.api.model.common.LinneanClassification;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import org.gbif.api.model.common.paging.PagingRequest;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import org.gbif.api.model.common.paging.PagingResponse;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import org.gbif.api.model.registry.Dataset;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import org.gbif.api.model.registry.MachineTag;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import org.gbif.api.model.registry.search.DatasetSearchRequest;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import org.gbif.api.model.registry.search.DatasetSearchResult;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import org.gbif.api.service.checklistbank.NameUsageMatchingService;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import org.gbif.api.service.registry.DatasetSearchService;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import org.gbif.api.service.registry.DatasetService;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import org.gbif.api.vocabulary.DatasetType;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import org.gbif.api.vocabulary.Kingdom;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.gbif.api.vocabulary.NameType;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.gbif.api.vocabulary.Origin;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.gbif.api.vocabulary.Rank;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.gbif.api.vocabulary.TaxonomicStatus;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.gbif.checklistbank.service.UsageService;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.gbif.checklistbank.service.ParsedNameService;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.gbif.checklistbank.service.mybatis.model.Usage;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.gbif.nub.lookup.NubIndex;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.gbif.nub.lookup.NubMatchingModule;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.gbif.nub.lookup.NubMatchingServiceImpl;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.gbif.nub.utils.CacheUtils;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.gbif.api.model.Constants;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.gbif.utils.file.properties.PropertiesUtil;<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>import java.io.IOException;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import java.util.Iterator;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.util.List;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.util.Map;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.util.Properties;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import java.util.Set;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.util.SortedMap;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.util.UUID;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import javax.annotation.Nullable;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>import com.google.common.base.Joiner;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import com.google.common.base.Strings;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import com.google.common.collect.Lists;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import com.google.common.collect.Maps;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import com.google.common.collect.Sets;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import com.google.inject.Guice;<a name="line.46"></a>
+<span class="sourceLineNo">047</span>import com.google.inject.Inject;<a name="line.47"></a>
+<span class="sourceLineNo">048</span>import com.google.inject.Injector;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>import org.slf4j.Logger;<a name="line.49"></a>
+<span class="sourceLineNo">050</span>import org.slf4j.LoggerFactory;<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>/**<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * The main class that build a new taxonomic backbone based on various source checklists.<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * See build() methods for more.<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * TODO:<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * - use wellformed name build from parsed name<a name="line.57"></a>
+<span class="sourceLineNo">058</span> * - create accordingTo citations for checklists<a name="line.58"></a>
+<span class="sourceLineNo">059</span> */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>public class NubGenerator {<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>  public static final UUID COL_KEY = UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b");<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  public static final String MT_NUB_PRIORITY_NAME = "nubPriority";<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  public static final String MT_NAMESPACE = "clb.gbif.org";<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>  private static final Logger LOG = LoggerFactory.getLogger(NubGenerator.class);<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  private final Set&lt;UUID&gt; higherTaxonomyChecklists = Sets.newHashSet();<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>  private static final int INCERTAE_SEDIS_NAME_ID = 9;<a name="line.69"></a>
+<span class="sourceLineNo">070</span>  //TODO: find real citation ids<a name="line.70"></a>
+<span class="sourceLineNo">071</span>  private final int CITATION_GBIF_NUB = -1;<a name="line.71"></a>
+<span class="sourceLineNo">072</span>  //private final int CITATION_NUB_GENERATOR_ID;<a name="line.72"></a>
+<span class="sourceLineNo">073</span>  //private final int CITATION_NUB_GENERATOR_CANONICAL_ID;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>  //private final int CITATION_NUB_GENERATOR_AUTONYM_ID;<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>  private final UsageService uService;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>  private final DatasetSearchService searchService;<a name="line.77"></a>
+<span class="sourceLineNo">078</span>  private final DatasetService datasetService;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>  private final ParsedNameService nameService;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>  private final NubReporter reporter;<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  private final NubWriter writer;<a name="line.81"></a>
+<span class="sourceLineNo">082</span>  private Map&lt;Integer, UUID&gt; sourceDatasetKeys = Maps.newHashMap();<a name="line.82"></a>
+<span class="sourceLineNo">083</span>  private int currSourceDatasetIntKey = 0;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>  private Dataset currDataset;<a name="line.84"></a>
+<span class="sourceLineNo">085</span>  private NubReporter.DatasetReport currReport;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  // keep an index of nub usages in order to clever merging of taxa<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  private NubIndex index;<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  private NubMatchingServiceImpl internalMatcher;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  private NameUsageMatchingService previousNubMatcher;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>  private ChecklistCache nubCache;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  private ChecklistCache srcCache;<a name="line.91"></a>
+<span class="sourceLineNo">092</span>  private Map&lt;Integer, Integer&gt; processed;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>  private int nextNubKey;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>  //<a name="line.94"></a>
+<span class="sourceLineNo">095</span>  private NubUsage incertaeSedis;<a name="line.95"></a>
+<span class="sourceLineNo">096</span><a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>  /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>   *<a name="line.99"></a>
+<span class="sourceLineNo">100</span>   * @param service<a name="line.100"></a>
+<span class="sourceLineNo">101</span>   * @param searchService<a name="line.101"></a>
+<span class="sourceLineNo">102</span>   * @param datasetService<a name="line.102"></a>
+<span class="sourceLineNo">103</span>   * @param nameService<a name="line.103"></a>
+<span class="sourceLineNo">104</span>   * @param previousNubMatcher nub matcher that works on the existing nub. If null always new ids will be created.<a name="line.104"></a>
+<span class="sourceLineNo">105</span>   * @throws IOException<a name="line.105"></a>
+<span class="sourceLineNo">106</span>   */<a name="line.106"></a>
+<span class="sourceLineNo">107</span>  @Inject<a name="line.107"></a>
+<span class="sourceLineNo">108</span>  public NubGenerator(UsageService service, DatasetSearchService searchService, DatasetService datasetService,<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    ParsedNameService nameService, @Nullable NameUsageMatchingService previousNubMatcher,<a name="line.109"></a>
+<span class="sourceLineNo">110</span>    NubWriter writer, NubReporter reporter) throws IOException {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    this.reporter = reporter;<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    this.writer = writer;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>    this.searchService = searchService;<a name="line.113"></a>
+<span class="sourceLineNo">114</span>    this.datasetService = datasetService;<a name="line.114"></a>
+<span class="sourceLineNo">115</span>    this.nameService = nameService;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>    this.previousNubMatcher = previousNubMatcher;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>    uService = service;<a name="line.117"></a>
+<span class="sourceLineNo">118</span>    index = new NubIndex();<a name="line.118"></a>
+<span class="sourceLineNo">119</span>    srcCache = new ChecklistCacheHashMap();<a name="line.119"></a>
+<span class="sourceLineNo">120</span>    nubCache = new ChecklistCacheHashMap();<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    internalMatcher = new NubMatchingServiceImpl(index, NubMatchingModule.provideSynonyms(), NubMatchingModule.provideParser());<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    internalMatcher.setExternalResolver(nubCache);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>  }<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>  /**<a name="line.125"></a>
+<span class="sourceLineNo">126</span>   * Builds a new nub with the Catalogue of Life used for the higher taxonomy.<a name="line.126"></a>
+<span class="sourceLineNo">127</span>   * Make sure at least the Catalogue of Life is existing!<a name="line.127"></a>
+<span class="sourceLineNo">128</span>   */<a name="line.128"></a>
+<span class="sourceLineNo">129</span>  public ChecklistCache build() throws IOException {<a name="line.129"></a>
+<span class="sourceLineNo">130</span>    return build(COL_KEY);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>  }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>  /**<a name="line.133"></a>
+<span class="sourceLineNo">134</span>   * Builds a new, complete nub checklist as a simple dwc archive.<a name="line.134"></a>
+<span class="sourceLineNo">135</span>   * The nub build will make use of the currently indexed checklists and not run any new imports or updates.<a name="line.135"></a>
+<span class="sourceLineNo">136</span>   *<a name="line.136"></a>
+<span class="sourceLineNo">137</span>   * The nub is generated by adding one checklist at a time to the nub.<a name="line.137"></a>
+<span class="sourceLineNo">138</span>   * The order of the checklists is determined by the integer clb:nubPriority machine tag, with smallest numbers<a name="line.138"></a>
+<span class="sourceLineNo">139</span>   * having highest priority.<a name="line.139"></a>
+<span class="sourceLineNo">140</span>   *<a name="line.140"></a>
+<span class="sourceLineNo">141</span>   * The higher taxonomy above family level is ignored by default unless the checklist is given in the<a name="line.141"></a>
+<span class="sourceLineNo">142</span>   * higherTaxonomyChecklists parameter.<a name="line.142"></a>
+<span class="sourceLineNo">143</span>   *<a name="line.143"></a>
+<span class="sourceLineNo">144</span>   * @param higherTaxonomyChecklists set of checklists where the higher taxonomy is not ignored but incorporated<a name="line.144"></a>
+<span class="sourceLineNo">145</span>   *                                 into the nub<a name="line.145"></a>
+<span class="sourceLineNo">146</span>   */<a name="line.146"></a>
+<span class="sourceLineNo">147</span>  public ChecklistCache build(UUID ... higherTaxonomyChecklists) throws IOException {<a name="line.147"></a>
+<span class="sourceLineNo">148</span>    LOG.info("Start building a new taxonomic backbone");<a name="line.148"></a>
+<span class="sourceLineNo">149</span><a name="line.149"></a>
+<span class="sourceLineNo">150</span>    LOG.info("Use the higher classification from checklists:\n " + Joiner.on("\n ").join(higherTaxonomyChecklists));<a name="line.150"></a>
+<span class="sourceLineNo">151</span>    for (UUID c : higherTaxonomyChecklists) {<a name="line.151"></a>
+<span class="sourceLineNo">152</span>      this.higherTaxonomyChecklists.add(c);<a name="line.152"></a>
+<span class="sourceLineNo">153</span>    }<a name="line.153"></a>
+<span class="sourceLineNo">154</span><a name="line.154"></a>
+<span class="sourceLineNo">155</span>    nextNubKey = uService.maxUsageKey(Constants.NUB_DATASET_KEY) + 1;<a name="line.155"></a>
+<span class="sourceLineNo">156</span>    LOG.info("New nub usages will start with key {}", nextNubKey);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>    LOG.info("Adding kingdoms");<a name="line.157"></a>
+<span class="sourceLineNo">158</span>    addKingdoms();<a name="line.158"></a>
+<span class="sourceLineNo">159</span><a name="line.159"></a>
+<span class="sourceLineNo">160</span>    for (Dataset d : listChecklistsFaked()) {<a name="line.160"></a>
+<span class="sourceLineNo">161</span>      addChecklist(d, !this.higherTaxonomyChecklists.contains(d.getKey()));<a name="line.161"></a>
+<span class="sourceLineNo">162</span>    }<a name="line.162"></a>
+<span class="sourceLineNo">163</span><a name="line.163"></a>
+<span class="sourceLineNo">164</span>    reporter.close();<a name="line.164"></a>
+<span class="sourceLineNo">165</span><a name="line.165"></a>
+<span class="sourceLineNo">166</span>    writer.insertNubData(nubCache);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>    writer.updateRelNub();<a name="line.167"></a>
+<span class="sourceLineNo">168</span><a name="line.168"></a>
+<span class="sourceLineNo">169</span>    return nubCache;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>  }<a name="line.170"></a>
+<span class="sourceLineNo">171</span><a name="line.171"></a>
+<span class="sourceLineNo">172</span>  private void loadSrcCache(UUID datasetKey) {<a name="line.172"></a>
+<span class="sourceLineNo">173</span>    srcCache.reset();<a name="line.173"></a>
+<span class="sourceLineNo">174</span><a name="line.174"></a>
+<span class="sourceLineNo">175</span>    // load names<a name="line.175"></a>
+<span class="sourceLineNo">176</span>    LOG.info("Loading names into cache for checklist {}", currDataset.getTitle());<a name="line.176"></a>
+<span class="sourceLineNo">177</span>    PagingRequest page = new PagingRequest(0, 10000);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>    PagingResponse&lt;ParsedName&gt; respNames;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>    do {<a name="line.179"></a>
+<span class="sourceLineNo">180</span>      respNames = nameService.listNames(datasetKey, page);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>      for (ParsedName n : respNames.getResults()) {<a name="line.181"></a>
+<span class="sourceLineNo">182</span>        srcCache.add(n);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>      }<a name="line.183"></a>
+<span class="sourceLineNo">184</span>      page.nextPage();<a name="line.184"></a>
+<span class="sourceLineNo">185</span>    }<a name="line.185"></a>
+<span class="sourceLineNo">186</span>    while (!respNames.isEndOfRecords());<a name="line.186"></a>
+<span class="sourceLineNo">187</span><a name="line.187"></a>
+<span class="sourceLineNo">188</span>    // load usages<a name="line.188"></a>
+<span class="sourceLineNo">189</span>    LOG.info("Loading usages into cache for checklist {}", currDataset.getTitle());<a name="line.189"></a>
+<span class="sourceLineNo">190</span>    page = new PagingRequest(0, 10000);<a name="line.190"></a>
+<span class="sourceLineNo">191</span>    PagingResponse&lt;Usage&gt; respUsages;<a name="line.191"></a>
+<span class="sourceLineNo">192</span>    do {<a name="line.192"></a>
+<span class="sourceLineNo">193</span>      respUsages = uService.list(datasetKey, page);<a name="line.193"></a>
+<span class="sourceLineNo">194</span>      for (Usage u : respUsages.getResults()) {<a name="line.194"></a>
+<span class="sourceLineNo">195</span>        srcCache.add(u);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>      }<a name="line.196"></a>
+<span class="sourceLineNo">197</span>      page.nextPage();<a name="line.197"></a>
+<span class="sourceLineNo">198</span>    }<a name="line.198"></a>
+<span class="sourceLineNo">199</span>    while (!respUsages.isEndOfRecords());<a name="line.199"></a>
+<span class="sourceLineNo">200</span><a name="line.200"></a>
+<span class="sourceLineNo">201</span>    // verify cache consistency<a name="line.201"></a>
+<span class="sourceLineNo">202</span>    srcCache.checkConsistency();<a name="line.202"></a>
+<span class="sourceLineNo">203</span>  }<a name="line.203"></a>
+<span class="sourceLineNo">204</span><a name="line.204"></a>
+<span class="sourceLineNo">205</span>  private void addChecklist(Dataset d, final boolean ignoreHigherTaxa) {<a name="line.205"></a>
+<span class="sourceLineNo">206</span>    LOG.info("Adding checklist {}, {} higher taxa", d.getTitle(), ignoreHigherTaxa ? "ignoring" : "using");<a name="line.206"></a>
+<span class="sourceLineNo">207</span>    currDataset = d;<a name="line.207"></a>
+<span class="sourceLineNo">208</span>    currReport = reporter.report(d.getKey());<a name="line.208"></a>
+<span class="sourceLineNo">209</span>    writer.startDataset(d.getKey());<a name="line.209"></a>
+<span class="sourceLineNo">210</span><a name="line.210"></a>
+<span class="sourceLineNo">211</span>    // TODO: get real currSourceDatasetKey value based on citation table<a name="line.211"></a>
+<span class="sourceLineNo">212</span>    sourceDatasetKeys.put(currSourceDatasetIntKey++, d.getKey());<a name="line.212"></a>
+<span class="sourceLineNo">213</span>    loadSrcCache(d.getKey());<a name="line.213"></a>
+<span class="sourceLineNo">214</span>    processed = Maps.newHashMap();<a name="line.214"></a>
+<span class="sourceLineNo">215</span><a name="line.215"></a>
+<span class="sourceLineNo">216</span>    Iterator&lt;Usage&gt; iter = srcCache.iterate();<a name="line.216"></a>
+<span class="sourceLineNo">217</span>    int counter = 1;<a name="line.217"></a>
+<span class="sourceLineNo">218</span>    while (iter.hasNext()) {<a name="line.218"></a>
+<span class="sourceLineNo">219</span>      if (counter % 10000 == 0){<a name="line.219"></a>
+<span class="sourceLineNo">220</span>        LOG.info("Processing {}th usage", counter);<a name="line.220"></a>
+<span class="sourceLineNo">221</span>      }<a name="line.221"></a>
+<span class="sourceLineNo">222</span>      Usage u = iter.next();<a name="line.222"></a>
+<span class="sourceLineNo">223</span>      LOG.debug("Process {} usage {}", u.rank, u.key);<a name="line.223"></a>
+<span class="sourceLineNo">224</span>      processSource(u, ignoreHigherTaxa);<a name="line.224"></a>
+<span class="sourceLineNo">225</span>      counter++;<a name="line.225"></a>
+<span class="sourceLineNo">226</span>    }<a name="line.226"></a>
+<span class="sourceLineNo">227</span>  }<a name="line.227"></a>
+<span class="sourceLineNo">228</span><a name="line.228"></a>
+<span class="sourceLineNo">229</span>  /**<a name="line.229"></a>
+<span class="sourceLineNo">230</span>   *<a name="line.230"></a>
+<span class="sourceLineNo">231</span>   * @param src<a name="line.231"></a>
+<span class="sourceLineNo">232</span>   * @param ignoreHigherTaxa<a name="line.232"></a>
+<span class="sourceLineNo">233</span>   * @return the nub usage for this source usage or the next highest parent. It is<a name="line.233"></a>
+<span class="sourceLineNo">234</span>   */<a name="line.234"></a>
+<span class="sourceLineNo">235</span>  private NubUsage processSource(Usage src, final boolean ignoreHigherTaxa) {<a name="line.235"></a>
+<span class="sourceLineNo">236</span>    if (processed.containsKey(src.key)) {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>      return new NubUsage(nubCache.get(processed.get(src.key)), true, NameUsageMatch.MatchType.EXACT, 100);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>    }<a name="line.238"></a>
+<span class="sourceLineNo">239</span><a name="line.239"></a>
+<span class="sourceLineNo">240</span>    // get some more details<a name="line.240"></a>
+<span class="sourceLineNo">241</span>    ParsedName srcName = srcCache.getName(src.nameKey);<a name="line.241"></a>
+<span class="sourceLineNo">242</span>    Rank rank = getNubRank(src, srcName);<a name="line.242"></a>
+<span class="sourceLineNo">243</span><a name="line.243"></a>
+<span class="sourceLineNo">244</span>    // match to existing nub<a name="line.244"></a>
+<span class="sourceLineNo">245</span>    NubUsage nub = findNubUsage(srcName.getScientificName(), src.rank, src.key);<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>    // IGNORE source for various reasons<a name="line.247"></a>
+<span class="sourceLineNo">248</span>    final boolean ignore = ignoreSrc(src, srcName, rank);<a name="line.248"></a>
+<span class="sourceLineNo">249</span>    if (ignore) {<a name="line.249"></a>
+<span class="sourceLineNo">250</span>      currReport.incrementIgnored();<a name="line.250"></a>
+<span class="sourceLineNo">251</span>      if (nub != null) {<a name="line.251"></a>
+<span class="sourceLineNo">252</span>        // we should ignore this source usage and there is a matching nub usage already.<a name="line.252"></a>
+<span class="sourceLineNo">253</span>        // Return that and stop<a name="line.253"></a>
+<span class="sourceLineNo">254</span>        return nub;<a name="line.254"></a>
+<span class="sourceLineNo">255</span>      } else {<a name="line.255"></a>
+<span class="sourceLineNo">256</span>        // otherwise return the closest nub usage from the parental hierarchy<a name="line.256"></a>
+<span class="sourceLineNo">257</span>        return getParentNubUsage(src, ignoreHigherTaxa);<a name="line.257"></a>
+<span class="sourceLineNo">258</span>      }<a name="line.258"></a>
+<span class="sourceLineNo">259</span>    }<a name="line.259"></a>
+<span class="sourceLineNo">260</span><a name="line.260"></a>
+<span class="sourceLineNo">261</span><a name="line.261"></a>
+<span class="sourceLineNo">262</span>    // If we reach here, incorporate source into nub!<a name="line.262"></a>
+<span class="sourceLineNo">263</span>    // get parental nub usage first to attach this usage<a name="line.263"></a>
+<span class="sourceLineNo">264</span>    final boolean isIgnoredHigherTaxon = ignoreHigherTaxa(src, rank, ignoreHigherTaxa);<a name="line.264"></a>
+<span class="sourceLineNo">265</span>    NubUsage parentNub = getParentNubUsage(src, ignoreHigherTaxa);<a name="line.265"></a>
+<span class="sourceLineNo">266</span><a name="line.266"></a>
+<span class="sourceLineNo">267</span>    if (nub != null) {<a name="line.267"></a>
+<span class="sourceLineNo">268</span>      updateNub(nub, src, srcName, parentNub, isIgnoredHigherTaxon);<a name="line.268"></a>
+<span class="sourceLineNo">269</span><a name="line.269"></a>
+<span class="sourceLineNo">270</span>    } else if (isIgnoredHigherTaxon) {<a name="line.270"></a>
+<span class="sourceLineNo">271</span>      currReport.incrementIgnored();<a name="line.271"></a>
+<span class="sourceLineNo">272</span>      return parentNub;<a name="line.272"></a>
+<span class="sourceLineNo">273</span><a name="line.273"></a>
+<span class="sourceLineNo">274</span>    } else {<a name="line.274"></a>
+<span class="sourceLineNo">275</span>      // only create new higher taxa if it was requested<a name="line.275"></a>
+<span class="sourceLineNo">276</span>      nub = createNub(src, srcName, parentNub, rank);<a name="line.276"></a>
+<span class="sourceLineNo">277</span>    }<a name="line.277"></a>
+<span class="sourceLineNo">278</span><a name="line.278"></a>
+<span class="sourceLineNo">279</span>    return nub;<a name="line.279"></a>
+<span class="sourceLineNo">280</span>  }<a name="line.280"></a>
+<span class="sourceLineNo">281</span><a name="line.281"></a>
+<span class="sourceLineNo">282</span>  private boolean ignoreHigherTaxa(Usage src, Rank nubRank, final boolean ignoreHigherTaxa) {<a name="line.282"></a>
+<span class="sourceLineNo">283</span>      // ignore higher ranks if not asked for<a name="line.283"></a>
+<span class="sourceLineNo">284</span>    if (ignoreHigherTaxa &amp;&amp; (nubRank.isSuprageneric() &amp;&amp; Rank.FAMILY != nubRank)) {<a name="line.284"></a>
+<span class="sourceLineNo">285</span>      LOG.debug("Ignore {} taxon {}, higher ranks ignored", nubRank, CacheUtils.nameOf(src, srcCache));<a name="line.285"></a>
+<span class="sourceLineNo">286</span>      return true;<a name="line.286"></a>
+<span class="sourceLineNo">287</span>    }<a name="line.287"></a>
+<span class="sourceLineNo">288</span>    return false;<a name="line.288"></a>
+<span class="sourceLineNo">289</span>  }<a name="line.289"></a>
+<span class="sourceLineNo">290</span><a name="line.290"></a>
+<span class="sourceLineNo">291</span>  private boolean ignoreSrc(Usage src, ParsedName srcName, Rank nubRank) {<a name="line.291"></a>
+<span class="sourceLineNo">292</span>    // ignore usages without a rank<a name="line.292"></a>
+<span class="sourceLineNo">293</span>    if (Rank.UNRANKED == nubRank) {<a name="line.293"></a>
+<span class="sourceLineNo">294</span>      LOG.debug("Ignore usage {} of rank {}", srcName.getScientificName(), nubRank);<a name="line.294"></a>
+<span class="sourceLineNo">295</span>      return true;<a name="line.295"></a>
+<span class="sourceLineNo">296</span>    }<a name="line.296"></a>
+<span class="sourceLineNo">297</span><a name="line.297"></a>
+<span class="sourceLineNo">298</span>    // completely ignore blacklisted, informal (i.e. spec. or cf.) names or incertae sedis names<a name="line.298"></a>
+<span class="sourceLineNo">299</span>    if (NameType.BLACKLISTED == srcName.getType() || NameType.INFORMAL == srcName.getType()) {<a name="line.299"></a>
+<span class="sourceLineNo">300</span>      LOG.debug("Ignore blacklisted or informal usage {} {}", src.key, srcName.getScientificName());<a name="line.300"></a>
+<span class="sourceLineNo">301</span>      return true;<a name="line.301"></a>
+<span class="sourceLineNo">302</span>    }<a name="line.302"></a>
+<span class="sourceLineNo">303</span><a name="line.303"></a>
+<span class="sourceLineNo">304</span>    if (INCERTAE_SEDIS_NAME_ID == srcName.getKey()) {<a name="line.304"></a>
+<span class="sourceLineNo">305</span>      LOG.debug("Ignore incertae sedis usage {} {}", src.key, srcName.getScientificName());<a name="line.305"></a>
+<span class="sourceLineNo">306</span>      return true;<a name="line.306"></a>
+<span class="sourceLineNo">307</span>    }<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>    // ignore all cultivars and strains!<a name="line.309"></a>
+<span class="sourceLineNo">310</span>    // http://dev.gbif.org/issues/browse/CLB-117<a name="line.310"></a>
+<span class="sourceLineNo">311</span>    if (Rank.CULTIVAR == nubRank || Rank.CULTIVAR_GROUP == nubRank || Rank.STRAIN == nubRank){<a name="line.311"></a>
+<span class="sourceLineNo">312</span>      LOG.debug("Ignore {} name {}, usage {}", nubRank, srcName, src.key);<a name="line.312"></a>
+<span class="sourceLineNo">313</span>    }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>    if (!rankMatchesName(nubRank, srcName)) {<a name="line.315"></a>
+<span class="sourceLineNo">316</span>      LOG.debug("Ignore usage {} with name {} contradicting rank {}", src.key, srcName.getScientificName(), nubRank);<a name="line.316"></a>
+<span class="sourceLineNo">317</span>      return true;<a name="line.317"></a>
+<span class="sourceLineNo">318</span>    }<a name="line.318"></a>
+<span class="sourceLineNo">319</span><a name="line.319"></a>
+<span class="sourceLineNo">320</span>    return false;<a name="line.320"></a>
+<span class="sourceLineNo">321</span>  }<a name="line.321"></a>
+<span class="sourceLineNo">322</span><a name="line.322"></a>
+<span class="sourceLineNo">323</span>  private Rank getNubRank(Usage src, ParsedName name) {<a name="line.323"></a>
+<span class="sourceLineNo">324</span>    Rank nubRank = Rank.inferRank(name.getGenusOrAbove(), name.getInfraGeneric(), name.getSpecificEpithet(), name.getRankMarker(), name.getInfraSpecificEpithet());<a name="line.324"></a>
+<span class="sourceLineNo">325</span>    if (src.rank != null &amp;&amp; !src.rank.isUncomparable()) {<a name="line.325"></a>
+<span class="sourceLineNo">326</span>      nubRank = src.rank;<a name="line.326"></a>
+<span class="sourceLineNo">327</span>      if (nubRank != null &amp;&amp; !nubRank.isUncomparable() &amp;&amp; !src.rank.equals(nubRank)) {<a name="line.327"></a>
+<span class="sourceLineNo">328</span>        // warn if they are not the same<a name="line.328"></a>
+<span class="sourceLineNo">329</span>        LOG.warn("Inferred rank {} is different from given rank {} for usage {}", nubRank, src.rank, src.key);<a name="line.329"></a>
+<span class="sourceLineNo">330</span>      }<a name="line.330"></a>
+<span class="sourceLineNo">331</span>    }<a name="line.331"></a>
+<span class="sourceLineNo">332</span><a name="line.332"></a>
+<span class="sourceLineNo">333</span>    // For CoL convert generic infraspecific rank to subspecies - many names in CoL have this rank<a name="line.333"></a>
+<span class="sourceLineNo">334</span>    if (COL_KEY.equals(currDataset.getKey()) &amp;&amp; Rank.INFRASPECIFIC_NAME == src.rank){<a name="line.334"></a>
+<span class="sourceLineNo">335</span>      nubRank = Rank.SUBSPECIES;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>    }<a name="line.336"></a>
+<span class="sourceLineNo">337</span><a name="line.337"></a>
+<span class="sourceLineNo">338</span>    return nubRank;<a name="line.338"></a>
+<span class="sourceLineNo">339</span>  }<a name="line.339"></a>
+<span class="sourceLineNo">340</span><a name="line.340"></a>
+<span class="sourceLineNo">341</span>  protected static boolean rankMatchesName(Rank rank, ParsedName name) {<a name="line.341"></a>
+<span class="sourceLineNo">342</span>    // skip assertion for hybrids or virus names which dont have a parsed name.<a name="line.342"></a>
+<span class="sourceLineNo">343</span>    if (!name.getType().isParsable()){<a name="line.343"></a>
+<span class="sourceLineNo">344</span>      return true;<a name="line.344"></a>
+<span class="sourceLineNo">345</span>    }<a name="line.345"></a>
+<span class="sourceLineNo">346</span><a name="line.346"></a>
+<span class="sourceLineNo">347</span>    if (Rank.SPECIES == rank){<a name="line.347"></a>
+<span class="sourceLineNo">348</span>      // we require a genus &amp; specific epithet and no more<a name="line.348"></a>
+<span class="sourceLineNo">349</span>      if (!Strings.isNullOrEmpty(name.getGenusOrAbove()) &amp;&amp; !Strings.isNullOrEmpty(name.getSpecificEpithet()) &amp;&amp; Strings.isNullOrEmpty(name.getInfraSpecificEpithet())){<a name="line.349"></a>
+<span class="sourceLineNo">350</span>        return true;<a name="line.350"></a>
+<span class="sourceLineNo">351</span>      }<a name="line.351"></a>
+<span class="sourceLineNo">352</span>    } else if (rank.isInfraspecific()){<a name="line.352"></a>
+<span class="sourceLineNo">353</span>      // we require a genus and both epitheta<a name="line.353"></a>
+<span class="sourceLineNo">354</span>      if (!Strings.isNullOrEmpty(name.getGenusOrAbove()) &amp;&amp; !Strings.isNullOrEmpty(name.getSpecificEpithet()) &amp;&amp; !Strings.isNullOrEmpty(name.getInfraSpecificEpithet())){<a name="line.354"></a>
+<span class="sourceLineNo">355</span>        if (rank.isUncomparable()){<a name="line.355"></a>
+<span class="sourceLineNo">356</span>          return true;<a name="line.356"></a>
+<span class="sourceLineNo">357</span>        }<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        // check if rank marker indicates a specific rank<a name="line.358"></a>
+<span class="sourceLineNo">359</span>        Rank markerRank = Rank.inferRank(name.getRankMarker());<a name="line.359"></a>
+<span class="sourceLineNo">360</span>        if (markerRank == null || markerRank==rank){<a name="line.360"></a>
+<span class="sourceLineNo">361</span>          return true;<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        }<a name="line.362"></a>
+<span class="sourceLineNo">363</span>      }<a name="line.363"></a>
+<span class="sourceLineNo">364</span><a name="line.364"></a>
+<span class="sourceLineNo">365</span>    } else if (Rank.GENUS == rank || rank.isSuprageneric()) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>      // avoid epitheta<a name="line.366"></a>
+<span class="sourceLineNo">367</span>      if (!Strings.isNullOrEmpty(name.getGenusOrAbove()) &amp;&amp; Strings.isNullOrEmpty(name.getSpecificEpithet()) &amp;&amp; Strings.isNullOrEmpty(name.getInfraSpecificEpithet())){<a name="line.367"></a>
+<span class="sourceLineNo">368</span>        return true;<a name="line.368"></a>
+<span class="sourceLineNo">369</span>      }<a name="line.369"></a>
+<span class="sourceLineNo">370</span><a name="line.370"></a>
+<span class="sourceLineNo">371</span>    }<a name="line.371"></a>
+<span class="sourceLineNo">372</span>    return false;<a name="line.372"></a>
+<span class="sourceLineNo">373</span>  }<a name="line.373"></a>
+<span class="sourceLineNo">374</span><a name="line.374"></a>
+<span class="sourceLineNo">375</span>  private NubUsage getParentNubUsage(Usage child, boolean ignoreHigherTaxa) {<a name="line.375"></a>
+<span class="sourceLineNo">376</span>    if (child.hasParent()) {<a name="line.376"></a>
+<span class="sourceLineNo">377</span>      Usage parentSrc = srcCache.get(child.parentKey);<a name="line.377"></a>
+<span class="sourceLineNo">378</span>      NubUsage nub = processSource(parentSrc, ignoreHigherTaxa);<a name="line.378"></a>
+<span class="sourceLineNo">379</span>      nub.directParentMatch = false;<a name="line.379"></a>
+<span class="sourceLineNo">380</span>      return nub;<a name="line.380"></a>
+<span class="sourceLineNo">381</span>    } else {<a name="line.381"></a>
+<span class="sourceLineNo">382</span>      return incertaeSedis;<a name="line.382"></a>
+<span class="sourceLineNo">383</span>    }<a name="line.383"></a>
+<span class="sourceLineNo">384</span>  }<a name="line.384"></a>
+<span class="sourceLineNo">385</span><a name="line.385"></a>
+<span class="sourceLineNo">386</span>  /**<a name="line.386"></a>
+<span class="sourceLineNo">387</span>   * Try to match an existing nub usage using the internal matching service<a name="line.387"></a>
+<span class="sourceLineNo">388</span>   * running on the currently created nub usages.<a name="line.388"></a>
+<span class="sourceLineNo">389</span>   *<a name="line.389"></a>
+<span class="sourceLineNo">390</span>   * @param srcUsageKey a source usage key used create a LinneanClassification for comparison<a name="line.390"></a>
+<span class="sourceLineNo">391</span>   * @return the corresponding nub usage or null. Never a MatchType.NONE<a name="line.391"></a>
+<span class="sourceLineNo">392</span>   */<a name="line.392"></a>
+<span class="sourceLineNo">393</span>  private NubUsage findNubUsage(String scientificName, Rank rank, int srcUsageKey) {<a name="line.393"></a>
+<span class="sourceLineNo">394</span>    LinneanClassification cl = srcCache.getClassification(srcUsageKey);<a name="line.394"></a>
+<span class="sourceLineNo">395</span>    NameUsageMatch match = tightMatch(internalMatcher.match(scientificName, rank, cl, true, false));<a name="line.395"></a>
+<span class="sourceLineNo">396</span>    if (match != null) {<a name="line.396"></a>
+<span class="sourceLineNo">397</span>      return new NubUsage(nubCache.get(match.getUsageKey()), true, match.getMatchType(), match.getConfidence());<a name="line.397"></a>
+<span class="sourceLineNo">398</span>    }<a name="line.398"></a>
+<span class="sourceLineNo">399</span>    return null;<a name="line.399"></a>
+<span class="sourceLineNo">400</span>  }<a name="line.400"></a>
+<span class="sourceLineNo">401</span><a name="line.401"></a>
+<span class="sourceLineNo">402</span>  /**<a name="line.402"></a>
+<span class="sourceLineNo">403</span>   * @return the given match or null if the match was not good enough for nub building purposes.<a name="line.403"></a>
+<span class="sourceLineNo">404</span>   */<a name="line.404"></a>
+<span class="sourceLineNo">405</span>  private NameUsageMatch tightMatch(NameUsageMatch match) {<a name="line.405"></a>
+<span class="sourceLineNo">406</span>    if (NameUsageMatch.MatchType.NONE != match.getMatchType()) {<a name="line.406"></a>
+<span class="sourceLineNo">407</span>      // for monomials only allow exact matches for now - fuzzy ones are sometimes wrong and would result<a name="line.407"></a>
+<span class="sourceLineNo">408</span>      // in false merged taxa<a name="line.408"></a>
+<span class="sourceLineNo">409</span>      if (NameUsageMatch.MatchType.EXACT == match.getMatchType() || (match.getRank().isSpeciesOrBelow() &amp;&amp; match.getConfidence() &gt; 90)) {<a name="line.409"></a>
+<span class="sourceLineNo">410</span>        return match;<a name="line.410"></a>
+<span class="sourceLineNo">411</span>      }<a name="line.411"></a>
+<span class="sourceLineNo">412</span>    }<a name="line.412"></a>
+<span class="sourceLineNo">413</span>    return null;<a name="line.413"></a>
+<span class="sourceLineNo">414</span>  }<a name="line.414"></a>
+<span class="sourceLineNo">415</span><a name="line.415"></a>
+<span class="sourceLineNo">416</span>  private NubUsage createNub(Usage src, ParsedName srcName, NubUsage nubParent, Rank nubRank) {<a name="line.416"></a>
+<span class="sourceLineNo">417</span>    if (src.status != null &amp;&amp; src.status.isSynonym() &amp;&amp; !nubParent.directParentMatch) {<a name="line.417"></a>
+<span class="sourceLineNo">418</span>      LOG.info("Synonym {} to be created based on usage {}, but accepted parent is not in the nub", srcName.getScientificName(), src.key);<a name="line.418"></a>
+<span class="sourceLineNo">419</span>    }<a name="line.419"></a>
+<span class="sourceLineNo">420</span><a name="line.420"></a>
+<span class="sourceLineNo">421</span>    // potentially create missing genus &amp; species usages<a name="line.421"></a>
+<span class="sourceLineNo">422</span>    if (nubRank.isSpeciesOrBelow()) {<a name="line.422"></a>
+<span class="sourceLineNo">423</span>      if (nubParent.usage.rank.isSuprageneric()) {<a name="line.423"></a>
+<span class="sourceLineNo">424</span>        nubParent = createOrFindImplicitUsage(srcName.getGenusOrAbove(), Rank.GENUS, nubParent.usage.key, Origin.IMPLICIT_NAME);<a name="line.424"></a>
+<span class="sourceLineNo">425</span>      }<a name="line.425"></a>
+<span class="sourceLineNo">426</span>      if (nubRank.isInfraspecific() &amp;&amp; nubParent.usage.rank != Rank.SPECIES) {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>        nubParent = createOrFindImplicitUsage(srcName.canonicalSpeciesName(), Rank.SPECIES, nubParent.usage.key, Origin.IMPLICIT_NAME);<a name="line.427"></a>
+<span class="sourceLineNo">428</span>      }<a name="line.428"></a>
+<span class="sourceLineNo">429</span>    }<a name="line.429"></a>
+<span class="sourceLineNo">430</span><a name="line.430"></a>
+<span class="sourceLineNo">431</span>    // create an autonym (BotanicalCode) / nominotypical subspecies (ZooCode) ?<a name="line.431"></a>
+<span class="sourceLineNo">432</span>    // http://en.wikipedia.org/wiki/Autonym_(botany)<a name="line.432"></a>
+<span class="sourceLineNo">433</span>    // http://en.wikipedia.org/wiki/Subspecies#Nominotypical_subspecies_and_subspecies_autonyms<a name="line.433"></a>
+<span class="sourceLineNo">434</span>    //<a name="line.434"></a>
+<span class="sourceLineNo">435</span>    // all autonyms created here for subspecies do NOT include a rank marker as the ZoologicalCode specifies.<a name="line.435"></a>
+<span class="sourceLineNo">436</span>    // TODO: for botanical, fungi and bacterial names this should be changed at the very end<a name="line.436"></a>
+<span class="sourceLineNo">437</span>    if (nubRank.isInfraspecific() &amp;&amp; !srcName.isAutonym()) {<a name="line.437"></a>
+<span class="sourceLineNo">438</span>      final String originalEpithet = srcName.getInfraSpecificEpithet();<a name="line.438"></a>
+<span class="sourceLineNo">439</span>      srcName.setInfraSpecificEpithet(srcName.getSpecificEpithet());<a name="line.439"></a>
+<span class="sourceLineNo">440</span>      srcName.setRank(nubRank);<a name="line.440"></a>
+<span class="sourceLineNo">441</span>      createOrFindImplicitUsage(srcName.canonicalNameWithMarker(), nubRank, nubParent.usage.key, Origin.AUTONYM);<a name="line.441"></a>
+<span class="sourceLineNo">442</span>      srcName.setInfraSpecificEpithet(originalEpithet);<a name="line.442"></a>
+<span class="sourceLineNo">443</span>    }<a name="line.443"></a>
+<span class="sourceLineNo">444</span><a name="line.444"></a>
+<span class="sourceLineNo">445</span><a name="line.445"></a>
+<span class="sourceLineNo">446</span>    // create requested usage<a name="line.446"></a>
+<span class="sourceLineNo">447</span>    NubUsage nub = new NubUsage();<a name="line.447"></a>
+<span class="sourceLineNo">448</span>    nub.usage.parentKey = nubParent.usage.key;<a name="line.448"></a>
+<span class="sourceLineNo">449</span>    nub.usage.nameKey = srcName.getKey();<a name="line.449"></a>
+<span class="sourceLineNo">450</span>    nub.usage.status = src.status == null ? TaxonomicStatus.ACCEPTED : src.status;<a name="line.450"></a>
+<span class="sourceLineNo">451</span>    nub.usage.rank = nubRank;<a name="line.451"></a>
+<span class="sourceLineNo">452</span>    nub.usage.accordingToKey = 0;<a name="line.452"></a>
+<span class="sourceLineNo">453</span>    nub.usage.origin = Origin.SOURCE;<a name="line.453"></a>
+<span class="sourceLineNo">454</span>    nub.usage.sourceKey = src.key;<a name="line.454"></a>
+<span class="sourceLineNo">455</span>    nub.usage.namePublishedInKey = src.namePublishedInKey;<a name="line.455"></a>
+<span class="sourceLineNo">456</span><a name="line.456"></a>
+<span class="sourceLineNo">457</span>    nub.usage.key = getNubUsageId(nub, srcName);<a name="line.457"></a>
+<span class="sourceLineNo">458</span><a name="line.458"></a>
+<span class="sourceLineNo">459</span>    currReport.incrementCreated();<a name="line.459"></a>
+<span class="sourceLineNo">460</span>    add(srcName);<a name="line.460"></a>
+<span class="sourceLineNo">461</span>    add(nub.usage);<a name="line.461"></a>
+<span class="sourceLineNo">462</span><a name="line.462"></a>
+<span class="sourceLineNo">463</span>    LOG.debug("Nub {} {} created: {}", nub.usage.rank, nub.usage.key, srcName.getScientificName());<a name="line.463"></a>
+<span class="sourceLineNo">464</span>    return nub;<a name="line.464"></a>
+<span class="sourceLineNo">465</span>  }<a name="line.465"></a>
+<span class="sourceLineNo">466</span><a name="line.466"></a>
+<span class="sourceLineNo">467</span>  private NubUsage createOrFindImplicitUsage(String implicitName, Rank rank, int parentKey, Origin origin) {<a name="line.467"></a>
+<span class="sourceLineNo">468</span><a name="line.468"></a>
+<span class="sourceLineNo">469</span>    // see if a nub usage with this name already exists<a name="line.469"></a>
+<span class="sourceLineNo">470</span>    NubUsage nub = findNubUsage(implicitName, rank, parentKey);<a name="line.470"></a>
+<span class="sourceLineNo">471</span><a name="line.471"></a>
+<span class="sourceLineNo">472</span>    if (nub == null) {<a name="line.472"></a>
+<span class="sourceLineNo">473</span>      // create new usage<a name="line.473"></a>
+<span class="sourceLineNo">474</span>      ParsedName pn = parseAndAdd(implicitName);<a name="line.474"></a>
+<span class="sourceLineNo">475</span>      nub = new NubUsage();<a name="line.475"></a>
+<span class="sourceLineNo">476</span>      nub.usage.parentKey = parentKey;<a name="line.476"></a>
+<span class="sourceLineNo">477</span>      nub.usage.nameKey = pn.getKey();<a name="line.477"></a>
+<span class="sourceLineNo">478</span>      nub.usage.status = TaxonomicStatus.ACCEPTED;<a name="line.478"></a>
+<span class="sourceLineNo">479</span>      nub.usage.rank = rank;<a name="line.479"></a>
+<span class="sourceLineNo">480</span>      nub.usage.accordingToKey = CITATION_GBIF_NUB;<a name="line.480"></a>
+<span class="sourceLineNo">481</span>      nub.usage.origin = origin;<a name="line.481"></a>
+<span class="sourceLineNo">482</span><a name="line.482"></a>
+<span class="sourceLineNo">483</span>      nub.usage.key = getNubUsageId(nub, pn);<a name="line.483"></a>
+<span class="sourceLineNo">484</span><a name="line.484"></a>
+<span class="sourceLineNo">485</span>      LOG.debug("Implicit nub {} {} created: {}", nub.usage.rank, nub.usage.key, implicitName);<a name="line.485"></a>
+<span class="sourceLineNo">486</span>      currReport.incrementCreated();<a name="line.486"></a>
+<span class="sourceLineNo">487</span>      add(nub.usage);<a name="line.487"></a>
+<span class="sourceLineNo">488</span>    }<a name="line.488"></a>
+<span class="sourceLineNo">489</span><a name="line.489"></a>
+<span class="sourceLineNo">490</span>    return nub;<a name="line.490"></a>
+<span class="sourceLineNo">491</span>  }<a name="line.491"></a>
+<span class="sourceLineNo">492</span><a name="line.492"></a>
+<span class="sourceLineNo">493</span>  private void updateNub(NubUsage nub, Usage src, ParsedName srcName, NubUsage srcNubParent, boolean isIgnoredHigherTaxon) {<a name="line.493"></a>
+<span class="sourceLineNo">494</span>    currReport.incrementUpdated();<a name="line.494"></a>
+<span class="sourceLineNo">495</span>    processed.put(src.key, nub.usage.key);<a name="line.495"></a>
+<span class="sourceLineNo">496</span><a name="line.496"></a>
+<span class="sourceLineNo">497</span>    if (nub.matchType != NameUsageMatch.MatchType.EXACT) {<a name="line.497"></a>
+<span class="sourceLineNo">498</span>      LOG.info("Update nub {} {} with {} matching {} {}, confidence={}", nub.usage.rank, CacheUtils.nameOf(nub.usage,nubCache), nub.matchType, src.rank, srcName.getScientificName(), nub.confidence);<a name="line.498"></a>
+<span class="sourceLineNo">499</span>    } else {<a name="line.499"></a>
+<span class="sourceLineNo">500</span>      LOG.debug("Update nub {} {} with {} matching {} {}, confidence={}", nub.usage.rank, CacheUtils.nameOf(nub.usage,nubCache), nub.matchType, src.rank, srcName.getScientificName(), nub.confidence);<a name="line.500"></a>
+<span class="sourceLineNo">501</span>    }<a name="line.501"></a>
+<span class="sourceLineNo">502</span><a name="line.502"></a>
+<span class="sourceLineNo">503</span>    if (!isIgnoredHigherTaxon) {<a name="line.503"></a>
+<span class="sourceLineNo">504</span>      //TODO: implement updates<a name="line.504"></a>
+<span class="sourceLineNo">505</span>      // if the nub usage to be updated was created in the same checklist, allow taxonomic status changes!<a name="line.505"></a>
+<span class="sourceLineNo">506</span>      if (processed.containsKey(nub.usage.sourceKey)) {<a name="line.506"></a>
+<span class="sourceLineNo">507</span><a name="line.507"></a>
+<span class="sourceLineNo">508</span>      }<a name="line.508"></a>
+<span class="sourceLineNo">509</span>    }<a name="line.509"></a>
+<span class="sourceLineNo">510</span><a name="line.510"></a>
+<span class="sourceLineNo">511</span>    // all of the following updates are also applied to higher taxa<a name="line.511"></a>
+<span class="sourceLineNo">512</span>    if (nub.usage.namePublishedInKey &lt;= 0) {<a name="line.512"></a>
+<span class="sourceLineNo">513</span>      nub.usage.namePublishedInKey = src.namePublishedInKey;<a name="line.513"></a>
+<span class="sourceLineNo">514</span>    }<a name="line.514"></a>
+<span class="sourceLineNo">515</span><a name="line.515"></a>
+<span class="sourceLineNo">516</span>    // update classification?<a name="line.516"></a>
+<span class="sourceLineNo">517</span>    if (srcNubParent != null) {<a name="line.517"></a>
+<span class="sourceLineNo">518</span>      if (classificationUpdateable(nub.usage.parentKey, srcNubParent.usage) ) {<a name="line.518"></a>
+<span class="sourceLineNo">519</span>        LOG.info("Classification update of {} from {} to {}", CacheUtils.nameOf(nub.usage, nubCache), CacheUtils.nameOf(nubCache.get(nub.usage.parentKey), nubCache), CacheUtils.nameOf(srcNubParent.usage, nubCache));<a name="line.519"></a>
+<span class="sourceLineNo">520</span>        nub.usage.parentKey = srcNubParent.usage.key;<a name="line.520"></a>
+<span class="sourceLineNo">521</span>      }<a name="line.521"></a>
+<span class="sourceLineNo">522</span>    }<a name="line.522"></a>
+<span class="sourceLineNo">523</span>  }<a name="line.523"></a>
+<span class="sourceLineNo">524</span><a name="line.524"></a>
+<span class="sourceLineNo">525</span>  /**<a name="line.525"></a>
+<span class="sourceLineNo">526</span>   * Verifies that the old parent nub key also appears in the new, more detailed classification.<a name="line.526"></a>
+<span class="sourceLineNo">527</span>   * @param oldParentKey the old nub parent key<a name="line.527"></a>
+<span class="sourceLineNo">528</span>   * @param newParent  the proposed new nub parent<a name="line.528"></a>
+<span class="sourceLineNo">529</span>   * @return true if the new parent can be used instead of the old parent key without altering the taxonomic concept<a name="line.529"></a>
+<span class="sourceLineNo">530</span>   */<a name="line.530"></a>
+<span class="sourceLineNo">531</span>  private boolean classificationUpdateable(int oldParentKey, Usage newParent) {<a name="line.531"></a>
+<span class="sourceLineNo">532</span>    if (oldParentKey == newParent.key) {<a name="line.532"></a>
+<span class="sourceLineNo">533</span>      return false;<a name="line.533"></a>
+<span class="sourceLineNo">534</span>    }<a name="line.534"></a>
+<span class="sourceLineNo">535</span>    if (oldParentKey == incertaeSedis.usage.key) {<a name="line.535"></a>
+<span class="sourceLineNo">536</span>      return true;<a name="line.536"></a>
+<span class="sourceLineNo">537</span>    }<a name="line.537"></a>
+<span class="sourceLineNo">538</span><a name="line.538"></a>
+<span class="sourceLineNo">539</span>    // if the old parentKey exists in the hierarchy of the new one, its all good<a name="line.539"></a>
+<span class="sourceLineNo">540</span>    Usage p = newParent;<a name="line.540"></a>
+<span class="sourceLineNo">541</span>    do {<a name="line.541"></a>
+<span class="sourceLineNo">542</span>      p = nubCache.get(p.parentKey);<a name="line.542"></a>
+<span class="sourceLineNo">543</span>      if (p.parentKey == oldParentKey) {<a name="line.543"></a>
+<span class="sourceLineNo">544</span>        return true;<a name="line.544"></a>
+<span class="sourceLineNo">545</span>      }<a name="line.545"></a>
+<span class="sourceLineNo">546</span>    } while (p.parentKey &gt; 0);<a name="line.546"></a>
+<span class="sourceLineNo">547</span><a name="line.547"></a>
+<span class="sourceLineNo">548</span>    return false;<a name="line.548"></a>
+<span class="sourceLineNo">549</span>  }<a name="line.549"></a>
+<span class="sourceLineNo">550</span>  /**<a name="line.550"></a>
+<span class="sourceLineNo">551</span>   * Finds an existing nub id or assigns a new identifier that has never been used before in the nub.<a name="line.551"></a>
+<span class="sourceLineNo">552</span>   * Existing ids are detected by matching the new nub usage to the old nub via the external matching webservice.<a name="line.552"></a>
+<span class="sourceLineNo">553</span>   * @return the nub id to be used for this nub usage<a name="line.553"></a>
+<span class="sourceLineNo">554</span>   */<a name="line.554"></a>
+<span class="sourceLineNo">555</span>  private int getNubUsageId(NubUsage nub, ParsedName nubName) {<a name="line.555"></a>
+<span class="sourceLineNo">556</span>    if (previousNubMatcher != null) {<a name="line.556"></a>
+<span class="sourceLineNo">557</span>      LinneanClassification lc = nubCache.getClassification(nub.usage.key);<a name="line.557"></a>
+<span class="sourceLineNo">558</span>      NameUsageMatch match = tightMatch(previousNubMatcher.match(nubName.getScientificName(), nub.usage.rank, lc, true, false));<a name="line.558"></a>
+<span class="sourceLineNo">559</span>      if (match != null) {<a name="line.559"></a>
+<span class="sourceLineNo">560</span>        // verify that we have not used this id before in the nub build<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        Usage otherNub = nubCache.get(match.getUsageKey());<a name="line.561"></a>
+<span class="sourceLineNo">562</span>        if (otherNub == null) {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>          return match.getUsageKey();<a name="line.563"></a>
+<span class="sourceLineNo">564</span>        } else {<a name="line.564"></a>
+<span class="sourceLineNo">565</span>          LOG.warn("The same previous nub id {} matches 2 usages in the new nub: {} and {} with new id {}", CacheUtils.nameOf(otherNub, nubCache), nubName.getScientificName(), nextNubKey);<a name="line.565"></a>
+<span class="sourceLineNo">566</span>        }<a name="line.566"></a>
+<span class="sourceLineNo">567</span>      }<a name="line.567"></a>
+<span class="sourceLineNo">568</span>    }<a name="line.568"></a>
+<span class="sourceLineNo">569</span>    currReport.newId(nextNubKey, nubName.getScientificName());<a name="line.569"></a>
+<span class="sourceLineNo">570</span>    return nextNubKey++;<a name="line.570"></a>
+<span class="sourceLineNo">571</span>  }<a name="line.571"></a>
+<span class="sourceLineNo">572</span><a name="line.572"></a>
+<span class="sourceLineNo">573</span>  private List&lt;Dataset&gt; listChecklistsFaked() {<a name="line.573"></a>
+<span class="sourceLineNo">574</span>    List&lt;Dataset&gt; datasets = Lists.newArrayList();<a name="line.574"></a>
+<span class="sourceLineNo">575</span>    datasets.add(datasetService.get(COL_KEY));<a name="line.575"></a>
+<span class="sourceLineNo">576</span>    datasets.add(datasetService.get(UUID.fromString("714c64e3-2dc1-4bb7-91e4-54be5af4da12")));<a name="line.576"></a>
+<span class="sourceLineNo">577</span>    datasets.add(datasetService.get(UUID.fromString("672aca30-f1b5-43d3-8a2b-c1606125fa1b")));<a name="line.577"></a>
+<span class="sourceLineNo">578</span>    datasets.add(datasetService.get(UUID.fromString("d9f426e7-845c-4a63-be0d-18506f235357")));<a name="line.578"></a>
+<span class="sourceLineNo">579</span>    datasets.add(datasetService.get(UUID.fromString("bb5f507f-f7de-4a5a-ae7f-ad8abbe68bef")));<a name="line.579"></a>
+<span class="sourceLineNo">580</span>    datasets.add(datasetService.get(UUID.fromString("26bca1b5-3ef6-4e97-9672-0058c79185fb")));<a name="line.580"></a>
+<span class="sourceLineNo">581</span>    datasets.add(datasetService.get(UUID.fromString("c696e5ee-9088-4d11-bdae-ab88daffab78")));<a name="line.581"></a>
+<span class="sourceLineNo">582</span>    datasets.add(datasetService.get(UUID.fromString("3f8a1297-3259-4700-91fc-acc4170b27ce")));<a name="line.582"></a>
+<span class="sourceLineNo">583</span>    return datasets;<a name="line.583"></a>
+<span class="sourceLineNo">584</span>  }<a name="line.584"></a>
+<span class="sourceLineNo">585</span>  /**<a name="line.585"></a>
+<span class="sourceLineNo">586</span>   * @return list of checklists used to build the nub. Order and selection is based on the clb:nubPriority tag<a name="line.586"></a>
+<span class="sourceLineNo">587</span>   */<a name="line.587"></a>
+<span class="sourceLineNo">588</span>  private List&lt;Dataset&gt; listChecklists() {<a name="line.588"></a>
+<span class="sourceLineNo">589</span>    DatasetSearchRequest req = new DatasetSearchRequest();<a name="line.589"></a>
+<span class="sourceLineNo">590</span>    req.addTypeFilter(DatasetType.CHECKLIST);<a name="line.590"></a>
+<span class="sourceLineNo">591</span>    req.setLimit(1000);<a name="line.591"></a>
+<span class="sourceLineNo">592</span><a name="line.592"></a>
+<span class="sourceLineNo">593</span>    SortedMap&lt;String, Dataset&gt; nubSources = Maps.newTreeMap();<a name="line.593"></a>
+<span class="sourceLineNo">594</span>    for (DatasetSearchResult res : searchService.search(req).getResults()) {<a name="line.594"></a>
+<span class="sourceLineNo">595</span>      Dataset d = datasetService.get(res.getKey());<a name="line.595"></a>
+<span class="sourceLineNo">596</span>      for (MachineTag mt : d.getMachineTags()) {<a name="line.596"></a>
+<span class="sourceLineNo">597</span>        if (mt.getNamespace().equals(MT_NAMESPACE) &amp;&amp; mt.getName().equals(MT_NUB_PRIORITY_NAME)) {<a name="line.597"></a>
+<span class="sourceLineNo">598</span>          nubSources.put(mt.getValue(), d);<a name="line.598"></a>
+<span class="sourceLineNo">599</span>        }<a name="line.599"></a>
+<span class="sourceLineNo">600</span>      }<a name="line.600"></a>
+<span class="sourceLineNo">601</span>    }<a name="line.601"></a>
+<span class="sourceLineNo">602</span>    LOG.info("Found {} tagged checklists in registry to build a new nub from", nubSources.size());<a name="line.602"></a>
+<span class="sourceLineNo">603</span><a name="line.603"></a>
+<span class="sourceLineNo">604</span>    return Lists.newArrayList(nubSources.values());<a name="line.604"></a>
+<span class="sourceLineNo">605</span>  }<a name="line.605"></a>
+<span class="sourceLineNo">606</span><a name="line.606"></a>
+<span class="sourceLineNo">607</span>  private void addKingdoms() {<a name="line.607"></a>
+<span class="sourceLineNo">608</span>    for (Kingdom k : Kingdom.values()){<a name="line.608"></a>
+<span class="sourceLineNo">609</span>      ParsedName pn = new ParsedName();<a name="line.609"></a>
+<span class="sourceLineNo">610</span>      pn.setScientificName(k.scientificName());<a name="line.610"></a>
+<span class="sourceLineNo">611</span>      pn.setGenusOrAbove(k.scientificName());<a name="line.611"></a>
+<span class="sourceLineNo">612</span>      pn.setKey(k.clbNameID());<a name="line.612"></a>
+<span class="sourceLineNo">613</span>      add(pn);<a name="line.613"></a>
+<span class="sourceLineNo">614</span><a name="line.614"></a>
+<span class="sourceLineNo">615</span>      Usage u = new Usage();<a name="line.615"></a>
+<span class="sourceLineNo">616</span>      u.key=k.nubUsageID();<a name="line.616"></a>
+<span class="sourceLineNo">617</span>      u.status = TaxonomicStatus.ACCEPTED;<a name="line.617"></a>
+<span class="sourceLineNo">618</span>      u.rank=Rank.KINGDOM;<a name="line.618"></a>
+<span class="sourceLineNo">619</span>      u.accordingToKey = CITATION_GBIF_NUB;<a name="line.619"></a>
+<span class="sourceLineNo">620</span>      u.nameKey = k.clbNameID();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>      u.origin = Origin.DENORMED_CLASSIFICATION;<a name="line.621"></a>
+<span class="sourceLineNo">622</span>      add(u);<a name="line.622"></a>
+<span class="sourceLineNo">623</span>      // remember incertae sedis kingdom for last resorting parent in the nub<a name="line.623"></a>
+<span class="sourceLineNo">624</span>      if (Kingdom.INCERTAE_SEDIS == k) {<a name="line.624"></a>
+<span class="sourceLineNo">625</span>        incertaeSedis = new NubUsage(u, false, NameUsageMatch.MatchType.EXACT, 100);<a name="line.625"></a>
+<span class="sourceLineNo">626</span>      }<a name="line.626"></a>
+<span class="sourceLineNo">627</span>    }<a name="line.627"></a>
+<span class="sourceLineNo">628</span>  }<a name="line.628"></a>
+<span class="sourceLineNo">629</span><a name="line.629"></a>
+<span class="sourceLineNo">630</span>  private void add(ParsedName name) {<a name="line.630"></a>
+<span class="sourceLineNo">631</span>    nubCache.add(name);<a name="line.631"></a>
+<span class="sourceLineNo">632</span>  }<a name="line.632"></a>
+<span class="sourceLineNo">633</span><a name="line.633"></a>
+<span class="sourceLineNo">634</span>  private ParsedName parseAndAdd(String name) {<a name="line.634"></a>
+<span class="sourceLineNo">635</span>    ParsedName pn = nameService.createOrGet(name);<a name="line.635"></a>
+<span class="sourceLineNo">636</span>    add(pn);<a name="line.636"></a>
+<span class="sourceLineNo">637</span>    return pn;<a name="line.637"></a>
+<span class="sourceLineNo">638</span>  }<a name="line.638"></a>
+<span class="sourceLineNo">639</span><a name="line.639"></a>
+<span class="sourceLineNo">640</span>  private void add(Usage u) {<a name="line.640"></a>
+<span class="sourceLineNo">641</span>    if (u.sourceKey &gt; 0){<a name="line.641"></a>
+<span class="sourceLineNo">642</span>      processed.put(u.sourceKey, u.key);<a name="line.642"></a>
+<span class="sourceLineNo">643</span>    }<a name="line.643"></a>
+<span class="sourceLineNo">644</span>    // insert to nub cache<a name="line.644"></a>
+<span class="sourceLineNo">645</span>    nubCache.checkConsistency(u);<a name="line.645"></a>
+<span class="sourceLineNo">646</span>    nubCache.add(u);<a name="line.646"></a>
+<span class="sourceLineNo">647</span>    // update internal matcher.<a name="line.647"></a>
+<span class="sourceLineNo">648</span>    // The matcher uses the nubCache as the classification resolver, so only the usage name is important here!<a name="line.648"></a>
+<span class="sourceLineNo">649</span>    try {<a name="line.649"></a>
+<span class="sourceLineNo">650</span>      index.addNameUsage(u, CacheUtils.canonicalNameOf(u, nubCache));<a name="line.650"></a>
+<span class="sourceLineNo">651</span>    } catch (IOException e) {<a name="line.651"></a>
+<span class="sourceLineNo">652</span>      throw new IllegalStateException("Failed to add usage to internal index", e);<a name="line.652"></a>
+<span class="sourceLineNo">653</span>    }<a name="line.653"></a>
+<span class="sourceLineNo">654</span><a name="line.654"></a>
+<span class="sourceLineNo">655</span>    // can be null when adding kingdoms<a name="line.655"></a>
+<span class="sourceLineNo">656</span>    if (currReport != null) {<a name="line.656"></a>
+<span class="sourceLineNo">657</span>      writer.mapSource(u.sourceKey, u.key);<a name="line.657"></a>
+<span class="sourceLineNo">658</span>      currReport.incrementCreated();<a name="line.658"></a>
+<span class="sourceLineNo">659</span>    }<a name="line.659"></a>
+<span class="sourceLineNo">660</span>  }<a name="line.660"></a>
+<span class="sourceLineNo">661</span><a name="line.661"></a>
+<span class="sourceLineNo">662</span>  public NubReporter getReporter() {<a name="line.662"></a>
+<span class="sourceLineNo">663</span>    return reporter;<a name="line.663"></a>
+<span class="sourceLineNo">664</span>  }<a name="line.664"></a>
+<span class="sourceLineNo">665</span><a name="line.665"></a>
+<span class="sourceLineNo">666</span>  public static void main(String[] args) throws IOException {<a name="line.666"></a>
+<span class="sourceLineNo">667</span>    Properties p = PropertiesUtil.loadProperties("nub.properties");<a name="line.667"></a>
+<span class="sourceLineNo">668</span>    NubBuildModule module = new NubBuildModule(p);<a name="line.668"></a>
+<span class="sourceLineNo">669</span>    Injector inj = Guice.createInjector(module);<a name="line.669"></a>
+<span class="sourceLineNo">670</span>    NubGenerator gen = inj.getInstance(NubGenerator.class);<a name="line.670"></a>
+<span class="sourceLineNo">671</span>    gen.build();<a name="line.671"></a>
+<span class="sourceLineNo">672</span>  }<a name="line.672"></a>
+<span class="sourceLineNo">673</span>}<a name="line.673"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

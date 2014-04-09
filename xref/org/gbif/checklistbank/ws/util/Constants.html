@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Constants xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../apidocs/org/gbif/checklistbank/ws/util/Constants.html">View Javadoc</a></div><pre>
+
+<a class="jxr_linenumber" name="1" href="#1">1</a>   <strong class="jxr_keyword">package</strong> org.gbif.checklistbank.ws.util;
+<a class="jxr_linenumber" name="2" href="#2">2</a>   
+<a class="jxr_linenumber" name="3" href="#3">3</a>   <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="4" href="#4">4</a>   <em class="jxr_javadoccomment"> * Common variables shared by several classes.</em>
+<a class="jxr_linenumber" name="5" href="#5">5</a>   <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="6" href="#6">6</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../org/gbif/checklistbank/ws/util/Constants.html">Constants</a> {
+<a class="jxr_linenumber" name="7" href="#7">7</a>   
+<a class="jxr_linenumber" name="8" href="#8">8</a>     <em class="jxr_comment">// used in URL paths</em>
+<a class="jxr_linenumber" name="9" href="#9">9</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DATASET_METRICS_PATH = <span class="jxr_string">"dataset_metrics"</span>;
+<a class="jxr_linenumber" name="10" href="#10">10</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SPECIES_PATH = <span class="jxr_string">"species"</span>;
+<a class="jxr_linenumber" name="11" href="#11">11</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CHILDREN_PATH = <span class="jxr_string">"children"</span>;
+<a class="jxr_linenumber" name="12" href="#12">12</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PARENTS_PATH = <span class="jxr_string">"parents"</span>;
+<a class="jxr_linenumber" name="13" href="#13">13</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String RELATED_PATH = <span class="jxr_string">"related"</span>;
+<a class="jxr_linenumber" name="14" href="#14">14</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYNONYMS_PATH = <span class="jxr_string">"synonyms"</span>;
+<a class="jxr_linenumber" name="15" href="#15">15</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ROOT_USAGES_PATH = <span class="jxr_string">"root"</span>;
+<a class="jxr_linenumber" name="16" href="#16">16</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String METRICS_PATH = <span class="jxr_string">"metrics"</span>;
+<a class="jxr_linenumber" name="17" href="#17">17</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PARSED_NAME_PATH = <span class="jxr_string">"name"</span>;
+<a class="jxr_linenumber" name="18" href="#18">18</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERBATIM_PATH = <span class="jxr_string">"verbatim"</span>;
+<a class="jxr_linenumber" name="19" href="#19">19</a>    <em class="jxr_comment">// used in sub-resource URL paths</em>
+<a class="jxr_linenumber" name="20" href="#20">20</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERNACULAR_NAME_PATH = <span class="jxr_string">"vernacular_name"</span>;
+<a class="jxr_linenumber" name="21" href="#21">21</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERNACULAR_NAMES_PATH = <span class="jxr_string">"vernacular_names"</span>;
+<a class="jxr_linenumber" name="22" href="#22">22</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DESCRIPTION_PATH = <span class="jxr_string">"description"</span>;
+<a class="jxr_linenumber" name="23" href="#23">23</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DESCRIPTIONS_PATH = <span class="jxr_string">"descriptions"</span>;
+<a class="jxr_linenumber" name="24" href="#24">24</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DISTRIBUTION_PATH = <span class="jxr_string">"distribution"</span>;
+<a class="jxr_linenumber" name="25" href="#25">25</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DISTRIBUTIONS_PATH = <span class="jxr_string">"distributions"</span>;
+<a class="jxr_linenumber" name="26" href="#26">26</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IDENTIFIER_PATH = <span class="jxr_string">"identifier"</span>;
+<a class="jxr_linenumber" name="27" href="#27">27</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IDENTIFIERS_PATH = <span class="jxr_string">"identifiers"</span>;
+<a class="jxr_linenumber" name="28" href="#28">28</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IMAGE_PATH = <span class="jxr_string">"image"</span>;
+<a class="jxr_linenumber" name="29" href="#29">29</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IMAGES_PATH = <span class="jxr_string">"images"</span>;
+<a class="jxr_linenumber" name="30" href="#30">30</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String REFERENCE_PATH = <span class="jxr_string">"reference"</span>;
+<a class="jxr_linenumber" name="31" href="#31">31</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String REFERENCES_PATH = <span class="jxr_string">"references"</span>;
+<a class="jxr_linenumber" name="32" href="#32">32</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SPECIES_PROFILE_PATH = <span class="jxr_string">"species_profile"</span>;
+<a class="jxr_linenumber" name="33" href="#33">33</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SPECIES_PROFILES_PATH = <span class="jxr_string">"species_profiles"</span>;
+<a class="jxr_linenumber" name="34" href="#34">34</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TYPE_SPECIMEN_PATH = <span class="jxr_string">"type_specimen"</span>;
+<a class="jxr_linenumber" name="35" href="#35">35</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TYPE_SPECIMENS_PATH = <span class="jxr_string">"type_specimens"</span>;
+<a class="jxr_linenumber" name="36" href="#36">36</a>    <em class="jxr_comment">// Query parameters</em>
+<a class="jxr_linenumber" name="37" href="#37">37</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String NUB_KEY = <span class="jxr_string">"nubKey"</span>;
+<a class="jxr_linenumber" name="38" href="#38">38</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DATASET_KEY = <span class="jxr_string">"datasetKey"</span>;
+<a class="jxr_linenumber" name="39" href="#39">39</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String RANK = <span class="jxr_string">"rank"</span>;
+<a class="jxr_linenumber" name="40" href="#40">40</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SOURCE_ID = <span class="jxr_string">"sourceId"</span>;
+<a class="jxr_linenumber" name="41" href="#41">41</a>    <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String CANONICAL_NAME = <span class="jxr_string">"name"</span>;
+<a class="jxr_linenumber" name="42" href="#42">42</a>  
+<a class="jxr_linenumber" name="43" href="#43">43</a>    <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="44" href="#44">44</a>  <em class="jxr_javadoccomment">   * Private constructor.</em>
+<a class="jxr_linenumber" name="45" href="#45">45</a>  <em class="jxr_javadoccomment">   */</em>
+<a class="jxr_linenumber" name="46" href="#46">46</a>    <strong class="jxr_keyword">private</strong> <a href="../../../../../org/gbif/checklistbank/ws/util/Constants.html">Constants</a>() {
+<a class="jxr_linenumber" name="47" href="#47">47</a>      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"Can't initialize class"</span>);
+<a class="jxr_linenumber" name="48" href="#48">48</a>    }
+<a class="jxr_linenumber" name="49" href="#49">49</a>  }
+</pre>
+<hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
+</html>

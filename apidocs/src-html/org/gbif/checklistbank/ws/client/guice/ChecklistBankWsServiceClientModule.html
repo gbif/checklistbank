@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>/*<a name="line.1"></a>
+<span class="sourceLineNo">002</span> * Copyright 2011 Global Biodiversity Information Facility (GBIF)<a name="line.2"></a>
+<span class="sourceLineNo">003</span> *<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * Licensed under the Apache License, Version 2.0 (the "License");<a name="line.4"></a>
+<span class="sourceLineNo">005</span> * you may not use this file except in compliance with the License.<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * You may obtain a copy of the License at<a name="line.6"></a>
+<span class="sourceLineNo">007</span> *<a name="line.7"></a>
+<span class="sourceLineNo">008</span> *     http://www.apache.org/licenses/LICENSE-2.0<a name="line.8"></a>
+<span class="sourceLineNo">009</span> *<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * Unless required by applicable law or agreed to in writing, software<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * distributed under the License is distributed on an "AS IS" BASIS,<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * See the License for the specific language governing permissions and<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * limitations under the License.<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>package org.gbif.checklistbank.ws.client.guice;<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>import org.gbif.api.service.checklistbank.DatasetMetricsService;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import org.gbif.api.service.checklistbank.DescriptionService;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import org.gbif.api.service.checklistbank.DistributionService;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import org.gbif.api.service.checklistbank.ImageService;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import org.gbif.api.service.checklistbank.NameUsageService;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import org.gbif.api.service.checklistbank.ReferenceService;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import org.gbif.api.service.checklistbank.SpeciesProfileService;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import org.gbif.api.service.checklistbank.TypeSpecimenService;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import org.gbif.api.service.checklistbank.VernacularNameService;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import org.gbif.checklistbank.ws.client.DatasetMetricsWsClient;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import org.gbif.checklistbank.ws.client.DescriptionWsClient;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.gbif.checklistbank.ws.client.DistributionWsClient;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.gbif.checklistbank.ws.client.ImageWsClient;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.gbif.checklistbank.ws.client.NameUsageWsClient;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.gbif.checklistbank.ws.client.ReferenceWsClient;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.gbif.checklistbank.ws.client.SpeciesProfileWsClient;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.gbif.checklistbank.ws.client.TypeSpecimenWsClient;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.gbif.checklistbank.ws.client.VernacularNameWsClient;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>import com.google.inject.AbstractModule;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import com.google.inject.Provides;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import com.google.inject.Scopes;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import com.google.inject.Singleton;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import com.google.inject.name.Named;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import com.sun.jersey.api.client.Client;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import com.sun.jersey.api.client.WebResource;<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>/**<a name="line.45"></a>
+<span class="sourceLineNo">046</span> * Guice module that includes implementations for all the ChecklistBank services apart from NameUsageSearchService.<a name="line.46"></a>
+<span class="sourceLineNo">047</span> * It required the ChecklistBankHttpClient annotated jersey client and should not be used on its own.<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Use the main #ChecklistBankWsClientModule(false,true) instead with its configurable constructor.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * The only things left for clients to do is:<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * 1. Bind the Service class corresponding to the Client's class in configure()<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * 2. Create a method that returns a WebResource object. The method must:<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * a) Use the @Provides annotation, @singleton annotation, and the Client's specific binding annotation.<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * b) Include the @ChecklistBankHttpClient binding annotation for the the Jersey Client param.<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * c) Where possible, the WebResource returned should define its path. Our convention uses the named annotation<a name="line.54"></a>
+<span class="sourceLineNo">055</span> * "checklistbank.ws.url" (passed in as a parameter to the method) as the base URL.<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * Example path for ChecklistWs would be: Names.named("checklistbank.ws.url") + "species"<a name="line.56"></a>
+<span class="sourceLineNo">057</span> */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>public class ChecklistBankWsServiceClientModule extends AbstractModule {<a name="line.58"></a>
+<span class="sourceLineNo">059</span><a name="line.59"></a>
+<span class="sourceLineNo">060</span>  /**<a name="line.60"></a>
+<span class="sourceLineNo">061</span>   * Use the main #ChecklistBankWsClientModule(false,true) instead.<a name="line.61"></a>
+<span class="sourceLineNo">062</span>   */<a name="line.62"></a>
+<span class="sourceLineNo">063</span>  protected ChecklistBankWsServiceClientModule() {<a name="line.63"></a>
+<span class="sourceLineNo">064</span>  }<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>  @Override<a name="line.66"></a>
+<span class="sourceLineNo">067</span>  protected void configure() {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    // usages<a name="line.68"></a>
+<span class="sourceLineNo">069</span>    bind(NameUsageService.class).to(NameUsageWsClient.class).in(Scopes.SINGLETON);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>    // usage components<a name="line.70"></a>
+<span class="sourceLineNo">071</span>    bind(DescriptionService.class).to(DescriptionWsClient.class).in(Scopes.SINGLETON);<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    bind(DistributionService.class).to(DistributionWsClient.class).in(Scopes.SINGLETON);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>    bind(ImageWsClient.class).in(Scopes.SINGLETON);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    bind(ImageService.class).to(ImageWsClient.class).in(Scopes.SINGLETON);<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    bind(ReferenceService.class).to(ReferenceWsClient.class).in(Scopes.SINGLETON);<a name="line.75"></a>
+<span class="sourceLineNo">076</span>    bind(SpeciesProfileService.class).to(SpeciesProfileWsClient.class).in(Scopes.SINGLETON);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>    bind(TypeSpecimenService.class).to(TypeSpecimenWsClient.class).in(Scopes.SINGLETON);<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    bind(VernacularNameService.class).to(VernacularNameWsClient.class).in(Scopes.SINGLETON);<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    // metrics<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    bind(DatasetMetricsService.class).to(DatasetMetricsWsClient.class).in(Scopes.SINGLETON);<a name="line.80"></a>
+<span class="sourceLineNo">081</span>  }<a name="line.81"></a>
+<span class="sourceLineNo">082</span><a name="line.82"></a>
+<span class="sourceLineNo">083</span>  /**<a name="line.83"></a>
+<span class="sourceLineNo">084</span>   * @return the web resource to the name usage base url<a name="line.84"></a>
+<span class="sourceLineNo">085</span>   */<a name="line.85"></a>
+<span class="sourceLineNo">086</span>  @Provides<a name="line.86"></a>
+<span class="sourceLineNo">087</span>  @Singleton<a name="line.87"></a>
+<span class="sourceLineNo">088</span>  @ChecklistBankWs<a name="line.88"></a>
+<span class="sourceLineNo">089</span>  private WebResource providesNameUsageWsWebResource(Client client, @Named("checklistbank.ws.url") String url) {<a name="line.89"></a>
+<span class="sourceLineNo">090</span>    return client.resource(url);<a name="line.90"></a>
+<span class="sourceLineNo">091</span>  }<a name="line.91"></a>
+<span class="sourceLineNo">092</span><a name="line.92"></a>
+<span class="sourceLineNo">093</span>}<a name="line.93"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
