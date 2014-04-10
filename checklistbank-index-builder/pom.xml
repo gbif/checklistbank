@@ -13,7 +13,6 @@
   <packaging>jar</packaging>
 
   <name>ChecklistBank Index Builder</name>
-  <url>http://sites.gbif.org/ecat/checklistbank-index</url>
 
   <properties>
     <!-- by default we use an embedded solr server -->
