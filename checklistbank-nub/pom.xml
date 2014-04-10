@@ -76,11 +76,11 @@
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -101,7 +101,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
@@ -120,7 +120,7 @@
       <artifactId>jul-to-slf4j</artifactId>
       <scope>runtime</scope>
     </dependency>
-    
+
     <!-- GBIF dependencies -->
     <dependency>
       <groupId>org.gbif</groupId>
@@ -133,7 +133,7 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common-ws</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>dwca-reader</artifactId>

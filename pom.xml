@@ -43,7 +43,7 @@
 
   <properties>
     <dwc-api.version>1.5</dwc-api.version>
-    <gbif-api.version>0.12</gbif-api.version>
+    <gbif-api.version>0.13-SNAPSHOT</gbif-api.version>
     <gbif-common.version>0.15</gbif-common.version>
     <gbif-common-mybatis.version>0.10</gbif-common-mybatis.version>
     <gbif-common-search.version>0.14</gbif-common-search.version>
@@ -107,6 +107,15 @@
   </modules>
 
 
+  <build>
+    <plugins>
+      <!-- run integration tests (*IT) during verify -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
   <!--
     Fix versions of certain dependencies here, which can be included
     by sub modules by declaring only the groupId and artifactId.  The

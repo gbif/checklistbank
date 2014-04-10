@@ -198,7 +198,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   @VisibleForTesting
   protected NameUsageMatch match(String canonicalName, Rank rank, LinneanClassification lc, boolean fuzzySearch, int minConfidence, boolean verbose){
     if (Strings.isNullOrEmpty(canonicalName)) {
-      throw new IllegalArgumentException("A scientific name is required for matching");
+      return noMatch(100, "No name given", null);
     }
 
     // first try our manual hackmap

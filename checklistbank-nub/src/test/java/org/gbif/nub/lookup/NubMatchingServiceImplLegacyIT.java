@@ -50,14 +50,15 @@ public class NubMatchingServiceImplLegacyIT {
     matcher.match("FAMILY", null, cl, true, 50, true);
   }
 
-   @Test(expected = IllegalArgumentException.class)
-   public void testIAE() throws IOException {
+   @Test
+   public void testNoMatch() throws IOException {
      LinneanClassification cl = new NameUsageMatch();
-     matcher.match("", null, cl, false, 50, true);
+     NameUsageMatch m = matcher.match("", null, cl, false, 50, true);
+     assertEquals(NameUsageMatch.MatchType.NONE, m.getMatchType());
    }
 
   @Test
-  public void testEmptyRating() throws IOException {
+  public void testClassificationSimilarity() throws IOException {
 
     LinneanClassification cn1 = new NameUsageMatch();
     LinneanClassification cn2 = new NameUsageMatch();
@@ -67,14 +68,18 @@ public class NubMatchingServiceImplLegacyIT {
     assertTrue(score < 0);
 
     cn1.setFamily("Asteraceae");
+    cn2.setFamily("Asteraceae");
+    score = matcher.classificationSimilarity(cn1, cn2);
+    assertTrue(score > 10);
+
     cn2.setFamily("Asteraceaee");
     score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score < -10);
+    assertTrue(score <= -5);
 
     cn1.setKingdom("A");
     cn2.setKingdom("B");
     score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score < -20);
+    assertTrue(score < -12);
   }
 
   /**
@@ -102,7 +107,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     // test identical
     int score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score > 50);
+    assertTrue(score > 45);
 
 
     // test kingdom synonym
@@ -119,17 +124,16 @@ public class NubMatchingServiceImplLegacyIT {
     cn2.setKingdom("Protozoa");
     score = matcher.classificationSimilarity(cn1, cn2);
     assertTrue(score > -10);
-    assertTrue(score < 0);
+    assertTrue(score <= 0);
 
     // test very different kingdom
     cn2.setKingdom("Animalia");
     score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score < -20);
+    assertTrue(score <= -15);
   }
 
   /**
    * Plantae	Rhodophyta	Amphibia rodophyta
-   * @throws java.io.IOException
    */
   @Test
   public void testAmphibiaRating() throws IOException {
@@ -144,7 +148,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     // test identical
     int score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score > 20);
+    assertTrue(score > 16);
 
   }
 
