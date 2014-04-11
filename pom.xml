@@ -103,7 +103,6 @@
     <module>checklistbank-nub</module>
     <module>checklistbank-nub-ws</module>
     <module>checklistbank-col</module>
-    <!--module>checklistbank-crawl</module-->
   </modules>
 
 
