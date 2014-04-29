@@ -74,7 +74,7 @@ public class NameUsageSearchServiceImpl
   public NameUsageSearchServiceImpl(SolrServer server) {
     // Type parameter bounded to NameUsageSearch
     super(server, null, NameUsageSearchResult.class, NameUsageSolrSearchResult.class,
-      NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER, false);
+      NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER);
   }
 
   @Override
