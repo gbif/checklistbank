@@ -617,8 +617,11 @@
   <!--
      Custom response writers can be declared as needed...
     -->
-    <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy"/>
+  <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy"/>
   
+  <queryResponseWriter name="json" class="solr.JSONResponseWriter">
+    <bool name="useJsonContentType">true</bool>
+  </queryResponseWriter>
   <!-- Legacy config for the admin interface -->
   <admin>
     <defaultQuery>*:*</defaultQuery>
