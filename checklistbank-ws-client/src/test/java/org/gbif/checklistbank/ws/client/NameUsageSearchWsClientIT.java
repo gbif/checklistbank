@@ -185,10 +185,10 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     result = assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.MISAPPLIED, 0l, null);
 
     // EXTINCT
-    result = assertSearch("Sciurus", NameUsageSearchParameter.EXTINCT, 30L, null);
-    result = assertSearch("Sciurus", NameUsageSearchParameter.EXTINCT, "false", 1l, null);
+    result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 30L, null);
+    result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "false", 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
-    result = assertSearch("Sciurus", NameUsageSearchParameter.EXTINCT, "true", 0l, null);
+    result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 0l, null);
 
     // MARINE
     result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);

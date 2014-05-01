@@ -2,6 +2,7 @@
 *.iml
 .idea/
 target/
+checklistbank*/logs
 
 # Package Files #
 *.jar

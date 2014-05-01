@@ -67,7 +67,7 @@ import org.apache.solr.client.solrj.beans.Field;
     @FacetField(name = "STATUS", field = "taxonomic_status_key"),
     @FacetField(name = "RANK", field = "rank_key"),
     @FacetField(name = "THREAT", field = "threat_status_key"),
-    @FacetField(name = "EXTINCT", field = "extinct"),
+    @FacetField(name = "IS_EXTINCT", field = "extinct"),
     @FacetField(name = "NOMENCLATURAL_STATUS", field = "nomenclatural_status_key"),
     @FacetField(name = "NAME_TYPE", field = "name_type"),
     @FacetField(name = "HABITAT", field = "marine")
