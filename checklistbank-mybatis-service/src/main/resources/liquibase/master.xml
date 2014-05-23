@@ -10,5 +10,8 @@
   <changeSet id="2" author="markus">
     <sqlFile path="liquibase/col_feedback.sql"/>
   </changeSet>
+  <changeSet id="3" author="markus">
+    <sqlFile path="liquibase/dc_references.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

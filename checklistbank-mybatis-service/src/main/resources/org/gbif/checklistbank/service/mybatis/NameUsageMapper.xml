@@ -13,10 +13,11 @@ CASE WHEN u.is_synonym THEN coalesce(parn2.canonical_name, parn2.scientific_name
 CASE WHEN u.is_synonym THEN u.parent_fk ELSE null END as acceptedKey,
 CASE WHEN u.is_synonym THEN parn.scientific_name ELSE null END as accepted,
 u.basionym_fk, basn.scientific_name as basionym,
-u.is_synonym, u.pp_synonym_fk, u.origin,u.status,u.nom_status,u.rank,
+u.is_synonym, u.pp_synonym_fk, u.origin,u.status,u.nom_status,u.rank,u.references,
 n.scientific_name, n.canonical_name, n.type as nameType,
 authorship_full(n.authorship,n.year,n.bracket_authorship, n.bracket_year) as authorship,
 pub.citation as publishedIn, accto.citation as accordingTo,
+u.source_id, u."references",
 ku.id as kid, coalesce(kn.canonical_name,kn.scientific_name) as kingdom,
 pu.id as pid, coalesce(pn.canonical_name,pn.scientific_name) as phylum,
 cu.id as cid, coalesce(cn.canonical_name,cn.scientific_name) as class,
@@ -89,14 +90,8 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
     <result property="genusKey" column="gid"/>
     <result property="subgenusKey" column="sgid"/>
     <result property="speciesKey" column="sid"/>
+    <result property="references" column="references"/>
   </resultMap>
-
-  <!--  A mapping to build a NameUsage without any identifiers or a vernacular name -->
-  <resultMap id="usageResultMapWithIdentifiers" type="NameUsage" extends="usageResultMap">
-    <result property="link" column="link"/>
-    <result property="sourceId" column="sourceId"/>
-  </resultMap>
-
 
   <!--  Get by primary key -->
   <select id="get" parameterType="map" resultMap="usageResultMap">
@@ -125,16 +120,12 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
     WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
   </select>
 
-  <!--  list a range of name usages which already have a sourceID and a link URL populated !!! -->
-  <select id="listRange" parameterType="map" resultMap="usageResultMapWithIdentifiers">
-    SELECT DISTINCT on (u.id)
-    <include refid="select"/>,
-    src.identifier as sourceId,
-    link.identifier as link
+  <!--  list a range of name usages -->
+  <select id="listRange" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
     FROM
     <include refid="from"/>
-    LEFT JOIN identifier src on u.id=src.usage_fk and src.type='SOURCE_ID'
-    LEFT JOIN identifier link on u.id=link.usage_fk and link.type='URL'
     WHERE u.id between #{start} and #{end}
   </select>
 
@@ -217,8 +208,7 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    JOIN identifier src ON u.id=src.usage_fk AND src.type='SOURCE_ID'
-    WHERE src.identifier=#{sourceId}
+    WHERE u.source_id=#{sourceId}
     <if test="uuid != null">
       AND u.dataset_key=#{uuid, jdbcType=OTHER}
     </if>

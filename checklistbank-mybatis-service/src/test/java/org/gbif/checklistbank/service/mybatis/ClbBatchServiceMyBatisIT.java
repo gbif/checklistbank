@@ -4,11 +4,10 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
+import java.net.URI;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.collect.Sets;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -47,9 +46,7 @@ public class ClbBatchServiceMyBatisIT {
       if (nu.getKey().equals(100000007)) {
         found = true;
         assertEquals("6905528", nu.getSourceId());
-        Set<String> expectedLinks = Sets.newHashSet("http://www.catalogueoflife.org/details/species/id/6905528",
-          "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=632417");
-        assertTrue(expectedLinks.contains(nu.getLink()));
+        assertEquals(URI.create("http://www.catalogueoflife.org/details/species/id/6905528"), nu.getReferences());
       }
     }
     if (!found) {

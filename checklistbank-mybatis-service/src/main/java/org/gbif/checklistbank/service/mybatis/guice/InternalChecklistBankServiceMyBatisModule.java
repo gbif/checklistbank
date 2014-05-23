@@ -64,8 +64,10 @@ import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.mybatis.type.CountryTypeHandler;
 import org.gbif.mybatis.type.LanguageTypeHandler;
+import org.gbif.mybatis.type.UriTypeHandler;
 import org.gbif.mybatis.type.UuidTypeHandler;
 
+import java.net.URI;
 import java.util.UUID;
 
 import com.google.inject.Scopes;
@@ -127,6 +129,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     handleType(Country.class).with(CountryTypeHandler.class);
     handleType(Language.class).with(LanguageTypeHandler.class);
     handleType(UUID.class).with(UuidTypeHandler.class);
+    handleType(URI.class).with(UriTypeHandler.class);
   }
 
   @Override

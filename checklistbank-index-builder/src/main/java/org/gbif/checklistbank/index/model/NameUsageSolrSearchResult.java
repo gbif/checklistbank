@@ -230,12 +230,6 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
   }
 
   @Override
-  @Field("link")
-  public void setLink(String link) {
-    super.setLink(link);
-  }
-
-  @Override
   @Field("marine")
   public void setMarine(Boolean marine) {
     super.setMarine(marine);

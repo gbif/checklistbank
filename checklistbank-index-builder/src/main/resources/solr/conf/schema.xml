@@ -19,13 +19,13 @@
         compression (if enabled in the derived fields) to values which exceed a certain
         size (in characters). -->
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
-  
+
     <!-- boolean type: "true" or "false" -->
     <fieldType name="boolean" class="solr.BoolField" sortMissingLast="true" omitNorms="true"/>
     <!--Binary data type. The data should be sent/retrieved in as Base64 encoded
         Strings -->
     <fieldtype name="binary" class="solr.BinaryField"/>
-  
+
     <!-- The optional sortMissingLast and sortMissingFirst attributes are currently
         supported on types that are sorted internally as strings. This includes "string","boolean","sint","slong","sfloat","sdouble","pdate"
         - If sortMissingLast="true", then a sort on this field will cause documents
@@ -36,7 +36,7 @@
         and sortMissingFirst="false" (the default), then default lucene sorting will
         be used which places docs without the field first in an ascending sort and
         last in a descending sort. -->
-  
+
     <!-- Default numeric field types. For faster range queries, consider the
         tint/tfloat/tlong/tdouble types. -->
     <fieldType name="int" class="solr.TrieIntField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
@@ -48,7 +48,7 @@
     <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="long" class="solr.TrieLongField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
     <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" omitNorms="true" positionIncrementGap="0"/>
-  
+
     <!-- The format for this date field is of the form 1995-12-31T23:59:59Z,
         and is a more restricted form of the canonical representation of dateTime
         http://www.w3.org/TR/xmlschema-2/#dateTime The trailing "Z" designates UTC
@@ -60,10 +60,10 @@
         in the future from the start of the current day Consult the DateField javadocs
         for more information. Note: For faster range queries, consider the tdate
         type -->
-  
-  
+
+
     <fieldType name="date" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
-  
+
     <!-- A text field that uses WordDelimiterFilter to enable splitting and
         matching of words on case-change, alpha numeric boundaries, and non-alphanumeric
         chars, so that a query of "wifi" or "wi fi" could match a document containing
@@ -88,8 +88,8 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.SnowballPorterFilterFactory" language="English" protected="protwords.txt"/>
       </analyzer>
-    </fieldType>    
-  
+    </fieldType>
+
     <!-- lowercases the entire field value, keeping it as a single token. -->
     <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
@@ -124,8 +124,8 @@
     <!-- since fields of this type are by default not stored or indexed, any
         data added to them will be ignored outright. -->
     <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
-    
-    <!-- Field type used for autocomplete functionality when the input is a phrase query -->  
+
+    <!-- Field type used for autocomplete functionality when the input is a phrase query -->
     <fieldType name="text_auto_edge" class="solr.TextField">
      <analyzer type="index">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
@@ -139,7 +139,7 @@
        <filter class="solr.LowerCaseFilterFactory"/>
      </analyzer>
     </fieldType>
-  
+
     <!-- Field type used for autocomplete functionality when the input is a single term.
         Supports partial matching of words. -->
     <fieldType name="text_auto_ngram" class="solr.TextField">
@@ -156,7 +156,7 @@
       </analyzer>
     </fieldType>
   </types>
-  
+
   <fields>
     <field name="key" type="intSimple" indexed="true" stored="true" required="true"/>
     <field name="nub_key" type="int" indexed="true" stored="true"/>
@@ -184,7 +184,6 @@
 
     <field name="published_in" type="text" indexed="true" stored="true"/>
     <field name="according_to" type="text" indexed="true" stored="true"/>
-    <field name="link" type="string" indexed="true" stored="true"/>
 
     <field name="kingdom_key" type="int" indexed="true" stored="true"/>
     <field name="kingdom" type="sciname" indexed="true" stored="true"/>

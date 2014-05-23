@@ -37,14 +37,14 @@
     <include refid="page"/>
   </select>
 
-  <!-- get all identifiers for a nub usage, ignoring sourceIds from other usages -->
+  <!-- get all identifiers for a nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="identifierResultMap">
     SELECT
     <include refid="select"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
-    WHERE (rel.nub_fk=#{key} AND i.type!='SOURCE_ID') OR i.usage_fk=#{key}
+    WHERE rel.nub_fk=#{key} OR i.usage_fk=#{key}
     ORDER BY i.type, i.id
     <include refid="page"/>
   </select>
@@ -66,7 +66,7 @@
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
-    WHERE (rel.nub_fk BETWEEN #{start} AND #{end} AND i.type!='SOURCE_ID') OR (i.usage_fk BETWEEN #{start} AND #{end})
+    WHERE (rel.nub_fk BETWEEN #{start} AND #{end}) OR (i.usage_fk BETWEEN #{start} AND #{end})
   </select>
 
 </mapper>

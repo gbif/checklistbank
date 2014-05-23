@@ -22,6 +22,7 @@ import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -175,13 +176,8 @@ public class NameUsageWsClientIT extends ClientMyBatisITBase<NameUsageService> {
     assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), rodentia.getDatasetKey());
     assertNull(rodentia.getPublishedIn());
 
-    // identifiers are eagerly loaded
-    // <identifier id="4" usage_fk="100000004" identifier="1000" type_fk="2007"/>
-    assertEquals(1, rodentia.getIdentifiers().size());
-    assertEquals(rodentia.getKey(), rodentia.getIdentifiers().get(0).getUsageKey());
-    assertEquals("1000", rodentia.getIdentifiers().get(0).getIdentifier());
-    assertEquals(IdentifierType.SOURCE_ID, rodentia.getIdentifiers().get(0).getType());
-    assertEquals("Hau Ruck", rodentia.getIdentifiers().get(0).getTitle());
+    assertEquals(0, rodentia.getIdentifiers().size());
+    assertEquals("1000", rodentia.getSourceId());
 
 
     NameUsage squirrel = wsClient.get(100000025, Locale.UK);
@@ -242,20 +238,12 @@ public class NameUsageWsClientIT extends ClientMyBatisITBase<NameUsageService> {
 
     // TEST MULTIPLE IDENTIFIERS
     squirrel = wsClient.get(100000007, Locale.GERMANY);
-    Set<Integer> ids = Sets.newHashSet(7, 102, 103, 104, 105);
+    assertEquals("6905528", squirrel.getSourceId());
+    assertEquals(URI.create("http://www.catalogueoflife.org/details/species/id/6905528"), squirrel.getReferences());
+    Set<Integer> ids = Sets.newHashSet(103, 104, 105);
     for (Identifier id : squirrel.getIdentifiers()) {
       assertEquals(squirrel.getKey(), id.getUsageKey());
       switch (id.getKey()) {
-        case 7:
-          assertEquals("6905528", id.getIdentifier());
-          assertEquals(IdentifierType.SOURCE_ID, id.getType());
-          assertEquals("Bonjour mon capitain", id.getTitle());
-          break;
-        case 102:
-          assertEquals("http://www.catalogueoflife.org/details/species/id/6905528", id.getIdentifier());
-          assertEquals(IdentifierType.URL, id.getType());
-          assertNull(id.getTitle());
-          break;
         case 103:
           assertEquals("urn:lsid:catalogueoflife.org:taxon:df0a319c-29c1-102b-9a4a-00304854f820:col20120721",
             id.getIdentifier());
