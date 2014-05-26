@@ -22,6 +22,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.common.search.model.FacetField;
+import org.gbif.common.search.model.FacetField.Method;
 import org.gbif.common.search.model.FullTextSearchField;
 import org.gbif.common.search.model.HighlightableList;
 import org.gbif.common.search.model.Key;
@@ -63,15 +64,15 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  */
 @SearchMapping(
   facets = {
-    @FacetField(name = "DATASET_KEY", field = "dataset_key"),
+    @FacetField(name = "DATASET_KEY", field = "dataset_key", method = Method.ENUM),
     @FacetField(name = "HIGHERTAXON_KEY", field = "higher_taxon_nub_key"),
-    @FacetField(name = "STATUS", field = "taxonomic_status_key"),
-    @FacetField(name = "RANK", field = "rank_key"),
-    @FacetField(name = "THREAT", field = "threat_status_key"),
-    @FacetField(name = "IS_EXTINCT", field = "extinct"),
-    @FacetField(name = "NOMENCLATURAL_STATUS", field = "nomenclatural_status_key"),
-    @FacetField(name = "NAME_TYPE", field = "name_type"),
-    @FacetField(name = "HABITAT", field = "marine")
+    @FacetField(name = "STATUS", field = "taxonomic_status_key", method = Method.ENUM),
+    @FacetField(name = "RANK", field = "rank_key", method = Method.ENUM),
+    @FacetField(name = "THREAT", field = "threat_status_key", method = Method.ENUM),
+    @FacetField(name = "IS_EXTINCT", field = "extinct", method = Method.ENUM),
+    @FacetField(name = "NOMENCLATURAL_STATUS", field = "nomenclatural_status_key", method = Method.ENUM),
+    @FacetField(name = "NAME_TYPE", field = "name_type", method = Method.ENUM),
+    @FacetField(name = "HABITAT", field = "marine", method = Method.ENUM)
   },
   fulltextFields = {
     @FullTextSearchField(field = "canonical_name", exactMatchScore = 100.0d,
