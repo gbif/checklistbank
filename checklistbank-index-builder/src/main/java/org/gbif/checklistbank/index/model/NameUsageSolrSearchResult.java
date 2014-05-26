@@ -37,6 +37,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.apache.solr.client.solrj.beans.Field;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * This class contains the annotations required by {@link org.gbif.api.service.common.SearchService} and the Solr
@@ -104,10 +105,12 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
 
   private static Ordering<VernacularName> byNameAndLanguage = Ordering.natural().onResultOf(toNameLang);
 
+  @JsonIgnore
   public HighlightableList getDescriptionsSerialized() {
     return new HighlightableDescription(getDescriptions());
   }
 
+  @JsonIgnore
   public HighlightableList getVernacularNamesSerialized() {
     return new HighlightableVernacularName(getVernacularNames());
   }
