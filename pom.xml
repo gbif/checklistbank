@@ -25,7 +25,7 @@
 
   <groupId>org.gbif.checklistbank</groupId>
   <artifactId>checklistbank-motherpom</artifactId>
-  <version>2.7-SNAPSHOT</version>
+  <version>2.8-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ChecklistBank Mother POM</name>
@@ -42,18 +42,18 @@
   </scm>
 
   <properties>
-    <dwc-api.version>1.6</dwc-api.version>
-    <gbif-api.version>0.14-SNAPSHOT</gbif-api.version>
+    <dwc-api.version>1.7</dwc-api.version>
+    <gbif-api.version>0.14</gbif-api.version>
     <gbif-common.version>0.15</gbif-common.version>
     <gbif-common-mybatis.version>0.10</gbif-common-mybatis.version>
-    <gbif-common-search.version>0.16-SNAPSHOT</gbif-common-search.version>
+    <gbif-common-search.version>0.16</gbif-common-search.version>
     <gbif-common-service.version>0.10</gbif-common-service.version>
     <gbif-common-test.version>0.6</gbif-common-test.version>
-    <gbif-common-ws.version>0.14-SNAPSHOT</gbif-common-ws.version>
+    <gbif-common-ws.version>0.14</gbif-common-ws.version>
     <gbif-httputils.version>0.5</gbif-httputils.version>
-    <registry-client.version>2.14</registry-client.version>
+    <registry-client.version>2.15</registry-client.version>
     <name-parser.version>2.4</name-parser.version>
-    <dwca-reader.version>1.16</dwca-reader.version>
+    <dwca-reader.version>1.17</dwca-reader.version>
     <!-- external libs -->
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.7.1.RELEASE</bonecp.version>
