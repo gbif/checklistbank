@@ -13,5 +13,8 @@
   <changeSet id="3" author="markus">
     <sqlFile path="liquibase/dc_references.sql"/>
   </changeSet>
+  <changeSet id="4" author="markus">
+    <sqlFile path="liquibase/root_indices.sql"/>
+  </changeSet>
 
 </databaseChangeLog>
