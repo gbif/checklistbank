@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * VernacularName resource.
  */
-@Path("/vernacular_name")
+@Path("/vernacularName")
 @Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
 public class VernacularNameResource {
 

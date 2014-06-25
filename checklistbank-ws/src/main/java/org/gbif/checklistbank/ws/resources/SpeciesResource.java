@@ -188,7 +188,7 @@ public class SpeciesResource {
 
   /**
    * This retrieves all VernacularNames for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/vernacular_names}.
+   * It is reachable at {@code /species/<key>/vernacularNames}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -198,7 +198,7 @@ public class SpeciesResource {
    * @see VernacularNameService#listByUsage(int, Pageable)
    */
   @GET
-  @Path("{id}/vernacular_names")
+  @Path("{id}/vernacularNames")
   public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@PathParam("id") int usageKey,
     @Context Pageable page) {
     LOG.debug("Request all VernacularNames for NameUsage [{}]: [pageSize({}) offset({})]",
@@ -208,7 +208,7 @@ public class SpeciesResource {
 
   /**
    * This retrieves all TypeSpecimens for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/type_specimens}.
+   * It is reachable at {@code /species/<key>/typeSpecimens}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -218,7 +218,7 @@ public class SpeciesResource {
    * @see TypeSpecimenService#listByUsage(int, Pageable)
    */
   @GET
-  @Path("{id}/type_specimens")
+  @Path("{id}/typeSpecimens")
   public PagingResponse<TypeSpecimen> listTypeSpecimensByNameUsage(@PathParam("id") int usageKey,
     @Context Pageable page) {
     LOG.debug("Request all TypeSpecimens for NameUsage [{}]: [pageSize({}) offset({})]",
@@ -228,7 +228,7 @@ public class SpeciesResource {
 
   /**
    * This retrieves all SpeciesProfiles for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/species_profiles}.
+   * It is reachable at {@code /species/<key>/speciesProfiles}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -238,7 +238,7 @@ public class SpeciesResource {
    * @see SpeciesProfileService#listByUsage(int, Pageable)
    */
   @GET
-  @Path("{id}/species_profiles")
+  @Path("{id}/speciesProfiles")
   public PagingResponse<SpeciesProfile> listSpeciesProfilesByNameUsage(@PathParam("id") int usageKey,
     @Context Pageable page) {
     LOG.debug("Request all SpeciesProfiles for NameUsage [{}]: [pageSize({}) offset({})]",

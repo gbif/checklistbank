@@ -18,12 +18,13 @@ import com.sun.jersey.api.client.WebResource;
  * Client-side implementation to the DatasetMetricsService.
  */
 public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID> implements DatasetMetricsService {
+  private static final String METRICS_PATH = "metrics";
 
   private final GenericType<List<DatasetMetrics>> listType = new GenericType<List<DatasetMetrics>>() {};
 
   @Inject
   public DatasetMetricsWsClient(@ChecklistBankWs WebResource resource) {
-    super(DatasetMetrics.class, resource.path(Constants.DATASET_METRICS_PATH), null);
+    super(DatasetMetrics.class, resource.path(Constants.DATASET_PATH), null);
   }
 
 
@@ -36,12 +37,12 @@ public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID
    */
   @Override
   public DatasetMetrics get(UUID datasetKey) {
-    return get(datasetKey.toString());
+    return get(datasetKey.toString(), METRICS_PATH);
   }
 
   @Nullable
   @Override
   public List<DatasetMetrics> list(UUID datasetKey) {
-    return get(listType, datasetKey.toString(), "history");
+    return get(listType, datasetKey.toString(), METRICS_PATH, "history");
   }
 }

@@ -6,7 +6,7 @@ package org.gbif.checklistbank.ws.util;
 public class Constants {
 
   // used in URL paths
-  public static final String DATASET_METRICS_PATH = "dataset_metrics";
+  public static final String DATASET_PATH = "dataset";
   public static final String SPECIES_PATH = "species";
   public static final String CHILDREN_PATH = "children";
   public static final String PARENTS_PATH = "parents";
@@ -17,24 +17,22 @@ public class Constants {
   public static final String PARSED_NAME_PATH = "name";
   public static final String VERBATIM_PATH = "verbatim";
   // used in sub-resource URL paths
-  public static final String VERNACULAR_NAME_PATH = "vernacular_name";
-  public static final String VERNACULAR_NAMES_PATH = "vernacular_names";
+  public static final String VERNACULAR_NAME_PATH = "vernacularName";
+  public static final String VERNACULAR_NAMES_PATH = "vernacularNames";
   public static final String DESCRIPTION_PATH = "description";
   public static final String DESCRIPTIONS_PATH = "descriptions";
   public static final String DISTRIBUTION_PATH = "distribution";
   public static final String DISTRIBUTIONS_PATH = "distributions";
-  public static final String IDENTIFIER_PATH = "identifier";
-  public static final String IDENTIFIERS_PATH = "identifiers";
   public static final String IMAGE_PATH = "image";
   public static final String IMAGES_PATH = "images";
   public static final String REFERENCE_PATH = "reference";
   public static final String REFERENCES_PATH = "references";
-  public static final String SPECIES_PROFILE_PATH = "species_profile";
-  public static final String SPECIES_PROFILES_PATH = "species_profiles";
-  public static final String TYPE_SPECIMEN_PATH = "type_specimen";
-  public static final String TYPE_SPECIMENS_PATH = "type_specimens";
+  public static final String SPECIES_PROFILE_PATH = "speciesProfile";
+  public static final String SPECIES_PROFILES_PATH = "speciesProfiles";
+  public static final String TYPE_SPECIMEN_PATH = "typeSpecimen";
+  public static final String TYPE_SPECIMENS_PATH = "typeSpecimens";
   // Query parameters
-  public static final String NUB_KEY = "nubKey";
+  public static final String TAXON_KEY = "taxonKey";
   public static final String DATASET_KEY = "datasetKey";
   public static final String RANK = "rank";
   public static final String SOURCE_ID = "sourceId";

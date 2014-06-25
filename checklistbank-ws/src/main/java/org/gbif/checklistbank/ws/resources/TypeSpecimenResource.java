@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * TypeSpecimen resource.
  */
-@Path("/type_specimen")
+@Path("/typeSpecimen")
 @Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
 public class TypeSpecimenResource {
 

@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 /**
  * DatasetMetrics resource.
  */
-@Path("/dataset_metrics")
+@Path("/dataset")
 @Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
 public class DatasetMetricsResource {
 
@@ -26,14 +26,14 @@ public class DatasetMetricsResource {
   private DatasetMetricsService service;
 
   @GET
-  @Path("{key}")
+  @Path("{key}/metrics")
   @NullToNotFound
   public DatasetMetrics get(@PathParam("key") UUID key) {
     return service.get(key);
   }
 
   @GET
-  @Path("{key}/history")
+  @Path("{key}/metrics/history")
   public List<DatasetMetrics> list(@PathParam("key") UUID key) {
     return service.list(key);
   }
