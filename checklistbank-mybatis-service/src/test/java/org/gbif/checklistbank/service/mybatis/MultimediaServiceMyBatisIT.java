@@ -8,7 +8,6 @@ import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBa
 
 import java.net.URI;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.Rule;
@@ -21,7 +20,6 @@ import static org.junit.Assert.assertNull;
 public class MultimediaServiceMyBatisIT {
 
   private final Integer USAGE_ID = 100000025;
-  private final UUID SQUIRREL_UUID = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   @Rule
   public DatabaseDrivenChecklistBankTestRule<MultimediaService> ddt =
@@ -33,6 +31,7 @@ public class MultimediaServiceMyBatisIT {
     assertEquals(8, images.size());
     for (NameUsageMediaObject m : images) {
       assertNotNull(m.getIdentifier());
+      assertNotNull(m.getType());
     }
     NameUsageMediaObject image = images.get(0); // 100010
     assertNull(image.getSourceTaxonKey());
@@ -62,5 +61,6 @@ public class MultimediaServiceMyBatisIT {
     assertNull(img.getCreated());
     assertNotNull(img.getDescription());
     assertNotNull(img.getIdentifier());
+    assertNotNull(img.getType());
   }
 }

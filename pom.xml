@@ -85,6 +85,7 @@
     <servlet-api.version>2.5</servlet-api.version>
     <slf4j.version>1.7.7</slf4j.version>
     <solr-lucene.version>4.4.0</solr-lucene.version>
+    <tika.version>1.5</tika.version>
     <trove.version>2.1.0</trove.version>
   </properties>
 
@@ -124,6 +125,11 @@
   -->
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>${tika.version}</version>
+      </dependency>
       <!-- GBIF -->
       <dependency>
         <groupId>org.gbif</groupId>
