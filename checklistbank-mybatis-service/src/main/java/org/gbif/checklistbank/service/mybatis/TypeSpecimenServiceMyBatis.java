@@ -4,9 +4,9 @@ import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Inject;
-import org.apache.ibatis.session.SqlSessionFactory;
 
 /**
  * Implements a TypeSpecimenService using MyBatis.
@@ -15,12 +15,12 @@ public class TypeSpecimenServiceMyBatis extends NameUsageComponentServiceMyBatis
   implements TypeSpecimenService {
 
   @Inject
-  TypeSpecimenServiceMyBatis(TypeSpecimenMapper typeSpecimenMapper, SqlSessionFactory sqlSessionFactory) {
+  TypeSpecimenServiceMyBatis(TypeSpecimenMapper typeSpecimenMapper) {
     super(typeSpecimenMapper);
   }
 
   @Override
-  public List<TypeSpecimen> listRange(int usageKeyStart, int usageKeyEnd) {
+  public Map<Integer, List<TypeSpecimen>> listRange(int usageKeyStart, int usageKeyEnd) {
     throw new UnsupportedOperationException("listRange not supported");
   }
 }

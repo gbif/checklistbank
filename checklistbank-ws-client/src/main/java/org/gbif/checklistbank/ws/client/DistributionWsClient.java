@@ -18,6 +18,6 @@ public class DistributionWsClient extends NameUsageComponentBaseWsClient<Distrib
   @Inject
   public DistributionWsClient(@ChecklistBankWs WebResource resource) {
     super(Distribution.class, new GenericType<PagingResponse<Distribution>>() {
-    }, resource, Constants.DISTRIBUTIONS_PATH, Constants.DISTRIBUTION_PATH);
+    }, resource, Constants.DISTRIBUTIONS_PATH);
   }
 }

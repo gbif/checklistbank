@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.SpeciesProfileMapper">
 
-  <sql id="select">s.usage_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
-  <sql id="selectNub">rel.nub_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
-  <sql id="selectNoUsageKey">s.id, s.dataset_key, s.marine, null as freshwater, s.extinct, s.hybrid, s.age_in_days, s.size_in_millimeter,
+  <sql id="select">s.usage_fk AS usageKey, null AS sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey, s.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="selectNoUsageKey">s.id, s.marine, null as freshwater, s.extinct, s.hybrid, s.age_in_days, s.size_in_millimeter,
     s.living_period, s.mass_in_gram, s.terrestrial, s.life_form, s.habitat</sql>
 
   <sql id="from">species_info s</sql>
@@ -17,17 +17,14 @@
 
   <!--  A mapping to build a SpeciesProfile -->
   <resultMap id="speciesProfileResultMap" type="SpeciesProfile" autoMapping="true">
-    <id property="key" column="id"/>
   </resultMap>
 
-  <!--  Get by primary key -->
-  <select id="get" parameterType="map" resultMap="speciesProfileResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE s.id=#{key}
-  </select>
+  <resultMap id="speciesProfileRangeResultMap" type="UsageRelated" autoMapping="true">
+    <id property="usageKey" column="usageKey"/>
+    <id property="value" column="id"></id>
+    <association property="value" javaType="SpeciesProfile" resultMap="speciesProfileResultMap" />
+  </resultMap>
+
 
   <!-- get all species_data entries for one usage -->
   <select id="listByChecklistUsage" parameterType="map" resultMap="speciesProfileResultMap">
@@ -43,7 +40,7 @@
   <!-- get all species_data entries for one nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="speciesProfileResultMap">
     SELECT
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
@@ -53,7 +50,7 @@
   </select>
 
   <!-- get all species_data linked to a usage range -->
-  <select id="listByChecklistUsageRange" parameterType="map" resultMap="speciesProfileResultMap">
+  <select id="listByChecklistUsageRange" parameterType="map" resultMap="speciesProfileRangeResultMap">
     SELECT
     <include refid="select"/>
     FROM
@@ -62,7 +59,7 @@
   </select>
 
   <!-- get all species_data linked to a nub usage range -->
-  <select id="listByNubUsageRange" parameterType="map" resultMap="speciesProfileResultMap">
+  <select id="listByNubUsageRange" parameterType="map" resultMap="speciesProfileRangeResultMap">
     SELECT
     <include refid="selectNub"/>
     FROM

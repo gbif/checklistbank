@@ -2,12 +2,13 @@ package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.Image;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
@@ -15,7 +16,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.ImageService;
+import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -57,14 +58,14 @@ public class SpeciesResource {
   private final TypeSpecimenService typeSpecimenService;
   private final SpeciesProfileService speciesProfileService;
   private final ReferenceService referenceService;
-  private final ImageService imageService;
+  private final MultimediaService imageService;
   private final DescriptionService descriptionService;
   private final DistributionService distributionService;
 
   @Inject
   public SpeciesResource(NameUsageService nameUsageService, VernacularNameService vernacularNameService,
     TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
-    ReferenceService referenceService, ImageService imageService, DescriptionService descriptionService,
+    ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
     DistributionService distributionService) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
@@ -78,7 +79,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves a list of all NameUsage from ChecklistBank.
-   * It is reachable at {@code /species}.
    *
    * @param locale      identifier for a region
    * @param datasetKeys the optional checklist keys to limit paging to
@@ -104,7 +104,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves a NameUsage by its key from ChecklistBank.
-   * It is reachable at {@code /species/<key>}, with integers given as the key returning a single usage.
    *
    * @param usageKey  NameUsage key
    * @param locale    identifier for a region
@@ -145,7 +144,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves a list of children NameUsage for a parent NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/children}.
    *
    * @param parentKey parent NameUsage key
    * @param locale    identifier for a region
@@ -166,7 +164,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves a list of synonym NameUsage for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/synonyms}.
    *
    * @param usageKey parent NameUsage key
    * @param locale   identifier for a region
@@ -188,7 +185,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all VernacularNames for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/vernacularNames}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -208,7 +204,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all TypeSpecimens for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/typeSpecimens}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -228,7 +223,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all SpeciesProfiles for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/speciesProfiles}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -248,7 +242,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all References for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/references}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -266,19 +259,16 @@ public class SpeciesResource {
   }
 
   /**
-   * This retrieves all Images for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/images}.
+   * This retrieves all multimedia objects for a NameUsage from ChecklistBank.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
    *
-   * @return a list of all Images
-   *
-   * @see ImageService#listByUsage(int, Pageable)
+   * @return a list of all Media objects
    */
   @GET
-  @Path("{id}/images")
-  public PagingResponse<Image> listImagesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @Path("{id}/media")
+  public PagingResponse<NameUsageMediaObject> listImagesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     LOG.debug("Request all Images for NameUsage [{}]: [pageSize({}) offset({})]",
       new Object[] {usageKey, page.getLimit(), page.getOffset()});
     return imageService.listByUsage(usageKey, page);
@@ -286,7 +276,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all Descriptions for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/descriptions}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -305,8 +294,17 @@ public class SpeciesResource {
   }
 
   /**
+   * This retrieves a table of contents for all descriptions of a name usage from ChecklistBank.
+   */
+  @GET
+  @Path("{id}/toc")
+  @NullToNotFound
+  public TableOfContents get(@PathParam("id") Integer key) {
+    return descriptionService.getToc(key);
+  }
+
+  /**
    * This retrieves all Distributions for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/distributions}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -326,7 +324,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all related Usages for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/related}.
    *
    * @param usageKey    NameUsage key
    * @param datasetKeys The optional list of dataset keys to filter related usages
@@ -345,7 +342,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves all Parents for a NameUsage from ChecklistBank.
-   * It is reachable at {@code /species/<key>/parents}.
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
@@ -364,7 +360,6 @@ public class SpeciesResource {
 
   /**
    * This retrieves a list of root NameUsage for a Checklist from ChecklistBank.
-   * It is reachable at {@code /species/root/<key>}.
    *
    * @param datasetKey UUID or case insensitive shortname of the Checklist to retrieve
    * @param locale     identifier for a region

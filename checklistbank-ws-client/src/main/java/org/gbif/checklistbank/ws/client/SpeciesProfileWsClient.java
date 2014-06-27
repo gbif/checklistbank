@@ -19,6 +19,6 @@ public class SpeciesProfileWsClient extends NameUsageComponentBaseWsClient<Speci
   @Inject
   public SpeciesProfileWsClient(@ChecklistBankWs WebResource resource) {
     super(SpeciesProfile.class, new GenericType<PagingResponse<SpeciesProfile>>() {
-    }, resource, Constants.SPECIES_PROFILES_PATH, Constants.SPECIES_PROFILE_PATH);
+    }, resource, Constants.SPECIES_PROFILES_PATH);
   }
 }

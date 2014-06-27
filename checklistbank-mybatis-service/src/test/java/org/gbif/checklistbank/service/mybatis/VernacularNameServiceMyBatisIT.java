@@ -4,37 +4,24 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.VernacularNameService;
-import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class VernacularNameServiceMyBatisIT {
 
   @Rule
   public DatabaseDrivenChecklistBankTestRule<VernacularNameService> ddt =
     new DatabaseDrivenChecklistBankTestRule<VernacularNameService>(VernacularNameService.class);
-
-  @Test
-  public void testGet() {
-    VernacularName squirrel = ddt.getService().get(100007);
-    assertEquals("Eurasian Red Squirrel", squirrel.getVernacularName());
-    assertEquals(Language.ENGLISH, squirrel.getLanguage());
-    assertEquals(Country.GERMANY, squirrel.getCountry());
-    assertEquals((Integer) 100000025, squirrel.getUsageKey());
-
-    squirrel = ddt.getService().get(100010);
-    assertEquals("Kaukasischen Eichhörnchen", squirrel.getVernacularName());
-    assertEquals(Language.GERMAN, squirrel.getLanguage());
-    assertEquals((Integer) 100000040, squirrel.getUsageKey());
-  }
 
   @Test
   public void testListByChecklistUsage() {
@@ -58,10 +45,14 @@ public class VernacularNameServiceMyBatisIT {
   @Test
   public void testListByRange() {
     // TEST VERNACULAR
-    List<VernacularName> records = ((VernacularNameServiceMyBatis) ddt.getService()).listRange(1, 100000020);
-    assertEquals(2, records.size());
-    for (VernacularName v : records) {
-      assertNotNull(v.getUsageKey());
+    Map<Integer, List<VernacularName>> records = ((VernacularNameServiceMyBatis) ddt.getService()).listRange(1, 100000025);
+    assertEquals(3, records.size());
+
+    List<VernacularName> vernacularNames = records.get(100000025);
+    assertEquals(2, vernacularNames.size());
+
+    for (VernacularName v : vernacularNames) {
+      assertNull(v.getSourceTaxonKey());
       assertNotNull(v.getVernacularName());
     }
   }

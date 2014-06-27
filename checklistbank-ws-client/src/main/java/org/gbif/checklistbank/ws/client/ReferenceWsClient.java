@@ -18,6 +18,6 @@ public class ReferenceWsClient extends NameUsageComponentBaseWsClient<Reference>
   @Inject
   public ReferenceWsClient(@ChecklistBankWs WebResource resource) {
     super(Reference.class, new GenericType<PagingResponse<Reference>>() {
-    }, resource, Constants.REFERENCES_PATH, Constants.REFERENCE_PATH);
+    }, resource, Constants.REFERENCES_PATH);
   }
 }

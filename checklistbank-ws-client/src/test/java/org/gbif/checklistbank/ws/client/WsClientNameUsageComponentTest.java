@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.ws.client;
 
-import org.gbif.api.model.checklistbank.NameUsageComponent;
+import org.gbif.api.model.checklistbank.NameUsageExtension;
 import org.gbif.api.model.common.paging.PagingResponse;
 
 import com.sun.jersey.api.client.WebResource;
@@ -10,9 +10,9 @@ import org.junit.Test;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-public abstract class WsClientNameUsageComponentTest<T extends NameUsageComponent> extends WsClientBaseTest<T> {
+public abstract class WsClientNameUsageComponentTest<T extends NameUsageExtension> extends WsClientBaseTest<T> {
 
-  private NameUsageComponentBaseWsClient<T> client;
+  protected NameUsageComponentBaseWsClient<T> client;
 
   public WsClientNameUsageComponentTest(Class<T> resourceClass) {
     super(resourceClass);
@@ -30,8 +30,7 @@ public abstract class WsClientNameUsageComponentTest<T extends NameUsageComponen
   protected PagingResponse<T> getMockResponse() {
     PagingResponse<T> results = super.getMockResponse();
     for (T obj : results.getResults()) {
-      obj.setKey(1234);
-      obj.setUsageKey(key);
+      obj.setSourceTaxonKey(key);
     }
     return results;
   }

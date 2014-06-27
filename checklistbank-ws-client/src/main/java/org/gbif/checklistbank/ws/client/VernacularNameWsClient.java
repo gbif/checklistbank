@@ -19,6 +19,6 @@ public class VernacularNameWsClient extends NameUsageComponentBaseWsClient<Verna
   @Inject
   public VernacularNameWsClient(@ChecklistBankWs WebResource resource) {
     super(VernacularName.class, new GenericType<PagingResponse<VernacularName>>() {
-    }, resource, Constants.VERNACULAR_NAMES_PATH, Constants.VERNACULAR_NAME_PATH);
+    }, resource, Constants.VERNACULAR_NAMES_PATH);
   }
 }

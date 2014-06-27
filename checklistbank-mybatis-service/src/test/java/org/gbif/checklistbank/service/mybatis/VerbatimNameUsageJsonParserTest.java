@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
+import org.gbif.dwc.terms.DwcTerm;
 
 import org.junit.Test;
 
@@ -20,10 +21,9 @@ public class VerbatimNameUsageJsonParserTest {
     VerbatimNameUsageJsonParser parser = new VerbatimNameUsageJsonParser();
     VerbatimNameUsage v = parser.jsonToVerbatim(json);
 
-    assertEquals("100", v.getFields().get("id"));
-    assertEquals("valid", v.getFields().get("taxonomicStatus"));
-    assertEquals("Spirillum beijerinckii", v.getFields().get("scientificName"));
-    assertEquals("86", v.getFields().get("parentNameUsageID"));
+    assertEquals("valid", v.getFields().get(DwcTerm.taxonomicStatus));
+    assertEquals("Spirillum beijerinckii", v.getFields().get(DwcTerm.scientificName));
+    assertEquals("86", v.getFields().get(DwcTerm.parentNameUsageID));
     assertEquals(2, v.getExtensions().get(Extension.VERNACULAR_NAME).size());
     assertEquals(1, v.getExtensions().get(Extension.DISTRIBUTION).size());
   }

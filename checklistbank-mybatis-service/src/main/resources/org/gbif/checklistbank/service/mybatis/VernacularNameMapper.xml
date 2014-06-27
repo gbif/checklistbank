@@ -4,8 +4,8 @@
 
   <!-- TODO: clb doesnt have content currently for plural  -->
 
-  <sql id="select">v.usage_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
-  <sql id="selectNub">rel.nub_fk as usageKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="select">v.usage_fk AS usageKey, null AS sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey, v.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
   <sql id="selectNoUsageKey">v.id, v.dataset_key, v.name, v.language, v.country, v.locality, v.location_id,
     c.citation, preferred, v.sex, v.life_stage
   </sql>
@@ -17,20 +17,15 @@
 
   <!--  A mapping to build a VernacularName -->
   <resultMap id="vernacularResultMap" type="VernacularName" autoMapping="true">
-    <id property="key" column="id"/>
     <result property="vernacularName" column="name"/>
     <result property="source" column="citation"/>
   </resultMap>
 
-
-  <!--  Get by primary key -->
-  <select id="get" parameterType="map" resultMap="vernacularResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE v.id=#{key}
-  </select>
+  <resultMap id="vernacularRangeResultMap" type="UsageRelated" autoMapping="true">
+    <id property="usageKey" column="usageKey"/>
+    <id property="value" column="id"></id>
+    <association property="value" javaType="VernacularName" resultMap="vernacularResultMap" />
+  </resultMap>
 
   <!-- get one by checklist usage-->
   <select id="getByChecklistUsage" parameterType="map" resultMap="vernacularResultMap">
@@ -46,7 +41,7 @@
   <!-- get one by nub usage-->
   <select id="getByNubUsage" parameterType="map" resultMap="vernacularResultMap">
     SELECT
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
@@ -69,7 +64,7 @@
   <!-- get all vernaculars by nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="vernacularResultMap">
     SELECT
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
@@ -79,7 +74,7 @@
   </select>
 
   <!-- get all verncular names linked to a usage range -->
-  <select id="listByChecklistUsageRange" parameterType="map" resultMap="vernacularResultMap">
+  <select id="listByChecklistUsageRange" parameterType="map" resultMap="vernacularRangeResultMap">
     SELECT
     <include refid="select"/>
     FROM
@@ -88,7 +83,7 @@
   </select>
 
   <!-- get all vernaculars linked to a nub usage range -->
-  <select id="listByNubUsageRange" parameterType="map" resultMap="vernacularResultMap">
+  <select id="listByNubUsageRange" parameterType="map" resultMap="vernacularRangeResultMap">
     SELECT
     <include refid="selectNub"/>
     FROM

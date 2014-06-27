@@ -3,10 +3,10 @@
 <mapper namespace="org.gbif.checklistbank.service.mybatis.DistributionMapper">
 
   <sql id="select">
-    d.usage_fk AS usageKey,<include refid="selectNoUsageKey"/>
+    d.usage_fk AS usageKey, null AS sourceTaxonKey,<include refid="selectNoUsageKey"/>
   </sql>
   <sql id="selectNub">
-    rel.nub_fk AS usageKey,<include refid="selectNoUsageKey"/>
+    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/>
   </sql>
   <sql id="selectNoUsageKey">
     d.id, d.dataset_key, d.country, d.location_id, d.locality, d.remarks,c.citation,
@@ -20,20 +20,15 @@
 
   <!--  A mapping to build a Distribution -->
   <resultMap id="distributionResultMap" type="Distribution" autoMapping="true">
-    <id property="key" column="id"/>
     <result property="status" column="occurrence_status"/>
     <result property="source" column="citation"/>
   </resultMap>
 
-
-  <!--  Get by primary key -->
-  <select id="get" parameterType="map" resultMap="distributionResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE d.id=#{key}
-  </select>
+  <resultMap id="distributionRangeResultMap" type="UsageRelated" autoMapping="true">
+    <id property="usageKey" column="usageKey"/>
+    <id property="value" column="id"></id>
+    <association property="value" javaType="Distribution" resultMap="distributionResultMap" />
+  </resultMap>
 
   <!-- get all distributions linked to one usage -->
   <select id="listByChecklistUsage" parameterType="map" resultMap="distributionResultMap">
@@ -49,7 +44,7 @@
   <!-- get all distributions by nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="distributionResultMap">
     SELECT
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
@@ -59,7 +54,7 @@
   </select>
 
   <!-- get all distributions linked to a usage range -->
-  <select id="listByChecklistUsageRange" parameterType="map" resultMap="distributionResultMap">
+  <select id="listByChecklistUsageRange" parameterType="map" resultMap="distributionRangeResultMap">
     SELECT
     <include refid="select"/>
     FROM
@@ -68,7 +63,7 @@
   </select>
 
   <!-- get all distributions linked to a nub usage range -->
-  <select id="listByNubUsageRange" parameterType="map" resultMap="distributionResultMap">
+  <select id="listByNubUsageRange" parameterType="map" resultMap="distributionRangeResultMap">
     SELECT
     <include refid="selectNub"/>
     FROM

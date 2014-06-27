@@ -11,28 +11,24 @@ import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBa
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.UUID;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TypeSpecimenServiceMyBatisTestIT {
 
   private final Integer USAGE_ID = 100000006;
-  private final UUID SQUIRREL_DATASET = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   @Rule
   public DatabaseDrivenChecklistBankTestRule<TypeSpecimenService> ddt =
     new DatabaseDrivenChecklistBankTestRule<TypeSpecimenService>(TypeSpecimenService.class);
 
-  @Test
-  public void testGet() throws ParseException {
+  public void verify15(TypeSpecimen typeSpecimen) throws ParseException {
 
-    TypeSpecimen typeSpecimen = ddt.getService().get(15);
-    assertEquals(USAGE_ID, typeSpecimen.getUsageKey());
-    assertEquals(SQUIRREL_DATASET, typeSpecimen.getDatasetKey());
+    assertNull(typeSpecimen.getSourceTaxonKey());
     assertEquals(TypeStatus.TYPE_SPECIES, typeSpecimen.getTypeStatus());
     assertEquals("Raciurus pusillus", typeSpecimen.getScientificName());
     assertEquals("Thomas", typeSpecimen.getTypeDesignatedBy());
@@ -53,10 +49,10 @@ public class TypeSpecimenServiceMyBatisTestIT {
   }
 
   @Test
-  public void testListByChecklistUsage() {
+  public void testListByChecklistUsage() throws ParseException {
     List<TypeSpecimen> typeSpecimens = ddt.getService().listByUsage(USAGE_ID, null).getResults();
     assertEquals(2, typeSpecimens.size());
-    assertEquals((Integer) 15, typeSpecimens.get(0).getKey());
+    verify15(typeSpecimens.get(0));
 
     // TEST PAGING
     Pageable page = new PagingRequest(0, 1);

@@ -3,7 +3,6 @@ package org.gbif.checklistbank.index;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageComponent;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.service.UsageService;
@@ -16,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
@@ -95,17 +92,13 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     // Get all usages
     List<NameUsage> usages = nameUsageService.listRange(startKey, endKey);
     // get all component maps into memory first
-    List<VernacularName> vernacularNames = vernacularNameService.listRange(startKey, endKey);
-    Map<Integer, List<VernacularName>> vernacularNameMap = buildComponentMap(vernacularNames);
+    Map<Integer, List<VernacularName>> vernacularNameMap = vernacularNameService.listRange(startKey, endKey);
 
-    List<Description> descriptions = descriptionService.listRange(startKey, endKey);
-    Map<Integer, List<Description>> descriptionMap = buildComponentMap(descriptions);
+    Map<Integer, List<Description>> descriptionMap = descriptionService.listRange(startKey, endKey);
 
-    List<Distribution> distributions = distributionService.listRange(startKey, endKey);
-    Map<Integer, List<Distribution>> distributionMap = buildComponentMap(distributions);
+    Map<Integer, List<Distribution>> distributionMap = distributionService.listRange(startKey, endKey);
 
-    List<SpeciesProfile> profiles = speciesProfileService.listRange(startKey, endKey);
-    Map<Integer, List<SpeciesProfile>> speciesProfileMap = buildComponentMap(profiles);
+    Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
 
     // now we're ready to build the solr indices quicky!
     for (NameUsage usage : usages) {
@@ -127,14 +120,4 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     return docCount;
   }
 
-  private <T extends NameUsageComponent> Map<Integer, List<T>> buildComponentMap(List<T> components) {
-    Map<Integer, List<T>> map = Maps.newHashMap();
-    for (T c : components) {
-      if (!map.containsKey(c.getUsageKey())) {
-        map.put(c.getUsageKey(), Lists.<T>newArrayList());
-      }
-      map.get(c.getUsageKey()).add(c);
-    }
-    return map;
-  }
 }

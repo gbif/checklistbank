@@ -17,19 +17,13 @@ public class Constants {
   public static final String PARSED_NAME_PATH = "name";
   public static final String VERBATIM_PATH = "verbatim";
   // used in sub-resource URL paths
-  public static final String VERNACULAR_NAME_PATH = "vernacularName";
   public static final String VERNACULAR_NAMES_PATH = "vernacularNames";
   public static final String DESCRIPTION_PATH = "description";
   public static final String DESCRIPTIONS_PATH = "descriptions";
-  public static final String DISTRIBUTION_PATH = "distribution";
   public static final String DISTRIBUTIONS_PATH = "distributions";
-  public static final String IMAGE_PATH = "image";
-  public static final String IMAGES_PATH = "images";
-  public static final String REFERENCE_PATH = "reference";
+  public static final String MEDIA_PATH = "media";
   public static final String REFERENCES_PATH = "references";
-  public static final String SPECIES_PROFILE_PATH = "speciesProfile";
   public static final String SPECIES_PROFILES_PATH = "speciesProfiles";
-  public static final String TYPE_SPECIMEN_PATH = "typeSpecimen";
   public static final String TYPE_SPECIMENS_PATH = "typeSpecimens";
   // Query parameters
   public static final String TAXON_KEY = "taxonKey";

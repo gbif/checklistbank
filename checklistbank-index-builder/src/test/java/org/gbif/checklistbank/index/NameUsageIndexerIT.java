@@ -72,7 +72,7 @@ public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
     assertEquals((Integer) 100000024, u1.getParentKey());
     assertNull(u1.getAcceptedKey());
     assertEquals(6, u1.getDescriptions().size());
-    assertEquals("2010030", u1.getSourceId());
+    assertEquals("2010030", u1.getTaxonID());
 
     query = new SolrQuery();
     query.setQuery("extinct:false");

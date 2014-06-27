@@ -330,8 +330,8 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
 
   @Override
   @Field("source_id")
-  public void setSourceId(String sourceId) {
-    super.setSourceId(sourceId);
+  public void setTaxonID(String sourceId) {
+    super.setTaxonID(sourceId);
   }
 
   @Override

@@ -13,6 +13,7 @@
 package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
@@ -24,6 +25,8 @@ import java.util.List;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class DescriptionWsClientIT extends NameUsageComponentWsClientITBase<DescriptionService> {
@@ -58,11 +61,34 @@ public class DescriptionWsClientIT extends NameUsageComponentWsClientITBase<Desc
   public void testGet() {
     final Integer KEY = 14;
     Description d = wsClient.get(KEY);
-    assertEquals(KEY, d.getKey());
     assertEquals("introduction", d.getType());
     assertEquals(Language.ENGLISH, d.getLanguage());
 
     assertNull(wsClient.get(-2));
+  }
+
+  @Test
+  public void testToc() {
+    TableOfContents toc = wsClient.getToc(100000004);
+    assertEquals(1, toc.listLanguages().size());
+    assertEquals(4, toc.listTopicEntries(Language.ENGLISH).size());
+    assertEquals(0, toc.listTopicEntries(Language.SPANISH).size());
+
+    for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
+      assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
+      assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+    }
+
+    // same via nub
+    toc = wsClient.getToc(10);
+    assertEquals(1, toc.listLanguages().size());
+    assertEquals(4, toc.listTopicEntries(Language.ENGLISH).size());
+    assertEquals(0, toc.listTopicEntries(Language.SPANISH).size());
+
+    for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
+      assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
+      assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+    }
   }
 
 }

@@ -2,7 +2,7 @@ package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.service.checklistbank.NameUsageComponentService;
+import org.gbif.api.service.checklistbank.NameUsageExtensionService;
 import org.gbif.checklistbank.ws.util.Constants;
 import org.gbif.ws.client.BaseWsGetClient;
 
@@ -19,11 +19,10 @@ import com.sun.jersey.api.client.WebResource;
  * @param <T> the (interpreted) model class
  */
 abstract class NameUsageComponentBaseWsClient<T> extends BaseWsGetClient<T, Integer>
-  implements NameUsageComponentService<T> {
+  implements NameUsageExtensionService<T> {
 
   // used to tell Jersey client api to return an instance of List<ChecklistUsage>
   protected final GenericType<PagingResponse<T>> tPage;
-  private final String mainPath;
   private final String subResourcePath;
 
   /**
@@ -31,25 +30,12 @@ abstract class NameUsageComponentBaseWsClient<T> extends BaseWsGetClient<T, Inte
    * @param tPage           the generic type of a paging response for the interpreted class
    * @param resource        the web resource for the checklistbank ws resource
    * @param subResourcePath the path to the subresource of name usage
-   * @param mainPath        the path to the standalone path of the component
    */
   NameUsageComponentBaseWsClient(Class<T> resourceClass, GenericType<PagingResponse<T>> tPage, WebResource resource,
-    String subResourcePath, String mainPath) {
+    String subResourcePath) {
     super(resourceClass, resource, null);
     this.tPage = tPage;
     this.subResourcePath = subResourcePath;
-    this.mainPath = mainPath;
-  }
-
-  /**
-   * Returns a component.
-   * The object returned is the interpreted version of it.
-   *
-   * @return A component
-   */
-  @Override
-  public T get(int key) {
-    return get(mainPath, String.valueOf(key));
   }
 
   /**

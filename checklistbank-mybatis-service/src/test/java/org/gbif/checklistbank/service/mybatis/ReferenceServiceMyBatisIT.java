@@ -22,9 +22,7 @@ public class ReferenceServiceMyBatisIT {
   public DatabaseDrivenChecklistBankTestRule<ReferenceService> ddt =
     new DatabaseDrivenChecklistBankTestRule<ReferenceService>(ReferenceService.class);
 
-  @Test
-  public void testGet() {
-    Reference ref = ddt.getService().get(17);
+  private void verify17(Reference ref) {
     assertEquals("Watson, Jeremy (30 December 2007) \"Tufty's saviour to the rescue\". Scotland on Sunday. Edinburgh.",
       ref.getCitation());
     assertNull(ref.getAuthor());
@@ -34,7 +32,7 @@ public class ReferenceServiceMyBatisIT {
     assertNull(ref.getLink());
     assertNull(ref.getDoi());
     assertNull(ref.getRemarks());
-    assertEquals(USAGE_ID, ref.getUsageKey());
+    assertNull(ref.getSourceTaxonKey());
   }
 
   @Test
@@ -45,6 +43,8 @@ public class ReferenceServiceMyBatisIT {
       refs.get(0).getCitation());
     assertEquals("\"Black squirrels set to dominate\". BBC News. 2009-01-20. Retrieved 2009-04-26.",
       refs.get(1).getCitation());
+
+    verify17(refs.get(16));
 
     // TEST PAGING
     Pageable page = new PagingRequest(0, 1);

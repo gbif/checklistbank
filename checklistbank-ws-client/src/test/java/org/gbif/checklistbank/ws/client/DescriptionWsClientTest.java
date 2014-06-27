@@ -22,4 +22,5 @@ public class DescriptionWsClientTest extends WsClientNameUsageComponentTest<Desc
   NameUsageComponentBaseWsClient<Description> getClient(WebResource resource) {
     return new DescriptionWsClient(resource);
   }
+
 }

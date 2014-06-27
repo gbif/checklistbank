@@ -41,4 +41,5 @@ public class DescriptionResource {
   public Description get(@PathParam("id") Integer key) {
     return descriptionService.get(key);
   }
+
 }

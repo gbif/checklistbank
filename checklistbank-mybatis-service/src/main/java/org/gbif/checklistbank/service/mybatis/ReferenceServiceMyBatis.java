@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.service.checklistbank.ReferenceService;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.inject.Inject;
 
@@ -17,8 +18,7 @@ public class ReferenceServiceMyBatis extends NameUsageComponentServiceMyBatis<Re
     super(referenceMapper);
   }
 
-  @Override
-  public List<Reference> listRange(int usageKeyStart, int usageKeyEnd) {
+  public Map<Integer, List<Reference>> listRange(int usageKeyStart, int usageKeyEnd) {
     throw new UnsupportedOperationException("listRange not supported");
   }
 

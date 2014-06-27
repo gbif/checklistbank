@@ -30,8 +30,6 @@ public class NameUsageWsClient extends BaseWsGetClient<NameUsage, Integer> imple
   };
   private final GenericType<List<NameUsage>> list = new GenericType<List<NameUsage>>() {
   };
-  private final GenericType<List<UUID>> uuidList = new GenericType<List<UUID>>() {
-  };
   private final GenericType<ParsedName> pname = new GenericType<ParsedName>() {
   };
   private final GenericType<NameUsageMetrics> metrics = new GenericType<NameUsageMetrics>() {

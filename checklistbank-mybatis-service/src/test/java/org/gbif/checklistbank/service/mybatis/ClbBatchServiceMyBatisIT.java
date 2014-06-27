@@ -45,7 +45,7 @@ public class ClbBatchServiceMyBatisIT {
 
       if (nu.getKey().equals(100000007)) {
         found = true;
-        assertEquals("6905528", nu.getSourceId());
+        assertEquals("6905528", nu.getTaxonID());
         assertEquals(URI.create("http://www.catalogueoflife.org/details/species/id/6905528"), nu.getReferences());
       }
     }

@@ -37,7 +37,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   private final NameUsageMetricsMapper metricsMapper;
   private final ParsedNameMapper parsedNameMapper;
   private final VernacularNameMapper vernacularNameMapper;
-  private final IdentifierMapper identifierMapper;
   private final VerbatimNameUsageMapper verbatimNameUsageMapper;
   private final VerbatimNameUsageJsonParser jsonParser = new VerbatimNameUsageJsonParser();
 
@@ -46,12 +45,11 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
   @Inject
   NameUsageServiceMyBatis(NameUsageMapper mapper, VernacularNameMapper vernacularNameMapper,
-    IdentifierMapper identifierMapper, NameUsageMetricsMapper metricsMapper,
+    NameUsageMetricsMapper metricsMapper,
     VerbatimNameUsageMapper verbatimNameUsageMapper, ParsedNameMapper parsedNameMapper) {
     this.mapper = mapper;
     this.metricsMapper = metricsMapper;
     this.vernacularNameMapper = vernacularNameMapper;
-    this.identifierMapper = identifierMapper;
     this.verbatimNameUsageMapper = verbatimNameUsageMapper;
     this.parsedNameMapper = parsedNameMapper;
   }
@@ -60,7 +58,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   public NameUsage get(int usageKey, @Nullable Locale locale) {
     NameUsage usage = mapper.get(usageKey);
     addVernacularName(usage, getLanguage(locale));
-    addIdentifiers(usage);
     return usage;
   }
 
@@ -155,7 +152,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
   private PagingResponse<NameUsage> localizedPage(Locale locale, List<NameUsage> usages, Pageable requestPage) {
     addVernacularNames(usages, getLanguage(locale));
-    addIdentifiers(usages);
     return new PagingResponse<NameUsage>(requestPage, null, usages);
   }
 
@@ -181,7 +177,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   public List<NameUsage> listRelated(int nubKey, @Nullable Locale locale, @Nullable UUID... datasetKey) {
     List<NameUsage> usages = mapper.listRelated(nubKey, datasetKey);
     addVernacularNames(usages, getLanguage(locale));
-    addIdentifiers(usages);
     return usages;
   }
 
@@ -248,33 +243,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
     } else {
       return vernacularNameMapper.getByChecklistUsage(u.getKey(), language);
     }
-  }
-
-
-  /**
-   * Adds all identifiers to a list of existing name usages.
-   *
-   * @param usages the checklist usages to add identifiers to
-   */
-  private void addIdentifiers(List<NameUsage> usages) {
-    for (NameUsage u : usages) {
-      addIdentifiers(u);
-    }
-  }
-
-  /**
-   * Adds all identifiers for an existing name usage.
-   *
-   * @param u the checklist usage to add the vernacular name to
-   */
-  private void addIdentifiers(NameUsage u) {
-    if (u == null) {
-      return;
-    }
-    // we will never have that many ids. 10 would be very many already and far more then the maximum right now.
-    PagingRequest page = new PagingRequest(0, 100);
-    // only load direct identifiers, treating nub usages the same as others
-    u.getIdentifiers().addAll(identifierMapper.listByChecklistUsage(u.getKey(), page));
   }
 
 }

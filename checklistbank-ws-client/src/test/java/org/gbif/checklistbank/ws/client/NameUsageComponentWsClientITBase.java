@@ -12,19 +12,17 @@
  */
 package org.gbif.checklistbank.ws.client;
 
-import org.gbif.api.model.checklistbank.Image;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.service.checklistbank.NameUsageComponentService;
+import org.gbif.api.service.checklistbank.NameUsageExtensionService;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class NameUsageComponentWsClientITBase<T extends NameUsageComponentService> extends ClientMyBatisITBase<T> {
+public class NameUsageComponentWsClientITBase<T extends NameUsageExtensionService> extends ClientMyBatisITBase<T> {
 
   private int usageKey;
   private int expectedResults;
@@ -37,14 +35,9 @@ public class NameUsageComponentWsClientITBase<T extends NameUsageComponentServic
 
   @Test
   public void testListByUsage() {
-    PagingResponse<Image> images = wsClient.listByUsage(usageKey, new PagingRequest(0, 25));
-    assertNotNull(images);
-    assertEquals(expectedResults, images.getResults().size());
-  }
-
-  @Test
-  public void testNull() {
-    assertNull(wsClient.get(-10));
+    PagingResponse<T> extensionRecs = wsClient.listByUsage(usageKey, new PagingRequest(0, 25));
+    assertNotNull(extensionRecs);
+    assertEquals(expectedResults, extensionRecs.getResults().size());
   }
 
   @Test

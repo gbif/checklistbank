@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DescriptionService;
@@ -8,11 +9,13 @@ import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -27,7 +30,7 @@ public class DescriptionServiceMyBatisIT {
   @Test
   public void testGet() {
     Description description = ddt.getService().get(26);
-    assertEquals(USAGE_ID, description.getUsageKey());
+    assertNull(description.getSourceTaxonKey());
     assertEquals(
       "The Caucasian squirrel (or Persian squirrel) is a tree squirrel in the genus Sciurus endemic to Armenia, Azerbaijan, Georgia, Greece, Iran, Iraq, Israel, Jordan, Lebanon, Syria, and Turkey. Its natural habitat is temperate broadleaf and mixed forests.[1]",
       description.getDescription());
@@ -36,6 +39,30 @@ public class DescriptionServiceMyBatisIT {
     assertNull(description.getSource());
     assertNull(description.getContributor());
     assertNull(description.getCreator());
+  }
+
+  @Test
+  public void testToc() {
+    TableOfContents toc = ddt.getService().getToc(100000004);
+    assertEquals(1, toc.listLanguages().size());
+    assertEquals(4, toc.listTopicEntries(Language.ENGLISH).size());
+    assertEquals(0, toc.listTopicEntries(Language.SPANISH).size());
+
+    for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
+      assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
+      assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+    }
+
+    // same via nub
+    toc = ddt.getService().getToc(10);
+    assertEquals(1, toc.listLanguages().size());
+    assertEquals(4, toc.listTopicEntries(Language.ENGLISH).size());
+    assertEquals(0, toc.listTopicEntries(Language.SPANISH).size());
+
+    for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
+      assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
+      assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+    }
   }
 
   @Test
@@ -58,10 +85,25 @@ public class DescriptionServiceMyBatisIT {
 
   @Test
   public void testListByRange() {
-    List<Description> records = ((DescriptionServiceMyBatis) ddt.getService()).listRange(1, 100000020);
-    assertEquals(9, records.size());
-    for (Description v : records) {
-      assertNotNull(v.getUsageKey());
+    Map<Integer, List<Description>> map = ((DescriptionServiceMyBatis) ddt.getService()).listRange(1, 100000020);
+    assertEquals(3, map.size());
+
+    assertEquals(4, map.get(10).size());
+    assertEquals(1, map.get(100000007).size());
+    assertEquals(4, map.get(100000004).size());
+
+    for (Description v : map.get(100000004)) {
+      // checklist records
+      assertNull(v.getSourceTaxonKey());
+      assertNotNull(v.getDescription());
+      assertNotNull(v.getKey());
     }
+    for (Description v : map.get(10)) {
+      // nub records
+      assertNotNull(v.getSourceTaxonKey());
+      assertNotNull(v.getDescription());
+      assertNotNull(v.getKey());
+    }
+
   }
 }

@@ -4,11 +4,15 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.service.checklistbank.NameUsageComponentService;
+import org.gbif.api.service.checklistbank.NameUsageExtensionService;
+import org.gbif.checklistbank.service.mybatis.model.UsageRelated;
 
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 
 /**
@@ -17,18 +21,13 @@ import com.google.inject.Inject;
  *
  * @param <T> the interpreted model class.
  */
-public class NameUsageComponentServiceMyBatis<T> implements NameUsageComponentService<T> {
+public class NameUsageComponentServiceMyBatis<T> implements NameUsageExtensionService<T> {
 
   private final NameUsageComponentMapper<T> mapper;
 
   @Inject
   NameUsageComponentServiceMyBatis(NameUsageComponentMapper<T> mapper) {
     this.mapper = mapper;
-  }
-
-  @Override
-  public T get(int key) {
-    return mapper.get(key);
   }
 
   @Override
@@ -47,7 +46,7 @@ public class NameUsageComponentServiceMyBatis<T> implements NameUsageComponentSe
     return new PagingResponse<T>(page, null, result);
   }
 
-  private boolean isNub(int usageKey) {
+  protected boolean isNub(int usageKey) {
     return usageKey <= Constants.NUB_MAXIMUM_KEY;
   }
 
@@ -56,23 +55,35 @@ public class NameUsageComponentServiceMyBatis<T> implements NameUsageComponentSe
    *
    * @throws IllegalArgumentException if start <= end
    */
-  public List<T> listRange(int usageKeyStart, int usageKeyEnd) {
+  public Map<Integer, List<T>> listRange(int usageKeyStart, int usageKeyEnd) {
     if (usageKeyStart > usageKeyEnd) {
       throw new IllegalArgumentException("start " + usageKeyStart + " > end " + usageKeyEnd + " range");
     }
+
+    List<UsageRelated<T>> related;
     if (isNub(usageKeyEnd)) {
       // only nub usages
-      return mapper.listByNubUsageRange(usageKeyStart, usageKeyEnd);
+      related = mapper.listByNubUsageRange(usageKeyStart, usageKeyEnd);
+
     } else if (!isNub(usageKeyStart)) {
       // only checklist usages
-      return mapper.listByChecklistUsageRange(usageKeyStart, usageKeyEnd);
+      related = mapper.listByChecklistUsageRange(usageKeyStart, usageKeyEnd);
+
     } else {
       // mixed !!!
       // get nubs first
-      List<T> usages = mapper.listByNubUsageRange(usageKeyStart, Constants.NUB_MAXIMUM_KEY);
-      usages.addAll(mapper.listByChecklistUsageRange(Constants.NUB_MAXIMUM_KEY + 1, usageKeyEnd));
-      return usages;
+      related = mapper.listByNubUsageRange(usageKeyStart, Constants.NUB_MAXIMUM_KEY);
+      related.addAll(mapper.listByChecklistUsageRange(Constants.NUB_MAXIMUM_KEY + 1, usageKeyEnd));
     }
+
+    Map<Integer, List<T>> result = Maps.newHashMap();
+    for (UsageRelated<T> r : related) {
+      if (!result.containsKey(r.getUsageKey())) {
+        result.put(r.getUsageKey(), Lists.<T>newArrayList());
+      }
+      result.get(r.getUsageKey()).add(r.getValue());
+    }
+    return result;
   }
 
 }

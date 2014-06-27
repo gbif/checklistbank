@@ -3,7 +3,7 @@ package org.gbif.checklistbank.ws.client.guice;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.ImageService;
+import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.service.checklistbank.NameUsageService;
@@ -55,7 +55,7 @@ public class ChecklistBankWsClientModule extends GbifWsClientModule {
       expose(NameUsageService.class);
       expose(DescriptionService.class);
       expose(DistributionService.class);
-      expose(ImageService.class);
+      expose(MultimediaService.class);
       expose(ReferenceService.class);
       expose(SpeciesProfileService.class);
       expose(TypeSpecimenService.class);

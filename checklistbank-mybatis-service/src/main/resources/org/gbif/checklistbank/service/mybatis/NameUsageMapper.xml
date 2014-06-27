@@ -76,6 +76,7 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
   <!--  A mapping to build a NameUsage without any identifiers or a vernacular name -->
   <resultMap id="usageResultMap" type="NameUsage" autoMapping="true">
     <id property="key" column="id"/>
+    <result property="taxonID" column="source_id"/>
     <result property="nubKey" column="nub_fk"/>
     <result property="proParteKey" column="pp_synonym_fk"/>
     <result property="basionymKey" column="basionym_fk"/>

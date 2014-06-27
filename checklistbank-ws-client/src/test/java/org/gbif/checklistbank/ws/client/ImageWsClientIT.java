@@ -12,12 +12,12 @@
  */
 package org.gbif.checklistbank.ws.client;
 
-import org.gbif.api.service.checklistbank.ImageService;
+import org.gbif.api.service.checklistbank.MultimediaService;
 
-public class ImageWsClientIT extends NameUsageComponentWsClientITBase<ImageService> {
+public class ImageWsClientIT extends NameUsageComponentWsClientITBase<MultimediaService> {
 
   public ImageWsClientIT() {
-    super(ImageService.class, 100000025, 8);
+    super(MultimediaService.class, 100000025, 8);
   }
 
 }

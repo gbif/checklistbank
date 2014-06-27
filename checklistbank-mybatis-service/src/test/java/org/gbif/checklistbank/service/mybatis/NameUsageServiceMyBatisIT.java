@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.service.mybatis;
 
-import org.gbif.api.model.checklistbank.Identifier;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -8,7 +7,6 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingConstants;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
@@ -16,10 +14,8 @@ import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBa
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.collect.Sets;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -28,7 +24,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class NameUsageServiceMyBatisIT {
 
@@ -46,7 +41,7 @@ public class NameUsageServiceMyBatisIT {
     assertNotNull(rodentia);
     assertEquals((Integer) 10, rodentia.getNubKey());
     assertFalse(rodentia.isSynonym());
-    assertEquals("1000", rodentia.getSourceId());
+    assertEquals("1000", rodentia.getTaxonID());
     assertEquals("Rodentia", rodentia.getCanonicalName());
     assertEquals("Rodentia Bowdich, 1821", rodentia.getScientificName());
     assertEquals("Bowdich, 1821", rodentia.getAuthorship());
@@ -77,8 +72,7 @@ public class NameUsageServiceMyBatisIT {
     assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), rodentia.getDatasetKey());
     assertNull(rodentia.getPublishedIn());
 
-    assertEquals(0, rodentia.getIdentifiers().size());
-    assertEquals("1000", rodentia.getSourceId());
+    assertEquals("1000", rodentia.getTaxonID());
 
 
     NameUsage squirrel = ddt.getService().get(100000025, Locale.UK);
@@ -123,7 +117,7 @@ public class NameUsageServiceMyBatisIT {
     assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), squirrel.getDatasetKey());
     assertEquals("Syst. Nat. , 10th ed. vol. 1 p. 63", squirrel.getPublishedIn());
 
-    assertEquals("2010030", squirrel.getSourceId());
+    assertEquals("2010030", squirrel.getTaxonID());
 
 
     // TEST VERNACULAR
@@ -139,35 +133,8 @@ public class NameUsageServiceMyBatisIT {
 
     // TEST MULTIPLE IDENTIFIERS
     squirrel = ddt.getService().get(100000007, Locale.GERMANY);
-    assertEquals("6905528", squirrel.getSourceId());
+    assertEquals("6905528", squirrel.getTaxonID());
     assertEquals(URI.create("http://www.catalogueoflife.org/details/species/id/6905528"), squirrel.getReferences());
-    Set<Integer> ids = Sets.newHashSet(103, 104, 105);
-    for (Identifier id : squirrel.getIdentifiers()) {
-      assertEquals(squirrel.getKey(), id.getUsageKey());
-      switch (id.getKey()) {
-        case 103:
-          assertEquals("urn:lsid:catalogueoflife.org:taxon:df0a319c-29c1-102b-9a4a-00304854f820:col20120721",
-            id.getIdentifier());
-          assertEquals(IdentifierType.LSID, id.getType());
-          assertNull(id.getTitle());
-          break;
-        case 104:
-          assertEquals("doi:10.1038/6905528", id.getIdentifier());
-          assertEquals(IdentifierType.DOI, id.getType());
-          assertNull(id.getTitle());
-          break;
-        case 105:
-          assertEquals("http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=632417",
-            id.getIdentifier());
-          assertEquals(IdentifierType.URL, id.getType());
-          assertNull(id.getTitle());
-          break;
-        default:
-          fail("Unkown Identifier");
-      }
-      ids.remove(id.getKey());
-    }
-    assertTrue(ids.isEmpty());
 
     // TEST SYNONYM
     NameUsage syn = ddt.getService().get(100000027, Locale.FRENCH);

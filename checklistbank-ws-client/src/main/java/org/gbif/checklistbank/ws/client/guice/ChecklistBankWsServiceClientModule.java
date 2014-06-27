@@ -18,7 +18,7 @@ package org.gbif.checklistbank.ws.client.guice;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.ImageService;
+import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -27,7 +27,7 @@ import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.ws.client.DatasetMetricsWsClient;
 import org.gbif.checklistbank.ws.client.DescriptionWsClient;
 import org.gbif.checklistbank.ws.client.DistributionWsClient;
-import org.gbif.checklistbank.ws.client.ImageWsClient;
+import org.gbif.checklistbank.ws.client.MultimediaWsClient;
 import org.gbif.checklistbank.ws.client.NameUsageWsClient;
 import org.gbif.checklistbank.ws.client.ReferenceWsClient;
 import org.gbif.checklistbank.ws.client.SpeciesProfileWsClient;
@@ -70,8 +70,8 @@ public class ChecklistBankWsServiceClientModule extends AbstractModule {
     // usage components
     bind(DescriptionService.class).to(DescriptionWsClient.class).in(Scopes.SINGLETON);
     bind(DistributionService.class).to(DistributionWsClient.class).in(Scopes.SINGLETON);
-    bind(ImageWsClient.class).in(Scopes.SINGLETON);
-    bind(ImageService.class).to(ImageWsClient.class).in(Scopes.SINGLETON);
+    bind(MultimediaWsClient.class).in(Scopes.SINGLETON);
+    bind(MultimediaService.class).to(MultimediaWsClient.class).in(Scopes.SINGLETON);
     bind(ReferenceService.class).to(ReferenceWsClient.class).in(Scopes.SINGLETON);
     bind(SpeciesProfileService.class).to(SpeciesProfileWsClient.class).in(Scopes.SINGLETON);
     bind(TypeSpecimenService.class).to(TypeSpecimenWsClient.class).in(Scopes.SINGLETON);

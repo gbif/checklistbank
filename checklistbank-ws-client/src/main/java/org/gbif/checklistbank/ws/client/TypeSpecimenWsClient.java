@@ -18,6 +18,6 @@ public class TypeSpecimenWsClient extends NameUsageComponentBaseWsClient<TypeSpe
   @Inject
   public TypeSpecimenWsClient(@ChecklistBankWs WebResource resource) {
     super(TypeSpecimen.class, new GenericType<PagingResponse<TypeSpecimen>>() {
-    }, resource, Constants.TYPE_SPECIMENS_PATH, Constants.TYPE_SPECIMEN_PATH);
+    }, resource, Constants.TYPE_SPECIMENS_PATH);
   }
 }
