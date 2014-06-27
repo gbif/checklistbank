@@ -12,10 +12,12 @@ import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
+import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
@@ -61,12 +63,15 @@ public class SpeciesResource {
   private final MultimediaService imageService;
   private final DescriptionService descriptionService;
   private final DistributionService distributionService;
+  private final IdentifierService identifierService;
 
   @Inject
-  public SpeciesResource(NameUsageService nameUsageService, VernacularNameService vernacularNameService,
+  public SpeciesResource(
+    NameUsageService nameUsageService, VernacularNameService vernacularNameService,
     TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
     ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
-    DistributionService distributionService) {
+    DistributionService distributionService, IdentifierService identifierService
+  ) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
     this.typeSpecimenService = typeSpecimenService;
@@ -75,6 +80,7 @@ public class SpeciesResource {
     this.imageService = imageService;
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
+    this.identifierService = identifierService;
   }
 
   /**
@@ -320,6 +326,22 @@ public class SpeciesResource {
     LOG.debug("Request all Distributions for NameUsage [{}]: [pageSize({}) offset({})]",
       new Object[] {usageKey, page.getLimit(), page.getOffset()});
     return distributionService.listByUsage(usageKey, page);
+  }
+
+  /**
+   * This retrieves all Identifier for a NameUsage from ChecklistBank.
+   *
+   * @param usageKey NameUsage key
+   * @param page     The page and offset and count information
+   *
+   * @return a list of all Identifier
+   */
+  @GET
+  @Path("{id}/identifier")
+  public PagingResponse<Identifier> listIdentifierByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+    LOG.debug("Request all Identifier for NameUsage [{}]: [pageSize({}) offset({})]",
+              new Object[] {usageKey, page.getLimit(), page.getOffset()});
+    return identifierService.listByUsage(usageKey, page);
   }
 
   /**

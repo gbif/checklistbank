@@ -57,7 +57,7 @@ public class SpeciesResourceTest {
 
     resource = new SpeciesResource(mockNameUsageService, mockVernacularNameService, mockTypeSpecimenService,
       mockSpeciesProfileService, mockReferenceService, mockImageService, mockDescriptionService,
-      mockDistributionService);
+      mockDistributionService, identifierService);
 
     locale = Locale.US;
     nameUsage = new NameUsage();

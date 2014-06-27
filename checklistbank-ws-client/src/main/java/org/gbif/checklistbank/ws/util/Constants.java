@@ -21,6 +21,7 @@ public class Constants {
   public static final String DESCRIPTION_PATH = "description";
   public static final String DESCRIPTIONS_PATH = "descriptions";
   public static final String DISTRIBUTIONS_PATH = "distributions";
+  public static final String IDENTIFIER_PATH = "identifier";
   public static final String MEDIA_PATH = "media";
   public static final String REFERENCES_PATH = "references";
   public static final String SPECIES_PROFILES_PATH = "speciesProfiles";

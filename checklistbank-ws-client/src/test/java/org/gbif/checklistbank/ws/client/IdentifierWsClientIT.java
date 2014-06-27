@@ -12,12 +12,12 @@
  */
 package org.gbif.checklistbank.ws.client;
 
-import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.IdentifierService;
 
-public class ImageWsClientIT extends NameUsageComponentWsClientITBase<MultimediaService> {
+public class IdentifierWsClientIT extends NameUsageComponentWsClientITBase<IdentifierService> {
 
-  public ImageWsClientIT() {
-    super(MultimediaService.class, 100000025, 8);
+  public IdentifierWsClientIT() {
+    super(IdentifierService.class, 100000007, 4);
   }
 
 }
