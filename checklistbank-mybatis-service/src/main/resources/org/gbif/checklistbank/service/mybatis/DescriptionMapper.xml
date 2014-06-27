@@ -30,6 +30,7 @@
   </resultMap>
 
   <resultMap id="tocResultMap" type="TocEntry" autoMapping="true">
+    <id property="key" column="id"/>
     <result property="topic" column="type"/>
   </resultMap>
 

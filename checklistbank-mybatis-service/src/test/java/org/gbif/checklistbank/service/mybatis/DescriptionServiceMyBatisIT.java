@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class DescriptionServiceMyBatisIT {
 
@@ -51,6 +52,7 @@ public class DescriptionServiceMyBatisIT {
     for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
       assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
       assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+      assertTrue(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0) > 0);
     }
 
     // same via nub
@@ -62,6 +64,7 @@ public class DescriptionServiceMyBatisIT {
     for (String topic : toc.listTopicEntries(Language.ENGLISH).keySet()) {
       assertFalse(toc.listTopicEntries(Language.ENGLISH).get(topic).isEmpty());
       assertNotNull(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0));
+      assertTrue(toc.listTopicEntries(Language.ENGLISH).get(topic).get(0) > 0);
     }
   }
 
