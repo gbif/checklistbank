@@ -16,11 +16,13 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.ws.util.ExtraMediaTypes;
 
 import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -46,14 +48,15 @@ public class NameUsageSearchResource {
 
   @GET
   @Path("search")
-  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(@Context NameUsageSearchRequest searchRequest) {
+  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
+    @Context NameUsageSearchRequest searchRequest) {
     LOG.debug("Search operation received {} ", searchRequest);
     return searchService.search(searchRequest);
   }
 
   @Path("suggest")
   @GET
-  public List<NameUsageSearchResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
+  public List<NameUsageSuggestResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
     LOG.debug("Suggest operation received {} ", searchSuggestRequest);
     return searchService.suggest(searchSuggestRequest);
   }

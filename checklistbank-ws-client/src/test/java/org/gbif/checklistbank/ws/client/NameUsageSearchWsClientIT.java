@@ -17,6 +17,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.Rank;
@@ -123,7 +124,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
   public void searchSuggestTest() {
     NameUsageSuggestRequest searchSuggestRequest = new NameUsageSuggestRequest();
     searchSuggestRequest.setQ("tetracanthus");
-    List<NameUsageSearchResult> results = wsClient.suggest(searchSuggestRequest);
+    List<NameUsageSuggestResult> results = wsClient.suggest(searchSuggestRequest);
     assertNotNull(results);
   }
 
@@ -153,13 +154,15 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
 
   @Test
   public void searchSearches() {
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result = assertSearch("vulgaris", NameUsageSearchParameter.RANK, 10L, null);
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result =
+      assertSearch("vulgaris", NameUsageSearchParameter.RANK, 10L, null);
   }
 
   @Test
   public void searchSearchFacets() {
     // RANK
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, 10L, null);
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result =
+      assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, 10L, null);
     result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
     result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.SPECIES, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
@@ -216,12 +219,14 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
   }
 
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet,
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
+    NameUsageSearchParameter facet,
     Long expectedCount, String expectedFacetCounts) {
     return assertSearch(q, facet, (String) null, expectedCount, expectedFacetCounts);
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet,
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
+    NameUsageSearchParameter facet,
     Enum<?> facetFilter, Long expectedCount, String expectedFacetCounts) {
 
     NameUsageSearchRequest searchRequest = prepareRequest(q, facet);
@@ -232,7 +237,8 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     return assertSearch(searchRequest, facet != null, expectedCount, expectedFacetCounts);
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet,
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
+    NameUsageSearchParameter facet,
     String facetFilter, Long expectedCount, String expectedFacetCounts) {
 
     NameUsageSearchRequest searchRequest = prepareRequest(q, facet);
@@ -253,7 +259,9 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
 
     return searchRequest;
   }
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(NameUsageSearchRequest searchRequest, boolean useFacets,
+
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(
+    NameUsageSearchRequest searchRequest, boolean useFacets,
     Long expectedCount, String expectedFacetCounts) {
 
     // query

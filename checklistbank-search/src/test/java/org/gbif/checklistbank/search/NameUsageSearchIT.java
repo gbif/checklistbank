@@ -18,6 +18,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
@@ -31,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;
@@ -191,7 +193,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
   @Test
   public void testSuggest() {
     log.info("running test");
-    List<NameUsageSearchResult> results = searchSuggest("sci");
+    List<NameUsageSuggestResult> results = searchSuggest("sci");
     log.error(results != null ? "RESULTS NOT IS NULL" : "is null");
     Assert.assertTrue(results != null && !results.isEmpty());
   }
@@ -300,7 +302,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
   /**
    * Utility method for testing suggest service.
    */
-  private List<NameUsageSearchResult> searchSuggest(String q) {
+  private List<NameUsageSuggestResult> searchSuggest(String q) {
     NameUsageSuggestRequest req = new NameUsageSuggestRequest();
     req.setQ(q);
     req.setLimit(10);

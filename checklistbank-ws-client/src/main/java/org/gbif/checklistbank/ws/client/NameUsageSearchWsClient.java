@@ -16,6 +16,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankSearchWs;
@@ -32,13 +33,15 @@ import com.sun.jersey.api.client.WebResource;
  */
 public class NameUsageSearchWsClient
   extends BaseWsSuggestClient<NameUsageSearchResult, NameUsageSearchParameter,
-  NameUsageSearchRequest, NameUsageSuggestRequest>  implements NameUsageSearchService {
+  NameUsageSearchRequest, NameUsageSuggestResult, NameUsageSuggestRequest> implements NameUsageSearchService {
 
   private static final GenericType<SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>> SEARCH_TYPE =
-    new GenericType<SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>>() {};
+    new GenericType<SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>>() {
+    };
 
-  private static final GenericType<List<NameUsageSearchResult>> SUGGEST_TYPE =
-    new GenericType<List<NameUsageSearchResult>>() {};
+  private static final GenericType<List<NameUsageSuggestResult>> SUGGEST_TYPE =
+    new GenericType<List<NameUsageSuggestResult>>() {
+    };
 
   @Inject
   public NameUsageSearchWsClient(@ChecklistBankSearchWs WebResource resource) {

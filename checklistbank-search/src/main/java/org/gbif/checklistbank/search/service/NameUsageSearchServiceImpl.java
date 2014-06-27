@@ -17,9 +17,11 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
+import org.gbif.checklistbank.index.model.NameUsageSolrSuggestResult;
 import org.gbif.common.search.service.SolrSearchSuggestService;
 
 import java.util.List;
@@ -41,7 +43,8 @@ import static org.gbif.common.search.util.SearchConstants.NOT_OP;
  */
 public class NameUsageSearchServiceImpl
   extends SolrSearchSuggestService<NameUsageSearchResult, NameUsageSearchParameter, NameUsageSolrSearchResult,
-  NameUsageSearchRequest, NameUsageSuggestRequest> implements NameUsageSearchService {
+  NameUsageSearchRequest, NameUsageSuggestResult, NameUsageSolrSuggestResult, NameUsageSuggestRequest> implements
+  NameUsageSearchService {
 
   // Default primary sort order
   private static final Map<String, SolrQuery.ORDER> PRIMARY_SORT_ORDER =
@@ -74,11 +77,11 @@ public class NameUsageSearchServiceImpl
   public NameUsageSearchServiceImpl(SolrServer server) {
     // Type parameter bounded to NameUsageSearch
     super(server, null, NameUsageSearchResult.class, NameUsageSolrSearchResult.class,
-      NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER);
+      NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER, NameUsageSolrSuggestResult.class);
   }
 
   @Override
-  public List<NameUsageSearchResult> suggest(NameUsageSuggestRequest suggestRequest) {
+  public List<NameUsageSuggestResult> suggest(NameUsageSuggestRequest suggestRequest) {
     if (!suggestRequest.getParameters().containsKey(NameUsageSearchParameter.DATASET_KEY)) {
       // if the datasetKey parameters is not in the list, the GBIF nub is used by default
       suggestRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());

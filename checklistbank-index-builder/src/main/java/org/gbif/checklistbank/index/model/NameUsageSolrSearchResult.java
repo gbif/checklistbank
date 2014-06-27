@@ -27,7 +27,6 @@ import org.gbif.common.search.model.FullTextSearchField;
 import org.gbif.common.search.model.HighlightableList;
 import org.gbif.common.search.model.Key;
 import org.gbif.common.search.model.SearchMapping;
-import org.gbif.common.search.model.SuggestMapping;
 import org.gbif.common.search.model.WildcardPadding;
 
 import java.util.List;
@@ -92,7 +91,6 @@ import org.codehaus.jackson.annotate.JsonIgnore;
     @FullTextSearchField(field = "phylum", partialMatching = WildcardPadding.NONE),
     @FullTextSearchField(field = "kingdom", partialMatching = WildcardPadding.NONE),
   })
-@SuggestMapping(field = "canonical_name_as", phraseQueryField = "canonical_name_as_phrase")
 public class NameUsageSolrSearchResult extends NameUsageSearchResult {
 
   private static Function<VernacularName, String> toNameLang = new Function<VernacularName, String>() {

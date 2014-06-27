@@ -16,6 +16,7 @@ import org.gbif.api.model.registry.search.DatasetSearchParameter;
 import org.gbif.api.model.registry.search.DatasetSearchRequest;
 import org.gbif.api.model.registry.search.DatasetSearchResult;
 import org.gbif.api.model.registry.search.DatasetSuggestRequest;
+import org.gbif.api.model.registry.search.DatasetSuggestResult;
 import org.gbif.api.service.registry.DatasetSearchService;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.Country;
@@ -26,17 +27,20 @@ import org.gbif.api.vocabulary.MetadataType;
 import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
+
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Lists;
 
 public class DatasetMockService implements DatasetSearchService, DatasetService {
+
   private List<UUID> keys;
 
   @Override
   public SearchResponse<DatasetSearchResult, DatasetSearchParameter> search(DatasetSearchRequest searchRequest) {
-    SearchResponse<DatasetSearchResult, DatasetSearchParameter> resp = new SearchResponse<DatasetSearchResult, DatasetSearchParameter>(searchRequest);
+    SearchResponse<DatasetSearchResult, DatasetSearchParameter> resp =
+      new SearchResponse<DatasetSearchResult, DatasetSearchParameter>(searchRequest);
     List<DatasetSearchResult> results = Lists.newArrayList();
     for (UUID k : keys) {
       DatasetSearchResult d = new DatasetSearchResult();
@@ -52,9 +56,10 @@ public class DatasetMockService implements DatasetSearchService, DatasetService 
 
   /**
    * Sets the keys of the datasets to be returned with the search method.
+   * 
    * @param keys
    */
-  public void setKeys(UUID ... keys) {
+  public void setKeys(UUID... keys) {
     this.keys = Lists.newArrayList(keys);
   }
 
@@ -75,9 +80,8 @@ public class DatasetMockService implements DatasetSearchService, DatasetService 
   }
 
 
-
   @Override
-  public List<DatasetSearchResult> suggest(DatasetSuggestRequest suggestRequest) {
+  public List<DatasetSuggestResult> suggest(DatasetSuggestRequest suggestRequest) {
     throw new UnsupportedOperationException("Not implemented yet");
   }
 
