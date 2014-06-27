@@ -54,4 +54,13 @@ public class MultimediaServiceMyBatisIT {
     assertEquals(d1, images.get(0));
     assertEquals(d2, images.get(1));
   }
+
+  @Test
+  public void testBadDate() {
+    NameUsageMediaObject img = ddt.getService().listByUsage(100000040, null).getResults().get(0);
+    assertNotNull(img);
+    assertNull(img.getCreated());
+    assertNotNull(img.getDescription());
+    assertNotNull(img.getIdentifier());
+  }
 }

@@ -13,6 +13,7 @@
     <result property="identifier" column="url"/>
     <result property="references" column="link"/>
     <result property="sourceTaxonKey" column="usage_fk"/>
+    <result property="created" column="created" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.StringDateTypeHandler" />
     <!--
   private MediaType type;
   private String format;

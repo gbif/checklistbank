@@ -53,6 +53,8 @@
     <gbif-httputils.version>0.5</gbif-httputils.version>
     <registry-client.version>2.16-SNAPSHOT</registry-client.version>
     <name-parser.version>2.4</name-parser.version>
+    <gbif-parser.version>0.9-SNAPSHOT</gbif-parser.version>
+
     <dwca-reader.version>1.17</dwca-reader.version>
     <!-- external libs -->
     <aopalliance.version>1.0</aopalliance.version>
@@ -250,6 +252,11 @@
         <groupId>org.gbif</groupId>
         <artifactId>name-parser</artifactId>
         <version>${name-parser.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif</groupId>
+        <artifactId>gbif-parsers</artifactId>
+        <version>${gbif-parser.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
