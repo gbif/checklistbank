@@ -17,7 +17,7 @@ import org.gbif.api.service.checklistbank.IdentifierService;
 public class IdentifierWsClientIT extends NameUsageComponentWsClientITBase<IdentifierService> {
 
   public IdentifierWsClientIT() {
-    super(IdentifierService.class, 100000007, 4);
+    super(IdentifierService.class, 100000007, 3);
   }
 
 }
