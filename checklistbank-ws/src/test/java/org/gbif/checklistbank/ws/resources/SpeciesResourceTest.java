@@ -7,6 +7,7 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
+import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
@@ -36,6 +37,7 @@ public class SpeciesResourceTest {
   private MultimediaService mockImageService;
   private DescriptionService mockDescriptionService;
   private DistributionService mockDistributionService;
+  private IdentifierService mockIdentifierService;
 
   private SpeciesResource resource;
 
@@ -54,10 +56,11 @@ public class SpeciesResourceTest {
     mockImageService = mock(MultimediaService.class);
     mockDescriptionService = mock(DescriptionService.class);
     mockDistributionService = mock(DistributionService.class);
+    mockIdentifierService = mock(IdentifierService.class);
 
     resource = new SpeciesResource(mockNameUsageService, mockVernacularNameService, mockTypeSpecimenService,
       mockSpeciesProfileService, mockReferenceService, mockImageService, mockDescriptionService,
-      mockDistributionService, identifierService);
+      mockDistributionService, mockIdentifierService);
 
     locale = Locale.US;
     nameUsage = new NameUsage();
