@@ -32,11 +32,9 @@ public class NubMatchingServiceImplIT {
 
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
-    System.out.println(
-      name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best
-        .getConfidence());
-    System.out.println( CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
-    System.out.println(best.getNote());
+    System.out.println(name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
+    System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
+    System.out.println("  " + best.getNote());
 
     assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
     if (best.getAlternatives() != null) {
@@ -177,6 +175,20 @@ public class NubMatchingServiceImplIT {
     cl.setKingdom("Plantae");
     cl.setFamily("Sabiaceae");
     assertMatch("Sabia parviflora", cl, 2409, new IntRange(80,100));
+
+
+
+    // without kingdom snap to the bad animal record
+    cl = new NameUsageMatch();
+    assertMatch("Tibetia tongolensis", cl, 7301567, new IntRange(99,100));
+
+    // hit the plant family
+    assertMatch("Fabaceae", cl, 5386, new IntRange(95,100));
+
+    // make sure its the family
+    cl.setKingdom("Plantae");
+    cl.setFamily("Fabaceae");
+    assertMatch("Tibetia tongolensis", cl, 5386, new IntRange(80,100));
   }
 
   @Test
@@ -223,8 +235,15 @@ public class NubMatchingServiceImplIT {
     cl.setKingdom("Animalia");
     assertMatch("P. concolor", cl, 2435099, new IntRange(99, 100));
 
+    cl.setKingdom("Pllllaaaantae");
+    assertMatch("Puma concolor", cl, 2435099, new IntRange(95, 100));
+
+    // we now match to the kingdom even though it was given wrong
+    // sideeffect of taking kingdoms extremely serious due to bad backbone
+    // see NubMatchingServiceImpl.classificationSimilarity()
     cl.setKingdom("Plantae");
-    assertMatch("Puma concolor", cl, 2435099, new IntRange(85, 90));
+    assertMatch("Puma concolor", cl, 6, new IntRange(95, 100));
+
     // Picea concolor is a plant, but this fuzzy match is too far off
     assertMatch("Pima concolor", cl, 6, null);
     // this one should match though

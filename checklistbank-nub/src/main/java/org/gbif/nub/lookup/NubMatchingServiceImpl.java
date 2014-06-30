@@ -239,7 +239,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
       if (matches.size() == 1) {
         // boost results with a single match to pick from
-        nextMatchDistance = 20;
+        nextMatchDistance = 10;
+        if (verbose) {
+          addNote(best, "singleMatch=" + nextMatchDistance);
+        }
 
       } else {
         // we have more than one match to chose from
@@ -250,11 +253,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         }
         // boost up to 10 based on distance to next match, penalty for very close matches
         nextMatchDistance = Math.min(10, (bestConfidence - secondBestConfidence - 10) / 2);
+        if (verbose) {
+          addNote(best, "nextMatch=" + nextMatchDistance);
+        }
       }
       best.setConfidence(bestConfidence + nextMatchDistance);
-      if (verbose) {
-        addNote(best, "nextMatch=" + nextMatchDistance);
-      }
 
       // normalize confidence values into the range of 0 to 100
       best.setConfidence(normConfidence(best.getConfidence()));
@@ -325,7 +328,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     int rate = compareHigherRank(Rank.KINGDOM, query, reference, 8, -10, -1);
     // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
     if (rate == -10 && isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE) && isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)){
-      rate = -40;
+      //TODO: decrease this to 30 once the backbone is in a better state again !!!
+      rate = -51;
     }
     // phylum to family
     rate += compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
@@ -333,7 +337,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     rate += compareHigherRank(Rank.ORDER, query, reference, 15, -5, 0);
     rate += compareHigherRank(Rank.FAMILY, query, reference, 25, -3, 0);
 
-    return minMax(-50, 50, rate);
+    return minMax(-60, 50, rate);
   }
 
   /**
