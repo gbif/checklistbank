@@ -7,6 +7,7 @@ import org.gbif.nameparser.NameParser;
 
 import java.io.IOException;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.IntRange;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class NubMatchingServiceImplIT {
 
   private static NubMatchingServiceImpl matcher;
+  private static final Joiner CLASS_JOINER = Joiner.on("; ").useForNull("???");
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
@@ -33,6 +35,7 @@ public class NubMatchingServiceImplIT {
     System.out.println(
       name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best
         .getConfidence());
+    System.out.println( CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
     System.out.println(best.getNote());
 
     assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
@@ -62,7 +65,6 @@ public class NubMatchingServiceImplIT {
       }
     }
   }
-
 
   private void assertMatchConsistency(NameUsageMatch match){
     assertNotNull(match.getConfidence());
@@ -158,6 +160,25 @@ public class NubMatchingServiceImplIT {
     assertNoMatch("Annepluss", new NameUsageMatch(), new IntRange(30,80));
   }
 
+  /**
+   * Sabia parviflora is a plant which is in our backbone badly classified as an animal.
+   * Assure those names get matched to the next highest taxon that indeed is a plant when the plant kingdom is requested.
+   */
+  @Test
+  public void testBadPlantKingdom() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    // without kingdom snap to the bad animal record
+    assertMatch("Sabia parviflora", cl, 7268473, new IntRange(99,100));
+
+    // hit the plant family
+    assertMatch("Sabiaceae", cl, 2409, new IntRange(95,100));
+
+    // make sure its the family
+    cl.setKingdom("Plantae");
+    cl.setFamily("Sabiaceae");
+    assertMatch("Sabia parviflora", cl, 2409, new IntRange(80,100));
+  }
+
   @Test
   public void testHomonyms() throws IOException {
     // Oenanthe
@@ -169,7 +190,7 @@ public class NubMatchingServiceImplIT {
 
     cl.setKingdom("Plantae");
     assertMatch("Oenanthe", cl, 3034893, new IntRange(96, 99));
-    assertMatch("Oenante", cl, 3034893, new IntRange(95,99));
+    assertMatch("Oenante", cl, 3034893, new IntRange(94,99));
 
 
     // Acanthophora
@@ -203,7 +224,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("P. concolor", cl, 2435099, new IntRange(99, 100));
 
     cl.setKingdom("Plantae");
-    assertMatch("Puma concolor", cl, 2435099, new IntRange(95, 98));
+    assertMatch("Puma concolor", cl, 2435099, new IntRange(85, 90));
     // Picea concolor is a plant, but this fuzzy match is too far off
     assertMatch("Pima concolor", cl, 6, null);
     // this one should match though

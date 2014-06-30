@@ -248,20 +248,21 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
           // equally good matches, bummer!
           return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
         }
-        // boost up to 15 based on distance to next match
-        nextMatchDistance = Math.min(15, (bestConfidence - secondBestConfidence - 10) / 2);
+        // boost up to 10 based on distance to next match, penalty for very close matches
+        nextMatchDistance = Math.min(10, (bestConfidence - secondBestConfidence - 10) / 2);
       }
       best.setConfidence(bestConfidence + nextMatchDistance);
       if (verbose) {
         addNote(best, "nextMatch=" + nextMatchDistance);
       }
 
-      if (bestConfidence < minConfidence) {
+      // normalize confidence values into the range of 0 to 100
+      best.setConfidence(normConfidence(best.getConfidence()));
+
+      // finally check if match is good enough
+      if (best.getConfidence() < minConfidence) {
         return noMatch(99, "No match because of too little confidence", verbose ? matches : null);
       }
-
-      // finally normalize confidence values into the range of 0 to 100
-      best.setConfidence(normConfidence(best.getConfidence()));
       if (verbose && matches.size() > 1) {
         // the first match is best
         matches.remove(0);
@@ -324,7 +325,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     int rate = compareHigherRank(Rank.KINGDOM, query, reference, 8, -10, -1);
     // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
     if (rate == -10 && isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE) && isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)){
-      rate = -25;
+      rate = -40;
     }
     // phylum to family
     rate += compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
@@ -423,7 +424,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
 
   /**
-   * Ordering based on contact types with head of delegation and node managers coming first.
+   * Ordering based on match confidence and scientific name secondly.
    */
   public static class ConfidenceOrder implements Comparator<NameUsageMatch> {
 

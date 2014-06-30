@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import org.junit.Assert;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +91,7 @@ public class NubMatchingTestModule extends PrivateModule {
           }
           System.out.println("Loaded " + (usages.size() - before) + " new usage(s) from " + file);
         } catch (IOException e) {
-          System.err.println(" Failed to read " + file + ": " + e.getMessage());
+          Assert.fail("Failed to read " + file + ": " + e.getMessage());
         }
       }
       id++;
