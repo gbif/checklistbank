@@ -113,7 +113,6 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
   @Test
   public void searchHighligtTest() {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);
-    searchRequest.setFacetsOnly(false);
     searchRequest.setQ("puma");
     searchRequest.setHighlight(true);
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = wsClient.search(searchRequest);
@@ -131,7 +130,6 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
   @Test
   public void searchTest() {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);
-    searchRequest.setFacetsOnly(false);
     searchRequest.setQ("puma");
     searchRequest.addFacets(NameUsageSearchParameter.DATASET_KEY);
     searchRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c");
@@ -143,7 +141,6 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
   @Test
   public void searchTestWithNubKey() {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);
-    searchRequest.setFacetsOnly(false);
     searchRequest.setQ("oenanthe");
     searchRequest.addParameter(NameUsageSearchParameter.HIGHERTAXON_KEY, "3184223");
     searchRequest.addFacets(NameUsageSearchParameter.DATASET_KEY);
