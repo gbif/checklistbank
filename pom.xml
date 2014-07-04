@@ -571,7 +571,7 @@
     <profile>
       <id>jenkins</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://builds2.gbif.org/clb</checklistbank.db.url>
+        <checklistbank.db.url>jdbc:postgresql://builds.gbif.org/clb</checklistbank.db.url>
         <checklistbank.db.username>clb</checklistbank.db.username>
       </properties>
     </profile>
