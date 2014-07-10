@@ -72,7 +72,7 @@ public class MultimediaServiceMyBatisIT {
         assertNotNull(img);
         assertEquals(89, img.getCreated().getYear());
         assertEquals(10, img.getCreated().getMonth());
-        assertEquals(URI.create("http://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Sciurus_anomalus_-_Jeita_Grotto.jpg/724px-Sciurus_anomalus_-_Jeita_Grotto.jpg"), img.getIdentifier());
+        assertEquals(URI.create("http://www.wikimedia.org/wikipedia/commons/thumb/d/d8/Sciurus_anomalus_-_Jeita_Grotto.jpg/724px-Sciurus_anomalus_-_Jeita_Grotto.jpg"), img.getIdentifier());
         assertEquals(URI.create("http://www.gbif.org"), img.getReferences());
         assertEquals("Persian Squirrel in a cage", img.getDescription());
         assertEquals(MediaType.StillImage, img.getType());
