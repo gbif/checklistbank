@@ -2,7 +2,7 @@
 
 \copy citation (id,citation) FROM 'citation.txt'
 
-\copy name_usage (id,dataset_key,constituent_key,name_fk,rank,parent_fk,is_synonym,pp_synonym_fk,status,nom_status,basionym_fk,kingdom_fk,phylum_fk,class_fk,order_fk,family_fk,genus_fk,subgenus_fk,species_fk,name_published_in_fk,according_to_fk,citation_fk,source_id,references,origin,lft,rgt,remarks,modified) FROM 'name_usage.txt'
+\copy name_usage (id,dataset_key,constituent_key,name_fk,rank,parent_fk,is_synonym,pp_synonym_fk,status,nom_status,basionym_fk,kingdom_fk,phylum_fk,class_fk,order_fk,family_fk,genus_fk,subgenus_fk,species_fk,name_published_in_fk,according_to_fk,citation_fk,source_id,"references",origin,lft,rgt,remarks,modified) FROM 'name_usage.txt'
 
 \copy name_usage_metrics (usage_fk,dataset_key,count_descendants,count_children,count_synonyms,count_p,count_c,count_o,count_f,count_g,count_sg,count_s,count_is,modified) FROM 'name_usage_metrics.txt'
 

@@ -1,17 +1,21 @@
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.VernacularName;
+import com.google.common.base.Strings;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.Maps;
+import com.google.inject.Inject;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
+import org.apache.solr.common.SolrInputDocument;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 import org.gbif.common.search.util.AnnotationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,16 +25,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
-import org.apache.solr.common.SolrInputDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -147,8 +141,9 @@ public class NameUsageDocConverter {
       addRank(nameUsage, solrInputDocument);
       addNameType(nameUsage, solrInputDocument);
       return solrInputDocument;
+
     } catch (Exception e) {
-      log.error("Error converting usage {} to solr document", nameUsage.getKey(), e);
+      log.error("Error converting usage {} to solr document: {}", nameUsage.getKey(), e.getMessage());
       throw new RuntimeException(e);
     }
   }
