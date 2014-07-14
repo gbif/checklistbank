@@ -590,7 +590,7 @@
     <profile>
       <id>prod</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://excalibur.gbif.org/checklistbank</checklistbank.db.url>
+        <checklistbank.db.url>jdbc:postgresql://excalibur.gbif.org/prod_b_checklistbank</checklistbank.db.url>
         <checklistbank.db.username>clb</checklistbank.db.username>
 	      <!-- below here only used for BUILDING THE WARS, not for tests! -->
 	      <checklistbank.db.partitions>2</checklistbank.db.partitions>
