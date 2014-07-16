@@ -26,8 +26,11 @@
   </scm>
 
   <properties>
+    <jdkLevel>1.7</jdkLevel>
+
     <dwc-api.version>1.8</dwc-api.version>
     <gbif-api.version>0.15</gbif-api.version>
+    <gbif-cli.version>0.6</gbif-cli.version>
     <gbif-common.version>0.15</gbif-common.version>
     <gbif-common-mybatis.version>0.12</gbif-common-mybatis.version>
     <gbif-common-search.version>0.17</gbif-common-search.version>
@@ -35,12 +38,13 @@
     <gbif-common-test.version>0.6</gbif-common-test.version>
     <gbif-common-ws.version>0.15</gbif-common-ws.version>
     <gbif-httputils.version>0.5</gbif-httputils.version>
+    <gbif-postal-service.version>0.12-SNAPSHOT</gbif-postal-service.version>
     <registry-client.version>2.16</registry-client.version>
     <name-parser.version>2.4</name-parser.version>
     <gbif-parser.version>0.9</gbif-parser.version>
-
     <dwca-reader.version>1.18</dwca-reader.version>
     <!-- external libs -->
+    <amqp-client.version>3.0.2</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.7.1.RELEASE</bonecp.version>
     <bval.version>0.5</bval.version>
@@ -57,13 +61,17 @@
     <!-- Only update Jackson together with Jersey so that Jackson is the same version as the one used by Jersey -->
     <jackson.version>1.9.12</jackson.version>
     <javax-validation-api.version>1.0.0.GA</javax-validation-api.version>
+    <jcommander.version>1.30-gbif-20121018</jcommander.version>
     <jersey.version>1.17.1</jersey.version>
     <junit.version>4.11</junit.version>
     <liquibase.version>3.0.7</liquibase.version>
-    <logback.version>1.1.2</logback.version>
+    <logback.version>1.0.9</logback.version>
+    <metainf-services.version>1.4</metainf-services.version>
+    <metrics.version>3.0.0-BETA1</metrics.version>
     <mockito.version>1.9.5</mockito.version>
     <mybatis.version>3.2.3</mybatis.version>
     <mybatis-guice.version>3.5</mybatis-guice.version>
+    <neo4j.version>2.1.2</neo4j.version>
     <postgresql.version>9.2-1003-jdbc4</postgresql.version> <!-- 9.3-1101-jdbc41 -->
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <servlet-api.version>2.5</servlet-api.version>
@@ -90,6 +98,7 @@
     <module>checklistbank-nub</module>
     <module>checklistbank-nub-ws</module>
     <module>checklistbank-col</module>
+    <module>checklistbank-cli</module>
   </modules>
 
 
@@ -139,6 +148,11 @@
         <groupId>org.gbif</groupId>
         <artifactId>gbif-common-mybatis</artifactId>
         <version>${gbif-common-mybatis.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif.common</groupId>
+        <artifactId>gbif-cli</artifactId>
+        <version>${gbif-cli.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
@@ -253,8 +267,60 @@
         <artifactId>dwca-reader</artifactId>
         <version>${dwca-reader.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.gbif.common</groupId>
+        <artifactId>gbif-postal-service</artifactId>
+        <version>${gbif-postal-service.version}</version>
+      </dependency>
+
+      <!-- neo4j -->
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j</artifactId>
+        <version>${neo4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- turn off usage reporting to neo -->
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-udc</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.neo4j</groupId>
+        <artifactId>neo4j-shell</artifactId>
+        <version>${neo4j.version}</version>
+      </dependency>
 
       <!-- Other -->
+      <!-- false positive from maven dep:analyze -->
+      <dependency>
+        <groupId>org.kohsuke.metainf-services</groupId>
+        <artifactId>metainf-services</artifactId>
+        <version>${metainf-services.version}</version>
+        <!-- This is the proper declaration. For details see the homepage of the project. -->
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>${jcommander.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-core</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-jvm</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.yammer.metrics</groupId>
+        <artifactId>metrics-ganglia</artifactId>
+        <version>${metrics.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
@@ -336,6 +402,11 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.rabbitmq</groupId>
+        <artifactId>amqp-client</artifactId>
+        <version>${amqp-client.version}</version>
       </dependency>
       <!-- TODO: document why here -->
       <dependency>
