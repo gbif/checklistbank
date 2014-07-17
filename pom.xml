@@ -29,8 +29,8 @@
     <jdkLevel>1.7</jdkLevel>
 
     <dwc-api.version>1.8</dwc-api.version>
-    <gbif-api.version>0.15</gbif-api.version>
-    <gbif-cli.version>0.6</gbif-cli.version>
+    <gbif-api.version>0.16-SNAPSHOT</gbif-api.version>
+    <gbif-cli.version>0.7-SNAPSHOT</gbif-cli.version>
     <gbif-common.version>0.15</gbif-common.version>
     <gbif-common-mybatis.version>0.12</gbif-common-mybatis.version>
     <gbif-common-search.version>0.17</gbif-common-search.version>
@@ -41,7 +41,7 @@
     <gbif-postal-service.version>0.12-SNAPSHOT</gbif-postal-service.version>
     <registry-client.version>2.16</registry-client.version>
     <name-parser.version>2.4</name-parser.version>
-    <gbif-parser.version>0.9</gbif-parser.version>
+    <gbif-parser.version>0.10-SNAPSHOT</gbif-parser.version>
     <dwca-reader.version>1.18</dwca-reader.version>
     <!-- external libs -->
     <amqp-client.version>3.0.2</amqp-client.version>
@@ -61,11 +61,11 @@
     <!-- Only update Jackson together with Jersey so that Jackson is the same version as the one used by Jersey -->
     <jackson.version>1.9.12</jackson.version>
     <javax-validation-api.version>1.0.0.GA</javax-validation-api.version>
-    <jcommander.version>1.30-gbif-20121018</jcommander.version>
+    <jcommander.version>1.35</jcommander.version>
     <jersey.version>1.17.1</jersey.version>
     <junit.version>4.11</junit.version>
     <liquibase.version>3.0.7</liquibase.version>
-    <logback.version>1.0.9</logback.version>
+    <logback.version>1.1.2</logback.version>
     <metainf-services.version>1.4</metainf-services.version>
     <metrics.version>3.0.0-BETA1</metrics.version>
     <mockito.version>1.9.5</mockito.version>
@@ -420,6 +420,12 @@
         <groupId>org.slf4j</groupId>
         <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4j.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
         <scope>runtime</scope>
       </dependency>
       <dependency>

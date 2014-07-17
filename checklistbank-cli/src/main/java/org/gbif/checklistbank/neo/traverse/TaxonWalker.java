@@ -21,21 +21,21 @@ public class TaxonWalker {
     private static final Logger LOG = LoggerFactory.getLogger(TaxonWalker.class);
 
     public static void walkAll(GraphDatabaseService db, StartEndHandler handler) {
-        walkAll(db, handler, 10000, null);
+        walkAccepted(db, handler, 10000, null);
     }
 
     /**
-     * Walks all nodes in a transaction that is renewed in a given batchsize
+     * Walks allAccepted nodes in a transaction that is renewed in a given batchsize
      * @param db
      * @param handler
      * @param batchsize number of paths that should be walked within a single open transaction
      */
-    public static void walkAll(GraphDatabaseService db, StartEndHandler handler, int batchsize, @Nullable Meter meter) {
+    public static void walkAccepted(GraphDatabaseService db, StartEndHandler handler, int batchsize, @Nullable Meter meter) {
         Path lastPath = null;
         long counter = 0;
         Transaction tx = db.beginTx();
         try {
-            for (Path p : TaxonomicIterator.all(db)) {
+            for (Path p : TaxonomicIterator.allAccepted(db)) {
                 if (batchsize > 0 && counter % batchsize == 0) {
                     tx.success();
                     tx.close();
@@ -57,7 +57,7 @@ public class TaxonWalker {
                         cIter.next();
                     }
                     // only non shared nodes left.
-                    // first close all old nodes, then open new ones
+                    // first close allAccepted old nodes, then open new ones
                     // reverse order for closing nodes...
                     for (Node n : ImmutableList.copyOf(lIter).reverse()) {
                         handler.end(n);

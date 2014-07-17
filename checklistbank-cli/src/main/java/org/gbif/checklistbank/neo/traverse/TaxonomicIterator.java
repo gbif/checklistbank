@@ -7,42 +7,46 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
- * Path iterator that traverses all nodes in a taxonomic parent-child order starting from the top root nodes to the
+ * Path iterator that traverses allAccepted nodes in a taxonomic parent-child order starting from the top root nodes to the
  * lowest taxon.
  */
 public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
     private static final Logger LOG = LoggerFactory.getLogger(TaxonomicIterator.class);
 
-    private final ResourceIterator<Node> roots;
+    private final List<Node> roots;
     private ResourceIterator<Path> descendants;
     private TraversalDescription td;
 
-    private TaxonomicIterator(ResourceIterator<Node> roots, TraversalDescription td) {
+    private TaxonomicIterator(List<Node> roots, TraversalDescription td) {
         this.td = td;
         //TODO: sort root nodes by rank & sciName
         this.roots = roots;
     }
 
-    public static Iterable<Path> all(final GraphDatabaseService db) {
+    public static Iterable<Path> allAccepted(final GraphDatabaseService db) {
         return new Iterable<Path>() {
             @Override
             public Iterator<Path> iterator() {
-                return new TaxonomicIterator(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT).iterator(),
-                    db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()));
+                List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
+                Collections.sort(roots, new TaxonOrder());
+                return new TaxonomicIterator(roots, db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()));
             }
         };
     }
 
     @Override
     public boolean hasNext() {
-        return (descendants != null && descendants.hasNext()) || roots.hasNext();
+        return (descendants != null && descendants.hasNext()) || !roots.isEmpty();
     }
 
     @Override
@@ -52,7 +56,7 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
             if (descendants != null) {
                 descendants.close();
             }
-            Node root = roots.next();
+            Node root = roots.remove(0);
             LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
             descendants = td.traverse(root).iterator();
         }
@@ -69,7 +73,6 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
         if (descendants != null) {
             descendants.close();
         }
-        roots.close();
     }
 
 }

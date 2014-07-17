@@ -63,7 +63,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
   @Override
   public VerbatimNameUsage getVerbatim(int usageKey) {
-    VerbatimNameUsage v = jsonParser.jsonToVerbatim(verbatimNameUsageMapper.get(usageKey));
+    VerbatimNameUsage v = jsonParser.toVerbatimOld(verbatimNameUsageMapper.get(usageKey));
     if (v != null) {
       v.setKey(usageKey);
     }

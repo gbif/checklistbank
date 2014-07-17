@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.checklistbank.neo.TaxonProperties;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -26,11 +26,11 @@ public class TaxonomicOrderExpander implements PathExpander {
   private final Ordering<Relationship> TAX_ORDER =
     Ordering
       .natural()
-      .onResultOf(new Function<Relationship, String>() {
+      .onResultOf(new Function<Relationship, Integer>() {
         @Nullable
         @Override
-        public String apply(Relationship rel) {
-          return (String) rel.getEndNode().getProperty(DwcTerm.taxonRank.simpleName());
+        public Integer apply(Relationship rel) {
+          return (Integer) rel.getEndNode().getProperty(TaxonProperties.RANK);
         }
       })
       .compound(
@@ -40,7 +40,7 @@ public class TaxonomicOrderExpander implements PathExpander {
             @Nullable
             @Override
             public String apply(Relationship rel) {
-              return (String) rel.getEndNode().getProperty(DwcTerm.scientificName.simpleName());
+              return (String) rel.getEndNode().getProperty(TaxonProperties.CANONICAL_NAME);
             }
           })
       );

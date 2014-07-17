@@ -1,0 +1,16 @@
+TaxonID	TaxonomicStatus	TaxonRank	ScientificName	HigherTaxonID	AcceptedTaxonID
+1	accepted	kingdom	Plantae		
+10	accepted	family	Compositae Giseke	1	NULL
+11	synonym	family	Asteraceae		10
+100	accepted	genus	Calendula L.	10	\N
+101	synonym	genus	Cladendula Döring		100
+1000	accepted	species	Calendula arvensis (Vaill.) L.	100	\N
+1001	proparte	species	Calendula eckerleinii Ohle	100	1000|10000|10002
+1002	accepted	species	Calendula incana Willd.	100	\N
+10000	accepted	subspecies	Calendula incana Willd. subsp. incana	1002	\N
+10001	accepted	subspecies	Calendula incana subsp. algarbiensis (Boiss.) Ohle	1002	\N
+10002	accepted	subspecies	Calendula incana subsp. maderensis (DC.) Ohle	1002	\N
+10003	accepted	subspecies	Calendula incana subsp. maritima (Guss.) Ohle	1002	\N
+10004	accepted	subspecies	Calendula incana subsp. microphylla (Willk.) Ohle	1002	\N
+1003	accepted	species	Calendula lanzae Maire	100	\N
+1004	synonym	species	Calendula maroccana (Ball) B. D. Jacks.	100	10001

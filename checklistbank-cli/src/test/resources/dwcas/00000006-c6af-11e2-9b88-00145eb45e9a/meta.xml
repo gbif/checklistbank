@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<archive xmlns="http://rs.tdwg.org/dwc/text/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://darwincore.googlecode.com/svn/trunk/text/tdwg_dwc_text.xsd">
+	<core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy='' ignoreHeaderLines="0" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+		<files>
+			<location>if.txt</location>
+		</files>
+		<id index="0" />
+		<field index="1" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+		<field index="2" term="http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"/>
+		<field index="3" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+		<field index="4" term="http://rs.tdwg.org/dwc/terms/basionymID"/>
+		<field index="5" term="http://rs.tdwg.org/dwc/terms/acceptedTaxonID"/>
+		<field index="6" term="http://rs.tdwg.org/dwc/terms/nomenclaturalStatus"/>
+		<field index="7" term="http://rs.tdwg.org/dwc/terms/taxonRemarks"/>
+		<field index="8" term="http://rs.tdwg.org/dwc/terms/namePublishedIn"/>
+		<!--
+		<field index="9" term="http://rs.tdwg.org/dwc/terms/genus"/>
+		-->
+		<field index="10" term="http://rs.tdwg.org/dwc/terms/family"/>
+		<field index="11" term="http://rs.tdwg.org/dwc/terms/order"/>
+		<field index="13" term="http://rs.tdwg.org/dwc/terms/class"/>
+		<field index="15" term="http://rs.tdwg.org/dwc/terms/phylum"/>
+		<field index="16" term="http://rs.tdwg.org/dwc/terms/kingdom"/>		
+	</core>
+</archive>
+
