@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
@@ -39,7 +40,9 @@ public class NeoMapperTest extends NeoTest {
         assertEquals(NameType.SCINAME.ordinal(), map.get("nameType"));
         assertEquals(7, map.get("numDescendants"));
 
-        assertArrayEquals(new int[]{NomenclaturalStatus.CONSERVED.ordinal(), NomenclaturalStatus.ILLEGITIMATE.ordinal()}, (int[])map.get("nomenclaturalStatus"));
+        assertEquals(2, ((int[]) map.get("nomenclaturalStatus")).length);
+        assertTrue(ArrayUtils.contains( (int[]) map.get("nomenclaturalStatus"), NomenclaturalStatus.CONSERVED.ordinal()));
+        assertTrue(ArrayUtils.contains( (int[]) map.get("nomenclaturalStatus"), NomenclaturalStatus.ILLEGITIMATE.ordinal()));
 
         // isSynonym is set to false by default
         assertEquals(15, map.size());
@@ -89,7 +92,9 @@ public class NeoMapperTest extends NeoTest {
             assertEquals(NameType.SCINAME.ordinal(), n.getProperty("nameType"));
             assertEquals(7, n.getProperty("numDescendants"));
 
-            assertArrayEquals(new int[]{NomenclaturalStatus.CONSERVED.ordinal(), NomenclaturalStatus.ILLEGITIMATE.ordinal()}, (int[])n.getProperty("nomenclaturalStatus"));
+            assertEquals(2, ((int[]) n.getProperty("nomenclaturalStatus")).length);
+            assertTrue(ArrayUtils.contains( (int[]) n.getProperty("nomenclaturalStatus"), NomenclaturalStatus.CONSERVED.ordinal()));
+            assertTrue(ArrayUtils.contains( (int[]) n.getProperty("nomenclaturalStatus"), NomenclaturalStatus.ILLEGITIMATE.ordinal()));
 
             // isSynonym is set to false by default
             assertEquals(15, IteratorUtil.count(n.getPropertyKeys()));
