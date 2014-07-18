@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.beust.jcommander.internal.Lists;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.yammer.metrics.Meter;
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -28,6 +30,7 @@ import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.dwc.text.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
@@ -36,9 +39,12 @@ import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -49,21 +55,32 @@ public class NeoInserter {
     private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
     private static final String PROP_RAW_JSON = "json";
 
+    private Archive arch;
     private boolean useCoreID;
+    private Map<String, UUID> constituents;
     private VerbatimNameUsageJsonParser jsonMapper = new VerbatimNameUsageJsonParser();
     private NeoMapper mapper = NeoMapper.instance();
     private NameParser nameParser = new NameParser();
     private RankParser rankParser = RankParser.getInstance();
     private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
     private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
+    private Splitter splitterAccIds;
 
-    public boolean insert(File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter) throws NormalizationFailedException {
-        Archive arch = null;
+    public boolean insert(File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter,
+                          Map<String, UUID> constituents) throws NormalizationFailedException {
+        this.constituents = constituents;
         try {
             arch = ArchiveFactory.openArchive(dwca);
             if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
                 LOG.warn("Using core ID for taxonID");
                 useCoreID = true;
+            }
+            // multi values in use for acceptedID?
+            if (arch.getCore().hasTerm(DwcTerm.acceptedNameUsageID)) {
+                String delim = arch.getCore().getField(DwcTerm.acceptedNameUsageID).getDelimitedBy();
+                if (!Strings.isNullOrEmpty(delim)) {
+                    splitterAccIds = Splitter.on(delim).omitEmptyStrings().trimResults();
+                }
             }
         } catch (IOException e) {
             throw new NormalizationFailedException("IOException opening archive " + dwca.getAbsolutePath(), e);
@@ -103,14 +120,19 @@ public class NeoInserter {
             Map<String, Object> props = mapper.propertyMap(u, false);
             props.put(DcTerm.identifier.simpleName(), core.id());
             props.put(PROP_RAW_JSON, jsonMapper.toJson(v));
+            // to be resolved later:
             putProp(props, DwcTerm.parentNameUsageID, v);
-            putProp(props, DwcTerm.acceptedNameUsageID, v);
+            putProp(props, DwcTerm.parentNameUsage, v);
+            putListProp(props, DwcTerm.acceptedNameUsageID, v, splitterAccIds);
+            putProp(props, DwcTerm.acceptedNameUsage, v);
             putProp(props, DwcTerm.originalNameUsageID, v);
+            putProp(props, DwcTerm.originalNameUsage, v);
 
             long node = inserter.createNode(props, Labels.TAXON);
             taxonIdx.add(node, props);
 
             insertMeter.mark();
+            stats.incRank(u.getRank());
             if (counter % (batchSize *10) == 0) {
                 LOG.debug("insert: {}", counter);
             }
@@ -133,13 +155,34 @@ public class NeoInserter {
         }
     }
 
+    /**
+     * Splits a given multi value string and stores it as a String array in the property map.
+     * @param props
+     * @param t
+     * @param v
+     * @param splitter the splitter to be used. If null uses the entire value as the single list entry
+     */
+    private void putListProp(Map<String, Object> props, Term t, VerbatimNameUsage v, @Nullable Splitter splitter) {
+        String val = norm(v.getCoreField(t));
+        if (val != null) {
+            List<String> ids = Lists.newArrayList();
+            if (splitter != null) {
+                IteratorUtil.addToCollection(splitter.split(val), ids);
+            } else {
+                ids.add(val);
+            }
+            props.put(t.simpleName(), ids.toArray(new String[ids.size()]));
+        }
+    }
+
     private NameUsage buildUsage(String coreID, VerbatimNameUsage v) {
         NameUsage u = new NameUsage();
         u.setTaxonID(useCoreID ? coreID : v.getCoreField(DwcTerm.taxonID));
 
-        u.setParent(v.getCoreField(DwcTerm.parentNameUsage));
-        u.setAccepted(v.getCoreField(DwcTerm.acceptedNameUsage));
-        u.setBasionym(v.getCoreField(DwcTerm.originalNameUsage));
+        if (constituents!=null && v.hasCoreField(DwcTerm.datasetID)) {
+            UUID cKey = constituents.get(v.getCoreField(DwcTerm.datasetID));
+            u.setConstituentKey(cKey);
+        }
 
         // classification
         //TODO: interpret classification string if others are not given

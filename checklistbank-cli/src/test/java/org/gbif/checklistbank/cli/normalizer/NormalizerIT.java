@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
@@ -39,7 +40,7 @@ public class NormalizerIT extends NeoTest {
     public void testIdList() throws Exception {
         final UUID datasetKey = datasetKey(1);
 
-        Normalizer norm = Normalizer.build(cfg, datasetKey);
+        Normalizer norm = Normalizer.build(cfg, datasetKey, null);
         NormalizerStats stats = norm.run();
         System.out.println(stats);
 
@@ -262,7 +263,6 @@ public class NormalizerIT extends NeoTest {
      * Tests the creation of parent and accepted usages given as verbatim names via acceptedNameUsage or parentNameUsage.
      */
     @Test
-    @Ignore
     public void testMaterializeVerbatimParents() throws Exception {
         NormalizerStats stats = normalize(7);
         try (Transaction tx = beginTx()) {
@@ -336,6 +336,7 @@ public class NormalizerIT extends NeoTest {
             assertEquals("Pygoleptura synomica", u.getScientificName());
 
             assertNull(u.getParentKey());
+
         }
     }
 
@@ -387,16 +388,53 @@ public class NormalizerIT extends NeoTest {
 
     }
 
+    /**
+     * Tests the relinking of synonyms that point to other synonyms.
+     */
+    @Test
+    public void testSynonymsOfSynonyms() throws Exception {
+        NormalizerStats stats = normalize(9);
+        assertEquals(1, stats.getCycles().size());
+        assertEquals(1, stats.getRoots());
 
-    private UUID datasetKey(Integer x) throws NormalizationFailedException {
+        try (Transaction tx = beginTx()) {
+
+
+            final NameUsage incana = getUsageByTaxonId("1000");
+            assertFalse(incana.isSynonym());
+            assertEquals(Rank.SPECIES, incana.getRank());
+            assertEquals("Calendula incana Willd.", incana.getScientificName());
+
+            // synonym chain resolved
+            assertEquals(incana.getKey(), getUsageByTaxonId("1001").getAcceptedKey());
+            assertEquals(incana.getKey(), getUsageByTaxonId("1002").getAcceptedKey());
+            assertEquals(incana.getKey(), getUsageByTaxonId("1003").getAcceptedKey());
+            assertEquals(incana.getKey(), getUsageByTaxonId("1004").getAcceptedKey());
+
+            NameUsage u = getUsageByTaxonId("10000");
+            assertNull(u.getAcceptedKey());
+            assertNull(u.getBasionymKey());
+            assertEquals(incana.getKey(), u.getParentKey());
+
+            //TODO: what shall we do with cycles ???
+            u = getUsageByTaxonId("10002");
+            assertNull(u.getAcceptedKey());
+            assertNull(u.getBasionymKey());
+            assertEquals(incana.getKey(), u.getParentKey());
+
+        }
+    }
+
+    public static UUID datasetKey(Integer x) throws NormalizationFailedException {
         return UUID.fromString(String.format("%08d-c6af-11e2-9b88-00145eb45e9a", x));
     }
 
     private NormalizerStats normalize(Integer dKey) throws NormalizationFailedException {
         UUID datasetKey = datasetKey(dKey);
-        Normalizer norm = Normalizer.build(cfg, datasetKey);
+        Normalizer norm = Normalizer.build(cfg, datasetKey, null);
         NormalizerStats stats = norm.run();
 
+        System.out.println(stats);
         initDb(datasetKey);
         return stats;
     }

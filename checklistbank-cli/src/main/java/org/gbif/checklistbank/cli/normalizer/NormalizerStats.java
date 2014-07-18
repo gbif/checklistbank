@@ -1,8 +1,11 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
 import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,19 +18,34 @@ public class NormalizerStats {
     private int depth;
     private int synonyms;
     private final Map<Origin, AtomicInteger> countByOrigin = Maps.newHashMap();
+    private final Map<Rank, AtomicInteger> countByRank = Maps.newHashMap();
+    private List<String> cycles = Lists.newArrayList();
 
-    public NormalizerStats() {
-        for (Origin o : Origin.values()) {
-            countByOrigin.put(o, new AtomicInteger(0));
-        }
+    /**
+     * @return list of cycles, each given as one taxonID of the loop
+     */
+    public List<String> getCycles() {
+        return cycles;
     }
 
     public void incOrigin(Origin origin) {
-        countByOrigin.get(origin).getAndIncrement();
+        if (origin != null) {
+            if (!countByOrigin.containsKey(origin)) {
+                countByOrigin.put(origin, new AtomicInteger(1));
+            } else {
+                countByOrigin.get(origin).getAndIncrement();
+            }
+        }
     }
 
-    public void incRoots(Origin origin) {
-        countByOrigin.get(origin).getAndIncrement();
+    public void incRank(Rank rank) {
+        if (rank != null) {
+            if (!countByRank.containsKey(rank)) {
+                countByRank.put(rank, new AtomicInteger(1));
+            } else {
+                countByRank.get(rank).getAndIncrement();
+            }
+        }
     }
 
     /**
@@ -39,7 +57,7 @@ public class NormalizerStats {
 
     public void setRecords(int records) {
         this.records = records;
-        countByOrigin.get(Origin.SOURCE).set(records);
+        countByOrigin.put(Origin.SOURCE, new AtomicInteger(records));
     }
 
     /**
@@ -86,6 +104,13 @@ public class NormalizerStats {
         this.synonyms = synonyms;
     }
 
+    public int getCountByRank(Rank rank) {
+        if (countByRank.containsKey(rank)) {
+            return countByRank.get(rank).get();
+        }
+        return 0;
+    }
+
     public int getCountByOrigin(Origin o) {
         return countByOrigin.get(o).get();
     }
@@ -105,7 +130,9 @@ public class NormalizerStats {
             ", roots=" + roots +
             ", depth=" + depth +
             ", synonyms=" + synonyms +
+            ", cycles=" + cycles.size() +
             ", countByOrigin=" + countByOrigin +
+            ", countByRank=" + countByRank +
             '}';
     }
 }

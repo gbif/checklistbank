@@ -18,6 +18,11 @@ import java.io.IOException;
 public class NormalizerService extends AbstractIdleService implements MessageCallback<DwcaMetasyncFinishedMessage> {
     private static final Logger LOG = LoggerFactory.getLogger(NormalizerService.class);
 
+    public static final String INSERT_METER = "taxon.inserts";
+    public static final String RELATION_METER = "taxon.relations";
+    public static final String METRICS_METER = "taxon.metrics";
+    public static final String HEAP_GAUGE = "heap.usage";
+
     private final NormalizerConfiguration cfg;
     private MessageListener listener;
     private MessagePublisher publisher;
@@ -25,21 +30,15 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     private final Timer timer = registry.timer("normalizer process time");
     private final Counter started = registry.counter("started normalizations");
     private final Counter failed = registry.counter("failed normalizations");
-    private final Meter insertMeter;
-    private final Meter relationMeter;
-    private final Meter metricsMeter;
-    private final Gauge heapUsage;
 
     public NormalizerService(NormalizerConfiguration configuration) {
         this.cfg = configuration;
 
         MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
         registry.registerAll(mgs);
-        heapUsage = (Gauge) mgs.getMetrics().get("heap.usage");
-
-        insertMeter = registry.meter("taxon inserts");
-        relationMeter = registry.meter("taxon relations");
-        metricsMeter = registry.meter("taxon metrics");
+        registry.meter(INSERT_METER);
+        registry.meter(RELATION_METER);
+        registry.meter(METRICS_METER);
     }
 
     @Override
@@ -67,7 +66,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
         final Timer.Context context = timer.time();
 
         try {
-            Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), insertMeter, relationMeter, metricsMeter, heapUsage);
+            Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents());
             normalizer.run();
             started.inc();
             Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid());

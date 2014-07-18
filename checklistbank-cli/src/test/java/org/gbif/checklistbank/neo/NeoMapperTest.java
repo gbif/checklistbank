@@ -17,8 +17,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class NeoMapperTest extends NeoTest {
+    final UUID dKey = UUID.randomUUID();
+    final UUID cKey = UUID.randomUUID();
 
     @Test
     public void testPropertyMap() throws Exception {
@@ -27,6 +30,8 @@ public class NeoMapperTest extends NeoTest {
 
         Map<String, Object> map = mapper.propertyMap(u, false);
         assertEquals(100, map.get("key"));
+        assertEquals(dKey.toString(), map.get("datasetKey"));
+        assertEquals(cKey.toString(), map.get("constituentKey"));
         assertEquals("Abies alba", map.get("scientificName"));
         assertEquals(20, map.get("basionymKey"));
         assertEquals(23, map.get("parentKey"));
@@ -42,15 +47,17 @@ public class NeoMapperTest extends NeoTest {
 
         assertEquals(2, ((int[]) map.get("nomenclaturalStatus")).length);
         assertTrue(ArrayUtils.contains( (int[]) map.get("nomenclaturalStatus"), NomenclaturalStatus.CONSERVED.ordinal()));
-        assertTrue(ArrayUtils.contains( (int[]) map.get("nomenclaturalStatus"), NomenclaturalStatus.ILLEGITIMATE.ordinal()));
+        assertTrue(ArrayUtils.contains((int[]) map.get("nomenclaturalStatus"), NomenclaturalStatus.ILLEGITIMATE.ordinal()));
 
         // isSynonym is set to false by default
-        assertEquals(15, map.size());
+        assertEquals(17, map.size());
     }
 
     private NameUsage usage() {
         NameUsage u = new NameUsage();
         u.setKey(100);
+        u.setDatasetKey(dKey);
+        u.setConstituentKey(cKey);
         u.setScientificName("Abies alba");
         u.setBasionymKey(20);
         u.setParentKey(23);
@@ -79,6 +86,8 @@ public class NeoMapperTest extends NeoTest {
 
             mapper.store(n, u, true);
             assertEquals(100, n.getProperty("key"));
+            assertEquals(dKey.toString(), n.getProperty("datasetKey"));
+            assertEquals(cKey.toString(), n.getProperty("constituentKey"));
             assertEquals("Abies alba", n.getProperty("scientificName"));
             assertEquals(20, n.getProperty("basionymKey"));
             assertEquals(23, n.getProperty("parentKey"));
@@ -97,7 +106,7 @@ public class NeoMapperTest extends NeoTest {
             assertTrue(ArrayUtils.contains( (int[]) n.getProperty("nomenclaturalStatus"), NomenclaturalStatus.ILLEGITIMATE.ordinal()));
 
             // isSynonym is set to false by default
-            assertEquals(15, IteratorUtil.count(n.getPropertyKeys()));
+            assertEquals(17, IteratorUtil.count(n.getPropertyKeys()));
 
         }
     }

@@ -4,7 +4,6 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
@@ -36,14 +35,7 @@ public class ImportTaxonMetricsHandler implements StartEndHandler {
             maxDepth = depth;
         }
         n.setProperty(PROP_LFT, idx++);
-        // TODO: store interpreted rank during import already ???
-        // TODO use rank parser
-        Rank rank = null;
-        try {
-            rank = (Rank) VocabularyUtils.lookupEnum((String) prop(n, DwcTerm.taxonRank), Rank.class);
-        } catch (IllegalArgumentException e) {
-        }
-        mapper.storeEnum(n, PROP_RANK, rank);
+        Rank rank = mapper.readEnum(n, PROP_RANK, Rank.class);
         if (rank != null && rank.isLinnean()) {
             int key = Integer.valueOf(prop(n, DwcTerm.taxonID));
             ClassificationUtils.setHigherRankKey(classification, rank, key);

@@ -23,7 +23,7 @@ public class NeoMapper {
     private final static Map<Class, List<FieldData>> FIELDS = Maps.newHashMap();
     private static NeoMapper singleton;
 
-    enum FieldType {PRIMITIVE, NATIVE, ENUM, DATETIME, URI, SET, LIST}
+    enum FieldType {PRIMITIVE, NATIVE, ENUM, SET, LIST, OTHER}
 
     static class FieldData {
 
@@ -105,12 +105,6 @@ public class NeoMapper {
                             case ENUM:
                                 props.put(f.property, ((Enum) val).ordinal());
                                 break;
-                            case DATETIME:
-                                props.put(f.property, ((Date) val).getTime());
-                                break;
-                            case URI:
-                                props.put(f.property, val.toString());
-                                break;
                             case SET:
                             case LIST:
                                 Collection<?> vals = (Collection<?>) val;
@@ -127,6 +121,13 @@ public class NeoMapper {
                                         arr[idx++] = v.toString();
                                     }
                                     props.put(f.property, arr);
+                                }
+                                break;
+                            case OTHER:
+                                if (Date.class.isAssignableFrom(f.clazz)) {
+                                    props.put(f.property, ((Date) val).getTime());
+                                } else {
+                                    props.put(f.property, val.toString());
                                 }
                                 break;
                         }
@@ -183,17 +184,22 @@ public class NeoMapper {
                             Object[] values = f.clazz.getEnumConstants();
                             f.field.set(obj, values[(int) val]);
                             break;
-                        case DATETIME:
-                            f.field.set(obj, new Date((long) val));
-                            break;
-                        case URI:
-                            f.field.set(obj, URI.create((String) val));
-                            break;
                         case SET:
                             f.field.set(obj, populateCollection(f, val, Sets.newHashSet()));
                             break;
                         case LIST:
                             f.field.set(obj, populateCollection(f, val, Lists.newArrayList()));
+                            break;
+                        case OTHER:
+                            if (Date.class.isAssignableFrom(f.clazz)) {
+                                f.field.set(obj, new Date((long) val));
+                            } else if (URI.class.isAssignableFrom(f.clazz)) {
+                                f.field.set(obj, URI.create((String)val));
+                            } else if (UUID.class.isAssignableFrom(f.clazz)) {
+                                f.field.set(obj, UUID.fromString((String)val));
+                            } else {
+                                throw new IllegalStateException("Unable to read field of type " + f.clazz);
+                            }
                             break;
                     }
                 }
@@ -240,12 +246,8 @@ public class NeoMapper {
                 type = FieldType.NATIVE;
             } else if (Boolean.class.isAssignableFrom(fCl)) {
                 type = FieldType.NATIVE;
-            } else if (Date.class.isAssignableFrom(fCl)) {
-                type = FieldType.DATETIME;
             } else if (Character.class.isAssignableFrom(fCl)) {
                 type = FieldType.NATIVE;
-            } else if (URI.class.isAssignableFrom(fCl)) {
-                type = FieldType.URI;
             } else if (Set.class.isAssignableFrom(fCl)) {
                 type = FieldType.SET;
                 // use generic type as class for set
@@ -254,6 +256,10 @@ public class NeoMapper {
                 type = FieldType.LIST;
                 // use generic type as class for list
                 fCl = detectGenericType(f);
+            } else if (Date.class.isAssignableFrom(fCl)
+                || URI.class.isAssignableFrom(fCl)
+                || UUID.class.isAssignableFrom(fCl)) {
+                type = FieldType.OTHER;
             } else {
                 LOG.warn("Ignore field {} with unsupported type {}", f.getName(), fCl);
                 continue;

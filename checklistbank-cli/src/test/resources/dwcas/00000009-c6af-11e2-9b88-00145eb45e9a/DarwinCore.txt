@@ -1,0 +1,15 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	TaxonRank	ScientificName
+1	1		kingdom	Plantae
+10	1		family	Compositae Giseke
+11		10	family	Asteraceae
+100	10		genus	Calendula L.
+1000	100		species	Calendula incana Willd.
+1001		1002	species	Calendula eckerleinii Ohle
+1002		1003	species	Calendula lanzae Maire
+1003		1004	species	Calendula maroccana (Ball) B. D. Jacks.
+1004		1000	species	Calendula arvensis (Vaill.) L.
+10000	1000		subspecies	Calendula incana Willd. subsp. incana
+10001	1000		subspecies	Calendula incana subsp. algarbiensis (Boiss.) Ohle
+10002	1000	10003	subspecies	Calendula incana subsp. maderensis (DC.) Ohle
+10003	1000	10004	subspecies	Calendula incana subsp. maritima (Guss.) Ohle
+10004	1000	10002	subspecies	Calendula incana subsp. microphylla (Willk.) Ohle
