@@ -87,7 +87,7 @@ public abstract class NeoTest {
     private Integer getRelatedTaxonKey(Node n, RelType type, Direction dir) {
         Relationship rel = n.getSingleRelationship(type, dir);
         if (rel != null) {
-            return (int) rel.getEndNode().getId();
+            return (int) rel.getOtherNode(n).getId();
         }
         return null;
     }
