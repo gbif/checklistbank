@@ -3,7 +3,10 @@ package org.gbif.checklistbank.neo;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,6 +211,30 @@ public class NeoMapper {
             LOG.error("Failed to read bean", e);
         }
         return obj;
+    }
+
+    /**
+     * Reads a node into a name usage instance with keys being the node ids long values.
+     */
+    public NameUsage read(Node n) {
+        if (n != null) {
+            NameUsage u = read(n, new NameUsage());
+            // map node id to key, its not fixed across tests but stable within one
+            u.setKey((int)n.getId());
+            u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));
+            u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
+            u.setBasionymKey(getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING));
+            return u;
+        }
+        return null;
+    }
+
+    private Integer getRelatedTaxonKey(Node n, RelType type, Direction dir) {
+        Relationship rel = n.getSingleRelationship(type, dir);
+        if (rel != null) {
+            return (int) rel.getOtherNode(n).getId();
+        }
+        return null;
     }
 
     private Collection<Object> populateCollection(FieldData f, Object val, Collection<Object> collection) {

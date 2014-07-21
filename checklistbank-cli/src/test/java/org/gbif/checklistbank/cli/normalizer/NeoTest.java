@@ -5,21 +5,20 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.utils.file.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 import java.io.File;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * base class to create neo integration tests.
@@ -72,24 +71,7 @@ public abstract class NeoTest {
     }
 
     private NameUsage getUsageByNode(Node n) {
-        if (n != null) {
-            NameUsage u = mapper.read(n, new NameUsage());
-            // map node id to key, its not fixed across tests but stable within one
-            u.setKey((int)n.getId());
-            u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));
-            u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
-            u.setBasionymKey(getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING));
-            return u;
-        }
-        return null;
-    }
-
-    private Integer getRelatedTaxonKey(Node n, RelType type, Direction dir) {
-        Relationship rel = n.getSingleRelationship(type, dir);
-        if (rel != null) {
-            return (int) rel.getOtherNode(n).getId();
-        }
-        return null;
+        return mapper.read(n);
     }
 
     public void showAll() {

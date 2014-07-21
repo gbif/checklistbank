@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class TaxonomicOrderExpander implements PathExpander {
   private static final Logger LOG = LoggerFactory.getLogger(TaxonomicOrderExpander.class);
-  private boolean reverse = false;
   private final Ordering<Relationship> TAX_ORDER =
     Ordering
       .natural()
@@ -56,8 +55,7 @@ public class TaxonomicOrderExpander implements PathExpander {
 
   @Override
   public PathExpander reverse() {
-    reverse = !reverse;
-    return this;
+    throw new UnsupportedOperationException();
   }
 
 }

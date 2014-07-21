@@ -1,21 +1,18 @@
 package org.gbif.checklistbank.service.mybatis;
 
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.sql.DataSource;
-
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.TransactionIsolationLevel;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
+import java.util.*;
 
 /**
  * Implements the NameUsageService using MyBatis.
@@ -61,7 +58,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     insertUsageBatch(datasetKey, batch);
   }
 
-  @Transactional(
+    @Override
+    public Integer syncUsage(NameUsage usage) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Transactional(
       executorType = ExecutorType.BATCH,
       isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
       exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
@@ -90,6 +92,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     LOG.info("Deleting entire dataset {}", datasetKey);
     usageMapper.deleteByDataset(datasetKey);
   }
+
+    @Override
+    public void deleteOldUsages(UUID datasetKey, Date before) {
+        throw new UnsupportedOperationException();
+    }
 
 
 }

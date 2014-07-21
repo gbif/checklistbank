@@ -29,7 +29,7 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
 
     private TaxonomicIterator(List<Node> roots, TraversalDescription td) {
         this.td = td;
-        //TODO: sort root nodes by rank & sciName
+        Collections.sort(roots, new TaxonOrder());
         this.roots = roots;
     }
 
@@ -38,7 +38,6 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
             @Override
             public Iterator<Path> iterator() {
                 List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
-                Collections.sort(roots, new TaxonOrder());
                 return new TaxonomicIterator(roots, db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()));
             }
         };

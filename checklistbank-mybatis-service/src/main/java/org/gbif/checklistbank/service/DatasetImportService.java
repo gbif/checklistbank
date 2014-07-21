@@ -1,7 +1,9 @@
 package org.gbif.checklistbank.service;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -13,22 +15,40 @@ import java.util.UUID;
  */
 public interface DatasetImportService {
 
-  /**
-   * Batch insert usages for the given dataset.
-   * @param datasetKey
-   * @param usages
-   */
-  void insertUsages(UUID datasetKey, Iterator<Usage> usages);
+    /**
+     * Batch insert usages for the given dataset.
+     *
+     * @param datasetKey
+     * @param usages
+     */
+    void insertUsages(UUID datasetKey, Iterator<Usage> usages);
 
-  /**
-   * Delete all existing nub relations and then batch insert new ones from the passed iterator.
-   * @param datasetKey the datasource to map to the nub
-   * @param relations map from source usage id to a nub usage id for all usages in a dataset
-   */
-  void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations);
+    /**
+     * Inserts or updates a name usage.
+     *
+     * @param usage
+     * @return
+     */
+    Integer syncUsage(NameUsage usage);
 
-  /**
-   * Remove entire dataset from checklistbank
-   */
-  void deleteDataset(UUID datasetKey);
+    /**
+     * Delete all existing nub relations and then batch insert new ones from the passed iterator.
+     *
+     * @param datasetKey the datasource to map to the nub
+     * @param relations  map from source usage id to a nub usage id for all usages in a dataset
+     */
+    void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations);
+
+    /**
+     * Remove entire dataset from checklistbank
+     */
+    void deleteDataset(UUID datasetKey);
+
+    /**
+     * Removes all usages and related data from a dataset that was last modified before the given date.     *
+     *
+     * @param datasetKey
+     * @param before     threshold date
+     */
+    void deleteOldUsages(UUID datasetKey, Date before);
 }

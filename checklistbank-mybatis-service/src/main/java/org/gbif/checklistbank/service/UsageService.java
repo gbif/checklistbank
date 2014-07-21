@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Persistence service dealing with simple reference citations.
+ * Persistence service dealing with name usages.
  * This interface is restricted to the mybatis module only!
  */
 public interface UsageService {
@@ -33,6 +33,5 @@ public interface UsageService {
    * Page through all usages in a dataset.
    */
   PagingResponse<Usage> list(UUID datasetKey, Pageable page);
-
 
 }

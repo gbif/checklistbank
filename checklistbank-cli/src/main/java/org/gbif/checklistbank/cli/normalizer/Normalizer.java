@@ -1,8 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import com.beust.jcommander.internal.Lists;
-import com.google.common.base.Strings;
-import com.yammer.metrics.Gauge;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
@@ -10,19 +8,16 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.Term;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.kernel.impl.util.StringLogger;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,33 +28,23 @@ import java.util.*;
 /**
  * Reads a good id based dwc archive and produces a neo4j graph from it.
  */
-public class Normalizer {
+public class Normalizer extends NeoRunnable{
     private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
 
-    private final NormalizerConfiguration cfg;
-    private final UUID datasetKey;
     private final Map<String, UUID> constituents;
     private final File dwca;
     private final File storeDir;
-    private GraphDatabaseService db;
-    private final int batchSize;
     private final Meter insertMeter;
     private final Meter relationMeter;
     private final Meter metricsMeter;
-    private final Gauge memory;
     private NormalizerStats stats;
-    private NeoMapper mapper = NeoMapper.instance();
-    private ExecutionEngine engine;
 
     public Normalizer(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry, Map<String, UUID> constituents) {
+        super(datasetKey, cfg.neo, registry);
         this.constituents = constituents;
-        this.cfg = cfg;
-        this.datasetKey = datasetKey;
         this.insertMeter = registry.getMeters().get(NormalizerService.INSERT_METER);
         this.relationMeter = registry.getMeters().get(NormalizerService.RELATION_METER);
         this.metricsMeter = registry.getMeters().get(NormalizerService.METRICS_METER);
-        this.memory = registry.getGauges().get(NormalizerService.HEAP_GAUGE);
-        batchSize = cfg.neo.batchSize;
         storeDir = cfg.neo.neoDir(datasetKey);
         dwca = cfg.archiveDir(datasetKey);
     }
@@ -97,15 +82,6 @@ public class Normalizer {
     private void batchInsertData() throws NormalizationFailedException {
         NeoInserter inserter = new NeoInserter();
         inserter.insert(storeDir, dwca, stats, batchSize, insertMeter, constituents);
-    }
-
-    private void setupDb() {
-        db = cfg.neo.newEmbeddedDb(datasetKey);
-        engine = new ExecutionEngine(db, StringLogger.SYSTEM);
-    }
-
-    private void tearDownDb() {
-        db.shutdown();
     }
 
     private void setupTaxonIdIndex() {
@@ -252,10 +228,6 @@ public class Normalizer {
 
     }
 
-    private void logMemory() {
-        LOG.debug("Heap usage: {}", memory.getValue());
-    }
-
     /**
      * Must deal with pro parte synonyms, i.e. a single synonym can have multiple accepted taxa!
      * @return true if it is a synonym of some type
@@ -373,27 +345,6 @@ public class Normalizer {
         return n;
     }
 
-
-    private String value(Node n, Term term) {
-        if (n.hasProperty(term.simpleName())) {
-            return Strings.emptyToNull(((String) n.getProperty(term.simpleName(), null)).trim());
-        }
-        return null;
-    }
-
-    private String[] listValue(Node n, DwcTerm term) {
-        if (n.hasProperty(term.simpleName())) {
-            return (String[]) n.getProperty(term.simpleName(), new String[0]);
-        }
-        return new String[0];
-    }
-
-    /**
-     * @return the single matching node with the taxonID or null
-     */
-    private Node nodeByTaxonId(String taxonID) {
-        return IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
-    }
 
     /**
      * @return the single matching node with the canonical name or null
