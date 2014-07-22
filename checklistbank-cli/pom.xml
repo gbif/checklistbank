@@ -192,6 +192,11 @@
       <artifactId>metainf-services</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>hppc</artifactId>
+      <version>0.6.0</version>
+    </dependency>
+    <dependency>
       <!-- This dependency is needed for the JsonIgnore annotations on the configuration objects. gbif-cli uses
            Jackson 2 because only that supports YAML so we have to use the annotations from Jackson 2 -->
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -260,6 +265,12 @@
     </dependency>
 
     <!-- TEST SCOPE -->
+    <dependency>
+      <groupId>com.google.caliper</groupId>
+      <artifactId>caliper</artifactId>
+      <version>1.0-beta-1</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>

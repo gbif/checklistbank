@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo;
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -216,9 +216,9 @@ public class NeoMapper {
     /**
      * Reads a node into a name usage instance with keys being the node ids long values.
      */
-    public NameUsage read(Node n) {
+    public NameUsageContainer read(Node n) {
         if (n != null) {
-            NameUsage u = read(n, new NameUsage());
+            NameUsageContainer u = read(n, new NameUsageContainer());
             // map node id to key, its not fixed across tests but stable within one
             u.setKey((int)n.getId());
             u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));

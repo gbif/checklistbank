@@ -2,6 +2,7 @@ package org.gbif.checklistbank.neo;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
@@ -122,6 +123,22 @@ public class NeoMapperTest extends NeoTest {
 
             mapper.store(n, u1, true);
             NameUsage u2 = mapper.read(n, new NameUsage());
+
+            assertEquals(u1, u2);
+        }
+    }
+
+    @Test
+    public void testContainerRoundtrip() throws Exception {
+        NeoMapper mapper = NeoMapper.instance();
+        initDb(UUID.randomUUID());
+
+        try (Transaction tx = beginTx()) {
+            NameUsageContainer u1 = new NameUsageContainer(usage());
+            Node n = db.createNode();
+
+            mapper.store(n, u1, true);
+            NameUsageContainer u2 = mapper.read(n, new NameUsageContainer());
 
             assertEquals(u1, u2);
         }

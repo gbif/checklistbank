@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.TransactionIsolationLevel;
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.mybatis.guice.transactional.Transactional;
@@ -59,7 +59,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
     @Override
-    public Integer syncUsage(NameUsage usage) {
+    public Integer syncUsage(NameUsageContainer usage) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void updateBasionym(Integer usageKey, Integer basionymKey) {
         throw new UnsupportedOperationException();
     }
 

@@ -20,6 +20,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
 
     public static final String SYNC_METER = "taxon.sync";
+    public static final String SYNC_BASIONYM_METER = "taxon.sync.basionym";
     public static final String DELETE_TIMER = "taxon.sync.delete";
 
     private final ImporterConfiguration cfg;
@@ -33,6 +34,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     public ImporterService(ImporterConfiguration configuration) {
         this.cfg = configuration;
         registry.meter(SYNC_METER);
+        registry.meter(SYNC_BASIONYM_METER);
         registry.timer(DELETE_TIMER);
     }
 

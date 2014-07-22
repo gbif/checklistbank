@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.service;
 
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 
 import java.util.Date;
@@ -24,12 +24,20 @@ public interface DatasetImportService {
     void insertUsages(UUID datasetKey, Iterator<Usage> usages);
 
     /**
-     * Inserts or updates a name usage.
+     * Inserts or updates a complete name usage with all its extension data.
      *
      * @param usage
      * @return
      */
-    Integer syncUsage(NameUsage usage);
+    Integer syncUsage(NameUsageContainer usage);
+
+    /**
+     * Updates the basionym key of a given usage. Basionym links can break foreign key integrity in CLB, so we
+     * need to process them individually in some cases.
+     * @param usageKey
+     * @param basionymKey
+     */
+    void updateBasionym(Integer usageKey, Integer basionymKey);
 
     /**
      * Delete all existing nub relations and then batch insert new ones from the passed iterator.
