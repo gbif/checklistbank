@@ -4,7 +4,7 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.yammer.metrics.Meter;
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameType;
@@ -114,7 +114,7 @@ public class NeoInserter {
             // make sure this is last to override already put taxonID keys
             v.setCoreField(DwcTerm.taxonID, taxonID(core));
 
-            NameUsage u = buildUsage(core.id(), v);
+            NameUsageContainer u = buildUsage(core.id(), v);
 
             // ... and into neo
             Map<String, Object> props = mapper.propertyMap(u, false);
@@ -175,8 +175,8 @@ public class NeoInserter {
         }
     }
 
-    private NameUsage buildUsage(String coreID, VerbatimNameUsage v) {
-        NameUsage u = new NameUsage();
+    private NameUsageContainer buildUsage(String coreID, VerbatimNameUsage v) {
+        NameUsageContainer u = new NameUsageContainer();
         u.setTaxonID(useCoreID ? coreID : v.getCoreField(DwcTerm.taxonID));
 
         if (constituents!=null && v.hasCoreField(DwcTerm.datasetID)) {

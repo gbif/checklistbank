@@ -1,24 +1,25 @@
 package org.gbif.checklistbank.neo;
 
+import com.beust.jcommander.internal.Lists;
+import com.google.common.base.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 
+import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 public class NeoMapperTest extends NeoTest {
     final UUID dKey = UUID.randomUUID();
@@ -55,15 +56,21 @@ public class NeoMapperTest extends NeoTest {
     }
 
     private NameUsage usage() {
+        return usage(true);
+    }
+
+    private NameUsage usage(boolean addKeys) {
         NameUsage u = new NameUsage();
-        u.setKey(100);
+        if (addKeys) {
+            u.setKey(100);
+            u.setBasionymKey(20);
+            u.setParentKey(23);
+            u.setClassKey(1);
+        }
         u.setDatasetKey(dKey);
         u.setConstituentKey(cKey);
         u.setScientificName("Abies alba");
-        u.setBasionymKey(20);
-        u.setParentKey(23);
         u.setParent("Abies");
-        u.setClassKey(1);
         u.setClazz("Trees");
         u.setLastCrawled(new Date());
         u.setLastInterpreted(new Date());
@@ -129,18 +136,147 @@ public class NeoMapperTest extends NeoTest {
     }
 
     @Test
+    public void testContainer() throws Exception {
+        NeoMapper mapper = NeoMapper.instance();
+        initDb(UUID.randomUUID());
+
+        try (Transaction tx = beginTx()) {
+            NameUsageContainer u = new NameUsageContainer(usage(false));
+            u.setKey(0);
+
+            VernacularName v1 = new VernacularName();
+            v1.setVernacularName("Adler");
+            v1.setLanguage(Language.GERMAN);
+            u.getVernacularNames().add(v1);
+
+            VernacularName v2 = new VernacularName();
+            v2.setVernacularName("Fox");
+            v2.setLanguage(Language.ENGLISH);
+            v2.setCountry(Country.AFGHANISTAN);
+            u.getVernacularNames().add(v2);
+
+            Node n = db.createNode();
+            mapper.store(n, u, true);
+
+            NameUsageContainer u2 = mapper.read(n);
+
+            assertEquals(u, u2);
+        }
+    }
+
+    @Test
+    public void testDataTypes() throws Exception {
+        NeoMapper mapper = NeoMapper.instance();
+        initDb(UUID.randomUUID());
+
+        try (Transaction tx = beginTx()) {
+            TestBean obj = new TestBean();
+            obj.string = "Hello mr bean";
+            obj.date = new Date();
+            obj.integer = 123;
+            obj.dub = 456.07d;
+            obj.longer = Long.MAX_VALUE;
+            obj.odd = Oddity.ODD;
+            obj.uri = URI.create("Http://bean.org");
+            obj.intList = Lists.newArrayList(1,2,4,6,8,9);
+            obj.strList = Lists.newArrayList("hi", "du", "eiermann");
+            obj.oddList = Lists.newArrayList(Oddity.EVEN, Oddity.ODD);
+            TestBeanInc subbean = new TestBeanInc();
+            subbean.integer = 9453;
+            subbean.odd = Oddity.EVEN;
+            subbean.string = "Mannomann";
+            obj.beanList.add(subbean);
+
+
+            Node n = db.createNode();
+            mapper.store(n, obj, true);
+            tx.success();
+
+            TestBean bean2 = mapper.read(n, new TestBean());
+
+            assertEquals(obj, bean2);
+        }
+    }
+
+    @Test
     public void testContainerRoundtrip() throws Exception {
         NeoMapper mapper = NeoMapper.instance();
         initDb(UUID.randomUUID());
 
         try (Transaction tx = beginTx()) {
-            NameUsageContainer u1 = new NameUsageContainer(usage());
+            NameUsageContainer u1 = new NameUsageContainer(usage(false));
+            u1.setKey(0);
             Node n = db.createNode();
 
-            mapper.store(n, u1, true);
-            NameUsageContainer u2 = mapper.read(n, new NameUsageContainer());
+            mapper.store(n, u1);
+            NameUsageContainer u2 = mapper.read(n);
 
             assertEquals(u1, u2);
         }
+    }
+
+    public static enum Oddity {
+        EVEN, ODD
+    }
+
+    public static class TestBeanInc {
+        public String string;
+        public Integer integer;
+        public Oddity odd;
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final TestBeanInc other = (TestBeanInc) obj;
+            return Objects.equal(this.string, other.string)
+                && Objects.equal(this.integer, other.integer)
+                && Objects.equal(this.odd, other.odd)
+                ;
+        }    }
+
+    public static class TestBean {
+        public String string;
+        public Integer integer;
+        public double dub;
+        public long longer;
+        public Date date;
+        public UUID uuid;
+        public URI uri;
+        public Oddity odd;
+        public List<Integer> intList = Lists.newArrayList();
+        public List<String> strList = Lists.newArrayList();
+        public List<Date> dateList = Lists.newArrayList();
+        public List<Oddity> oddList = Lists.newArrayList();
+        public List<TestBeanInc> beanList = Lists.newArrayList();
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final TestBean other = (TestBean) obj;
+            return Objects.equal(this.string, other.string)
+                && Objects.equal(this.integer, other.integer)
+                && Objects.equal(this.dub, other.dub)
+                && Objects.equal(this.longer, other.longer)
+                && Objects.equal(this.date, other.date)
+                && Objects.equal(this.uuid, other.uuid)
+                && Objects.equal(this.uri, other.uri)
+                && Objects.equal(this.odd, other.odd)
+                && Objects.equal(this.intList, other.intList)
+                && Objects.equal(this.strList, other.strList)
+                && Objects.equal(this.dateList, other.dateList)
+                && Objects.equal(this.oddList, other.oddList)
+                && Objects.equal(this.beanList, other.beanList)
+                ;
+        }
+
     }
 }

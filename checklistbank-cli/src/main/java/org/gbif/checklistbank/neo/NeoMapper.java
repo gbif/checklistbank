@@ -1,6 +1,10 @@
 package org.gbif.checklistbank.neo;
 
 import com.beust.jcommander.internal.Sets;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
@@ -10,7 +14,10 @@ import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -19,12 +26,16 @@ import java.util.*;
 /**
  * A simple mapper for neo4j node or relationships to POJOs or maps.
  * When a new POJO class is first encountered the fields are read and cached.
+ * All immediate fields of the POJO are persisted as individual neo4j properties.
+ * Any nested classes will be serialized to JSON strings.
+ * Collections will become array properties.
  */
 public class NeoMapper {
 
     private final static Logger LOG = LoggerFactory.getLogger(NeoMapper.class);
     private final static Map<Class, List<FieldData>> FIELDS = Maps.newHashMap();
     private static NeoMapper singleton;
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     enum FieldType {PRIMITIVE, NATIVE, ENUM, SET, LIST, OTHER}
 
@@ -44,6 +55,10 @@ public class NeoMapper {
     }
 
     private NeoMapper() {
+        jsonMapper.disable(SerializationFeature.INDENT_OUTPUT);
+        jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        jsonMapper.disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        jsonMapper.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     public static synchronized NeoMapper instance() {
@@ -65,6 +80,10 @@ public class NeoMapper {
                 n.setProperty(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    public void store(Node n, NameUsageContainer usage) {
+        store(n, usage, true);
     }
 
     /**
@@ -118,10 +137,16 @@ public class NeoMapper {
                                         arr[idx++] = ((Enum<?>) v).ordinal();
                                     }
                                     props.put(f.property, arr);
-                                } else {
+                                } else if (f.clazz.isAssignableFrom(Serializable.class)) {
                                     String[] arr = new String[vals.size()];
                                     for (Object v : vals) {
                                         arr[idx++] = v.toString();
+                                    }
+                                    props.put(f.property, arr);
+                                } else {
+                                    String[] arr = new String[vals.size()];
+                                    for (Object v : vals) {
+                                        arr[idx++] = jsonMapper.writeValueAsString(v);
                                     }
                                     props.put(f.property, arr);
                                 }
@@ -141,6 +166,8 @@ public class NeoMapper {
             }
         } catch (IllegalAccessException e) {
             LOG.error("Failed to read bean", e);
+        } catch (JsonProcessingException e) {
+            LOG.error("Failed to convert bean properties to JSON", e);
         }
         return props;
     }
@@ -154,7 +181,7 @@ public class NeoMapper {
         return null;
     }
 
-    public void storeEnum(Node n, String property, Enum<?> value) {
+    private void storeEnum(Node n, String property, Enum<?> value) {
         if (value == null) {
             n.removeProperty(property);
         } else {
@@ -242,9 +269,19 @@ public class NeoMapper {
             for (int x : (int[]) val) {
                 collection.add(f.clazz.getEnumConstants()[x]);
             }
-        } else {
+        } else if (f.clazz.isAssignableFrom(Serializable.class)) {
             for (String x : (String[]) val) {
                 collection.add(x);
+            }
+        } else {
+            for (String x : (String[]) val) {
+                try {
+                    Object o = jsonMapper.readValue(x, f.clazz);
+                    collection.add(o);
+                } catch (IOException e) {
+                    LOG.error("Fail to deserialize neo content", e);
+                    throw new IllegalStateException(e);
+                }
             }
         }
         return collection;
@@ -314,7 +351,7 @@ public class NeoMapper {
         List<Field> result = Lists.newArrayList();
         while (cl != null && cl != Object.class) {
             for (Field field : cl.getDeclaredFields()) {
-                if (!field.isSynthetic()) {
+                if (!field.isSynthetic() && !Modifier.isStatic(field.getModifiers())) {
                     result.add(field);
                 }
             }
