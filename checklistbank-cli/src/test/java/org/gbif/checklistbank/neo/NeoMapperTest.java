@@ -174,11 +174,14 @@ public class NeoMapperTest extends NeoTest {
             obj.string = "Hello mr bean";
             obj.date = new Date();
             obj.integer = 123;
+            obj.bool1= true;
+            obj.bool2= null;
             obj.dub = 456.07d;
             obj.longer = Long.MAX_VALUE;
             obj.odd = Oddity.ODD;
             obj.uri = URI.create("Http://bean.org");
             obj.intList = Lists.newArrayList(1,2,4,6,8,9);
+            obj.boolList= Lists.newArrayList(true, true, false, null, true);
             obj.strList = Lists.newArrayList("hi", "du", "eiermann");
             obj.oddList = Lists.newArrayList(Oddity.EVEN, Oddity.ODD);
             TestBeanInc subbean = new TestBeanInc();
@@ -241,6 +244,8 @@ public class NeoMapperTest extends NeoTest {
     public static class TestBean {
         public String string;
         public Integer integer;
+        public boolean bool1;
+        public Boolean bool2;
         public double dub;
         public long longer;
         public Date date;
@@ -248,6 +253,7 @@ public class NeoMapperTest extends NeoTest {
         public URI uri;
         public Oddity odd;
         public List<Integer> intList = Lists.newArrayList();
+        public List<Boolean> boolList = Lists.newArrayList();
         public List<String> strList = Lists.newArrayList();
         public List<Date> dateList = Lists.newArrayList();
         public List<Oddity> oddList = Lists.newArrayList();
@@ -264,6 +270,8 @@ public class NeoMapperTest extends NeoTest {
             final TestBean other = (TestBean) obj;
             return Objects.equal(this.string, other.string)
                 && Objects.equal(this.integer, other.integer)
+                && Objects.equal(this.bool1, other.bool1)
+                && Objects.equal(this.bool2, other.bool2)
                 && Objects.equal(this.dub, other.dub)
                 && Objects.equal(this.longer, other.longer)
                 && Objects.equal(this.date, other.date)
@@ -271,6 +279,7 @@ public class NeoMapperTest extends NeoTest {
                 && Objects.equal(this.uri, other.uri)
                 && Objects.equal(this.odd, other.odd)
                 && Objects.equal(this.intList, other.intList)
+                && Objects.equal(this.boolList, other.boolList)
                 && Objects.equal(this.strList, other.strList)
                 && Objects.equal(this.dateList, other.dateList)
                 && Objects.equal(this.oddList, other.oddList)

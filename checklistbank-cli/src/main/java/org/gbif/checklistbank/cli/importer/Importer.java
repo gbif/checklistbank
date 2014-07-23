@@ -2,9 +2,12 @@ package org.gbif.checklistbank.cli.importer;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntIntCursor;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
@@ -15,6 +18,7 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +33,7 @@ public class Importer extends NeoRunnable implements Runnable {
     private final Meter basionymMeter;
     private final AtomicInteger failed = new AtomicInteger();
     private final DatasetImportService importService;
+    private final NameUsageService usageService;
     // neo internal ids to clb usage keys
     private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
     // map based around internal neo4j node ids:
@@ -39,8 +44,10 @@ public class Importer extends NeoRunnable implements Runnable {
         this.cfg = cfg;
         this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
         this.basionymMeter = registry.meter(ImporterService.SYNC_BASIONYM_METER);
-        //TODO: init mybatis layer from cfg instance
-        importService = null;
+        // init mybatis layer from cfg instance
+        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+        importService = inj.getInstance(DatasetImportService.class);
+        usageService = inj.getInstance(NameUsageService.class);
     }
 
     public void run() {
@@ -58,18 +65,29 @@ public class Importer extends NeoRunnable implements Runnable {
      */
     private void syncDataset() {
         failed.set(0);
+
+        // we keep the very first usage key to retrieve the exact last modified timestamp from the database
+        // in order to avoid clock differences between machines and threads.
+        int firstUsageKey = -1;
+
         try (Transaction tx = db.beginTx()) {
             for (Node n : TaxonomicNodeIterator.all(db)) {
                 // returns all accepted and synonyms
                 NameUsageContainer u = buildClbNameUsage(n);
+                final int nodeId = (int) n.getId();
                 // remember basionymKey if we have not processed it before already
                 if (u.getBasionymKey() != null && !clbKeys.containsKey(u.getBasionymKey())) {
                     // these are internal neo4j node ids!
-                    basionyms.put(u.getKey(), u.getBasionymKey());
+                    basionyms.put(nodeId, u.getBasionymKey());
                     u.setBasionymKey(null);
                 }
                 try {
-                    importService.syncUsage(u);
+                    int usageKey = importService.syncUsage(u);
+                    // keep map of node ids to clb usage keys
+                    clbKeys.put(nodeId, usageKey);
+                    if (firstUsageKey < 0) {
+                        firstUsageKey = usageKey;
+                    }
                     syncMeter.mark();
                 } catch (Exception e) {
                     failed.getAndIncrement();
@@ -90,6 +108,10 @@ public class Importer extends NeoRunnable implements Runnable {
                 }
             }
         }
+
+        // remove old usages
+        Date firstModified = usageService.get(firstUsageKey, null).getLastCrawled();  //TODO: should we use last interpreted ???
+        importService.deleteOldUsages(datasetKey, firstModified);
     }
 
     private Integer clbKey(Integer nodeId) {

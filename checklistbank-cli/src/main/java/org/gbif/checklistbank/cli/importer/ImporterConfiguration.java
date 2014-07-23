@@ -32,6 +32,11 @@ public class ImporterConfiguration {
     @Valid
     public MessagingConfiguration messaging = new MessagingConfiguration();
 
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public ClbConfiguration clb = new ClbConfiguration();
+
     @Parameter(names = "--msg-pool-size")
     @Min(1)
     public int msgPoolSize = 10;

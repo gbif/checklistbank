@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -27,8 +26,8 @@ import java.util.*;
  * A simple mapper for neo4j node or relationships to POJOs or maps.
  * When a new POJO class is first encountered the fields are read and cached.
  * All immediate fields of the POJO are persisted as individual neo4j properties.
- * Any nested classes will be serialized to JSON strings.
- * Collections will become array properties.
+ * Any nested classes and collections will be serialized to JSON strings with
+ * collections becoming a String array neo property.
  */
 public class NeoMapper {
 
@@ -129,27 +128,17 @@ public class NeoMapper {
                                 break;
                             case SET:
                             case LIST:
+                                // use json for collection content so we can deal with null values!
+                                // neo only has primitive arrays:
+                                // http://docs.neo4j.org/chunked/stable/graphdb-neo4j-properties.html
                                 Collection<?> vals = (Collection<?>) val;
+                                String[] arr = new String[vals.size()];
+
                                 int idx = 0;
-                                if (f.clazz.isEnum()) {
-                                    int[] arr = new int[vals.size()];
-                                    for (Object v : vals) {
-                                        arr[idx++] = ((Enum<?>) v).ordinal();
-                                    }
-                                    props.put(f.property, arr);
-                                } else if (f.clazz.isAssignableFrom(Serializable.class)) {
-                                    String[] arr = new String[vals.size()];
-                                    for (Object v : vals) {
-                                        arr[idx++] = v.toString();
-                                    }
-                                    props.put(f.property, arr);
-                                } else {
-                                    String[] arr = new String[vals.size()];
-                                    for (Object v : vals) {
-                                        arr[idx++] = jsonMapper.writeValueAsString(v);
-                                    }
-                                    props.put(f.property, arr);
+                                for (Object v : vals) {
+                                    arr[idx++] = jsonMapper.writeValueAsString(v);
                                 }
+                                props.put(f.property, arr);
                                 break;
                             case OTHER:
                                 if (Date.class.isAssignableFrom(f.clazz)) {
@@ -179,14 +168,6 @@ public class NeoMapper {
             return (T) vocab.getEnumConstants()[idx];
         }
         return null;
-    }
-
-    private void storeEnum(Node n, String property, Enum<?> value) {
-        if (value == null) {
-            n.removeProperty(property);
-        } else {
-            n.setProperty(property, value.ordinal());
-        }
     }
 
     /**
@@ -265,26 +246,47 @@ public class NeoMapper {
     }
 
     private Collection<Object> populateCollection(FieldData f, Object val, Collection<Object> collection) {
-        if (f.clazz.isEnum()) {
-            for (int x : (int[]) val) {
-                collection.add(f.clazz.getEnumConstants()[x]);
-            }
-        } else if (f.clazz.isAssignableFrom(Serializable.class)) {
-            for (String x : (String[]) val) {
-                collection.add(x);
-            }
-        } else {
-            for (String x : (String[]) val) {
-                try {
-                    Object o = jsonMapper.readValue(x, f.clazz);
-                    collection.add(o);
-                } catch (IOException e) {
-                    LOG.error("Fail to deserialize neo content", e);
-                    throw new IllegalStateException(e);
-                }
+        for (String x : (String[]) val) {
+            try {
+                Object o = jsonMapper.readValue(x, f.clazz);
+                collection.add(o);
+            } catch (IOException e) {
+                LOG.error("Fail to deserialize neo content", e);
+                throw new IllegalStateException(e);
             }
         }
         return collection;
+    }
+
+    /**
+     * Returns the field type for any class
+     * @param fCl the class to inspect
+     * @return the field type or null if NeoMapper cannot handle this type
+     */
+    private FieldType fieldTypeOf(Class fCl) {
+        if (fCl.isPrimitive()) {
+            return FieldType.PRIMITIVE;
+        } else if (fCl.isEnum()) {
+            return FieldType.ENUM;
+        } else if (String.class.isAssignableFrom(fCl)) {
+            return FieldType.NATIVE;
+        } else if (Number.class.isAssignableFrom(fCl)) {
+            return FieldType.NATIVE;
+        } else if (Boolean.class.isAssignableFrom(fCl)) {
+            return FieldType.NATIVE;
+        } else if (Character.class.isAssignableFrom(fCl)) {
+            return FieldType.NATIVE;
+        } else if (Set.class.isAssignableFrom(fCl)) {
+            return FieldType.SET;
+        } else if (List.class.isAssignableFrom(fCl)) {
+            return FieldType.LIST;
+        } else if (Date.class.isAssignableFrom(fCl)
+            || URI.class.isAssignableFrom(fCl)
+            || UUID.class.isAssignableFrom(fCl)) {
+            return FieldType.OTHER;
+        } else {
+            return null;
+        }
     }
 
     private void initModelMap(Class cl) {
@@ -299,34 +301,13 @@ public class NeoMapper {
             }
 
             Class fCl = f.getType();
-            FieldType type;
-            if (fCl.isPrimitive()) {
-                type = FieldType.PRIMITIVE;
-            } else if (fCl.isEnum()) {
-                type = FieldType.ENUM;
-            } else if (String.class.isAssignableFrom(fCl)) {
-                type = FieldType.NATIVE;
-            } else if (Number.class.isAssignableFrom(fCl)) {
-                type = FieldType.NATIVE;
-            } else if (Boolean.class.isAssignableFrom(fCl)) {
-                type = FieldType.NATIVE;
-            } else if (Character.class.isAssignableFrom(fCl)) {
-                type = FieldType.NATIVE;
-            } else if (Set.class.isAssignableFrom(fCl)) {
-                type = FieldType.SET;
-                // use generic type as class for set
-                fCl = detectGenericType(f);
-            } else if (List.class.isAssignableFrom(fCl)) {
-                type = FieldType.LIST;
-                // use generic type as class for list
-                fCl = detectGenericType(f);
-            } else if (Date.class.isAssignableFrom(fCl)
-                || URI.class.isAssignableFrom(fCl)
-                || UUID.class.isAssignableFrom(fCl)) {
-                type = FieldType.OTHER;
-            } else {
+            FieldType type = fieldTypeOf(fCl);
+            if (type == null) {
                 LOG.warn("Ignore field {} with unsupported type {}", f.getName(), fCl);
                 continue;
+            } else if (type == FieldType.SET || type == FieldType.LIST) {
+                // use generic type as class for collections
+                fCl = detectGenericType(f);
             }
 
             String property = f.getName();
