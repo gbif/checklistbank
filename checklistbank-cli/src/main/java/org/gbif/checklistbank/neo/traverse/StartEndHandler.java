@@ -8,7 +8,7 @@ import org.neo4j.graphdb.Node;
  */
 public interface StartEndHandler {
 
-    void start(Node n);
+  void start(Node n);
 
-    void end(Node n);
+  void end(Node n);
 }

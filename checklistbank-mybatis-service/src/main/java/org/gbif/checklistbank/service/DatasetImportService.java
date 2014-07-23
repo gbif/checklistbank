@@ -1,6 +1,8 @@
 package org.gbif.checklistbank.service;
 
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 
 import java.util.Date;
@@ -27,9 +29,10 @@ public interface DatasetImportService {
      * Inserts or updates a complete name usage with all its extension data.
      *
      * @param usage
+     * @param metrics
      * @return
      */
-    Integer syncUsage(NameUsageContainer usage);
+    Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 
     /**
      * Updates the basionym key of a given usage. Basionym links can break foreign key integrity in CLB, so we

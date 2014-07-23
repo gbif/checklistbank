@@ -1,18 +1,25 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.model.Usage;
+
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import javax.sql.DataSource;
+
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.TransactionIsolationLevel;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
-import java.util.*;
 
 /**
  * Implements the NameUsageService using MyBatis.
@@ -59,7 +66,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
     @Override
-    public Integer syncUsage(NameUsageContainer usage) {
+    public Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
         throw new UnsupportedOperationException();
     }
 

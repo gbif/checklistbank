@@ -1,13 +1,13 @@
 package org.gbif.checklistbank.cli.common;
 
+import java.util.concurrent.TimeUnit;
+
 import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.ganglia.GangliaReporter;
 import info.ganglia.gmetric4j.gmetric.GMetric;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * A configuration class which holds the host and port to connect yammer metrics to a ganglia server.
@@ -27,12 +27,12 @@ public class GangliaConfiguration {
   @JsonIgnore
   public void start(MetricRegistry registry) {
     if (gangliaHost != null && gangliaPort > 0) {
-        final GMetric ganglia = new GMetric(gangliaHost, gangliaPort, GMetric.UDPAddressingMode.MULTICAST, 1);
-        final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
-            .convertRatesTo(TimeUnit.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .build(ganglia);
-        reporter.start(1, TimeUnit.MINUTES);
+      final GMetric ganglia = new GMetric(gangliaHost, gangliaPort, GMetric.UDPAddressingMode.MULTICAST, 1);
+      final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
+        .convertRatesTo(TimeUnit.SECONDS)
+        .convertDurationsTo(TimeUnit.MILLISECONDS)
+        .build(ganglia);
+      reporter.start(1, TimeUnit.MINUTES);
     }
   }
 
