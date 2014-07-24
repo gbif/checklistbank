@@ -4,12 +4,9 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.TaxonProperties;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.Term;
 
 import java.util.UUID;
 
-import com.google.common.base.Strings;
 import com.yammer.metrics.Gauge;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -53,20 +50,6 @@ public abstract class NeoRunnable implements Runnable {
 
   protected void logMemory() {
     LOG.debug("Heap usage: {}", memory.getValue());
-  }
-
-  protected String value(Node n, Term term) {
-    if (n.hasProperty(term.simpleName())) {
-      return Strings.emptyToNull(((String) n.getProperty(term.simpleName(), null)).trim());
-    }
-    return null;
-  }
-
-  protected String[] listValue(Node n, DwcTerm term) {
-    if (n.hasProperty(term.simpleName())) {
-      return (String[]) n.getProperty(term.simpleName(), new String[0]);
-    }
-    return new String[0];
   }
 
   /**

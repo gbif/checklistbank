@@ -38,8 +38,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   private DataSource ds;
 
   @Inject
-  DatasetImportServiceMyBatis(NameUsageMapper mapper, UsageMapper usageMapper, ParsedNameMapper parsedNameMapper,
-    NubRelMapper nubRelMapper) {
+  DatasetImportServiceMyBatis(
+    NameUsageMapper mapper, UsageMapper usageMapper, ParsedNameMapper parsedNameMapper, NubRelMapper nubRelMapper
+  ) {
     this.mapper = mapper;
     this.parsedNameMapper = parsedNameMapper;
     this.usageMapper = usageMapper;
@@ -65,20 +66,25 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     insertUsageBatch(datasetKey, batch);
   }
 
-    @Override
-    public Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
-        throw new UnsupportedOperationException();
-    }
+  @Override
+  public Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Override
-    public void updateBasionym(Integer usageKey, Integer basionymKey) {
-        throw new UnsupportedOperationException();
-    }
+  @Transactional(
+    executorType = ExecutorType.BATCH,
+    isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
+    exceptionMessage = "Something went wrong while updating basionym keys for dataset {0}"
+  )
+  @Override
+  public void updateBasionyms(UUID datasetKey, Map<Integer, Integer> basionymByUsage) {
+    throw new UnsupportedOperationException();
+  }
 
-    @Transactional(
-      executorType = ExecutorType.BATCH,
-      isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-      exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
+  @Transactional(
+    executorType = ExecutorType.BATCH,
+    isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
+    exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
   )
   @Override
   public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
@@ -89,9 +95,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Transactional(
-      executorType = ExecutorType.BATCH,
-      isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-      exceptionMessage = "Something went wrong while inserting usage batch for dataset {0}"
+    executorType = ExecutorType.BATCH,
+    isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
+    exceptionMessage = "Something went wrong while inserting usage batch for dataset {0}"
   )
   private void insertUsageBatch(UUID datasetKey, List<Usage> usages) {
     for (Usage u : usages) {
@@ -105,10 +111,10 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     usageMapper.deleteByDataset(datasetKey);
   }
 
-    @Override
-    public void deleteOldUsages(UUID datasetKey, Date before) {
-        throw new UnsupportedOperationException();
-    }
-
+  @Override
+  public void deleteOldUsages(UUID datasetKey, Date before) {
+    LOG.info("Deleting all usages in dataset {} before {}", datasetKey, before);
+    usageMapper.deleteByDatasetAndDate(datasetKey, before);
+  }
 
 }

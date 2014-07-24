@@ -5,6 +5,7 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.service.mybatis.VerbatimNameUsageJsonParser;
 import org.gbif.dwc.terms.DcTerm;
+import org.gbif.dwc.terms.Term;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.neo4j.graphdb.Direction;
@@ -370,6 +372,30 @@ public class NeoMapper {
       cl = cl.getSuperclass();
     }
     return result;
+  }
+
+  public static String propertyName(Term t) {
+    return "v_" + t.simpleName();
+  }
+
+  public static boolean hasProperty(Node n, Term t) {
+    return n.hasProperty(propertyName(t));
+  }
+
+  public static String value(Node n, Term t) {
+    return (String) n.getProperty(propertyName(t), null);
+  }
+
+  public static String[] listValue(Node n, Term t) {
+    return (String[]) n.getProperty(propertyName(t), new String[0]);
+  }
+
+  public static void setValue(Node n, Term t, String value) {
+    if (Strings.isNullOrEmpty(value)) {
+      n.removeProperty(propertyName(t));
+    } else {
+      n.setProperty(propertyName(t), value);
+    }
   }
 
 }

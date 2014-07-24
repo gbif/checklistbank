@@ -11,11 +11,12 @@ import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.yammer.metrics.Meter;
@@ -41,7 +42,7 @@ public class Importer extends NeoRunnable implements Runnable {
   // neo internal ids to clb usage keys
   private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
   // map based around internal neo4j node ids:
-  private IntIntOpenHashMap basionyms = new IntIntOpenHashMap();
+  private Map<Integer, Integer> basionyms = Maps.newHashMap();
 
   public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) {
     super(datasetKey, cfg.neo, registry);
@@ -104,15 +105,8 @@ public class Importer extends NeoRunnable implements Runnable {
 
     // fix basionyms
     if (!basionyms.isEmpty()) {
-      for (IntIntCursor bas : basionyms) {
-        try {
-          importService.updateBasionym(clbKey(bas.key), clbKey(bas.value));
-          basionymMeter.mark();
-        } catch (Exception e) {
-          failed.getAndIncrement();
-          LOG.error("Failed to update basionym for usage {} from dataset {}", bas.key, datasetKey, e);
-        }
-      }
+      LOG.info("Updating basionym keys for {} usages from dataset {}", basionyms.size(), datasetKey);
+      importService.updateBasionyms(datasetKey, basionyms);
     }
 
     // remove old usages

@@ -6,6 +6,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
@@ -253,8 +254,8 @@ public class Normalizer extends NeoRunnable {
    */
   private boolean setupAcceptedRel(Node n, String taxonID, String sciname, String canonical) {
     List<Node> accepted = Lists.newArrayList();
-    if (n.hasProperty(DwcTerm.acceptedNameUsageID.simpleName())) {
-      for (String id : listValue(n, DwcTerm.acceptedNameUsageID)) {
+    if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
+      for (String id : NeoMapper.listValue(n, DwcTerm.acceptedNameUsageID)) {
         if (id != null && !id.equals(taxonID)) {
           Node a = nodeByTaxonId(id);
           if (a == null) {
@@ -264,8 +265,8 @@ public class Normalizer extends NeoRunnable {
           }
         }
       }
-    } else if (n.hasProperty(DwcTerm.acceptedNameUsage.simpleName())) {
-      final String name = value(n, DwcTerm.acceptedNameUsage);
+    } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
+      final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
       if (name != null && !name.equals(sciname)) {
         Node a = nodeBySciname(name);
         if (a == null && !name.equals(canonical)) {
@@ -291,16 +292,16 @@ public class Normalizer extends NeoRunnable {
 
   private void setupParentRel(Node n, boolean isSynonym, String taxonID, String sciname, String canonical) {
     Node parent = null;
-    if (n.hasProperty(DwcTerm.parentNameUsageID.simpleName())) {
-      final String id = value(n, DwcTerm.parentNameUsageID);
+    if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsageID)) {
+      final String id = NeoMapper.value(n, DwcTerm.parentNameUsageID);
       if (id != null && !id.equals(taxonID)) {
         parent = nodeByTaxonId(id);
         if (parent == null) {
           LOG.warn("parentNameUsageID {} not existing", id);
         }
       }
-    } else if (n.hasProperty(DwcTerm.parentNameUsage.simpleName())) {
-      final String name = value(n, DwcTerm.parentNameUsage);
+    } else if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsage)) {
+      final String name = NeoMapper.value(n, DwcTerm.parentNameUsage);
       if (name != null && !name.equals(sciname)) {
         parent = nodeBySciname(name);
         if (parent == null && !name.equals(canonical)) {
@@ -323,16 +324,16 @@ public class Normalizer extends NeoRunnable {
 
   private void setupBasionymRel(Node n, String taxonID, String sciname, String canonical) {
     Node basionym = null;
-    if (n.hasProperty(DwcTerm.originalNameUsageID.simpleName())) {
-      final String id = value(n, DwcTerm.originalNameUsageID);
+    if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsageID)) {
+      final String id = NeoMapper.value(n, DwcTerm.originalNameUsageID);
       if (id != null && !id.equals(taxonID)) {
         basionym = nodeByTaxonId(id);
         if (basionym == null) {
           LOG.warn("originalNameUsageID {} not existing", id);
         }
       }
-    } else if (n.hasProperty(DwcTerm.originalNameUsage.simpleName())) {
-      final String name = value(n, DwcTerm.originalNameUsage);
+    } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
+      final String name = NeoMapper.value(n, DwcTerm.originalNameUsage);
       if (name != null && !name.equals(sciname)) {
         basionym = nodeBySciname(name);
         if (basionym == null && !name.equals(canonical)) {

@@ -26,7 +26,7 @@ fu.id as fid, coalesce(fn.canonical_name,fn.scientific_name) as family,
 gu.id as gid, coalesce(gn.canonical_name,gn.scientific_name) as genus,
 sgu.id as sgid, coalesce(sgn.canonical_name,sgn.scientific_name) as subgenus,
 su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
-(u.rgt-u.lft-1)/2 as num_descendants, u.remarks
+u.num_descendants, u.remarks
 </sql>
 
   <sql id="from"> name_usage u
@@ -151,30 +151,6 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
     ORDER BY u.rank, n.scientific_name
     <include refid="page"/>
   </select>
-
-  <!--
-  list usage descendants
-   we use concrete lft,rgt and datasetKey values here to avoid long queries
-   see http://gbif.blogspot.de/2012/06/taxonomic-trees-in-postgresql.html
-
-   a BETWEEN x AND y
-     is equivalent to
-   a >= x AND a <= y
-
-  <select id="listDescendants" parameterType="map" resultMap="usageResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    JOIN name_usage ad ON ad.id=u.id OR (u.parent_fk=ad.id AND u.is_synonym=true)
-    WHERE ad.dataset_key=#{uuid, jdbcType=OTHER} AND ad.lft BETWEEN #{lft}+1 and #{rgt}-1
-    <if test="rank!=null">
-      and u.rank=#{rank, jdbcType=OTHER}
-    </if>
-    ORDER BY ad.lft, u.id
-    <include refid="page"/>
-  </select>
-  -->
 
   <!--  list usage synonyms -->
   <select id="listSynonyms" parameterType="map" resultMap="usageResultMap">

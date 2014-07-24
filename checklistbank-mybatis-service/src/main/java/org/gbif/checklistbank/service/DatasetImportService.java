@@ -35,12 +35,12 @@ public interface DatasetImportService {
     Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 
     /**
-     * Updates the basionym key of a given usage. Basionym links can break foreign key integrity in CLB, so we
+     * Updates the basionym key for all usages in the given map keys.
+     * Basionym links can break foreign key integrity in CLB, so we
      * need to process them individually in some cases.
-     * @param usageKey
-     * @param basionymKey
+     * @param basionymByUsage map with key=usageKey and value=basionymFk
      */
-    void updateBasionym(Integer usageKey, Integer basionymKey);
+    void updateBasionyms(UUID datasetKey, Map<Integer, Integer> basionymByUsage);
 
     /**
      * Delete all existing nub relations and then batch insert new ones from the passed iterator.

@@ -3,6 +3,7 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface UsageMapper {
   void insert(@Param("uuid") UUID datasetKey, @Param("usage") Usage usage);
 
   void deleteByDataset(@Param("uuid") UUID datasetKey);
+
+  void deleteByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
 }

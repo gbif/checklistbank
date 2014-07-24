@@ -16,5 +16,8 @@
   <changeSet id="4" author="markus">
     <sqlFile path="liquibase/root_indices.sql"/>
   </changeSet>
+  <changeSet id="5" author="markus">
+    <sqlFile path="liquibase/del_nested_set.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

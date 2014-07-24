@@ -2,7 +2,6 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
-import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,14 +37,6 @@ public interface NameUsageMapper {
   List<NameUsage> listRoot(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
 
   List<NameUsage> listChildren(@Param("key") int parentKey, @Param("page") Pageable page);
-
-  /**
-   * To avoid long queries we use concrete nested set indices here, not a usage key.
-   *
-   * @see <a href="http://gbif.blogspot.de/2012/06/taxonomic-trees-in-postgresql.html">blog post</a>
-   */
-  List<NameUsage> listDescendants(@Param("uuid") UUID datasetKey, @Param("lft") int lft, @Param("rgt") int rgt,
-    @Param("rank") Rank rank, @Param("page") Pageable page);
 
   List<NameUsage> listSynonyms(@Param("key") int usageKey, @Param("page") Pageable page);
 

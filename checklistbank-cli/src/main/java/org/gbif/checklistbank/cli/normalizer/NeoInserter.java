@@ -108,7 +108,7 @@ public class NeoInserter {
 
       Record core = star.core();
       for (Term t : core.terms()) {
-        String val = norm(core.value(t));
+        String val = clean(core.value(t));
         if (val != null) {
           v.setCoreField(t, val);
         }
@@ -116,11 +116,11 @@ public class NeoInserter {
       // make sure this is last to override already put taxonID keys
       v.setCoreField(DwcTerm.taxonID, taxonID(core));
 
-      NameUsageContainer u = buildUsage(core.id(), v);
+      NameUsageContainer u = buildUsage(v);
 
       // ... and into neo
       Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
-      // to be resolved later:
+      // add more neo properties to be used in resolving the relations later:
       putProp(props, DwcTerm.parentNameUsageID, v);
       putProp(props, DwcTerm.parentNameUsage, v);
       putListProp(props, DwcTerm.acceptedNameUsageID, v, splitterAccIds);
@@ -149,9 +149,9 @@ public class NeoInserter {
   }
 
   private void putProp(Map<String, Object> props, Term t, VerbatimNameUsage v) {
-    String val = norm(v.getCoreField(t));
+    String val = clean(v.getCoreField(t));
     if (val != null) {
-      props.put(t.simpleName(), val);
+      props.put(NeoMapper.propertyName(t), val);
     }
   }
 
@@ -161,7 +161,7 @@ public class NeoInserter {
    * @param splitter the splitter to be used. If null uses the entire value as the single list entry
    */
   private void putListProp(Map<String, Object> props, Term t, VerbatimNameUsage v, @Nullable Splitter splitter) {
-    String val = norm(v.getCoreField(t));
+    String val = clean(v.getCoreField(t));
     if (val != null) {
       List<String> ids = Lists.newArrayList();
       if (splitter != null) {
@@ -169,13 +169,13 @@ public class NeoInserter {
       } else {
         ids.add(val);
       }
-      props.put(t.simpleName(), ids.toArray(new String[ids.size()]));
+      props.put(NeoMapper.propertyName(t), ids.toArray(new String[ids.size()]));
     }
   }
 
-  private NameUsageContainer buildUsage(String coreID, VerbatimNameUsage v) {
+  private NameUsageContainer buildUsage(VerbatimNameUsage v) {
     NameUsageContainer u = new NameUsageContainer();
-    u.setTaxonID(useCoreID ? coreID : v.getCoreField(DwcTerm.taxonID));
+    u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
 
     if (constituents != null && v.hasCoreField(DwcTerm.datasetID)) {
       UUID cKey = constituents.get(v.getCoreField(DwcTerm.datasetID));
@@ -261,13 +261,13 @@ public class NeoInserter {
 
   private String taxonID(Record core) {
     if (useCoreID) {
-      return norm(core.id());
+      return clean(core.id());
     } else {
-      return norm(core.value(DwcTerm.taxonID));
+      return clean(core.value(DwcTerm.taxonID));
     }
   }
 
-  private String norm(String x) {
+  private String clean(String x) {
     if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
       return null;
     }
