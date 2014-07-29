@@ -6,7 +6,6 @@
     DELETE FROM nub_rel WHERE dataset_key=#{uuid,jdbcType=OTHER}
   </delete>
 
-  <!-- missing: nom_status,basionym_fk,citation_fk -->
   <insert id="insert">
     INSERT INTO nub_rel (dataset_key, usage_fk, nub_fk)
     VALUES #{uuid}, #{usageKey}, #{nubKey}

@@ -6,6 +6,9 @@ import org.gbif.test.DatabaseDrivenTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.Map;
 import java.util.Properties;
@@ -37,6 +40,8 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
     .put("http://www.dbunit.org/features/caseSensitiveTableNames", true)
     .put(DatabaseConfig.PROPERTY_ESCAPE_PATTERN, "\"?\"").build();
 
+  private final Map<String, Integer> sequenceCounters;
+
   private static Properties buildDefaultProperties() {
     try {
       return PropertiesUtil.loadProperties(DEFAULT_PROPERTY_FILE);
@@ -45,26 +50,55 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
     }
   }
 
+  @Override
+  /**
+   * Update sequence counters.
+   */
+  protected void runFinally() {
+    try {
+      Connection con = dataSource.getConnection();
+      for (Map.Entry<String, Integer> seq : sequenceCounters.entrySet()) {
+        Statement st = con.createStatement();
+        st.execute("SELECT setval('" + seq.getKey() + "', " + seq.getValue() + ");");
+        st.close();
+      }
+      con.close();
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   /**
    * @param serviceClass   the class for the service we want to wire up and test
    * @param properties     the verbatim configuration properties
-   * @param dbUnitFileName the optional unqualified filename within the dbunit package to be used in setting up the db
+   * @param sequenceCounters map of sequence names to their counter state to be changed after dbunit ran
    */
-  public DatabaseDrivenChecklistBankTestRule(Properties properties, Class<T> serviceClass, String dbUnitFileName) {
+  public DatabaseDrivenChecklistBankTestRule(Properties properties, Class<T> serviceClass, Map<String, Integer> sequenceCounters) {
     super(new ChecklistBankServiceMyBatisModule(properties),
-      InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME, serviceClass, dbUnitFileName,
-      DB_UNIT_CLB_PROPERTIES);
-  }
-
-  public DatabaseDrivenChecklistBankTestRule(Class<T> serviceClass) {
-    this(buildDefaultProperties(), serviceClass, DEFAULT_DBUNIT_FILE);
+          InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME,
+          serviceClass,
+          DEFAULT_DBUNIT_FILE,
+          DB_UNIT_CLB_PROPERTIES);
+    this.sequenceCounters = sequenceCounters;
   }
 
   /**
    * Creates a db driven test rule using the default checklistbank.properties and the squirrels dbunit file.
    */
-  public DatabaseDrivenChecklistBankTestRule() {
-    this(null);
+  public DatabaseDrivenChecklistBankTestRule(Class<T> serviceClass) {
+    this(buildDefaultProperties(), serviceClass, ImmutableMap.<String, Integer>builder()
+//        .put("citation", 32)
+//        .put("dataset_metrics", 5)
+//        .put("specimen", 16)
+//        .put("literature", 23)
+//        .put("image", 100021)
+//        .put("identifier", 106)
+//        .put("distribution", 29)
+//        .put("description", 28)
+        .put("name_usage_id_seq", 110000000)
+        .put("name_id_seq", 200000)
+      .build());
   }
 
   /**

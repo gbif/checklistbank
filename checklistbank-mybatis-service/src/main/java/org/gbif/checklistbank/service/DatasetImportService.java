@@ -32,7 +32,7 @@ public interface DatasetImportService {
      * @param metrics
      * @return
      */
-    Integer syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
+    int syncUsage(UUID datasetKey, NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 
     /**
      * Updates the basionym key for all usages in the given map keys.

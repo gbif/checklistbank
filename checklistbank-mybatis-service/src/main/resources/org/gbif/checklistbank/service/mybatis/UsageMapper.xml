@@ -29,7 +29,7 @@
     DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND modified &lt; #{before}
   </delete>
 
-  <!-- missing: nom_status,basionym_fk,citation_fk -->
+  <!-- missing: nom_status,basionym_fk -->
   <insert id="insert">
     INSERT INTO name_usage (<include refid="select"/>)
     VALUES

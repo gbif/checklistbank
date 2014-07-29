@@ -51,6 +51,7 @@ import org.gbif.checklistbank.service.mybatis.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.ReferenceMapper;
 import org.gbif.checklistbank.service.mybatis.ReferenceServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileMapper;
@@ -59,9 +60,10 @@ import org.gbif.checklistbank.service.mybatis.TypeSpecimenMapper;
 import org.gbif.checklistbank.service.mybatis.TypeSpecimenServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.UsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.VerbatimNameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.VernacularNameMapper;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.model.NameUsageWritable;
+import org.gbif.checklistbank.service.mybatis.model.RawUsage;
 import org.gbif.checklistbank.service.mybatis.model.TocEntry;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.gbif.checklistbank.service.mybatis.model.UsageRelated;
@@ -92,8 +94,10 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
   protected void bindMappers() {
     // mybatis config
     addAlias("Usage").to(Usage.class);
+    addAlias("RawUsage").to(RawUsage.class);
     addAlias("NameUsage").to(NameUsage.class);
     addAlias("NameUsageMetrics").to(NameUsageMetrics.class);
+    addAlias("NameUsageWritable").to(NameUsageWritable.class);
     addAlias("ParsedName").to(ParsedName.class);
     addAlias("VernacularName").to(VernacularName.class);
     addAlias("Reference").to(Reference.class);
@@ -121,7 +125,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addMapperClass(SpeciesProfileMapper.class);
     addMapperClass(TypeSpecimenMapper.class);
     addMapperClass(DatasetMetricsMapper.class);
-    addMapperClass(VerbatimNameUsageMapper.class);
+    addMapperClass(RawUsageMapper.class);
     addMapperClass(ParsedNameMapper.class);
     addMapperClass(CitationMapper.class);
     addMapperClass(NameUsageMetricsMapper.class);

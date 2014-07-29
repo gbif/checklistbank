@@ -34,7 +34,7 @@ public interface ParsedNameMapper {
   /**
    * Insert a new parsed name into the name_string table.
    */
-  int create(@Param("pn") ParsedName name);
+  int create(@Param("pn") ParsedName name, @Param("canonicalName") String canonicalName);
 
   void delete(@Param("key") int key);
 

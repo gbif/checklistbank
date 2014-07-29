@@ -159,7 +159,6 @@ public class NameUsageServiceMyBatisIT {
     assertEquals(2, syn.getNomenclaturalStatus().size());
   }
 
-
   @Test
   public void testGetNotFound() {
     assertNull(ddt.getService().get(NOT_FOUND_KEY, Locale.UK));
@@ -211,6 +210,14 @@ public class NameUsageServiceMyBatisIT {
       ddt.getService().list(Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "1", null).getResults();
     assertEquals(1, usages.size());
     assertEquals((Integer) 100000001, usages.get(0).getKey());
+  }
+
+  @Test
+  public void testByTaxonId() {
+    List<NameUsage> usages = ddt.getService().list(Locale.UK, CHECKLIST_KEY, "100000", null).getResults();
+    assertEquals(1, usages.size());
+
+    assertEquals(ddt.getService().get(100000006, Locale.UK), usages.get(0));
   }
 
   @Test
@@ -296,6 +303,30 @@ public class NameUsageServiceMyBatisIT {
   @Test
   public void testListSynonymsNotFound() {
     assertTrue(ddt.getService().listSynonyms(NOT_FOUND_KEY, Locale.UK, null).getResults().isEmpty());
+  }
+
+  @Test
+  public void testVerbatim() {
+    // even though the record exists the verbatim smile data is empty, so null here
+    assertNull(ddt.getService().getVerbatim(100000011));
+    assertNull(ddt.getService().getVerbatim(NOT_FOUND_KEY));
+  }
+
+  @Test
+  public void testUsageMetrics() {
+    NameUsageMetrics m = ddt.getService().getMetrics(100000011);
+    assertNotNull(m);
+    assertEquals((Integer) 100000011, m.getKey());
+    assertEquals(2, m.getNumChildren());
+    assertEquals(12, m.getNumSynonyms());
+    assertEquals(1, m.getNumGenus());
+    assertEquals(2, m.getNumSubgenus());
+    assertEquals(2, m.getNumSpecies());
+    // not set in dbunit file
+    assertEquals(0, m.getNumDescendants());
+    assertEquals(0, m.getNumFamily());
+
+    assertNull(ddt.getService().getMetrics(NOT_FOUND_KEY));
   }
 
 }

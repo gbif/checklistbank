@@ -19,5 +19,11 @@
   <changeSet id="5" author="markus">
     <sqlFile path="liquibase/del_nested_set.sql"/>
   </changeSet>
+  <changeSet id="6" author="markus">
+    <sqlFile path="liquibase/write_usage.sql"/>
+  </changeSet>
+  <changeSet id="7" author="markus">
+    <sqlFile path="liquibase/drop_user_checklists.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

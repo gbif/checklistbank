@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class ClbConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
-  private static final String PROPERTY_PREFIX = "checklistbank.db.";
+  private static final String PROPERTY_PREFIX = "checklistbank.db.JDBC.";
 
   @NotNull
   @Parameter(names = "--clb-url")
@@ -40,6 +40,7 @@ public class ClbConfiguration {
 
   public ChecklistBankServiceMyBatisModule createServiceModule() {
     Properties props = new Properties();
+    props.put(PROPERTY_PREFIX + "driver", "org.postgresql.Driver");
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers())) {
         try {

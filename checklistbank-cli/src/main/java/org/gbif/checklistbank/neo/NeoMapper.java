@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.service.mybatis.VerbatimNameUsageJsonParser;
+import org.gbif.checklistbank.service.mybatis.VerbatimNameUsageBinder;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -45,10 +45,10 @@ public class NeoMapper {
 
   private final static Logger LOG = LoggerFactory.getLogger(NeoMapper.class);
   private final static Map<Class, List<FieldData>> FIELDS = Maps.newHashMap();
-  private static final String PROP_RAW_JSON = "json";
+  private static final String PROP_VERBATIM_DATA = "verbatim";
   private static NeoMapper singleton;
   private final ObjectMapper jsonMapper = new ObjectMapper();
-  private VerbatimNameUsageJsonParser verbatimMapper = new VerbatimNameUsageJsonParser();
+  private VerbatimNameUsageBinder verbatimMapper = new VerbatimNameUsageBinder();
 
   enum FieldType {PRIMITIVE, NATIVE, ENUM, SET, LIST, OTHER}
 
@@ -104,7 +104,7 @@ public class NeoMapper {
     Map<String, Object> props = propertyMap(u, false);
     // in addition to the NameUsage properties also keep a few more id terms needed for resolution in the normalizer
     props.put(DcTerm.identifier.simpleName(), coreID);
-    props.put(PROP_RAW_JSON, verbatimMapper.toJson(v));
+    props.put(PROP_VERBATIM_DATA, verbatimMapper.write(v));
     return props;
   }
 
@@ -207,7 +207,22 @@ public class NeoMapper {
 
         Object val = n.getProperty(f.property, null);
         if (val == null) {
-          f.field.set(obj, null);
+          switch (f.type) {
+            case PRIMITIVE:
+              // keep default
+              break;
+            case SET:
+              f.field.set(obj, Sets.newHashSet());
+              break;
+            case LIST:
+              f.field.set(obj, Lists.newArrayList());
+              break;
+            case NATIVE:
+            case ENUM:
+            case OTHER:
+              f.field.set(obj, null);
+              break;
+          }
 
         } else {
           switch (f.type) {
@@ -263,7 +278,7 @@ public class NeoMapper {
 
   public VerbatimNameUsage readVerbatim(Node n) {
     if (n != null) {
-      return verbatimMapper.toVerbatim( (String) n.getProperty(PROP_RAW_JSON, null));
+      return verbatimMapper.read((byte[]) n.getProperty(PROP_VERBATIM_DATA, null));
     }
     return null;
   }

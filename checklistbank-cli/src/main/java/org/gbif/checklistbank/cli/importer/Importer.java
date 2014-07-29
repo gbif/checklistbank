@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -10,7 +11,7 @@ import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +22,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -48,11 +50,25 @@ public class Importer extends NeoRunnable implements Runnable {
     super(datasetKey, cfg.neo, registry);
     this.cfg = cfg;
     this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
-    this.basionymMeter = registry.meter(ImporterService.SYNC_BASIONYM_METER);
+    this.basionymMeter = registry.getMeters().get(ImporterService.SYNC_BASIONYM_METER);
     // init mybatis layer from cfg instance
     Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
     importService = inj.getInstance(DatasetImportService.class);
     usageService = inj.getInstance(NameUsageService.class);
+  }
+
+  /**
+   * Uses an internal metrics registry to setup the normalizer
+   */
+  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
+    MetricRegistry registry = new MetricRegistry("normalizer");
+    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
+    registry.registerAll(mgs);
+
+    registry.meter(ImporterService.SYNC_METER);
+    registry.meter(ImporterService.SYNC_BASIONYM_METER);
+
+    return new Importer(cfg, datasetKey, registry);
   }
 
   public void run() {
@@ -89,11 +105,12 @@ public class Importer extends NeoRunnable implements Runnable {
           u.setBasionymKey(null);
         }
         try {
-          int usageKey = importService.syncUsage(u, verbatim, metrics);
+          final int usageKey = importService.syncUsage(datasetKey, u, verbatim, metrics);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
             firstUsageKey = usageKey;
+            LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
           }
           syncMeter.mark();
         } catch (Exception e) {
@@ -110,9 +127,12 @@ public class Importer extends NeoRunnable implements Runnable {
     }
 
     // remove old usages
-    Date firstModified =
-      usageService.get(firstUsageKey, null).getLastCrawled();  //TODO: should we use last interpreted ???
-    importService.deleteOldUsages(datasetKey, firstModified);
+    NameUsage first = usageService.get(firstUsageKey, null);
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(first.getLastInterpreted());
+    // use 10 seconds before first insert/update as the threshold to remove records
+    cal.add(Calendar.SECOND, -10);
+    importService.deleteOldUsages(datasetKey, cal.getTime());
   }
 
   private Integer clbKey(Integer nodeId) {

@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service.mybatis;
+package org.gbif.checklistbank.service.mybatis.postgres;
 
 import java.io.IOException;
 import java.io.Writer;

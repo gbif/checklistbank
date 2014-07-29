@@ -24,9 +24,6 @@
     <postalservice.threadcount>10</postalservice.threadcount>
     <postalservice.port>5672</postalservice.port>
     <postalservice.hostname>mq.gbif.org</postalservice.hostname>
-
-    <!-- cli specific jackson versions in order to use yaml configs -->
-    <jackson2.version>2.4.1</jackson2.version>
   </properties>
 
   <build>
@@ -196,9 +193,17 @@
       <artifactId>hppc</artifactId>
       <version>0.6.0</version>
     </dependency>
+
+    <!-- JACKSON 2.4 -->
+    <!--
+      We use jackson 1 & 2 at the same time. As they live in entirely different packages this is
+      no problem and intended use to slowly shift towards v2.
+    -->
     <dependency>
-      <!-- This dependency is needed for the JsonIgnore annotations on the configuration objects. gbif-cli uses
-           Jackson 2 because only that supports YAML so we have to use the annotations from Jackson 2 -->
+      <!--
+        This dependency is needed for the JsonIgnore annotations on the configuration objects. gbif-cli uses
+        Jackson 2 because only that supports YAML so we have to use the annotations from Jackson 2
+      -->
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson2.version}</version>
@@ -209,6 +214,8 @@
       <version>${jackson2.version}</version>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- JACKSON 1.9 -->
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>

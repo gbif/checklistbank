@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
+import org.gbif.checklistbank.service.mybatis.model.NameUsageWritable;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,8 +27,8 @@ public interface NameUsageMapper {
    */
   List<Integer> list(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
 
-  List<NameUsage> listBySourceId(@Param("uuid") UUID datasetKey, @Param("sourceId") String sourceId,
-    @Param("page") Pageable page);
+  List<NameUsage> listByTaxonId(
+    @Param("uuid") UUID datasetKey, @Param("taxonId") String taxonId, @Param("page") Pageable page);
 
   List<NameUsage> listByCanonicalName(@Param("canonical") String canonicalName, @Param("uuids") UUID[] datasetKey,
     @Param("page") Pageable page);
@@ -50,4 +51,12 @@ public interface NameUsageMapper {
    */
   Integer maxUsageKey(@Param("uuid") UUID datasetKey);
 
+  /**
+   * Insert a new name usage
+   * @param usage
+   * @return
+   */
+  void insert(@Param("u") NameUsageWritable usage);
+
+  void update(@Param("u") NameUsageWritable usage);
 }

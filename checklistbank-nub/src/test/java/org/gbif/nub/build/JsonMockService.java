@@ -14,9 +14,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Test mock implementation of the batch service loading json files from the dataset test directory
@@ -29,7 +29,7 @@ public class JsonMockService implements UsageService, ParsedNameService {
 
   public JsonMockService() {
     mapper = new ObjectMapper();
-    mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
   }
 
   @Override

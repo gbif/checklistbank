@@ -9,6 +9,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.checklistbank.service.mybatis.model.RawUsage;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,8 +38,8 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   private final NameUsageMetricsMapper metricsMapper;
   private final ParsedNameMapper parsedNameMapper;
   private final VernacularNameMapper vernacularNameMapper;
-  private final VerbatimNameUsageMapper verbatimNameUsageMapper;
-  private final VerbatimNameUsageJsonParser jsonParser = new VerbatimNameUsageJsonParser();
+  private final RawUsageMapper rawUsageMapper;
+  private final VerbatimNameUsageBinder jsonParser = new VerbatimNameUsageBinder();
 
   @Inject
   private DataSource ds;
@@ -46,11 +47,11 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   @Inject
   NameUsageServiceMyBatis(NameUsageMapper mapper, VernacularNameMapper vernacularNameMapper,
     NameUsageMetricsMapper metricsMapper,
-    VerbatimNameUsageMapper verbatimNameUsageMapper, ParsedNameMapper parsedNameMapper) {
+    RawUsageMapper rawUsageMapper, ParsedNameMapper parsedNameMapper) {
     this.mapper = mapper;
     this.metricsMapper = metricsMapper;
     this.vernacularNameMapper = vernacularNameMapper;
-    this.verbatimNameUsageMapper = verbatimNameUsageMapper;
+    this.rawUsageMapper = rawUsageMapper;
     this.parsedNameMapper = parsedNameMapper;
   }
 
@@ -63,9 +64,15 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
   @Override
   public VerbatimNameUsage getVerbatim(int usageKey) {
-    VerbatimNameUsage v = jsonParser.toVerbatimOld(verbatimNameUsageMapper.get(usageKey));
-    if (v != null) {
-      v.setKey(usageKey);
+    VerbatimNameUsage v = null;
+    RawUsage raw = rawUsageMapper.get(usageKey);
+    if (raw != null) {
+      v = jsonParser.read(raw.getData());
+      if (v != null) {
+        // we might not have crawled that record yet with the new crawling
+        v.setKey(usageKey);
+        v.setLastCrawled(raw.getLastCrawled());
+      }
     }
     return v;
   }
@@ -91,7 +98,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
     List<NameUsage> usages;
     // if a sourceID has been provided as a filter, there wont be too many results
     if (!Strings.isNullOrEmpty(sourceId)) {
-      usages = mapper.listBySourceId(datasetKey, sourceId, page);
+      usages = mapper.listByTaxonId(datasetKey, sourceId, page);
 
     } else {
       usages = Lists.newArrayList();

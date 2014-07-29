@@ -42,7 +42,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
         pn.setScientificName(scientificName);
         pn.setType(e.type);
       }
-      mapper.create(pn);
+      mapper.create(pn, pn.canonicalName());
     }
     return pn;
   }

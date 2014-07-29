@@ -40,13 +40,16 @@
     WHERE n.scientific_name=#{name}
   </select>
 
-  <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="key">
-    INSERT INTO name (scientific_name,canonical_name,type,genus_or_above,infra_generic,specific_epithet,infra_specific_epithet,cultivar_epithet,notho_type,rank_marker,authors_parsed,authorship,year,year_int,bracket_authorship,bracket_year,nom_status,sensu,remarks)
-    VALUES #{scientificName}, #{canonicalName}, #{type},
-    #{genusOrAbove}, #{infraGeneric}, #{specificEpithet}, #{infraSpecificEpithet}, #{cultivarEpithet},
-    #{notho}, #{rank}, #{authorsParsed},
-    #{authorship}, #{year}, #{pn.getYearInt()}, #{bracketAuthorship}, #{bracketYear},
-    #{nomStatus}, #{sensu}, #{remarks}
+  <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
+    INSERT INTO name (scientific_name, canonical_name, type,
+      genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
+      notho_type, rank_marker, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
+      nom_status, sensu, remarks)
+    VALUES (#{pn.scientificName}, #{canonicalName}, #{pn.type}::name_type,
+      #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
+      #{pn.notho}, #{pn.rank}, #{pn.authorsParsed},
+      #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
+      #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks})
   </insert>
 
 

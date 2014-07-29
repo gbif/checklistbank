@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
+
 import java.util.List;
 
 import org.junit.Test;

@@ -3,6 +3,7 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -92,10 +93,11 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
   /**
    * Method that calculates all dataset metrics and then persists them as a new dataset_metrics record.
    * @param datasetKey
+   * @param downloaded the date the dataset was last downloaded from the publisher
    */
-  public DatasetMetrics create(UUID datasetKey) {
+  public DatasetMetrics create(UUID datasetKey, Date downloaded) {
     LOG.info("Create new dataset metrics for {}", datasetKey);
-    mapper.insert(datasetKey);
+    mapper.insert(datasetKey, downloaded);
     return get(datasetKey);
   }
 
@@ -106,10 +108,10 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
 
 
   /**
-   * @return The percentage of total that count covers, or 0 should the total be 0  
+   * @return The percentage of total that count covers, or 0 should the total be 0
    */
   protected static int getPercentage(int count, int total) {
-    return total > 0 ? count * 100 / total : 0; 
+    return total > 0 ? count * 100 / total : 0;
   }
 
 }

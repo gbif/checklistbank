@@ -17,7 +17,7 @@ u.is_synonym, u.pp_synonym_fk, u.origin,u.status,u.nom_status,u.rank,u.reference
 n.scientific_name, n.canonical_name, n.type as nameType,
 authorship_full(n.authorship,n.year,n.bracket_authorship, n.bracket_year) as authorship,
 pub.citation as publishedIn, accto.citation as accordingTo,
-u.source_id, u."references",
+u.taxon_id, u."references",
 ku.id as kid, coalesce(kn.canonical_name,kn.scientific_name) as kingdom,
 pu.id as pid, coalesce(pn.canonical_name,pn.scientific_name) as phylum,
 cu.id as cid, coalesce(cn.canonical_name,cn.scientific_name) as class,
@@ -26,11 +26,12 @@ fu.id as fid, coalesce(fn.canonical_name,fn.scientific_name) as family,
 gu.id as gid, coalesce(gn.canonical_name,gn.scientific_name) as genus,
 sgu.id as sgid, coalesce(sgn.canonical_name,sgn.scientific_name) as subgenus,
 su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
-u.num_descendants, u.remarks
+u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
 </sql>
 
   <sql id="from"> name_usage u
  JOIN name n ON u.name_fk=n.id
+ LEFT JOIN dataset_metrics m ON m.dataset_key=u.dataset_key AND m.latest
  LEFT JOIN nub_rel rel ON u.id=rel.usage_fk
 
  LEFT JOIN citation pub on u.name_published_in_fk=pub.id
@@ -180,12 +181,12 @@ u.num_descendants, u.remarks
 
 
   <!--  list  -->
-  <select id="listBySourceId" parameterType="map" resultMap="usageResultMap">
+  <select id="listByTaxonId" parameterType="map" resultMap="usageResultMap">
     SELECT
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    WHERE u.source_id=#{sourceId}
+    WHERE u.taxon_id=#{taxonId}
     <if test="uuid != null">
       AND u.dataset_key=#{uuid, jdbcType=OTHER}
     </if>
@@ -209,6 +210,38 @@ u.num_descendants, u.remarks
     ORDER BY u.id
     <include refid="page"/>
   </select>
+
+  <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
+    INSERT INTO name_usage (dataset_key, constituent_key, name_fk, rank,
+      parent_fk, is_synonym, pp_synonym_fk, status,
+      nom_status,
+      basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
+      genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
+      remarks, "references", taxon_id, modified, num_descendants)
+    VALUES  (#{u.datasetKey}, #{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
+      #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
+      #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
+      #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
+      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
+  </insert>
+
+  <update id="update" parameterType="NameUsageWritable">
+    UPDATE name_usage
+    SET (constituent_key, name_fk, rank,
+      parent_fk, is_synonym, pp_synonym_fk, status,
+      nom_status,
+      basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
+      genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
+      remarks, "references", taxon_id, modified, num_descendants)
+    =  (#{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
+      #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
+      #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
+      #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
+      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
+    WHERE id = #{u.key}
+  </update>
 
 </mapper>
 

@@ -1,20 +1,21 @@
 package org.gbif.checklistbank.index;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
+
+import java.io.IOException;
+import java.util.Properties;
+import javax.xml.parsers.ParserConfigurationException;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * Base class for integration tests using the squirrels test solr index.
@@ -29,7 +30,7 @@ public abstract class NameUsageIndexerBaseIT {
   private static NameUsageIndexer nameUsageIndexer;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<?> squirrel = new DatabaseDrivenChecklistBankTestRule();
+  public DatabaseDrivenChecklistBankTestRule<?> squirrel = new DatabaseDrivenChecklistBankTestRule(null);
 
   @BeforeClass
   public static void setup() throws IOException, SAXException, ParserConfigurationException {

@@ -44,9 +44,7 @@
   <select id="get" parameterType="map" resultMap="datasetMetrics">
     SELECT <include refid="SELECT" />
     FROM dataset_metrics
-    WHERE dataset_key=#{uuid}
-    ORDER BY created DESC
-    LIMIT 1
+    WHERE dataset_key=#{uuid} AND latest=true
   </select>
 
   <select id="list" parameterType="map" resultMap="datasetMetrics">
@@ -57,12 +55,15 @@
   </select>
 
   <!--
-  creates a new dataset metrics record by doing all the aggregations needed in sql
+  creates a new dataset metrics record by doing all the aggregations needed in sql.
+  Also updates the existing latest record to be not the latest anymore.
   -->
   <insert id="insert" parameterType="map">
+UPDATE dataset_metrics SET latest=false WHERE dataset_key=#{uuid} AND latest=true;
+
 INSERT INTO dataset_metrics
-  (dataset_key,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_kingdom, count_by_origin, count_extensions, count_vernacular_by_lang)
-SELECT #{uuid},
+  (dataset_key,downloaded,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_kingdom, count_by_origin, count_extensions, count_vernacular_by_lang)
+SELECT #{uuid}, #{downloaded},
     (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid}),
     (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid} AND is_synonym=true),
     (SELECT count(distinct(name_fk)) FROM name_usage WHERE dataset_key=#{uuid}),
