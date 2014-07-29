@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.CitationMapper">
+
+  <select id="get" parameterType="map" resultType="java.lang.String">
+    SELECT citation
+    FROM citation
+    WHERE id=#{key}
+  </select>
+
+  <select id="getByCitation" parameterType="map" resultType="java.lang.Integer">
+    SELECT id
+    FROM citation
+    WHERE citation=#{citation}
+  </select>
+
+  <insert id="create" parameterType="java.lang.String" useGeneratedKeys="true" keyProperty="key">
+    INSERT INTO citation (citation)
+    VALUES #{citation}
+  </insert>
+
+</mapper>

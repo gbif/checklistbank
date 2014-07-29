@@ -59,8 +59,7 @@
     </dependency>
     <dependency>
       <groupId>com.jolbox</groupId>
-      <artifactId>bonecp-provider</artifactId>
-      <scope>compile</scope>
+      <artifactId>bonecp</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

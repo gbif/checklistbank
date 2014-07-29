@@ -9,6 +9,12 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import org.gbif.checklistbank.service.mybatis.model.RawUsage;
 
 import java.util.LinkedList;
@@ -19,6 +25,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -39,7 +46,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   private final ParsedNameMapper parsedNameMapper;
   private final VernacularNameMapper vernacularNameMapper;
   private final RawUsageMapper rawUsageMapper;
-  private final VerbatimNameUsageBinder jsonParser = new VerbatimNameUsageBinder();
+  private final VerbatimNameUsageMapper jsonParser = new VerbatimNameUsageMapper();
 
   @Inject
   private DataSource ds;
@@ -75,6 +82,21 @@ public class NameUsageServiceMyBatis implements NameUsageService {
       }
     }
     return v;
+  }
+
+  @VisibleForTesting
+  protected void insertRaw(RawUsage raw) {
+    rawUsageMapper.insert(raw);
+  }
+
+  @VisibleForTesting
+  protected void updateRaw(RawUsage raw) {
+    rawUsageMapper.update(raw);
+  }
+
+  @VisibleForTesting
+  protected RawUsage getRaw(int usageKey) {
+    return rawUsageMapper.get(usageKey);
   }
 
   @Override

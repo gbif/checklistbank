@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 
 import org.gbif.checklistbank.service.CitationService;
+import org.gbif.checklistbank.service.mybatis.mapper.CitationMapper;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;

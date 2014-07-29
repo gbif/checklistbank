@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 
 import org.gbif.checklistbank.service.ColAnnotationService;
+import org.gbif.checklistbank.service.mybatis.mapper.ColAnnotationMapper;
 import org.gbif.checklistbank.service.mybatis.model.ColAnnotation;
 
 import com.google.inject.Inject;

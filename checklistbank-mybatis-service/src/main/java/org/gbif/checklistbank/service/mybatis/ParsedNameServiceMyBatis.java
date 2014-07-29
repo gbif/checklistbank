@@ -5,6 +5,7 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 

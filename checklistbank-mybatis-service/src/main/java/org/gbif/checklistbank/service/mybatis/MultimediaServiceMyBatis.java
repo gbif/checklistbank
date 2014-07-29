@@ -5,6 +5,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.checklistbank.service.MediaTypeUtils;
+import org.gbif.checklistbank.service.mybatis.mapper.MultimediaMapper;
 
 import java.util.List;
 import java.util.Map;

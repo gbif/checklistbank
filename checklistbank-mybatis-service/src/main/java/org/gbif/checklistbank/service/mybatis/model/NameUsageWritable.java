@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 /**
@@ -272,4 +273,48 @@ public class NameUsageWritable implements LinneanClassificationKeys {
   public void setNumDescendants(int numDescendants) {
     this.numDescendants = numDescendants;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof NameUsageWritable) {
+      NameUsageWritable that = (NameUsageWritable) obj;
+      return Objects.equal(this.key, that.key)
+             && Objects.equal(this.datasetKey, that.datasetKey)
+             && Objects.equal(this.constituentKey, that.constituentKey)
+             && Objects.equal(this.nameKey, that.nameKey)
+             && Objects.equal(this.rank, that.rank)
+             && Objects.equal(this.parentKey, that.parentKey)
+             && Objects.equal(this.isSynonym, that.isSynonym)
+             && Objects.equal(this.proParteKey, that.proParteKey)
+             && Objects.equal(this.taxonomicStatus, that.taxonomicStatus)
+             && Objects.equal(this.nomenclaturalStatus, that.nomenclaturalStatus)
+             && Objects.equal(this.basionymKey, that.basionymKey)
+             && Objects.equal(this.kingdomKey, that.kingdomKey)
+             && Objects.equal(this.phylumKey, that.phylumKey)
+             && Objects.equal(this.classKey, that.classKey)
+             && Objects.equal(this.orderKey, that.orderKey)
+             && Objects.equal(this.familyKey, that.familyKey)
+             && Objects.equal(this.genusKey, that.genusKey)
+             && Objects.equal(this.subgenusKey, that.subgenusKey)
+             && Objects.equal(this.speciesKey, that.speciesKey)
+             && Objects.equal(this.publishedInKey, that.publishedInKey)
+             && Objects.equal(this.accordingToKey, that.accordingToKey)
+             && Objects.equal(this.origin, that.origin)
+             && Objects.equal(this.remarks, that.remarks)
+             && Objects.equal(this.references, that.references)
+             && Objects.equal(this.taxonID, that.taxonID)
+             && Objects.equal(this.modified, that.modified)
+             && Objects.equal(this.numDescendants, that.numDescendants);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(key, datasetKey, constituentKey, nameKey, rank, parentKey, isSynonym, proParteKey,
+                  taxonomicStatus, nomenclaturalStatus, basionymKey,
+                  kingdomKey, phylumKey, classKey, orderKey, familyKey, genusKey, subgenusKey, speciesKey,
+                  publishedInKey, accordingToKey, origin, remarks, references, taxonID, modified, numDescendants);
+  }
+
 }

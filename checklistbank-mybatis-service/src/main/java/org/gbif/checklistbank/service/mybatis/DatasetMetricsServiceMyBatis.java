@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
+import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 
 import java.util.Date;
 import java.util.List;

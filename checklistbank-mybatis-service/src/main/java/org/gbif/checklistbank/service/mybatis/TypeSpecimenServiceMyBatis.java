@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
+import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
 
 import java.util.List;
 import java.util.Map;

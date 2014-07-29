@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.service.checklistbank.ReferenceService;
+import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
 
 import java.util.List;
 import java.util.Map;

@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.service.mybatis.VerbatimNameUsageBinder;
+import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 
@@ -12,22 +12,20 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Sets;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.type.TypeFactory;
+import org.codehaus.jackson.smile.SmileFactory;
+import org.codehaus.jackson.type.JavaType;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -38,19 +36,19 @@ import org.slf4j.LoggerFactory;
  * A simple mapper for neo4j node or relationships to POJOs or maps.
  * When a new POJO class is first encountered the fields are read and cached.
  * All immediate fields of the POJO are persisted as individual neo4j properties.
- * Any nested classes and collections will be serialized to JSON strings with
- * collections becoming a String array neo property.
+ * Any nested classes and collections will be serialized to SMILE byte arrays.
  */
 public class NeoMapper {
 
   private final static Logger LOG = LoggerFactory.getLogger(NeoMapper.class);
   private final static Map<Class, List<FieldData>> FIELDS = Maps.newHashMap();
   private static final String PROP_VERBATIM_DATA = "verbatim";
-  private static NeoMapper singleton;
-  private final ObjectMapper jsonMapper = new ObjectMapper();
-  private VerbatimNameUsageBinder verbatimMapper = new VerbatimNameUsageBinder();
+  private static NeoMapper instance;
+  private final ObjectMapper objMapper;
+  private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapper();
+  private final TypeFactory tf = TypeFactory.defaultInstance();
 
-  enum FieldType {PRIMITIVE, NATIVE, ENUM, SET, LIST, OTHER}
+  enum FieldType {PRIMITIVE, NATIVE, ENUM, OTHER}
 
   static class FieldData {
 
@@ -58,27 +56,34 @@ public class NeoMapper {
     public final String property;
     public final FieldType type;
     public final Class clazz;
+    public final JavaType otherType;
 
-    FieldData(Field field, String property, FieldType type, Class clazz) {
+    FieldData(Field field, String property, FieldType type, Class clazz, @Nullable JavaType otherType) {
+      Preconditions.checkNotNull(field);
+      Preconditions.checkNotNull(property);
+      Preconditions.checkNotNull(type);
+      Preconditions.checkNotNull(clazz);
+      if (type == FieldType.OTHER) {
+        Preconditions.checkNotNull(otherType);
+      }
       this.field = field;
       this.property = property;
       this.type = type;
       this.clazz = clazz;
+      this.otherType = otherType;
     }
   }
 
   private NeoMapper() {
-    jsonMapper.disable(SerializationFeature.INDENT_OUTPUT);
-    jsonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    jsonMapper.disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
-    jsonMapper.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+    SmileFactory f = new SmileFactory();
+    objMapper = new ObjectMapper(f);
   }
 
   public static synchronized NeoMapper instance() {
-    if (singleton == null) {
-      singleton = new NeoMapper();
+    if (instance == null) {
+      instance = new NeoMapper();
     }
-    return singleton;
+    return instance;
   }
 
   /**
@@ -150,26 +155,8 @@ public class NeoMapper {
               case ENUM:
                 props.put(f.property, ((Enum) val).ordinal());
                 break;
-              case SET:
-              case LIST:
-                // use json for collection content so we can deal with null values!
-                // neo only has primitive arrays:
-                // http://docs.neo4j.org/chunked/stable/graphdb-neo4j-properties.html
-                Collection<?> vals = (Collection<?>) val;
-                String[] arr = new String[vals.size()];
-
-                int idx = 0;
-                for (Object v : vals) {
-                  arr[idx++] = jsonMapper.writeValueAsString(v);
-                }
-                props.put(f.property, arr);
-                break;
               case OTHER:
-                if (Date.class.isAssignableFrom(f.clazz)) {
-                  props.put(f.property, ((Date) val).getTime());
-                } else {
-                  props.put(f.property, val.toString());
-                }
+                props.put(f.property, objMapper.writeValueAsBytes(val));
                 break;
             }
           } else if (keepNullProperties) {
@@ -179,8 +166,8 @@ public class NeoMapper {
       }
     } catch (IllegalAccessException e) {
       LOG.error("Failed to read bean", e);
-    } catch (JsonProcessingException e) {
-      LOG.error("Failed to convert bean properties to JSON", e);
+    } catch (IOException e) {
+      LOG.error("Failed to convert bean properties to SMILE", e);
     }
     return props;
   }
@@ -211,16 +198,16 @@ public class NeoMapper {
             case PRIMITIVE:
               // keep default
               break;
-            case SET:
-              f.field.set(obj, Sets.newHashSet());
-              break;
-            case LIST:
-              f.field.set(obj, Lists.newArrayList());
-              break;
             case NATIVE:
             case ENUM:
             case OTHER:
-              f.field.set(obj, null);
+              if (List.class.isAssignableFrom(f.clazz)) {
+                f.field.set(obj, Lists.newArrayList());
+              } else if (Set.class.isAssignableFrom(f.clazz)) {
+                f.field.set(obj, Sets.newHashSet());
+              } else {
+                f.field.set(obj, null);
+              }
               break;
           }
 
@@ -234,28 +221,17 @@ public class NeoMapper {
               Object[] values = f.clazz.getEnumConstants();
               f.field.set(obj, values[(int) val]);
               break;
-            case SET:
-              f.field.set(obj, populateCollection(f, val, Sets.newHashSet()));
-              break;
-            case LIST:
-              f.field.set(obj, populateCollection(f, val, Lists.newArrayList()));
-              break;
             case OTHER:
-              if (Date.class.isAssignableFrom(f.clazz)) {
-                f.field.set(obj, new Date((long) val));
-              } else if (URI.class.isAssignableFrom(f.clazz)) {
-                f.field.set(obj, URI.create((String) val));
-              } else if (UUID.class.isAssignableFrom(f.clazz)) {
-                f.field.set(obj, UUID.fromString((String) val));
-              } else {
-                throw new IllegalStateException("Unable to read field of type " + f.clazz);
-              }
+              f.field.set(obj, objMapper.readValue((byte[]) val, f.otherType));
               break;
           }
         }
       }
     } catch (IllegalAccessException e) {
       LOG.error("Failed to read bean", e);
+
+    } catch (IOException e) {
+      LOG.error("Failed to read bean property", e);
     }
     return obj;
   }
@@ -291,19 +267,6 @@ public class NeoMapper {
     return null;
   }
 
-  private Collection<Object> populateCollection(FieldData f, Object val, Collection<Object> collection) {
-    for (String x : (String[]) val) {
-      try {
-        Object o = jsonMapper.readValue(x, f.clazz);
-        collection.add(o);
-      } catch (IOException e) {
-        LOG.error("Fail to deserialize neo content", e);
-        throw new IllegalStateException(e);
-      }
-    }
-    return collection;
-  }
-
   /**
    * Returns the field type for any class
    *
@@ -324,16 +287,8 @@ public class NeoMapper {
       return FieldType.NATIVE;
     } else if (Character.class.isAssignableFrom(fCl)) {
       return FieldType.NATIVE;
-    } else if (Set.class.isAssignableFrom(fCl)) {
-      return FieldType.SET;
-    } else if (List.class.isAssignableFrom(fCl)) {
-      return FieldType.LIST;
-    } else if (Date.class.isAssignableFrom(fCl)
-               || URI.class.isAssignableFrom(fCl)
-               || UUID.class.isAssignableFrom(fCl)) {
-      return FieldType.OTHER;
     } else {
-      return null;
+      return FieldType.OTHER;
     }
   }
 
@@ -350,17 +305,21 @@ public class NeoMapper {
 
       Class fCl = f.getType();
       FieldType type = fieldTypeOf(fCl);
+      JavaType otherType = null;
+
       if (type == null) {
         LOG.warn("Ignore field {} with unsupported type {}", f.getName(), fCl);
         continue;
-      } else if (type == FieldType.SET || type == FieldType.LIST) {
+
+      } else if (type == FieldType.OTHER) {
+
         // use generic type as class for collections
-        fCl = detectGenericType(f);
+        otherType = tf.constructType(f.getGenericType());
       }
 
       String property = f.getName();
-      fields.add(new FieldData(f, property, type, fCl));
-      LOG.debug("Map field {} with type {} {} to neo property {}", f.getName(), type, fCl, property);
+      fields.add(new FieldData(f, property, type, fCl, otherType));
+      LOG.debug("Map field {} with type {} {} to neo property {}", f.getName(), type, otherType == null ? fCl : otherType, property);
     }
   }
 

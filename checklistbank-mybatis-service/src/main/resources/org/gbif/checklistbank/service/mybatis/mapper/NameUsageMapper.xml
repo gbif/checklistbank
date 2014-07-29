@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper">
+
+  <!--
+  The vernacular name is omitted here and added later in the service implementation to avoid nasty SQL
+  select distinct on (u.id) cannot be used directly as we need to have a different sort order
+  -->
+  <!-- TODO: use a function for proparte synonyms to find the multiple acceptedKeys  -->
+  <sql id="select">u.id, rel.nub_fk, u.dataset_key, u.constituent_key,
+CASE WHEN u.is_synonym THEN par.parent_fk ELSE u.parent_fk END as parentKey,
+CASE WHEN u.is_synonym THEN coalesce(parn2.canonical_name, parn2.scientific_name) ELSE coalesce(parn.canonical_name, parn.scientific_name) END as parent,
+CASE WHEN u.is_synonym THEN u.parent_fk ELSE null END as acceptedKey,
+CASE WHEN u.is_synonym THEN parn.scientific_name ELSE null END as accepted,
+u.basionym_fk, basn.scientific_name as basionym,
+u.is_synonym, u.pp_synonym_fk, u.origin,u.status,u.nom_status,u.rank,u.references,
+n.scientific_name, n.canonical_name, n.type as nameType,
+authorship_full(n.authorship,n.year,n.bracket_authorship, n.bracket_year) as authorship,
+pub.citation as publishedIn, accto.citation as accordingTo,
+u.taxon_id, u."references",
+ku.id as kid, coalesce(kn.canonical_name,kn.scientific_name) as kingdom,
+pu.id as pid, coalesce(pn.canonical_name,pn.scientific_name) as phylum,
+cu.id as cid, coalesce(cn.canonical_name,cn.scientific_name) as class,
+ou.id as oid, coalesce(onn.canonical_name,onn.scientific_name) as order,
+fu.id as fid, coalesce(fn.canonical_name,fn.scientific_name) as family,
+gu.id as gid, coalesce(gn.canonical_name,gn.scientific_name) as genus,
+sgu.id as sgid, coalesce(sgn.canonical_name,sgn.scientific_name) as subgenus,
+su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
+u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
+</sql>
+
+  <sql id="from"> name_usage u
+ JOIN name n ON u.name_fk=n.id
+ LEFT JOIN dataset_metrics m ON m.dataset_key=u.dataset_key AND m.latest
+ LEFT JOIN nub_rel rel ON u.id=rel.usage_fk
+
+ LEFT JOIN citation pub on u.name_published_in_fk=pub.id
+ LEFT JOIN citation accto on u.according_to_fk=accto.id
+
+ LEFT JOIN name_usage ku on u.kingdom_fk=ku.id
+ LEFT JOIN name kn on ku.name_fk=kn.id
+
+ LEFT JOIN name_usage pu on u.phylum_fk=pu.id
+ LEFT JOIN name pn on pu.name_fk=pn.id
+
+ LEFT JOIN name_usage cu on u.class_fk=cu.id
+ LEFT JOIN name cn on cu.name_fk=cn.id
+
+ LEFT JOIN name_usage ou on u.order_fk=ou.id
+ LEFT JOIN name onn on ou.name_fk=onn.id
+
+ LEFT JOIN name_usage fu on u.family_fk=fu.id
+ LEFT JOIN name fn on fu.name_fk=fn.id
+
+ LEFT JOIN name_usage gu on u.genus_fk=gu.id
+ LEFT JOIN name gn on gu.name_fk=gn.id
+
+ LEFT JOIN name_usage sgu on u.subgenus_fk=sgu.id
+ LEFT JOIN name sgn on sgu.name_fk=sgn.id
+
+ LEFT JOIN name_usage su on u.species_fk=su.id
+ LEFT JOIN name sn on su.name_fk=sn.id
+
+ LEFT JOIN name_usage par on u.parent_fk=par.id
+ LEFT JOIN name parn on par.name_fk=parn.id
+
+ LEFT JOIN name_usage par2 on par.parent_fk=par2.id
+ LEFT JOIN name parn2 on par2.name_fk=parn2.id
+
+ LEFT JOIN name_usage bas on u.basionym_fk=bas.id
+ LEFT JOIN name basn on bas.name_fk=basn.id
+ </sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+
+  <!--  A mapping to build a NameUsage without any identifiers or a vernacular name -->
+  <resultMap id="usageResultMap" type="NameUsage" autoMapping="true">
+    <id property="key" column="id"/>
+    <result property="taxonID" column="source_id"/>
+    <result property="nubKey" column="nub_fk"/>
+    <result property="proParteKey" column="pp_synonym_fk"/>
+    <result property="basionymKey" column="basionym_fk"/>
+    <result property="taxonomicStatus" column="status"/>
+    <result property="nomenclaturalStatus" column="nom_status" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
+    <result property="kingdomKey" column="kid"/>
+    <result property="phylumKey" column="pid"/>
+    <result property="classKey" column="cid"/>
+    <result property="clazz" column="class"/>
+    <result property="orderKey" column="oid"/>
+    <result property="familyKey" column="fid"/>
+    <result property="genusKey" column="gid"/>
+    <result property="subgenusKey" column="sgid"/>
+    <result property="speciesKey" column="sid"/>
+    <result property="references" column="references"/>
+  </resultMap>
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.id=#{key}
+  </select>
+
+
+  <!--  list all usage ids -->
+  <select id="list" parameterType="map" resultType="java.lang.Integer">
+    SELECT id FROM name_usage
+    <if test="uuid != null">
+      WHERE dataset_key=#{uuid,jdbcType=OTHER}
+    </if>
+    ORDER BY id
+    <include refid="page"/>
+  </select>
+
+  <!--  the maximum usage key used in the nub -->
+  <select id="maxUsageKey" parameterType="map" resultType="java.lang.Integer">
+    SELECT max(u.id)
+    FROM name_usage u
+    WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+  </select>
+
+  <!--  list a range of name usages -->
+  <select id="listRange" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.id between #{start} and #{end}
+  </select>
+
+  <!--  list root usages -->
+  <select id="listRoot" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.parent_fk is null and u.is_synonym=false and u.dataset_key=#{uuid, jdbcType=OTHER}
+    ORDER BY u.rank, n.scientific_name
+    <include refid="page"/>
+  </select>
+
+  <!--  list usage children -->
+  <select id="listChildren" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.parent_fk=#{key} and u.is_synonym=false
+    ORDER BY u.rank, n.scientific_name
+    <include refid="page"/>
+  </select>
+
+  <!--  list usage synonyms -->
+  <select id="listSynonyms" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.parent_fk=#{key} and u.is_synonym=true
+    ORDER BY scientific_name
+    <include refid="page"/>
+  </select>
+
+  <!--  list related -->
+  <select id="listRelated" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE rel.nub_fk=#{key}
+    <if test="uuids!=null and uuids.length > 0">
+      and u.dataset_key in
+      <foreach item="uuid" index="index" collection="uuids" open="(" separator="," close=")">
+        #{uuid, jdbcType=OTHER}
+      </foreach>
+    </if>
+  </select>
+
+
+  <!--  list  -->
+  <select id="listByTaxonId" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.taxon_id=#{taxonId}
+    <if test="uuid != null">
+      AND u.dataset_key=#{uuid, jdbcType=OTHER}
+    </if>
+    ORDER BY u.id
+    <include refid="page"/>
+  </select>
+
+  <!--  list by canonical name, case insensitive -->
+  <select id="listByCanonicalName" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE lower(n.canonical_name) = lower(#{canonical})
+    <if test="uuids != null">
+      and u.dataset_key in
+      <foreach item="uuid" index="index" collection="uuids" open="(" separator="," close=")">
+        #{uuid, jdbcType=OTHER}
+      </foreach>
+    </if>
+    ORDER BY u.id
+    <include refid="page"/>
+  </select>
+
+  <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
+    INSERT INTO name_usage (dataset_key, constituent_key, name_fk, rank,
+      parent_fk, is_synonym, pp_synonym_fk, status,
+      nom_status,
+      basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
+      genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
+      remarks, "references", taxon_id, modified, num_descendants)
+    VALUES  (#{u.datasetKey}, #{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
+      #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
+      #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
+      #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
+      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
+  </insert>
+
+  <update id="update" parameterType="NameUsageWritable">
+    UPDATE name_usage
+    SET (constituent_key, name_fk, rank,
+      parent_fk, is_synonym, pp_synonym_fk, status,
+      nom_status,
+      basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
+      genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
+      remarks, "references", taxon_id, modified, num_descendants)
+    =  (#{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
+      #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
+      #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
+      #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
+      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
+    WHERE id = #{u.key}
+  </update>
+
+</mapper>
+

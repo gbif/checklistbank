@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.MultimediaMapper">
+
+  <sql id="select">i.id, i.url, i.link, i.title, i.description, i.license, i.creator, i.created, i.publisher</sql>
+  <sql id="from">image i</sql>
+  <sql id="fromNub">JOIN nub_rel rel ON i.usage_fk=rel.usage_fk </sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+  <!--  A mapping to build a Image -->
+  <resultMap id="mediaResultMap" type="NameUsageMediaObject" autoMapping="true">
+    <result property="identifier" column="url"/>
+    <result property="references" column="link"/>
+    <result property="sourceTaxonKey" column="usage_fk"/>
+    <result property="created" column="created" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.StringDateTypeHandler" />
+  </resultMap>
+
+
+  <!-- get all media items linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="mediaResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE i.usage_fk=#{key}
+    ORDER BY i.rating, i.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all media items by nub usage -->
+  <select id="listByNubUsage" parameterType="map" resultMap="mediaResultMap">
+    SELECT i.usage_fk,
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk=#{key}
+    ORDER BY i.rating, i.id
+    <include refid="page"/>
+  </select>
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper">
+
+  <sql id="select">s.id, c.citation, src.citation as source,
+  s.scientific_name, s.occurrence_id, s.institution_code, s.collection_code, s.catalog_number, s.locality,
+  s.recorded_by, s.verbatim_event_date, s.verbatim_label, s.verbatim_longitude,
+  s.verbatim_latitude,s.type_status,s.rank,s.type_designation_type, s.type_designated_by
+  </sql>
+
+  <sql id="from"> specimen s
+    LEFT JOIN citation c ON s.citation_fk=c.id
+    LEFT JOIN citation src ON s.source_fk=src.id
+  </sql>
+  <sql id="fromNub">JOIN nub_rel rel ON s.usage_fk=rel.usage_fk</sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+  <!--  A mapping to build a TypeSpecimen -->
+  <resultMap id="typeSpecimenResultMap" type="TypeSpecimen" autoMapping="true">
+    <result property="taxonRank" column="rank"/>
+    <result property="sourceTaxonKey" column="usage_fk"/>
+  </resultMap>
+
+
+
+  <!-- get all type specimens linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="typeSpecimenResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE s.usage_fk=#{key}
+    ORDER BY type_status, s.scientific_name, s.id
+    <include refid="page"/>
+  </select>
+
+  <!-- get all type specimen by nub usage -->
+  <select id="listByNubUsage" parameterType="map" resultMap="typeSpecimenResultMap">
+    SELECT s.usage_fk,
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk=#{key}
+    ORDER BY s.type_status, s.dataset_key, s.scientific_name, s.id
+    <include refid="page"/>
+  </select>
+
+</mapper>

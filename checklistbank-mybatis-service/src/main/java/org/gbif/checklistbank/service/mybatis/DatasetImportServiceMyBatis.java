@@ -10,6 +10,12 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.model.RawUsage;
 import org.gbif.checklistbank.service.mybatis.model.Usage;
@@ -45,7 +51,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   private final NameUsageMetricsMapper metricsMapper;
   private final NubRelMapper nubRelMapper;
   private final RawUsageMapper rawMapper;
-  private final VerbatimNameUsageBinder vParser = new VerbatimNameUsageBinder();
+  private final VerbatimNameUsageMapper vParser = new VerbatimNameUsageMapper();
   private final ParsedNameService nameService;
   private final CitationService citationService;
 

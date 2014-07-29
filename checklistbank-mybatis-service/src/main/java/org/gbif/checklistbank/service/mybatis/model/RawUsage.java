@@ -1,7 +1,10 @@
 package org.gbif.checklistbank.service.mybatis.model;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
+
+import com.google.common.base.Objects;
 
 /**
  * Different model for a verbatim name usage record as it is stored in postgres and used in the mybatis DAO layer.
@@ -42,5 +45,32 @@ public class RawUsage {
 
   public void setData(byte[] data) {
     this.data = data;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof RawUsage) {
+      RawUsage that = (RawUsage) obj;
+      return Objects.equal(this.usageKey, that.usageKey)
+             && Objects.equal(this.datasetKey, that.datasetKey)
+             && Objects.equal(this.lastCrawled, that.lastCrawled)
+             && Arrays.equals(this.data, that.data);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(usageKey, datasetKey, data, lastCrawled);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("usageKey", usageKey)
+      .add("datasetKey", datasetKey)
+      .add("data", data)
+      .add("lastCrawled", lastCrawled)
+      .toString();
   }
 }

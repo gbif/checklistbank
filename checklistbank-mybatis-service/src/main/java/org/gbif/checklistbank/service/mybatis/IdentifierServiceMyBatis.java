@@ -5,6 +5,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.IdentifierService;
+import org.gbif.checklistbank.service.mybatis.mapper.IdentifierMapper;
 
 import javax.annotation.Nullable;
 
