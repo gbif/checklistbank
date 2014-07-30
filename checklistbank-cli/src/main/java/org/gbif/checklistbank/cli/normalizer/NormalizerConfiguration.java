@@ -15,6 +15,7 @@ import com.beust.jcommander.ParametersDelegate;
 /**
  *
  */
+@SuppressWarnings("PublicField")
 public class NormalizerConfiguration {
 
   @ParametersDelegate

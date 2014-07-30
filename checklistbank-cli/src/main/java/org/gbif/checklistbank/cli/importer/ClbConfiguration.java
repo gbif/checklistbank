@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
  * A configuration for the checklist bank database connection pool
  * as used by the mybatis layer. Knows how to create a service guice module.
  */
+@SuppressWarnings("PublicField")
 public class ClbConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
@@ -29,7 +30,7 @@ public class ClbConfiguration {
   public String username;
 
   @NotNull
-  @Parameter(names = "--clb-password")
+  @Parameter(names = "--clb-password", password = true)
   public String password;
 
   @Parameter(names = "--clb-partitions")

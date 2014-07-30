@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@SuppressWarnings("PublicField")
 public class NeoConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoConfiguration.class);

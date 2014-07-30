@@ -12,7 +12,6 @@
  */
 package org.gbif.checklistbank.index.model;
 
-
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
@@ -37,7 +36,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import org.apache.solr.client.solrj.beans.Field;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * This class contains the annotations required by {@link org.gbif.api.service.common.SearchService} and the Solr

@@ -47,9 +47,6 @@
     <amqp-client.version>3.0.2</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.8.0.RELEASE</bonecp.version>
-    <!--
-    <bonecp.version>0.7.1.RELEASE</bonecp.version>
-    -->
     <bval.version>0.5</bval.version>
     <commmons-lang.version>3.3.1</commmons-lang.version>
     <commons-beanutils.version>1.8.3</commons-beanutils.version>

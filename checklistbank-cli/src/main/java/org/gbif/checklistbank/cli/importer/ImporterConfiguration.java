@@ -12,6 +12,7 @@ import com.beust.jcommander.ParametersDelegate;
 /**
  *
  */
+@SuppressWarnings("PublicField")
 public class ImporterConfiguration {
 
   @ParametersDelegate

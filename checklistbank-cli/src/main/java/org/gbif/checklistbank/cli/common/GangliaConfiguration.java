@@ -3,7 +3,7 @@ package org.gbif.checklistbank.cli.common;
 import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.Parameter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import com.google.common.base.Objects;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.ganglia.GangliaReporter;

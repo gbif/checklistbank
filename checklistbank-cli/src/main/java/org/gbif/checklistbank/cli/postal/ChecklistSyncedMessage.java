@@ -5,8 +5,8 @@ import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import java.util.UUID;
 
 import com.google.common.base.Objects;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
