@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.Term;
 
