@@ -20,7 +20,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.nub.lookup.NubIndex;
 import org.gbif.nub.lookup.NubMatchingModule;
 import org.gbif.nub.lookup.NubMatchingServiceImpl;

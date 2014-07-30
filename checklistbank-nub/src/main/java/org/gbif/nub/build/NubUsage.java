@@ -1,7 +1,7 @@
 package org.gbif.nub.build;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 
 /**
  * Add some extra infos only needed during nub processing

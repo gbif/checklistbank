@@ -7,7 +7,7 @@
     WHERE nub_fk = #{key}
   </delete>
 
-  <insert id="create" parameterType="org.gbif.checklistbank.service.mybatis.model.ColAnnotation" >
+  <insert id="create" parameterType="org.gbif.checklistbank.model.ColAnnotation" >
     INSERT INTO col_annotation (nub_fk, gsd, annotated_name, rejected, status, note)
     VALUES (#{anno.taxonId}, #{anno.gsd}, #{anno.annotatedName}, #{anno.rejected}, #{anno.status}, #{anno.note})
   </insert>

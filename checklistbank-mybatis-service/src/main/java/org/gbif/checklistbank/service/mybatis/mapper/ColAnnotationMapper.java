@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
-import org.gbif.checklistbank.service.mybatis.model.ColAnnotation;
+import org.gbif.checklistbank.model.ColAnnotation;
 
 import org.apache.ibatis.annotations.Param;
 

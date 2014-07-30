@@ -1,8 +1,7 @@
-package org.gbif.checklistbank.service.mybatis.mapper;
+package org.gbif.checklistbank.utils;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
-import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;

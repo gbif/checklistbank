@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.checklistbank.service.mybatis.model.RawUsage;
+import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
 import java.util.UUID;

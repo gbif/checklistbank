@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.nub.utils.CacheUtils;
 
 import java.util.Iterator;

@@ -67,7 +67,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-index-builder</artifactId>
+      <artifactId>checklistbank-solr</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -101,7 +101,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-index-builder</artifactId>
+      <artifactId>checklistbank-solr</artifactId>
       <classifier>tests</classifier>
     </dependency>
     <dependency>

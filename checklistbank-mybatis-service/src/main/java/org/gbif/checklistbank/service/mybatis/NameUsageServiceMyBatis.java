@@ -9,13 +9,13 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
-import org.gbif.checklistbank.service.mybatis.model.RawUsage;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 
 import java.util.LinkedList;
 import java.util.List;

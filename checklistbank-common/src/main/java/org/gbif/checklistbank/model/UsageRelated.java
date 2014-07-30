@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service.mybatis.model;
+package org.gbif.checklistbank.model;
 
 /**
  * Internal class used by mybatis layer to retrieve an extension instance together with the usage key it belongs to.

@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service.mybatis.model;
+package org.gbif.checklistbank.model;
 
 public class ColAnnotation {
   private Integer taxonId;

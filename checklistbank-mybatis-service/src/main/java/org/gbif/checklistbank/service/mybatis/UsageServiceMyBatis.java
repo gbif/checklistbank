@@ -4,9 +4,9 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
 
 import java.sql.Connection;

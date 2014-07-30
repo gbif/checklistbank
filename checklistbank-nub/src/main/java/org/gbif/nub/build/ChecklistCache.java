@@ -1,7 +1,7 @@
 package org.gbif.nub.build;
 
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.nub.lookup.ClassificationResolver;
 
 import java.util.Iterator;

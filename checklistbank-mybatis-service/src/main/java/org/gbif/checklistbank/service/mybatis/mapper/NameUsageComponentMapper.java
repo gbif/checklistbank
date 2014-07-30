@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.common.paging.Pageable;
-import org.gbif.checklistbank.service.mybatis.model.UsageRelated;
+import org.gbif.checklistbank.model.UsageRelated;
 
 import java.util.List;
 

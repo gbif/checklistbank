@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.model;
 
+import org.gbif.checklistbank.model.RawUsage;
+
 import java.util.Date;
 import java.util.UUID;
 

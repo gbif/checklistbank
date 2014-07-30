@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service;
+package org.gbif.checklistbank.utils;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 

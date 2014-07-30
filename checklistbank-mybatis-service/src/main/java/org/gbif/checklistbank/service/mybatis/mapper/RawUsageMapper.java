@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
-import org.gbif.checklistbank.service.mybatis.model.RawUsage;
+import org.gbif.checklistbank.model.RawUsage;
 
 import org.apache.ibatis.annotations.Param;
 

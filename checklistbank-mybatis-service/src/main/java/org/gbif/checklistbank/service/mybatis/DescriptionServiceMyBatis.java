@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
-import org.gbif.checklistbank.service.mybatis.model.TocEntry;
+import org.gbif.checklistbank.model.TocEntry;
 
 import java.util.List;
 

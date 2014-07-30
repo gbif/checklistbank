@@ -2,7 +2,7 @@ package org.gbif.checklistbank.col;
 
 import org.gbif.checklistbank.service.ColAnnotationService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.model.ColAnnotation;
+import org.gbif.checklistbank.model.ColAnnotation;
 import org.gbif.dwc.record.Record;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.text.Archive;

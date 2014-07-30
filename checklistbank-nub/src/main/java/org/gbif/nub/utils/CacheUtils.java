@@ -1,6 +1,6 @@
 package org.gbif.nub.utils;
 
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.nub.build.ChecklistCache;
 
 public class CacheUtils {

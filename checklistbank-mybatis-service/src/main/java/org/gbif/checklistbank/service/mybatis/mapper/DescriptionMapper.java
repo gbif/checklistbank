@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.Description;
-import org.gbif.checklistbank.service.mybatis.model.TocEntry;
+import org.gbif.checklistbank.model.TocEntry;
 
 import java.util.List;
 

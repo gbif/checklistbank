@@ -3,7 +3,7 @@ package org.gbif.checklistbank.service;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 
 import java.util.Date;
 import java.util.Iterator;

@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class NubGitExporter {
   public NubGitExporter(UsageService usageService) throws IOException {
     this.usageService = usageService;
     readmeTempl = Resources.toString(Resources.getResource("exporter_readme.txt"), UTF8);
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT);
   }
 
   public void run() {

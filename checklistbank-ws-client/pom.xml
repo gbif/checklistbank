@@ -7,7 +7,7 @@
     <artifactId>checklistbank-motherpom</artifactId>
     <version>2.9-SNAPSHOT</version>
   </parent>
-  
+
   <artifactId>checklistbank-ws-client</artifactId>
   <packaging>jar</packaging>
 
@@ -86,7 +86,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-index-builder</artifactId>
+      <artifactId>checklistbank-solr</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -152,7 +152,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-index-builder</artifactId>
+      <artifactId>checklistbank-solr</artifactId>
       <classifier>tests</classifier>
     </dependency>
     <dependency>

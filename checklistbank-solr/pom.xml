@@ -9,7 +9,7 @@
   </parent>
 
 
-  <artifactId>checklistbank-index-builder</artifactId>
+  <artifactId>checklistbank-solr</artifactId>
   <packaging>jar</packaging>
 
   <name>ChecklistBank Index Builder</name>
@@ -201,6 +201,10 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>

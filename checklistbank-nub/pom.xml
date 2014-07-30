@@ -154,7 +154,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-index-builder</artifactId>
+      <artifactId>checklistbank-solr</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>

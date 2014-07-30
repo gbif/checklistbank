@@ -7,7 +7,7 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 
 import java.io.IOException;
 import java.io.StringReader;

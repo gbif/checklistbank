@@ -2,7 +2,7 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
-import org.gbif.checklistbank.service.mybatis.model.NameUsageWritable;
+import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.List;
 import java.util.UUID;

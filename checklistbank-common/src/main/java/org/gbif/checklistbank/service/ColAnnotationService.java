@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.service;
 
-import org.gbif.checklistbank.service.mybatis.model.ColAnnotation;
+import org.gbif.checklistbank.model.ColAnnotation;
 
 /**
  * Service that deals with nub usage annotations from the Catalogue of Life GSD pipeline project (i4Life).

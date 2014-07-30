@@ -59,6 +59,7 @@
     <guice.version>3.0</guice.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>1.9.12</jackson.version>
+    <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
     <jackson2.version>2.4.1</jackson2.version>
     <javax-validation-api.version>1.0.0.GA</javax-validation-api.version>
     <jcommander.version>1.35</jcommander.version>
@@ -89,8 +90,9 @@
   </repositories>
 
   <modules>
-    <module>checklistbank-index-builder</module>
+    <module>checklistbank-common</module>
     <module>checklistbank-mybatis-service</module>
+    <module>checklistbank-solr</module>
     <module>checklistbank-search</module>
     <module>checklistbank-search-ws</module>
     <module>checklistbank-ws</module>
@@ -179,12 +181,17 @@
       </dependency>
       <dependency>
         <groupId>org.gbif.checklistbank</groupId>
-        <artifactId>checklistbank-index-builder</artifactId>
+        <artifactId>checklistbank-common</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif.checklistbank</groupId>
-        <artifactId>checklistbank-index-builder</artifactId>
+        <artifactId>checklistbank-solr</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif.checklistbank</groupId>
+        <artifactId>checklistbank-solr</artifactId>
         <version>${project.version}</version>
         <classifier>tests</classifier>
         <scope>test</scope>
@@ -316,12 +323,17 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson2.version}</version>
       </dependency>
+      <!--
+      cant use the guava jackson2 types cause they do conflict with the jackson 1.9 version
+      using the same fasterxml package names !
+
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-guava</artifactId>
         <version>${jackson2.version}</version>
         <scope>runtime</scope>
       </dependency>
+      -->
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-smile</artifactId>

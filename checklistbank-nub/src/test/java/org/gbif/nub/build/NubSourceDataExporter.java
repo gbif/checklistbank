@@ -3,10 +3,10 @@ package org.gbif.nub.build;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.File;
@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.ObjectMapper;
 
 public class NubSourceDataExporter {
   private final File dir;

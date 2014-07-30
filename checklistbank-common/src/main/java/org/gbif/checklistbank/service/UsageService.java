@@ -3,7 +3,7 @@ package org.gbif.checklistbank.service;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 
 import java.util.List;
 import java.util.UUID;

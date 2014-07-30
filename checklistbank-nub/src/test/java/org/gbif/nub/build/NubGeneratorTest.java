@@ -7,7 +7,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nub.utils.CacheUtils;
 import org.gbif.utils.file.FileUtils;

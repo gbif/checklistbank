@@ -10,15 +10,15 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.model.NameUsageWritable;
+import org.gbif.checklistbank.model.RawUsage;
+import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.model.RawUsage;
-import org.gbif.checklistbank.service.mybatis.model.Usage;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Implements the NameUsageService using MyBatis.
  * All PagingResponses will not have the count set as it can be too costly sometimes.
+ * Write operations DO NOT update the solr index or anything else than postgres!
  */
 public class DatasetImportServiceMyBatis implements DatasetImportService {
 
@@ -78,6 +79,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Override
+  /**
+   * This DOES NOT update the solr index or anything else but postgres!
+   */
   public void insertUsages(UUID datasetKey, Iterator<Usage> iter) {
     final int BATCH_SIZE = 1000;
 
@@ -97,6 +101,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Override
+  /**
+   * This DOES NOT update the solr index or anything else but postgres!
+   */
   public int syncUsage(final UUID datasetKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
                            NameUsageMetrics metrics) {
     Preconditions.checkNotNull(datasetKey);

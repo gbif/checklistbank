@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service.mybatis.model;
+package org.gbif.checklistbank.model;
 
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
