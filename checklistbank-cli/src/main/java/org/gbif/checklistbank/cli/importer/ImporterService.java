@@ -1,12 +1,12 @@
 package org.gbif.checklistbank.cli.importer;
 
-import org.gbif.checklistbank.cli.postal.ChecklistNormalizedMessage;
-import org.gbif.checklistbank.cli.postal.ChecklistSyncedMessage;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
+import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
 import java.io.IOException;
 

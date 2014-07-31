@@ -40,6 +40,7 @@ public class ImporterIT extends NeoTest {
   public void testIdList() {
     final UUID datasetKey = NormalizerIT.datasetKey(1);
 
+    Importer importer = Importer.build(iCfg, datasetKey);
     // create neo db //TODO: once stable keep neo db as test resource?
     Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
     norm.run();
@@ -47,7 +48,6 @@ public class ImporterIT extends NeoTest {
     System.out.println(stats);
 
     // import
-    Importer importer = Importer.build(iCfg, datasetKey);
     importer.run();
   }
 }

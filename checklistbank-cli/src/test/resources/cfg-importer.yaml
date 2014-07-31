@@ -1,0 +1,17 @@
+messaging:
+  host: ${rabbit.host}
+  virtualHost: ${rabbit.vhost}
+  username: ${rabbit.username}
+  password: ${rabbit.password}
+  poolSize: 3
+  queueName: checklist.normalized
+neo:
+  neoRepository: ${neo.repository}
+clb:
+  url: "${checklistbank.db.url}"
+  username: ${checklistbank.db.username}
+  password: "${checklistbank.db.password}"
+  connections: 10
+solr:
+  serverType: HTTP
+  serverHome:

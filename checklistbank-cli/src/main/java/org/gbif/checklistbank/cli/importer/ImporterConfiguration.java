@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.importer;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -34,5 +35,10 @@ public class ImporterConfiguration {
   @Valid
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public SolrConfig solr = new SolrConfig();
 
 }

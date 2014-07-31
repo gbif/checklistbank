@@ -13,7 +13,7 @@
   <artifactId>checklistbank-cli</artifactId>
   <packaging>jar</packaging>
 
-  <name>ChecklistBank dataset import</name>
+  <name>ChecklistBank Commandline Tools</name>
   <description>Commandline tools for ChecklistBank dataset imports</description>
 
   <properties>
@@ -98,7 +98,7 @@
     </repository>
   </repositories>
 
-  <!-- use older lucene 3.8 in this package which comes with neo -->
+  <!-- use older lucene in this package which comes with neo -->
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -106,12 +106,13 @@
         <artifactId>lucene-core</artifactId>
         <version>${lucene.version}</version>
       </dependency>
+
+      <!--
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-analyzers-common</artifactId>
         <version>${lucene.version}</version>
       </dependency>
-      <!--
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
@@ -138,6 +139,17 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-solr</artifactId>
+      <exclusions>
+        <exclusion>
+          <!-- we only use the small solrj wrapper here with a remote solr -->
+          <groupId>org.apache.solr</groupId>
+          <artifactId>solr-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
@@ -319,6 +331,31 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>dev</id>
+      <!-- for integration tests only! -->
+      <properties>
+        <rabbit.host>mq.gbif.org</rabbit.host>
+        <rabbit.vhost>/dev</rabbit.vhost>
+        <rabbit.username>crawler</rabbit.username>
+        <rabbit.password>crawler</rabbit.password>
+        <neo.repository>/tmp/neo</neo.repository>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>local</id>
+      <!-- for integration tests only! -->
+      <properties>
+        <rabbit.host>localhost</rabbit.host>
+        <rabbit.vhost>/dev</rabbit.vhost>
+        <rabbit.username>guest</rabbit.username>
+        <rabbit.password>guest</rabbit.password>
+        <neo.repository>/tmp/neo</neo.repository>
+      </properties>
+    </profile>
+
   </profiles>
 
 </project>

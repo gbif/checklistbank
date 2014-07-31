@@ -3,14 +3,12 @@
  */
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.index.guice.IndexingModulePrivate;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 
 import java.util.Properties;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Scopes;
 
 
 /**
@@ -29,9 +27,6 @@ public class IndexingTestModule extends AbstractModule {
   protected void configure() {
     // Installs the MyBatis service layer
     install(new ChecklistBankServiceMyBatisModule(properties));
-
-    // bind dataset service mock
-    bind(DatasetService.class).to(DatasetServiceMock.class).in(Scopes.SINGLETON);
 
     // Installs private indexing module
     install(new IndexingModulePrivate(properties));

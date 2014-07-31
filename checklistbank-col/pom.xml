@@ -9,7 +9,8 @@
 
   <artifactId>checklistbank-col</artifactId>
 
-  <name>ChecklistBank Command line interface</name>
+  <name>ChecklistBank Catalogue of Life Feedback</name>
+  <description>Tolls needed to fulfill the GBIF i4Life deliverables providing and consuming feedback for Catalog of Life.</description>
 
   <properties>
     <registry.ws.url>http://api.gbif.org/</registry.ws.url>
@@ -84,7 +85,7 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>dwc-api</artifactId>
-    </dependency>   
+    </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>dwca-reader</artifactId>
@@ -100,7 +101,7 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
-    </dependency>    
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -135,7 +136,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-    </dependency>    
+    </dependency>
 
   </dependencies>
 

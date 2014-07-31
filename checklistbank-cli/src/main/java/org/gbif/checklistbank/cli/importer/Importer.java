@@ -8,6 +8,9 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
+import org.gbif.checklistbank.index.NameUsageIndexService;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
 
@@ -39,7 +42,7 @@ public class Importer extends NeoRunnable implements Runnable {
   private final Meter syncMeter;
   private final Meter basionymMeter;
   private final AtomicInteger failed = new AtomicInteger();
-  private final DatasetImportService importService;
+  private final DatasetImportServiceCombined importService;
   private final NameUsageService usageService;
   // neo internal ids to clb usage keys
   private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
@@ -51,9 +54,10 @@ public class Importer extends NeoRunnable implements Runnable {
     this.cfg = cfg;
     this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
     this.basionymMeter = registry.getMeters().get(ImporterService.SYNC_BASIONYM_METER);
-    // init mybatis layer from cfg instance
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
-    importService = inj.getInstance(DatasetImportService.class);
+    // init mybatis layer and solr from cfg instance
+    Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class),
+                                                     inj.getInstance(NameUsageIndexService.class));
     usageService = inj.getInstance(NameUsageService.class);
   }
 

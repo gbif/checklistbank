@@ -12,7 +12,7 @@
 
   <artifactId>checklistbank-common</artifactId>
 
-  <name>ChecklistBank common</name>
+  <name>ChecklistBank Common</name>
   <description>ChecklistBank common classes</description>
 
   <repositories>

@@ -33,7 +33,7 @@
     <gbif-cli.version>0.7-SNAPSHOT</gbif-cli.version>
     <gbif-common.version>0.15</gbif-common.version>
     <gbif-common-mybatis.version>0.12</gbif-common-mybatis.version>
-    <gbif-common-search.version>0.17</gbif-common-search.version>
+    <gbif-common-search.version>0.18-SNAPSHOT</gbif-common-search.version>
     <gbif-common-service.version>0.10</gbif-common-service.version>
     <gbif-common-test.version>0.6</gbif-common-test.version>
     <gbif-common-ws.version>0.15</gbif-common-ws.version>
@@ -44,7 +44,7 @@
     <gbif-parser.version>0.10-SNAPSHOT</gbif-parser.version>
     <dwca-reader.version>1.18</dwca-reader.version>
     <!-- external libs -->
-    <amqp-client.version>3.0.2</amqp-client.version>
+    <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.8.0.RELEASE</bonecp.version>
     <bval.version>0.5</bval.version>
@@ -64,6 +64,7 @@
     <javax-validation-api.version>1.0.0.GA</javax-validation-api.version>
     <jcommander.version>1.35</jcommander.version>
     <jersey.version>1.18.1</jersey.version>
+    <jsoup.version>1.7.3</jsoup.version>
     <junit.version>4.11</junit.version>
     <liquibase.version>3.0.7</liquibase.version>
     <logback.version>1.1.2</logback.version>
@@ -572,6 +573,11 @@
       </dependency>
 
       <!-- Other -->
+      <dependency>
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${jsoup.version}</version>
+      </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>servlet-api</artifactId>

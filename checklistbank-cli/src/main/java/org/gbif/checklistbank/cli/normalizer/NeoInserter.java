@@ -37,9 +37,11 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.yammer.metrics.Meter;
+import org.apache.commons.io.FileUtils;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
+import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
 import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
@@ -85,7 +87,9 @@ public class NeoInserter {
       throw new NormalizationFailedException("IOException opening archive " + dwca.getAbsolutePath(), e);
     }
 
-    final org.neo4j.unsafe.batchinsert.BatchInserter inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
+    LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
+    initNeoDir(storeDir);
+    final BatchInserter inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
 
     final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
     final BatchInserterIndex taxonIdx =
@@ -146,6 +150,18 @@ public class NeoInserter {
     LOG.info("Neo shutdown, data flushed to disk", counter);
 
     return useCoreID;
+  }
+
+  private void initNeoDir(File storeDir) {
+    try {
+      if (storeDir.exists()) {
+        FileUtils.forceDelete(storeDir);
+      }
+      FileUtils.forceMkdir(storeDir);
+
+    } catch (IOException e) {
+      throw new NormalizationFailedException("Cannot prepare neo db directory " + storeDir.getAbsolutePath(), e);
+    }
   }
 
   private void putProp(Map<String, Object> props, Term t, VerbatimNameUsage v) {

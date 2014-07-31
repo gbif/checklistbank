@@ -12,7 +12,7 @@
   <artifactId>checklistbank-solr</artifactId>
   <packaging>jar</packaging>
 
-  <name>ChecklistBank Index Builder</name>
+  <name>ChecklistBank Solr</name>
 
   <properties>
     <!-- by default we use an embedded solr server -->
@@ -158,6 +158,10 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
     </dependency>
     <!-- we plan to use this soon -->
     <dependency>

@@ -1,30 +1,27 @@
 package org.gbif.checklistbank.index;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.Maps;
-import com.google.inject.Inject;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.lucene.analysis.charfilter.HTMLStripCharFilterFactory;
-import org.apache.solr.common.SolrInputDocument;
-import org.gbif.api.model.checklistbank.*;
-import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.service.registry.DatasetService;
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 import org.gbif.common.search.util.AnnotationUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.BiMap;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.solr.common.SolrInputDocument;
+import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,9 +31,6 @@ public class NameUsageDocConverter {
 
   private static final String CONCAT = " # ";
   private static final Pattern LANG_SPLIT = Pattern.compile("^([a-zA-Z]*)" + CONCAT + "(.*)$");
-  private static final HTMLStripCharFilterFactory htmlStripFactory = new HTMLStripCharFilterFactory(Maps.<String, String>newHashMap());
-  // Service layer dependencies
-  private final DatasetService datasetService;
 
   /**
    * Holds a map of {@link NameUsage} properties (Java fields) to Solr fields name.
@@ -44,23 +38,13 @@ public class NameUsageDocConverter {
   private final BiMap<String, String> fieldPropertyMap;
 
   /**
-   * Cache used for holding {@link Dataset} objects previously retrieved.
-   */
-  private final ConcurrentHashMap<UUID, Dataset> checkListCache;
-
-  /**
    * Logger for the {@link NameUsageDocConverter} class
    */
   protected static Logger log = LoggerFactory.getLogger(NameUsageDocConverter.class);
 
-  @Inject
-  public NameUsageDocConverter(DatasetService datasetService) {
-
-    this.datasetService = datasetService;
-
+  public NameUsageDocConverter() {
     // initializes the map of Solr fields to Java fields
     fieldPropertyMap = AnnotationUtils.initFieldsPropertiesMap(NameUsageSolrSearchResult.class);
-    checkListCache = new ConcurrentHashMap<UUID, Dataset>();
   }
 
 
@@ -86,21 +70,15 @@ public class NameUsageDocConverter {
     return stripHtml(description.getDescription());
   }
 
-  private static String stripHtml(String input) {
-    if (Strings.isNullOrEmpty(input)) {
-      return null;
-    }
-    StringBuffer sb = new StringBuffer();
-    BufferedReader br = new BufferedReader(htmlStripFactory.create(new StringReader(input)));
-    String aux;
-    try {
-      while ((aux = br.readLine()) != null) {
-        sb.append(aux);
+  private static String stripHtml(String html) {
+    if (!Strings.isNullOrEmpty(html)) {
+      try {
+        return Jsoup.parse(html).text();
+      } catch (RuntimeException e) {
+        log.error("Failed to read description input");
       }
-    } catch (IOException e) {
-      log.error("Failed to read description input");
     }
-    return sb.toString();
+    return null;
   }
 
   public static String serializeVernacularName(VernacularName vernacularName) {
@@ -303,28 +281,6 @@ public class NameUsageDocConverter {
         solrInputDocument.addField("vernacular_name_lang", serializeVernacularName(vernacularName));
       }
     }
-  }
-
-  /**
-   * Uses the cache to get a instance of the {@link Dataset} using the checklistUUID parameter.
-   * If the {@link UUID} paramater is not found in the Cache the Data Base is consulted.
-   *
-   * @param checklistUUID existing {@link Dataset} key.
-   *
-   * @return a {@link Dataset} object.
-   */
-  private Dataset getChecklist(UUID checklistUUID) {
-    if (!checkListCache.containsKey(checklistUUID)) {
-      Dataset ds = datasetService.get(checklistUUID);
-      if (ds == null) {
-        log.warn("Checklist {} not found in registry!", checklistUUID);
-        ds = new Dataset();
-        ds.setKey(checklistUUID);
-        ds.setTitle("[" + checklistUUID.toString() + "] ???");
-      }
-      checkListCache.put(checklistUUID, ds);
-    }
-    return checkListCache.get(checklistUUID);
   }
 
 }
