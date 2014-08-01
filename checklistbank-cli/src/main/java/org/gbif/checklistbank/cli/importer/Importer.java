@@ -9,7 +9,6 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.index.NameUsageIndexService;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -76,6 +75,7 @@ public class Importer extends NeoRunnable implements Runnable {
   }
 
   public void run() {
+    LOG.info("Start importing checklist {}", datasetKey);
     setupDb();
     syncDataset();
     tearDownDb();

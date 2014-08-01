@@ -44,6 +44,7 @@
     <gbif-parser.version>0.10-SNAPSHOT</gbif-parser.version>
     <dwca-reader.version>1.18</dwca-reader.version>
     <!-- external libs -->
+    <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.8.0.RELEASE</bonecp.version>
@@ -678,6 +679,12 @@
         <version>${hamcrest.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -713,7 +720,7 @@
       <!-- the dev profile is for deploying the webapp, NOT FOR EXECUTING INTEGRATION TESTS !!! -->
       <id>dev</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/clb2</checklistbank.db.url>
+        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/dev_clb</checklistbank.db.url>
         <checklistbank.db.username>clb</checklistbank.db.username>
 	      <checklistbank.db.partitions>2</checklistbank.db.partitions>
 	      <checklistbank.db.connections>10</checklistbank.db.connections>

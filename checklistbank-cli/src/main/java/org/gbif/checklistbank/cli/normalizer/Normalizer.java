@@ -20,6 +20,9 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
@@ -39,6 +42,12 @@ import org.slf4j.LoggerFactory;
 public class Normalizer extends NeoRunnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
+  private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
+  static {
+    for (char del : "[|;, ]".toCharArray()) {
+      COMMON_SPLITTER.add(Splitter.on(del).trimResults().omitEmptyStrings());
+    }
+  }
 
   private final Map<String, UUID> constituents;
   private final File dwca;
@@ -79,6 +88,7 @@ public class Normalizer extends NeoRunnable {
   }
 
   public void run() throws NormalizationFailedException {
+    LOG.info("Start normalization of checklist {}", datasetKey);
     stats = new NormalizerStats();
     // batch import uses its own batchdb
     batchInsertData();
@@ -129,7 +139,7 @@ public class Normalizer extends NeoRunnable {
         }
       }
       tx.success();
-      LOG.debug("Deleted allAccepted {} relations", counter);
+      LOG.debug("Deleted all {} relations", counter);
     }
   }
 
@@ -248,6 +258,41 @@ public class Normalizer extends NeoRunnable {
   }
 
   /**
+   * @return 2 ore more split values or an empty list but never the original value alone
+   */
+  @VisibleForTesting
+  protected static List<String> splitByCommonDelimiters(String val) {
+    if (!Strings.isNullOrEmpty(val)) {
+      for (Splitter splitter : COMMON_SPLITTER) {
+        List<String> vals = splitter.splitToList(val);
+        if (vals.size() > 1) {
+          return vals;
+        }
+      }
+    }
+    return Lists.newArrayList();
+  }
+
+  /**
+   * @return true if accepted nodes were found and added to accepted list. False if id could not be resolved
+   */
+  private boolean setupAcceptedIdRel(String taxonID, List<String> ids, List<Node> accepted) {
+    boolean success =  true;
+    for (String id : ids) {
+      if (id != null && !id.equals(taxonID)) {
+        Node a = nodeByTaxonId(id);
+        if (a == null) {
+          success = false;
+          LOG.warn("acceptedNameUsageID {} not existing", id);
+        } else {
+          accepted.add(a);
+        }
+      }
+    }
+    return success;
+  }
+
+  /**
    * Must deal with pro parte synonyms, i.e. a single synonym can have multiple accepted taxa!
    *
    * @return true if it is a synonym of some type
@@ -255,16 +300,14 @@ public class Normalizer extends NeoRunnable {
   private boolean setupAcceptedRel(Node n, String taxonID, String sciname, String canonical) {
     List<Node> accepted = Lists.newArrayList();
     if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
-      for (String id : NeoMapper.listValue(n, DwcTerm.acceptedNameUsageID)) {
-        if (id != null && !id.equals(taxonID)) {
-          Node a = nodeByTaxonId(id);
-          if (a == null) {
-            LOG.warn("acceptedNameUsageID {} not existing", id);
-          } else {
-            accepted.add(a);
-          }
-        }
+      List<String> ids = NeoMapper.listValue(n, DwcTerm.acceptedNameUsageID);
+      if ( !setupAcceptedIdRel(taxonID, ids, accepted)) {
+        // if delimiters were not declared in meta.xml we get concatenated ids here that do not match
+        // try splitting by common delimiters
+        ids = splitByCommonDelimiters(NeoMapper.value(n, DwcTerm.acceptedNameUsageID));
+        setupAcceptedIdRel(taxonID, ids, accepted);
       }
+
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
       final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
       if (name != null && !name.equals(sciname)) {

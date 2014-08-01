@@ -360,8 +360,8 @@ public class NeoMapper {
     return (String) n.getProperty(propertyName(t), null);
   }
 
-  public static String[] listValue(Node n, Term t) {
-    return (String[]) n.getProperty(propertyName(t), new String[0]);
+  public static List<String> listValue(Node n, Term t) {
+    return Lists.newArrayList( (String[]) n.getProperty(propertyName(t), new String[0]));
   }
 
   public static void setValue(Node n, Term t, String value) {
