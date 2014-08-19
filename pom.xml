@@ -31,16 +31,16 @@
     <dwc-api.version>1.8</dwc-api.version>
     <gbif-api.version>0.16-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.7-SNAPSHOT</gbif-cli.version>
-    <gbif-common.version>0.15</gbif-common.version>
-    <gbif-common-mybatis.version>0.12</gbif-common-mybatis.version>
+    <gbif-common.version>0.17-SNAPSHOT</gbif-common.version>
+    <gbif-common-mybatis.version>0.13-SNAPSHOT</gbif-common-mybatis.version>
     <gbif-common-search.version>0.18-SNAPSHOT</gbif-common-search.version>
-    <gbif-common-service.version>0.10</gbif-common-service.version>
-    <gbif-common-test.version>0.6</gbif-common-test.version>
-    <gbif-common-ws.version>0.15</gbif-common-ws.version>
+    <gbif-common-service.version>0.11-SNAPSHOT</gbif-common-service.version>
+    <gbif-common-test.version>0.7-SNAPSHOT</gbif-common-test.version>
+    <gbif-common-ws.version>0.16-SNAPSHOT</gbif-common-ws.version>
     <gbif-httputils.version>0.5</gbif-httputils.version>
     <gbif-postal-service.version>0.12-SNAPSHOT</gbif-postal-service.version>
     <registry-client.version>2.16</registry-client.version>
-    <name-parser.version>2.4</name-parser.version>
+    <name-parser.version>2.5-SNAPSHOT</name-parser.version>
     <gbif-parser.version>0.10-SNAPSHOT</gbif-parser.version>
     <dwca-reader.version>1.18</dwca-reader.version>
     <!-- external libs -->
@@ -49,32 +49,32 @@
     <aopalliance.version>1.0</aopalliance.version>
     <bonecp.version>0.8.0.RELEASE</bonecp.version>
     <bval.version>0.5</bval.version>
-    <commmons-lang.version>3.3.1</commmons-lang.version>
-    <commons-beanutils.version>1.8.3</commons-beanutils.version>
+    <commmons-lang.version>3.3.2</commmons-lang.version>
+    <commons-beanutils.version>1.9.2</commons-beanutils.version>
     <commons-digester.version>2.1</commons-digester.version>
     <commons-io.version>2.4</commons-io.version>
     <dbunit.version>2.4.9</dbunit.version>
-    <findbugs-jsr305.version>2.0.3</findbugs-jsr305.version>
-    <grizzly-servlet-webserver.version>1.9.59</grizzly-servlet-webserver.version>
-    <guava.version>15.0</guava.version>
+    <findbugs-jsr305.version>3.0.0</findbugs-jsr305.version>
+    <grizzly-servlet-webserver.version>1.9.60</grizzly-servlet-webserver.version>
+    <guava.version>17.0</guava.version>
     <guice.version>3.0</guice.version>
     <hamcrest.version>1.3</hamcrest.version>
     <jackson.version>1.9.12</jackson.version>
     <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-    <jackson2.version>2.4.1</jackson2.version>
-    <javax-validation-api.version>1.0.0.GA</javax-validation-api.version>
+    <jackson2.version>2.4.2</jackson2.version>
+    <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
     <jcommander.version>1.35</jcommander.version>
     <jersey.version>1.18.1</jersey.version>
     <jsoup.version>1.7.3</jsoup.version>
     <junit.version>4.11</junit.version>
     <liquibase.version>3.0.7</liquibase.version>
     <logback.version>1.1.2</logback.version>
-    <metainf-services.version>1.4</metainf-services.version>
+    <metainf-services.version>1.5</metainf-services.version>
     <metrics.version>3.0.0-BETA1</metrics.version>
     <mockito.version>1.9.5</mockito.version>
     <mybatis.version>3.2.3</mybatis.version>
     <mybatis-guice.version>3.5</mybatis-guice.version>
-    <neo4j.version>2.1.2</neo4j.version>
+    <neo4j.version>2.1.3</neo4j.version>
     <postgresql.version>9.2-1003-jdbc4</postgresql.version> <!-- 9.3-1101-jdbc41 -->
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <servlet-api.version>2.5</servlet-api.version>
