@@ -338,7 +338,7 @@
     </profile>
 
     <profile>
-      <id>dev</id>
+      <id>jenkins</id>
       <!-- for integration tests only! -->
       <properties>
         <rabbit.host>mq.gbif.org</rabbit.host>
