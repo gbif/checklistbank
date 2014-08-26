@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NormalizerTest {

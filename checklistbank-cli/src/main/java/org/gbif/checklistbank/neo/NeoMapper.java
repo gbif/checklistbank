@@ -3,8 +3,12 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.util.ClassificationUtils;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
+import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.io.IOException;
@@ -43,13 +47,18 @@ public class NeoMapper {
   private final static Logger LOG = LoggerFactory.getLogger(NeoMapper.class);
   private final static Map<Class, List<FieldData>> FIELDS = Maps.newHashMap();
   private static final String PROP_VERBATIM_DATA = "verbatim";
+  private final static Map<Rank, DwcTerm> classificationTerms = Maps.newTreeMap();
   private static NeoMapper instance;
   private final ObjectMapper objMapper;
   private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapper();
   private final TypeFactory tf = TypeFactory.defaultInstance();
-
   enum FieldType {PRIMITIVE, NATIVE, ENUM, OTHER}
 
+  static {
+    for (DwcTerm ht : DwcTerm.HIGHER_RANKS) {
+      classificationTerms.put(Rank.valueOf(ht.simpleName().toUpperCase()), ht);
+    }
+  }
   static class FieldData {
 
     public final Field field;
@@ -362,6 +371,14 @@ public class NeoMapper {
 
   public static List<String> listValue(Node n, Term t) {
     return Lists.newArrayList( (String[]) n.getProperty(propertyName(t), new String[0]));
+  }
+
+  public static LinneanClassification readVerbatimClassification(Node n) {
+    LinneanClassification lc = new NameUsage();
+    for (Map.Entry<Rank, DwcTerm> ct : classificationTerms.entrySet()) {
+      ClassificationUtils.setHigherRank(lc, ct.getKey(), (String) n.getProperty(ct.getValue().simpleName(), null));
+    }
+    return lc;
   }
 
   public static void setValue(Node n, Term t, String value) {

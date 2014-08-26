@@ -3,6 +3,7 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameType;
@@ -26,6 +27,7 @@ import org.neo4j.helpers.collection.IteratorUtil;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class NeoMapperTest extends NeoTest {
 
@@ -135,6 +137,32 @@ public class NeoMapperTest extends NeoTest {
       NameUsage u2 = mapper.read(n, new NameUsage());
 
       assertEquals(u1, u2);
+    }
+  }
+
+  @Test
+  public void testClassification() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(UUID.randomUUID());
+    try (Transaction tx = beginTx()) {
+      NameUsage u = usage();
+      u.setKingdom("Plant");
+      u.setFamily("Asteraceae");
+      u.setGenus("Aster");
+      Node n = db.createNode();
+
+      mapper.store(n, u, true);
+      tx.success();
+
+      LinneanClassification cl = mapper.readVerbatimClassification(n);
+
+      assertEquals("Plant", cl.getKingdom());
+      assertNull(cl.getPhylum());
+      assertNull(cl.getClazz());
+      assertNull(cl.getOrder());
+      assertEquals("Asteraceae", cl.getFamily());
+      assertEquals("Aster", cl.getGenus());
+      assertNull(cl.getSubgenus());
     }
   }
 

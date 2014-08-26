@@ -132,6 +132,11 @@ public class Importer extends NeoRunnable implements Runnable {
 
     // remove old usages
     NameUsage first = usageService.get(firstUsageKey, null);
+    if (first == null) {
+      LOG.error("No records imported or first name usage with id {} not found", firstUsageKey);
+      throw new IllegalStateException("We did not seem to import a single name usage!");
+    }
+
     Calendar cal = Calendar.getInstance();
     cal.setTime(first.getLastInterpreted());
     // use 10 seconds before first insert/update as the threshold to remove records

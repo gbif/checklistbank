@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 public class NormalizerService extends AbstractIdleService implements MessageCallback<DwcaMetasyncFinishedMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NormalizerService.class);
+
+  public static final String QUEUE = "clb-normalizer";
 
   public static final String INSERT_METER = "taxon.inserts";
   public static final String RELATION_METER = "taxon.relations";
@@ -52,7 +55,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
-    listener.listen(cfg.messaging.queueName, cfg.messaging.poolSize, this);
+    listener.listen(QUEUE, cfg.messaging.poolSize, this);
   }
 
   @Override
@@ -70,6 +73,11 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     final Timer.Context context = timer.time();
 
     try {
+
+      if (msg.getDatasetType() != DatasetType.CHECKLIST) {
+        LOG.info("Rejected dataset {} of type {}", msg.getDatasetUuid(), msg.getDatasetType());
+        return;
+      }
       Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents());
       normalizer.run();
       started.inc();

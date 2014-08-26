@@ -78,7 +78,6 @@ public class NormalizerIT extends NeoTest {
    * Imports should not create implicit genus or species and use the exact, original taxonomy.
    */
   @Test
-  @Ignore("denormalizing checklists not yet working")
   public void testImplicitSpecies() throws Exception {
     NormalizerStats stats = normalize(2);
     try (Transaction tx = beginTx()) {
@@ -105,12 +104,12 @@ public class NormalizerIT extends NeoTest {
     }
 
     System.out.println(stats);
-    assertEquals(20, stats.getRecords());
-    assertEquals(20, stats.getUsages());
-    assertEquals(6, stats.getDepth());
-    assertEquals(20, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(14, stats.getRecords());
+    assertEquals(14, stats.getUsages());
+    assertEquals(7, stats.getDepth());
+    assertEquals(14, stats.getCountByOrigin(Origin.SOURCE));
     assertEquals(1, stats.getRoots());
-    assertEquals(4, stats.getSynonyms());
+    assertEquals(0, stats.getSynonyms());
   }
 
   @Test
@@ -248,14 +247,13 @@ public class NormalizerIT extends NeoTest {
    * Discovered with this test.
    */
   @Test
-  @Ignore
   public void testDenormedIndexFungorum() throws Exception {
     NormalizerStats stats = normalize(6);
     try (Transaction tx = beginTx()) {
       assertUsage("426221",
                   false,
-                  "Lepiota seminuda var. seminuda (Lasch) P. Kummer",
-                  "Lepiota seminuda var. seminuda (Lasch) P. Kummer",
+                  "Lepiota seminuda var. seminuda",
+                  null,
                   Rank.VARIETY,
                   "Agaricaceae",
                   "Agaricales",
@@ -425,6 +423,51 @@ public class NormalizerIT extends NeoTest {
       }
     }
 
+  }
+
+  /**
+   * Tests if the same verbatim parent gets reused and only one usage is created for it
+   */
+  @Test
+  @Ignore
+  public void testVerbatimParent() throws Exception {
+    NormalizerStats stats = normalize(11);
+    assertEquals(1, stats.getRoots());
+
+    try (Transaction tx = beginTx()) {
+
+      final NameUsage sspalgarbiensis = getUsageByTaxonId("10001");
+      assertUsage(sspalgarbiensis, Rank.SPECIES, "Calendula incana subsp. algarbiensis (Boiss.) Ohle", false);
+
+      final NameUsage algarbiensis = getUsageByKey(sspalgarbiensis.getBasionymKey());
+      assertUsage(algarbiensis, Rank.SPECIES, "Calendula algarbiensis Boss.", true);
+
+      final NameUsage eckerleinii = getUsageByKey(algarbiensis.getAcceptedKey());
+      assertUsage(eckerleinii, Rank.SPECIES, "Calendula eckerleinii Ohle", false);
+
+      final NameUsage incana = getUsageByKey(sspalgarbiensis.getParentKey());
+      assertUsage(incana, Rank.SPECIES, "Calendula incana Willd.", false);
+
+      final NameUsage callendula = getUsageByKey(incana.getParentKey());
+      assertUsage(callendula, Rank.GENUS, "Calendula L.", false);
+      assertEquals(callendula.getKey(), eckerleinii.getParentKey());
+
+      final NameUsage compositae = getUsageByKey(callendula.getParentKey());
+      assertUsage(compositae, Rank.FAMILY, "Compositae Giseke", false);
+
+      final NameUsage asteraceae = getUsageByTaxonId("11");
+      assertUsage(asteraceae, Rank.FAMILY, "Asteraceae", true);
+      assertEquals(compositae.getKey(), asteraceae.getAcceptedKey());
+
+      final NameUsage plant = getUsageByKey(compositae.getParentKey());
+      assertUsage(plant, Rank.KINGDOM, "Plantae", false);
+    }
+  }
+
+  private void assertUsage(NameUsage u, Rank rank, String sciName, boolean synonym) {
+    assertEquals(synonym, u.isSynonym());
+    assertEquals(rank, u.getRank());
+    assertEquals(sciName, u.getScientificName());
   }
 
   /**

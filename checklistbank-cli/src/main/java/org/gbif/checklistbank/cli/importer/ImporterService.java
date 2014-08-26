@@ -21,6 +21,8 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
 
+  public static final String QUEUE = "clb-importer";
+
   public static final String SYNC_METER = "taxon.sync";
   public static final String SYNC_BASIONYM_METER = "taxon.sync.basionym";
   public static final String DELETE_TIMER = "taxon.sync.delete";
@@ -47,7 +49,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
-    listener.listen(cfg.messaging.queueName, cfg.messaging.poolSize, this);
+    listener.listen(QUEUE, cfg.messaging.poolSize, this);
   }
 
   @Override

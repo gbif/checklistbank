@@ -7,6 +7,8 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.api.NameUsageContainer2;
+import org.gbif.checklistbank.api.NameUsageIssue;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.TaxonProperties;
@@ -27,18 +29,14 @@ import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.yammer.metrics.Meter;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
@@ -57,16 +55,15 @@ public class NeoInserter {
   private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
 
   private Archive arch;
-  private boolean useCoreID;
   private Map<String, UUID> constituents;
   private NeoMapper mapper = NeoMapper.instance();
   private NameParser nameParser = new NameParser();
   private RankParser rankParser = RankParser.getInstance();
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
-  private Splitter splitterAccIds;
+  private InsertMetadata meta = new InsertMetadata();
 
-  public boolean insert(
+  public InsertMetadata insert(
     File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter, Map<String, UUID> constituents
   ) throws NormalizationFailedException {
     this.constituents = constituents;
@@ -74,13 +71,19 @@ public class NeoInserter {
       arch = ArchiveFactory.openArchive(dwca);
       if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
         LOG.warn("Using core ID for taxonID");
-        useCoreID = true;
+        meta.setCoreIdUsed(true);
       }
       // multi values in use for acceptedID?
-      if (arch.getCore().hasTerm(DwcTerm.acceptedNameUsageID)) {
-        String delim = arch.getCore().getField(DwcTerm.acceptedNameUsageID).getDelimitedBy();
+      for (Term t : arch.getCore().getTerms()) {
+        String delim = arch.getCore().getField(t).getDelimitedBy();
         if (!Strings.isNullOrEmpty(delim)) {
-          splitterAccIds = Splitter.on(delim).omitEmptyStrings().trimResults();
+          meta.getMultiValueDelimiters().put(t, Splitter.on(delim).omitEmptyStrings());
+        }
+      }
+      for (Term t : DwcTerm.HIGHER_RANKS) {
+        String delim = arch.getCore().getField(t).getDelimitedBy();
+        if (!Strings.isNullOrEmpty(delim)) {
+          meta.getMultiValueDelimiters().put(t, Splitter.on(delim).omitEmptyStrings());
         }
       }
     } catch (IOException e) {
@@ -93,13 +96,13 @@ public class NeoInserter {
 
     final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
     final BatchInserterIndex taxonIdx =
-      indexProvider.nodeIndex(DwcTerm.taxonID.simpleName(), MapUtil.stringMap("type", "exact"));
+      indexProvider.nodeIndex(TaxonProperties.TAXON_ID, MapUtil.stringMap("type", "exact"));
     taxonIdx.setCacheCapacity(TaxonProperties.TAXON_ID, 10000);
     final BatchInserterIndex sciNameIdx =
-      indexProvider.nodeIndex(DwcTerm.taxonID.simpleName(), MapUtil.stringMap("type", "exact"));
+      indexProvider.nodeIndex(TaxonProperties.SCIENTIFIC_NAME, MapUtil.stringMap("type", "exact"));
     sciNameIdx.setCacheCapacity(TaxonProperties.SCIENTIFIC_NAME, 10000);
     final BatchInserterIndex canonNameIdx =
-      indexProvider.nodeIndex(DwcTerm.taxonID.simpleName(), MapUtil.stringMap("type", "exact"));
+      indexProvider.nodeIndex(TaxonProperties.CANONICAL_NAME, MapUtil.stringMap("type", "exact"));
     canonNameIdx.setCacheCapacity(TaxonProperties.CANONICAL_NAME, 10000);
 
     final long startSort = System.currentTimeMillis();
@@ -127,7 +130,7 @@ public class NeoInserter {
       // add more neo properties to be used in resolving the relations later:
       putProp(props, DwcTerm.parentNameUsageID, v);
       putProp(props, DwcTerm.parentNameUsage, v);
-      putListProp(props, DwcTerm.acceptedNameUsageID, v, splitterAccIds);
+      putProp(props, DwcTerm.acceptedNameUsageID, v);
       putProp(props, DwcTerm.acceptedNameUsage, v);
       putProp(props, DwcTerm.originalNameUsageID, v);
       putProp(props, DwcTerm.originalNameUsage, v);
@@ -149,7 +152,7 @@ public class NeoInserter {
     inserter.shutdown();
     LOG.info("Neo shutdown, data flushed to disk", counter);
 
-    return useCoreID;
+    return meta;
   }
 
   private void initNeoDir(File storeDir) {
@@ -171,26 +174,8 @@ public class NeoInserter {
     }
   }
 
-  /**
-   * Splits a given multi value string and stores it as a String array in the property map.
-   *
-   * @param splitter the splitter to be used. If null uses the entire value as the single list entry
-   */
-  private void putListProp(Map<String, Object> props, Term t, VerbatimNameUsage v, @Nullable Splitter splitter) {
-    String val = clean(v.getCoreField(t));
-    if (val != null) {
-      List<String> ids = Lists.newArrayList();
-      if (splitter != null) {
-        IteratorUtil.addToCollection(splitter.split(val), ids);
-      } else {
-        ids.add(val);
-      }
-      props.put(NeoMapper.propertyName(t), ids.toArray(new String[ids.size()]));
-    }
-  }
-
-  private NameUsageContainer buildUsage(VerbatimNameUsage v) {
-    NameUsageContainer u = new NameUsageContainer();
+  private NameUsageContainer2 buildUsage(VerbatimNameUsage v) {
+    NameUsageContainer2 u = new NameUsageContainer2();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
 
     if (constituents != null && v.hasCoreField(DwcTerm.datasetID)) {
@@ -213,21 +198,20 @@ public class NeoInserter {
     Rank rank = rankParser.parse(v.getCoreField(DwcTerm.taxonRank)).getPayload();
     if (rank == null) {
       rank = rankParser.parse(v.getCoreField(DwcTerm.verbatimTaxonRank)).getPayload();
+    } else {
+      u.getIssues().add(NameUsageIssue.RANK_INVALID);
     }
     u.setRank(rank);
 
     // build best name
-    String sciname;
     ParsedName pn;
-    if (v.hasCoreField(DwcTerm.scientificName)) {
-      sciname = v.getCoreField(DwcTerm.scientificName);
+    if (v.hasCoreField(DwcTerm.scientificName) && !Strings.isNullOrEmpty(v.getCoreField(DwcTerm.scientificName))) {
       try {
-        pn = nameParser.parse(sciname);
+        pn = nameParser.parse(v.getCoreField(DwcTerm.scientificName));
         // append author if its not part of the name yet
-        if (!pn.isAuthorsParsed()) {
+        if (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship())) {
           String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
-          //TODO: better use parsed name class respecting autonyms???
-          sciname = sciname + " " + author;
+          pn.setAuthorship(author);
         }
       } catch (UnparsableException e) {
         LOG.debug("Unparsable {} name {}", e.type, e.name);
@@ -247,9 +231,9 @@ public class NeoInserter {
       pn.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
       pn.setRank(rank);
       pn.setType(NameType.WELLFORMED);
-      sciname = pn.fullName();
+      u.getIssues().add(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
     }
-    u.setScientificName(sciname);
+    u.setScientificName(pn.fullName());
     u.setCanonicalName(pn.canonicalName());
     //TODO: verify name parts and rank
     u.setNameType(pn.getType());
@@ -258,13 +242,18 @@ public class NeoInserter {
     ParseResult<TaxonomicStatus> taxParse = taxStatusParser.parse(v.getCoreField(DwcTerm.taxonomicStatus));
     if (taxParse.isSuccessful()) {
       u.setTaxonomicStatus(taxParse.getPayload());
+    } else {
+      u.getIssues().add(NameUsageIssue.TAXONOMIC_STATUS_INVALID);
     }
 
     // nom status
     ParseResult<NomenclaturalStatus> nsParse = nomStatusParser.parse(v.getCoreField(DwcTerm.nomenclaturalStatus));
     if (nsParse.isSuccessful()) {
       u.getNomenclaturalStatus().add(nsParse.getPayload());
+    } else {
+      u.getIssues().add(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
     }
+
     if (!Strings.isNullOrEmpty(pn.getNomStatus())) {
       nsParse = nomStatusParser.parse(pn.getNomStatus());
       if (nsParse.isSuccessful()) {
@@ -276,7 +265,7 @@ public class NeoInserter {
   }
 
   private String taxonID(Record core) {
-    if (useCoreID) {
+    if (meta.isCoreIdUsed()) {
       return clean(core.id());
     } else {
       return clean(core.value(DwcTerm.taxonID));

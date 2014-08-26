@@ -1,9 +1,11 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.api.NameUsageIssue;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
@@ -14,6 +16,7 @@ import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -56,6 +59,7 @@ public class Normalizer extends NeoRunnable {
   private final Meter relationMeter;
   private final Meter metricsMeter;
   private NormalizerStats stats;
+  private InsertMetadata meta;
 
   public Normalizer(
     NormalizerConfiguration cfg,
@@ -96,6 +100,7 @@ public class Normalizer extends NeoRunnable {
     setupDb();
     setupTaxonIdIndex();
     setupRelations();
+    applyDenormedClassification();
     buildMetrics();
     tearDownDb();
 
@@ -108,7 +113,7 @@ public class Normalizer extends NeoRunnable {
 
   private void batchInsertData() throws NormalizationFailedException {
     NeoInserter inserter = new NeoInserter();
-    inserter.insert(storeDir, dwca, stats, batchSize, insertMeter, constituents);
+    meta = inserter.insert(storeDir, dwca, stats, batchSize, insertMeter, constituents);
   }
 
   private void setupTaxonIdIndex() {
@@ -165,9 +170,9 @@ public class Normalizer extends NeoRunnable {
         final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
         final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
         final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
-
+        final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class);
         boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical);
-        setupParentRel(n, isSynonym, taxonID, sciname, canonical);
+        setupParentRel(n, rank, isSynonym, taxonID, sciname, canonical);
         setupBasionymRel(n, taxonID, sciname, canonical);
 
         counter++;
@@ -187,6 +192,43 @@ public class Normalizer extends NeoRunnable {
 
     LOG.info("Relation setup completed, {} nodes processed", counter);
     LOG.info("Relation setup rate: {}", relationMeter.getMeanRate());
+  }
+
+  /**
+   * Applies the classificaiton given as denormalized higher taxa terms
+   * after the parent / accepted relations have been applied.
+   */
+  private void applyDenormedClassification() {
+    LOG.debug("Start processing higher classification ...");
+    if (!meta.isDenormedClassificationMapped()) {
+      LOG.info("No higher classification mapped");
+      return;
+    }
+
+    int counter = 0;
+    int created = 0;
+
+    Transaction tx = db.beginTx();
+    try {
+      for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+        if (counter % batchSize == 0) {
+          tx.success();
+          tx.close();
+          LOG.debug("Higher classifications processed for taxa: {}", counter);
+          tx = db.beginTx();
+        }
+
+        final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
+        final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class);
+        counter++;
+      }
+      tx.success();
+
+    } finally {
+      tx.close();
+    }
+
+    LOG.info("Classification processing completed, {} nodes processed", counter);
   }
 
   /**
@@ -298,42 +340,57 @@ public class Normalizer extends NeoRunnable {
    * @return true if it is a synonym of some type
    */
   private boolean setupAcceptedRel(Node n, String taxonID, String sciname, String canonical) {
-    List<Node> accepted = Lists.newArrayList();
-    if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
-      List<String> ids = NeoMapper.listValue(n, DwcTerm.acceptedNameUsageID);
-      if ( !setupAcceptedIdRel(taxonID, ids, accepted)) {
-        // if delimiters were not declared in meta.xml we get concatenated ids here that do not match
-        // try splitting by common delimiters
-        ids = splitByCommonDelimiters(NeoMapper.value(n, DwcTerm.acceptedNameUsageID));
-        setupAcceptedIdRel(taxonID, ids, accepted);
-      }
+    if (meta.isAcceptedNameMapped()) {
+      List<Node> accepted = Lists.newArrayList();
+      if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
+        List<String> ids = Lists.newArrayList(NeoMapper.value(n, DwcTerm.acceptedNameUsageID));
+        if ( !setupAcceptedIdRel(taxonID, ids, accepted)) {
+          // if delimiters were declared in meta.xml we have them in meta
+          String unsplitIds = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
+          if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
+            ids = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
+          } else {
+            // try splitting by common delimiters
+            ids = splitByCommonDelimiters(unsplitIds);
+          }
+          setupAcceptedIdRel(taxonID, ids, accepted);
+        }
 
-    } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
-      final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
-      if (name != null && !name.equals(sciname)) {
-        Node a = nodeBySciname(name);
-        if (a == null && !name.equals(canonical)) {
-          a = nodeByCanonical(name);
-          if (a == null) {
-            LOG.warn("acceptedNameUsage {} not existing", name);
+      } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
+        final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
+        if (name != null && !name.equals(sciname)) {
+          Node a = nodeBySciname(name);
+          if (a == null && !name.equals(canonical)) {
+            a = nodeByCanonical(name);
+            if (a == null) {
+              LOG.warn("acceptedNameUsage {} not existing", name);
+            }
+          }
+          if (a != null) {
+            accepted.add(a);
           }
         }
-        if (a != null) {
-          accepted.add(a);
+      }
+      if (!accepted.isEmpty()) {
+        for (Node a : accepted) {
+          n.createRelationshipTo(a, RelType.SYNONYM_OF);
+          n.addLabel(Labels.SYNONYM);
         }
+        return true;
       }
-    }
-    if (!accepted.isEmpty()) {
-      for (Node a : accepted) {
-        n.createRelationshipTo(a, RelType.SYNONYM_OF);
-        n.addLabel(Labels.SYNONYM);
-      }
-      return true;
     }
     return false;
   }
 
-  private void setupParentRel(Node n, boolean isSynonym, String taxonID, String sciname, String canonical) {
+  /**
+   * Sets up the parent relations using the parentNameUsage(ID) term values and the denormed classification.
+   * @param n
+   * @param isSynonym
+   * @param taxonID
+   * @param sciname
+   * @param canonical
+   */
+  private void setupParentRel(Node n, Rank rank, boolean isSynonym, String taxonID, String sciname, String canonical) {
     Node parent = null;
     if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsageID)) {
       final String id = NeoMapper.value(n, DwcTerm.parentNameUsageID);
@@ -349,13 +406,16 @@ public class Normalizer extends NeoRunnable {
         parent = nodeBySciname(name);
         if (parent == null && !name.equals(canonical)) {
           parent = nodeByCanonical(name);
-          if (parent == null) {
-            LOG.warn("parentNameUsage {} not existing, materialize it", name);
-            parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL);
-            //TODO: link materialized parent into classification somehow???
-          }
+        }
+        if (parent == null) {
+          LOG.warn("parentNameUsage {} not existing, materialize it", name);
+          parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL);
+          //TODO: link materialized parent into classification somehow???
         }
       }
+    } else {
+      // use denormed classification
+      assertNodeHasClassification(n, rank, mapper.readVerbatimClassification(n));
     }
 
     if (parent != null) {
@@ -365,22 +425,61 @@ public class Normalizer extends NeoRunnable {
     }
   }
 
-  private void setupBasionymRel(Node n, String taxonID, String sciname, String canonical) {
-    Node basionym = null;
-    if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsageID)) {
-      final String id = NeoMapper.value(n, DwcTerm.originalNameUsageID);
-      if (id != null && !id.equals(taxonID)) {
-        basionym = nodeByTaxonId(id);
-        if (basionym == null) {
-          LOG.warn("originalNameUsageID {} not existing", id);
-        }
+  private Rank nextHigherRank(Rank r) {
+    List<Rank> ranks = Lists.newArrayList();
+    for (DwcTerm ht : DwcTerm.HIGHER_RANKS) {
+      ranks.add(Rank.valueOf(ht.simpleName().toUpperCase()));
+    }
+    Collections.reverse(ranks);
+
+    int idx = ranks.indexOf(r);
+    if (idx >= 0 && idx != ranks.size()) {
+      return ranks.get(idx+1);
+    }
+    return null;
+  }
+
+  /**
+   * @param ignore rank and all ranks below should be ignored when asserting
+   */
+  private void assertNodeHasClassification(Node n, Rank compare, LinneanClassification cl) {
+    String higherRank = cl.getHigherRank(compare);
+    if (!Strings.isNullOrEmpty(higherRank)) {
+      // does it exist already?
+      Node higher = nodeByCanonical(higherRank);
+      if (higher == null || higher.equals(n) || false) {  //conflicts(higher, compare, cl)
+        // create higher taxon
+        LOG.debug("higher {} not existing, materialize {}", higherRank, higherRank);
+        n = createTaxon(Origin.DENORMED_CLASSIFICATION, higherRank, compare, TaxonomicStatus.DOUBTFUL);
+      } else {
+        n = higher;
       }
-    } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
-      final String name = NeoMapper.value(n, DwcTerm.originalNameUsage);
-      if (name != null && !name.equals(sciname)) {
-        basionym = nodeBySciname(name);
-        if (basionym == null && !name.equals(canonical)) {
-          basionym = nodeByCanonical(name);
+    }
+
+    Rank next = nextHigherRank(compare);
+    if (next != null) {
+      assertNodeHasClassification(n, next, cl);
+    }
+  }
+
+  private void setupBasionymRel(Node n, String taxonID, String sciname, String canonical) {
+    if (meta.isOriginalNameMapped()) {
+      Node basionym = null;
+      if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsageID)) {
+        final String id = NeoMapper.value(n, DwcTerm.originalNameUsageID);
+        if (id != null && !id.equals(taxonID)) {
+          basionym = nodeByTaxonId(id);
+          if (basionym == null) {
+            LOG.warn("originalNameUsageID {} not existing", id);
+          }
+        }
+      } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
+        final String name = NeoMapper.value(n, DwcTerm.originalNameUsage);
+        if (name != null && !name.equals(sciname)) {
+          basionym = nodeBySciname(name);
+          if (basionym == null && !name.equals(canonical)) {
+            basionym = nodeByCanonical(name);
+          }
           if (basionym == null) {
             LOG.warn("originalNameUsage {} not existing, materialize it", name);
             basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL);
@@ -388,9 +487,9 @@ public class Normalizer extends NeoRunnable {
           }
         }
       }
-    }
-    if (basionym != null) {
-      basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
+      if (basionym != null) {
+        basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
+      }
     }
   }
 
@@ -424,5 +523,9 @@ public class Normalizer extends NeoRunnable {
     return IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON,
                                                                     TaxonProperties.SCIENTIFIC_NAME,
                                                                     sciname));
+  }
+
+  private void addIssue(Node n, NameUsageIssue issue){
+    //TODO:
   }
 }
