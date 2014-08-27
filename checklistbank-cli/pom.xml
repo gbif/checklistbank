@@ -321,6 +321,21 @@
         <rabbit.password>crawler</rabbit.password>
         <neo.repository>/tmp/neo</neo.repository>
       </properties>
+    </profile>
+
+    <profile>
+      <id>dev</id>
+      <properties>
+        <rabbit.host>mq.gbif.org</rabbit.host>
+        <rabbit.vhost>/dev</rabbit.vhost>
+        <rabbit.username>crawler</rabbit.username>
+        <rabbit.password>crawler</rabbit.password>
+        <neo.repository>/tmp/neo</neo.repository>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>deploy-dev</id>
       <build>
         <plugins>
           <plugin>
@@ -343,17 +358,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <profile>
-      <id>dev</id>
-      <properties>
-        <rabbit.host>mq.gbif.org</rabbit.host>
-        <rabbit.vhost>/dev</rabbit.vhost>
-        <rabbit.username>crawler</rabbit.username>
-        <rabbit.password>crawler</rabbit.password>
-        <neo.repository>/tmp/neo</neo.repository>
-      </properties>
     </profile>
 
     <profile>
