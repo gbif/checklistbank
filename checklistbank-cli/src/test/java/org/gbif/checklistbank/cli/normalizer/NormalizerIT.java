@@ -247,6 +247,7 @@ public class NormalizerIT extends NeoTest {
    * Discovered with this test.
    */
   @Test
+  @Ignore
   public void testDenormedIndexFungorum() throws Exception {
     NormalizerStats stats = normalize(6);
     try (Transaction tx = beginTx()) {

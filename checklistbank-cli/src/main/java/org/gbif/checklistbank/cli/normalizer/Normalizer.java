@@ -5,7 +5,6 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.api.NameUsageIssue;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
@@ -413,52 +412,12 @@ public class Normalizer extends NeoRunnable {
           //TODO: link materialized parent into classification somehow???
         }
       }
-    } else {
-      // use denormed classification
-      assertNodeHasClassification(n, rank, mapper.readVerbatimClassification(n));
     }
 
     if (parent != null) {
       parent.createRelationshipTo(n, RelType.PARENT_OF);
     } else if (!isSynonym) {
       n.addLabel(Labels.ROOT);
-    }
-  }
-
-  private Rank nextHigherRank(Rank r) {
-    List<Rank> ranks = Lists.newArrayList();
-    for (DwcTerm ht : DwcTerm.HIGHER_RANKS) {
-      ranks.add(Rank.valueOf(ht.simpleName().toUpperCase()));
-    }
-    Collections.reverse(ranks);
-
-    int idx = ranks.indexOf(r);
-    if (idx >= 0 && idx != ranks.size()) {
-      return ranks.get(idx+1);
-    }
-    return null;
-  }
-
-  /**
-   * @param ignore rank and all ranks below should be ignored when asserting
-   */
-  private void assertNodeHasClassification(Node n, Rank compare, LinneanClassification cl) {
-    String higherRank = cl.getHigherRank(compare);
-    if (!Strings.isNullOrEmpty(higherRank)) {
-      // does it exist already?
-      Node higher = nodeByCanonical(higherRank);
-      if (higher == null || higher.equals(n) || false) {  //conflicts(higher, compare, cl)
-        // create higher taxon
-        LOG.debug("higher {} not existing, materialize {}", higherRank, higherRank);
-        n = createTaxon(Origin.DENORMED_CLASSIFICATION, higherRank, compare, TaxonomicStatus.DOUBTFUL);
-      } else {
-        n = higher;
-      }
-    }
-
-    Rank next = nextHigherRank(compare);
-    if (next != null) {
-      assertNodeHasClassification(n, next, cl);
     }
   }
 
@@ -525,7 +484,47 @@ public class Normalizer extends NeoRunnable {
                                                                     sciname));
   }
 
-  private void addIssue(Node n, NameUsageIssue issue){
-    //TODO:
+
+
+
+
+
+
+  private Rank nextHigherRank(Rank r) {
+    List<Rank> ranks = Lists.newArrayList();
+    for (DwcTerm ht : DwcTerm.HIGHER_RANKS) {
+      ranks.add(Rank.valueOf(ht.simpleName().toUpperCase()));
+    }
+    Collections.reverse(ranks);
+
+    int idx = ranks.indexOf(r);
+    if (idx >= 0 && idx != ranks.size()) {
+      return ranks.get(idx+1);
+    }
+    return null;
   }
+
+  /**
+   * @param ignore rank and all ranks below should be ignored when asserting
+   */
+  private void assertNodeHasClassification(Node n, Rank compare, LinneanClassification cl) {
+    String higherRank = cl.getHigherRank(compare);
+    if (!Strings.isNullOrEmpty(higherRank)) {
+      // does it exist already?
+      Node higher = nodeByCanonical(higherRank);
+      if (higher == null || higher.equals(n) || false) {  //conflicts(higher, compare, cl)
+        // create higher taxon
+        LOG.debug("higher {} not existing, materialize {}", higherRank, higherRank);
+        n = createTaxon(Origin.DENORMED_CLASSIFICATION, higherRank, compare, TaxonomicStatus.DOUBTFUL);
+      } else {
+        n = higher;
+      }
+    }
+
+    Rank next = nextHigherRank(compare);
+    if (next != null) {
+      assertNodeHasClassification(n, next, cl);
+    }
+  }
+
 }

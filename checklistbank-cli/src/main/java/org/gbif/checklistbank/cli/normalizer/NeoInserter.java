@@ -61,34 +61,13 @@ public class NeoInserter {
   private RankParser rankParser = RankParser.getInstance();
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
-  private InsertMetadata meta = new InsertMetadata();
+  private InsertMetadata meta;
 
-  public InsertMetadata insert(
-    File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter, Map<String, UUID> constituents
-  ) throws NormalizationFailedException {
+  public InsertMetadata insert(File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter,
+                               Map<String, UUID> constituents) throws NormalizationFailedException {
     this.constituents = constituents;
-    try {
-      arch = ArchiveFactory.openArchive(dwca);
-      if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
-        LOG.warn("Using core ID for taxonID");
-        meta.setCoreIdUsed(true);
-      }
-      // multi values in use for acceptedID?
-      for (Term t : arch.getCore().getTerms()) {
-        String delim = arch.getCore().getField(t).getDelimitedBy();
-        if (!Strings.isNullOrEmpty(delim)) {
-          meta.getMultiValueDelimiters().put(t, Splitter.on(delim).omitEmptyStrings());
-        }
-      }
-      for (Term t : DwcTerm.HIGHER_RANKS) {
-        String delim = arch.getCore().getField(t).getDelimitedBy();
-        if (!Strings.isNullOrEmpty(delim)) {
-          meta.getMultiValueDelimiters().put(t, Splitter.on(delim).omitEmptyStrings());
-        }
-      }
-    } catch (IOException e) {
-      throw new NormalizationFailedException("IOException opening archive " + dwca.getAbsolutePath(), e);
-    }
+
+    openArchive(dwca);
 
     LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
     initNeoDir(storeDir);
@@ -153,6 +132,38 @@ public class NeoInserter {
     LOG.info("Neo shutdown, data flushed to disk", counter);
 
     return meta;
+  }
+
+  private void openArchive(File dwca) throws NormalizationFailedException {
+    meta = new InsertMetadata();
+    try {
+      arch = ArchiveFactory.openArchive(dwca);
+      if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
+        LOG.warn("Using core ID for taxonID");
+        meta.setCoreIdUsed(true);
+      }
+      // multi values in use for acceptedID?
+      for (Term t : arch.getCore().getTerms()) {
+        String delim = arch.getCore().getField(t).getDelimitedBy();
+        if (!Strings.isNullOrEmpty(delim)) {
+          meta.getMultiValueDelimiters().put(t, Splitter.on(delim).omitEmptyStrings());
+        }
+      }
+      for (Term t : DwcTerm.HIGHER_RANKS) {
+        if (arch.getCore().hasTerm(t)) {
+          meta.setDenormedClassificationMapped(true);
+          break;
+        }
+      }
+      if (arch.getCore().hasTerm(DwcTerm.acceptedNameUsageID) || arch.getCore().hasTerm(DwcTerm.acceptedNameUsage)) {
+        meta.setAcceptedNameMapped(true);
+      }
+      if (arch.getCore().hasTerm(DwcTerm.originalNameUsageID) || arch.getCore().hasTerm(DwcTerm.originalNameUsage)) {
+        meta.setOriginalNameMapped(true);
+      }
+    } catch (IOException e) {
+      throw new NormalizationFailedException("IOException opening archive " + dwca.getAbsolutePath(), e);
+    }
   }
 
   private void initNeoDir(File storeDir) {
