@@ -59,7 +59,7 @@ public class NeoMapperTest extends NeoTest {
     assertNotNull(map.get("nomenclaturalStatus"));
 
     // isSynonym is set to false by default
-    assertEquals(17, map.size());
+    assertEquals(18, map.size());
   }
 
   private NameUsage usage() {
@@ -119,7 +119,7 @@ public class NeoMapperTest extends NeoTest {
       assertNotNull(n.getProperty("nomenclaturalStatus"));
 
       // isSynonym is set to false by default
-      assertEquals(17, IteratorUtil.count(n.getPropertyKeys()));
+      assertEquals(18, IteratorUtil.count(n.getPropertyKeys()));
 
     }
   }

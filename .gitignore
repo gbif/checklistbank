@@ -2,6 +2,7 @@
 *.iml
 .idea/
 target/
+.DS_Store
 checklistbank*/logs
 
 # Package Files #
