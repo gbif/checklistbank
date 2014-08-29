@@ -1,0 +1,212 @@
+taxonID	acceptedNameUsageID	originalNameUsageID	taxonRank	genus	specificEpithet	infraspecificEpithet	scientificNameAuthorship	family	order	subclass	class	subphylum	phylum	kingdom
+	
+197312			sp.	Zignoëlla	ebuli		Malbr. & Brunaud	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197574		190879	sp.	Zignoëlla	emergens		(P. Karst.) Sacc.	sp.	190879	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199148	Zignoëlla garciniae	Henn.	sp.	199148	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+213891	Zignoëlla vincentii	Cooke	sp.	213891	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217711	Zignoëlla sinapisperma	(Rabenh.) Sacc. & Traverso	sp.	177744	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219851	Zignoëlla omphalostoma	Penz. & Sacc.	sp.	219851	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233484	Zignoëlla culmicola	Delacr.	sp.	233484	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223487	Zignoëlla magnoliae	Tracy & Earle	sp.	223487	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141271	Zignoëlla caesalpiniae	Zimm.	sp.	141271	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219690	Zignoëlla nematasca	Sacc. & Speg.	sp.	219690	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+226600	Zignoëlla pygmaea	(P. Karst.) Sacc.	sp.	150476	412764	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232905	Zignoëlla palmicola	Henn.	sp.	232905	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138160	Zignoëlla fallax var. ulmi	F. Lamb.	var.	138160	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+148331	Zignoëlla albocincta	(Cooke & Ellis) Sacc.	sp.	173185	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232634	Zignoëlla papillata	(Fuckel) Sacc.	sp.	193169	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218508	Zignoëlla longispora	Rehm	sp.	218508	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+531760	Zignoëlla scalaris	(Durieu & Mont.) Berl.	sp.	202852	\N	\N		Icon. fung. (Abellini) 1(3): 101 (1893)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+220813	Zignoëlla roripae	Rehm	sp.	220813	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420686	Zignoëlla prorumpens var. prorumpens	(Rehm) Sacc.	var.	420686	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+228170	Zignoëlla segregata	(Berk. & M.A. Curtis) Sacc.	sp.	214838	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420518	Zignoëlla minutissima var. minutissima	(P. Karst.) Sacc.	var.	420518	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138109	Zignoëlla magnoliae var. brasiliensis	Rehm	var.	138109	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+700499	Zignoëlla subgen. Trematostoma	Sacc.	subgen.	700499	\N	\N		Syll. fung. (Abellini) 2: 222 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138380	Zignoëlla salicicola var. nigrificans	Feltgen	var.	138380	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138121	Zignoëlla minutissima var. clavispora	P. Karst.	var.	138121	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+236759	Zignoëlla arengae	Rehm	sp.	236759	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420971	Zignoëlla diaphana var. diaphana	(Cooke & Ellis) Sacc.	var.	420971	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+237184	Zignoëlla aterrima	(Fuckel) Sacc.	sp.	193031	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+292034	Zignoëlla iranica	Petr.	sp.	292034	\N	\N		Sydowia 3(1-6): 312 (1949)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218598	Zignoëlla leptosperma	Speg.	sp.	218598	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+250432	Zignoëlla abscondita	(Ellis & Everh.) Fairm.	sp.	151542	\N	\N		Proc. Rochester Acad. Sci. 6: 95 (1921)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420704	Zignoëlla salicicola var. salicicola	Fabre	var.	420704	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+292418	Zignoëlla anonicola	Speg.	sp.	292418	166443	\N	Zignoëlla annonicola	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+236467	Zignoëlla atriella	(Cooke & Ellis) Sacc.	sp.	235053	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141370	Zignoëlla cariosa	(Cooke & Ellis) Sacc.	sp.	214392	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+166803	Zignoëlla abietis	Höhn.	sp.	166803	310961	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+211143	Zignoëlla adjuncta	Pass.	sp.	211143	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+423906	Zignoëlla collabens var. collabens	(Curr.) Sacc.	var.	423906	\N	\N		Syll. fung. (Abellini) 2: 221 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141499	Zignoëlla britzelmayri	Sacc.	sp.	141499	532526	\N	Zignoëlla britzelmayrii	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218518	Zignoëlla longispora	Speg.	sp.	218518	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+231584	Zignoëlla improvisa	(P. Karst.) Sacc.	sp.	166011	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219654	Zignoëlla obliqua	Romell	sp.	219654	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219799	Zignoëlla nyssogena	Ellis & Everh.	sp.	219799	436762	\N	nyssaegena	Proc. Acad. nat. Sci. Philad., 1893 45: 137 (1893)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219839	Zignoëlla mori	(Fabre) Sacc.	sp.	233351	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+220710	Zignoëlla rugosa	Starbäck	sp.	220710	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+220727	Zignoëlla ramenticola	Schulzer & Sacc.	sp.	220727	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+221045	Zignoëlla querceti	Cooke & Massee	sp.	221045	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+221083	Zignoëlla rhytidodes	(Berk. & Broome) Sacc.	sp.	238419	221083	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222361	Zignoëlla sphaeroides	(Schaer.) Rehm	sp.	224724	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222443	Zignoëlla somala	Bacc.	sp.	222443	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222481	Zignoëlla subtilissima	Rehm	sp.	222481	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222680	Zignoëlla subcorticale	(Cooke) Sacc.	sp.	432193	432193	\N	subcorticalis	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222727	Zignoëlla subvestita	(Ellis & Everh.) Berl. & Voglino	sp.	173849	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223142	Zignoëlla minutissima	(P. Karst.) Sacc.	sp.	215390	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223228	Zignoëlla matthiolae	Cooke	sp.	223228	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223337	Zignoëlla lumbricoides	Sacc. & Cavara	sp.	223337	\N	\N		Nuovo Giorn. Bot. Ital. 7: 281 (1900)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223364	Zignoëlla maingayi	(Cooke) Sacc.	sp.	230938	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223809	Zignoëlla fuegiana	Speg.	sp.	223809	445997	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223930	Zignoëlla exigua	(Cooke & Peck) Sacc.	sp.	189850	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+226651	Zignoëlla prorumpens	(Rehm) Sacc.	sp.	223016	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+226707	Zignoëlla proteus	(Berk. & M.A. Curtis) Sacc.	sp.	236784	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227045	Zignoëlla pulviscula	(Curr.) Sacc.	sp.	239704	294742	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227346	Zignoëlla punctiformis	Sacc. & Therry	sp.	227346	\N	\N		Michelia 2(no. 7): 320 (1881)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227659	Zignoëlla sequanica	Sacc. & Malbr.	sp.	227659	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227915	Zignoëlla sabalina	Ellis & Everh.	sp.	227915	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227991	Zignoëlla senegalensis	Speg.	sp.	227991	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+231781	Zignoëlla interspersa	Penz. & Sacc.	sp.	231781	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+231832	Zignoëlla ijuhensis	Starbäck	sp.	231832	\N	\N		Bih. K. svenska VetenskAkad. Handl. 25(1): 53 (1899)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+231952	Zignoëlla inflata	(Ellis) Sacc.	sp.	153708	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232003	Zignoëlla intermedia	Pass.	sp.	232003	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232289	Zignoëlla insculpta	(Fr.) Sacc.	sp.	153984	221254	\N		Syll. fung. (Abellini) 2: 225 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232317	Zignoëlla immersa	P. Karst.	sp.	232317	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232390	Zignoëlla jurana	Sacc. & Berl.	sp.	232390	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232547	Zignoëlla paecilostoma	(Berk. & Broome) Sacc.	sp.	191475	232547	\N		Syll. fung. (Abellini) 2: 220 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232683	Zignoëlla ostioloidea	(Cooke) Sacc.	sp.	219347	294740	\N		Syll. fung. (Abellini) 2: 104 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232957	Zignoëlla ostiolata	Dearn. & Barthol.	sp.	232957	\N	\N		Mycologia 18(5): 248 (1926)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233203	Zignoëlla dubyi	(De Not.) Sacc.	sp.	179347	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233349	Zignoëlla diaphana	(Cooke & Ellis) Sacc.	sp.	201905	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233587	Zignoëlla duvauicola	Speg.	sp.	233587	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233645	Zignoëlla cubensis	Har. & Pat.	sp.	233645	320918	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233919	Zignoëlla dealbata	(Cooke) Sacc.	sp.	465659	233919	\N		Grevillea 15(no. 76): 110 (1887)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138705	Zignoëlla ovoidea var. subcorticalis	Feltgen	var.	138705	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138710	Zignoëlla ovoidea var. runsalensis	P. Karst.	var.	138710	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197388	Zignoëlla enormis	Pat. & Har.	sp.	197388	320919	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+198059	Zignoëlla crustacea	Sacc.	sp.	160371	461072	\N	 as '(P. Karst.) Sacc.	Syll. fung. (Abellini) 2: 220 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138357	Zignoëlla prorumpens var. oxystoma	Feltgen	var.	138357	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+140864	Zignoëlla bizzozeriana	Cocc. & Morini	sp.	140864	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+140939	Zignoëlla buettneri	Rehm	sp.	140939	\N	\N	buttneri	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141080	Zignoëlla calospora	Pat.	sp.	141080	320917	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141153	Zignoëlla boreella	P. Karst.	sp.	141153	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138070	Zignoëlla somala var. calancalli	Bacc.	var.	138070	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+227746	Zignoëlla sardoa	Sacc. & Traverso	sp.	227746	\N	\N		Annls mycol. 1: 431 (1903)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+231676	Zignoëlla insueta	Chenant.	sp.	231676	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+221024	Zignoëlla rubi	Noelli{?}	sp.	221024	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202567	Zignoëlla excellens	Rehm ex Sacc.	sp.	202567	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+141593	Zignoëlla campi-silii	Sacc.	sp.	141593	\N	\N		Michelia 1(no. 3): 346 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+147876	Zignoëlla archeri	(Berk.) Sacc.	sp.	237856	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+148692	Zignoëlla acervata	Penz. & Sacc.	sp.	148692	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+155912	Zignoëlla algaphila	F. Stevens	sp.	155912	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+532526	Zignoëlla britzelmayrii	Sacc.	sp.	532526	\N	\N	britzelmayri	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+209168	Zignoëlla translucens	P. Karst.	sp.	209168	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+166443	Zignoëlla annonicola	Speg.	sp.	166443	\N	\N	anonicola	Anal. Mus. nac. Hist. nat. B. Aires 19(12): 376 (1909)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197981	Zignoëlla claypolensis	Speg.	sp.	197981	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+195891	Zignoëlla buttneri	Rehm	sp.	195891	140939	\N	Zignoëlla buettneri	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197267	Zignoëlla eumorpha	Penz. & Sacc.	sp.	197267	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197629	Zignoëlla erumpens	Cooke	sp.	197629	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197713	Zignoëlla cascarillae	Rehm	sp.	197713	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197742	Zignoëlla collabens var. curreyi	(A. Bloxam) Sacc.	var.	465669	197867	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197823	Zignoëlla corticola	(Fuckel) Sacc.	sp.	230195	483959	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197867	Zignoëlla collabens	(Curr.) Sacc.	sp.	231081	197867	\N		Syll. fung. (Abellini) 2: 221 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199138	Zignoëlla hederae	F. Lamb. & Fautrey	sp.	199138	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199227	Zignoëlla haynaldii	Schulzer & Sacc.	sp.	199227	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202477	Zignoëlla fraxinicola	Lambotte & Fautrey	sp.	202477	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202544	Zignoëlla funicola	(Ellis) Sacc.	sp.	150644	150644	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202641	Zignoëlla fallax	(Sacc.) Sacc.	sp.	142346	202641	\N		Syll. fung. (Abellini) 2: 218 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+208925	Zignoëlla truncata	Rehm	sp.	208925	\N	\N		Hedwigia 40: 106 (1901)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+209096	Zignoëlla tingens	(Ces.) Sacc.	sp.	162567	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+211314	Zignoëlla antarctica	Speg.	sp.	211314	445996	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+213972	Zignoëlla ulmi	F. Lamb.	sp.	213972	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+214104	Zignoëlla tuberculata	Petch	sp.	214104	\N	\N		Ann. R. bot. Gdns Peradeniya 10(1): 135 (1926)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+214163	Zignoëlla verrucarioides	(P. Crouan & H. Crouan) Sacc.	sp.	147175	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+215968	Zignoëlla platani	Rehm	sp.	215968	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+216075	Zignoëlla populina	Briard & Har.	sp.	216075	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+216108	Zignoëlla piceae	Henn.	sp.	216108	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+216136	Zignoëlla populi	Ellis & Everh.	sp.	216136	\N	\N		Bull. Torrey bot. Club 25: 502 (1898)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+216217	Zignoëlla paraguayensis	Speg.	sp.	216217	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217483	Zignoëlla soluta	(Cooke & Ellis) Sacc.	sp.	166878	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217670	Zignoëlla seriata	(Curr.) Sacc.	sp.	212462	217670	\N		Syll. fung. (Abellini) 2: 219 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217758	Zignoëlla sequoiae	(Plowr.) Sacc.	sp.	212302	\N	\N	sequojae	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217867	Zignoëlla sociabilis	Schulzer & Sacc.	sp.	217867	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218355	Zignoëlla lentzkeana	Kirschst.	sp.	218355	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218398	Zignoëlla lortoniana	Sacc.	sp.	218398	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218432	Zignoëlla lichenoidea	Höhn.	sp.	218432	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218673	Zignoëlla latericolla	(Berk.) Sacc.	sp.	166674	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219536	Zignoëlla morthieri	(Fuckel) Sacc.	sp.	233715	219536	\N		Michelia 1(no. 3): 347 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219549	Zignoëlla ordinata	(Fr.) Sacc.	sp.	222907	414900	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420516	Zignoëlla magnoliae var. magnoliae	Tracy & Earle	var.	420516	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+503935	Zignoëlla superficialis	Feltgen	sp.	503935	\N	\N		Vorstud Pilzfl. Luxemb., Nachtr. IV 73 (1905)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+503936	Zignoëlla ybbsitzensis	Strasser	sp.	503936	\N	\N		Annls mycol. 9: 82 (1911)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+214217	Zignoëlla yerbae	Speg.	sp.	214217	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233097	Zignoëlla pachyspora	Sacc., E. Bommer & M. Rousseau	sp.	233097	233097	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202436	Zignoëlla faginea	Feltgen	sp.	202436	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+236605	Zignoëlla arthopyrenioides	Rehm	sp.	236605	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+236832	Zignoëlla australica	Cooke & Massee	sp.	236832	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+236910	Zignoëlla astrocaryi	(Cooke) Sacc.	sp.	142034	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+237130	Zignoëlla australis	Speg.	sp.	237130	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+245753	Zignoëlla macrospora	(Sacc.) Sacc.	sp.	118639	245753	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+272492	Zignoëlla nucivora	Fairm.	sp.	272492	\N	\N		Proc. Rochester Acad. Sci. 6: 97 (1921)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+273120	Zignoëlla ossaea	Maire	sp.	273120	\N	\N		Bull. Soc. mycol. Fr. 46: 233 (1930)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+279099	Zignoëlla subantarctica	Speg.	sp.	279099	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+292422	Zignoëlla pluriseptatis	Gucevic	sp.	292422	325665	\N	Zignoëlla pluriseptata	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+292427	Zignoëlla sequojae	(Plowr.) Sacc.	sp.	212302	217758	\N	Zignoëlla sequoiae	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+292428	Zignoëlla subcorticalis	(Cooke) Sacc.	sp.	432193	222680	\N	Zignoëlla subcorticale	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197725	Zignoëlla cryptarum	(Fuckel) Sacc.	sp.	230527	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199024	Zignoëlla hysterioides	(Curr. ex Cooke) Sacc.	sp.	465670	199024	\N		Syll. fung. (Abellini) 9: 866 (1891)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199313	Zignoëlla gallica	Sacc. & Flageolet	sp.	199313	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+209107	Zignoëlla texticola	Vouaux	sp.	209107	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218651	Zignoëlla lichenoides	(Rehm) Sacc.	sp.	187403	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+220905	Zignoëlla rhodobapha	(Berk. & Broome) Sacc.	sp.	244872	220905	\N		Michelia 1(no. 3): 347 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+421776	Zignoëlla campi-silii var. campi-silii	Sacc.	var.	421776	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+217551	Zignoëlla sexnucleata	Starbäck	sp.	217551	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218707	Zignoëlla lonicerina	Ellis & Everh.	sp.	218707	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308019	Zignoëlla rhois	Gucevic	sp.	308019	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308016	Zignoëlla milleri	(Chardón) Petr.	sp.	288079	308016	\N		Sydowia 5: 233 (1951)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308017	Zignoëlla naumovii	Gucevic	sp.	308017	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308018	Zignoëlla physocarpi	Naumov & Vischn.	sp.	308018	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308020	Zignoëlla sharifi	Petr.	sp.	308020	\N	\N		Sydowia 4(1-6): 20 (1950)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+308021	Zignoëlla sideritidis	Gucevic	sp.	308021	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+325664	Zignoëlla casaresiana	(Gonz. Frag.) Racov.	sp.	230913	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+325665	Zignoëlla pluriseptata	Gucevic	sp.	325665	\N	\N	pluriseptatis	Nov. sist. Niz. Rast., 1964 7: 163 (1970)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420893	Zignoëlla ovoidea var. ovoidea	(Fr.) Sacc.	var.	420893	\N	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222591	Zignoëlla subferruginea	(Fuckel) Sacc.	sp.	221613	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223298	Zignoëlla macrasca	Sacc.	sp.	223298	223298	\N		Michelia 2(no. 6): 138 (1880)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+341162	Zignoëlla valoniopsidis	Cribb & J.W. Cribb	sp.	341162	320921	\N		Pap. Dept. Bot. (formerly Biol.) Univ. Qd. 4(3): 41 (1960)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+233425	Zignoëlla dolichospora	Sacc.	sp.	233425	233425	\N		Syll. fung. (Abellini) 2: 218 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+507326	Zignoëlla nyssaegena	Ellis & Everh.	sp.	507326	219799	\N	Zignoëlla nyssogena	\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+436304	Zignoëlla slaptonensis	P.F. Cannon	sp.	436304	436304	\N		Syst. Ascom. 15(1-2): 129 (1997)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+197901	Zignoëlla conica	(Fuckel) Sacc.	sp.	191798	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199279	Zignoëlla ignobilis	(P. Karst.) Sacc.	sp.	156094	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+214023	Zignoëlla vitis	(Schulzer) Sacc.	sp.	218060	218060	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199328	Zignoëlla groenendalensis	Sacc., E. Bommer & M. Rousseau	sp.	199328	488112	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+202655	Zignoëlla fallaciosa	Rehm	sp.	202655	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+215938	Zignoëlla patagonica	Speg.	sp.	215938	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+222609	Zignoëlla spissiana	F. Lamb. & Fautrey	sp.	222609	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199058	Zignoëlla hanburiana	Penz. & Sacc.	sp.	199058	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232159	Zignoëlla incerta	Speg.	sp.	232159	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420579	Zignoëlla fallax var. fallax	(Sacc.) Sacc.	var.	420579	\N	\N		Syll. fung. (Abellini) 2: 218 (1883)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+5868	Zignoëlla	Sacc.	gen.	5868	970	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232424	Zignoëlla ovoidea	(Fr.) Sacc.	sp.	233347	412763	\N		Michelia 1(no. 3): 346 (1878)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+215868	Zignoëlla populicola	(P. Crouan & H. Crouan) Sacc.	sp.	241703	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+420415	Zignoëlla somala var. somala	Bacc.	var.	420415	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+220763	Zignoëlla rhodostacheos	Speg.	sp.	220763	\N	\N		Boletín de la Soc. Ciencias de Córdoba 25: 69 (1921)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219574	Zignoëlla nobilis	Rehm	sp.	219574	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+166252	Zignoëlla anceps	Sacc.	sp.	166252	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+208990	Zignoëlla torpedo	Theiss.	sp.	208990	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+209208	Zignoëlla transylvanica	Rehm	sp.	209208	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+216004	Zignoëlla potentillae	Tracy & Earle	sp.	216004	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+228071	Zignoëlla salicicola	Fabre	sp.	228071	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+198974	Zignoëlla fusispora	(H. Wegelin) Sacc.	sp.	201448	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+199399	Zignoëlla herbana	Pass.	sp.	199399	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219759	Zignoëlla muelleri	(Duby) Sacc. & Traverso	sp.	154363	360019	\N		Syll. fung. (Abellini) 20: 1170 (1911)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+219868	Zignoëlla nitidula	Sacc.	sp.	219868	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223856	Zignoëlla eutypoides	Sacc.	sp.	223856	223856	\N		Michelia 2(no. 7): 248 (1881)	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138782	Zignoëlla diaphana var. gracilis	Ellis & Kellerm.	var.	138782	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+223448	Zignoëlla megalospora	(Fabre) Sacc.	sp.	200938	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+218344	Zignoëlla ligustrina	Pass.	sp.	218344	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+232986	Zignoëlla oudemansii	P. Karst.	sp.	232986	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+140887	Zignoëlla campi-silii var. metasphaerioides	Sacc.	var.	140887	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+138113	Zignoëlla minutissima var. juniperina	P. Karst.	var.	138113	\N	\N		\N	Zignoëlla	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi
+970	Chaetosphaeria	Tul. & C. Tul.	gen.	970	970	\N		Select. fung. carpol. (Paris) 2: 252 (1863)	Chaetosphaeria	Chaetosphaeriaceae	Chaetosphaeriales	Sordariomycetidae	Sordariomycetes	Pezizomycotina	Ascomycota	Fungi

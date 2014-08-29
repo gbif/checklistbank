@@ -7,6 +7,7 @@ import org.gbif.checklistbank.model.Usage;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,4 +63,9 @@ public interface DatasetImportService {
      * @param before     threshold date
      */
     void deleteOldUsages(UUID datasetKey, Date before);
+
+    /**
+     * Lists all old name usage ids before the given date to be deleted.
+     */
+    List<Integer> listOldUsages(UUID datasetKey, Date before);
 }

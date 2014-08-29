@@ -21,6 +21,10 @@
     OFFSET #{page.offset}
   </select>
 
+  <select id="listByDatasetAndDate" parameterType="map" resultType="java.lang.Integer">
+    SELECT id FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND modified &lt; #{before}
+  </select>
+
   <delete id="deleteByDataset">
     DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER}
   </delete>

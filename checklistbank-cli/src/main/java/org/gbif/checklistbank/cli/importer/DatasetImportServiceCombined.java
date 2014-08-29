@@ -9,6 +9,7 @@ import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,7 +59,16 @@ public class DatasetImportServiceCombined implements DatasetImportService {
 
   @Override
   public void deleteOldUsages(UUID datasetKey, Date before) {
+    // iterate over all ids to be deleted and remove them from solr first
+    for (Integer id : sqlService.listOldUsages(datasetKey, before)) {
+      solrService.delete(id);
+    }
+    // finally remove them from postgres
     sqlService.deleteOldUsages(datasetKey, before);
-    //TODO: how to best get the deleted usage keys so we can remove them from solr?
+  }
+
+  @Override
+  public List<Integer> listOldUsages(UUID datasetKey, Date before) {
+    return sqlService.listOldUsages(datasetKey, before);
   }
 }

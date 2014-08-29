@@ -277,4 +277,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     usageMapper.deleteByDatasetAndDate(datasetKey, before);
   }
 
+  @Override
+  public List<Integer> listOldUsages(UUID datasetKey, Date before) {
+    return usageMapper.listByDatasetAndDate(datasetKey, before);
+  }
+
 }

@@ -4,11 +4,10 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameType;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.api.NameUsageContainer2;
-import org.gbif.checklistbank.api.NameUsageIssue;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.TaxonProperties;
@@ -185,8 +184,8 @@ public class NeoInserter {
     }
   }
 
-  private NameUsageContainer2 buildUsage(VerbatimNameUsage v) {
-    NameUsageContainer2 u = new NameUsageContainer2();
+  private NameUsageContainer buildUsage(VerbatimNameUsage v) {
+    NameUsageContainer u = new NameUsageContainer();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
 
     if (constituents != null && v.hasCoreField(DwcTerm.datasetID)) {
@@ -210,7 +209,7 @@ public class NeoInserter {
     if (rank == null) {
       rank = rankParser.parse(v.getCoreField(DwcTerm.verbatimTaxonRank)).getPayload();
     } else {
-      u.getIssues().add(NameUsageIssue.RANK_INVALID);
+      u.addIssue(NameUsageIssue.RANK_INVALID);
     }
     u.setRank(rank);
 
@@ -242,7 +241,7 @@ public class NeoInserter {
       pn.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
       pn.setRank(rank);
       pn.setType(NameType.WELLFORMED);
-      u.getIssues().add(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
+      u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
     }
     u.setScientificName(pn.fullName());
     u.setCanonicalName(pn.canonicalName());
@@ -250,23 +249,29 @@ public class NeoInserter {
     u.setNameType(pn.getType());
 
     // tax status
-    ParseResult<TaxonomicStatus> taxParse = taxStatusParser.parse(v.getCoreField(DwcTerm.taxonomicStatus));
-    if (taxParse.isSuccessful()) {
-      u.setTaxonomicStatus(taxParse.getPayload());
-    } else {
-      u.getIssues().add(NameUsageIssue.TAXONOMIC_STATUS_INVALID);
+    String tstatus = v.getCoreField(DwcTerm.taxonomicStatus);
+    if (!Strings.isNullOrEmpty(tstatus)) {
+      ParseResult<TaxonomicStatus> taxParse = taxStatusParser.parse(tstatus);
+      if (taxParse.isSuccessful()) {
+        u.setTaxonomicStatus(taxParse.getPayload());
+      } else {
+        u.addIssue(NameUsageIssue.TAXONOMIC_STATUS_INVALID);
+      }
     }
 
     // nom status
-    ParseResult<NomenclaturalStatus> nsParse = nomStatusParser.parse(v.getCoreField(DwcTerm.nomenclaturalStatus));
-    if (nsParse.isSuccessful()) {
-      u.getNomenclaturalStatus().add(nsParse.getPayload());
-    } else {
-      u.getIssues().add(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
+    String nstatus = v.getCoreField(DwcTerm.nomenclaturalStatus);
+    if (!Strings.isNullOrEmpty(nstatus)) {
+      ParseResult<NomenclaturalStatus> nsParse = nomStatusParser.parse(nstatus);
+      if (nsParse.isSuccessful()) {
+        u.getNomenclaturalStatus().add(nsParse.getPayload());
+      } else {
+        u.addIssue(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
+      }
     }
 
     if (!Strings.isNullOrEmpty(pn.getNomStatus())) {
-      nsParse = nomStatusParser.parse(pn.getNomStatus());
+      ParseResult<NomenclaturalStatus>  nsParse = nomStatusParser.parse(pn.getNomStatus());
       if (nsParse.isSuccessful()) {
         u.getNomenclaturalStatus().add(nsParse.getPayload());
       }

@@ -1,0 +1,9 @@
+taxonID	taxonRank	scientificName	parentNameUsage	acceptedNameUsage	originalNameUsage
+1	kingdom	Plantae			
+10	family	Compositae Giseke	Plantae		
+11	family	Asteraceae		Compositae	
+100	genus	Calendula L.	Compositae		
+1000	species	Calendula incana Willd.	Calendula		
+1001	species	Calendula eckerleinii Ohle	Calendula		
+10001	subspecies	Calendula incana subsp. algarbiensis (Boiss.) Ohle	Calendula incana		Calendula algarbiensis
+10002	subspecies	Calendula algarbiensis Boss.		Calendula eckerleinii	

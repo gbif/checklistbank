@@ -2,6 +2,7 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -317,14 +318,17 @@ public class Normalizer extends NeoRunnable {
   /**
    * @return true if accepted nodes were found and added to accepted list. False if id could not be resolved
    */
-  private boolean setupAcceptedIdRel(String taxonID, List<String> ids, List<Node> accepted) {
+  private boolean setupAcceptedIdRel(Node n, String taxonID, List<String> ids, List<Node> accepted, boolean logIssues) {
     boolean success =  true;
     for (String id : ids) {
       if (id != null && !id.equals(taxonID)) {
         Node a = nodeByTaxonId(id);
         if (a == null) {
           success = false;
-          LOG.warn("acceptedNameUsageID {} not existing", id);
+          if (logIssues) {
+            addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+          }
+          LOG.debug("acceptedNameUsageID {} not existing", id);
         } else {
           accepted.add(a);
         }
@@ -343,7 +347,7 @@ public class Normalizer extends NeoRunnable {
       List<Node> accepted = Lists.newArrayList();
       if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
         List<String> ids = Lists.newArrayList(NeoMapper.value(n, DwcTerm.acceptedNameUsageID));
-        if ( !setupAcceptedIdRel(taxonID, ids, accepted)) {
+        if ( !setupAcceptedIdRel(n, taxonID, ids, accepted, false)) {
           // if delimiters were declared in meta.xml we have them in meta
           String unsplitIds = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
           if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
@@ -352,21 +356,21 @@ public class Normalizer extends NeoRunnable {
             // try splitting by common delimiters
             ids = splitByCommonDelimiters(unsplitIds);
           }
-          setupAcceptedIdRel(taxonID, ids, accepted);
+          setupAcceptedIdRel(n, taxonID, ids, accepted, false);
         }
 
       } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
         final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
         if (name != null && !name.equals(sciname)) {
           Node a = nodeBySciname(name);
-          if (a == null && !name.equals(canonical)) {
-            a = nodeByCanonical(name);
-            if (a == null) {
-              LOG.warn("acceptedNameUsage {} not existing", name);
-            }
-          }
           if (a != null) {
             accepted.add(a);
+          } else if (!name.equals(canonical)) {
+            a = nodeByCanonical(name);
+            if (a == null) {
+              addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+              LOG.debug("acceptedNameUsage {} not existing", name);
+            }
           }
         }
       }
@@ -396,7 +400,8 @@ public class Normalizer extends NeoRunnable {
       if (id != null && !id.equals(taxonID)) {
         parent = nodeByTaxonId(id);
         if (parent == null) {
-          LOG.warn("parentNameUsageID {} not existing", id);
+          addIssue(n, NameUsageIssue.PARENT_NAME_USAGE_ID_INVALID);
+          LOG.debug("parentNameUsageID {} not existing", id);
         }
       }
     } else if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsage)) {
@@ -407,18 +412,20 @@ public class Normalizer extends NeoRunnable {
           parent = nodeByCanonical(name);
         }
         if (parent == null) {
-          LOG.warn("parentNameUsage {} not existing, materialize it", name);
+          LOG.debug("parentNameUsage {} not existing, materialize it", name);
           parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL);
-          //TODO: link materialized parent into classification somehow???
         }
       }
     }
-
     if (parent != null) {
       parent.createRelationshipTo(n, RelType.PARENT_OF);
     } else if (!isSynonym) {
       n.addLabel(Labels.ROOT);
     }
+  }
+
+  private void addIssue(Node n, NameUsageIssue issue) {
+    throw new UnsupportedOperationException();
   }
 
   private void setupBasionymRel(Node n, String taxonID, String sciname, String canonical) {
@@ -429,7 +436,8 @@ public class Normalizer extends NeoRunnable {
         if (id != null && !id.equals(taxonID)) {
           basionym = nodeByTaxonId(id);
           if (basionym == null) {
-            LOG.warn("originalNameUsageID {} not existing", id);
+            addIssue(n, NameUsageIssue.ORIGINAL_NAME_USAGE_ID_INVALID);
+            LOG.debug("originalNameUsageID {} not existing", id);
           }
         }
       } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
@@ -440,9 +448,8 @@ public class Normalizer extends NeoRunnable {
             basionym = nodeByCanonical(name);
           }
           if (basionym == null) {
-            LOG.warn("originalNameUsage {} not existing, materialize it", name);
+            LOG.debug("originalNameUsage {} not existing, materialize it", name);
             basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL);
-            //TODO: link materialized parent into classification somehow???
           }
         }
       }
@@ -504,9 +511,6 @@ public class Normalizer extends NeoRunnable {
     return null;
   }
 
-  /**
-   * @param ignore rank and all ranks below should be ignored when asserting
-   */
   private void assertNodeHasClassification(Node n, Rank compare, LinneanClassification cl) {
     String higherRank = cl.getHigherRank(compare);
     if (!Strings.isNullOrEmpty(higherRank)) {
