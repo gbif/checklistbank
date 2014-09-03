@@ -1,17 +1,35 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.normalizer.NormalizerService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.dwc.terms.DwcTerm;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.UUID;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Iterables;
 import com.yammer.metrics.Gauge;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.graphdb.traversal.Evaluators;
+import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.kernel.impl.util.StringLogger;
 import org.slf4j.Logger;
@@ -31,6 +49,7 @@ public abstract class NeoRunnable implements Runnable {
   protected GraphDatabaseService db;
   protected NeoMapper mapper = NeoMapper.instance();
   protected ExecutionEngine engine;
+  private TraversalDescription parentsTraversal;
 
   public NeoRunnable(UUID datasetKey, NeoConfiguration cfg, MetricRegistry registry) {
     batchSize = cfg.batchSize;
@@ -42,10 +61,32 @@ public abstract class NeoRunnable implements Runnable {
   protected void setupDb() {
     db = neoCfg.newEmbeddedDb(datasetKey);
     engine = new ExecutionEngine(db, StringLogger.SYSTEM);
+    parentsTraversal = db.traversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.INCOMING)
+      .depthFirst()
+      .evaluator(Evaluators.excludeStartPosition());
   }
 
   protected void tearDownDb() {
     db.shutdown();
+  }
+
+  /**
+   * Creates a neo4j index for taxonID, canonical and scientific name.
+   */
+  protected void setupIndices() {
+    // setup unique index for TAXON_ID if not yet existing
+    try (Transaction tx = db.beginTx()) {
+      Schema schema = db.schema();
+      if (IteratorUtil.count(schema.getIndexes(Labels.TAXON)) == 0) {
+        LOG.debug("Create db indices ...");
+        schema.constraintFor(Labels.TAXON).assertPropertyIsUnique(DwcTerm.taxonID.simpleName()).create();
+        schema.indexFor(Labels.TAXON).on(DwcTerm.scientificName.simpleName()).create();
+        tx.success();
+      } else {
+        LOG.debug("Neo indices existing already");
+      }
+    }
   }
 
   protected void logMemory() {
@@ -57,5 +98,67 @@ public abstract class NeoRunnable implements Runnable {
    */
   protected Node nodeByTaxonId(String taxonID) {
     return IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
+  }
+
+  /**
+   * @return the single matching node with the canonical name or null
+   */
+  protected Node nodeByCanonical(String canonical) {
+    return IteratorUtil
+      .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+  }
+
+  protected Collection<Node> nodesByCanonical(String canonical) {
+    return IteratorUtil
+      .asCollection(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+  }
+
+  /**
+   * @return the single matching node with the scientific name or null
+   */
+  protected Node nodeBySciname(String sciname) {
+    return IteratorUtil
+      .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
+  }
+
+  protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
+    NameUsage u = new NameUsage();
+    u.setScientificName(sciname);
+    //TODO: parse name???
+    u.setCanonicalName(sciname);
+    u.setRank(rank);
+    u.setOrigin(origin);
+    u.setTaxonomicStatus(status);
+    Node n = db.createNode(Labels.TAXON);
+    mapper.store(n, u, false);
+    return n;
+  }
+
+  protected boolean matchesClassification(Node n, List<RankedName> classification) {
+    Iterator<RankedName> clIter = classification.listIterator();
+    Iterator<Node> nodeIter = parentsTraversal.traverse(n).nodes().iterator();
+
+    while (clIter.hasNext()) {
+      if (!nodeIter.hasNext()) {
+        return false;
+      }
+      RankedName rn1 = clIter.next();
+      RankedName rn2 = mapper.readRankedName(nodeIter.next());
+      if (rn1.rank != rn2.rank || !rn1.name.equals(rn2.name)) {
+        return false;
+      }
+    }
+    return !nodeIter.hasNext();
+  }
+
+  /**
+   * @return the last parent or the node itself if no parent exists
+   */
+  protected RankedName getHighestParent(Node n) {
+    Node p = IteratorUtil.lastOrNull(parentsTraversal.traverse(n).nodes());
+    if (p != null) {
+      return mapper.readRankedName(p);
+    }
+    return mapper.readRankedName(n);
   }
 }

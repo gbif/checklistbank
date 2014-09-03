@@ -34,7 +34,7 @@ public class ImportTaxonMetricsHandler implements StartEndHandler {
       maxDepth = depth;
     }
     n.setProperty("lft", idx++);
-    Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class);
+    Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, null);
     if (rank != null && rank.isLinnean()) {
       ClassificationUtils.setHigherRankKey(classification, rank, (int)n.getId());
     }
@@ -43,7 +43,7 @@ public class ImportTaxonMetricsHandler implements StartEndHandler {
   @Override
   public void end(Node n) {
     depth--;
-    Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class);
+    Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, null);
     metrics.setNumSynonyms(countSynonyms(n));
     metrics.setNumChildren(countChildren(n));
     // persist

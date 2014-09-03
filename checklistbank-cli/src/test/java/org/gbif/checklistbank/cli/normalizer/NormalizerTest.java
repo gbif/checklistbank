@@ -8,7 +8,7 @@ public class NormalizerTest {
 
   @Test
   public void testSplitByCommonDelimiters() throws Exception {
-    assertThat(Normalizer.splitByCommonDelimiters("gx:1234")).isEmpty();
+    assertThat(Normalizer.splitByCommonDelimiters("gx:1234")).containsExactly("gx:1234");
     assertThat(Normalizer.splitByCommonDelimiters("1234|135286|678231612")).containsExactly("1234","135286","678231612");
     assertThat(Normalizer.splitByCommonDelimiters("1234  135286 678231612")).containsExactly("1234","135286","678231612");
     assertThat(Normalizer.splitByCommonDelimiters("1234; 135286; 678231612")).containsExactly("1234","135286","678231612");

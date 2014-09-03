@@ -6,4 +6,4 @@ taxonID	taxonRank	scientificName	parentNameUsage	acceptedNameUsage	originalNameU
 1000	species	Calendula incana Willd.	Calendula		
 1001	species	Calendula eckerleinii Ohle	Calendula		
 10001	subspecies	Calendula incana subsp. algarbiensis (Boiss.) Ohle	Calendula incana		Calendula algarbiensis
-10002	subspecies	Calendula algarbiensis Boss.		Calendula eckerleinii	
+10002	species	Calendula algarbiensis Boss.		Calendula eckerleinii	

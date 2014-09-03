@@ -17,6 +17,7 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
@@ -113,51 +114,51 @@ public class NormalizerIT extends NeoTest {
   }
 
   @Test
-  @Ignore
   public void testSynonymsWIthMissingAccepted() throws Exception {
     NormalizerStats stats = normalize(3);
     try (Transaction tx = beginTx()) {
 
       //Coleoptera
       NameUsage coleo = getUsageByTaxonId("4");
+      assertEquals("Coleoptera", coleo.getScientificName());
 
       // Pygoleptura nigrella
       NameUsage syn = getUsageByTaxonId("200");
       assertTrue(syn.isSynonym());
 
       // test for inserted incertae sedis usage
-      NameUsage incertae = getUsageByKey(syn.getParentKey());
+      NameUsage incertae = getUsageByKey(syn.getAcceptedKey());
       assertEquals(INCERTAE_SEDIS, incertae.getScientificName());
       assertFalse(incertae.isSynonym());
-      // make sure synonym taxonomy is preserved in incertae sedis
+      // make sure synonym classification is preserved in incertae sedis
       assertEquals(coleo.getKey(), incertae.getParentKey());
 
       // make sure synonyms of synonyms are relinked to incertae accepted
       // Leptura nigrella Adams, 1909
       NameUsage synLep = getUsageByTaxonId("100");
       assertTrue(synLep.isSynonym());
-      assertEquals(incertae.getKey(), synLep.getParentKey());
+      assertEquals(incertae.getKey(), synLep.getAcceptedKey());
       // Leptura nigrella Chagnon, 1917
       synLep = getUsageByTaxonId("101");
       assertTrue(synLep.isSynonym());
-      assertEquals(incertae.getKey(), synLep.getParentKey());
+      assertEquals(incertae.getKey(), synLep.getAcceptedKey());
     }
   }
 
   @Test
-  @Ignore
   public void testColSynonyms() throws Exception {
     NormalizerStats stats = normalize(4);
     try (Transaction tx = beginTx()) {
 
       // Phoenicus sanguinipennis
       NameUsage acc = getUsageByTaxonId("248320");
+      assertEquals("Phoenicus sanguinipennis Lacordaire, 1869", acc.getScientificName());
       assertFalse(acc.isSynonym());
 
       NameUsage syn = getUsageByTaxonId("282664");
+      assertEquals("Phoenicus sanguinipennis Aurivillius, 1912", syn.getScientificName());
       assertTrue(syn.isSynonym());
-
-      assertEquals(acc.getKey(), syn.getParentKey());
+      assertEquals(acc.getKey(), syn.getAcceptedKey());
 
       // Anniella pulchra pulchra
       NameUsage species = getUsageByTaxonId("1938166");
@@ -168,7 +169,7 @@ public class NormalizerIT extends NeoTest {
 
       NameUsage ssppulchra = getUsageByTaxonId("1943002");
       assertFalse(ssppulchra.isSynonym());
-      assertEquals(ssppulchra.getKey(), speciesSyn.getParentKey());
+      assertEquals(ssppulchra.getKey(), speciesSyn.getAcceptedKey());
       assertEquals(species.getKey(), ssppulchra.getParentKey());
 
       NameUsage sspnigra = getUsageByTaxonId("1943001");
@@ -190,31 +191,48 @@ public class NormalizerIT extends NeoTest {
    * "Arthropoda","Animalia","genus","synonym"
    */
   @Test
-  @Ignore
   public void testIncertaeSedisSynonyms() throws Exception {
     NormalizerStats stats = normalize(5);
     try (Transaction tx = beginTx()) {
-      // Tubiferidae Cossmann, 1895
-      // "mol101988","Tubiferidae Cossmann, 1895","Cossmann, 1895",,,"Tubiferidae","Heterostropha","Gastropoda","Mollusca","Animalia","family","synonym"
-      NameUsage syn = getUsageByTaxonId("mol101988");
+
+      NameUsage syn = getUsageByTaxonId("por10083");
+      assertEquals("Megalithistida", syn.getScientificName());
       assertTrue(syn.isSynonym());
 
-      NameUsage sedis = getUsageByKey(syn.getParentKey());
+      NameUsage sedis = getUsageByKey(syn.getAcceptedKey());
       assertFalse(sedis.isSynonym());
       assertEquals(INCERTAE_SEDIS, sedis.getScientificName());
 
       NameUsage parent = getUsageByKey(sedis.getParentKey());
+      assertFalse(parent.isSynonym());
+      assertEquals("Demospongea", parent.getScientificName());
+      assertEquals(Rank.CLASS, parent.getRank());
+
+
+      // Tubiferidae Cossmann, 1895
+      // "mol101988","Tubiferidae Cossmann, 1895","Cossmann, 1895",,,"Tubiferidae","Heterostropha","Gastropoda","Mollusca","Animalia","family","synonym"
+      syn = getUsageByTaxonId("mol101988");
+      assertEquals("Tubiferidae Cossmann, 1895", syn.getScientificName());
+      assertTrue(syn.isSynonym());
+
+      sedis = getUsageByKey(syn.getAcceptedKey());
+      assertFalse(sedis.isSynonym());
+      assertEquals(INCERTAE_SEDIS, sedis.getScientificName());
+
+      parent = getUsageByKey(sedis.getParentKey());
       assertFalse(parent.isSynonym());
       assertEquals("Heterostropha", parent.getScientificName());
       assertEquals(Rank.ORDER, parent.getRank());
 
       // Acanthophora Hulst, 1896
       syn = getUsageByTaxonId("hex1088048");
+      assertEquals("Acanthophora Hulst, 1896", syn.getScientificName());
       assertTrue(syn.isSynonym());
 
-      NameUsage acc = getUsageByKey(syn.getParentKey());
-      assertFalse(acc.isSynonym());
+      NameUsage acc = getUsageByKey(syn.getAcceptedKey());
       assertEquals("Acanthotoca", acc.getScientificName());
+      assertFalse(acc.isSynonym());
+      assertEquals(syn.getParentKey(), acc.getParentKey());
 
       parent = getUsageByKey(acc.getParentKey());
       assertFalse(parent.isSynonym());
@@ -223,9 +241,10 @@ public class NormalizerIT extends NeoTest {
 
       // Acanthophora Borgmeier, 1922
       syn = getUsageByTaxonId("hex1090241");
+      assertEquals("Acanthophora Borgmeier, 1922", syn.getScientificName());
       assertTrue(syn.isSynonym());
 
-      acc = getUsageByKey(syn.getParentKey());
+      acc = getUsageByKey(syn.getAcceptedKey());
       assertFalse(acc.isSynonym());
       assertEquals("Acanthophorides", acc.getScientificName());
 
@@ -233,6 +252,18 @@ public class NormalizerIT extends NeoTest {
       assertFalse(parent.isSynonym());
       assertEquals("Phoridae", parent.getScientificName());
       assertEquals(Rank.FAMILY, parent.getRank());
+    }
+  }
+
+  /**
+   * Debugging method, please leave even if not used
+   * @param key
+   */
+  private void printKey(Integer key){
+    if (key == null) {
+      System.out.println("Key: NULL");
+    } else {
+      System.out.println("Key: " + key + " = " + getUsageByKey(key).getScientificName());
     }
   }
 
@@ -247,7 +278,6 @@ public class NormalizerIT extends NeoTest {
    * Discovered with this test.
    */
   @Test
-  @Ignore
   public void testDenormedIndexFungorum() throws Exception {
     NormalizerStats stats = normalize(6);
     try (Transaction tx = beginTx()) {
@@ -255,7 +285,9 @@ public class NormalizerIT extends NeoTest {
                   false,
                   "Lepiota seminuda var. seminuda",
                   null,
+                  null,
                   Rank.VARIETY,
+                  "Lepiota",
                   "Agaricaceae",
                   "Agaricales",
                   "Agaricomycetes",
@@ -266,10 +298,11 @@ public class NormalizerIT extends NeoTest {
                   true,
                   "Polystictus substipitatus (Murrill) Sacc. & Trotter",
                   "Coriolus substipitatus Murrill",
-                  Rank.SPECIES,
                   "Trametes modesta (Kunze ex Fr.) Ryvarden",
-                  "Polyporaceae",
-                  "Polyporales",
+                  Rank.SPECIES,
+                  "Polystictus",
+                  "Hymenochaetaceae",
+                  "Hymenochaetales",
                   "Agaricomycetes",
                   "Basidiomycota",
                   "Fungi");
@@ -277,8 +310,10 @@ public class NormalizerIT extends NeoTest {
       assertUsage("233484",
                   false,
                   "Zignoëlla culmicola Delacr.",
-                  "Zignoëlla culmicola Delacr.",
+                  null,
+                  null,
                   Rank.SPECIES,
+                  "Zignoëlla",
                   "Chaetosphaeriaceae",
                   "Chaetosphaeriales",
                   "Sordariomycetes",
@@ -288,7 +323,8 @@ public class NormalizerIT extends NeoTest {
       assertUsage("970",
                   false,
                   "Chaetosphaeria Tul. & C. Tul.",
-                  "Chaetosphaeria Tul. & C. Tul.",
+                  null,
+                  null,
                   Rank.GENUS,
                   "Chaetosphaeriaceae",
                   "Chaetosphaeriales",
@@ -302,7 +338,6 @@ public class NormalizerIT extends NeoTest {
    * Tests the creation of parent and accepted usages given as verbatim names via acceptedNameUsage or parentNameUsage.
    */
   @Test
-  @Ignore("test outcomes not yet migrated")
   public void testMaterializeVerbatimParents() throws Exception {
     NormalizerStats stats = normalize(7);
     try (Transaction tx = beginTx()) {
@@ -339,7 +374,7 @@ public class NormalizerIT extends NeoTest {
       assertEquals(Rank.SPECIES, u.getRank());
       assertEquals("Leptura nigrella Adams, 1909", u.getScientificName());
 
-      u = getUsageByKey(u.getParentKey());
+      u = getUsageByKey(u.getAcceptedKey());
       assertFalse(u.isSynonym());
       assertEquals(Rank.SPECIES, u.getRank());
       assertEquals("Pygoleptura nigrella", u.getScientificName());
@@ -362,11 +397,11 @@ public class NormalizerIT extends NeoTest {
       assertNull(u.getParentKey());
 
       u = getUsageByTaxonId("104");
-      assertTrue(u.isSynonym());
       assertEquals(Rank.SUBSPECIES, u.getRank());
       assertEquals("Pygoleptura tinktura subsp. synomica Döring, 2011", u.getScientificName());
+      assertTrue(u.isSynonym());
 
-      u = getUsageByKey(u.getParentKey());
+      u = getUsageByKey(u.getAcceptedKey());
       assertFalse(u.isSynonym());
       assertNull(u.getRank());
       assertEquals("Pygoleptura synomica", u.getScientificName());
@@ -430,7 +465,6 @@ public class NormalizerIT extends NeoTest {
    * Tests if the same verbatim parent gets reused and only one usage is created for it
    */
   @Test
-  @Ignore
   public void testVerbatimParent() throws Exception {
     NormalizerStats stats = normalize(11);
     assertEquals(1, stats.getRoots());
@@ -438,7 +472,7 @@ public class NormalizerIT extends NeoTest {
     try (Transaction tx = beginTx()) {
 
       final NameUsage sspalgarbiensis = getUsageByTaxonId("10001");
-      assertUsage(sspalgarbiensis, Rank.SPECIES, "Calendula incana subsp. algarbiensis (Boiss.) Ohle", false);
+      assertUsage(sspalgarbiensis, Rank.SUBSPECIES, "Calendula incana subsp. algarbiensis (Boiss.) Ohle", false);
 
       final NameUsage algarbiensis = getUsageByKey(sspalgarbiensis.getBasionymKey());
       assertUsage(algarbiensis, Rank.SPECIES, "Calendula algarbiensis Boss.", true);
@@ -465,10 +499,121 @@ public class NormalizerIT extends NeoTest {
     }
   }
 
+  @Test
+  public void testDenormedClassification() throws Exception {
+    NormalizerStats stats = normalize(12);
+    try (Transaction tx = beginTx()) {
+      assertUsage("1",
+        false,
+        "Lepiota seminuda",
+        null,
+        null,
+        Rank.SPECIES,
+        "Lepiota",
+        "Agaricaceae",
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota");
+
+      assertUsage("2",
+        false,
+        "Lepiota seminuda",
+        null,
+        null,
+        Rank.SPECIES,
+        "Lepiota",
+        "Agaricaceae",
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota");
+
+      assertUsage("3",
+        false,
+        "Lepiota seminuda",
+        null,
+        null,
+        Rank.SPECIES,
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota");
+
+      assertUsage("4",
+        false,
+        "Lepiota seminuda",
+        null,
+        null,
+        Rank.SPECIES,
+        "Lepiota",
+        "Agaricaceae",
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota",
+        "Fungi");
+
+      // verify identities of higher taxa
+      assertQuantity(2, "Lepiota");
+      assertQuantity(2, "Agaricaceae");
+      assertQuantity(2, "Agaricales");
+      assertQuantity(2, "Agaricomycetes");
+    }
+  }
+
+  @Test
+  public void testMixedDenormedClassification() throws Exception {
+    NormalizerStats stats = normalize(13);
+    try (Transaction tx = beginTx()) {
+      assertUsage("1",
+        false,
+        "Agaricaceae",
+        null,
+        null,
+        Rank.FAMILY,
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota",
+        "Fungi");
+
+      assertUsage("2",
+        false,
+        "Lepiota",
+        null,
+        null,
+        Rank.GENUS,
+        "Agaricaceae",
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota",
+        "Fungi");
+
+      assertUsage("3",
+        false,
+        "Lepiota seminuda",
+        null,
+        null,
+        Rank.SPECIES,
+        "Lepiota",
+        "Agaricaceae",
+        "Agaricales",
+        "Agaricomycetes",
+        "Basidiomycota",
+        "Fungi");
+
+      // verify identities of higher taxa
+      assertQuantity(1, "Lepiota");
+      assertQuantity(1, "Agaricaceae");
+      assertQuantity(1, "Agaricales");
+      assertQuantity(1, "Agaricomycetes");
+    }
+  }
+
   private void assertUsage(NameUsage u, Rank rank, String sciName, boolean synonym) {
     assertEquals(synonym, u.isSynonym());
     assertEquals(rank, u.getRank());
     assertEquals(sciName, u.getScientificName());
+  }
+
+  private void assertQuantity(Integer expected, String canonical) {
+    assertEquals(expected, (Integer) getNodesByName(canonical).size());
   }
 
   /**

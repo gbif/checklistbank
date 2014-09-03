@@ -1,0 +1,5 @@
+taxonID	taxonRank	scientificName	subgenus	genus	family	order	class	phylum	kingdom
+1	species	Lepiota seminuda		Lepiota	Agaricaceae	Agaricales	Agaricomycetes	Basidiomycota	
+2	species	Lepiota seminuda		Lepiota	Agaricaceae	Agaricales	Agaricomycetes	Basidiomycota	
+3	species	Lepiota seminuda				Agaricales	Agaricomycetes	Basidiomycota	
+4	species	Lepiota seminuda		Lepiota	Agaricaceae	Agaricales	Agaricomycetes	Basidiomycota	Fungi

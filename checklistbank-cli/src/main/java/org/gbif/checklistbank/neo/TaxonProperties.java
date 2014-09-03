@@ -12,6 +12,8 @@ public class TaxonProperties {
   public static final String RANK = "rank";
   public static final String SCIENTIFIC_NAME = DwcTerm.scientificName.simpleName();
   public static final String CANONICAL_NAME = GbifTerm.canonicalName.simpleName();
+  public static final String ISSUE = "issues";
+  public static final String STATUS = DwcTerm.taxonomicStatus.simpleName();
 
   private TaxonProperties() {
   }

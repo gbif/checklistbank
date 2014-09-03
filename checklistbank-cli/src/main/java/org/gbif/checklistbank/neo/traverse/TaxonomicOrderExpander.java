@@ -28,13 +28,13 @@ public class TaxonomicOrderExpander implements PathExpander {
     @Nullable
     @Override
     public Integer apply(Relationship rel) {
-      return (Integer) rel.getEndNode().getProperty(TaxonProperties.RANK);
+      return (Integer) rel.getEndNode().getProperty(TaxonProperties.RANK, Integer.MAX_VALUE);
     }
   }).compound(Ordering.natural().onResultOf(new Function<Relationship, String>() {
                 @Nullable
                 @Override
                 public String apply(Relationship rel) {
-                  return (String) rel.getEndNode().getProperty(TaxonProperties.CANONICAL_NAME);
+                  return (String) rel.getEndNode().getProperty(TaxonProperties.CANONICAL_NAME, "");
                 }
               }));
 

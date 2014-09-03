@@ -5,11 +5,14 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameType;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 
 import java.net.URI;
@@ -28,6 +31,7 @@ import org.neo4j.helpers.collection.IteratorUtil;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class NeoMapperTest extends NeoTest {
 
@@ -48,7 +52,7 @@ public class NeoMapperTest extends NeoTest {
     assertEquals(23, map.get("parentKey"));
     assertEquals("Abies", map.get("parent"));
     assertEquals(1, map.get("classKey"));
-    assertEquals("Trees", map.get("clazz"));
+    assertEquals("Trees", map.get("class"));
     assertNotNull(map.get("lastCrawled"));
     assertNotNull(map.get("lastInterpreted"));
     assertEquals(Rank.SPECIES.ordinal(), map.get("rank"));
@@ -87,6 +91,8 @@ public class NeoMapperTest extends NeoTest {
     u.setNumDescendants(7);
     u.getNomenclaturalStatus().add(NomenclaturalStatus.CONSERVED);
     u.getNomenclaturalStatus().add(NomenclaturalStatus.ILLEGITIMATE);
+    u.addIssue(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+    u.addIssue(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
     return u;
   }
 
@@ -108,7 +114,7 @@ public class NeoMapperTest extends NeoTest {
       assertEquals(23, n.getProperty("parentKey"));
       assertEquals("Abies", n.getProperty("parent"));
       assertEquals(1, n.getProperty("classKey"));
-      assertEquals("Trees", n.getProperty("clazz"));
+      assertEquals("Trees", n.getProperty("class"));
       assertNotNull(n.getProperty("lastCrawled"));
       assertNotNull(n.getProperty("lastInterpreted"));
       assertEquals(Rank.SPECIES.ordinal(), n.getProperty("rank"));
@@ -141,12 +147,64 @@ public class NeoMapperTest extends NeoTest {
   }
 
   @Test
+  public void readWriteEnum() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(UUID.randomUUID());
+    final String prop = "enumProperty";
+    try (Transaction tx = beginTx()) {
+      Node n = db.createNode();
+
+      assertNull(mapper.readEnum(n, prop, Kingdom.class, null));
+      assertEquals(Kingdom.ANIMALIA, mapper.readEnum(n, prop, Kingdom.class, Kingdom.ANIMALIA));
+      mapper.storeEnum(n, prop, Kingdom.FUNGI);
+
+      assertEquals(Kingdom.FUNGI, mapper.readEnum(n, prop, Kingdom.class, Kingdom.ANIMALIA));
+    }
+  }
+
+  @Test
+  public void testIssues() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(UUID.randomUUID());
+
+    try (Transaction tx = beginTx()) {
+      NameUsage u = usage();
+      Node n = db.createNode();
+      mapper.store(n, u, true);
+
+      NameUsage u2 = mapper.read(n, new NameUsage());
+      assertEquals(2, u2.getIssues().size());
+      assertTrue(u2.getIssues().contains(NameUsageIssue.CLASSIFICATION_NOT_APPLIED));
+      assertTrue(u2.getIssues().contains(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID));
+
+      mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+      tx.success();
+
+      u2 = mapper.read(n, new NameUsage());
+      assertEquals(3, u2.getIssues().size());
+      assertTrue(u2.getIssues().contains(NameUsageIssue.CLASSIFICATION_NOT_APPLIED));
+      assertTrue(u2.getIssues().contains(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID));
+      assertTrue(u2.getIssues().contains(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID));
+
+      mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+      tx.success();
+
+      u2 = mapper.read(n, new NameUsage());
+      assertEquals(3, u2.getIssues().size());
+      assertTrue(u2.getIssues().contains(NameUsageIssue.CLASSIFICATION_NOT_APPLIED));
+      assertTrue(u2.getIssues().contains(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID));
+      assertTrue(u2.getIssues().contains(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID));
+    }
+  }
+
+  @Test
   public void testClassification() throws Exception {
     NeoMapper mapper = NeoMapper.instance();
     initDb(UUID.randomUUID());
     try (Transaction tx = beginTx()) {
       NameUsage u = usage();
       u.setKingdom("Plant");
+      u.setClazz("Trees");
       u.setFamily("Asteraceae");
       u.setGenus("Aster");
       Node n = db.createNode();
@@ -158,11 +216,42 @@ public class NeoMapperTest extends NeoTest {
 
       assertEquals("Plant", cl.getKingdom());
       assertNull(cl.getPhylum());
-      assertNull(cl.getClazz());
+      assertEquals("Trees", cl.getClazz());
       assertNull(cl.getOrder());
       assertEquals("Asteraceae", cl.getFamily());
       assertEquals("Aster", cl.getGenus());
       assertNull(cl.getSubgenus());
+    }
+  }
+
+  @Test
+  public void testClassificationList() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(UUID.randomUUID());
+    try (Transaction tx = beginTx()) {
+      NameUsage u = usage();
+      u.setKingdom("Plant");
+      u.setClazz("Asticlass");
+      u.setFamily("Asteraceae");
+      u.setGenus("Aster");
+      u.setSubgenus("Aster");
+      Node n = db.createNode();
+
+      mapper.store(n, u, true);
+      tx.success();
+
+      List<RankedName> cl = mapper.listVerbatimClassification(n, null);
+      assertEquals(5, cl.size());
+      assertEquals("Aster", cl.remove(0).name);
+      assertEquals("Aster", cl.remove(0).name);
+      assertEquals("Asteraceae", cl.remove(0).name);
+      assertEquals("Asticlass", cl.remove(0).name);
+      assertEquals("Plant", cl.remove(0).name);
+
+      cl = mapper.listVerbatimClassification(n, Rank.FAMILY);
+      assertEquals(2, cl.size());
+      assertEquals("Asticlass", cl.remove(0).name);
+      assertEquals("Plant", cl.remove(0).name);
     }
   }
 

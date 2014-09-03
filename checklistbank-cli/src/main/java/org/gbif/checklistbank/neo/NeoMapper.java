@@ -5,7 +5,9 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.ClassificationUtils;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
@@ -16,6 +18,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,9 +26,10 @@ import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.smile.SmileFactory;
@@ -52,6 +56,7 @@ public class NeoMapper {
   private final ObjectMapper objMapper;
   private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapper();
   private final TypeFactory tf = TypeFactory.defaultInstance();
+  private final JavaType issueType;
   enum FieldType {PRIMITIVE, NATIVE, ENUM, OTHER}
 
   static {
@@ -86,6 +91,11 @@ public class NeoMapper {
   private NeoMapper() {
     SmileFactory f = new SmileFactory();
     objMapper = new ObjectMapper(f);
+    try {
+      issueType = tf.constructType(NameUsage.class.getDeclaredField("issues").getGenericType());
+    } catch (NoSuchFieldException e) {
+      throw new IllegalStateException("issues field not existing on NameUsage");
+    }
   }
 
   public static synchronized NeoMapper instance() {
@@ -181,13 +191,17 @@ public class NeoMapper {
     return props;
   }
 
-  public <T> T readEnum(Node n, String property, Class<T> vocab) {
+  public static <T> T readEnum(Node n, String property, Class<T> vocab, T defaultValue) {
     Object val = n.getProperty(property, null);
     if (val != null) {
       int idx = (Integer) val;
       return (T) vocab.getEnumConstants()[idx];
     }
-    return null;
+    return defaultValue;
+  }
+
+  public void storeEnum(Node n, String property, Enum value) {
+    n.setProperty(property, value.ordinal());
   }
 
   /**
@@ -256,6 +270,10 @@ public class NeoMapper {
       u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));
       u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
       u.setBasionymKey(getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING));
+      // update synonym flag based on relations
+      if (u.getAcceptedKey() != null) {
+        u.setSynonym(true);
+      }
       return u;
     }
     return null;
@@ -326,22 +344,18 @@ public class NeoMapper {
         otherType = tf.constructType(f.getGenericType());
       }
 
-      String property = f.getName();
+      // allow JsonProperty annotation to override the default field name
+      JsonProperty anno = f.getAnnotation(JsonProperty.class);
+      String property;
+      if (anno == null) {
+        property = f.getName();
+      } else {
+        property = anno.value();
+      }
+
       fields.add(new FieldData(f, property, type, fCl, otherType));
       LOG.debug("Map field {} with type {} {} to neo property {}", f.getName(), type, otherType == null ? fCl : otherType, property);
     }
-  }
-
-  private Class<?> detectGenericType(Field f) {
-    Type gType = f.getGenericType();
-    if (gType instanceof ParameterizedType) {
-      ParameterizedType pType = (ParameterizedType) gType;
-      Type[] arr = pType.getActualTypeArguments();
-      for (Type tp : arr) {
-        return (Class<?>) tp;
-      }
-    }
-    return null;
   }
 
   private List<Field> getAllFields(Class<?> cl) {
@@ -381,11 +395,44 @@ public class NeoMapper {
     return lc;
   }
 
-  public static void setValue(Node n, Term t, String value) {
-    if (Strings.isNullOrEmpty(value)) {
-      n.removeProperty(propertyName(t));
-    } else {
-      n.setProperty(propertyName(t), value);
+  /**
+   * @return list of ranked name instances from lowest rank to highest using the verbatim denormed classification.
+   */
+  public static List<RankedName> listVerbatimClassification(Node n, @Nullable Rank minRank) {
+    List<RankedName> cl = Lists.newArrayList();
+    for (Map.Entry<Rank, DwcTerm> ct : classificationTerms.entrySet()) {
+      if ((minRank == null || ct.getKey().higherThan(minRank)) && n.hasProperty(ct.getValue().simpleName())) {
+        RankedName rn = new RankedName();
+        rn.name = (String) n.getProperty(ct.getValue().simpleName());
+        rn.rank = ct.getKey();
+        cl.add(rn);
+      }
+    }
+    Collections.reverse(cl);
+    return cl;
+  }
+
+  public static RankedName readRankedName(Node n) {
+    RankedName rn = new RankedName();
+    rn.node = n;
+    rn.name = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
+    rn.rank = readEnum(n, TaxonProperties.RANK, Rank.class, null);
+    return rn;
+  }
+
+  public void addIssue(Node n, NameUsageIssue issue) {
+    try {
+      Set<NameUsageIssue> issues;
+      if (n.hasProperty(TaxonProperties.ISSUE)) {
+        issues = objMapper.readValue((byte[]) n.getProperty(TaxonProperties.ISSUE), issueType);
+      } else {
+        issues = Sets.newHashSet();
+      }
+      issues.add(issue);
+      n.setProperty(TaxonProperties.ISSUE, objMapper.writeValueAsBytes(issues));
+
+    } catch (IOException e) {
+      // TODO: Handle exception
     }
   }
 

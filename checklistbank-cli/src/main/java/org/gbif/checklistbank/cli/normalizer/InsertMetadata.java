@@ -15,6 +15,7 @@ public class InsertMetadata {
   private boolean denormedClassificationMapped;
   private boolean originalNameMapped;
   private boolean acceptedNameMapped;
+  private boolean parentNameMapped;
   private Map<Term, Splitter> multiValueDelimiters = Maps.newHashMap();
 
   /**
@@ -50,6 +51,14 @@ public class InsertMetadata {
 
   public void setAcceptedNameMapped(boolean acceptedNameMapped) {
     this.acceptedNameMapped = acceptedNameMapped;
+  }
+
+  public boolean isParentNameMapped() {
+    return parentNameMapped;
+  }
+
+  public void setParentNameMapped(boolean parentNameMapped) {
+    this.parentNameMapped = parentNameMapped;
   }
 
   public Map<Term, Splitter> getMultiValueDelimiters() {

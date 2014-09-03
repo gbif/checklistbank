@@ -154,6 +154,9 @@ public class NeoInserter {
           break;
         }
       }
+      if (arch.getCore().hasTerm(DwcTerm.parentNameUsageID) || arch.getCore().hasTerm(DwcTerm.parentNameUsage)) {
+        meta.setParentNameMapped(true);
+      }
       if (arch.getCore().hasTerm(DwcTerm.acceptedNameUsageID) || arch.getCore().hasTerm(DwcTerm.acceptedNameUsage)) {
         meta.setAcceptedNameMapped(true);
       }

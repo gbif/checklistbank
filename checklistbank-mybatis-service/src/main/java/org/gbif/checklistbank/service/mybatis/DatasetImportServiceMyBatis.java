@@ -114,10 +114,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     int key;
     if (resp.isEmpty()) {
       key = insertNewUsage(datasetKey, usage, verbatim, metrics);
+      LOG.debug("inserted usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
     } else {
       key = updateUsage(datasetKey, resp.get(0), usage, verbatim, metrics);
+      LOG.debug("updated usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
     }
-    LOG.info("synced taxonID {} as usage {} from dataset {}", usage.getTaxonID(), key, datasetKey);
     return key;
   }
 

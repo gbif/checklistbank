@@ -9,6 +9,8 @@ import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
@@ -22,6 +24,7 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * base class to create neo integration tests.
@@ -61,15 +64,24 @@ public abstract class NeoTest {
     return getUsageByNode(n);
   }
 
+  /**
+   * gets single usage or null, throws exception if more than 1 usage exist!
+   */
   public NameUsage getUsageByTaxonId(String id) {
-    Node n = IteratorUtil.firstOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, id));
+    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
 
+  /**
+   * gets single usage or null, throws exception if more than 1 usage exist!
+   */
   public NameUsage getUsageByName(String name) {
-    Node n =
-      IteratorUtil.firstOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
+    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
     return getUsageByNode(n);
+  }
+
+  public List<Node> getNodesByName(String name) {
+    return IteratorUtil.asList(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
   }
 
   private NameUsage getUsageByNode(Node n) {
@@ -101,8 +113,9 @@ public abstract class NeoTest {
     boolean synonym,
     String name,
     String basionym,
+    String accepted,
     Rank rank,
-    String... parents
+    String ... parents
   ) {
     NameUsage u = getUsageByTaxonId(sourceID);
     assertEquals(synonym, u.isSynonym());
@@ -118,6 +131,9 @@ public abstract class NeoTest {
     }
     Integer pid = u.getParentKey();
     for (String pn : parents) {
+      if (pid == null) {
+        fail("Missing expected parent " + pn);
+      }
       NameUsage p = getUsageByKey(pid);
       assertEquals(pn, p.getScientificName());
       pid = p.getParentKey();
