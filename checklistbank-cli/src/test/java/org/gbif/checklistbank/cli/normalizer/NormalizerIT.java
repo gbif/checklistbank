@@ -17,7 +17,6 @@ import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
@@ -33,6 +32,10 @@ public class NormalizerIT extends NeoTest {
 
   private static final String INCERTAE_SEDIS = "Incertae sedis";
   private NormalizerConfiguration cfg;
+
+  public NormalizerIT() {
+    super(false);
+  }
 
   @Before
   public void initDwcaRepo() throws Exception {
@@ -280,6 +283,8 @@ public class NormalizerIT extends NeoTest {
   @Test
   public void testDenormedIndexFungorum() throws Exception {
     NormalizerStats stats = normalize(6);
+    assertEquals(1, stats.getRoots());
+
     try (Transaction tx = beginTx()) {
       assertUsage("426221",
                   false,
@@ -643,15 +648,12 @@ public class NormalizerIT extends NeoTest {
       assertNull(u.getBasionymKey());
       assertEquals(incana.getKey(), u.getParentKey());
 
-      //the synonym cycle should be cut, so not all ids exist as accepted
-      Set<Integer> accIds = Sets.newHashSet();
-      for (Integer id : new Integer[] {10002, 10003, 10004}) {
-        Integer accId = getUsageByTaxonId(id.toString()).getAcceptedKey();
-        if (accId != null) {
-          accIds.add(accId);
-        }
+      //the synonym cycle should be cut and all relinked to a new incertae sedis taxon
+      final NameUsage incertae = getUsageByKey( getUsageByTaxonId("10002").getAcceptedKey() );
+      assertEquals(incana.getKey(), incertae.getParentKey());
+      for (Integer id : new Integer[] {10003, 10004}) {
+        assertEquals("Synonym cycle for taxonID 10002 not cut", incertae.getKey(), getUsageByTaxonId(id.toString()).getAcceptedKey());
       }
-      assertTrue("Synonym cycle not cut", accIds.size() < 3);
     }
   }
 

@@ -34,6 +34,15 @@ public abstract class NeoTest {
   protected NeoConfiguration cfg;
   protected GraphDatabaseService db;
   private NeoMapper mapper = NeoMapper.instance();
+  private final boolean cleanup;
+
+  public NeoTest() {
+    this.cleanup = true;
+  }
+
+  public NeoTest(boolean cleanup) {
+    this.cleanup = cleanup;
+  }
 
   @Before
   public void initNeoCfg() throws Exception {
@@ -47,8 +56,10 @@ public abstract class NeoTest {
     if (db != null) {
       db.shutdown();
     }
-    org.apache.commons.io.FileUtils.cleanDirectory(cfg.neoRepository);
-    cfg.neoRepository.delete();
+    if (cleanup) {
+      org.apache.commons.io.FileUtils.cleanDirectory(cfg.neoRepository);
+      cfg.neoRepository.delete();
+    }
   }
 
   public void initDb(UUID datasetKey) {

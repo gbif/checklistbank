@@ -32,6 +32,7 @@ import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
@@ -112,7 +113,6 @@ public class Normalizer extends NeoRunnable {
     setupDb();
     setupIndices();
     setupRelations();
-    applyDenormedClassification();
     buildMetrics();
     tearDownDb();
 
@@ -188,6 +188,10 @@ public class Normalizer extends NeoRunnable {
       tx.close();
     }
 
+    // now process the denormalized classifications
+    applyDenormedClassification();
+
+    // finally resolve cycles and other bad relations
     cleanupRelations();
 
     LOG.info("Relation setup completed, {} nodes processed", counter);
@@ -197,6 +201,7 @@ public class Normalizer extends NeoRunnable {
   /**
    * Applies the classificaiton given as denormalized higher taxa terms
    * after the parent / accepted relations have been applied.
+   * It also removes the ROOT label if new parents are assigned.
    * We need to be careful as the classification coming in first via the parentNameUsage(ID) terms
    * is variable and must not always include a rank.
    */
@@ -259,19 +264,24 @@ public class Normalizer extends NeoRunnable {
     RankedName parent = denormedClassification.remove(0);
     for (Node n : nodesByCanonical(parent.name)) {
       if (matchesClassification(n, denormedClassification)) {
-        n.createRelationshipTo(taxon, RelType.PARENT_OF);
+        assignParent(n, taxon);
         return;
       }
     }
     // create higher taxon if not found
     parent.node = createTaxon(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED);
     // create parent relationship
-    parent.node.createRelationshipTo(taxon, RelType.PARENT_OF);
+    assignParent(parent.node, taxon);
 
     // link further up recursively?
     if (!denormedClassification.isEmpty()) {
       updateDenormedClassification(parent.node, denormedClassification);
     }
+  }
+
+  private void assignParent(Node parent, Node child) {
+    parent.createRelationshipTo(child, RelType.PARENT_OF);
+    child.removeLabel(Labels.ROOT);
   }
 
   /**
@@ -297,7 +307,7 @@ public class Normalizer extends NeoRunnable {
           stats.getCycles().add((String) syn.getProperty(TaxonProperties.TAXON_ID, null));
 
           Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL);
-          syn.createRelationshipTo(acc, RelType.SYNONYM_OF);
+          createSynonymRel(syn, acc, true);
           sr.delete();
         }
       } catch (NoSuchElementException e) {
@@ -319,7 +329,7 @@ public class Normalizer extends NeoRunnable {
           Node acc = (Node) row.get("t");
           for (Relationship sr : (Collection<Relationship>) row.get("sr")) {
             Node syn = sr.getStartNode();
-            syn.createRelationshipTo(acc, RelType.SYNONYM_OF);
+            createSynonymRel(syn, acc, true);
             sr.delete();
           }
         }
@@ -328,6 +338,29 @@ public class Normalizer extends NeoRunnable {
     }
 
     LOG.info("Relations cleaned up, {} cycles detected", stats.getCycles().size());
+  }
+
+  private void createSynonymRel(Node synonym, Node accepted, boolean moveParentRel) {
+    synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+    if (moveParentRel && synonym.hasRelationship(RelType.PARENT_OF)) {
+      try {
+        Relationship rel = synonym.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+        if (rel != null) {
+          // check if accepted has a parent relation already
+          if (!accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
+            rel.getStartNode().createRelationshipTo(accepted, RelType.PARENT_OF);
+            accepted.removeLabel(Labels.ROOT);
+          }
+        }
+      } catch (RuntimeException e) {
+        // more than one parent relationship exists, should never be the case, sth wrong!
+        LOG.warn("Synonym {} has multiple parent relationships. Deleting them all!", synonym.getId());
+        //for (Relationship r : synonym.getRelationships(RelType.PARENT_OF)) {
+        //  r.delete();
+        //}
+      }
+
+    }
   }
 
   private void buildMetrics() {
@@ -498,11 +531,12 @@ public class Normalizer extends NeoRunnable {
     }
   }
 
-  @Override
   protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
     stats.incRank(rank);
     stats.incOrigin(origin);
-    return super.createTaxon(origin, sciname, rank, status);
+    Node n = super.create(origin, sciname, rank, status);
+    n.addLabel(Labels.ROOT);
+    return n;
   }
 
   private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status,

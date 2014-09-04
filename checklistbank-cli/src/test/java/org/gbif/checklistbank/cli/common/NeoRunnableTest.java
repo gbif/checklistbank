@@ -134,7 +134,7 @@ public class NeoRunnableTest {
     try(Transaction tx = neo.db.beginTx()) {
       assertNull(neo.nodeBySciname("Abies Mill."));
 
-      Node n = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
+      Node n = neo.create(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
       tx.success();
 
       assertEquals(n, neo.nodeBySciname("Abies Mill."));
@@ -146,16 +146,16 @@ public class NeoRunnableTest {
   public void testHighestParent() throws Exception {
     try(Transaction tx = neo.db.beginTx()) {
 
-      Node n = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
+      Node n = neo.create(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
       tx.success();
 
       assertEquals(n, neo.getHighestParent(n).node);
 
 
-      Node syn = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinus", Rank.GENUS, TaxonomicStatus.SYNONYM);
-      Node n2 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinaceae", Rank.FAMILY, TaxonomicStatus.ACCEPTED);
-      Node n3 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinales", Rank.ORDER, TaxonomicStatus.ACCEPTED);
-      Node n4 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED);
+      Node syn = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinus", Rank.GENUS, TaxonomicStatus.SYNONYM);
+      Node n2 = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinaceae", Rank.FAMILY, TaxonomicStatus.ACCEPTED);
+      Node n3 = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinales", Rank.ORDER, TaxonomicStatus.ACCEPTED);
+      Node n4 = neo.create(Origin.DENORMED_CLASSIFICATION, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED);
       n4.createRelationshipTo(n3, RelType.PARENT_OF);
       n3.createRelationshipTo(n2, RelType.PARENT_OF);
       n2.createRelationshipTo(n, RelType.PARENT_OF);
@@ -170,11 +170,11 @@ public class NeoRunnableTest {
   public void testMatchesClassification() throws Exception {
     try(Transaction tx = neo.db.beginTx()) {
 
-      Node n = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
-      Node syn = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinus", Rank.GENUS, TaxonomicStatus.SYNONYM);
-      Node n2 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinaceae", Rank.FAMILY, TaxonomicStatus.ACCEPTED);
-      Node n3 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Pinales", Rank.ORDER, TaxonomicStatus.ACCEPTED);
-      Node n4 = neo.createTaxon(Origin.DENORMED_CLASSIFICATION, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED);
+      Node n = neo.create(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED);
+      Node syn = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinus", Rank.GENUS, TaxonomicStatus.SYNONYM);
+      Node n2 = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinaceae", Rank.FAMILY, TaxonomicStatus.ACCEPTED);
+      Node n3 = neo.create(Origin.DENORMED_CLASSIFICATION, "Pinales", Rank.ORDER, TaxonomicStatus.ACCEPTED);
+      Node n4 = neo.create(Origin.DENORMED_CLASSIFICATION, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED);
       n4.createRelationshipTo(n3, RelType.PARENT_OF);
       n3.createRelationshipTo(n2, RelType.PARENT_OF);
       n2.createRelationshipTo(n, RelType.PARENT_OF);

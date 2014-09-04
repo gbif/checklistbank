@@ -19,7 +19,6 @@ import org.junit.Test;
 
 public class ImporterIT extends NeoTest {
 
-  private static final String INCERTAE_SEDIS = "Incertae sedis";
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;

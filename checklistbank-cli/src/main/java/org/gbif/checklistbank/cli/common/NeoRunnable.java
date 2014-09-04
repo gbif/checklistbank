@@ -121,7 +121,7 @@ public abstract class NeoRunnable implements Runnable {
       .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
   }
 
-  protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
+  protected Node create(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
     NameUsage u = new NameUsage();
     u.setScientificName(sciname);
     //TODO: parse name???
@@ -130,6 +130,9 @@ public abstract class NeoRunnable implements Runnable {
     u.setOrigin(origin);
     u.setTaxonomicStatus(status);
     Node n = db.createNode(Labels.TAXON);
+    if (status != null && status.isSynonym()) {
+      n.addLabel(Labels.SYNONYM);
+    }
     mapper.store(n, u, false);
     return n;
   }
