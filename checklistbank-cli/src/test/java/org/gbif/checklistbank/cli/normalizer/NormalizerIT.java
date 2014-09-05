@@ -421,24 +421,29 @@ public class NormalizerIT extends NeoTest {
   public void testProParteSynonyms() throws Exception {
     NormalizerStats stats = normalize(8);
     try (Transaction tx = beginTx()) {
-      assertEquals(17, stats.getUsages());
       assertEquals(1, stats.getRoots());
+      assertEquals(17, stats.getUsages());
 
       // genus synonym
-      NameUsage nu =
-        null; // = usageService.search(null, null, "Cladendula Döring", SearchType.fullname, 110, null, null, null, null, null, null).get(0);
+      NameUsage nu = getUsageByTaxonId("101");
       assertEquals("Cladendula Döring", nu.getScientificName());
       assertEquals(Rank.GENUS, nu.getRank());
       assertEquals(TaxonomicStatus.SYNONYM, nu.getTaxonomicStatus());
-      assertTrue(nu.isSynonym() == true);
+      assertTrue(nu.isSynonym());
 
       NameUsage acc = getUsageByKey(nu.getParentKey());
       assertEquals("Calendula L.", acc.getScientificName());
       assertEquals(Rank.GENUS, acc.getRank());
       assertEquals(TaxonomicStatus.ACCEPTED, acc.getTaxonomicStatus());
-      assertTrue(acc.isSynonym() == false);
+      assertFalse(acc.isSynonym());
 
       // pro parte synonym
+      nu = getUsageByTaxonId("1001");
+      assertEquals("Calendula eckerleinii Ohle", nu.getScientificName());
+      assertEquals(Rank.SPECIES, nu.getRank());
+      assertEquals(TaxonomicStatus.PROPARTE_SYNONYM, nu.getTaxonomicStatus());
+      assertTrue(nu.isSynonym());
+
       List<NameUsage> propartes =
         Lists.newArrayList(); // = usageService.search(null, null, "Calendula eckerleinii Ohle", SearchType.fullname, 110, null, null, null, null, null, null);
       assertEquals(3, propartes.size());

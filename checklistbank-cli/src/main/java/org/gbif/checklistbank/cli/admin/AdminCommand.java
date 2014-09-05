@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.crawler.ChecklistValidationReport;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.cli.BaseCommand;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 import org.kohsuke.MetaInfServices;
 
@@ -43,10 +45,13 @@ public class AdminCommand extends BaseCommand {
           publisher.send( new StartCrawlMessage(cfg.datasetKey));
 
         case NORMALIZE:
-          // validation result is fake as it is unused in checklist processing (so far)
+          // validation result is a fake valid checklist validation
           publisher.send( new DwcaMetasyncFinishedMessage(cfg.datasetKey, DatasetType.CHECKLIST,
-                                                          URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                                                          new DwcaValidationReport(cfg.datasetKey, 1, 1, 0, 1, 0, true)) );
+                  URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
+                  new DwcaValidationReport(cfg.datasetKey,
+                    new ChecklistValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+                  )
+          );
           break;
         case IMPORT:
           publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey) );
