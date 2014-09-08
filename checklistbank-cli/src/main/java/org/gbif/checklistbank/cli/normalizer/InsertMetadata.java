@@ -20,7 +20,7 @@ public class InsertMetadata {
   private boolean parentNameMapped;
   private Map<Term, Splitter> multiValueDelimiters = Maps.newHashMap();
   private int records;
-  private Map<Rank, AtomicInteger> recordsByRank;
+  private Map<Rank, AtomicInteger> recordsByRank = Maps.newHashMap();
 
   /**
    * @return true if the coreID of the core records is used instead of a column mapped to the taxonID term.
