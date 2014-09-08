@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -9,11 +10,9 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -56,8 +55,7 @@ public class NormalizerIT extends NeoTest {
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
 
-    assertEquals(20, stats.getRecords());
-    assertEquals(20, stats.getUsages());
+    assertEquals(20, stats.getCount());
     assertEquals(6, stats.getDepth());
     assertEquals(20, stats.getCountByOrigin(Origin.SOURCE));
     assertEquals(1, stats.getRoots());
@@ -108,8 +106,7 @@ public class NormalizerIT extends NeoTest {
     }
 
     System.out.println(stats);
-    assertEquals(14, stats.getRecords());
-    assertEquals(14, stats.getUsages());
+    assertEquals(14, stats.getCount());
     assertEquals(7, stats.getDepth());
     assertEquals(14, stats.getCountByOrigin(Origin.SOURCE));
     assertEquals(1, stats.getRoots());
@@ -422,7 +419,7 @@ public class NormalizerIT extends NeoTest {
     NormalizerStats stats = normalize(8);
     try (Transaction tx = beginTx()) {
       assertEquals(1, stats.getRoots());
-      assertEquals(17, stats.getUsages());
+      assertEquals(17, stats.getCount());
 
       // genus synonym
       NameUsage nu = getUsageByTaxonId("101");

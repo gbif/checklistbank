@@ -1,10 +1,10 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerIT;
-import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 
 import java.net.URL;
 import java.nio.file.Path;

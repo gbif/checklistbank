@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.model.crawler.NormalizerStats;
+
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;

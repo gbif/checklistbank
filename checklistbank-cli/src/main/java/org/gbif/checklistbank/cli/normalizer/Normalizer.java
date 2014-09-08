@@ -139,23 +139,6 @@ public class Normalizer extends NeoRunnable {
     meta = inserter.insert(storeDir, dwca, batchSize, insertMeter, constituents);
   }
 
-  private void deleteAllRelations() {
-    LOG.debug("Delete any existing relations");
-    try (Transaction tx = db.beginTx()) {
-      int counter = 0;
-      for (Relationship rel : GlobalGraphOperations.at(db).getAllRelationships()) {
-        rel.delete();
-        counter++;
-        if (counter % batchSize == 0) {
-          tx.success();
-          LOG.debug("Deleted {} relations", counter);
-        }
-      }
-      tx.success();
-      LOG.debug("Deleted all {} relations", counter);
-    }
-  }
-
   /**
    * Creates implicit nodes and sets up relations between taxa.
    */

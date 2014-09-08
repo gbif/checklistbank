@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
@@ -25,7 +26,6 @@ import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.dwc.text.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
-import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +33,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.helpers.collection.MapUtil;
@@ -62,6 +64,7 @@ public class NeoInserter {
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
   private InsertMetadata meta;
+  private ExtensionInterpreter extensionInterpreter = new ExtensionInterpreter();
 
   public InsertMetadata insert(File storeDir, File dwca, int batchSize, Meter insertMeter,
                                Map<String, UUID> constituents) throws NormalizationFailedException {
@@ -91,6 +94,7 @@ public class NeoInserter {
       meta.incRecords();
       VerbatimNameUsage v = new VerbatimNameUsage();
 
+      // set core props
       Record core = star.core();
       for (Term t : core.terms()) {
         String val = clean(core.value(t));
@@ -100,7 +104,23 @@ public class NeoInserter {
       }
       // make sure this is last to override already put taxonID keys
       v.setCoreField(DwcTerm.taxonID, taxonID(core));
-
+      // read extensions data
+      for (Extension ext : Extension.values()) {
+        if (star.hasExtension(ext.getRowType())) {
+          v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
+          for (Record eRec : star.extension(ext.getRowType())) {
+            Map<Term, String> data = Maps.newHashMap();
+            for (Term t : eRec.terms()) {
+              String val = clean(eRec.value(t));
+              if (val != null) {
+                data.put(t, val);
+              }
+            }
+            v.getExtensions().get(ext).add(data);
+          }
+        }
+      }
+      // convert into a NameUsage interpreting all enums and other needed types
       NameUsageContainer u = buildUsage(v);
 
       // ... and into neo
@@ -279,6 +299,9 @@ public class NeoInserter {
       }
     }
 
+    // INTERPRET EXTENSIONS
+    extensionInterpreter.interpret(u, v);
+
     return u;
   }
 
@@ -290,7 +313,7 @@ public class NeoInserter {
     }
   }
 
-  private String clean(String x) {
+  static String clean(String x) {
     if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
       return null;
     }

@@ -43,7 +43,7 @@
     <registry-client.version>2.16</registry-client.version>
     <name-parser.version>2.5-SNAPSHOT</name-parser.version>
     <gbif-parser.version>0.10-SNAPSHOT</gbif-parser.version>
-    <dwca-reader.version>1.18</dwca-reader.version>
+    <dwca-reader.version>1.19-SNAPSHOT</dwca-reader.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
@@ -113,6 +113,18 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!--
+          Avoids PowerMock issue with Java7 on OSX
+          "java.lang.VerifyError: Bad <init> method call from inside of a branch"
+          See https://code.google.com/p/powermock/issues/detail?id=504
+          -->
+          <argLine>-XX:-UseSplitVerifier</argLine>
+        </configuration>
       </plugin>
     </plugins>
   </build>
