@@ -12,6 +12,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.File;
 import java.util.Collection;
@@ -20,10 +21,12 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
+import com.beust.jcommander.internal.Maps;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -75,8 +78,15 @@ public class Normalizer extends NeoRunnable {
   private final Meter insertMeter;
   private final Meter relationMeter;
   private final Meter metricsMeter;
-  private NormalizerStats stats;
+
   private InsertMetadata meta;
+  private NormalizerStats stats;
+  private int roots;
+  private int depth;
+  private int synonyms;
+  private Map<Origin, Integer> countByOrigin = Maps.newHashMap();
+  private Map<Rank, Integer> countByRank = Maps.newHashMap();
+  private List<String> cycles = Lists.newArrayList();
 
   public Normalizer(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
     Map<String, UUID> constituents) {
@@ -106,7 +116,6 @@ public class Normalizer extends NeoRunnable {
 
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
-    stats = new NormalizerStats();
     // batch import uses its own batchdb
     batchInsertData();
     // create regular neo db for further processing
@@ -117,6 +126,8 @@ public class Normalizer extends NeoRunnable {
     tearDownDb();
 
     LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
+    countByOrigin.put(Origin.SOURCE, meta.getRecords());
+    stats = new NormalizerStats(roots, depth, synonyms, countByOrigin, countByRank, cycles);
   }
 
   public NormalizerStats getStats() {
@@ -125,7 +136,7 @@ public class Normalizer extends NeoRunnable {
 
   private void batchInsertData() throws NormalizationFailedException {
     NeoInserter inserter = new NeoInserter();
-    meta = inserter.insert(storeDir, dwca, stats, batchSize, insertMeter, constituents);
+    meta = inserter.insert(storeDir, dwca, batchSize, insertMeter, constituents);
   }
 
   private void deleteAllRelations() {
@@ -151,7 +162,6 @@ public class Normalizer extends NeoRunnable {
   private void setupRelations() {
     LOG.debug("Start processing relations ...");
     int counter = 0;
-    int synonyms = 0;
 
     Transaction tx = db.beginTx();
     try {
@@ -182,7 +192,6 @@ public class Normalizer extends NeoRunnable {
         relationMeter.mark();
       }
       tx.success();
-      stats.setSynonyms(synonyms);
 
     } finally {
       tx.close();
@@ -304,7 +313,7 @@ public class Normalizer extends NeoRunnable {
           Relationship sr = (Relationship) IteratorUtil.first(result.columnAs("sr"));
 
           Node syn = sr.getStartNode();
-          stats.getCycles().add((String) syn.getProperty(TaxonProperties.TAXON_ID, null));
+          cycles.add((String) syn.getProperty(TaxonProperties.TAXON_ID, null));
 
           Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL);
           createSynonymRel(syn, acc, true);
@@ -337,7 +346,7 @@ public class Normalizer extends NeoRunnable {
       tx.success();
     }
 
-    LOG.info("Relations cleaned up, {} cycles detected", stats.getCycles().size());
+    LOG.info("Relations cleaned up, {} cycles detected", cycles.size());
   }
 
   private void createSynonymRel(Node synonym, Node accepted, boolean moveParentRel) {
@@ -366,12 +375,11 @@ public class Normalizer extends NeoRunnable {
   private void buildMetrics() {
     ImportTaxonMetricsHandler handler = new ImportTaxonMetricsHandler();
     TaxonWalker.walkAccepted(db, handler, 10000, metricsMeter);
-    stats.setDepth(handler.getMaxDepth());
+    depth = handler.getMaxDepth();
     // do other final metrics
     try (Transaction tx = db.beginTx()) {
-      stats.setRoots(IteratorUtil.count(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT)));
+      roots = IteratorUtil.count(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
     }
-
   }
 
   /**
@@ -532,8 +540,8 @@ public class Normalizer extends NeoRunnable {
   }
 
   protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
-    stats.incRank(rank);
-    stats.incOrigin(origin);
+    incRank(rank);
+    incOrigin(origin);
     Node n = super.create(origin, sciname, rank, status);
     n.addLabel(Labels.ROOT);
     return n;
@@ -551,6 +559,26 @@ public class Normalizer extends NeoRunnable {
       }
     }
     return n;
+  }
+
+  private void incOrigin(Origin origin) {
+    if (origin != null) {
+      if (!countByOrigin.containsKey(origin)) {
+        countByOrigin.put(origin, 1);
+      } else {
+        countByOrigin.put(origin, countByOrigin.get(origin) + 1);
+      }
+    }
+  }
+
+  private void incRank(Rank rank) {
+    if (rank != null) {
+      if (!countByRank.containsKey(rank)) {
+        countByRank.put(rank, 1);
+      } else {
+        countByRank.put(rank, countByRank.get(rank) + 1);
+      }
+    }
   }
 
 }

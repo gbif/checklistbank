@@ -25,6 +25,7 @@ import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.dwc.text.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class NeoInserter {
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
   private InsertMetadata meta;
 
-  public InsertMetadata insert(File storeDir, File dwca, NormalizerStats stats, int batchSize, Meter insertMeter,
+  public InsertMetadata insert(File storeDir, File dwca, int batchSize, Meter insertMeter,
                                Map<String, UUID> constituents) throws NormalizationFailedException {
     this.constituents = constituents;
 
@@ -86,9 +87,8 @@ public class NeoInserter {
     final long startSort = System.currentTimeMillis();
     LOG.debug("Sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
 
-    int counter = 0;
     for (StarRecord star : arch) {
-      counter++;
+      meta.incRecords();
       VerbatimNameUsage v = new VerbatimNameUsage();
 
       Record core = star.core();
@@ -117,18 +117,17 @@ public class NeoInserter {
       taxonIdx.add(node, props);
 
       insertMeter.mark();
-      stats.incRank(u.getRank());
-      if (counter % (batchSize * 10) == 0) {
-        LOG.debug("insert: {}", counter);
+      meta.incRank(u.getRank());
+      if (meta.getRecords() % (batchSize * 10) == 0) {
+        LOG.debug("insert: {}", meta.getRecords());
       }
     }
-    stats.setRecords(counter);
-    LOG.info("Data insert completed, {} nodes created", counter);
+    LOG.info("Data insert completed, {} nodes created", meta.getRecords());
     LOG.info("Insert rate: {}", insertMeter.getMeanRate());
 
     indexProvider.shutdown();
     inserter.shutdown();
-    LOG.info("Neo shutdown, data flushed to disk", counter);
+    LOG.info("Neo shutdown, data flushed to disk", meta.getRecords());
 
     return meta;
   }

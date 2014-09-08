@@ -15,9 +15,9 @@ public interface UsageMapper {
 
   void insert(@Param("uuid") UUID datasetKey, @Param("usage") Usage usage);
 
-  void deleteByDataset(@Param("uuid") UUID datasetKey);
+  int deleteByDataset(@Param("uuid") UUID datasetKey);
 
-  void deleteByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
+  int deleteByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
 
   List<Integer> listByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
 }

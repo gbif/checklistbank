@@ -1,8 +1,10 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Splitter;
@@ -17,6 +19,8 @@ public class InsertMetadata {
   private boolean acceptedNameMapped;
   private boolean parentNameMapped;
   private Map<Term, Splitter> multiValueDelimiters = Maps.newHashMap();
+  private int records;
+  private Map<Rank, AtomicInteger> recordsByRank;
 
   /**
    * @return true if the coreID of the core records is used instead of a column mapped to the taxonID term.
@@ -63,5 +67,27 @@ public class InsertMetadata {
 
   public Map<Term, Splitter> getMultiValueDelimiters() {
     return multiValueDelimiters;
+  }
+
+  public int getRecords() {
+    return records;
+  }
+
+  public Map<Rank, AtomicInteger> getRecordsByRank() {
+    return recordsByRank;
+  }
+
+  public void incRank(Rank rank) {
+    if (rank != null) {
+      if (!recordsByRank.containsKey(rank)) {
+        recordsByRank.put(rank, new AtomicInteger(1));
+      } else {
+        recordsByRank.get(rank).getAndIncrement();
+      }
+    }
+  }
+
+  public void incRecords() {
+    records++;
   }
 }

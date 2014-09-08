@@ -8,6 +8,7 @@ import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
+import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.IOException;
 
@@ -81,7 +82,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
       Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents());
       normalizer.run();
       started.inc();
-      Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid());
+      Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
       LOG.debug("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
       publisher.send(doneMsg);
 

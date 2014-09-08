@@ -2,7 +2,10 @@ package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.crawler.ChecklistValidationReport;
 import org.gbif.api.model.crawler.DwcaValidationReport;
+import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -54,7 +57,8 @@ public class AdminCommand extends BaseCommand {
           );
           break;
         case IMPORT:
-          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey) );
+          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,
+            Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
           break;
 
         default:

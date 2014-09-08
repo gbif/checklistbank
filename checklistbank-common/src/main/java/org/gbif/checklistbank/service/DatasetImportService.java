@@ -53,16 +53,18 @@ public interface DatasetImportService {
 
     /**
      * Remove entire dataset from checklistbank
+     * @return number of deleted usage records
      */
-    void deleteDataset(UUID datasetKey);
+    int deleteDataset(UUID datasetKey);
 
     /**
      * Removes all usages and related data from a dataset that was last modified before the given date.     *
      *
      * @param datasetKey
      * @param before     threshold date
+     * @return number of deleted old records
      */
-    void deleteOldUsages(UUID datasetKey, Date before);
+    int deleteOldUsages(UUID datasetKey, Date before);
 
     /**
      * Lists all old name usage ids before the given date to be deleted.

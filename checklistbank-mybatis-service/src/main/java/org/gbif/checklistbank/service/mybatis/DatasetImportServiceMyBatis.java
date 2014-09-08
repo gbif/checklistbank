@@ -267,15 +267,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Override
-  public void deleteDataset(UUID datasetKey) {
+  public int deleteDataset(UUID datasetKey) {
     LOG.info("Deleting entire dataset {}", datasetKey);
-    usageMapper.deleteByDataset(datasetKey);
+    return usageMapper.deleteByDataset(datasetKey);
   }
 
   @Override
-  public void deleteOldUsages(UUID datasetKey, Date before) {
+  public int deleteOldUsages(UUID datasetKey, Date before) {
     LOG.info("Deleting all usages in dataset {} before {}", datasetKey, before);
-    usageMapper.deleteByDatasetAndDate(datasetKey, before);
+    return usageMapper.deleteByDatasetAndDate(datasetKey, before);
   }
 
   @Override

@@ -52,19 +52,19 @@ public class DatasetImportServiceCombined implements DatasetImportService {
  }
 
   @Override
-  public void deleteDataset(UUID datasetKey) {
-    sqlService.deleteDataset(datasetKey);
+  public int deleteDataset(UUID datasetKey) {
     solrService.delete(datasetKey);
+    return sqlService.deleteDataset(datasetKey);
   }
 
   @Override
-  public void deleteOldUsages(UUID datasetKey, Date before) {
+  public int deleteOldUsages(UUID datasetKey, Date before) {
     // iterate over all ids to be deleted and remove them from solr first
     for (Integer id : sqlService.listOldUsages(datasetKey, before)) {
       solrService.delete(id);
     }
     // finally remove them from postgres
-    sqlService.deleteOldUsages(datasetKey, before);
+    return sqlService.deleteOldUsages(datasetKey, before);
   }
 
   @Override

@@ -39,6 +39,8 @@ public class Importer extends NeoRunnable implements Runnable {
 
   private final ImporterConfiguration cfg;
   private final Meter syncMeter;
+  private int syncCounter;
+  private int delCounter;
   private final Meter basionymMeter;
   private final AtomicInteger failed = new AtomicInteger();
   private final DatasetImportServiceCombined importService;
@@ -117,6 +119,7 @@ public class Importer extends NeoRunnable implements Runnable {
             LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
           }
           syncMeter.mark();
+          syncCounter++;
         } catch (Exception e) {
           failed.getAndIncrement();
           LOG.error("Failed to sync usage {} from dataset {}", u.getTaxonID(), datasetKey, e);
@@ -141,7 +144,7 @@ public class Importer extends NeoRunnable implements Runnable {
     cal.setTime(first.getLastInterpreted());
     // use 10 seconds before first insert/update as the threshold to remove records
     cal.add(Calendar.SECOND, -10);
-    importService.deleteOldUsages(datasetKey, cal.getTime());
+    delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
   }
 
   private Integer clbKey(Integer nodeId) {
@@ -169,5 +172,13 @@ public class Importer extends NeoRunnable implements Runnable {
       ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
     }
     return u;
+  }
+
+  public int getSyncCounter() {
+    return syncCounter;
+  }
+
+  public int getDelCounter() {
+    return delCounter;
   }
 }

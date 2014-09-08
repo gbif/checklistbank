@@ -67,11 +67,11 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     final Timer.Context context = timer.time();
 
     try {
-      Importer normalizer = new Importer(cfg, msg.getDatasetUuid(), registry);
-      normalizer.run();
+      Importer importer = new Importer(cfg, msg.getDatasetUuid(), registry);
+      importer.run();
       started.inc();
-      Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid());
-      LOG.debug("Sending ChecklistSyncedMessage for dataset [{}]", msg.getDatasetUuid());
+      Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
+      LOG.debug("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
       publisher.send(doneMsg);
 
     } catch (IOException e) {
