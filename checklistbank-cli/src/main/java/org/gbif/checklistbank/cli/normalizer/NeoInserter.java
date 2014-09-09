@@ -34,6 +34,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
@@ -91,55 +92,61 @@ public class NeoInserter {
     LOG.debug("Sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
 
     for (StarRecord star : arch) {
-      meta.incRecords();
-      VerbatimNameUsage v = new VerbatimNameUsage();
+      try {
+        VerbatimNameUsage v = new VerbatimNameUsage();
 
-      // set core props
-      Record core = star.core();
-      for (Term t : core.terms()) {
-        String val = clean(core.value(t));
-        if (val != null) {
-          v.setCoreField(t, val);
-        }
-      }
-      // make sure this is last to override already put taxonID keys
-      v.setCoreField(DwcTerm.taxonID, taxonID(core));
-      // read extensions data
-      for (Extension ext : Extension.values()) {
-        if (star.hasExtension(ext.getRowType())) {
-          v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
-          for (Record eRec : star.extension(ext.getRowType())) {
-            Map<Term, String> data = Maps.newHashMap();
-            for (Term t : eRec.terms()) {
-              String val = clean(eRec.value(t));
-              if (val != null) {
-                data.put(t, val);
-              }
-            }
-            v.getExtensions().get(ext).add(data);
+        // set core props
+        Record core = star.core();
+        for (Term t : core.terms()) {
+          String val = clean(core.value(t));
+          if (val != null) {
+            v.setCoreField(t, val);
           }
         }
-      }
-      // convert into a NameUsage interpreting all enums and other needed types
-      NameUsageContainer u = buildUsage(v);
+        // make sure this is last to override already put taxonID keys
+        v.setCoreField(DwcTerm.taxonID, taxonID(core));
+        // read extensions data
+        for (Extension ext : Extension.values()) {
+          if (star.hasExtension(ext.getRowType())) {
+            v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
+            for (Record eRec : star.extension(ext.getRowType())) {
+              Map<Term, String> data = Maps.newHashMap();
+              for (Term t : eRec.terms()) {
+                String val = clean(eRec.value(t));
+                if (val != null) {
+                  data.put(t, val);
+                }
+              }
+              v.getExtensions().get(ext).add(data);
+            }
+          }
+        }
+        // convert into a NameUsage interpreting all enums and other needed types
+        NameUsageContainer u = buildUsage(v);
 
-      // ... and into neo
-      Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
-      // add more neo properties to be used in resolving the relations later:
-      putProp(props, DwcTerm.parentNameUsageID, v);
-      putProp(props, DwcTerm.parentNameUsage, v);
-      putProp(props, DwcTerm.acceptedNameUsageID, v);
-      putProp(props, DwcTerm.acceptedNameUsage, v);
-      putProp(props, DwcTerm.originalNameUsageID, v);
-      putProp(props, DwcTerm.originalNameUsage, v);
+        // ... and into neo
+        Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
+        // add more neo properties to be used in resolving the relations later:
+        putProp(props, DwcTerm.parentNameUsageID, v);
+        putProp(props, DwcTerm.parentNameUsage, v);
+        putProp(props, DwcTerm.acceptedNameUsageID, v);
+        putProp(props, DwcTerm.acceptedNameUsage, v);
+        putProp(props, DwcTerm.originalNameUsageID, v);
+        putProp(props, DwcTerm.originalNameUsage, v);
 
-      long node = inserter.createNode(props, Labels.TAXON);
-      taxonIdx.add(node, props);
+        long node = inserter.createNode(props, Labels.TAXON);
+        taxonIdx.add(node, props);
 
-      insertMeter.mark();
-      meta.incRank(u.getRank());
-      if (meta.getRecords() % (batchSize * 10) == 0) {
-        LOG.debug("insert: {}", meta.getRecords());
+        meta.incRecords();
+        meta.incRank(u.getRank());
+        insertMeter.mark();
+        if (meta.getRecords() % (batchSize * 10) == 0) {
+          LOG.debug("insert: {}", meta.getRecords());
+        }
+
+      } catch (IgnoreNameUsageException e) {
+        meta.incIgnored();
+        LOG.info("Ignoring record {}: {}", star.core().id(), e.getMessage());
       }
     }
     LOG.info("Data insert completed, {} nodes created", meta.getRecords());
@@ -206,7 +213,7 @@ public class NeoInserter {
     }
   }
 
-  private NameUsageContainer buildUsage(VerbatimNameUsage v) {
+  private NameUsageContainer buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
     NameUsageContainer u = new NameUsageContainer();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
 
@@ -236,39 +243,7 @@ public class NeoInserter {
     u.setRank(rank);
 
     // build best name
-    ParsedName pn;
-    if (v.hasCoreField(DwcTerm.scientificName) && !Strings.isNullOrEmpty(v.getCoreField(DwcTerm.scientificName))) {
-      try {
-        pn = nameParser.parse(v.getCoreField(DwcTerm.scientificName));
-        // append author if its not part of the name yet
-        if (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship())) {
-          String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
-          pn.setAuthorship(author);
-        }
-      } catch (UnparsableException e) {
-        LOG.debug("Unparsable {} name {}", e.type, e.name);
-        pn = new ParsedName();
-        pn.setType(e.type);
-      }
-
-    } else {
-      pn = new ParsedName();
-      if (v.hasCoreField(GbifTerm.genericName)) {
-        pn.setGenusOrAbove(v.getCoreField(GbifTerm.genericName));
-      } else {
-        pn.setGenusOrAbove(v.getCoreField(DwcTerm.genus));
-      }
-      pn.setSpecificEpithet(v.getCoreField(DwcTerm.specificEpithet));
-      pn.setInfraSpecificEpithet(v.getCoreField(DwcTerm.infraspecificEpithet));
-      pn.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
-      pn.setRank(rank);
-      pn.setType(NameType.WELLFORMED);
-      u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
-    }
-    u.setScientificName(pn.fullName());
-    u.setCanonicalName(pn.canonicalName());
-    //TODO: verify name parts and rank
-    u.setNameType(pn.getType());
+    ParsedName pn = setScientificName(u,v,rank);
 
     // tax status
     String tstatus = v.getCoreField(DwcTerm.taxonomicStatus);
@@ -305,6 +280,67 @@ public class NeoInserter {
     return u;
   }
 
+  @VisibleForTesting
+  protected ParsedName setScientificName(NameUsageContainer u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
+    ParsedName pn = new ParsedName();
+    final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
+    try {
+      if (sciname != null) {
+        pn = nameParser.parse(sciname);
+        // append author if its not part of the name yet
+        if (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship())) {
+          String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
+          pn.setAuthorship(author);
+        }
+      } else {
+        String genus = firstClean(v, GbifTerm.genericName, DwcTerm.genus);
+        if (genus == null) {
+          // bad atomized name, we can't assemble anything. Ignore this record completely!!!
+          throw new IgnoreNameUsageException("No name found");
+
+        } else {
+          pn.setGenusOrAbove(genus);
+          pn.setSpecificEpithet(v.getCoreField(DwcTerm.specificEpithet));
+          pn.setInfraSpecificEpithet(v.getCoreField(DwcTerm.infraspecificEpithet));
+          pn.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
+          pn.setRank(rank);
+          pn.setType(NameType.WELLFORMED);
+          u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
+        }
+      }
+    } catch (UnparsableException e) {
+      LOG.debug("Unparsable {} name {}", e.type, e.name);
+      pn = new ParsedName();
+      pn.setType(e.type);
+      pn.setScientificName(sciname);
+    }
+
+    u.setScientificName(coalesce(pn.fullName(), sciname));
+    u.setCanonicalName(Strings.emptyToNull(pn.canonicalName()));
+    //TODO: verify name parts and rank
+    u.setNameType(pn.getType());
+    return pn;
+  }
+
+  private String coalesce(String ... values) {
+    for (String x : values) {
+      if (!Strings.isNullOrEmpty(x)) {
+        return x;
+      }
+    }
+    return null;
+  }
+
+  private String firstClean(VerbatimNameUsage v, Term ... terms) {
+    for (Term t : terms) {
+      String x = clean(v.getCoreField(t));
+      if (x != null) {
+        return x;
+      }
+    }
+    return null;
+  }
+
   private String taxonID(Record core) {
     if (meta.isCoreIdUsed()) {
       return clean(core.id());
@@ -317,7 +353,7 @@ public class NeoInserter {
     if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
       return null;
     }
-    return x.trim();
+    return Strings.emptyToNull(x.trim());
   }
 
 }

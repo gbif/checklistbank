@@ -20,6 +20,7 @@ public class InsertMetadata {
   private boolean parentNameMapped;
   private Map<Term, Splitter> multiValueDelimiters = Maps.newHashMap();
   private int records;
+  private int ignored;
   private Map<Rank, AtomicInteger> recordsByRank = Maps.newHashMap();
 
   /**
@@ -69,14 +70,6 @@ public class InsertMetadata {
     return multiValueDelimiters;
   }
 
-  public int getRecords() {
-    return records;
-  }
-
-  public Map<Rank, AtomicInteger> getRecordsByRank() {
-    return recordsByRank;
-  }
-
   public void incRank(Rank rank) {
     if (rank != null) {
       if (!recordsByRank.containsKey(rank)) {
@@ -87,7 +80,19 @@ public class InsertMetadata {
     }
   }
 
+  public int getRecords() {
+    return records;
+  }
+
   public void incRecords() {
     records++;
+  }
+
+  public int getIgnored() {
+    return ignored;
+  }
+
+  public void incIgnored() {
+    ignored++;
   }
 }

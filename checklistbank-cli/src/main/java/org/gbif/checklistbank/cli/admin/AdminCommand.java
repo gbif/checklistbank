@@ -57,7 +57,7 @@ public class AdminCommand extends BaseCommand {
           );
           break;
         case IMPORT:
-          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,
+          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,0,
             Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
           break;
 

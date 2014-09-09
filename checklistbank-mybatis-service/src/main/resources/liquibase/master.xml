@@ -25,5 +25,8 @@
   <changeSet id="7" author="markus">
     <sqlFile path="liquibase/drop_user_checklists.sql"/>
   </changeSet>
+  <changeSet id="8" author="markus">
+    <sqlFile path="liquibase/enum_update.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

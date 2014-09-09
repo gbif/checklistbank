@@ -160,7 +160,7 @@ public class Importer extends NeoRunnable implements Runnable {
   }
 
   /**
-   * Reads the full name usage from neo and udpates all foreign keys to use CLB usage keys.
+   * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
    */
   private NameUsageContainer buildClbNameUsage(Node n) {
     // this is using neo4j internal node ids as keys:

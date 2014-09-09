@@ -127,7 +127,7 @@ public class Normalizer extends NeoRunnable {
 
     LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
     countByOrigin.put(Origin.SOURCE, meta.getRecords());
-    stats = new NormalizerStats(roots, depth, synonyms, countByOrigin, countByRank, cycles);
+    stats = new NormalizerStats(roots, depth, synonyms, meta.getIgnored(), countByOrigin, countByRank, cycles);
   }
 
   public NormalizerStats getStats() {
