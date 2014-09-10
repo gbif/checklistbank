@@ -6,42 +6,46 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
-import org.gbif.api.model.common.MediaObject;
-import org.gbif.api.model.occurrence.Occurrence;
 import org.gbif.api.vocabulary.Extension;
+import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.OccurrenceIssue;
 import org.gbif.common.parsers.BooleanParser;
+import org.gbif.common.parsers.CitesAppendixParser;
 import org.gbif.common.parsers.CountryParser;
 import org.gbif.common.parsers.EstablishmentMeansParser;
 import org.gbif.common.parsers.LanguageParser;
 import org.gbif.common.parsers.LifeStageParser;
-import org.gbif.common.parsers.SexParser;
-import org.gbif.common.parsers.core.EnumParser;
-import org.gbif.common.parsers.core.ParseResult;
-import org.gbif.common.parsers.UrlParser;
-import org.gbif.common.parsers.NumberParser;
 import org.gbif.common.parsers.MediaParser;
+import org.gbif.common.parsers.NumberParser;
+import org.gbif.common.parsers.OccurrenceStatusParser;
+import org.gbif.common.parsers.SexParser;
+import org.gbif.common.parsers.ThreatStatusParser;
+import org.gbif.common.parsers.TypeStatusParser;
+import org.gbif.common.parsers.UrlParser;
+import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.date.DateParseUtils;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
+import org.gbif.dwc.terms.IucnTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
-import org.gbif.dwc.terms.UnknownTerm;
 
 import java.net.URI;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExtensionInterpreter {
+  private static final Logger LOG = LoggerFactory.getLogger(ExtensionInterpreter.class);
+
   private final CountryParser countryParser = CountryParser.getInstance();
   private final LanguageParser languageParser = LanguageParser.getInstance();
   private final LifeStageParser lifeStageParser = LifeStageParser.getInstance();
@@ -49,6 +53,10 @@ public class ExtensionInterpreter {
   private final EstablishmentMeansParser establishmentMeansParser = EstablishmentMeansParser.getInstance();
   private final BooleanParser booleanParser = BooleanParser.getInstance();
   private final MediaParser mediaParser = MediaParser.getInstance();
+  private final OccurrenceStatusParser occurrenceStatusParser = OccurrenceStatusParser.getInstance();
+  private final ThreatStatusParser threatStatusParser = ThreatStatusParser.getInstance();
+  private final CitesAppendixParser citesAppendixParser= CitesAppendixParser.getInstance();
+  private final TypeStatusParser typeStatusParser = TypeStatusParser.getInstance();
 
   private final TermFactory tf = TermFactory.instance();
   // EOL & AUDUBON MEDIA TERMS
@@ -140,8 +148,8 @@ public class ExtensionInterpreter {
         VernacularName vn = new VernacularName();
         vn.setVernacularName(value(rec, DwcTerm.vernacularName));
         if (vn.getVernacularName() == null) {
+          LOG.debug("Ignore invalid vernacular name record missing a common name");
           u.addIssue(NameUsageIssue.VERNACULAR_NAME_INVALID);
-          // flag, but ignore this non vernacular name
           continue;
         }
         // locationID > locality
@@ -164,9 +172,19 @@ public class ExtensionInterpreter {
   private void interpretTypes(NameUsageContainer u, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.TYPES_AND_SPECIMEN)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.TYPES_AND_SPECIMEN)) {
-//        TypeSpecimen t = new TypeSpecimen();
+        TypeSpecimen t = new TypeSpecimen();
         // interpret
-//        u.getTypeSpecimens().add(t);
+        t.setScientificName(value(rec, DwcTerm.scientificName));
+        if (t.getScientificName() == null || t.getScientificName().equalsIgnoreCase(u.getScientificName())) {
+          LOG.debug("Ignore type specimens and type names if the name is the same as the taxon");
+          continue;
+        }
+        t.setTypeDesignatedBy(value(rec, GbifTerm.typeDesignatedBy));
+        t.setTypeStatus(enumify(rec, null, typeStatusParser, u, DwcTerm.typeStatus));
+        t.setSource(value(rec, DcTerm.source));
+        //t.setCitation(value(rec, DcTerm.bibliographicCitation));
+        //t.setTypeDesignationType(value(rec, GbifTerm.typeDesignatedType));
+        u.getTypeSpecimens().add(t);
       }
     }
   }
@@ -220,6 +238,7 @@ public class ExtensionInterpreter {
         URI link = UrlParser.parse(value(rec, furtherInformationURL, DcTerm.references, attributionLinkURL));
         // link or media uri must exist
         if (uri == null && link == null) {
+          LOG.debug("Ignore invalid multimedia record missing a URL for the image or webpage");
           u.addIssue(NameUsageIssue.MULTIMEDIA_INVALID);
         } else {
           NameUsageMediaObject m = new NameUsageMediaObject();
@@ -262,7 +281,7 @@ public class ExtensionInterpreter {
       if (uri != null) {
         String url = uri.toString();
         if (media.containsKey(url)) {
-          // merge infos about the same image?
+          // TODO: merge infos about the same image?
         } else {
           media.put(url, m);
         }
@@ -276,7 +295,15 @@ public class ExtensionInterpreter {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.IDENTIFIER)) {
         Identifier i = new Identifier();
         // interpret rec
-//        u.getIdentifiers().add(i);
+        i.setIdentifier(value(rec, DcTerm.identifier));
+        if (i.getIdentifier() == null) {
+          LOG.debug("Ignore invalid identifier record missing an identifier value");
+          u.addIssue(NameUsageIssue.ALT_IDENTIFIER_INVALID);
+          continue;
+        }
+        i.setTitle(value(rec, DcTerm.title));
+        i.setType(IdentifierType.inferFrom(i.getIdentifier()));
+        u.getIdentifiers().add(i);
       }
     }
   }
@@ -286,7 +313,26 @@ public class ExtensionInterpreter {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.DISTRIBUTION)) {
         Distribution d = new Distribution();
         // interpret rec
-//        u.getDistributions().add(d);
+        d.setLocality(value(rec, DwcTerm.locality));
+        d.setLocationId(value(rec, DwcTerm.locationID));
+        d.setCountry(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, countryParser, u, DwcTerm.country, DwcTerm.countryCode));
+        // some location is required, otherwise its pointless
+        if (d.getLocality() == null && d.getLocationId() == null && d.getCountry() == null) {
+          LOG.debug("Ignore invalid distribution record missing any spatial context");
+          u.addIssue(NameUsageIssue.DISTRIBUTION_INVALID);
+          continue;
+        }
+        d.setStatus(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, occurrenceStatusParser, u, DwcTerm.occurrenceStatus));
+        d.setEstablishmentMeans(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, establishmentMeansParser, u, DwcTerm.establishmentMeans));
+        d.setAppendixCites(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, citesAppendixParser, u, GbifTerm.appendixCITES));
+        d.setThreatStatus(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, threatStatusParser, u, IucnTerm.threatStatus));
+        d.setLifeStage(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, lifeStageParser, u, DwcTerm.lifeStage));
+        d.setTemporal(value(rec, DwcTerm.eventDate, DcTerm.temporal));
+        d.setEndDayOfYear(integer(rec, NameUsageIssue.DISTRIBUTION_INVALID, u, DwcTerm.endDayOfYear));
+        d.setStartDayOfYear(integer(rec, NameUsageIssue.DISTRIBUTION_INVALID, u, DwcTerm.startDayOfYear));
+        d.setRemarks(value(rec, DwcTerm.occurrenceRemarks, DwcTerm.taxonRemarks));
+        d.setSource(value(rec, DcTerm.source));
+        u.getDistributions().add(d);
       }
     }
   }
@@ -296,7 +342,20 @@ public class ExtensionInterpreter {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.DESCRIPTION)) {
         Description d = new Description();
         // interpret rec
-//        u.getDescriptions().add(d);
+        d.setDescription(value(rec, DcTerm.description, DcTerm.abstract_));
+        d.setType(value(rec, DcTerm.type));
+        // make sure we have some description
+        if (d.getDescription() == null) {
+          LOG.debug("Ignore invalid description record missing a description text");
+          u.addIssue(NameUsageIssue.DESCRIPTION_INVALID);
+          continue;
+        }
+        d.setSource(value(rec, DcTerm.source));
+        d.setContributor(value(rec, DcTerm.contributor));
+        d.setCreator(value(rec, DcTerm.creator, DcTerm.rightsHolder));
+        d.setLanguage(enumify(rec, NameUsageIssue.DESCRIPTION_INVALID, languageParser, u, DcTerm.language));
+        d.setLicense(value(rec, DcTerm.license, DcTerm.rights));
+        u.getDescriptions().add(d);
       }
     }
   }
