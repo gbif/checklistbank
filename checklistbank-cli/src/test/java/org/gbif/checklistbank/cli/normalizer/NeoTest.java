@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.neo.Labels;
@@ -70,7 +71,7 @@ public abstract class NeoTest {
     return db.beginTx();
   }
 
-  public NameUsage getUsageByKey(int key) {
+  public NameUsageContainer getUsageByKey(int key) {
     Node n = db.getNodeById(key);
     return getUsageByNode(n);
   }
@@ -78,7 +79,7 @@ public abstract class NeoTest {
   /**
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
-  public NameUsage getUsageByTaxonId(String id) {
+  public NameUsageContainer getUsageByTaxonId(String id) {
     Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
@@ -86,7 +87,7 @@ public abstract class NeoTest {
   /**
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
-  public NameUsage getUsageByName(String name) {
+  public NameUsageContainer getUsageByName(String name) {
     Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
     return getUsageByNode(n);
   }
@@ -95,15 +96,15 @@ public abstract class NeoTest {
     return IteratorUtil.asList(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
   }
 
-  public List<NameUsage> getAllUsages() {
-    List<NameUsage> usages = Lists.newArrayList();
+  public List<NameUsageContainer> getAllUsages() {
+    List<NameUsageContainer> usages = Lists.newArrayList();
     for (Node n : GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON)) {
       usages.add(getUsageByNode(n));
     }
     return usages;
   }
 
-  private NameUsage getUsageByNode(Node n) {
+  private NameUsageContainer getUsageByNode(Node n) {
     return mapper.read(n);
   }
 

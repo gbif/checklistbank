@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<archive xmlns="http://rs.tdwg.org/dwc/text/">
+	<core encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+		<files>
+			<location>taxon.txt</location>
+		</files>
+		<id index="0"/>
+		<field index="1" term="http://purl.org/dc/terms/modified"/>
+		<field default="en" term="http://purl.org/dc/terms/language"/>
+		<field default="http://creativecommons.org/publicdomain/zero/1.0/ &amp; http://www.canadensys.net/norms" term="http://purl.org/dc/terms/rights"/>
+		<field default="Université de Montréal Biodiversity Centre" term="http://purl.org/dc/terms/rightsHolder"/>
+		<field index="2" term="http://purl.org/dc/terms/bibliographicCitation"/>
+		<field default="Database of Vascular Plants of Canada (VASCAN)" term="http://rs.tdwg.org/dwc/terms/datasetName"/>
+		<field index="3" term="http://purl.org/dc/terms/references"/>
+		<field index="4" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
+		<field index="5" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"/>
+		<field index="6" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+		<field index="7" term="http://rs.tdwg.org/dwc/terms/nameAccordingToID"/>
+		<field index="8" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+		<field index="9" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsage"/>
+		<field index="10" term="http://rs.tdwg.org/dwc/terms/parentNameUsage"/>
+		<field index="11" term="http://rs.tdwg.org/dwc/terms/nameAccordingTo"/>
+		<field index="12" term="http://rs.tdwg.org/dwc/terms/higherClassification"/>
+		<field default="Plantae" term="http://rs.tdwg.org/dwc/terms/kingdom"/>
+		<field index="13" term="http://rs.tdwg.org/dwc/terms/class"/>
+		<field index="14" term="http://rs.tdwg.org/dwc/terms/order"/>
+		<field index="15" term="http://rs.tdwg.org/dwc/terms/family"/>
+		<field index="16" term="http://rs.tdwg.org/dwc/terms/genus"/>
+		<field index="17" term="http://rs.tdwg.org/dwc/terms/subgenus"/>
+		<field index="18" term="http://rs.tdwg.org/dwc/terms/specificEpithet"/>
+		<field index="19" term="http://rs.tdwg.org/dwc/terms/infraSpecificEpithet"/>
+		<field index="20" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+		<field index="21" term="http://rs.tdwg.org/dwc/terms/scientificNameAuthorship"/>
+		<field default="ICBN" term="http://rs.tdwg.org/dwc/terms/nomenclaturalCode"/>
+		<field index="22" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus"/>
+	</core>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Distribution">
+		<files>
+			<location>distribution.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://rs.tdwg.org/dwc/terms/locationID"/>
+		<field index="2" term="http://rs.tdwg.org/dwc/terms/locality"/>
+		<field index="3" term="http://rs.tdwg.org/dwc/terms/countryCode"/>
+		<field index="4" term="http://rs.tdwg.org/dwc/terms/occurrenceStatus"/>
+		<field index="5" term="http://rs.tdwg.org/dwc/terms/establishmentMeans"/>
+		<field index="6" term="http://purl.org/dc/terms/source"/>
+		<field index="7" term="http://rs.tdwg.org/dwc/terms/occurrenceRemarks"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/VernacularName">
+		<files>
+			<location>vernacularnames.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://rs.tdwg.org/dwc/terms/vernacularName"/>
+		<field index="2" term="http://purl.org/dc/terms/source"/>
+		<field index="3" term="http://purl.org/dc/terms/language"/>
+		<field default="CA" term="http://rs.tdwg.org/dwc/terms/countryCode"/>
+		<field default="false" term="http://rs.gbif.org/terms/1.0/isPlural"/>
+		<field index="4" term="http://rs.gbif.org/terms/1.0/isPreferredName"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Description">
+		<files>
+			<location>habit.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://purl.org/dc/terms/description"/>
+		<field default="habit" term="http://purl.org/dc/terms/type"/>
+		<field default="EN" term="http://purl.org/dc/terms/language"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/SpeciesProfile">
+		<files>
+			<location>specprof.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://rs.gbif.org/terms/1.0/isExtinct"/>
+		<field index="2" term="http://rs.gbif.org/terms/1.0/livingPeriod"/>
+		<field index="3" term="http://rs.gbif.org/terms/1.0/ageInDays"/>
+		<field index="4" term="http://rs.gbif.org/terms/1.0/sizeInMillimeters"/>
+		<field index="5" term="http://rs.gbif.org/terms/1.0/massInGrams"/>
+		<field index="6" term="http://rs.gbif.org/terms/1.0/lifeForm"/>
+		<field index="7" term="http://rs.tdwg.org/dwc/terms/habitat"/>
+		<field index="8" term="http://rs.tdwg.org/dwc/terms/sex"/>
+		<field default="true" term="http://rs.gbif.org/terms/1.0/isFreshwater"/>
+		<field default="false" term="http://rs.gbif.org/terms/1.0/isTerrestrial"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Identifier">
+		<files>
+			<location>identifier.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://purl.org/dc/terms/identifier"/>
+		<field index="2" term="http://purl.org/dc/terms/title"/>
+		<field index="3" term="http://purl.org/dc/terms/format"/>
+		<field default="publication, original source" term="http://purl.org/dc/terms/subject"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/TypesAndSpecimen">
+		<files>
+			<location>types.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://rs.tdwg.org/dwc/terms/typeStatus"/>
+		<field index="2" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+		<field index="3" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+		<field index="4" term="http://rs.gbif.org/terms/1.0/typeDesignationType"/>
+		<field index="5" term="http://rs.gbif.org/terms/1.0/typeDesignatedBy"/>
+		<field index="6" term="http://purl.org/dc/terms/bibliographicCitation"/>
+		<field default="my beloved text book" term="http://purl.org/dc/terms/source"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Reference">
+		<files>
+			<location>references.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://purl.org/dc/terms/identifier"/>
+		<field index="2" term="http://purl.org/dc/terms/title"/>
+		<field index="3" term="http://purl.org/dc/terms/creator"/>
+		<field index="4" term="http://purl.org/dc/terms/date"/>
+		<field index="5" term="http://purl.org/dc/terms/source"/>
+		<field index="6" term="http://purl.org/dc/terms/bibliographicCitation"/>
+		<field default="EN" term="http://purl.org/dc/terms/language"/>
+		<field default="Copyright © 2009 Wiley-Liss, Inc., A Wiley Company" term="http://purl.org/dc/terms/rights"/>
+	</extension>
+	<extension encoding="UTF-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.gbif.org/terms/1.0/Multimedia">
+		<files>
+			<location>media.txt</location>
+		</files>
+		<coreid index="0"/>
+		<field index="1" term="http://purl.org/dc/terms/type"/>
+		<field index="2" term="http://purl.org/dc/terms/format"/>
+		<field index="3" term="http://purl.org/dc/terms/identifier"/>
+		<field index="4" term="http://purl.org/dc/terms/references"/>
+		<field index="5" term="http://purl.org/dc/terms/title"/>
+		<field index="6" term="http://purl.org/dc/terms/description"/>
+		<field index="7" term="http://purl.org/dc/terms/created"/>
+		<field index="8" term="http://purl.org/dc/terms/creator"/>
+		<field default="Alfred Hitchcock" term="http://purl.org/dc/terms/contributor"/>
+		<field default="Rupert Murdoch" term="http://purl.org/dc/terms/publisher"/>
+		<field default="children" term="http://purl.org/dc/terms/audience"/>
+		<field default="by-nc-sa/2.0" term="http://purl.org/dc/terms/license"/>
+		<field default="James Dean" term="http://purl.org/dc/terms/rightsHolder"/>
+		<field default="Google" term="http://purl.org/dc/terms/source"/>
+	</extension>
+	
+</archive>

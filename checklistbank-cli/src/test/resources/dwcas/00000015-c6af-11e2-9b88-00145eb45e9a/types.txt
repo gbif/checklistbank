@@ -1,0 +1,3 @@
+id	typeStatus	scientificName	taxonRank	typeDesignationType	typeDesignatedBy	bibliographicCitation
+770	type species	Achillea millefolium Linnaeus	species		M.Döring	
+2770	holotype			original	Mi.Ranke	

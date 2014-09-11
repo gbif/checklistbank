@@ -1,0 +1,2 @@
+id	identifier	title	creator	date	source	bibliographicCitation	taxonRemarks
+2768	http://www.nature.com/ng/journal/v41/n6/pdf/ng0609-637.pdf	Genetics of reproductive lifespan	Hartge, P.	2009	Nature Genetics	Hartge, P., Genetics of reproductive lifespan. Nature Genetics 41, 637 - 638 (2009)	Original publication of new combination

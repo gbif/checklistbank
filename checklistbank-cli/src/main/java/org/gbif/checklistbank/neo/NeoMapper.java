@@ -16,8 +16,6 @@ import org.gbif.dwc.terms.Term;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +24,10 @@ import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.type.TypeFactory;
 import org.codehaus.jackson.smile.SmileFactory;
@@ -91,6 +89,7 @@ public class NeoMapper {
   private NeoMapper() {
     SmileFactory f = new SmileFactory();
     objMapper = new ObjectMapper(f);
+    objMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     try {
       issueType = tf.constructType(NameUsage.class.getDeclaredField("issues").getGenericType());
     } catch (NoSuchFieldException e) {

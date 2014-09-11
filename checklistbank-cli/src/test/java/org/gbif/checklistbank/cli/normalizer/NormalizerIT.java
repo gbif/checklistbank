@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -18,6 +19,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -712,6 +714,69 @@ public class NormalizerIT extends NeoTest {
       }
       assertEquals(10, sourceUsages);
     }
+  }
+
+
+  /**
+   * Tests the Achillea genus form a VASCAN download
+   * with vernacular name, species profile, distribution, description, reference, multimedia and identifier extension.
+   */
+  @Test
+  public void testExtensions() throws Exception {
+    final UUID datasetKey = datasetKey(15);
+
+    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+
+    assertEquals(59, stats.getCount());
+    assertEquals(7, stats.getDepth());
+    assertEquals(53, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(1, stats.getRoots());
+    assertEquals(48, stats.getSynonyms());
+
+    initDb(datasetKey);
+    try (Transaction tx = beginTx()) {
+      // Achillea
+      NameUsageContainer a = getUsageByTaxonId("770");
+      // Achillea millefolium
+      NameUsageContainer am = getUsageByTaxonId("2768");
+      assertEquals(a.getKey(), am.getParentKey());
+
+      //media
+      assertThat(a.getMedia()).hasSize(0);
+      assertThat(am.getMedia()).hasSize(2);
+      assertThat(am.getMedia()).extracting("creator").containsExactly("Gary A. Monroe", "J.S. Peterson");
+    }
+  }
+
+
+  /**
+   * Tests the simple images media extension
+   */
+  @Test
+  @Ignore
+  public void testSimpleImages() throws Exception {
+
+  }
+
+  /**
+   * Tests the Audubon media extension
+   */
+  @Test
+  @Ignore
+  public void testAudubon() throws Exception {
+
+  }
+
+  /**
+   * Tests the EOL media extension
+   */
+  @Test
+  @Ignore
+  public void testEolMedia() throws Exception {
+
   }
 
   public static UUID datasetKey(Integer x) throws NormalizationFailedException {

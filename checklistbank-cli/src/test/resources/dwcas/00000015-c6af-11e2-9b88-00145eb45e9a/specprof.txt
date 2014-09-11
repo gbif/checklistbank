@@ -1,0 +1,6 @@
+id	isExtinct	livingPeriod	ageInDays	sizeInMillimeters	massInGrams	lifeForm	habitat	sex
+770	yes	Cretacian	7	120	2	Phanerophyte	Woodland	Female; Male
+2768	1	1.500.000BC - 100.000BC	7	120	2	Phanerophyte	Woodland	Female; Male
+2770	no		7	120	2	Tree	Woodland	Female; Male
+27263	false		7	120	2	Tree	Woodland	Female; Male
+10241	yes	Cretacian	7	120	2	Phanerophyte	Woodland	Female; Male

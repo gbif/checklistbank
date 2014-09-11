@@ -1,0 +1,6 @@
+id	identifier	title	format
+770	http://rs.gbif.org/extension/gbif/1.0/identifier.xml	Extension definition	text/html
+2768	http://rs.gbif.org/extension/gbif/1.0/identifier.xml#rdf	Extension definition as RDF	application/rdf
+2768	http://dx.doi.org/10.1000/182		DOI
+2768	10.1000/182		DOI
+2768	doi:10.1000/182		
