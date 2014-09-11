@@ -142,8 +142,8 @@ public class Importer extends NeoRunnable implements Runnable {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(first.getLastInterpreted());
-    // use 10 seconds before first insert/update as the threshold to remove records
-    cal.add(Calendar.SECOND, -10);
+    // use 2 seconds before first insert/update as the threshold to remove records
+    cal.add(Calendar.SECOND, -2);
     delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
   }
 

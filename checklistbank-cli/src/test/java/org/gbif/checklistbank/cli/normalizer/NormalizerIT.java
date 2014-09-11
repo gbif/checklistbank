@@ -691,6 +691,26 @@ public class NormalizerIT extends NeoTest {
       assertNull(u1.getAccepted());
       assertFalse(u1.isSynonym());
       assertFalse(u1.getTaxonomicStatus().isSynonym());
+      assertEquals(Origin.SOURCE, u1.getOrigin());
+    }
+
+    try (Transaction tx = beginTx()) {
+      int sourceUsages = 0;
+      for (NameUsage u : getAllUsages()) {
+        assertNull(u.getAcceptedKey());
+        assertNull(u.getAccepted());
+        assertNull(u.getBasionymKey());
+        assertNull(u.getBasionym());
+        assertFalse(u.isSynonym());
+        assertFalse(u.getTaxonomicStatus().isSynonym());
+        if (u.getTaxonID() != null) {
+          assertEquals(Origin.SOURCE, u.getOrigin());
+          sourceUsages++;
+        } else {
+          assertEquals(Origin.DENORMED_CLASSIFICATION, u.getOrigin());
+        }
+      }
+      assertEquals(10, sourceUsages);
     }
   }
 

@@ -9,10 +9,10 @@ import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import com.beust.jcommander.internal.Lists;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -93,6 +93,14 @@ public abstract class NeoTest {
 
   public List<Node> getNodesByName(String name) {
     return IteratorUtil.asList(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
+  }
+
+  public List<NameUsage> getAllUsages() {
+    List<NameUsage> usages = Lists.newArrayList();
+    for (Node n : GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON)) {
+      usages.add(getUsageByNode(n));
+    }
+    return usages;
   }
 
   private NameUsage getUsageByNode(Node n) {

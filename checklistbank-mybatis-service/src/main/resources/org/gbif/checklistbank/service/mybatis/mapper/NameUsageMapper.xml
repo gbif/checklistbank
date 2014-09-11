@@ -233,13 +233,13 @@ u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
       nom_status,
       basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
       genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
-      remarks, "references", taxon_id, modified, num_descendants)
+      remarks, "references", taxon_id, modified, num_descendants, last_interpreted)
     =  (#{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
       #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
       #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
       #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
       #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
-      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
+      #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now())
     WHERE id = #{u.key}
   </update>
 

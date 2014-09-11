@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
@@ -216,7 +217,7 @@ public class NeoInserter {
   private NameUsageContainer buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
     NameUsageContainer u = new NameUsageContainer();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
-
+    u.setOrigin(Origin.SOURCE);
     if (constituents != null && v.hasCoreField(DwcTerm.datasetID)) {
       UUID cKey = constituents.get(v.getCoreField(DwcTerm.datasetID));
       u.setConstituentKey(cKey);

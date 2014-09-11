@@ -22,7 +22,7 @@
   </select>
 
   <select id="listByDatasetAndDate" parameterType="map" resultType="java.lang.Integer">
-    SELECT id FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND modified &lt; #{before}
+    SELECT id FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND last_interpreted &lt; #{before}
   </select>
 
   <delete id="deleteByDataset">
@@ -30,7 +30,7 @@
   </delete>
 
   <delete id="deleteByDatasetAndDate">
-    DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND modified &lt; #{before}
+    DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND last_interpreted &lt; #{before}
   </delete>
 
   <!-- missing: nom_status,basionym_fk -->

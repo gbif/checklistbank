@@ -58,7 +58,7 @@ public interface DatasetImportService {
     int deleteDataset(UUID datasetKey);
 
     /**
-     * Removes all usages and related data from a dataset that was last modified before the given date.     *
+     * Removes all usages and related data from a dataset that was last interpreted before the given date.
      *
      * @param datasetKey
      * @param before     threshold date
@@ -67,7 +67,7 @@ public interface DatasetImportService {
     int deleteOldUsages(UUID datasetKey, Date before);
 
     /**
-     * Lists all old name usage ids before the given date to be deleted.
+     * Lists all old name usage ids last interpreted before the given date.
      */
     List<Integer> listOldUsages(UUID datasetKey, Date before);
 }

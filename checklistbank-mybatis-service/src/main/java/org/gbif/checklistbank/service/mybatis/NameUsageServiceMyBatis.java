@@ -227,6 +227,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
    * @param language the requested language
    */
   private void addVernacularNames(List<NameUsage> usages, @Nullable String language) {
+    if (language == null) return;
     for (NameUsage u : usages) {
       addVernacularName(u, language);
     }
