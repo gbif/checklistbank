@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -12,7 +13,6 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.File;
 import java.util.Collection;
@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
@@ -400,7 +398,7 @@ public class Normalizer extends NeoRunnable {
           } else {
             // lookup by taxon id to see if this is an existing identifier or if we should try to split it
             Node a = nodeByTaxonId(unsplitIds);
-            if (a != null) {
+            if (a != null && !a.equals(n)) {
               accepted.add(a);
             } else {
               ids = splitByCommonDelimiters(unsplitIds);
@@ -432,7 +430,7 @@ public class Normalizer extends NeoRunnable {
               a = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n);
             }
           }
-          if (a != null) {
+          if (a != null && !a.equals(n)) {
             accepted.add(a);
           }
         }
@@ -484,7 +482,7 @@ public class Normalizer extends NeoRunnable {
         }
       }
     }
-    if (parent != null) {
+    if (parent != null && !parent.equals(n)) {
       parent.createRelationshipTo(n, RelType.PARENT_OF);
     } else if (!isSynonym) {
       n.addLabel(Labels.ROOT);
@@ -516,7 +514,7 @@ public class Normalizer extends NeoRunnable {
           }
         }
       }
-      if (basionym != null) {
+      if (basionym != null && !basionym.equals(n)) {
         basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
       }
     }

@@ -28,7 +28,10 @@
 
   <properties>
     <jdkLevel>1.7</jdkLevel>
+    <!-- max 2 minutes for BoneCP connections, see http://dev.gbif.org/issues/browse/POR-2446 -->
+    <checklistbank.db.maxAge>120</checklistbank.db.maxAge>
 
+    <!-- dependency versions -->
     <dwc-api.version>1.8</dwc-api.version>
     <gbif-api.version>0.16-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.7-SNAPSHOT</gbif-cli.version>

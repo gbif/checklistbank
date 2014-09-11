@@ -1,0 +1,40 @@
+<archive xmlns="http://rs.tdwg.org/dwc/text/" metadata="eml.xml">
+  <core encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+    <files>
+      <location>taxon.txt</location>
+    </files>
+    <id index="0" />
+    <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonomicStatus"/>
+    <field index="2" term="http://purl.org/dc/terms/bibliographicCitation"/>
+    <field index="3" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsage"/>
+    <field index="4" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+    <field index="5" term="http://rs.tdwg.org/dwc/terms/phylum"/>
+    <field index="6" term="http://rs.tdwg.org/dwc/terms/kingdom"/>
+    <field index="7" term="http://purl.org/dc/terms/rights"/>
+    <field index="8" term="http://rs.tdwg.org/dwc/terms/nameAccordingTo"/>
+    <field index="9" term="http://rs.tdwg.org/dwc/terms/higherClassification"/>
+    <field index="10" term="http://rs.tdwg.org/dwc/terms/class"/>
+    <field index="11" term="http://purl.org/dc/terms/modified"/>
+    <field index="12" term="http://rs.tdwg.org/dwc/terms/family"/>
+    <field index="13" term="http://purl.org/dc/terms/accessRights"/>
+    <field index="14" term="http://rs.tdwg.org/dwc/terms/order"/>
+    <field index="15" term="http://rs.tdwg.org/dwc/terms/nomenclaturalCode"/>
+    <field index="16" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+    <field index="17" term="http://rs.tdwg.org/dwc/terms/datasetName"/>
+    <field index="18" term="http://purl.org/dc/terms/rightsHolder"/>
+  </core>
+  <extension encoding="utf-8" fieldsTerminatedBy="\t" linesTerminatedBy="\n" fieldsEnclosedBy="" ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/MeasurementOrFact">
+    <files>
+      <location>measurementorfact.txt</location>
+    </files>
+    <coreid index="0" />
+    <field index="1" term="http://rs.tdwg.org/dwc/terms/measurementDeterminedBy"/>
+    <field index="2" term="http://rs.tdwg.org/dwc/terms/measurementID"/>
+    <field index="3" term="http://rs.tdwg.org/dwc/terms/measurementMethod"/>
+    <field index="4" term="http://rs.tdwg.org/dwc/terms/measurementType"/>
+    <field index="5" term="http://rs.tdwg.org/dwc/terms/measurementUnit"/>
+    <field index="6" term="http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"/>
+    <field index="7" term="http://rs.tdwg.org/dwc/terms/measurementValue"/>
+    <field index="8" term="http://rs.tdwg.org/dwc/terms/measurementAccuracy"/>
+  </extension>
+</archive>

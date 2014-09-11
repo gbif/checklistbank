@@ -659,6 +659,41 @@ public class NormalizerIT extends NeoTest {
     }
   }
 
+  /**
+   * Testing CLIMBER dataset from ZooKeys:
+   * http://www.gbif.org/dataset/e2bcea8c-dfea-475e-a4ae-af282b4ea1c5
+   *
+   * Especially the behavior of acceptedNameUsage (canonical form withut authorship)
+   * pointing to itself (scientificName WITH authorship) indicating this is NOT a synonym.
+   */
+  @Test
+  public void testVerbatimAccepted() throws Exception {
+    final UUID datasetKey = datasetKey(14);
+
+    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+
+    assertEquals(16, stats.getCount());
+    assertEquals(6, stats.getDepth());
+    assertEquals(10, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(1, stats.getRoots());
+    assertEquals(0, stats.getSynonyms());
+
+    initDb(datasetKey);
+    try (Transaction tx = beginTx()) {
+      NameUsage u1 = getUsageByTaxonId("Aglais io");
+      NameUsage u2 = getUsageByName("Aglais io");
+      assertEquals(u1, u2);
+
+      assertNull(u1.getAcceptedKey());
+      assertNull(u1.getAccepted());
+      assertFalse(u1.isSynonym());
+      assertFalse(u1.getTaxonomicStatus().isSynonym());
+    }
+  }
+
   public static UUID datasetKey(Integer x) throws NormalizationFailedException {
     return UUID.fromString(String.format("%08d-c6af-11e2-9b88-00145eb45e9a", x));
   }

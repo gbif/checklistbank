@@ -1,0 +1,129 @@
+id	measurementDeterminedBy	measurementID	measurementMethod	measurementType	measurementUnit	measurementDeterminedDate	measurementValue	measurementAccuracy
+Aglais io	Oliver Schweiger	range.size	Distributional range size as number of occupied grids	sample size	grid cells	2013	1136	1
+Aglais urticae	Oliver Schweiger	range.size	Distributional range size as number of occupied grids	sample size	grid cells	2013	1271	1
+Aglais io	Oliver Schweiger	temp.mean	Mean annual temperature	Temperature (STI)	Degree Celsius	2013	8.84	0.01
+Aglais urticae	Oliver Schweiger	temp.mean	Mean annual temperature	Temperature (STI)	Degree Celsius	2013	8.12	0.01
+Aglais io	Oliver Schweiger	temp.ci.95.low	Lower 95% confidence interval for the mean temperature	Temperature (STI) - lower bound	Degree Celsius	2013	8.67	0.01
+Aglais urticae	Oliver Schweiger	temp.ci.95.low	Lower 95% confidence interval for the mean temperature	Temperature (STI) - lower bound	Degree Celsius	2013	7.94	0.01
+Aglais io	Oliver Schweiger	temp.ci.95.up	Upper 95% confidence interval for the mean temperature	Temperature (STI) - upper bound	Degree Celsius	2013	9.01	0.01
+Aglais urticae	Oliver Schweiger	temp.ci.95.up	Upper 95% confidence interval for the mean temperature	Temperature (STI) - upper bound	Degree Celsius	2013	8.30	0.01
+Aglais io	Oliver Schweiger	temp.min	Minimum annual temperature	Temperature (STI) - minimum	Degree Celsius	2013	0.33	0.01
+Aglais urticae	Oliver Schweiger	temp.min	Minimum annual temperature	Temperature (STI) - minimum	Degree Celsius	2013	-3.10	0.01
+Aglais io	Oliver Schweiger	temp.max	Maximum annual temperature	Temperature (STI) - maximum	Degree Celsius	2013	17.56	0.01
+Aglais urticae	Oliver Schweiger	temp.max	Maximum annual temperature	Temperature (STI) - maximum	Degree Celsius	2013	17.49	0.01
+Aglais io	Oliver Schweiger	temp.sd	Standard deviation of annual temperature	Temperature (STI) - standard deviation	Degree Celsius	2013	2.91	0.01
+Aglais urticae	Oliver Schweiger	temp.sd	Standard deviation of annual temperature	Temperature (STI) - standard deviation	Degree Celsius	2013	3.76	0.01
+Aglais io	Oliver Schweiger	temp.median	Median annual temperature	Temperature (STI) - median	Degree Celsius	2013	8.79	0.01
+Aglais urticae	Oliver Schweiger	temp.median	Median annual temperature	Temperature (STI) - median	Degree Celsius	2013	8.55	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.mean	Mean of annual range in monthly temperature	Temperature range - mean	Degree Celsius	2013	18.08	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.mean	Mean of annual range in monthly temperature	Temperature range - mean	Degree Celsius	2013	18.61	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.ci.95.low	Lower 95% confidence interval for the mean of annual range in monthly temperature	Temperature range - lower bound	Degree Celsius	2013	17.86	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.ci.95.low	Lower 95% confidence interval for the mean of annual range in monthly temperature	Temperature range - lower bound	Degree Celsius	2013	18.41	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.ci.95.up	Upper 95% confidence interval for the mean of annual range in monthly temperature	Temperature range - upper bound	Degree Celsius	2013	18.29	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.ci.95.up	Upper 95% confidence interval for the mean of annual range in monthly temperature	Temperature range - upper bound	Degree Celsius	2013	18.82	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.min	Minimum of annual range in monthly temperature	Temperature range - minimum	Degree Celsius	2013	8.58	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.min	Minimum of annual range in monthly temperature	Temperature range - minimum	Degree Celsius	2013	8.40	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.max.	Maximum of annual range in monthly temperature	Temperature range - maximum	Degree Celsius	2013	27.54	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.max.	Maximum of annual range in monthly temperature	Temperature range - maximum	Degree Celsius	2013	29.55	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.sd	Standard deviation of annual range in monthly temperature	Temperature range - standard deviation	Degree Celsius	2013	3.70	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.sd	Standard deviation of annual range in monthly temperature	Temperature range - standard deviation	Degree Celsius	2013	4.24	0.01
+Aglais io	Oliver Schweiger	range.ann.temp.median	Median of annual range in monthly temperature	Temperature range - median	Degree Celsius	2013	18.32	0.01
+Aglais urticae	Oliver Schweiger	range.ann.temp.median	Median of annual range in monthly temperature	Temperature range - median	Degree Celsius	2013	18.72	0.01
+Aglais io	Oliver Schweiger	precip.mean	Mean of annual precipitation sum	Precipitation - mean	mm	2013	787.83	0.01
+Aglais urticae	Oliver Schweiger	precip.mean	Mean of annual precipitation sum	Precipitation - mean	mm	2013	781.52	0.01
+Aglais io	Oliver Schweiger	precip.ci.95.low	Lower 95% confidence interval for the mean of annual precipitation sum	Precipitation - lower bound	mm	2013	771.32	0.01
+Aglais urticae	Oliver Schweiger	precip.ci.95.low	Lower 95% confidence interval for the mean of annual precipitation sum	Precipitation - lower bound	mm	2013	766.70	0.01
+Aglais io	Oliver Schweiger	precip.ci.95.up	Upper 95% confidence interval for the mean of annual precipitation sum	Precipitation - upper bound	mm	2013	804.35	0.01
+Aglais urticae	Oliver Schweiger	precip.ci.95.up	Upper 95% confidence interval for the mean of annual precipitation sum	Precipitation - upper bound	mm	2013	796.34	0.01
+Aglais io	Oliver Schweiger	precip.min	Minimum of annual precipitation sum	Precipitation - minimum	mm	2013	315.70	0.01
+Aglais urticae	Oliver Schweiger	precip.min	Minimum of annual precipitation sum	Precipitation - minimum	mm	2013	260.25	0.01
+Aglais io	Oliver Schweiger	precip.max	Maximum of annual precipitation sum	Precipitation - maximum	mm	2013	2794.09	0.01
+Aglais urticae	Oliver Schweiger	precip.max	Maximum of annual precipitation sum	Precipitation - maximum	mm	2013	3042.73	0.01
+Aglais io	Oliver Schweiger	precip.sd	Standard deviation of annual precipitation sum	Precipitation - standard deviation	mm	2013	283.68	0.01
+Aglais urticae	Oliver Schweiger	precip.sd	Standard deviation of annual precipitation sum	Precipitation - standard deviation	mm	2013	306.73	0.01
+Aglais io	Oliver Schweiger	precip.median	Median of annual precipitation sum	Precipitation - median	mm	2013	707.07	0.01
+Aglais urticae	Oliver Schweiger	precip.median	Median of annual precipitation sum	Precipitation - median	mm	2013	684.44	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.mean	Mean of annual range in monthly precipitation sum	Precipitation range - mean	mm	2013	57.65	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.mean	Mean of annual range in monthly precipitation sum	Precipitation range - mean	mm	2013	57.76	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.ci.95.low	Lower 95% confidence interval for the mean of annual range in monthly precipitation sum	Precipitation range - lower bound	mm	2013	56.01	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.ci.95.low	Lower 95% confidence interval for the mean of annual range in monthly precipitation sum	Precipitation range - lower bound	mm	2013	56.41	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.ci.95.up	Upper 95% confidence interval for the mean of annual range in monthly precipitation sum	Precipitation range - upper bound	mm	2013	59.29	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.ci.95.up	Upper 95% confidence interval for the mean of annual range in monthly precipitation sum	Precipitation range - upper bound	mm	2013	59.12	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.min	Minimum of annual range in monthly precipitation sum	Precipitation range - minimum	mm	2013	57.65	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.min	Minimum of annual range in monthly precipitation sum	Precipitation range - minimum	mm	2013	57.76	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.max	Maximum of annual range in monthly precipitation sum	Precipitation range - maximum	mm	2013	223.21	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.max	Maximum of annual range in monthly precipitation sum	Precipitation range - maximum	mm	2013	242.55	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.sd	Standard deviation of annual range in monthly precipitation sum	Precipitation range - standard deviation	mm	2013	28.17	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.sd	Standard deviation of annual range in monthly precipitation sum	Precipitation range - standard deviation	mm	2013	28.06	0.01
+Aglais io	Oliver Schweiger	range.ann.precip.median	Median of annual range in monthly precipitation sum	Precipitation range - median	mm	2013	51.73	0.01
+Aglais urticae	Oliver Schweiger	range.ann.precip.median	Median of annual range in monthly precipitation sum	Precipitation range - median	mm	2013	51.52	0.01
+Aglais io	Oliver Schweiger	gdd.feb.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - mean	Degree Celsius	2013	50.47	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - mean	Degree Celsius	2013	48.31	0.01
+Aglais io	Oliver Schweiger	gdd.feb.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - lower bound	Degree Celsius	2013	47.41	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - lower bound	Degree Celsius	2013	45.64	0.01
+Aglais io	Oliver Schweiger	gdd.feb.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - upper bound	Degree Celsius	2013	53.54	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - upper bound	Degree Celsius	2013	50.98	0.01
+Aglais io	Oliver Schweiger	gdd.feb.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - minimum	Degree Celsius	2013	0.40	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - minimum	Degree Celsius	2013	0.07	0.01
+Aglais io	Oliver Schweiger	gdd.feb.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - maximum	Degree Celsius	2013	358.60	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - maximum	Degree Celsius	2013	425.86	0.01
+Aglais io	Oliver Schweiger	gdd.feb.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - standard deviation	Degree Celsius	2013	52.67	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - standard deviation	Degree Celsius	2013	55.31	0.01
+Aglais io	Oliver Schweiger	gdd.feb.median	Median of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - median	Degree Celsius	2013	31.50	0.01
+Aglais urticae	Oliver Schweiger	gdd.feb.median	Median of accumulated growing degree days above 5 degrees Celsius from January to February	Growing degree days until February - median	Degree Celsius	2013	27.81	0.01
+Aglais io	Oliver Schweiger	gdd.apr.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - mean	Degree Celsius	2013	213.46	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - mean	Degree Celsius	2013	198.55	0.01
+Aglais io	Oliver Schweiger	gdd.apr.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - lower bound	Degree Celsius	2013	205.10	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - lower bound	Degree Celsius	2013	191.13	0.01
+Aglais io	Oliver Schweiger	gdd.apr.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - upper bound	Degree Celsius	2013	221.82	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - upper bound	Degree Celsius	2013	205.97	0.01
+Aglais io	Oliver Schweiger	gdd.apr.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - minimum	Degree Celsius	2013	3.08	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - minimum	Degree Celsius	2013	0.30	0.01
+Aglais io	Oliver Schweiger	gdd.apr.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - maximum	Degree Celsius	2013	869.44	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - maximum	Degree Celsius	2013	1007.42	0.01
+Aglais io	Oliver Schweiger	gdd.apr.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - standard deviation	Degree Celsius	2013	143.63	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - standard deviation	Degree Celsius	2013	153.63	0.01
+Aglais io	Oliver Schweiger	gdd.apr.median	Median of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - median	Degree Celsius	2013	192.32	0.01
+Aglais urticae	Oliver Schweiger	gdd.apr.median	Median of accumulated growing degree days above 5 degrees Celsius from January to April	Growing degree days until April - median	Degree Celsius	2013	180.33	0.01
+Aglais io	Oliver Schweiger	gdd.june.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - mean	Degree Celsius	2013	771.52	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - mean	Degree Celsius	2013	727.88	0.01
+Aglais io	Oliver Schweiger	gdd.june.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - lower bound	Degree Celsius	2013	755.11	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - lower bound	Degree Celsius	2013	712.81	0.01
+Aglais io	Oliver Schweiger	gdd.june.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - upper bound	Degree Celsius	2013	787.92	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - upper bound	Degree Celsius	2013	742.95	0.01
+Aglais io	Oliver Schweiger	gdd.june.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - minimum	Degree Celsius	2013	100.80	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - minimum	Degree Celsius	2013	84.45	0.01
+Aglais io	Oliver Schweiger	gdd.june.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - maximum	Degree Celsius	2013	1826.40	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - maximum	Degree Celsius	2013	1880.67	0.01
+Aglais io	Oliver Schweiger	gdd.june.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - standard deviation	Degree Celsius	2013	281.83	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - standard deviation	Degree Celsius	2013	311.95	0.01
+Aglais io	Oliver Schweiger	gdd.june.median	Median of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - median	Degree Celsius	2013	748.02	0.01
+Aglais urticae	Oliver Schweiger	gdd.june.median	Median of accumulated growing degree days above 5 degrees Celsius from January to June	Growing degree days until June - median	Degree Celsius	2013	724.93	0.01
+Aglais io	Oliver Schweiger	gdd.aug.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - mean	Degree Celsius	2013	1570.61	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.mean	Mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - mean	Degree Celsius	2013	1498.26	0.01
+Aglais io	Oliver Schweiger	gdd.aug.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - lower bound	Degree Celsius	2013	1544.40	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.ci.95.low	Lower 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - lower bound	Degree Celsius	2013	1473.78	0.01
+Aglais io	Oliver Schweiger	gdd.aug.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - upper bound	Degree Celsius	2013	1596.82	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.ci.95.up	Upper 95% confidence interval for the mean of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - upper bound	Degree Celsius	2013	1522.74	0.01
+Aglais io	Oliver Schweiger	gdd.aug.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - minimum	Degree Celsius	2013	372.71	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.min	Minimum of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - minimum	Degree Celsius	2013	292.41	0.01
+Aglais io	Oliver Schweiger	gdd.aug.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - maximum	Degree Celsius	2013	3062.91	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.max	Maximum of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - maximum	Degree Celsius	2013	3148.39	0.01
+Aglais io	Oliver Schweiger	gdd.aug.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - standard deviation	Degree Celsius	2013	450.25	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.sd	Standard deviation of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - standard deviation	Degree Celsius	2013	506.82	0.01
+Aglais io	Oliver Schweiger	gdd.aug.median	Median of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - median	Degree Celsius	2013	1527.83	0.01
+Aglais urticae	Oliver Schweiger	gdd.aug.median	Median of accumulated growing degree days above 5 degrees Celsius from January to August	Growing degree days until August - median	Degree Celsius	2013	1498.09	0.01
+Aglais io	Oliver Schweiger	swc.mean	Mean soil water content of the upper horizon (0.5 m)	Soil water content - mean		2013	0.44	0.01
+Aglais urticae	Oliver Schweiger	swc.mean	Mean soil water content of the upper horizon (0.5 m)	Soil water content - mean		2013	0.44	0.01
+Aglais io	Oliver Schweiger	swc.ci.95.low	Lower 95% confidence interval for the mean of soil water content of the upper horizon (0.5 m)	Soil water content - lower bound		2013	0.43	0.01
+Aglais urticae	Oliver Schweiger	swc.ci.95.low	Lower 95% confidence interval for the mean of soil water content of the upper horizon (0.5 m)	Soil water content - lower bound		2013	0.44	0.01
+Aglais io	Oliver Schweiger	swc.ci.95.up	Upper 95% confidence interval for the mean of soil water content of the upper horizon (0.5 m)	Soil water content - upper bound		2013	0.44	0.01
+Aglais urticae	Oliver Schweiger	swc.ci.95.up	Upper 95% confidence interval for the mean of soil water content of the upper horizon (0.5 m)	Soil water content - upper bound		2013	0.45	0.01
+Aglais io	Oliver Schweiger	swc.min	Minimum soil water content of the upper horizon (0.5 m)	Soil water content - minimum		2013	0.15	0.01
+Aglais urticae	Oliver Schweiger	swc.min	Minimum soil water content of the upper horizon (0.5 m)	Soil water content - minimum		2013	0.15	0.01
+Aglais io	Oliver Schweiger	swc.max	Maximum soil water content of the upper horizon (0.5 m)	Soil water content - maximum		2013	0.84	0.01
+Aglais urticae	Oliver Schweiger	swc.max	Maximum soil water content of the upper horizon (0.5 m)	Soil water content - maximum		2013	0.89	0.01
+Aglais io	Oliver Schweiger	swc.sd	Standard deviation of soil water content of the upper horizon (0.5 m)	Soil water content - standard deviation		2013	0.12	0.01
+Aglais urticae	Oliver Schweiger	swc.sd	Standard deviation of soil water content of the upper horizon (0.5 m)	Soil water content - standard deviation		2013	0.13	0.01
+Aglais io	Oliver Schweiger	swc.median	Median soil water content of the upper horizon (0.5 m)	Soil water content - median		2013	0.43	0.01
+Aglais urticae	Oliver Schweiger	swc.median	Median soil water content of the upper horizon (0.5 m)	Soil water content - median		2013	0.43	0.01
