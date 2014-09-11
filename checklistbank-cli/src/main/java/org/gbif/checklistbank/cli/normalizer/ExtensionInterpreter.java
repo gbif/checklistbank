@@ -20,6 +20,7 @@ import org.gbif.common.parsers.EstablishmentMeansParser;
 import org.gbif.common.parsers.LanguageParser;
 import org.gbif.common.parsers.LifeStageParser;
 import org.gbif.common.parsers.MediaParser;
+import org.gbif.common.parsers.MediaTypeParser;
 import org.gbif.common.parsers.NumberParser;
 import org.gbif.common.parsers.OccurrenceStatusParser;
 import org.gbif.common.parsers.SexParser;
@@ -37,6 +38,8 @@ import org.gbif.dwc.terms.TermFactory;
 
 import java.net.URI;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
@@ -57,6 +60,7 @@ public class ExtensionInterpreter {
   private final ThreatStatusParser threatStatusParser = ThreatStatusParser.getInstance();
   private final CitesAppendixParser citesAppendixParser= CitesAppendixParser.getInstance();
   private final TypeStatusParser typeStatusParser = TypeStatusParser.getInstance();
+  private final MediaTypeParser mediaTypeParser = MediaTypeParser.getInstance();
 
   private final TermFactory tf = TermFactory.instance();
   // EOL & AUDUBON MEDIA TERMS
@@ -120,7 +124,7 @@ public class ExtensionInterpreter {
     return i;
   }
 
-  private <T extends Enum<T>> T enumify(Map<Term, String> rec, NameUsageIssue issue, EnumParser<T> parser,
+  private <T extends Enum<T>> T enumify(Map<Term, String> rec, @Nullable NameUsageIssue issue, EnumParser<T> parser,
     NameUsageContainer u, Term ... terms) {
     boolean valuesFound = false;
     for (Term t : terms) {
@@ -136,7 +140,7 @@ public class ExtensionInterpreter {
       }
     }
     // nothing found, raise issue?
-    if (valuesFound) {
+    if (valuesFound && issue != null) {
       u.addIssue(issue);
     }
     return null;
@@ -253,6 +257,7 @@ public class ExtensionInterpreter {
           m.setAudience(value(rec, DcTerm.audience));
           m.setRightsHolder(value(rec, owner, DcTerm.rightsHolder));
           m.setCreator(value(rec, DcTerm.creator));
+          m.setType(enumify(rec, null, mediaTypeParser, u, DcTerm.type));
           m.setFormat(mediaParser.parseMimeType(value(rec, DcTerm.format)));
           String created = value(rec, createDate, DcTerm.created, DcTerm.date);
           if (created != null) {
@@ -270,6 +275,7 @@ public class ExtensionInterpreter {
     extractMedia(u, v, Extension.MULTIMEDIA);
     extractMedia(u, v, Extension.EOL_MEDIA);
     extractMedia(u, v, Extension.AUDUBON);
+    extractMediaCore(u, v);
     /**
      * merges media records if the same image URL or link is given several times.
      * Remove any media that has not either a file or webpage uri.
@@ -288,6 +294,19 @@ public class ExtensionInterpreter {
       }
     }
     u.setMedia(Lists.newArrayList(media.values()));
+  }
+
+  private void extractMediaCore(NameUsageContainer u, VerbatimNameUsage v) {
+    if (v.hasCoreField(DwcTerm.associatedMedia)) {
+      for (URI uri : UrlParser.parseUriList(v.getCoreField(DwcTerm.associatedMedia))) {
+        if (uri != null) {
+          NameUsageMediaObject m = new NameUsageMediaObject();
+          m.setIdentifier(uri);
+          mediaParser.detectType(m);
+          u.getMedia().add(m);
+        }
+      }
+    }
   }
 
   private void interpretIdentifier(NameUsageContainer u, VerbatimNameUsage v) {

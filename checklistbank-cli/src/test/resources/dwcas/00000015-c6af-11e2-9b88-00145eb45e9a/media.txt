@@ -1,3 +1,3 @@
 id	type	format	identifier	references	title	description	created	creator
-2768	StillImage	text/jpg	http://plants.usda.gov/gallery/large/acmi2_002_lvp.jpg	http://plants.usda.gov/java/largeImage?imageID=acmi2_002_avp.jpg	Achillea millefolium L. - common yarrow		July 14, 2001	J.S. Peterson
+2768	StillImage	image/jpg	http://plants.usda.gov/gallery/large/acmi2_002_lvp.jpg	http://plants.usda.gov/java/largeImage?imageID=acmi2_002_avp.jpg	Achillea millefolium L. - common yarrow		July 14, 2001	J.S. Peterson
 2768			http://plants.usda.gov/gallery/pubs/acmi2_006_php.jpg	http://plants.usda.gov/java/largeImage?imageID=acmi2_006_ahp.tif	Achillea millefolium L. - common yarrow	©J.S. Peterson. USDA NRCS NPDC. United States, AZ, Flagstaff, Arboretum. July 14, 2001. Usage Requirements. Any use of copyrighted images requires permission of the copyright holder.	2002-07-27	Gary A. Monroe

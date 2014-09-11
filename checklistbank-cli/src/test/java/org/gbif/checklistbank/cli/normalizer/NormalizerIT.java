@@ -3,10 +3,14 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.crawler.NormalizerStats;
+import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.Language;
+import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -747,7 +751,24 @@ public class NormalizerIT extends NeoTest {
       //media
       assertThat(a.getMedia()).hasSize(0);
       assertThat(am.getMedia()).hasSize(2);
-      assertThat(am.getMedia()).extracting("creator").containsExactly("Gary A. Monroe", "J.S. Peterson");
+      assertThat(am.getMedia()).extracting("creator").containsOnly("Gary A. Monroe", "J.S. Peterson");
+      assertThat(am.getMedia()).extracting("title").containsOnly("Achillea millefolium L. - common yarrow");
+      assertThat(am.getMedia()).extracting("identifier").containsOnly(
+        URI.create("http://plants.usda.gov/gallery/large/acmi2_002_lvp.jpg"),
+        URI.create("http://plants.usda.gov/gallery/pubs/acmi2_006_php.jpg"));
+      assertThat(am.getMedia()).extracting("references").containsOnly(
+        URI.create("http://plants.usda.gov/java/largeImage?imageID=acmi2_002_avp.jpg"),
+        URI.create("http://plants.usda.gov/java/largeImage?imageID=acmi2_006_ahp.tif"));
+      assertThat(am.getMedia()).extracting("type").containsOnly(MediaType.StillImage);
+      assertThat(am.getMedia()).extracting("format").containsOnly("image/jpg", "image/jpeg");
+
+      //vernaculars
+      assertThat(a.getVernacularNames()).hasSize(0);
+      assertThat(am.getVernacularNames()).hasSize(6);
+      assertThat(am.getVernacularNames()).extracting("language").containsOnly(Language.ENGLISH, Language.FRENCH);
+      assertThat(am.getVernacularNames()).extracting("country").containsOnly(Country.CANADA);
+      assertThat(am.getVernacularNames()).extracting("vernacularName").containsOnly(
+        "achillée millefeuille", "herbe à dindes", "herbe à dindons", "common yarrow", "yarrow", "milfoil");
     }
   }
 
