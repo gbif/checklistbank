@@ -9,7 +9,7 @@
     rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/>
   </sql>
   <sql id="selectNoUsageKey">
-    d.id, d.dataset_key, d.country, d.location_id, d.locality, d.remarks,c.citation,
+    d.id, d.country, d.location_id, d.locality, d.remarks,c.citation,
     d.occurrence_status, d.threat_status,d.establishment_means, d.appendix_cites
   </sql>
 
@@ -71,5 +71,21 @@
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
+
+  <delete id="deleteByUsage">
+    DELETE FROM distribution
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO distribution (usage_fk, location_id, locality, country, occurrence_status, life_stage,
+      temporal, threat_status, establishment_means, appendix_cites,
+      start_day_of_year, end_day_of_year, remarks, source_fk
+    )
+    VALUES (#{key}, #{obj.locationId}, #{obj.locality}, #{obj.country}, #{obj.status}::occurrence_status, #{obj.lifeStage}::life_stage,
+      #{obj.temporal}, #{obj.threatStatus}::threat_status, #{obj.establishmentMeans}::establishment_means, #{obj.appendixCites}::cites_appendix,
+      #{obj.startDayOfYear}, #{obj.endDayOfYear}, #{obj.remarks}, #{sourceKey}
+    )
+  </insert>
 
 </mapper>

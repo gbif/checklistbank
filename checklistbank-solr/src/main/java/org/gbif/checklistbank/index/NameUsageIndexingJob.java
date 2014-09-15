@@ -73,7 +73,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
   }
 
   /**
-   * Iterates over the assigned {@link NameUsage} objects to create the corresponding {@link SolrInputDocument}
+   * Iterates over the assigned {@link NameUsage} objects to insert the corresponding {@link SolrInputDocument}
    * objects.
    *
    * @return the total number of documents added by this Thread.

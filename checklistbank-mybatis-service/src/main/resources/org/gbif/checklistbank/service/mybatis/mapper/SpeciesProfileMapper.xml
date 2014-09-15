@@ -67,4 +67,21 @@
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
+
+  <delete id="deleteByUsage">
+    DELETE FROM species_info
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO species_info (usage_fk, living_period, life_form, habitat, marine, freshwater,
+      terrestrial, extinct, hybrid, age_in_days, size_in_millimeter, mass_in_gram, source_fk
+    )
+    VALUES (#{key}, #{obj.livingPeriod}, #{obj.lifeForm}, #{obj.habitat}, #{obj.marine}, #{obj.freshwater},
+      #{obj.terrestrial}, #{obj.extinct}, #{obj.hybrid}, #{obj.ageInDays}, #{obj.sizeInMillimeter}, #{obj.massInGram},
+      #{sourceKey}
+    )
+  </insert>
+
 </mapper>
+

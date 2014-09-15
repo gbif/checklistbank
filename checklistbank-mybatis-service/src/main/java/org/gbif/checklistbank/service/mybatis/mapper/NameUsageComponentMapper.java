@@ -22,4 +22,5 @@ public interface NameUsageComponentMapper<T> {
 
   List<UsageRelated<T>> listByNubUsageRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
+  void deleteByUsage(@Param("key") int usageKey);
 }

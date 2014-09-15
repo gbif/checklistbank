@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  *
  * TODO:
  * - use wellformed name build from parsed name
- * - create accordingTo citations for checklists
+ * - insert accordingTo citations for checklists
  */
 public class NubGenerator {
 
@@ -272,7 +272,7 @@ public class NubGenerator {
       return parentNub;
 
     } else {
-      // only create new higher taxa if it was requested
+      // only insert new higher taxa if it was requested
       nub = createNub(src, srcName, parentNub, rank);
     }
 
@@ -387,7 +387,7 @@ public class NubGenerator {
    * Try to match an existing nub usage using the internal matching service
    * running on the currently created nub usages.
    *
-   * @param srcUsageKey a source usage key used create a LinneanClassification for comparison
+   * @param srcUsageKey a source usage key used insert a LinneanClassification for comparison
    * @return the corresponding nub usage or null. Never a MatchType.NONE
    */
   private NubUsage findNubUsage(String scientificName, Rank rank, int srcUsageKey) {
@@ -418,7 +418,7 @@ public class NubGenerator {
       LOG.info("Synonym {} to be created based on usage {}, but accepted parent is not in the nub", srcName.getScientificName(), src.key);
     }
 
-    // potentially create missing genus & species usages
+    // potentially insert missing genus & species usages
     if (nubRank.isSpeciesOrBelow()) {
       if (nubParent.usage.rank.isSuprageneric()) {
         nubParent = createOrFindImplicitUsage(srcName.getGenusOrAbove(), Rank.GENUS, nubParent.usage.key, Origin.IMPLICIT_NAME);
@@ -428,7 +428,7 @@ public class NubGenerator {
       }
     }
 
-    // create an autonym (BotanicalCode) / nominotypical subspecies (ZooCode) ?
+    // insert an autonym (BotanicalCode) / nominotypical subspecies (ZooCode) ?
     // http://en.wikipedia.org/wiki/Autonym_(botany)
     // http://en.wikipedia.org/wiki/Subspecies#Nominotypical_subspecies_and_subspecies_autonyms
     //
@@ -443,7 +443,7 @@ public class NubGenerator {
     }
 
 
-    // create requested usage
+    // insert requested usage
     NubUsage nub = new NubUsage();
     nub.usage.parentKey = nubParent.usage.key;
     nub.usage.nameKey = srcName.getKey();
@@ -470,7 +470,7 @@ public class NubGenerator {
     NubUsage nub = findNubUsage(implicitName, rank, parentKey);
 
     if (nub == null) {
-      // create new usage
+      // insert new usage
       ParsedName pn = parseAndAdd(implicitName);
       nub = new NubUsage();
       nub.usage.parentKey = parentKey;

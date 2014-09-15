@@ -17,6 +17,6 @@ import org.gbif.api.service.checklistbank.TypeSpecimenService;
 public class TypeSpecimenWsClientIT extends NameUsageComponentWsClientITBase<TypeSpecimenService> {
 
   public TypeSpecimenWsClientIT() {
-    super(TypeSpecimenService.class, 100000006, 2);
+    super(TypeSpecimenService.class, 100000006, 1);
   }
 }

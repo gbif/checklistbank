@@ -88,16 +88,18 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
    */
   public DatabaseDrivenChecklistBankTestRule(Class<T> serviceClass) {
     this(buildDefaultProperties(), serviceClass, ImmutableMap.<String, Integer>builder()
-//        .put("citation", 32)
-//        .put("dataset_metrics", 5)
-//        .put("specimen", 16)
-//        .put("literature", 23)
-//        .put("image", 100021)
-//        .put("identifier", 106)
-//        .put("distribution", 29)
-//        .put("description", 28)
-        .put("name_usage_id_seq", 110000000)
-        .put("name_id_seq", 200000)
+      .put("citation_id_seq", 32)
+      .put("dataset_metrics_id_seq", 5)
+      .put("description_id_seq", 28)
+      .put("distribution_id_seq", 29)
+      .put("identifier_id_seq", 106)
+      .put("literature_id_seq", 23)
+      .put("media_id_seq", 100021)
+      .put("name_usage_id_seq", 110000000)
+      .put("name_id_seq", 200000)
+      .put("species_info_id_seq", 3)
+      .put("typification_id_seq", 16)
+      .put("vernacular_name_id_seq", 100011)
       .build());
   }
 

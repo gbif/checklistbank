@@ -9,7 +9,7 @@
     rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/>
   </sql>
   <sql id="selectNoUsageKey">
-      d.id, d.dataset_key, d.description, d.type, d.language, c.citation, d.creator, d.contributor, d.license
+      d.id, d.description, d.type, d.language, c.citation, d.creator, d.contributor, d.license
   </sql>
 
   <sql id="from">description d LEFT JOIN citation c ON d.source_fk=c.id</sql>
@@ -98,5 +98,16 @@
     FROM description d JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
     WHERE rel.nub_fk=#{usageKey}
   </select>
+
+  <delete id="deleteByUsage">
+    DELETE FROM description
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO description (usage_fk, description, type, language, creator, contributor, license, source_fk)
+    VALUES  (#{key}, #{obj.description}, #{obj.type}, #{obj.language}, #{obj.creator}, #{obj.contributor},
+      #{obj.license}, #{sourceKey})
+  </insert>
 
 </mapper>

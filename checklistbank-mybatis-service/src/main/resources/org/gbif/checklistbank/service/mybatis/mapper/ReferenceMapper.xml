@@ -38,4 +38,14 @@
     <include refid="page"/>
   </select>
 
+  <delete id="deleteByUsage">
+    DELETE FROM literature
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO literature (usage_fk, citation_fk, type, remarks)
+    VALUES (#{key}, #{citationKey}, #{obj.type}, #{obj.remarks})
+  </insert>
+
 </mapper>

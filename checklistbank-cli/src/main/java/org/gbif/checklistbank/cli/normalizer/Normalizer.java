@@ -116,7 +116,7 @@ public class Normalizer extends NeoRunnable {
     LOG.info("Start normalization of checklist {}", datasetKey);
     // batch import uses its own batchdb
     batchInsertData();
-    // create regular neo db for further processing
+    // insert regular neo db for further processing
     setupDb();
     setupIndices();
     setupRelations();
@@ -258,9 +258,9 @@ public class Normalizer extends NeoRunnable {
         return;
       }
     }
-    // create higher taxon if not found
+    // insert higher taxon if not found
     parent.node = createTaxon(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED);
-    // create parent relationship
+    // insert parent relationship
     assignParent(parent.node, taxon);
 
     // link further up recursively?
@@ -425,7 +425,7 @@ public class Normalizer extends NeoRunnable {
           if (a == null && !name.equals(canonical)) {
             a = nodeByCanonical(name);
             if (a == null) {
-              // create doubtful verbatim accepted usage
+              // insert doubtful verbatim accepted usage
               LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
               a = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n);
             }
@@ -436,11 +436,11 @@ public class Normalizer extends NeoRunnable {
         }
       }
     }
-    // if status is synonym but we aint got no idea of the accepted create an incertae sedis record of same rank
+    // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
     if (status.isSynonym() && accepted.isEmpty()) {
       accepted.add( createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n) );
     }
-    // create synonym relations
+    // insert synonym relations
     if (!accepted.isEmpty()) {
       if (!status.isSynonym()) {
         status = TaxonomicStatus.SYNONYM;

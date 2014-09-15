@@ -28,5 +28,8 @@
   <changeSet id="8" author="markus">
     <sqlFile path="liquibase/enum_update.sql"/>
   </changeSet>
+  <changeSet id="9" author="markus">
+    <sqlFile path="liquibase/extension_sync.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

@@ -17,4 +17,6 @@ public interface DescriptionMapper extends NameUsageComponentMapper<Description>
   List<TocEntry> listTocEntriesByNub(@Param("usageKey") int usageKey);
 
   List<TocEntry> listTocEntriesByUsage(@Param("usageKey") int usageKey);
+
+  void insert(@Param("key") int usageKey, @Param("obj") Description description, @Param("sourceKey") Integer sourceKey);
 }

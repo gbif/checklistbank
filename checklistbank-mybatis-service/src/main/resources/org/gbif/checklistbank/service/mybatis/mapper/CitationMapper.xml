@@ -14,9 +14,9 @@
     WHERE citation=#{citation}
   </select>
 
-  <insert id="create" parameterType="java.lang.String" useGeneratedKeys="true" keyProperty="key">
+  <insert id="insert" parameterType="map" useGeneratedKeys="true" keyProperty="c.key">
     INSERT INTO citation (citation)
-    VALUES #{citation}
+    VALUES (#{c.citation})
   </insert>
 
 </mapper>

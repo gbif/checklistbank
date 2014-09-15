@@ -11,7 +11,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Manual test to create a neo db that lasts so we can visualize it with the neo server
+ * Manual test to insert a neo db that lasts so we can visualize it with the neo server
  */
 @Ignore
 public class CreateNeoDb {

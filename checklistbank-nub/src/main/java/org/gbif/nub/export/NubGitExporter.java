@@ -72,7 +72,7 @@ public class NubGitExporter {
       File uDir = new File(pathJoiner.join(ROOTDIR, pathJoiner.join(u.getHigherClassificationMap().values()), name.toString()));
       File readme = new File(uDir, "README.md");
       File json = new File(uDir, "data.json");
-      // create folders if missing
+      // insert folders if missing
       Files.createParentDirs(readme);
       // write readme
       Files.write(String.format(readmeTempl, u.getScientificName(), u.getRank(), u.getTaxonomicStatus(), u.getAccordingTo(), u.getPublishedIn(), u.getBasionym(), u.getRemarks()), readme, UTF8);

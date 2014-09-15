@@ -28,7 +28,7 @@ public class RsGbifOrg {
       }
       return new URL(DOMAIN + PATH_JOINER.join(path));
     } catch (MalformedURLException e) {
-      LOG.error("Cannot create rs.gbif.org url for path " + PATH_JOINER.join(path), e);
+      LOG.error("Cannot insert rs.gbif.org url for path " + PATH_JOINER.join(path), e);
     }
     return null;
   }

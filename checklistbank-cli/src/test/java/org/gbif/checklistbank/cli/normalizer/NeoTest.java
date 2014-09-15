@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 /**
- * base class to create neo integration tests.
+ * base class to insert neo integration tests.
  */
 public abstract class NeoTest {
 

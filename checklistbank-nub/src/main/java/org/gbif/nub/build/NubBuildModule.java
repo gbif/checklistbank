@@ -66,7 +66,7 @@ public class NubBuildModule extends PrivateModule {
       LOG.warn("Nub writer dir exists. All data will be removed");
       FileUtils.deleteDirectory(dir);
     }
-    // create new, empty dir
+    // insert new, empty dir
     FileUtils.forceMkdir(dir);
     LOG.info("New nub data directory created at {}", dir.getAbsoluteFile());
     return dir;

@@ -22,7 +22,7 @@ import java.util.Properties;
 import com.google.inject.Scopes;
 
 /**
- * A search module that can be configured to use an externally bound solr instance or to create one
+ * A search module that can be configured to use an externally bound solr instance or to insert one
  * based on the given properties.
  */
 public class SearchModule extends PrivateServiceModule {

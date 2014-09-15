@@ -105,7 +105,7 @@
     <!-- A text field that uses WordDelimiterFilter to enable splitting and
         matching of words on case-change, alpha numeric boundaries, and non-alphanumeric
         chars, so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
-         TODO: create a scientific name specific latin stemming filter and tokenizer that is hybrd aware?
+         TODO: insert a scientific name specific latin stemming filter and tokenizer that is hybrd aware?
      -->
     <fieldType name="sciname" class="solr.TextField" positionIncrementGap="100">
       <analyzer>

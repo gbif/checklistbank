@@ -198,7 +198,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       // use main server
       writers[0] = solrRef.getSolr();
     } else {
-      // create others
+      // insert others
       LOG.debug("Setting up {} embedded solr servers ...", numWriters);
       for (int idx = 0; idx < numWriters; idx++) {
         writers[idx] = setupSolr(getWriterHome(idx));
@@ -263,7 +263,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       // copy specific configurations, overwriting above defaults
       ResourcesUtil.copy(conf, "solr/conf/", false, "schema.xml", "solrconfig.xml");
 
-      // create container
+      // insert container
       CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome.getAbsolutePath(), new File(solrHome, "solr.xml"));
       EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "");
 
@@ -305,7 +305,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
 
     // any new job to be created?
     if (allIds.size() <= jobCounter * batchSize) {
-      LOG.info("No more jobs to create. Created {} jobs in total each processing {} records.", jobCounter, batchSize);
+      LOG.info("No more jobs to insert. Created {} jobs in total each processing {} records.", jobCounter, batchSize);
       return null;
     }
 
@@ -335,7 +335,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     LOG.info("Sorted all {} usage ids in {}", allIds.size(), stopWatch.toString());
     LOG.info("{} full jobs each processing {} records to be created.", allIds.size() / batchSize, batchSize);
 
-    // create solr servers if multiple writers are configured
+    // insert solr servers if multiple writers are configured
     setupServers();
 
 

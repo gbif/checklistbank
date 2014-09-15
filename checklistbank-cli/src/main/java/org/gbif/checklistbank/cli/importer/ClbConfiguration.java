@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A configuration for the checklist bank database connection pool
- * as used by the mybatis layer. Knows how to create a service guice module.
+ * as used by the mybatis layer. Knows how to insert a service guice module.
  */
 @SuppressWarnings("PublicField")
 public class ClbConfiguration {

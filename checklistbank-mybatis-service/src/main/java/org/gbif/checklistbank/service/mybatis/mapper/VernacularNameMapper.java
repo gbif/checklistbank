@@ -18,4 +18,7 @@ public interface VernacularNameMapper extends NameUsageComponentMapper<Vernacula
    * Retrieves a single vernacular name or none for a given nub usage and language.
    */
   VernacularName getByNubUsage(@Param("key") int usageKey, @Param("lang") String language);
+
+  void insert(@Param("key") int usageKey, @Param("obj") VernacularName vernacularName, @Param("sourceKey") Integer sourceKey);
+
 }

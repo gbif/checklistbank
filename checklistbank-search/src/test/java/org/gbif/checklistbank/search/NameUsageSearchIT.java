@@ -88,7 +88,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
     // creates squirrels db and solr index & server using its own injector
     NameUsageIndexerBaseIT.setup();
 
-    // create new injector for this test, reusing existing solr server
+    // insert new injector for this test, reusing existing solr server
     Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
     Injector injector = Guice.createInjector(new SearchTestModule(props, solr()));
 

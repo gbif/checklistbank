@@ -83,7 +83,7 @@ public class NormalizerIT extends NeoTest {
   }
 
   /**
-   * Imports should not create implicit genus or species and use the exact, original taxonomy.
+   * Imports should not insert implicit genus or species and use the exact, original taxonomy.
    */
   @Test
   public void testImplicitSpecies() throws Exception {

@@ -105,7 +105,7 @@ public class ColAnnotationImport {
     File zip = new File(workDir, "annotation.zip");
     // local decompressed dwca
     File dwca = new File(workDir, "annotation");
-    // create folders
+    // insert folders
     org.apache.commons.io.FileUtils.forceMkdir(dwca);
 
     // use a 10 minutes timeout

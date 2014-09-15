@@ -18,4 +18,7 @@ public interface IdentifierMapper {
 
   List<Identifier> listByUsage(@Param("key") int usageKey, @Param("page") Pageable page);
 
+  void deleteByUsage(@Param("key") int usageKey);
+
+  void insert(@Param("key") int usageKey, @Param("obj") Identifier identifier);
 }

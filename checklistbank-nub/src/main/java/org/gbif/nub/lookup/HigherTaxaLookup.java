@@ -301,7 +301,7 @@ public class HigherTaxaLookup {
     syn.put(rank, synonymsNormed);
     log.debug("Loaded " + synonyms.size() + " " + rank.name() + " synonyms ");
 
-    // also create kingdom enum lookup in case of kingdom synonyms
+    // also insert kingdom enum lookup in case of kingdom synonyms
     if (Rank.KINGDOM == rank) {
       Map<String, String> map = syn.get(Rank.KINGDOM);
       if (map != null) {

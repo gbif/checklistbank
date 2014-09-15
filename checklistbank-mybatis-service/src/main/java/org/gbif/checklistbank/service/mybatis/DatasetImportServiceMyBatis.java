@@ -1,23 +1,40 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.model.checklistbank.Reference;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.checklistbank.service.CitationService;
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.service.CitationService;
+import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.IdentifierMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.MultimediaMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.SpeciesProfileMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 
 import java.util.Date;
@@ -26,10 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
@@ -55,20 +70,22 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   private final VerbatimNameUsageMapper vParser = new VerbatimNameUsageMapper();
   private final ParsedNameService nameService;
   private final CitationService citationService;
+  private final DescriptionMapper descriptionMapper;
+  private final DistributionMapper distributionMapper;
+  private final IdentifierMapper identifierMapper;
+  private final MultimediaMapper multimediaMapper;
+  private final ReferenceMapper referenceMapper;
+  private final SpeciesProfileMapper speciesProfileMapper;
+  private final TypeSpecimenMapper typeSpecimenMapper;
+  private final VernacularNameMapper vernacularNameMapper;
 
   @Inject
-  private DataSource ds;
-
-  @Inject
-  DatasetImportServiceMyBatis(
-    UsageMapper usageMapper,
-    NameUsageMapper nameUsageMapper,
-    NameUsageMetricsMapper metricsMapper,
-    NubRelMapper nubRelMapper,
-    RawUsageMapper rawMapper,
-    ParsedNameService nameService,
-    CitationService citationService
-  ) {
+  DatasetImportServiceMyBatis(UsageMapper usageMapper, NameUsageMapper nameUsageMapper,
+    NameUsageMetricsMapper metricsMapper, NubRelMapper nubRelMapper, RawUsageMapper rawMapper,
+    ParsedNameService nameService, CitationService citationService, DescriptionMapper descriptionMapper,
+    DistributionMapper distributionMapper, IdentifierMapper identifierMapper, MultimediaMapper multimediaMapper,
+    ReferenceMapper referenceMapper, SpeciesProfileMapper speciesProfileMapper, TypeSpecimenMapper typeSpecimenMapper,
+    VernacularNameMapper vernacularNameMapper) {
     this.nameUsageMapper = nameUsageMapper;
     this.metricsMapper = metricsMapper;
     this.nameService = nameService;
@@ -76,6 +93,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     this.nubRelMapper = nubRelMapper;
     this.citationService = citationService;
     this.rawMapper = rawMapper;
+    this.descriptionMapper = descriptionMapper;
+    this.distributionMapper = distributionMapper;
+    this.identifierMapper = identifierMapper;
+    this.multimediaMapper = multimediaMapper;
+    this.referenceMapper = referenceMapper;
+    this.speciesProfileMapper = speciesProfileMapper;
+    this.typeSpecimenMapper = typeSpecimenMapper;
+    this.vernacularNameMapper = vernacularNameMapper;
   }
 
   @Override
@@ -132,7 +157,10 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     NameUsageWritable uw = toWritable(datasetKey, usage);
     nameUsageMapper.insert(uw);
     final int usageKey = uw.getKey();
-      //TODO: deal with extensions
+    usage.setKey(usageKey);
+
+    // insert extension data
+    insertExtensions(usage);
 
     // insert usage metrics
     metrics.setKey(usageKey);
@@ -148,6 +176,37 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     }
 
     return usageKey;
+  }
+
+  private void insertExtensions(NameUsageContainer usage) {
+    for (Description d : usage.getDescriptions()) {
+      Integer sk = citationService.createOrGet(d.getSource());
+      descriptionMapper.insert(usage.getKey(), d, sk);
+    }
+    for (Distribution d : usage.getDistributions()) {
+      distributionMapper.insert(usage.getKey(), d, citationService.createOrGet(d.getSource()));
+    }
+    for (Identifier i : usage.getIdentifiers()) {
+      if (i.getType() == null) {
+        i.setType(IdentifierType.UNKNOWN);
+      }
+      identifierMapper.insert(usage.getKey(), i);
+    }
+    for (NameUsageMediaObject m : usage.getMedia()) {
+      multimediaMapper.insert(usage.getKey(), m, citationService.createOrGet(m.getSource()));
+    }
+    for (Reference r : usage.getReferenceList()) {
+      referenceMapper.insert(usage.getKey(), citationService.createOrGet(r.getCitation()), r, citationService.createOrGet(r.getSource()));
+    }
+    for (SpeciesProfile s : usage.getSpeciesProfiles()) {
+      speciesProfileMapper.insert(usage.getKey(), s, citationService.createOrGet(s.getSource()));
+    }
+    for (TypeSpecimen t : usage.getTypeSpecimens()) {
+      typeSpecimenMapper.insert(usage.getKey(), t, citationService.createOrGet(t.getSource()));
+    }
+    for (VernacularName v : usage.getVernacularNames()) {
+      vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
+    }
   }
 
   /**
@@ -170,6 +229,18 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     uw.setKey(usageKey);
     nameUsageMapper.update(uw);
     //TODO: deal with extensions
+
+    // remove all previous extension records
+    descriptionMapper.deleteByUsage(usageKey);
+    distributionMapper.deleteByUsage(usageKey);
+    identifierMapper.deleteByUsage(usageKey);
+    multimediaMapper.deleteByUsage(usageKey);
+    referenceMapper.deleteByUsage(usageKey);
+    speciesProfileMapper.deleteByUsage(usageKey);
+    typeSpecimenMapper.deleteByUsage(usageKey);
+    vernacularNameMapper.deleteByUsage(usageKey);
+    // insert new extension data
+    insertExtensions(usage);
 
     // update usage metrics
     metrics.setKey(usageKey);
@@ -220,17 +291,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     uw.setRemarks(u.getRemarks());
     uw.setModified(u.getModified());
 
-    // lookup or create name record
+    // lookup or insert name record
     ParsedName pn = nameService.createOrGet(u.getScientificName());
     uw.setNameKey(pn.getKey());
 
-    // lookup or create citation records
-    if (!Strings.isNullOrEmpty(u.getPublishedIn())) {
-      uw.setPublishedInKey( citationService.createOrGet(u.getPublishedIn()) );
-    }
-    if (!Strings.isNullOrEmpty(u.getAccordingTo())) {
-      uw.setAccordingToKey( citationService.createOrGet(u.getAccordingTo()) );
-    }
+    // lookup or insert citation records
+    uw.setPublishedInKey( citationService.createOrGet(u.getPublishedIn()) );
+    uw.setAccordingToKey( citationService.createOrGet(u.getAccordingTo()) );
 
     return uw;
   }

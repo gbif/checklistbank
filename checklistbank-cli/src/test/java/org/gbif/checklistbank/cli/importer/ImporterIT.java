@@ -10,18 +10,25 @@ import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerIT;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.UUID;
+import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import org.apache.ibatis.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +62,19 @@ public class ImporterIT extends NeoTest {
     iCfg.neo = nCfg.neo;
     Injector inj = Guice.createInjector(iCfg.clb.createServiceModule());
     usageService = inj.getInstance(NameUsageService.class);
+    // truncate tables
+    truncate(inj.getInstance(
+      Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME))
+    ));
+  }
+
+  private void truncate(DataSource ds) throws SQLException {
+    try (Connection con = ds.getConnection()){
+      try (Statement st = con.createStatement()){
+        st.execute("TRUNCATE citation CASCADE");
+        st.execute("TRUNCATE name CASCADE");
+      }
+    }
   }
 
   @Test
@@ -62,7 +82,7 @@ public class ImporterIT extends NeoTest {
     final UUID datasetKey = NormalizerIT.datasetKey(1);
 
     Importer importer = Importer.build(iCfg, datasetKey);
-    // create neo db
+    // insert neo db
     Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
     norm.run();
     NormalizerStats stats = norm.getStats();
@@ -84,7 +104,7 @@ public class ImporterIT extends NeoTest {
     final UUID datasetKey = NormalizerIT.datasetKey(14);
 
     Importer importer = Importer.build(iCfg, datasetKey);
-    // create neo db
+    // insert neo db
     Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
     norm.run();
     NormalizerStats stats = norm.getStats();
@@ -122,7 +142,7 @@ public class ImporterIT extends NeoTest {
     final UUID datasetKey = NormalizerIT.datasetKey(14);
 
     Importer importer = Importer.build(iCfg, datasetKey);
-    // create neo db
+    // insert neo db
     Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
     norm.run();
     NormalizerStats stats = norm.getStats();

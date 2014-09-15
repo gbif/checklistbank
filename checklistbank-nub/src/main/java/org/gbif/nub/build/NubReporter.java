@@ -32,7 +32,7 @@ public class NubReporter {
       try {
         FileUtils.forceMkdir(dir);
       } catch (IOException e) {
-        throw new IllegalArgumentException("Cannot create reporting dir", e);
+        throw new IllegalArgumentException("Cannot insert reporting dir", e);
       }
     }
     newIdWriter = new TabWriter(new FileOutputStream(new File(reportDir, "new-ids.tab")));

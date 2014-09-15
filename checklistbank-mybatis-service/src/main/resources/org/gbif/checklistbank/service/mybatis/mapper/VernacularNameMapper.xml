@@ -2,12 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper">
 
-  <!-- TODO: clb doesnt have content currently for plural  -->
-
   <sql id="select">v.usage_fk AS usageKey, null AS sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
   <sql id="selectNub">rel.nub_fk as usageKey, v.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/></sql>
-  <sql id="selectNoUsageKey">v.id, v.dataset_key, v.name, v.language, v.country, v.locality, v.location_id,
-    c.citation, preferred, v.sex, v.life_stage
+  <sql id="selectNoUsageKey">v.id, v.name, v.language, v.country, v.area,
+    c.citation, preferred, v.sex, v.life_stage, v.plural
   </sql>
 
   <sql id="from">vernacular_name v LEFT JOIN citation c ON v.source_fk=c.id</sql>
@@ -91,5 +89,19 @@
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
+
+  <delete id="deleteByUsage">
+    DELETE FROM vernacular_name
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO vernacular_name (usage_fk, name, language, life_stage, sex,
+      country, area, preferred, plural, source_fk
+    )
+    VALUES (#{key}, #{obj.vernacularName}, #{obj.language}, #{obj.lifeStage}, #{obj.sex},
+      #{obj.country}, #{obj.area}, #{obj.preferred}, #{obj.plural}, #{sourceKey}
+    )
+  </insert>
 
 </mapper>
