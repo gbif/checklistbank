@@ -40,9 +40,9 @@ public class TaxonomicOrderExpander implements PathExpander {
 
   @Override
   public Iterable<Relationship> expand(Path path, BranchState state) {
-    List<Relationship> children = Lists.newArrayList(IteratorUtil.asCollection(path.endNode()
-                                                                                 .getRelationships(RelType.PARENT_OF,
-                                                                                                   Direction.OUTGOING)));
+    List<Relationship> children = Lists.newArrayList(
+      IteratorUtil.asCollection(path.endNode().getRelationships(RelType.PARENT_OF, Direction.OUTGOING))
+    );
 
     return TAX_ORDER.sortedCopy(children);
   }

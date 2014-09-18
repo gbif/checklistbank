@@ -289,8 +289,10 @@ public class NeoInserter {
       if (sciname != null) {
         pn = nameParser.parse(sciname);
         // append author if its not part of the name yet
-        if (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship())) {
-          String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
+        String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
+        if (!Strings.isNullOrEmpty(author) && !sciname.contains(author)
+                && (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship()))) {
+          u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
           pn.setAuthorship(author);
         }
       } else {
@@ -316,7 +318,11 @@ public class NeoInserter {
       pn.setScientificName(sciname);
     }
 
-    u.setScientificName(coalesce(pn.fullName(), sciname));
+    if (u.getIssues().contains(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED)) {
+      u.setScientificName(pn.fullName());
+    } else {
+      u.setScientificName(sciname);
+    }
     u.setCanonicalName(Strings.emptyToNull(pn.canonicalName()));
     //TODO: verify name parts and rank
     u.setNameType(pn.getType());

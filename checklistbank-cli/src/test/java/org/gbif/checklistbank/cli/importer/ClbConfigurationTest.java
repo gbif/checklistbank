@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
+
 import com.google.inject.Module;
 import org.junit.Test;
 

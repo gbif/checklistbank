@@ -41,8 +41,11 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
       @Override
       public Iterator<Path> iterator() {
         List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
-        return new TaxonomicIterator(roots,
-                                     db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()));
+        return new TaxonomicIterator(roots, db.traversalDescription()
+                                      .depthFirst()
+                                      .expand(new TaxonomicOrderExpander())
+                                      .evaluator(new AcceptedOnlyEvaluator())
+        );
       }
     };
   }

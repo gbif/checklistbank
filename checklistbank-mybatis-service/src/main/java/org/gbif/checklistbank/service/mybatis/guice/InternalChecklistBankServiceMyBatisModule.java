@@ -27,9 +27,11 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ColAnnotationService;
+import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.DatasetAnalysisServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.CitationMapper;
 import org.gbif.checklistbank.service.mybatis.CitationServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.ColAnnotationMapper;
@@ -161,5 +163,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     bind(DatasetImportService.class).to(DatasetImportServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(CitationService.class).to(CitationServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(ColAnnotationService.class).to(ColAnnotationServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DatasetAnalysisService.class).to(DatasetAnalysisServiceMyBatis.class).in(Scopes.SINGLETON);
+
   }
 }

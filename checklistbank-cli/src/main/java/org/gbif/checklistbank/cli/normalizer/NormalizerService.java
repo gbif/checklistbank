@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
@@ -8,11 +9,12 @@ import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
-import org.gbif.api.model.crawler.NormalizerStats;
 
 import java.io.IOException;
 
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.yammer.metrics.Counter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
@@ -38,6 +40,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
   private final Timer timer = registry.timer("normalizer process time");
   private final Counter started = registry.counter("started normalizations");
   private final Counter failed = registry.counter("failed normalizations");
+  private NameUsageMatchingService matchingService;
 
   public NormalizerService(NormalizerConfiguration configuration) {
     this.cfg = configuration;
@@ -57,6 +60,10 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
     listener.listen(QUEUE, cfg.messaging.poolSize, this);
+
+    // use ws clients for nub matching
+    Injector injClient = Guice.createInjector(cfg.createMatchClientModule());
+    matchingService = injClient.getInstance(NameUsageMatchingService.class);
   }
 
   @Override
@@ -79,7 +86,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
         LOG.info("Rejected dataset {} of type {}", msg.getDatasetUuid(), msg.getDatasetType());
         return;
       }
-      Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents());
+      Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
       normalizer.run();
       started.inc();
       Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());

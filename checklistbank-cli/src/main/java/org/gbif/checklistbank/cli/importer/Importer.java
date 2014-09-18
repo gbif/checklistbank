@@ -168,6 +168,7 @@ public class Importer extends NeoRunnable implements Runnable {
     u.setParentKey(clbKey(u.getParentKey()));
     u.setAcceptedKey(clbKey(u.getAcceptedKey()));
     u.setBasionymKey(clbKey(u.getBasionymKey()));
+    u.setProParteKey(clbKey(u.getProParteKey()));
     for (Rank r : Rank.DWC_RANKS) {
       ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
     }

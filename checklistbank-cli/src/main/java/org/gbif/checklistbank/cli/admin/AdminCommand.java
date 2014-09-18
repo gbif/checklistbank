@@ -11,6 +11,7 @@ import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
@@ -56,9 +57,14 @@ public class AdminCommand extends BaseCommand {
                   )
           );
           break;
+
         case IMPORT:
           publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,0,
             Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
+          break;
+
+        case METRICS:
+          publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, 0, 0) );
           break;
 
         default:

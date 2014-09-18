@@ -27,7 +27,7 @@ public class CreateNeoDb {
     Path p = Paths.get(dwcasUrl.toURI());
     cfg.archiveRepository = p.toFile();
 
-    Normalizer norm = Normalizer.build(cfg, NormalizerIT.datasetKey(9), null);
+    Normalizer norm = NormalizerIT.buildNormalizer(cfg, NormalizerIT.datasetKey(9));
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

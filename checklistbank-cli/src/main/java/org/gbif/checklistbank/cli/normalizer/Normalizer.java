@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.crawler.NormalizerStats;
+import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -24,14 +25,12 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Maps;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -51,6 +50,7 @@ public class Normalizer extends NeoRunnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
+  private static final String PRO_PARTE_KEY_FIELD = "proParteKey";
   private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.INFORMAL);
   private static final List<String> CLASSIFICATION_PROPERTIES = ImmutableList.of(
     NeoMapper.propertyName(DwcTerm.parentNameUsageID),
@@ -70,6 +70,8 @@ public class Normalizer extends NeoRunnable {
     }
   }
 
+  private final NameUsageMatchingService matchingService;
+
   private final Map<String, UUID> constituents;
   private final File dwca;
   private final File storeDir;
@@ -78,16 +80,12 @@ public class Normalizer extends NeoRunnable {
   private final Meter metricsMeter;
 
   private InsertMetadata meta;
-  private NormalizerStats stats;
-  private int roots;
-  private int depth;
-  private int synonyms;
-  private Map<Origin, Integer> countByOrigin = Maps.newHashMap();
-  private Map<Rank, Integer> countByRank = Maps.newHashMap();
+  private int ignored;
   private List<String> cycles = Lists.newArrayList();
+  private UsageMetricsAndNubMatchHandler metricsHandler;
 
   public Normalizer(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-    Map<String, UUID> constituents) {
+    Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
     super(datasetKey, cfg.neo, registry);
     this.constituents = constituents;
     this.insertMeter = registry.getMeters().get(NormalizerService.INSERT_METER);
@@ -95,21 +93,7 @@ public class Normalizer extends NeoRunnable {
     this.metricsMeter = registry.getMeters().get(NormalizerService.METRICS_METER);
     storeDir = cfg.neo.neoDir(datasetKey);
     dwca = cfg.archiveDir(datasetKey);
-  }
-
-  /**
-   * Uses an internal metrics registry to setup the normalizer
-   */
-  public static Normalizer build(NormalizerConfiguration cfg, UUID datasetKey, Map<String, UUID> constituents) {
-    MetricRegistry registry = new MetricRegistry("normalizer");
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
-
-    registry.meter(NormalizerService.INSERT_METER);
-    registry.meter(NormalizerService.RELATION_METER);
-    registry.meter(NormalizerService.METRICS_METER);
-
-    return new Normalizer(cfg, datasetKey, registry, constituents);
+    this.matchingService = matchingService;
   }
 
   public void run() throws NormalizationFailedException {
@@ -120,72 +104,20 @@ public class Normalizer extends NeoRunnable {
     setupDb();
     setupIndices();
     setupRelations();
-    buildMetrics();
+    buildMetricsAndMatchBackbone();
     tearDownDb();
 
     LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
-    countByOrigin.put(Origin.SOURCE, meta.getRecords());
-    stats = new NormalizerStats(roots, depth, synonyms, meta.getIgnored(), countByOrigin, countByRank, cycles);
+    ignored = meta.getIgnored();
   }
 
   public NormalizerStats getStats() {
-    return stats;
+    return metricsHandler.getStats(ignored, cycles);
   }
 
   private void batchInsertData() throws NormalizationFailedException {
     NeoInserter inserter = new NeoInserter();
     meta = inserter.insert(storeDir, dwca, batchSize, insertMeter, constituents);
-  }
-
-  /**
-   * Creates implicit nodes and sets up relations between taxa.
-   */
-  private void setupRelations() {
-    LOG.debug("Start processing relations ...");
-    int counter = 0;
-
-    Transaction tx = db.beginTx();
-    try {
-      //This iterates over ALL NODES, even the ones creating within this loop!
-      // iteration is by node id starting from node id 1 to highest.
-      // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
-      for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
-        if (counter % batchSize == 0) {
-          tx.success();
-          tx.close();
-          LOG.debug("Relations processed for taxa: {}", counter);
-          //logMemory();
-          tx = db.beginTx();
-        }
-
-        final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
-        final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
-        final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
-        final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
-        boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
-        setupParentRel(n, isSynonym, taxonID, sciname, canonical);
-        setupBasionymRel(n, taxonID, sciname, canonical);
-
-        counter++;
-        if (isSynonym) {
-          synonyms++;
-        }
-        relationMeter.mark();
-      }
-      tx.success();
-
-    } finally {
-      tx.close();
-    }
-
-    // now process the denormalized classifications
-    applyDenormedClassification();
-
-    // finally resolve cycles and other bad relations
-    cleanupRelations();
-
-    LOG.info("Relation setup completed, {} nodes processed", counter);
-    LOG.info("Relation setup rate: {}", relationMeter.getMeanRate());
   }
 
   /**
@@ -284,7 +216,6 @@ public class Normalizer extends NeoRunnable {
    */
   private void cleanupRelations() {
     LOG.debug("Cleanup relations ...");
-
     // cut synonym cycles
     try (Transaction tx = db.beginTx()) {
       try {
@@ -349,18 +280,18 @@ public class Normalizer extends NeoRunnable {
         //  r.delete();
         //}
       }
-
     }
   }
 
-  private void buildMetrics() {
-    ImportTaxonMetricsHandler handler = new ImportTaxonMetricsHandler();
-    TaxonWalker.walkAccepted(db, handler, 10000, metricsMeter);
-    depth = handler.getMaxDepth();
-    // do other final metrics
-    try (Transaction tx = db.beginTx()) {
-      roots = IteratorUtil.count(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
-    }
+  /**
+   * Matches every node to the backbone and calculates a usage metric.
+   * This is done jointly as both needs the full linnean classification for every node.
+   */
+  private void buildMetricsAndMatchBackbone() {
+    LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
+    metricsHandler = new UsageMetricsAndNubMatchHandler(matchingService, db);
+    TaxonWalker.walkAccepted(db, metricsHandler, 10000, metricsMeter);
+    LOG.info("Walked all accepted taxa and built metrics");
   }
 
   /**
@@ -380,76 +311,148 @@ public class Normalizer extends NeoRunnable {
     return Lists.newArrayList(val);
   }
 
+
   /**
-   * Must deal with pro parte synonyms, i.e. a single synonym can have multiple accepted taxa!
-   *
-   * @return true if it is a synonym of some type
+   * Checks if this node is a pro parte synonym by looking if multiple accepted taxa are referred to.
+   * If so, new taxon nodes are created each with a single, unique acceptedNameUsageID property.
    */
-  private boolean setupAcceptedRel(Node n, String taxonID, String sciname, String canonical, Rank rank) {
-    TaxonomicStatus status = mapper.readEnum(n, TaxonProperties.STATUS, TaxonomicStatus.class, TaxonomicStatus.DOUBTFUL);
-    List<Node> accepted = Lists.newArrayList();
+  private void duplicateProParteSynonyms(Node n, String taxonID) {
     if (meta.isAcceptedNameMapped()) {
       if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
-        List<String> ids = Lists.newArrayList();
+        List<String> acceptedIds = Lists.newArrayList();
         final String unsplitIds = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
         if (unsplitIds != null && !unsplitIds.equals(taxonID)) {
           if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
-            ids = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
+            acceptedIds = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
           } else {
             // lookup by taxon id to see if this is an existing identifier or if we should try to split it
             Node a = nodeByTaxonId(unsplitIds);
-            if (a != null && !a.equals(n)) {
-              accepted.add(a);
-            } else {
-              ids = splitByCommonDelimiters(unsplitIds);
-            }
-          }
-          //setup relation
-          for (String id : ids) {
-            if (id != null && !id.equals(taxonID)) {
-              Node a = nodeByTaxonId(id);
-              if (a == null) {
-                LOG.debug("acceptedNameUsageID {} not existing", id);
-                mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
-                a = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, n);
-              }
-              accepted.add(a);
+            if (a == null) {
+              acceptedIds = splitByCommonDelimiters(unsplitIds);
             }
           }
         }
-
-      } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
-        final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
-        if (name != null && !name.equals(sciname)) {
-          Node a = nodeBySciname(name);
-          if (a == null && !name.equals(canonical)) {
-            a = nodeByCanonical(name);
-            if (a == null) {
-              // insert doubtful verbatim accepted usage
-              LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-              a = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n);
+        if (acceptedIds.size() > 1) {
+          final int primaryId = (int) n.getId();
+          // duplicate this node for each accepted id!
+          LOG.debug("pro parte synonym with multiple acceptedNameUsageIDs: {}", acceptedIds);
+          // now create new nodes and also update their acceptedId so the relations get processed fine later on
+          boolean first = true;
+          for (String accId : acceptedIds) {
+            Node p;
+            if (first) {
+              p = n;
+              first = false;
+            } else {
+              p = createTaxon(n, Origin.PROPARTE);
             }
-          }
-          if (a != null && !a.equals(n)) {
-            accepted.add(a);
+            updateProParteSynonym(p, accId, primaryId);
           }
         }
       }
     }
-    // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
-    if (status.isSynonym() && accepted.isEmpty()) {
-      accepted.add( createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n) );
+  }
+
+  private void updateProParteSynonym(Node n, String acceptedId, int primarySynonymId) {
+    mapper.setProperty(n, DwcTerm.acceptedNameUsageID, acceptedId);
+    mapper.storeEnum(n, DwcTerm.taxonomicStatus, TaxonomicStatus.PROPARTE_SYNONYM);
+    n.setProperty(PRO_PARTE_KEY_FIELD, primarySynonymId);
+  }
+
+  /**
+   * Creates implicit nodes and sets up relations between taxa.
+   */
+  private void setupRelations() {
+    LOG.debug("Start processing relations ...");
+    int counter = 0;
+
+    Transaction tx = db.beginTx();
+    try {
+      //This iterates over ALL NODES, even the ones creating within this loop!
+      // iteration is by node id starting from node id 1 to highest.
+      // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
+      for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+        if (counter % batchSize == 0) {
+          tx.success();
+          tx.close();
+          LOG.debug("Relations processed for taxa: {}", counter);
+          //logMemory();
+          tx = db.beginTx();
+        }
+
+        final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
+        final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
+        final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
+        final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
+        duplicateProParteSynonyms(n, taxonID);
+        boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
+        setupParentRel(n, isSynonym, taxonID, sciname, canonical);
+        setupBasionymRel(n, taxonID, sciname, canonical);
+
+        counter++;
+        relationMeter.mark();
+      }
+      tx.success();
+
+    } finally {
+      tx.close();
     }
-    // insert synonym relations
-    if (!accepted.isEmpty()) {
+
+    // now process the denormalized classifications
+    applyDenormedClassification();
+
+    // finally resolve cycles and other bad relations
+    cleanupRelations();
+
+    LOG.info("Relation setup completed, {} nodes processed", counter);
+    LOG.info("Relation setup rate: {}", relationMeter.getMeanRate());
+  }
+
+  /**
+   * Creates synonym_of relationship.
+   * Assumes pro parte synonyms are dealt with before and the remaining accepted identifier refers to a single taxon only.
+   * See #duplicateProParteSynonyms()
+   * @return true if it is a synonym of some type
+   */
+  private boolean setupAcceptedRel(Node n, @Nullable String taxonID, String sciname, @Nullable String canonical, Rank rank) {
+    TaxonomicStatus status = mapper.readEnum(n, TaxonProperties.STATUS, TaxonomicStatus.class, TaxonomicStatus.DOUBTFUL);
+    Node accepted = null;
+    if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
+      final String id = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
+      if (id != null && (taxonID == null || !id.equals(taxonID))) {
+        accepted = nodeByTaxonId(id);
+        if (accepted == null) {
+          mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+          LOG.debug("acceptedNameUsageID {} not existing", id);
+        }
+      }
+    } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
+      final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
+      if (name != null && !name.equals(sciname)) {
+        accepted = nodeBySciname(name);
+        if (accepted == null && !name.equals(canonical)) {
+          accepted = nodeByCanonical(name);
+          if (accepted == null) {
+            LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
+            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n);
+          }
+        }
+      }
+    }
+
+    // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
+    if (status.isSynonym() && accepted == null) {
+      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n);
+    }
+
+    if (accepted != null && !accepted.equals(n)) {
+      // make sure taxonomic status reflects the synonym relation
       if (!status.isSynonym()) {
         status = TaxonomicStatus.SYNONYM;
         mapper.storeEnum(n, TaxonProperties.STATUS, status);
       }
-      for (Node a : accepted) {
-        n.createRelationshipTo(a, RelType.SYNONYM_OF);
-        n.addLabel(Labels.SYNONYM);
-      }
+      n.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+      n.addLabel(Labels.SYNONYM);
     }
     return status.isSynonym();
   }
@@ -521,8 +524,6 @@ public class Normalizer extends NeoRunnable {
   }
 
   protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
-    incRank(rank);
-    incOrigin(origin);
     Node n = super.create(origin, sciname, rank, status);
     n.addLabel(Labels.ROOT);
     return n;
@@ -542,24 +543,18 @@ public class Normalizer extends NeoRunnable {
     return n;
   }
 
-  private void incOrigin(Origin origin) {
-    if (origin != null) {
-      if (!countByOrigin.containsKey(origin)) {
-        countByOrigin.put(origin, 1);
-      } else {
-        countByOrigin.put(origin, countByOrigin.get(origin) + 1);
+  /**
+   * Copies an existing taxon node with all its properties and sets the origin value.
+   */
+  private Node createTaxon(Node source, Origin origin) {
+    Node n = db.createNode(Labels.TAXON);
+    for (String k : source.getPropertyKeys()) {
+      if (!k.equals(TaxonProperties.TAXON_ID)) {
+        n.setProperty(k, source.getProperty(k));
       }
     }
-  }
-
-  private void incRank(Rank rank) {
-    if (rank != null) {
-      if (!countByRank.containsKey(rank)) {
-        countByRank.put(rank, 1);
-      } else {
-        countByRank.put(rank, countByRank.get(rank) + 1);
-      }
-    }
+    mapper.storeEnum(n, "origin", origin);
+    return n;
   }
 
 }

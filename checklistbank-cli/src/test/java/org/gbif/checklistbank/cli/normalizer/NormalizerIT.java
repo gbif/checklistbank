@@ -2,6 +2,7 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
@@ -9,21 +10,26 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.MockMatchingService;
 
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.collect.Lists;
+import com.beust.jcommander.internal.Maps;
+import com.beust.jcommander.internal.Sets;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -52,11 +58,26 @@ public class NormalizerIT extends NeoTest {
     cfg.archiveRepository = p.toFile();
   }
 
+  /**
+   * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher for tests.
+   */
+  public static Normalizer buildNormalizer(NormalizerConfiguration cfg, UUID datasetKey) {
+    MetricRegistry registry = new MetricRegistry("normalizer");
+    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
+    registry.registerAll(mgs);
+
+    registry.meter(NormalizerService.INSERT_METER);
+    registry.meter(NormalizerService.RELATION_METER);
+    registry.meter(NormalizerService.METRICS_METER);
+
+    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new MockMatchingService());
+  }
+
   @Test
   public void testIdList() throws Exception {
     final UUID datasetKey = datasetKey(1);
 
-    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -79,7 +100,26 @@ public class NormalizerIT extends NeoTest {
       NameUsage syn = getUsageByName("Leontodon leysseri");
       NameUsage acc = getUsageByTaxonId("1006");
       assertEquals(acc.getKey(), syn.getAcceptedKey());
+
+      // metrics
+      assertMetrics(getMetricsByTaxonId("101"), 2, 2, 0,  0, 0, 0, 0, 0, 0, 2);
+      assertMetrics(getMetricsByTaxonId("1"), 1, 15, 1,  0, 0, 0, 1, 4, 0, 7);
     }
+  }
+
+  private void assertMetrics(NameUsageMetrics m, int children, int descendants, int synonyms,
+    int p, int c, int o, int f, int g, int sg, int s) {
+    System.out.println(m);
+    assertEquals(children, m.getNumChildren());
+    assertEquals(descendants, m.getNumDescendants());
+    assertEquals(synonyms, m.getNumSynonyms());
+    assertEquals(p, m.getNumPhylum());
+    assertEquals(c, m.getNumClass());
+    assertEquals(o, m.getNumOrder());
+    assertEquals(f, m.getNumFamily());
+    assertEquals(g, m.getNumGenus());
+    assertEquals(sg, m.getNumSubgenus());
+    assertEquals(s, m.getNumSpecies());
   }
 
   /**
@@ -348,6 +388,17 @@ public class NormalizerIT extends NeoTest {
   @Test
   public void testMaterializeVerbatimParents() throws Exception {
     NormalizerStats stats = normalize(7);
+    assertEquals(3, stats.getRoots());  // Animalia, Pygoleptura & Pygoleptura synomica
+    assertEquals(11, stats.getCount());
+    assertEquals(2, stats.getSynonyms());  // Leptura nigrella & Pygoleptura tinktura subsp. synomica
+    assertEquals(9, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
+    assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_PARENT));
+    assertEquals(1, stats.getCountByRank(Rank.KINGDOM));
+    assertEquals(1, stats.getCountByRank(Rank.PHYLUM));
+    assertEquals(1, stats.getCountByRank(Rank.ORDER));
+    assertEquals(4, stats.getCountByRank(Rank.SPECIES));
+
     try (Transaction tx = beginTx()) {
       NameUsage u = getUsageByTaxonId("100");
       assertFalse(u.isSynonym());
@@ -419,13 +470,21 @@ public class NormalizerIT extends NeoTest {
     }
   }
 
+  /**
+   * Pro parte synonyms get exploded into several usages/nodes that each have just one accepted taxon!
+   */
   @Test
-  @Ignore
   public void testProParteSynonyms() throws Exception {
     NormalizerStats stats = normalize(8);
     try (Transaction tx = beginTx()) {
       assertEquals(1, stats.getRoots());
       assertEquals(17, stats.getCount());
+      assertEquals(6, stats.getSynonyms());
+      assertEquals(2, stats.getCountByOrigin(Origin.PROPARTE));
+      assertEquals(15, stats.getCountByOrigin(Origin.SOURCE));
+      assertEquals(2, stats.getCountByRank(Rank.GENUS));
+      assertEquals(7, stats.getCountByRank(Rank.SPECIES));
+      assertEquals(5, stats.getCountByRank(Rank.SUBSPECIES));
 
       // genus synonym
       NameUsage nu = getUsageByTaxonId("101");
@@ -434,44 +493,43 @@ public class NormalizerIT extends NeoTest {
       assertEquals(TaxonomicStatus.SYNONYM, nu.getTaxonomicStatus());
       assertTrue(nu.isSynonym());
 
-      NameUsage acc = getUsageByKey(nu.getParentKey());
+      NameUsage acc = getUsageByKey(nu.getAcceptedKey());
       assertEquals("Calendula L.", acc.getScientificName());
       assertEquals(Rank.GENUS, acc.getRank());
       assertEquals(TaxonomicStatus.ACCEPTED, acc.getTaxonomicStatus());
       assertFalse(acc.isSynonym());
 
       // pro parte synonym
-      nu = getUsageByTaxonId("1001");
-      assertEquals("Calendula eckerleinii Ohle", nu.getScientificName());
-      assertEquals(Rank.SPECIES, nu.getRank());
-      assertEquals(TaxonomicStatus.PROPARTE_SYNONYM, nu.getTaxonomicStatus());
-      assertTrue(nu.isSynonym());
-
-      List<NameUsage> propartes =
-        Lists.newArrayList(); // = usageService.search(null, null, "Calendula eckerleinii Ohle", SearchType.fullname, 110, null, null, null, null, null, null);
-      assertEquals(3, propartes.size());
-      for (NameUsage u : propartes) {
+      Set<Integer> accIds = Sets.newHashSet();
+      List<NameUsageContainer> pps = getUsagesByName("Calendula eckerleinii Ohle");
+      assertEquals(3, pps.size());
+      for (NameUsageContainer u : pps) {
         assertEquals("Calendula eckerleinii Ohle", u.getScientificName());
-        //TODO: what status should this record have? The original given or an interpreted ProParte one?
-        //assertEquals(TaxonomicStatus.Proparte_Synonym, u.getTaxonomicStatus());
         assertEquals(Rank.SPECIES, u.getRank());
-        assertTrue(u.isSynonym() == true);
+        assertEquals(TaxonomicStatus.PROPARTE_SYNONYM, u.getTaxonomicStatus());
+        assertTrue(u.isSynonym());
+        assertFalse(accIds.contains(u.getAcceptedKey()));
+        accIds.add(u.getAcceptedKey());
+      }
 
-        acc = getUsageByKey(u.getParentKey());
-        assertTrue(acc.isSynonym() == false);
+      for (Integer aid : accIds) {
+        acc = getUsageByKey(aid);
+        assertFalse(acc.isSynonym());
         assertEquals(TaxonomicStatus.ACCEPTED, acc.getTaxonomicStatus());
-        if (acc.getScientificName().equals("Calendula arvensis (Vaill.) L.")) {
+        if (acc.getTaxonID().equals("1000")) {
+          assertEquals("Calendula arvensis (Vaill.) L.", acc.getScientificName());
           assertEquals(Rank.SPECIES, acc.getRank());
-        } else if (acc.getScientificName().equals("Calendula incana Willd. subsp. incana")) {
+        } else if (acc.getTaxonID().equals("10000")) {
+          assertEquals("Calendula incana Willd. subsp. incana", acc.getScientificName());
           assertEquals(Rank.SUBSPECIES, acc.getRank());
-        } else if (acc.getScientificName().equals("Calendula incana subsp. maderensis (DC.) Ohle")) {
+        } else if (acc.getTaxonID().equals("10002")) {
+          assertEquals("Calendula incana subsp. maderensis (DC.) Ohle", acc.getScientificName());
           assertEquals(Rank.SUBSPECIES, acc.getRank());
         } else {
           fail("Unknown pro parte synonym");
         }
       }
     }
-
   }
 
   /**
@@ -669,23 +727,31 @@ public class NormalizerIT extends NeoTest {
    * Testing CLIMBER dataset from ZooKeys:
    * http://www.gbif.org/dataset/e2bcea8c-dfea-475e-a4ae-af282b4ea1c5
    *
-   * Especially the behavior of acceptedNameUsage (canonical form withut authorship)
+   * Especially the behavior of acceptedNameUsage (canonical form without authorship)
    * pointing to itself (scientificName WITH authorship) indicating this is NOT a synonym.
    */
   @Test
   public void testVerbatimAccepted() throws Exception {
     final UUID datasetKey = datasetKey(14);
 
-    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
 
     assertEquals(16, stats.getCount());
-    assertEquals(6, stats.getDepth());
-    assertEquals(10, stats.getCountByOrigin(Origin.SOURCE));
     assertEquals(1, stats.getRoots());
+    assertEquals(6, stats.getDepth());
     assertEquals(0, stats.getSynonyms());
+    assertEquals(10, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(6, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
+    assertEquals(1, stats.getCountByRank(Rank.KINGDOM));
+    assertEquals(1, stats.getCountByRank(Rank.PHYLUM));
+    assertEquals(1, stats.getCountByRank(Rank.CLASS));
+    assertEquals(1, stats.getCountByRank(Rank.ORDER));
+    assertEquals(2, stats.getCountByRank(Rank.FAMILY));
+    assertEquals(0, stats.getCountByRank(Rank.GENUS));
+    assertEquals(10, stats.getCountByRank(Rank.SPECIES));
 
     initDb(datasetKey);
     try (Transaction tx = beginTx()) {
@@ -729,7 +795,7 @@ public class NormalizerIT extends NeoTest {
   public void testExtensions() throws Exception {
     final UUID datasetKey = datasetKey(15);
 
-    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -806,7 +872,7 @@ public class NormalizerIT extends NeoTest {
 
   private NormalizerStats normalize(Integer dKey) throws NormalizationFailedException {
     UUID datasetKey = datasetKey(dKey);
-    Normalizer norm = Normalizer.build(cfg, datasetKey, null);
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
 

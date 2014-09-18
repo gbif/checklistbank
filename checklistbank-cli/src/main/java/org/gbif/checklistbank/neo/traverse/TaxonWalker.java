@@ -54,7 +54,7 @@ public class TaxonWalker {
         if (meter != null) {
           meter.mark();
         }
-        //logPath(p);
+        logPath(p);
         if (lastPath != null) {
           PeekingIterator<Node> lIter = Iterators.peekingIterator(lastPath.nodes().iterator());
           PeekingIterator<Node> cIter = Iterators.peekingIterator(p.nodes().iterator());
@@ -81,6 +81,13 @@ public class TaxonWalker {
         lastPath = p;
         counter++;
       }
+      // close all remaining nodes
+      if (lastPath != null) {
+        for (Node n : ImmutableList.copyOf(lastPath.nodes()).reverse()) {
+          handler.end(n);
+        }
+      }
+
       tx.success();
 
     } finally {
@@ -96,7 +103,6 @@ public class TaxonWalker {
       }
       sb.append((String) n.getProperty(DwcTerm.scientificName.simpleName()));
     }
-    sb.append(", " + p.endNode().getProperty(DwcTerm.taxonRank.simpleName()));
     LOG.debug(sb.toString());
   }
 

@@ -31,5 +31,8 @@
   <changeSet id="9" author="markus">
     <sqlFile path="liquibase/extension_sync.sql"/>
   </changeSet>
+  <changeSet id="10" author="markus">
+    <sqlFile path="liquibase/extension_fks.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

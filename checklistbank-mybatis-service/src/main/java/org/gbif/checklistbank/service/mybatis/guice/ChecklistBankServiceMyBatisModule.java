@@ -12,6 +12,7 @@ import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ColAnnotationService;
+import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
@@ -74,6 +75,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     expose(DatasetImportService.class);
     expose(CitationService.class);
     expose(ColAnnotationService.class);
+    expose(DatasetAnalysisService.class);
   }
 
 }

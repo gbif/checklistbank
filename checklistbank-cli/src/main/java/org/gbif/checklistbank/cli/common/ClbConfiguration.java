@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.importer;
+package org.gbif.checklistbank.cli.common;
 
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 

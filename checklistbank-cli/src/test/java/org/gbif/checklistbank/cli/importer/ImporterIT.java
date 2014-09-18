@@ -83,7 +83,7 @@ public class ImporterIT extends NeoTest {
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
+    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -105,7 +105,7 @@ public class ImporterIT extends NeoTest {
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
+    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -143,7 +143,7 @@ public class ImporterIT extends NeoTest {
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = Normalizer.build(nCfg, datasetKey, null);
+    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

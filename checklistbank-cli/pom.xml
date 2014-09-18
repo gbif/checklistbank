@@ -142,6 +142,10 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-ws-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-solr</artifactId>
       <exclusions>
         <exclusion>

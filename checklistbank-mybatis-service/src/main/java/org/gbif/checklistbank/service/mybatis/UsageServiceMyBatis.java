@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implements the NameUsageService using MyBatis.
+ * Implements the UsageService using MyBatis.
  * All PagingResponses will not have the count set as it can be too costly sometimes.
  */
 public class UsageServiceMyBatis implements UsageService {

@@ -2,6 +2,7 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.neo.Labels;
@@ -84,6 +85,24 @@ public abstract class NeoTest {
     return getUsageByNode(n);
   }
 
+  public NameUsageMetrics getMetricsByKey(long nodeId) {
+    Node n = db.getNodeById(nodeId);
+    return mapper.read(n, new NameUsageMetrics());
+  }
+
+  public NameUsageMetrics getMetricsByTaxonId(String taxonID) {
+    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
+    return mapper.read(n, new NameUsageMetrics());
+  }
+
+  public List<NameUsageContainer> getUsagesByName(String name) {
+    List<NameUsageContainer> usages = Lists.newArrayList();
+    for (Node n : db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name)) {
+      usages.add(getUsageByNode(n));
+    }
+    return usages;
+  }
+
   /**
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
@@ -109,21 +128,34 @@ public abstract class NeoTest {
   }
 
   public void showAll() {
-    show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON));
+    try (Transaction tx = beginTx()) {
+      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON));
+    }
   }
 
+  /**
+   * Debug method to show all root nodes in the neo db.
+   */
   public void showRoot() {
-    show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
+    try (Transaction tx = beginTx()) {
+      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
+    }
   }
 
+  /**
+   * Debug method to show all synonyms in the neo db.
+   */
   public void showSynonyms() {
-    show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.SYNONYM));
+    try (Transaction tx = beginTx()) {
+      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.SYNONYM));
+    }
   }
 
   private void show(Iterable<Node> iterable) {
+    System.out.println("\n\n");
     for (Node n : iterable) {
       NameUsage u = getUsageByNode(n);
-      System.out.println("### " + n.getId());
+      System.out.println("### " + n.getId() + " " + mapper.readScientificName(n));
       System.out.println(u);
     }
   }

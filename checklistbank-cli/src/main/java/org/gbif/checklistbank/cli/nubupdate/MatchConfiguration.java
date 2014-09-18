@@ -1,24 +1,22 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.cli.nubupdate;
 
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
-import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
+import org.gbif.common.search.inject.SolrConfig;
 
-import java.io.File;
 import java.util.Properties;
-import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
 /**
  *
  */
 @SuppressWarnings("PublicField")
-public class NormalizerConfiguration {
+public class MatchConfiguration {
 
   @ParametersDelegate
   @Valid
@@ -26,35 +24,29 @@ public class NormalizerConfiguration {
   public GangliaConfiguration ganglia = new GangliaConfiguration();
 
   @ParametersDelegate
-  @Valid
-  @NotNull
-  public NeoConfiguration neo = new NeoConfiguration();
-
-  @ParametersDelegate
   @NotNull
   @Valid
   public MessagingConfiguration messaging = new MessagingConfiguration();
 
-  @Parameter(names = "--archive-repository")
+  @ParametersDelegate
+  @Valid
   @NotNull
-  public File archiveRepository;
+  public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public SolrConfig solr = new SolrConfig();
 
   @ParametersDelegate
   @Valid
   @NotNull
   public String matchWsUrl = "http://api.gbif.org/v1/species/match";
 
-  public ChecklistBankWsClientModule createMatchClientModule() {
+  public ChecklistBankWsClientModule createClientModule() {
     Properties props = new Properties();
     props.put("checklistbank.match.ws.url", matchWsUrl);
     return new ChecklistBankWsClientModule(props, false, false, true);
-  }
-
-  /**
-   * Returns the directory with the decompressed archive folder created by the dwca downloader.
-   */
-  public File archiveDir(UUID datasetKey) {
-    return new File(archiveRepository, datasetKey.toString());
   }
 
 }

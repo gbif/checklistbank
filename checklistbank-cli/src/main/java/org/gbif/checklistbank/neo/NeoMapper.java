@@ -6,6 +6,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
@@ -104,6 +105,14 @@ public class NeoMapper {
     return instance;
   }
 
+  public void setProperty(Node n, Term property, Object value) {
+    if (value == null) {
+      n.removeProperty(propertyName(property));
+    } else {
+      n.setProperty(propertyName(property), value);
+    }
+  }
+
   /**
    * Store object properties in container.
    *
@@ -121,6 +130,14 @@ public class NeoMapper {
 
   public void store(Node n, NameUsageContainer usage) {
     store(n, usage, true);
+  }
+
+  public Map<String, Object> properties(Node n) {
+    Map<String, Object> props = Maps.newHashMap();
+    for (String k : n.getPropertyKeys()) {
+      props.put(k, n.getProperty(k));
+    }
+    return props;
   }
 
   public Map<String, Object> propertyMap(String coreID, NameUsage u, VerbatimNameUsage v) {
@@ -190,6 +207,22 @@ public class NeoMapper {
     return props;
   }
 
+  public static Rank readRank(Node n) {
+    return readEnum(n, TaxonProperties.RANK, Rank.class, null);
+  }
+
+  public static Origin readOrigin(Node n) {
+    return readEnum(n, TaxonProperties.ORIGIN, Origin.class, null);
+  }
+
+  public static String readScientificName(Node n) {
+    return (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, null);
+  }
+
+  public static String readCanonicalName(Node n) {
+    return (String) n.getProperty(TaxonProperties.CANONICAL_NAME, null);
+  }
+
   public static <T> T readEnum(Node n, String property, Class<T> vocab, T defaultValue) {
     Object val = n.getProperty(property, null);
     if (val != null) {
@@ -203,6 +236,9 @@ public class NeoMapper {
     n.setProperty(property, value.ordinal());
   }
 
+  public void storeEnum(Node n, Term property, Enum value) {
+    n.setProperty(propertyName(property), value.ordinal());
+  }
   /**
    * Reads object properties from container and sets the object fields.
    */
@@ -267,8 +303,9 @@ public class NeoMapper {
       // map node id to key, its not fixed across tests but stable within one
       u.setKey((int) n.getId());
       u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));
-      u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
       u.setBasionymKey(getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING));
+      // there might be several accepted taxa for pro parte synonyms
+      u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
       // update synonym flag based on relations
       if (u.getAcceptedKey() != null) {
         u.setSynonym(true);
@@ -432,6 +469,14 @@ public class NeoMapper {
 
     } catch (IOException e) {
       // TODO: Handle exception
+    }
+  }
+
+  public void setNubKey(Node n, Integer nubKey) {
+    if (nubKey != null) {
+      n.setProperty(TaxonProperties.NUB_KEY, nubKey);
+    } else {
+      n.removeProperty(TaxonProperties.NUB_KEY);
     }
   }
 
