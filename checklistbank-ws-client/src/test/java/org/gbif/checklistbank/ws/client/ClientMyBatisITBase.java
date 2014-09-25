@@ -9,7 +9,6 @@ import org.gbif.utils.file.properties.PropertiesUtil;
 import org.gbif.ws.client.BaseResourceTest;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,7 +27,6 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
   private Injector clientInjector;
   protected T wsClient;
   private final Class<T> wsClientClass;
-  protected final UUID CHECKLIST_KEY_1001 = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
 
   @Rule

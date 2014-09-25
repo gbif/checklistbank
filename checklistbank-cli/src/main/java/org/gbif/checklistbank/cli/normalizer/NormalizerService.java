@@ -1,7 +1,10 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.model.crawler.FinishReason;
+import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
@@ -11,6 +14,7 @@ import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Guice;
@@ -31,6 +35,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
   public static final String INSERT_METER = "taxon.inserts";
   public static final String RELATION_METER = "taxon.relations";
   public static final String METRICS_METER = "taxon.metrics";
+  public static final String DENORMED_METER = "taxon.denormed";
   public static final String HEAP_GAUGE = "heap.usage";
 
   private final NormalizerConfiguration cfg;
@@ -40,6 +45,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
   private final Timer timer = registry.timer("normalizer process time");
   private final Counter started = registry.counter("started normalizations");
   private final Counter failed = registry.counter("failed normalizations");
+  private final ZookeeperUtils zkUtils;
   private NameUsageMatchingService matchingService;
 
   public NormalizerService(NormalizerConfiguration configuration) {
@@ -50,6 +56,13 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     registry.meter(INSERT_METER);
     registry.meter(RELATION_METER);
     registry.meter(METRICS_METER);
+    registry.meter(DENORMED_METER);
+
+    try {
+      zkUtils = new ZookeeperUtils(configuration.zookeeper.getCuratorFramework());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -87,22 +100,33 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
         return;
       }
       Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
-      normalizer.run();
       started.inc();
+      normalizer.run();
       Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
       LOG.debug("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
       publisher.send(doneMsg);
+      zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
 
     } catch (IOException e) {
-      LOG.warn("Could not send ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+      error(msg.getDatasetUuid(), "Could not send ChecklistNormalizedMessage for dataset [{}]", e);
 
     } catch (NormalizationFailedException e) {
       failed.inc();
-      LOG.error("Failed to normalize dataset {}", msg.getDatasetUuid(), e);
+      error(msg.getDatasetUuid(), "Failed to normalize dataset {}", e);
+
+    } catch (RuntimeException e) {
+      error(msg.getDatasetUuid(), "Unknown error while importing dataset [{}]", e);
 
     } finally {
       context.stop();
     }
+  }
+
+  private void error(UUID datasetKey, String message, Throwable e){
+    LOG.error(message, datasetKey, e);
+    zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
+    zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+    zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1l);
   }
 
   @Override

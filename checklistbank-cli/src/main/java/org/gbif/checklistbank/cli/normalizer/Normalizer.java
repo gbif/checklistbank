@@ -77,6 +77,7 @@ public class Normalizer extends NeoRunnable {
   private final File storeDir;
   private final Meter insertMeter;
   private final Meter relationMeter;
+  private final Meter denormedMeter;
   private final Meter metricsMeter;
 
   private InsertMetadata meta;
@@ -91,6 +92,7 @@ public class Normalizer extends NeoRunnable {
     this.insertMeter = registry.getMeters().get(NormalizerService.INSERT_METER);
     this.relationMeter = registry.getMeters().get(NormalizerService.RELATION_METER);
     this.metricsMeter = registry.getMeters().get(NormalizerService.METRICS_METER);
+    this.denormedMeter = registry.getMeters().get(NormalizerService.DENORMED_METER);
     storeDir = cfg.neo.neoDir(datasetKey);
     dwca = cfg.archiveDir(datasetKey);
     this.matchingService = matchingService;
@@ -146,6 +148,7 @@ public class Normalizer extends NeoRunnable {
         }
         applyDenormedClassification(n);
         counter++;
+        denormedMeter.mark();
       }
       tx.success();
     } finally {

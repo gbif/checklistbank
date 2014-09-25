@@ -1,5 +1,8 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.crawler.FinishReason;
+import org.gbif.api.model.crawler.ProcessState;
+import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
@@ -31,15 +34,21 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
   private MessageListener listener;
   private MessagePublisher publisher;
   private final MetricRegistry registry = new MetricRegistry("importer");
-  private final Timer timer = registry.timer("normalizer process time");
-  private final Counter started = registry.counter("started normalizations");
-  private final Counter failed = registry.counter("failed normalizations");
+  private final Timer timer = registry.timer("importer process time");
+  private final Counter started = registry.counter("started imports");
+  private final Counter failed = registry.counter("failed imports");
+  private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration configuration) {
     this.cfg = configuration;
     registry.meter(SYNC_METER);
     registry.meter(SYNC_BASIONYM_METER);
     registry.timer(DELETE_TIMER);
+    try {
+      zkUtils = new ZookeeperUtils(configuration.zookeeper.getCuratorFramework());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -68,17 +77,23 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
     try {
       Importer importer = new Importer(cfg, msg.getDatasetUuid(), registry);
-      importer.run();
       started.inc();
-      Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
-      LOG.debug("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
-      publisher.send(doneMsg);
-
-    } catch (IOException e) {
-      LOG.warn("Could not send ChecklistSyncedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+      importer.run();
+      try {
+        Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
+        LOG.debug("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
+        publisher.send(doneMsg);
+      } catch (IOException e) {
+        LOG.warn("Could not send ChecklistSyncedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+        zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
+      }
+    } catch (RuntimeException e) {
+      LOG.error("Unknown error while importing dataset [{}]", msg.getDatasetUuid(), e);
+      zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
 
     } finally {
       context.stop();
+      zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
     }
   }
 

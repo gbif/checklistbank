@@ -4,6 +4,7 @@ import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
@@ -36,6 +37,11 @@ public class ImporterConfiguration {
   @Valid
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
   @ParametersDelegate
   @Valid

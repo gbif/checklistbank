@@ -9,7 +9,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
-import org.gbif.checklistbank.cli.normalizer.NormalizerIT;
+import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URL;
@@ -79,11 +79,11 @@ public class ImporterIT extends NeoTest {
 
   @Test
   public void testIdList() {
-    final UUID datasetKey = NormalizerIT.datasetKey(1);
+    final UUID datasetKey = NormalizerTest.datasetKey(1);
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
+    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -101,11 +101,11 @@ public class ImporterIT extends NeoTest {
    */
   @Test
   public void testVerbatimAccepted() throws Exception {
-    final UUID datasetKey = NormalizerIT.datasetKey(14);
+    final UUID datasetKey = NormalizerTest.datasetKey(14);
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
+    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -139,11 +139,11 @@ public class ImporterIT extends NeoTest {
    */
   @Test
   public void testStableIds() throws Exception {
-    final UUID datasetKey = NormalizerIT.datasetKey(14);
+    final UUID datasetKey = NormalizerTest.datasetKey(14);
 
     Importer importer = Importer.build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerIT.buildNormalizer(nCfg, datasetKey);
+    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

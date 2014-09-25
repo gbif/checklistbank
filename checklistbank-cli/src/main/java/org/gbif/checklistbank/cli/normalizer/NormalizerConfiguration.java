@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 
 import java.io.File;
@@ -43,6 +44,11 @@ public class NormalizerConfiguration {
   @Valid
   @NotNull
   public String matchWsUrl = "http://api.gbif.org/v1/species/match";
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
   public ChecklistBankWsClientModule createMatchClientModule() {
     Properties props = new Properties();

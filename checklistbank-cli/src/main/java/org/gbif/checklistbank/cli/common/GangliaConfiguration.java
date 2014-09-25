@@ -19,7 +19,7 @@ public class GangliaConfiguration {
   public String gangliaHost;
 
   @Parameter(names = "--ganglia-port")
-  public int gangliaPort;
+  public int gangliaPort = 8649;
 
   /**
    * Starts the GangliaReporter, pointing to the configured host and port.

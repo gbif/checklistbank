@@ -9,7 +9,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.apache.ibatis.io.Resources;
 import org.junit.Test;
 
-public class ImporterServiceTest {
+public class ImporterServiceIT {
 
   /**
    * Make sure messages are all registered and the service starts up fine.
