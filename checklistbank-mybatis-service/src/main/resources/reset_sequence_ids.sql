@@ -1,0 +1,12 @@
+SELECT setval('citation_id_seq', (select max(id) from citation)+1);
+SELECT setval('description_id_seq', (select max(id) from description)+1);
+SELECT setval('distribution_id_seq', (select max(id) from distribution)+1);
+SELECT setval('identifier_id_seq', (select max(id) from identifier)+1);
+SELECT setval('literature_id_seq', (select max(id) from literature)+1);
+SELECT setval('media_id_seq', (select max(id) from media)+1);
+SELECT setval('name_id_seq', (select max(id) from name)+1);
+SELECT setval('name_usage_id_seq', (select max(id) from name_usage)+1);
+SELECT setval('species_info_id_seq', (select max(id) from species_info)+1);
+SELECT setval('typification_id_seq', (select max(id) from typification)+1);
+SELECT setval('vernacular_name_id_seq', (select max(id) from vernacular_name)+1);
+SELECT setval('dataset_metrics_id_seq', (select max(id) from dataset_metrics)+1);

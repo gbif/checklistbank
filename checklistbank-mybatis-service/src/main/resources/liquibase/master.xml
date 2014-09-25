@@ -34,5 +34,8 @@
   <changeSet id="10" author="markus">
     <sqlFile path="liquibase/extension_fks.sql"/>
   </changeSet>
+  <changeSet id="11" author="markus">
+    <sqlFile path="liquibase/name_index.sql"/>
+  </changeSet>
 
 </databaseChangeLog>
