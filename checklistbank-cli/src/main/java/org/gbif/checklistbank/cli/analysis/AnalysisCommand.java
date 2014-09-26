@@ -12,7 +12,7 @@ public class AnalysisCommand extends ServiceCommand {
   private final AnalysisConfiguration configuration = new AnalysisConfiguration();
 
   public AnalysisCommand() {
-    super("matcher");
+    super("analysis");
   }
 
   @Override
