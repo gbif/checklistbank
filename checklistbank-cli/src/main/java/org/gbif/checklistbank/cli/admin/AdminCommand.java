@@ -17,6 +17,7 @@ import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
@@ -64,7 +65,7 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case METRICS:
-          publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, 0, 0) );
+          publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
           break;
 
         default:
