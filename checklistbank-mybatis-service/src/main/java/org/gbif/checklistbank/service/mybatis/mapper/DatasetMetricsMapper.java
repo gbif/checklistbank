@@ -17,6 +17,6 @@ public interface DatasetMetricsMapper {
 
   List<DatasetMetrics> list(@Param("uuid") UUID datasetKey);
 
-  DatasetMetrics insert(@Param("uuid") UUID datasetKey, @Param("downloaded") Date downloaded);
+  void insert(@Param("uuid") UUID datasetKey, @Param("downloaded") Date downloaded);
 
 }

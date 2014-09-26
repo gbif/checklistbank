@@ -85,23 +85,23 @@ SELECT #{uuid}, #{downloaded},
             WHEN 8 THEN 'VIRUSES'
             ELSE 'INCERTAE_SEDIS' END AS key, count(*) as cnt
         FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id JOIN name_usage nub on nub.id=rel.nub_fk
-          WHERE u.dataset_key=nu.dataset_key AND u.is_synonym=false
+          WHERE u.dataset_key=nub.dataset_key AND u.is_synonym=false
           GROUP BY nub.kingdom_fk) AS kingdoms
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
         (SELECT origin AS key, count(*)::text AS cnt FROM name_usage WHERE dataset_key=#{uuid} GROUP BY origin) AS origins
     ),
-    (SELECT hstore('DESCRIPTION' => (SELECT count(*)::text FROM description WHERE dataset_key=#{uuid}))
-        || ('DISTRIBUTION' => (SELECT count(*)::text FROM distribution WHERE dataset_key=#{uuid}))
-        || ('IDENTIFIER' => (SELECT count(*)::text FROM identifier WHERE dataset_key=#{uuid}))
-        || ('IMAGE' => (SELECT count(*)::text FROM image WHERE dataset_key=#{uuid}))
-        || ('REFERENCE' => (SELECT count(*)::text FROM literature WHERE dataset_key=#{uuid}))
-        || ('SPECIES_PROFILE' => (SELECT count(*)::text FROM species_info WHERE dataset_key=#{uuid}))
-        || ('TYPES_AND_SPECIMEN' => (SELECT count(*)::text FROM specimen WHERE dataset_key=#{uuid}))
-        || ('VERNACULAR_NAME' => (SELECT count(*)::text FROM vernacular_name WHERE dataset_key=#{uuid}))
+    (SELECT ('DESCRIPTION => ' || (SELECT count(*)::text FROM description x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('DISTRIBUTION => ' || (SELECT count(*)::text FROM distribution x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('IDENTIFIER => ' || (SELECT count(*)::text FROM identifier x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('MULTIMEDIA => ' || (SELECT count(*)::text FROM media x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('REFERENCE => ' || (SELECT count(*)::text FROM literature x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('SPECIES_PROFILE => ' || (SELECT count(*)::text FROM species_info x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('TYPES_AND_SPECIMEN => ' || (SELECT count(*)::text FROM typification x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
+        || ('VERNACULAR_NAME => ' || (SELECT count(*)::text FROM vernacular_name x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
-        (SELECT language AS key, count(*)::text AS cnt FROM vernacular_name WHERE dataset_key=#{uuid} GROUP BY language) AS ranks
+        (SELECT language AS key, count(*)::text AS cnt FROM vernacular_name x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid} GROUP BY language) AS ranks
     )
   </insert>
 </mapper>

@@ -12,6 +12,7 @@ import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
 import java.io.IOException;
+import java.util.Date;
 
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.yammer.metrics.Counter;
@@ -80,7 +81,9 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
       started.inc();
       importer.run();
       try {
-        Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
+        Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
+        Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished,
+            importer.getSyncCounter(), importer.getDelCounter());
         LOG.debug("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
         publisher.send(doneMsg);
       } catch (IOException e) {

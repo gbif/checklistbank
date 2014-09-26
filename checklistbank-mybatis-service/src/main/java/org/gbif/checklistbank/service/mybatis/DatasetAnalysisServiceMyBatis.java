@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 
+import java.util.Date;
 import java.util.UUID;
 
 import com.google.inject.Inject;
@@ -21,9 +22,10 @@ public class DatasetAnalysisServiceMyBatis implements DatasetAnalysisService {
   }
 
   @Override
-  public DatasetMetrics analyse(UUID datasetKey) {
-    // TODO: Write implementation
-    throw new UnsupportedOperationException("Not implemented yet");
+  public DatasetMetrics analyse(UUID datasetKey, Date downloaded) {
+    LOG.info("Create new metrics for dataset {}", datasetKey);
+    mapper.insert(datasetKey, downloaded);
+    return mapper.get(datasetKey);
   }
 
 }

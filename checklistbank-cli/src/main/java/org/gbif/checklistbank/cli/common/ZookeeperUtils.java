@@ -24,6 +24,7 @@ public class ZookeeperUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ZookeeperUtils.class);
   private static final Joiner JOINER = Joiner.on('/').skipNulls();
 
+  public static final String FINISHED_CRAWLING = "finishedCrawling";
   public static final String FINISHED_REASON = "finishedReason";
   public static final String PROCESS_STATE_CHECKLIST = "processState/checklist";
   public static final String PAGES_FRAGMENTED_SUCCESSFUL = "pagesFragmented/successful";
@@ -97,6 +98,24 @@ public class ZookeeperUtils {
     dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
     byte[] data = dateFormat.format(date).getBytes(Charsets.UTF_8);
     createOrUpdate(crawlPath, data);
+  }
+
+  public byte[] getData(UUID datasetKey, String path) throws Exception {
+    String crawlPath = getCrawlInfoPath(datasetKey, path);
+    return curator.getData().forPath(crawlPath).clone();
+  }
+
+  public Date getDate(UUID datasetKey, String path) {
+    try {
+      byte[] data = getData(datasetKey, path);
+      SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+      dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+      return dateFormat.parse(new String(data));
+
+    } catch (Exception e) {
+      LOG.error("Exception while getting date from ZooKeeper", e);
+      return null;
+    }
   }
 
   public DistributedAtomicLong getCounter(UUID datasetKey, String path) {

@@ -66,7 +66,7 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
     final Timer.Context context = timer.time();
 
     try {
-      analysisService.analyse(msg.getDatasetUuid());
+      analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
       Message doneMsg = new ChecklistAnalyzedMessage(msg.getDatasetUuid());
       LOG.debug("Sending ChecklistAnalyzedMessage for dataset {}", msg.getDatasetUuid());
       publisher.send(doneMsg);

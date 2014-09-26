@@ -6,11 +6,9 @@ import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
@@ -65,22 +63,6 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
                .compare(this.key.toString(), that.key.toString())
                .result();
     }
-  }
-
-  /**
-   * @return sorted by highest count first
-   */
-  private <T> Map<T, Integer> toMap(List<? extends Count<T>> counts) {
-    Map<T, Integer> typedMap = Maps.newLinkedHashMap();
-    for (Count<T> count : counts) {
-      if (typedMap.containsKey(count.getKey())) {
-        // aggregate if the same language exists - could be that the db uses 2 iso codes for the same language or null
-        typedMap.put(count.getKey(), typedMap.get(count.getKey()) + count.getCount());
-      } else {
-        typedMap.put(count.getKey(), count.getCount());
-      }
-    }
-    return typedMap;
   }
 
   /**
