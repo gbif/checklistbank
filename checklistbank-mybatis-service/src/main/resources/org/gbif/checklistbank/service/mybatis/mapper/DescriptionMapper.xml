@@ -2,12 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper">
 
-  <sql id="select">
-    d.usage_fk as usageKey, null as sourceTaxonKey,<include refid="selectNoUsageKey"/>
-  </sql>
-  <sql id="selectNub">
-    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/>
-  </sql>
   <sql id="selectNoUsageKey">
       d.id, d.description, d.type, d.language, c.citation, d.creator, d.contributor, d.license
   </sql>
@@ -37,7 +31,8 @@
   <!--  Get by primary key -->
   <select id="get" parameterType="map" resultMap="descriptionResultMap">
     SELECT
-    <include refid="select"/>
+    d.usage_fk as sourceTaxonKey,
+    <include refid="selectNoUsageKey"/>
     FROM
     <include refid="from"/>
     WHERE d.id=#{key}
@@ -46,7 +41,8 @@
   <!-- get all descriptions linked to one usage -->
   <select id="listByChecklistUsage" parameterType="map" resultMap="descriptionResultMap">
     SELECT
-    <include refid="select"/>
+    d.usage_fk as usageKey,
+    <include refid="selectNoUsageKey"/>
     FROM
     <include refid="from"/>
     WHERE d.usage_fk=#{key}
@@ -57,7 +53,8 @@
   <!-- get all descriptions by nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="descriptionResultMap">
     SELECT
-    <include refid="selectNub"/>
+    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,
+    <include refid="selectNoUsageKey"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>
@@ -69,7 +66,8 @@
   <!-- get all descriptions linked to a usage range -->
   <select id="listByChecklistUsageRange" parameterType="map" resultMap="descriptionRangeResultMap">
     SELECT
-    <include refid="select"/>
+    d.usage_fk as usageKey,
+    <include refid="selectNoUsageKey"/>
     FROM
     <include refid="from"/>
     WHERE d.usage_fk between #{start} and #{end}
@@ -78,7 +76,8 @@
   <!-- get all descriptions linked to a nub usage range -->
   <select id="listByNubUsageRange" parameterType="map" resultMap="descriptionRangeResultMap">
     SELECT
-    <include refid="selectNub"/>
+    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,
+    <include refid="selectNoUsageKey"/>
     FROM
     <include refid="from"/>
     <include refid="fromNub"/>

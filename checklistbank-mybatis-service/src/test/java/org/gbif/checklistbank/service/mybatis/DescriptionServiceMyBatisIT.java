@@ -31,7 +31,7 @@ public class DescriptionServiceMyBatisIT {
   @Test
   public void testGet() {
     Description description = ddt.getService().get(26);
-    assertNull(description.getSourceTaxonKey());
+    assertEquals((Integer)100000040, description.getSourceTaxonKey());
     assertEquals(
       "The Caucasian squirrel (or Persian squirrel) is a tree squirrel in the genus Sciurus endemic to Armenia, Azerbaijan, Georgia, Greece, Iran, Iraq, Israel, Jordan, Lebanon, Syria, and Turkey. Its natural habitat is temperate broadleaf and mixed forests.[1]",
       description.getDescription());
