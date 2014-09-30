@@ -684,6 +684,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>${mockito.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.powermock</groupId>
         <artifactId>powermock-core</artifactId>
         <version>${powermock-mockito.version}</version>

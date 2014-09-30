@@ -5,11 +5,13 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
+import org.gbif.checklistbank.neo.NeoMapperTest;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URL;
@@ -25,12 +27,15 @@ import javax.sql.DataSource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import org.apache.ibatis.io.Resources;
+import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -49,6 +54,20 @@ public class ImporterIT extends NeoTest {
   private ImporterConfiguration iCfg;
   private NameUsageService usageService;
 
+  /**
+   * Uses an internal metrics registry to setup the normalizer
+   */
+  private static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
+    MetricRegistry registry = new MetricRegistry("normalizer");
+    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
+    registry.registerAll(mgs);
+
+    registry.meter(ImporterService.SYNC_METER);
+    registry.meter(ImporterService.SYNC_BASIONYM_METER);
+
+    return new Importer(cfg, datasetKey, registry);
+  }
+
   @Before
   public void initDwcaRepo() throws Exception {
     nCfg = new NormalizerConfiguration();
@@ -58,7 +77,7 @@ public class ImporterIT extends NeoTest {
     Path p = Paths.get(dwcasUrl.toURI());
     nCfg.archiveRepository = p.toFile();
 
-    iCfg = CFG_MAPPER.readValue(Resources.getResourceAsStream("cfg-importer.yaml"), ImporterConfiguration.class);
+    iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
     Injector inj = Guice.createInjector(iCfg.clb.createServiceModule());
     usageService = inj.getInstance(NameUsageService.class);
@@ -81,7 +100,7 @@ public class ImporterIT extends NeoTest {
   public void testIdList() {
     final UUID datasetKey = NormalizerTest.datasetKey(1);
 
-    Importer importer = Importer.build(iCfg, datasetKey);
+    Importer importer = build(iCfg, datasetKey);
     // insert neo db
     Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
@@ -103,7 +122,7 @@ public class ImporterIT extends NeoTest {
   public void testVerbatimAccepted() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
-    Importer importer = Importer.build(iCfg, datasetKey);
+    Importer importer = build(iCfg, datasetKey);
     // insert neo db
     Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
@@ -123,6 +142,7 @@ public class ImporterIT extends NeoTest {
       assertNull(u.getBasionymKey());
       assertNull(u.getBasionym());
       assertNotNull(u.getOrigin());
+      assertNotNull(u.getRank());
       if (u.getScientificName().equals("Animalia")) {
         assertNull(u.getParentKey());
         assertNull(u.getParent());
@@ -130,9 +150,23 @@ public class ImporterIT extends NeoTest {
         assertNotNull(u.getParentKey());
         assertNotNull(u.getParent());
       }
+      if (u.getRank().isLinnean()) {
+        assertEquals("Bad higher classification key for " + u.getScientificName() + " of rank " + u.getRank(),
+          u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
+      }
     }
   }
 
+  @Test
+  @Ignore
+  public void testIdMapping() throws Exception {
+    NeoMapperTest nmt = new NeoMapperTest();
+    NameUsage u = nmt.usage();
+
+    Importer importer = build(iCfg, UUID.randomUUID());
+    int x = importer.clbKey(9321);
+    System.out.print(x);
+  }
 
   /**
    * Reimport the same dataset and make sure ids stay the same.
@@ -141,7 +175,7 @@ public class ImporterIT extends NeoTest {
   public void testStableIds() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
-    Importer importer = Importer.build(iCfg, datasetKey);
+    Importer importer = build(iCfg, datasetKey);
     // insert neo db
     Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();

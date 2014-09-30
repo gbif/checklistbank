@@ -15,17 +15,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A mybatis type handler that translates from the typed java.util.Map<String, Integer> to the
- * postgres hstore database type. Any non integer values in hstore are silently ignored.
- *
- * As we do not map all java map types to this mybatis handler apply the handler manually for the relevant hstore fields
- * in the mapper xml, for example see DatasetMetricsMapper.xml.
+ * A mybatis type handler that translates from typed java.util.Set<T> to typed postgres arrays.
  */
 public abstract class ArraySetTypeHandler<T> extends BaseTypeHandler<Set<T>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ArraySetTypeHandler.class);
   private final String baseType;
 
+  /**
+   * @param baseType postgres base type of the postgres array
+   */
   public ArraySetTypeHandler(String baseType) {
     this.baseType = baseType;
   }
@@ -56,10 +55,12 @@ public abstract class ArraySetTypeHandler<T> extends BaseTypeHandler<Set<T>> {
     Set<T> set = Sets.newHashSet();
     if (!Strings.isNullOrEmpty(array)) {
       String n = array.substring(1, array.length()-1);
-      for (String x : n.split(",")) {
-        T val = convert(x);
-        if (val != null) {
-          set.add(val);
+      if (!Strings.isNullOrEmpty(n)) {
+        for (String x : n.split(",")) {
+          T val = convert(x);
+          if (val != null) {
+            set.add(val);
+          }
         }
       }
     }

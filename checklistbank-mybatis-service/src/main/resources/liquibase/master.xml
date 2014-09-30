@@ -37,5 +37,7 @@
   <changeSet id="11" author="markus">
     <sqlFile path="liquibase/name_index.sql"/>
   </changeSet>
-
+  <changeSet id="12" author="markus">
+    <sqlFile path="liquibase/issues.sql"/>
+  </changeSet>
 </databaseChangeLog>

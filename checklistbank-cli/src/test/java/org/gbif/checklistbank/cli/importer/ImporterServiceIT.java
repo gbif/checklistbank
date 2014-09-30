@@ -6,7 +6,7 @@ import java.io.File;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.ibatis.io.Resources;
+import com.google.common.io.Resources;
 import org.junit.Test;
 
 public class ImporterServiceIT {
@@ -19,7 +19,7 @@ public class ImporterServiceIT {
     File neoTmp = FileUtils.createTempDir();
     neoTmp.deleteOnExit();
     ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-    ImporterConfiguration cfg = mapper.readValue(Resources.getResourceAsStream("cfg-importer.yaml"),
+    ImporterConfiguration cfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"),
                                                  ImporterConfiguration.class);
     cfg.neo.neoRepository = neoTmp;
 

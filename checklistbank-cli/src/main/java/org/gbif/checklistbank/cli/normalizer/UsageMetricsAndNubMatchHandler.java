@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Builds NameUsageMetrics for all accepted usages.
+ * Builds higher classification keys and NameUsageMetrics for all accepted usages.
  * Synonym usages do not need a metrics record as its zero all over.
  */
 public class UsageMetricsAndNubMatchHandler implements StartEndHandler {

@@ -31,7 +31,7 @@ public interface DatasetImportService {
      *
      * @param usage
      * @param metrics
-     * @return
+     * @return the new or existing usage key
      */
     int syncUsage(UUID datasetKey, NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 

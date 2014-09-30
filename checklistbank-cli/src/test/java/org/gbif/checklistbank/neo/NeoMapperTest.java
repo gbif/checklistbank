@@ -38,6 +38,36 @@ public class NeoMapperTest extends NeoTest {
   final UUID dKey = UUID.randomUUID();
   final UUID cKey = UUID.randomUUID();
 
+  public NameUsage usage() {
+    return usage(true);
+  }
+
+  public NameUsage usage(boolean addKeys) {
+    NameUsage u = new NameUsage();
+    if (addKeys) {
+      u.setKey(100);
+      u.setBasionymKey(20);
+      u.setParentKey(23);
+      u.setClassKey(1);
+    }
+    u.setDatasetKey(dKey);
+    u.setConstituentKey(cKey);
+    u.setScientificName("Abies alba");
+    u.setParent("Abies");
+    u.setClazz("Trees");
+    u.setLastCrawled(new Date());
+    u.setLastInterpreted(new Date());
+    u.setRank(Rank.SPECIES);
+    u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
+    u.setNameType(NameType.SCINAME);
+    u.setNumDescendants(7);
+    u.getNomenclaturalStatus().add(NomenclaturalStatus.CONSERVED);
+    u.getNomenclaturalStatus().add(NomenclaturalStatus.ILLEGITIMATE);
+    u.addIssue(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+    u.addIssue(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
+    return u;
+  }
+
   @Test
   public void testPropertyMap() throws Exception {
     NeoMapper mapper = NeoMapper.instance();
@@ -64,36 +94,6 @@ public class NeoMapperTest extends NeoTest {
 
     // isSynonym is set to false by default
     assertEquals(18, map.size());
-  }
-
-  private NameUsage usage() {
-    return usage(true);
-  }
-
-  private NameUsage usage(boolean addKeys) {
-    NameUsage u = new NameUsage();
-    if (addKeys) {
-      u.setKey(100);
-      u.setBasionymKey(20);
-      u.setParentKey(23);
-      u.setClassKey(1);
-    }
-    u.setDatasetKey(dKey);
-    u.setConstituentKey(cKey);
-    u.setScientificName("Abies alba");
-    u.setParent("Abies");
-    u.setClazz("Trees");
-    u.setLastCrawled(new Date());
-    u.setLastInterpreted(new Date());
-    u.setRank(Rank.SPECIES);
-    u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
-    u.setNameType(NameType.SCINAME);
-    u.setNumDescendants(7);
-    u.getNomenclaturalStatus().add(NomenclaturalStatus.CONSERVED);
-    u.getNomenclaturalStatus().add(NomenclaturalStatus.ILLEGITIMATE);
-    u.addIssue(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
-    u.addIssue(NameUsageIssue.NOMENCLATURAL_STATUS_INVALID);
-    return u;
   }
 
   @Test

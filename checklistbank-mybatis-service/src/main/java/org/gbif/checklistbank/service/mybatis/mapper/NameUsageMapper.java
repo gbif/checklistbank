@@ -52,9 +52,8 @@ public interface NameUsageMapper {
   Integer maxUsageKey(@Param("uuid") UUID datasetKey);
 
   /**
-   * Insert a new name usage
+   * Insert a new name usage, setting lastInterpretedDate to current date and assigning a new usage key
    * @param usage
-   * @return
    */
   void insert(@Param("u") NameUsageWritable usage);
 

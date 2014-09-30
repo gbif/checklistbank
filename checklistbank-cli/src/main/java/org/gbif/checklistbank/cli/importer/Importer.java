@@ -20,11 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -60,20 +60,6 @@ public class Importer extends NeoRunnable implements Runnable {
     importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class),
                                                      inj.getInstance(NameUsageIndexService.class));
     usageService = inj.getInstance(NameUsageService.class);
-  }
-
-  /**
-   * Uses an internal metrics registry to setup the normalizer
-   */
-  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
-    MetricRegistry registry = new MetricRegistry("normalizer");
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
-
-    registry.meter(ImporterService.SYNC_METER);
-    registry.meter(ImporterService.SYNC_BASIONYM_METER);
-
-    return new Importer(cfg, datasetKey, registry);
   }
 
   public void run() {
@@ -147,7 +133,8 @@ public class Importer extends NeoRunnable implements Runnable {
     delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
   }
 
-  private Integer clbKey(Integer nodeId) {
+  @VisibleForTesting
+  protected Integer clbKey(Integer nodeId) {
     if (nodeId != null) {
       try {
         return clbKeys.get(nodeId);
@@ -162,7 +149,8 @@ public class Importer extends NeoRunnable implements Runnable {
   /**
    * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
    */
-  private NameUsageContainer buildClbNameUsage(Node n) {
+  @VisibleForTesting
+  protected NameUsageContainer buildClbNameUsage(Node n) {
     // this is using neo4j internal node ids as keys:
     NameUsageContainer u = mapper.read(n);
     u.setParentKey(clbKey(u.getParentKey()));

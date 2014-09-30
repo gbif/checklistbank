@@ -215,15 +215,16 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
    * In the future we should try to update only when needed though. We would need to compare the usage itself,
    * the raw data, the usage metrics and all extension data in the container though.
    * @param datasetKey
-   * @param nameUsage
-   * @param usage
+   * @param existing existing name usage
+   * @param usage updated usage
    * @param verbatim
    * @param metrics
    * @return
    */
-  private Integer updateUsage(UUID datasetKey, NameUsage nameUsage, NameUsageContainer usage,
+  private Integer updateUsage(UUID datasetKey, NameUsage existing, NameUsageContainer usage,
                               @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
-    final int usageKey = nameUsage.getKey();
+    final int usageKey = existing.getKey();
+    usage.setKey(usageKey);
     // insert main usage, creating name and citation records before
     NameUsageWritable uw = toWritable(datasetKey, usage);
     uw.setKey(usageKey);
@@ -278,8 +279,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
       uw.setParentKey(u.getParentKey());
     }
     ClassificationUtils.copyLinneanClassificationKeys(u, uw);
-    //TODO: duplicate records when we have multiple accepted ???
-    uw.setProParteKey(null);
+    uw.setProParteKey(u.getProParteKey());
 
     uw.setRank(u.getRank());
     uw.setOrigin(u.getOrigin());
@@ -290,6 +290,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     uw.setReferences(u.getReferences());
     uw.setRemarks(u.getRemarks());
     uw.setModified(u.getModified());
+    uw.setIssues(u.getIssues());
 
     // lookup or insert name record
     ParsedName pn = nameService.createOrGet(u.getScientificName());

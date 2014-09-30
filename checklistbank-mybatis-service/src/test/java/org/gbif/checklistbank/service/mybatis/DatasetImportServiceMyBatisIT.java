@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
@@ -9,6 +10,9 @@ import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
+import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.CitesAppendix;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
@@ -32,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class DatasetImportServiceMyBatisIT {
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
@@ -39,7 +44,6 @@ public class DatasetImportServiceMyBatisIT {
   @Rule
   public DatabaseDrivenChecklistBankTestRule<DatasetImportService> ddt =
     new DatabaseDrivenChecklistBankTestRule<DatasetImportService>(DatasetImportService.class);
-
 
   @Test
   public void testDeleteDataset() throws Exception {
@@ -58,20 +62,27 @@ public class DatasetImportServiceMyBatisIT {
 
   @Test
   public void testSyncUsage() throws Exception {
-    final int key = 7896;
+    final NameUsageService uService = ddt.getInjector().getInstance(NameUsageService.class);
+
+    // first add a classification to please constraints
+    NameUsageContainer k = addHigher(1, null, null, "Plantae", Rank.KINGDOM);
+    NameUsageContainer p = addHigher(2, k.getKey(), k, "Pinophyta", Rank.PHYLUM);
+    NameUsageContainer c = addHigher(3, p.getKey(), p, "Pinopsida", Rank.CLASS);
+    NameUsageContainer o = addHigher(4, c.getKey(), c, "Pinales", Rank.ORDER);
+    NameUsageContainer f = addHigher(5, o.getKey(), o, "Pinaceae", Rank.FAMILY);
+    NameUsageContainer g = addHigher(6, f.getKey(), f, "Abies", Rank.GENUS);
+
+    // create rather complete usage to sync WITHOUT a KEY
     final String taxonID = "gfzd8";
     String name = "Abies alba Mill.";
 
     NameUsageContainer u = new NameUsageContainer();
-    u.setKey(key);
     u.setScientificName(name);
     u.setTaxonID(taxonID);
     u.setOrigin(Origin.SOURCE);
     u.setSynonym(false);
     u.getIssues().add(NameUsageIssue.MULTIMEDIA_INVALID);
     u.getIssues().add(NameUsageIssue.CHAINED_SYNOYM);
-    u.setLastCrawled(new Date());
-    u.setLastInterpreted(new Date());
     u.setModified(new Date());
     u.getNomenclaturalStatus().add(NomenclaturalStatus.CONSERVED);
     u.getNomenclaturalStatus().add(NomenclaturalStatus.DOUBTFUL);
@@ -80,6 +91,7 @@ public class DatasetImportServiceMyBatisIT {
     u.setTaxonomicStatus(TaxonomicStatus.HETEROTYPIC_SYNONYM);
     u.setSourceTaxonKey(674321);
     u.setReferences(URI.create("http://www.gbif.org/1234"));
+    u.setAccordingTo("Chuck told me this");
     u.setNumDescendants(321);
 
     u.getDescriptions().add(buildDescription());
@@ -89,20 +101,87 @@ public class DatasetImportServiceMyBatisIT {
     u.getVernacularNames().add(buildVernacularName());
 
     NameUsageMetrics m = new NameUsageMetrics();
-    m.setKey(key);
     m.setNumSpecies(1);
     m.setNumDescendants(4);
     m.setNumSynonyms(3);
+    u.setParentKey(g.getKey());
+    u.setKingdomKey(k.getKey());
+    u.setPhylumKey(p.getKey());
+    u.setClassKey(c.getKey());
+    u.setOrderKey(o.getKey());
+    u.setFamilyKey(f.getKey());
+    u.setGenusKey(g.getKey());
+    u.setSpeciesKey(u.getKey());
 
-    ddt.getService().syncUsage(CHECKLIST_KEY, u, null, m);
+    int k1 = ddt.getService().syncUsage(CHECKLIST_KEY, u, null, m);
 
-    // with verbatim data
+    // verify props
+    NameUsage u2 = uService.get(k1, null);
+    assertEquals(k.getKey(), u2.getKingdomKey());
+    assertEquals(p.getKey(), u2.getPhylumKey());
+    assertEquals(c.getKey(), u2.getClassKey());
+    assertEquals(o.getKey(), u2.getOrderKey());
+    assertEquals(f.getKey(), u2.getFamilyKey());
+    assertEquals(g.getKey(), u2.getGenusKey());
+
+    assertEquals(u.getTaxonID(), u2.getTaxonID());
+    assertEquals(u.getScientificName(), u2.getScientificName());
+    assertEquals(u.getIssues(), u2.getIssues());
+    assertEquals(CHECKLIST_KEY, u2.getDatasetKey());
+    assertEquals(u.getTaxonomicStatus(), u2.getTaxonomicStatus());
+    assertEquals(u.getAccordingTo(), u2.getAccordingTo());
+    assertEquals(u.getRemarks(), u2.getRemarks());
+    assertEquals(u.getOrigin(), u2.getOrigin());
+    assertNotNull(u2.getLastInterpreted());
+    assertEquals(u.getModified(), u2.getModified());
+
+
+    // Try an update now with verbatim data (remove usage key as we detect existing record by taxonID only!)
+    u.setKey(null);
+    m.setKey(null);
     VerbatimNameUsage v = new VerbatimNameUsage();
-    v.setKey(key);
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    ddt.getService().syncUsage(CHECKLIST_KEY, u, v, m);
+    int k2 = ddt.getService().syncUsage(CHECKLIST_KEY, u, v, m);
+    assertEquals(k1, k2);
+
+    // verify props
+    u2 = uService.get(k1, null);
+    assertEquals(k.getKey(), u2.getKingdomKey());
+    assertEquals(p.getKey(), u2.getPhylumKey());
+    assertEquals(c.getKey(), u2.getClassKey());
+    assertEquals(o.getKey(), u2.getOrderKey());
+    assertEquals(f.getKey(), u2.getFamilyKey());
+    assertEquals(g.getKey(), u2.getGenusKey());
+  }
+
+
+  private NameUsageContainer addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) {
+    NameUsageContainer p = new NameUsageContainer();
+    p.setKey(key);
+    p.setParentKey(parentKey);
+    if (higherKeys != null) {
+      ClassificationUtils.copyLinneanClassificationKeys(higherKeys, p);
+    }
+    // add link to oneself
+    if (rank.isLinnean()) {
+      ClassificationUtils.setHigherRankKey(p, rank, key);
+    }
+    p.setScientificName(name);
+    p.setRank(rank);
+    p.setTaxonID(name);
+    p.setSynonym(false);
+    p.setOrigin(Origin.SOURCE);
+    p.setLastInterpreted(new Date());
+    p.setModified(new Date());
+
+    NameUsageMetrics m = new NameUsageMetrics();
+    m.setKey(key);
+
+    ddt.getService().syncUsage(CHECKLIST_KEY, p, null, m);
+
+    return p;
   }
 
   private Description buildDescription() {

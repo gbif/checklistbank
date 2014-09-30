@@ -26,7 +26,7 @@ fu.id as fid, coalesce(fn.canonical_name,fn.scientific_name) as family,
 gu.id as gid, coalesce(gn.canonical_name,gn.scientific_name) as genus,
 sgu.id as sgid, coalesce(sgn.canonical_name,sgn.scientific_name) as subgenus,
 su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
-u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
+u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled, u.remarks, u.issues
 </sql>
 
   <sql id="from"> name_usage u
@@ -93,6 +93,7 @@ u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
     <result property="subgenusKey" column="sgid"/>
     <result property="speciesKey" column="sid"/>
     <result property="references" column="references"/>
+    <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
   </resultMap>
 
   <!--  Get by primary key -->
@@ -214,13 +215,14 @@ u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
   <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
     INSERT INTO name_usage (dataset_key, constituent_key, name_fk, rank,
       parent_fk, is_synonym, pp_synonym_fk, status,
-      nom_status,
+      nom_status, issues,
       basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
       genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
       remarks, "references", taxon_id, modified, num_descendants)
     VALUES  (#{u.datasetKey}, #{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
       #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
       #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler },
       #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
       #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
       #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants})
@@ -230,13 +232,14 @@ u.num_descendants, u.last_interpreted, m.downloaded as last_crawled, u.remarks
     UPDATE name_usage
     SET (constituent_key, name_fk, rank,
       parent_fk, is_synonym, pp_synonym_fk, status,
-      nom_status,
+      nom_status, issues,
       basionym_fk, kingdom_fk, phylum_fk, class_fk, order_fk, family_fk,
       genus_fk, subgenus_fk, species_fk,  name_published_in_fk, according_to_fk, origin,
       remarks, "references", taxon_id, modified, num_descendants, last_interpreted)
     =  (#{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
       #{u.parentKey}, #{u.isSynonym}, #{u.proParteKey}, #{u.taxonomicStatus}::taxonomic_status,
       #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
+      #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler },
       #{u.basionymKey}, #{u.kingdomKey}, #{u.phylumKey}, #{u.classKey}, #{u.orderKey}, #{u.familyKey},
       #{u.genusKey}, #{u.subgenusKey}, #{u.speciesKey}, #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
       #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now())
