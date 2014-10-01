@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.annotation.Nullable;
+
 import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.google.common.annotations.VisibleForTesting;
@@ -48,7 +50,10 @@ public class Importer extends NeoRunnable implements Runnable {
   // neo internal ids to clb usage keys
   private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
   // map based around internal neo4j node ids:
-  private Map<Integer, Integer> basionyms = Maps.newHashMap();
+  private Map<Integer, Integer> basionymsKeys = Maps.newHashMap();
+  private Map<Integer, Integer> proparteKeys = Maps.newHashMap();
+
+  private enum KeyType {BASIONYM, PROPARTE};
 
   public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) {
     super(datasetKey, cfg.neo, registry);
@@ -90,12 +95,6 @@ public class Importer extends NeoRunnable implements Runnable {
         VerbatimNameUsage verbatim = mapper.readVerbatim(n);
         NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
         final int nodeId = (int) n.getId();
-        // remember basionymKey if we have not processed it before already
-        if (u.getBasionymKey() != null && !clbKeys.containsKey(u.getBasionymKey())) {
-          // these are internal neo4j node ids!
-          basionyms.put(nodeId, u.getBasionymKey());
-          u.setBasionymKey(null);
-        }
         try {
           final int usageKey = importService.syncUsage(datasetKey, u, verbatim, metrics);
           // keep map of node ids to clb usage keys
@@ -113,10 +112,15 @@ public class Importer extends NeoRunnable implements Runnable {
       }
     }
 
-    // fix basionyms
-    if (!basionyms.isEmpty()) {
-      LOG.info("Updating basionym keys for {} usages from dataset {}", basionyms.size(), datasetKey);
-      importService.updateBasionyms(datasetKey, basionyms);
+    // fix basionymsKeys
+    if (!basionymsKeys.isEmpty()) {
+      LOG.info("Updating basionym keys for {} usages from dataset {}", basionymsKeys.size(), datasetKey);
+      importService.updateBasionyms(datasetKey, basionymsKeys);
+    }
+    // fix proparteKeys
+    if (!proparteKeys.isEmpty()) {
+      LOG.info("Updating proparte keys for {} usages from dataset {}", proparteKeys.size(), datasetKey);
+      importService.updateProparte(datasetKey, proparteKeys);
     }
 
     // remove old usages
@@ -138,14 +142,21 @@ public class Importer extends NeoRunnable implements Runnable {
    * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
    * mapper that it should use the newly generated sequence value.
    */
-  private Integer clbKey(Node n, Integer nodeId) {
+  private Integer clbKey(Node n, Integer nodeId, @Nullable KeyType type) {
     if (nodeId != null) {
       if (clbKeys.containsKey(nodeId)) {
         return clbKeys.get(nodeId);
       } else if(n.getId() == (long) nodeId) {
         return -1;
+      } else if(KeyType.BASIONYM == type) {
+        // remember basionymKey to update later
+        basionymsKeys.put((int)n.getId(), nodeId);
+      } else if(KeyType.PROPARTE == type) {
+        // remember proparteKeys to update later
+        proparteKeys.put((int)n.getId(), nodeId);
+      } else {
+        throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
       }
-      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
     }
     return null;
   }
@@ -157,12 +168,12 @@ public class Importer extends NeoRunnable implements Runnable {
   protected NameUsageContainer buildClbNameUsage(Node n) {
     // this is using neo4j internal node ids as keys:
     NameUsageContainer u = mapper.read(n);
-    u.setParentKey(clbKey(n, u.getParentKey()));
-    u.setAcceptedKey(clbKey(n, u.getAcceptedKey()));
-    u.setBasionymKey(clbKey(n, u.getBasionymKey()));
-    u.setProParteKey(clbKey(n, u.getProParteKey()));
+    u.setParentKey(clbKey(n, u.getParentKey(), null));
+    u.setAcceptedKey(clbKey(n, u.getAcceptedKey(), null));
+    u.setBasionymKey(clbKey(n, u.getBasionymKey(), KeyType.BASIONYM));
+    u.setProParteKey(clbKey(n, u.getProParteKey(), KeyType.PROPARTE));
     for (Rank r : Rank.DWC_RANKS) {
-      ClassificationUtils.setHigherRankKey(u, r, clbKey(n, u.getHigherRankKey(r)));
+      ClassificationUtils.setHigherRankKey(u, r, clbKey(n, u.getHigherRankKey(r), null));
     }
     return u;
   }

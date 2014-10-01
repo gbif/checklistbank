@@ -44,6 +44,14 @@ public interface DatasetImportService {
     void updateBasionyms(UUID datasetKey, Map<Integer, Integer> basionymByUsage);
 
     /**
+     * Updates the proparte key for all usages in the given map keys.
+     * Proparte links can break foreign key integrity in CLB, so we
+     * need to process them individually in some cases.
+     * @param proparteByUsage map with key=usageKey and value=proparteFk
+     */
+    void updateProparte(UUID datasetKey, Map<Integer, Integer> proparteByUsage);
+
+    /**
      * Delete all existing nub relations and then batch insert new ones from the passed iterator.
      *
      * @param datasetKey the datasource to map to the nub

@@ -46,6 +46,12 @@ public class DatasetImportServiceCombined implements DatasetImportService {
   }
 
   @Override
+  public void updateProparte(UUID datasetKey, Map<Integer, Integer> proparteByUsage) {
+    sqlService.updateProparte(datasetKey, proparteByUsage);
+    solrService.insertOrUpdate(proparteByUsage.keySet());
+  }
+
+  @Override
   public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
     sqlService.insertNubRelations(datasetKey, relations);
     solrService.insertOrUpdate(relations.keySet());

@@ -251,5 +251,17 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     WHERE id = #{u.key}
   </update>
 
+  <update id="updateBasionymKey" parameterType="Integer">
+    UPDATE name_usage
+    SET basionym_fk = #{bk}
+    WHERE id = #{key}
+  </update>
+
+  <update id="updateProparteKey" parameterType="Integer">
+    UPDATE name_usage
+    SET pp_synonym_fk = #{pk}
+    WHERE id = #{key}
+  </update>
+
 </mapper>
 

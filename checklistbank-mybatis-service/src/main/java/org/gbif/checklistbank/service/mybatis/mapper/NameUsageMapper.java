@@ -64,4 +64,8 @@ public interface NameUsageMapper {
    * See #insert(NameUsageWritable usage) method for details on behavior.
    */
   void update(@Param("u") NameUsageWritable usage);
+
+  void updateBasionymKey(@Param("key") int usageKey, @Param("bk") int basionymKey);
+
+  void updateProparteKey(@Param("key") int usageKey, @Param("pk") int proparteKey);
 }

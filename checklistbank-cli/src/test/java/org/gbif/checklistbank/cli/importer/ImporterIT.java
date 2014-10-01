@@ -228,4 +228,12 @@ public class ImporterIT extends NeoTest {
     }
   }
 
+  /**
+   * Import a dataset that has basionym links to not previously imported usages.
+   * We need to post update basionym foreign keys after all records have been inserted!
+   */
+  @Test
+  public void testMissingUsageKeys() throws Exception {
+    final UUID datasetKey = NormalizerTest.datasetKey(14);
+  }
 }
