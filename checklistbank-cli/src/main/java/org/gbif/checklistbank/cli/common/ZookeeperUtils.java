@@ -45,12 +45,7 @@ public class ZookeeperUtils {
    */
   public static String getCrawlInfoPath(UUID uuid, @Nullable String path) {
     checkNotNull(uuid, "uuid can't be null");
-    String resultPath = CRAWL_INFO + "/" + uuid.toString();
-    if (path != null) {
-      resultPath += "/" + path;
-    }
-
-    return resultPath;
+    return JOINER.join(CRAWL_INFO, uuid, path);
   }
 
   /**

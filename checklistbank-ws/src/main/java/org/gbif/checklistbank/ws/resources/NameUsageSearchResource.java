@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.search.ws.resources;
+package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
@@ -22,7 +22,6 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.ws.util.ExtraMediaTypes;
 
 import java.util.List;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

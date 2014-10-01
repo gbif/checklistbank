@@ -4,6 +4,7 @@ package org.gbif.checklistbank.ws.guice;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.resources.SpeciesResource;
 import org.gbif.ws.server.guice.GbifServletListener;
+import org.gbif.checklistbank.search.inject.SearchModule;
 
 import java.util.List;
 import java.util.Properties;
@@ -22,6 +23,7 @@ public class ChecklistBankWsModule extends GbifServletListener {
   protected List<Module> getModules(Properties properties) {
     List<Module> modules = Lists.newArrayList();
     modules.add(new ChecklistBankServiceMyBatisModule(properties));
+    modules.add(new SearchModule(properties, true));
     modules.add(new NameParserModule());
     return modules;
   }

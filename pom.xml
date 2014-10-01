@@ -101,7 +101,6 @@
     <module>checklistbank-mybatis-service</module>
     <module>checklistbank-solr</module>
     <module>checklistbank-search</module>
-    <module>checklistbank-search-ws</module>
     <module>checklistbank-ws</module>
     <module>checklistbank-ws-client</module>
     <module>checklistbank-nub</module>

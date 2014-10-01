@@ -4,6 +4,7 @@
 target/
 .DS_Store
 checklistbank*/logs
+logs/
 
 # Package Files #
 *.jar

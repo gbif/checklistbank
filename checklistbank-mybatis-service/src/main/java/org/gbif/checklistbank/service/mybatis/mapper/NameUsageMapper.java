@@ -52,10 +52,16 @@ public interface NameUsageMapper {
   Integer maxUsageKey(@Param("uuid") UUID datasetKey);
 
   /**
-   * Insert a new name usage, setting lastInterpretedDate to current date and assigning a new usage key
+   * Insert a new name usage, setting lastInterpretedDate to current date and assigning a new usage key.
+   * If higher rank keys like kingdomKey are -1 this is interpreted that they should point to the newly inserted record
+   * itself, inserting the newly generated usage key for those negative properties.
    * @param usage
    */
   void insert(@Param("u") NameUsageWritable usage);
 
+  /**
+   * Updates an existing name usage.
+   * See #insert(NameUsageWritable usage) method for details on behavior.
+   */
   void update(@Param("u") NameUsageWritable usage);
 }

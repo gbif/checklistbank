@@ -88,6 +88,10 @@
       <artifactId>checklistbank-mybatis-service</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-search</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-api</artifactId>
     </dependency>

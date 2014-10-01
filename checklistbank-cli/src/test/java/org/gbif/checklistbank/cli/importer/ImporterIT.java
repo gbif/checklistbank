@@ -7,11 +7,11 @@ import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
-import org.gbif.checklistbank.neo.NeoMapperTest;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URL;
@@ -35,7 +35,6 @@ import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +44,6 @@ import static org.junit.Assert.assertNull;
 
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
- * //TODO: once tests are stable consider to keep neo db as direct test resource?
  */
 public class ImporterIT extends NeoTest {
 
@@ -109,6 +107,34 @@ public class ImporterIT extends NeoTest {
 
     // import
     importer.run();
+
+    // test db, all usages must be accepted and there is one root!
+    PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 500));
+    assertEquals(20, resp.getResults().size());
+    for (NameUsage u : resp.getResults()) {
+      if (u.isSynonym()) {
+        assertNotNull(u.getAcceptedKey());
+        assertNotNull(u.getAccepted());
+      } else {
+        assertNull(u.getAcceptedKey());
+        assertNull(u.getAccepted());
+      }
+      if (u.getRank() != Rank.KINGDOM) {
+        assertNotNull(u.getParentKey());
+        assertNotNull(u.getParent());
+      }
+      assertNotNull(u.getOrigin());
+      assertNotNull(u.getRank());
+      if (u.getRank().isLinnean()) {
+        if (u.isSynonym()) {
+          assertFalse("Higher classification key for synonym " + u.getScientificName() + " cannot point to itself!",
+            u.getKey().equals(ClassificationUtils.getHigherRankKey(u, u.getRank())));
+        } else {
+          assertEquals("Bad higher classification key for " + u.getScientificName() + " of rank " + u.getRank(),
+            u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
+        }
+      }
+    }
   }
 
   /**
@@ -155,17 +181,6 @@ public class ImporterIT extends NeoTest {
           u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
       }
     }
-  }
-
-  @Test
-  @Ignore
-  public void testIdMapping() throws Exception {
-    NeoMapperTest nmt = new NeoMapperTest();
-    NameUsage u = nmt.usage();
-
-    Importer importer = build(iCfg, UUID.randomUUID());
-    int x = importer.clbKey(9321);
-    System.out.print(x);
   }
 
   /**

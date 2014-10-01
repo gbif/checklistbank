@@ -133,15 +133,19 @@ public class Importer extends NeoRunnable implements Runnable {
     delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
   }
 
-  @VisibleForTesting
-  protected Integer clbKey(Integer nodeId) {
+  /**
+   * Maps a neo node id to an already created clb postgres id.
+   * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
+   * mapper that it should use the newly generated sequence value.
+   */
+  private Integer clbKey(Node n, Integer nodeId) {
     if (nodeId != null) {
-      try {
+      if (clbKeys.containsKey(nodeId)) {
         return clbKeys.get(nodeId);
-      } catch (Exception e) {
-        LOG.error("NodeId not in CLB yet: " + nodeId);
-        throw e;
+      } else if(n.getId() == (long) nodeId) {
+        return -1;
       }
+      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
     }
     return null;
   }
@@ -153,12 +157,12 @@ public class Importer extends NeoRunnable implements Runnable {
   protected NameUsageContainer buildClbNameUsage(Node n) {
     // this is using neo4j internal node ids as keys:
     NameUsageContainer u = mapper.read(n);
-    u.setParentKey(clbKey(u.getParentKey()));
-    u.setAcceptedKey(clbKey(u.getAcceptedKey()));
-    u.setBasionymKey(clbKey(u.getBasionymKey()));
-    u.setProParteKey(clbKey(u.getProParteKey()));
+    u.setParentKey(clbKey(n, u.getParentKey()));
+    u.setAcceptedKey(clbKey(n, u.getAcceptedKey()));
+    u.setBasionymKey(clbKey(n, u.getBasionymKey()));
+    u.setProParteKey(clbKey(n, u.getProParteKey()));
     for (Rank r : Rank.DWC_RANKS) {
-      ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
+      ClassificationUtils.setHigherRankKey(u, r, clbKey(n, u.getHigherRankKey(r)));
     }
     return u;
   }
