@@ -16,6 +16,7 @@ import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.Usage;
@@ -225,11 +226,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
                               @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
     final int usageKey = existing.getKey();
     usage.setKey(usageKey);
+    // update self references indicated by -1
+    updateSelfReferences(usageKey, usage);
     // insert main usage, creating name and citation records before
     NameUsageWritable uw = toWritable(datasetKey, usage);
     uw.setKey(usageKey);
     nameUsageMapper.update(uw);
-    //TODO: deal with extensions
 
     // remove all previous extension records
     descriptionMapper.deleteByUsage(usageKey);
@@ -259,11 +261,26 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     return usageKey;
   }
 
+  private void updateSelfReferences(int usageKey, NameUsage u) {
+    if (u.getBasionymKey() != null && u.getBasionymKey() == -1) {
+      u.setBasionymKey(usageKey);
+    }
+    if (u.getParentKey() != null && u.getParentKey() == -1) {
+      u.setParentKey(usageKey);
+    }
+    if (u.getAcceptedKey() != null && u.getAcceptedKey() == -1) {
+      u.setAcceptedKey(usageKey);
+    }
+    for (Rank r : Rank.LINNEAN_RANKS) {
+      if (u.getHigherRankKey(r) != null && u.getHigherRankKey(r) == -1) {
+        ClassificationUtils.setHigherRankKey(u, r, usageKey);
+      }
+    }
+  }
+
   /**
    * Converts a name usage into a writable name usage by looking up or inserting name and citation records
    * and populating the writable instance with these keys.
-   * @param u
-   * @return
    */
   private NameUsageWritable toWritable(UUID datasetKey, NameUsageContainer u) {
     NameUsageWritable uw = new NameUsageWritable();
