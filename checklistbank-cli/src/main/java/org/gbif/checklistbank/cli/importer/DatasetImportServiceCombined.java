@@ -40,15 +40,9 @@ public class DatasetImportServiceCombined implements DatasetImportService {
   }
 
   @Override
-  public void updateBasionyms(UUID datasetKey, Map<Integer, Integer> basionymByUsage) {
-    sqlService.updateBasionyms(datasetKey, basionymByUsage);
-    solrService.insertOrUpdate(basionymByUsage.keySet());
-  }
-
-  @Override
-  public void updateProparte(UUID datasetKey, Map<Integer, Integer> proparteByUsage) {
-    sqlService.updateProparte(datasetKey, proparteByUsage);
-    solrService.insertOrUpdate(proparteByUsage.keySet());
+  public void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey) {
+    sqlService.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
+    solrService.insertOrUpdate(usageKey);
   }
 
   @Override

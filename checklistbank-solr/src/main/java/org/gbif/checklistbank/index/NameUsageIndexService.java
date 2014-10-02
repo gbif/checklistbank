@@ -19,6 +19,8 @@ public interface NameUsageIndexService {
 
   void delete(UUID datasetKey);
 
+  void insertOrUpdate(int usageKey);
+
   void insertOrUpdate(Collection<Integer> usageKeys);
 
   void insertOrUpdate(NameUsage usage, List<VernacularName> vernaculars,

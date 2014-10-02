@@ -52,6 +52,10 @@ public class ImporterIT extends NeoTest {
   private ImporterConfiguration iCfg;
   private NameUsageService usageService;
 
+  public ImporterIT() {
+    super(false);
+  }
+
   /**
    * Uses an internal metrics registry to setup the normalizer
    */
@@ -98,15 +102,11 @@ public class ImporterIT extends NeoTest {
   public void testIdList() {
     final UUID datasetKey = NormalizerTest.datasetKey(1);
 
-    Importer importer = build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
-    norm.run();
-    NormalizerStats stats = norm.getStats();
-    System.out.println(stats);
+    insertNeo(datasetKey);
 
     // import
-    importer.run();
+    runImport(datasetKey);
 
     // test db, all usages must be accepted and there is one root!
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 500));
@@ -148,15 +148,11 @@ public class ImporterIT extends NeoTest {
   public void testVerbatimAccepted() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
-    Importer importer = build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
-    norm.run();
-    NormalizerStats stats = norm.getStats();
-    System.out.println(stats);
+    insertNeo(datasetKey);
 
     // import
-    importer.run();
+    runImport(datasetKey);
 
     // test db, all usages must be accepted and there is one root!
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
@@ -190,15 +186,11 @@ public class ImporterIT extends NeoTest {
   public void testStableIds() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
-    Importer importer = build(iCfg, datasetKey);
     // insert neo db
-    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
-    norm.run();
-    NormalizerStats stats = norm.getStats();
-    System.out.println(stats);
+    insertNeo(datasetKey);
 
     // 1st import
-    importer.run();
+    runImport(datasetKey);
     // remember ids
     Map<Integer, String> ids = Maps.newHashMap();
     int sourceCounter = 0;
@@ -216,7 +208,8 @@ public class ImporterIT extends NeoTest {
     Thread.sleep(2000);
 
     // 2nd import - there are 10 SOURCE usages with stable ids and 6 HIGHER usages with instable ids
-    importer.run();
+    runImport(datasetKey);
+
     resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
     assertEquals(16, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
@@ -229,11 +222,77 @@ public class ImporterIT extends NeoTest {
   }
 
   /**
-   * Import a dataset that has basionym links to not previously imported usages.
-   * We need to post update basionym foreign keys after all records have been inserted!
+   * Import a dataset that has basionym & proparte links to not previously imported usages.
+   * We need to post update those foreign keys after all records have been inserted!
    */
   @Test
   public void testMissingUsageKeys() throws Exception {
-    final UUID datasetKey = NormalizerTest.datasetKey(14);
+    final UUID datasetKey = NormalizerTest.datasetKey(16);
+
+    // insert neo db
+    NormalizerStats stats = insertNeo(datasetKey);
+    assertEquals(17, stats.getCount());
+    assertEquals(7, stats.getSynonyms());
+    assertEquals(1, stats.getRoots());
+    assertEquals(1, stats.getCountByOrigin(Origin.PROPARTE));
+    assertEquals(16, stats.getCountByOrigin(Origin.SOURCE));
+
+    // 1st import
+    runImport(datasetKey);
+    // verify
+    verify14(datasetKey);
+
+    // wait for 2 seconds, we allow a small time difference in old usage deletions
+    Thread.sleep(2000);
+
+    // 2nd import to make sure sync updates also work fine
+    runImport(datasetKey);
+    // verify
+    verify14(datasetKey);
+
+  }
+
+  private void verify14(UUID datasetKey) {
+    PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+    assertEquals(17, resp.getResults().size());
+    for (NameUsage u : resp.getResults()) {
+      if (Rank.KINGDOM != u.getRank()) {
+        if (u.isSynonym()) {
+          assertNotNull(u.getAcceptedKey());
+          assertNotNull(u.getAccepted());
+        } else {
+          assertNotNull(u.getParentKey());
+          assertNotNull(u.getParent());
+        }
+      }
+    }
+    NameUsage u = getUsageByTaxonID(datasetKey, "1001");
+    assertNotNull(u.getBasionymKey());
+    assertEquals("Kreps bakeri DC.", u.getBasionym());
+
+    u = getUsageByTaxonID(datasetKey, "1002");
+    assertNotNull(u.getBasionymKey());
+    assertEquals("Leontodon occidentalis", u.getBasionym());
+  }
+
+  private NameUsage getUsageByTaxonID(UUID datasetKey, String taxonID) {
+    PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, taxonID, null);
+    assertEquals("More than one usage have the taxonID "+taxonID, 1, resp.getResults().size());
+    return resp.getResults().get(0);
+  }
+
+  private Importer runImport(UUID datasetKey) {
+    Importer importer = build(iCfg, datasetKey);
+    importer.run();
+    assertEquals("There have been "+importer.getFailedCounter()+"import failures", 0, importer.getFailedCounter());
+    return importer;
+  }
+
+  private NormalizerStats insertNeo(UUID datasetKey) {
+    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+    return stats;
   }
 }

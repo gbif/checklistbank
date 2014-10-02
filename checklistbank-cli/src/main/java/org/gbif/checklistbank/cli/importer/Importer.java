@@ -10,18 +10,18 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
+import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Calendar;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -43,17 +43,16 @@ public class Importer extends NeoRunnable implements Runnable {
   private final Meter syncMeter;
   private int syncCounter;
   private int delCounter;
+  private int failedCounter;
   private final Meter basionymMeter;
-  private final AtomicInteger failed = new AtomicInteger();
   private final DatasetImportServiceCombined importService;
   private final NameUsageService usageService;
   // neo internal ids to clb usage keys
   private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
   // map based around internal neo4j node ids:
-  private Map<Integer, Integer> basionymsKeys = Maps.newHashMap();
-  private Map<Integer, Integer> proparteKeys = Maps.newHashMap();
-
-  private enum KeyType {BASIONYM, PROPARTE};
+  private IntObjectOpenHashMap<Integer[]> postKeys = new IntObjectOpenHashMap<Integer[]>();
+  private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
+  private final int keyTypeSize = KeyType.values().length;
 
   public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) {
     super(datasetKey, cfg.neo, registry);
@@ -82,20 +81,18 @@ public class Importer extends NeoRunnable implements Runnable {
    * performance should only be badly impacted in rare cases.
    */
   private void syncDataset() {
-    failed.set(0);
-
     // we keep the very first usage key to retrieve the exact last modified timestamp from the database
     // in order to avoid clock differences between machines and threads.
     int firstUsageKey = -1;
 
     try (Transaction tx = db.beginTx()) {
+      // returns all nodes, accepted and synonyms
       for (Node n : TaxonomicNodeIterator.all(db)) {
-        // returns all accepted and synonyms
-        NameUsageContainer u = buildClbNameUsage(n);
-        VerbatimNameUsage verbatim = mapper.readVerbatim(n);
-        NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
-        final int nodeId = (int) n.getId();
         try {
+          VerbatimNameUsage verbatim = mapper.readVerbatim(n);
+          NameUsageContainer u = buildClbNameUsage(n);
+          NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
+          final int nodeId = (int) n.getId();
           final int usageKey = importService.syncUsage(datasetKey, u, verbatim, metrics);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
@@ -106,21 +103,25 @@ public class Importer extends NeoRunnable implements Runnable {
           syncMeter.mark();
           syncCounter++;
         } catch (Exception e) {
-          failed.getAndIncrement();
-          LOG.error("Failed to sync usage {} from dataset {}", u.getTaxonID(), datasetKey, e);
+          failedCounter++;
+          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, null);
+          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e);
         }
       }
     }
 
-    // fix basionymsKeys
-    if (!basionymsKeys.isEmpty()) {
-      LOG.info("Updating basionym keys for {} usages from dataset {}", basionymsKeys.size(), datasetKey);
-      importService.updateBasionyms(datasetKey, basionymsKeys);
-    }
-    // fix proparteKeys
-    if (!proparteKeys.isEmpty()) {
-      LOG.info("Updating proparte keys for {} usages from dataset {}", proparteKeys.size(), datasetKey);
-      importService.updateProparte(datasetKey, proparteKeys);
+    // finally update foreign keys that did not exist during initial inserts
+    if (!postKeys.isEmpty()) {
+      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
+      for (IntObjectCursor<Integer[]> c : postKeys) {
+        // update usage by usage doing all 3 potential updates in one statement
+        Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
+        importService.updateForeignKeys(clbKey(c.key),
+              clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
+              clbKey(c.value[KeyType.PROPARTE.ordinal()]),
+              clbKey(c.value[KeyType.BASIONYM.ordinal()])
+        );
+      }
     }
 
     // remove old usages
@@ -139,23 +140,43 @@ public class Importer extends NeoRunnable implements Runnable {
 
   /**
    * Maps a neo node id to an already created clb postgres id.
+   * If the mapping does not exist an IllegalStateException is thrown.
+   */
+  private Integer clbKey(Integer nodeId) {
+    if (nodeId == null) {
+      return null;
+    }
+    if (clbKeys.containsKey(nodeId)) {
+      return clbKeys.get(nodeId);
+    } else {
+      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+    }
+  }
+
+  /**
+   * Maps a neo node id of a foreing key to an already created clb postgres id.
    * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
    * mapper that it should use the newly generated sequence value.
+   * @param nodeId the node id casted from long that represents the currently processed name usage record
+   * @param nodeFk the foreign key to the node id we wanna setup the relation to
    */
-  private Integer clbKey(Node n, Integer nodeId, @Nullable KeyType type) {
-    if (nodeId != null) {
-      if (clbKeys.containsKey(nodeId)) {
-        return clbKeys.get(nodeId);
-      } else if(n.getId() == (long) nodeId) {
+  private Integer clbForeignKey(int nodeId, Integer nodeFk, @Nullable KeyType type) {
+    if (nodeFk != null) {
+      if (clbKeys.containsKey(nodeFk)) {
+        return clbKeys.get(nodeFk);
+      } else if(nodeId == nodeFk) {
         return -1;
-      } else if(KeyType.BASIONYM == type) {
-        // remember basionymKey to update later
-        basionymsKeys.put((int)n.getId(), nodeId);
-      } else if(KeyType.PROPARTE == type) {
-        // remember proparteKeys to update later
-        proparteKeys.put((int)n.getId(), nodeId);
+      } else if(type != null) {
+        // remember non classification keys for update after all records have been synced once
+        if (postKeys.containsKey(nodeId)) {
+          postKeys.get(nodeId)[type.ordinal()] = nodeFk;
+        } else {
+          Integer[] keys = new Integer[keyTypeSize];
+          keys[type.ordinal()] = nodeFk;
+          postKeys.put(nodeId, keys);
+        }
       } else {
-        throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+        throw new IllegalStateException("NodeId not in CLB yet: " + nodeFk);
       }
     }
     return null;
@@ -168,12 +189,17 @@ public class Importer extends NeoRunnable implements Runnable {
   protected NameUsageContainer buildClbNameUsage(Node n) {
     // this is using neo4j internal node ids as keys:
     NameUsageContainer u = mapper.read(n);
-    u.setParentKey(clbKey(n, u.getParentKey(), null));
-    u.setAcceptedKey(clbKey(n, u.getAcceptedKey(), null));
-    u.setBasionymKey(clbKey(n, u.getBasionymKey(), KeyType.BASIONYM));
-    u.setProParteKey(clbKey(n, u.getProParteKey(), KeyType.PROPARTE));
+    if (n.hasLabel(Labels.SYNONYM)) {
+      u.setSynonym(true);
+      u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
+      u.setProParteKey(clbForeignKey((int) n.getId(), u.getProParteKey(), KeyType.PROPARTE));
+    } else {
+      u.setSynonym(false);
+      u.setParentKey(clbForeignKey((int) n.getId(), u.getParentKey(), KeyType.PARENT));
+    }
+    u.setBasionymKey(clbForeignKey((int) n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
     for (Rank r : Rank.DWC_RANKS) {
-      ClassificationUtils.setHigherRankKey(u, r, clbKey(n, u.getHigherRankKey(r), null));
+      ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
     }
     return u;
   }
@@ -184,5 +210,9 @@ public class Importer extends NeoRunnable implements Runnable {
 
   public int getDelCounter() {
     return delCounter;
+  }
+
+  public int getFailedCounter() {
+    return failedCounter;
   }
 }

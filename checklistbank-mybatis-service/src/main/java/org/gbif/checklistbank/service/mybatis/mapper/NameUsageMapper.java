@@ -65,7 +65,6 @@ public interface NameUsageMapper {
    */
   void update(@Param("u") NameUsageWritable usage);
 
-  void updateBasionymKey(@Param("key") int usageKey, @Param("bk") int basionymKey);
-
-  void updateProparteKey(@Param("key") int usageKey, @Param("pk") int proparteKey);
+  void updateForeignKeys(@Param("key") int usageKey,
+    @Param("par") Integer parentKey, @Param("ppk") Integer proparteKey, @Param("bas") Integer basionymKey);
 }

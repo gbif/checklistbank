@@ -1,0 +1,17 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	originalNameUsageID	scientificName	taxonRank
+1		2		Viridae	kingdom
+2				Plantae	kingdom
+10	2			Asteraceae	family
+11	2	10		Compositae	family
+20	10			Cichorioideae	subfamily
+30	20			Cichorieae	tribe
+101	30			Crepis L.	genus
+102	30			Leontodon	genus
+110	30	101		Kreps L.	genus
+1001	101		1003	Crepis bakeri Greene	species
+1002	101		1006-s1	Crepis occidentalis Nutt.	species
+1003	101	1001		Kreps bakeri DC.	species
+1005	102			Leontodon anomalus	species
+1006	102			Leontodon taraxacoides (Vill.) Mérat	species
+1006-s1		1006|1002		Leontodon occidentalis	species
+1006-s2	102	1006		Leontodon saxatilis	species

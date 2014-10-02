@@ -23,6 +23,10 @@ public class NameUsageIndexServicePassThru implements NameUsageIndexService {
   }
 
   @Override
+  public void insertOrUpdate(int usageKey) {
+  }
+
+  @Override
   public void insertOrUpdate(Collection<Integer> usageKeys) {
   }
 

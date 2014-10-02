@@ -151,6 +151,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     return key;
   }
 
+  @Override
+  public void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey) {
+    nameUsageMapper.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
+  }
+
   private int insertNewUsage(UUID datasetKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
                                  NameUsageMetrics metrics) {
 
@@ -318,30 +323,6 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     uw.setAccordingToKey( citationService.createOrGet(u.getAccordingTo()) );
 
     return uw;
-  }
-
-  @Transactional(
-    executorType = ExecutorType.BATCH,
-    isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-    exceptionMessage = "Something went wrong while updating basionym keys for dataset {0}"
-  )
-  @Override
-  public void updateBasionyms(UUID datasetKey, Map<Integer, Integer> basionymByUsage) {
-    for (Map.Entry<Integer, Integer> entry : basionymByUsage.entrySet()) {
-      nameUsageMapper.updateBasionymKey(entry.getKey(), entry.getValue());
-    }
-  }
-
-  @Transactional(
-    executorType = ExecutorType.BATCH,
-    isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-    exceptionMessage = "Something went wrong while updating proparte keys for dataset {0}"
-  )
-  @Override
-  public void updateProparte(UUID datasetKey, Map<Integer, Integer> proparteByUsage) {
-    for (Map.Entry<Integer, Integer> entry : proparteByUsage.entrySet()) {
-      nameUsageMapper.updateProparteKey(entry.getKey(), entry.getValue());
-    }
   }
 
   @Transactional(

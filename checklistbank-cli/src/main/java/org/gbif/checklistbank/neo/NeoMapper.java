@@ -120,24 +120,16 @@ public class NeoMapper {
    */
   public void store(Node n, Object obj, boolean deleteNullProperties) {
     for (Map.Entry<String, Object> entry : propertyMap(obj, deleteNullProperties).entrySet()) {
-      if (deleteNullProperties && entry.getValue() == null) {
-        n.removeProperty(entry.getKey());
-      } else {
+      if (entry.getValue() != null) {
         n.setProperty(entry.getKey(), entry.getValue());
+      } else if(deleteNullProperties) {
+        n.removeProperty(entry.getKey());
       }
     }
   }
 
   public void store(Node n, NameUsageContainer usage) {
     store(n, usage, true);
-  }
-
-  public Map<String, Object> properties(Node n) {
-    Map<String, Object> props = Maps.newHashMap();
-    for (String k : n.getPropertyKeys()) {
-      props.put(k, n.getProperty(k));
-    }
-    return props;
   }
 
   public Map<String, Object> propertyMap(String coreID, NameUsage u, VerbatimNameUsage v) {
