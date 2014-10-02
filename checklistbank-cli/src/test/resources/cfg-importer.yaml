@@ -12,7 +12,7 @@ clb:
   connections: 10
 solr:
   serverType: HTTP
-  serverHome:
+#  serverHome: http://apps.gbif-dev.org:8082/checklistbank-solr
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev

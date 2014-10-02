@@ -59,7 +59,7 @@ public class ImporterIT extends NeoTest {
   /**
    * Uses an internal metrics registry to setup the normalizer
    */
-  private static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
+  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
     MetricRegistry registry = new MetricRegistry("normalizer");
     MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
     registry.registerAll(mgs);

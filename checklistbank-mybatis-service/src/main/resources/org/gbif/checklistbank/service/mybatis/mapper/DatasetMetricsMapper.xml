@@ -85,7 +85,7 @@ SELECT #{uuid}, #{downloaded},
             WHEN 8 THEN 'VIRUSES'
             ELSE 'INCERTAE_SEDIS' END AS key, count(*) as cnt
         FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id JOIN name_usage nub on nub.id=rel.nub_fk
-          WHERE u.dataset_key=nub.dataset_key AND u.is_synonym=false
+          WHERE u.dataset_key=#{uuid} AND u.is_synonym=false
           GROUP BY nub.kingdom_fk) AS kingdoms
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
