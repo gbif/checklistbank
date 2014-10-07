@@ -105,6 +105,12 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     WHERE u.id=#{key}
   </select>
 
+  <!--  get just the key by taxonid & dataset  -->
+  <select id="getKey" parameterType="map" resultType="java.lang.Integer">
+    SELECT id FROM name_usage
+    WHERE taxon_id=#{taxonId} AND dataset_key=#{uuid, jdbcType=OTHER}
+    LIMIT 1
+  </select>
 
   <!--  list all usage ids -->
   <select id="list" parameterType="map" resultType="java.lang.Integer">

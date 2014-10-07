@@ -159,6 +159,8 @@
 
   <fields>
     <field name="key" type="intSimple" indexed="true" stored="true" required="true"/>
+    <!-- needed by updatelog for NRT search with soft commits -->
+    <field name="_version_" type="int" indexed="true" stored="true" multiValued="false"/>
     <field name="nub_key" type="int" indexed="true" stored="true"/>
     <field name="dataset_key" type="string" indexed="true" stored="true"/>
     <field name="parent_key" type="int" indexed="true" stored="true"/>

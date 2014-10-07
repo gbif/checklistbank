@@ -35,7 +35,7 @@ public abstract class NeoTest {
 
   protected NeoConfiguration cfg;
   protected GraphDatabaseService db;
-  private NeoMapper mapper = NeoMapper.instance();
+  protected NeoMapper mapper = NeoMapper.instance();
   private final boolean cleanup;
 
   public NeoTest() {

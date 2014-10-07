@@ -27,6 +27,7 @@ public class DatasetAnalysisServiceMyBatisTest {
   public void testAnalyse() {
     final Date downloaded = new Date();
     DatasetMetrics d = ddt.getService().analyse(CHECKLIST_KEY, downloaded);
+    System.out.println(d);
     assertEquals(CHECKLIST_KEY, d.getDatasetKey());
     assertEquals(downloaded, d.getDownloaded());
     assertEquals(44, d.getUsagesCount());
@@ -36,8 +37,9 @@ public class DatasetAnalysisServiceMyBatisTest {
     assertEquals(4, d.getNubCoveragePct());
     assertEquals(0, d.getColCoveragePct());
     assertEquals(0, d.getColMatchingCount());
-    assertEquals(0, d.getCountByKingdom().size());
-    assertEquals(0, d.getCountByKingdom(Kingdom.ANIMALIA));
+    assertEquals(1, d.getCountByKingdom().size());
+    // there are more animal records in this dataset, but only 2 are mapped to the nub!
+    assertEquals(2, d.getCountByKingdom(Kingdom.ANIMALIA));
     assertEquals(0, d.getCountByKingdom(Kingdom.PLANTAE));
     assertEquals(10, d.getCountByRank(Rank.SUBSPECIES));
     assertEquals(3, d.getCountByRank(Rank.SPECIES));

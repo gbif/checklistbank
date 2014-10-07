@@ -82,4 +82,5 @@ public class MultimediaServiceMyBatisIT {
     assertNull(img.getReferences());
     assertNull(img.getType());
   }
+
 }

@@ -19,6 +19,15 @@ public interface NameUsageMapper {
   NameUsage get(@Param("key") int key);
 
   /**
+   * Returns the existing usage key for a given taxonID in a dataset or null if its not existing.
+   * In case more than one usage exists with the given taxonID (which should never happen, these are invalid datasets
+   * with non unique keys) the first key is selected.
+   * @param datasetKey
+   * @param taxonId
+   */
+  Integer getKey(@Param("uuid") UUID datasetKey, @Param("taxonId") String taxonId);
+
+  /**
    * A simple paging query for all usages in checklistbank.
    * We only return name usage ids here to avoid extremely heavy operations for the database when the offset gets
    * bigger.

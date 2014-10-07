@@ -40,4 +40,8 @@
   <changeSet id="12" author="markus">
     <sqlFile path="liquibase/issues.sql"/>
   </changeSet>
+  <changeSet id="13" author="markus">
+    <sqlFile path="liquibase/debug_views.sql"/>
+  </changeSet>
+
 </databaseChangeLog>

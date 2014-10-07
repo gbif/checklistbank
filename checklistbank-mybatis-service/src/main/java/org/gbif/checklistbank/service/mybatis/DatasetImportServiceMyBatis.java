@@ -13,7 +13,6 @@ import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
-import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.Rank;
@@ -135,17 +134,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     Preconditions.checkNotNull(datasetKey);
     Preconditions.checkNotNull(usage);
     Preconditions.checkNotNull(metrics);
-    List<NameUsage> resp = nameUsageMapper.listByTaxonId(datasetKey, usage.getTaxonID(), new PagingRequest());
+    Integer usageKey = nameUsageMapper.getKey(datasetKey, usage.getTaxonID());
 
     int key;
-    if (resp.isEmpty()) {
+    if (usageKey == null) {
       key = insertNewUsage(datasetKey, usage, verbatim, metrics);
       LOG.debug("inserted usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
     } else {
-      if (resp.size() > 1) {
-        LOG.warn("taxonID {} from dataset {} exists {} times", usage.getTaxonID(), datasetKey, resp.size());
-      }
-      key = updateUsage(datasetKey, resp.get(0), usage, verbatim, metrics);
+      key = updateUsage(datasetKey, usageKey, usage, verbatim, metrics);
       LOG.debug("updated usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
     }
     return key;
@@ -221,15 +217,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
    * In the future we should try to update only when needed though. We would need to compare the usage itself,
    * the raw data, the usage metrics and all extension data in the container though.
    * @param datasetKey
-   * @param existing existing name usage
+   * @param usageKey existing name usage key
    * @param usage updated usage
    * @param verbatim
    * @param metrics
    * @return
    */
-  private Integer updateUsage(UUID datasetKey, NameUsage existing, NameUsageContainer usage,
+  private Integer updateUsage(UUID datasetKey, final int usageKey, NameUsageContainer usage,
                               @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
-    final int usageKey = existing.getKey();
     usage.setKey(usageKey);
     // update self references indicated by -1
     updateSelfReferences(usageKey, usage);
