@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.model;
 
+import java.util.Objects;
+
 public class ColAnnotation {
   private Integer taxonId;
   private String gsd;
@@ -66,5 +68,24 @@ public class ColAnnotation {
 
   public void setAnnotatedName(String annotatedName) {
     this.annotatedName = annotatedName;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(taxonId, gsd, annotatedName, rejected, status, note);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ColAnnotation other = (ColAnnotation) obj;
+    return Objects.equals(this.taxonId, other.taxonId) && Objects.equals(this.gsd, other.gsd) && Objects
+      .equals(this.annotatedName, other.annotatedName) && Objects.equals(this.rejected, other.rejected) && Objects
+             .equals(this.status, other.status) && Objects.equals(this.note, other.note);
   }
 }

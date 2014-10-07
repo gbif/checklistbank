@@ -7,7 +7,6 @@ import org.gbif.common.search.inject.SolrConfig;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.common.search.solr.SolrServerType;
 
-import com.google.common.base.Strings;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import org.apache.solr.client.solrj.SolrServer;
@@ -27,7 +26,7 @@ public class RealTimeModule extends PrivateModule {
 
   @Override
   protected void configure() {
-    if (cfg.serverType == null || (cfg.serverType == SolrServerType.HTTP && Strings.isNullOrEmpty(cfg.serverHome))) {
+    if (cfg.serverType == null || (cfg.serverType == SolrServerType.HTTP && !cfg.serverHome.startsWith("http"))) {
       bind(NameUsageIndexService.class).to(NameUsageIndexServicePassThru.class).in(Scopes.SINGLETON);
       LOG.info("No solr service configured. Using pass thru mock solr service.");
     } else {
