@@ -329,15 +329,6 @@ public class NeoInserter {
     return pn;
   }
 
-  private String coalesce(String ... values) {
-    for (String x : values) {
-      if (!Strings.isNullOrEmpty(x)) {
-        return x;
-      }
-    }
-    return null;
-  }
-
   private String firstClean(VerbatimNameUsage v, Term ... terms) {
     for (Term t : terms) {
       String x = clean(v.getCoreField(t));
