@@ -22,7 +22,6 @@ import java.util.Properties;
  */
 public class ChecklistBankWsClientModule extends GbifWsClientModule {
 
-  private final boolean installSearchClient;
   private final boolean installServiceClients;
   private final boolean installMatchClients;
 
@@ -30,16 +29,14 @@ public class ChecklistBankWsClientModule extends GbifWsClientModule {
    * Default module with the complete API exposed.
    */
   public ChecklistBankWsClientModule(Properties properties) {
-    this(properties, true, true, true);
+    this(properties, true, true);
   }
 
   /**
    * Configurable module with flags to select the API parts to be exposed.
    */
-  public ChecklistBankWsClientModule(Properties properties, boolean exposeSearchClient, boolean exposeServiceClients,
-    boolean exposeMatchClient) {
+  public ChecklistBankWsClientModule(Properties properties, boolean exposeServiceClients, boolean exposeMatchClient) {
     super(properties, NameUsageWsClient.class.getPackage());
-    this.installSearchClient = exposeSearchClient;
     this.installServiceClients = exposeServiceClients;
     this.installMatchClients = exposeMatchClient;
   }
@@ -47,12 +44,9 @@ public class ChecklistBankWsClientModule extends GbifWsClientModule {
   @Override
   protected void configureClient() {
     // install the 2 private modules that together implement the API
-    if (installSearchClient) {
-      install(new ChecklistBankWsSearchClientModule());
-      expose(NameUsageSearchService.class);
-    }
     if (installServiceClients) {
       install(new ChecklistBankWsServiceClientModule());
+      expose(NameUsageSearchService.class);
       expose(NameUsageService.class);
       expose(DescriptionService.class);
       expose(DistributionService.class);

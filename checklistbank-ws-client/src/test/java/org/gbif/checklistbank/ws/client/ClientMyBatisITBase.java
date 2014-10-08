@@ -41,7 +41,7 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
   @Before
   public void init() throws IOException {
     clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), contextPath),
-      new ChecklistBankWsClientModule(PropertiesUtil.loadProperties(PROPERTIES_FILE), false, true, false));
+      new ChecklistBankWsClientModule(PropertiesUtil.loadProperties(PROPERTIES_FILE), true, false));
     wsClient = clientInjector.getInstance(wsClientClass);
   }
 }

@@ -18,33 +18,26 @@ public class ChecklistBankWsClientModuleTest {
     properties.setProperty("registry.ws.url", "http://test.gbif.org");
     properties.setProperty("occurrencestore.ws.url", "http://test.gbif.org");
     properties.setProperty("checklistbank.ws.url", "http://test.gbif.org");
-    properties.setProperty("checklistbank.search.ws.url", "http://test.gbif.org");
     properties.setProperty("checklistbank.match.ws.url", "http://test.gbif.org");
   }
 
   @Test
   public void testFullModule() {
-    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, true, true, true));
+    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, true, true));
 
     inj.getInstance(NameUsageSearchService.class);
     inj.getInstance(DescriptionService.class);
   }
 
   @Test
-  public void testSearchModule() {
-    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, true, false, false));
-    inj.getInstance(NameUsageSearchService.class);
-  }
-
-  @Test
   public void testServiceModule() {
-    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, false, true, false));
+    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, true, false));
     inj.getInstance(DescriptionService.class);
   }
 
   @Test
   public void testMatchingModule() {
-    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, false, false, true));
+    Injector inj = Guice.createInjector(new ChecklistBankWsClientModule(properties, false, true));
     inj.getInstance(NameUsageMatchingService.class);
   }
 }

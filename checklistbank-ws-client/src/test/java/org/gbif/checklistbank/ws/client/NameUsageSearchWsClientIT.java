@@ -106,7 +106,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
       throw new RuntimeException(e);
     }
     Injector clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), CONTEXT),
-      new ChecklistBankWsClientModule(props, true, false, false));
+      new ChecklistBankWsClientModule(props, true, false));
     wsClient = clientInjector.getInstance(NameUsageSearchService.class);
   }
 
