@@ -4,6 +4,7 @@ package org.gbif.checklistbank.ws.guice;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.resources.SpeciesResource;
 import org.gbif.utils.file.properties.PropertiesUtil;
+import org.gbif.ws.app.ConfUtils;
 import org.gbif.ws.server.guice.GbifServletListener;
 import org.gbif.checklistbank.search.inject.SearchModule;
 
@@ -17,10 +18,10 @@ import com.google.inject.Module;
 
 public class ChecklistBankWsModule extends GbifServletListener {
 
-  public static final String APP_CONF_ENV = "app.conf";
+  public static final String APP_CONF_FILE = "checklistbank.properties";
 
   public ChecklistBankWsModule() throws IOException {
-    super(PropertiesUtil.readFromFile(System.getProperty(APP_CONF_ENV)), SpeciesResource.class.getPackage().getName(), false);
+    super(PropertiesUtil.readFromFile(ConfUtils.getAppConfFile(APP_CONF_FILE)), SpeciesResource.class.getPackage().getName(), false);
   }
 
   @Override
