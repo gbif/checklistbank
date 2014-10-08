@@ -3,9 +3,11 @@ package org.gbif.checklistbank.ws.guice;
 
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.resources.SpeciesResource;
+import org.gbif.utils.file.properties.PropertiesUtil;
 import org.gbif.ws.server.guice.GbifServletListener;
 import org.gbif.checklistbank.search.inject.SearchModule;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,8 +17,10 @@ import com.google.inject.Module;
 
 public class ChecklistBankWsModule extends GbifServletListener {
 
-  public ChecklistBankWsModule() {
-    super("checklistbank.properties", SpeciesResource.class.getPackage().getName(), false);
+  public static final String APP_CONF_ENV = "app.conf";
+
+  public ChecklistBankWsModule() throws IOException {
+    super(PropertiesUtil.readFromFile(System.getProperty(APP_CONF_ENV)), SpeciesResource.class.getPackage().getName(), false);
   }
 
   @Override
