@@ -43,5 +43,8 @@
   <changeSet id="13" author="markus">
     <sqlFile path="liquibase/debug_views.sql"/>
   </changeSet>
+  <changeSet id="14" author="markus">
+    <sqlFile path="liquibase/hash_indeces.sql"/>
+  </changeSet>
 
 </databaseChangeLog>

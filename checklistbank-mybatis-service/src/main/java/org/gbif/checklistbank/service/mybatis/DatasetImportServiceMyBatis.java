@@ -271,6 +271,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     if (u.getAcceptedKey() != null && u.getAcceptedKey() == -1) {
       u.setAcceptedKey(usageKey);
     }
+    if (u.getProParteKey() != null && u.getProParteKey() == -1) {
+      u.setProParteKey(usageKey);
+    }
     for (Rank r : Rank.LINNEAN_RANKS) {
       if (u.getHigherRankKey(r) != null && u.getHigherRankKey(r) == -1) {
         ClassificationUtils.setHigherRankKey(u, r, usageKey);

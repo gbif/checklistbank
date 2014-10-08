@@ -222,16 +222,22 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     constituent_key, name_fk, rank,
     parent_fk, is_synonym, status,
     nom_status, issues,
-    pp_synonym_fk, basionym_fk,
-    kingdom_fk, phylum_fk, class_fk, order_fk, family_fk, genus_fk, subgenus_fk, species_fk,
     name_published_in_fk, according_to_fk, origin,
-    remarks, "references", taxon_id, modified, num_descendants, last_interpreted
+    remarks, "references", taxon_id, modified, num_descendants, last_interpreted,
+    pp_synonym_fk, basionym_fk,
+    kingdom_fk, phylum_fk, class_fk, order_fk, family_fk, genus_fk, subgenus_fk, species_fk
   </sql>
   <sql id="writeValues">
     #{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
     #{u.parentKey}, #{u.isSynonym}, #{u.taxonomicStatus}::taxonomic_status,
     #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
     #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler },
+    #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
+    #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now()
+  </sql>
+  <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
+    INSERT INTO name_usage (dataset_key, <include refid="writeFields"/>)
+    VALUES (#{u.datasetKey}, <include refid="writeValues"/>,
     <if test="u.proParteKey == -1">currval('name_usage_id_seq')</if><if test="u.proParteKey != -1">#{u.proParteKey}</if>,
     <if test="u.basionymKey == -1">currval('name_usage_id_seq')</if><if test="u.basionymKey != -1">#{u.basionymKey}</if>,
     <if test="u.kingdomKey == -1">currval('name_usage_id_seq')</if><if test="u.kingdomKey != -1">#{u.kingdomKey}</if>,
@@ -241,19 +247,25 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <if test="u.familyKey == -1">currval('name_usage_id_seq')</if><if test="u.familyKey != -1">#{u.familyKey}</if>,
     <if test="u.genusKey == -1">currval('name_usage_id_seq')</if><if test="u.genusKey != -1">#{u.genusKey}</if>,
     <if test="u.subgenusKey == -1">currval('name_usage_id_seq')</if><if test="u.subgenusKey != -1">#{u.subgenusKey}</if>,
-    <if test="u.speciesKey == -1">currval('name_usage_id_seq')</if><if test="u.speciesKey != -1">#{u.speciesKey}</if>,
-    #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
-    #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now()
-  </sql>
-  <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
-    INSERT INTO name_usage (dataset_key, <include refid="writeFields"/>)
-    VALUES (#{u.datasetKey}, <include refid="writeValues"/>)
+    <if test="u.speciesKey == -1">currval('name_usage_id_seq')</if><if test="u.speciesKey != -1">#{u.speciesKey}</if>
+    )
   </insert>
 
   <update id="update" parameterType="NameUsageWritable">
     UPDATE name_usage
     SET (<include refid="writeFields"/>)
-     =  (<include refid="writeValues"/>)
+     =  (<include refid="writeValues"/>,
+    #{u.proParteKey},
+    #{u.basionymKey},
+    #{u.kingdomKey},
+    #{u.phylumKey},
+    #{u.classKey},
+    #{u.orderKey},
+    #{u.familyKey},
+    #{u.genusKey},
+    #{u.subgenusKey},
+    #{u.speciesKey}
+    )
     WHERE id = #{u.key}
   </update>
 

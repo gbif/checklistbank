@@ -105,6 +105,8 @@ public class DatasetImportServiceMyBatisIT {
     m.setNumDescendants(4);
     m.setNumSynonyms(3);
     u.setParentKey(g.getKey());
+    u.setBasionymKey(-1); // point to itself!
+    u.setProParteKey(-1); // point to itself!
     u.setKingdomKey(k.getKey());
     u.setPhylumKey(p.getKey());
     u.setClassKey(c.getKey());
@@ -123,6 +125,9 @@ public class DatasetImportServiceMyBatisIT {
     assertEquals(o.getKey(), u2.getOrderKey());
     assertEquals(f.getKey(), u2.getFamilyKey());
     assertEquals(g.getKey(), u2.getGenusKey());
+    assertEquals(g.getKey(), u2.getParentKey());
+    assertEquals((Integer)k1, u2.getBasionymKey());
+    assertEquals((Integer)k1, u2.getProParteKey());
 
     assertEquals(u.getTaxonID(), u2.getTaxonID());
     assertEquals(u.getScientificName(), u2.getScientificName());
@@ -138,6 +143,8 @@ public class DatasetImportServiceMyBatisIT {
 
     // Try an update now with verbatim data (remove usage key as we detect existing record by taxonID only!)
     u.setKey(null);
+    u.setBasionymKey(-1); // point to itself!
+    u.setProParteKey(-1); // point to itself!
     m.setKey(null);
     VerbatimNameUsage v = new VerbatimNameUsage();
     v.setCoreField(DwcTerm.scientificName, name);
@@ -154,6 +161,9 @@ public class DatasetImportServiceMyBatisIT {
     assertEquals(o.getKey(), u2.getOrderKey());
     assertEquals(f.getKey(), u2.getFamilyKey());
     assertEquals(g.getKey(), u2.getGenusKey());
+    assertEquals(g.getKey(), u2.getParentKey());
+    assertEquals((Integer)k1, u2.getBasionymKey());
+    assertEquals((Integer)k1, u2.getProParteKey());
   }
 
 
