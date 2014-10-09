@@ -4,12 +4,17 @@ import org.gbif.checklistbank.search.SearchTestModule;
 import org.gbif.checklistbank.ws.client.NameUsageSearchWsClientIT;
 import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
 import com.google.inject.Module;
 
 public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
+
+  public ChecklistBankSearchWsTestModule() throws IOException {
+    //do nothing
+  }
 
   @Override
   protected List<Module> getModules(Properties properties) {

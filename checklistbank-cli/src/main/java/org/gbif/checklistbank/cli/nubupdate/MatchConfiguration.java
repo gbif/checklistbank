@@ -46,7 +46,7 @@ public class MatchConfiguration {
   public ChecklistBankWsClientModule createClientModule() {
     Properties props = new Properties();
     props.put("checklistbank.match.ws.url", matchWsUrl);
-    return new ChecklistBankWsClientModule(props, false, false, true);
+    return new ChecklistBankWsClientModule(props, false, true);
   }
 
 }

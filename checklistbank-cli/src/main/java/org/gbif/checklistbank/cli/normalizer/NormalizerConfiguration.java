@@ -53,7 +53,7 @@ public class NormalizerConfiguration {
   public ChecklistBankWsClientModule createMatchClientModule() {
     Properties props = new Properties();
     props.put("checklistbank.match.ws.url", matchWsUrl);
-    return new ChecklistBankWsClientModule(props, false, false, true);
+    return new ChecklistBankWsClientModule(props, false, true);
   }
 
   /**
