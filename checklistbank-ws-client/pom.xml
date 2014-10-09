@@ -127,11 +127,6 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-search-ws</artifactId>
-      <classifier>classes</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-ws</artifactId>
       <classifier>classes</classifier>
     </dependency>

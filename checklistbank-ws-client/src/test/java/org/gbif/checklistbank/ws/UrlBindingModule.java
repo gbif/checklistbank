@@ -1,9 +1,9 @@
 package org.gbif.checklistbank.ws;
 
+import java.net.URI;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
-
-import java.net.URI;
 
 public class UrlBindingModule extends AbstractModule {
 
@@ -20,7 +20,6 @@ public class UrlBindingModule extends AbstractModule {
    */
   @Override
   protected void configure() {
-    bindConstant().annotatedWith(Names.named("checklistbank.search.ws.url")).to(uri.toString() + baseResourceUrl);
     bindConstant().annotatedWith(Names.named("checklistbank.ws.url")).to(uri.toString() + baseResourceUrl);
   }
 }

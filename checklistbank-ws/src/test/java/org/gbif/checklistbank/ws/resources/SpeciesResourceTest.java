@@ -2,13 +2,18 @@ package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -22,8 +27,10 @@ import java.util.Locale;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,6 +45,7 @@ public class SpeciesResourceTest {
   private DescriptionService mockDescriptionService;
   private DistributionService mockDistributionService;
   private IdentifierService mockIdentifierService;
+  private NameUsageSearchService mockSearchService;
 
   private SpeciesResource resource;
 
@@ -45,6 +53,7 @@ public class SpeciesResourceTest {
   private Locale locale;
   private static final int NAME_USAGE_KEY = 103350120;
   private Pageable page;
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> searchResponse;
 
   @Before
   public void setUp() throws Exception {
@@ -57,10 +66,14 @@ public class SpeciesResourceTest {
     mockDescriptionService = mock(DescriptionService.class);
     mockDistributionService = mock(DistributionService.class);
     mockIdentifierService = mock(IdentifierService.class);
+    mockSearchService = mock(NameUsageSearchService.class);
+
+    searchResponse = new SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>(0, 20);
+    searchResponse.setCount(1000L);
 
     resource = new SpeciesResource(mockNameUsageService, mockVernacularNameService, mockTypeSpecimenService,
       mockSpeciesProfileService, mockReferenceService, mockImageService, mockDescriptionService,
-      mockDistributionService, mockIdentifierService);
+      mockDistributionService, mockIdentifierService, mockSearchService);
 
     locale = Locale.US;
     nameUsage = new NameUsage();
@@ -92,4 +105,10 @@ public class SpeciesResourceTest {
     assertEquals(result.getResults().get(0).getSourceTaxonKey().toString(), String.valueOf(NAME_USAGE_KEY));
   }
 
+  @Test
+  public void testSearch() throws Exception {
+    when(mockSearchService.search(Matchers.any(NameUsageSearchRequest.class))).thenReturn(searchResponse);
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> searchResponse2 = resource.search(new NameUsageSearchRequest(1000L, 20));
+    assertNotNull(searchResponse2);
+  }
 }
