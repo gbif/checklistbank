@@ -55,15 +55,12 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
    * Update sequence counters.
    */
   protected void runFinally() {
-    try {
-      Connection con = dataSource.getConnection();
+    try (Connection con = dataSource.getConnection()) {
       for (Map.Entry<String, Integer> seq : sequenceCounters.entrySet()) {
-        Statement st = con.createStatement();
-        st.execute("SELECT setval('" + seq.getKey() + "', " + seq.getValue() + ");");
-        st.close();
+        try (Statement st = con.createStatement()) {
+          st.execute("SELECT setval('" + seq.getKey() + "', " + seq.getValue() + ");");
+        }
       }
-      con.close();
-
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

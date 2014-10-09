@@ -3,14 +3,13 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -43,9 +42,7 @@ public class UsageServiceMyBatis implements UsageService {
 
   @Override
   public List<Integer> listAll() {
-    Connection con = null;
-    try {
-      con = ds.getConnection();
+    try (Connection con = ds.getConnection()){
       ConnectionHandle boneCon = (ConnectionHandle) con;
       PGConnection pgcon = (PGConnection) boneCon.getInternalConnection();
       IntArrayPgWriter intMapper = new IntArrayPgWriter();
@@ -54,13 +51,6 @@ public class UsageServiceMyBatis implements UsageService {
     } catch (Exception e) {
       LOG.error("Failed to load all usage ids", e);
       throw new RuntimeException("Exception while loading usage ids", e);
-    } finally {
-      if (con != null) {
-        try {
-          con.close();
-        } catch (SQLException e) {
-        }
-      }
     }
   }
 

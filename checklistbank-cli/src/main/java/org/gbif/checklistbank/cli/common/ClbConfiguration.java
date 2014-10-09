@@ -52,6 +52,8 @@ public class ClbConfiguration {
   public ChecklistBankServiceMyBatisModule createServiceModule() {
     Properties props = new Properties();
     props.put(PROPERTY_PREFIX + "driver", "org.postgresql.Driver");
+    // disable https://bugs.launchpad.net/bonecp/+bug/1243551/comments/4
+    props.put(PROPERTY_PREFIX + "disableConnectionTracking", "true");
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers())) {
         try {

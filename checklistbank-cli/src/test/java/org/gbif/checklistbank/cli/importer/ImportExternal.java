@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.api.model.crawler.NormalizerStats;
-import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
@@ -17,8 +16,6 @@ import com.beust.jcommander.internal.Maps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Ignore;
@@ -82,9 +79,7 @@ public class ImportExternal {
     registry.meter(NormalizerService.METRICS_METER);
     registry.meter(NormalizerService.DENORMED_METER);
 
-    Injector injClient = Guice.createInjector(nCfg.createMatchClientModule());
-
-    Normalizer norm = new Normalizer(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), injClient.getInstance(NameUsageMatchingService.class));
+    Normalizer norm = new Normalizer(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), nCfg.matching.createMatchingService());
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
