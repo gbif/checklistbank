@@ -11,7 +11,7 @@ public class ClbConfigurationTest {
   public void testCreateServiceModule() throws Exception {
     ClbConfiguration cfg = new ClbConfiguration();
     cfg.url = "localhost";
-    cfg.username = "test";
+    cfg.user = "test";
     cfg.password = "test";
     Module mod = cfg.createServiceModule();
   }

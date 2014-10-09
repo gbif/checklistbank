@@ -15,7 +15,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import com.google.inject.Inject;
-import com.jolbox.bonecp.ConnectionHandle;
+import com.zaxxer.hikari.proxy.IHikariConnectionProxy;
 import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +43,8 @@ public class UsageServiceMyBatis implements UsageService {
   @Override
   public List<Integer> listAll() {
     try (Connection con = ds.getConnection()){
-      ConnectionHandle boneCon = (ConnectionHandle) con;
-      PGConnection pgcon = (PGConnection) boneCon.getInternalConnection();
+      IHikariConnectionProxy hakiri = (IHikariConnectionProxy) con;
+      PGConnection pgcon = (PGConnection) hakiri.getPoolBagEntry().connection;
       IntArrayPgWriter intMapper = new IntArrayPgWriter();
       pgcon.getCopyAPI().copyOut("copy (select id from name_usage) TO STDOUT WITH NULL '' ", intMapper);
       return intMapper.result();

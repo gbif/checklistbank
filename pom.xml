@@ -28,8 +28,11 @@
 
   <properties>
     <jdkLevel>1.7</jdkLevel>
-    <!-- max 2 minutes for BoneCP connections, see http://dev.gbif.org/issues/browse/POR-2446 -->
-    <checklistbank.db.maxAge>120</checklistbank.db.maxAge>
+    <!-- datasource defaults, time in milliseconds -->
+    <checklistbank.db.poolSize>10</checklistbank.db.poolSize>
+    <!-- This property controls the maximum number of milliseconds that a client will wait for a connection from the pool.
+    If this time is exceeded without a connection becoming available, a SQLException will be thrown. -->
+    <checklistbank.db.connectionTimeout>10000</checklistbank.db.connectionTimeout>
 
     <!-- dependency versions -->
     <dwc-api.version>1.8</dwc-api.version>
@@ -51,7 +54,6 @@
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
-    <bonecp.version>0.8.0.RELEASE</bonecp.version>
     <bval.version>0.5</bval.version>
     <commmons-lang.version>3.3.2</commmons-lang.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
@@ -64,6 +66,7 @@
     <guava.version>17.0</guava.version>
     <guice.version>3.0</guice.version>
     <hamcrest.version>1.3</hamcrest.version>
+    <hikaricp.version>2.1.0</hikaricp.version>
     <jackson.version>1.9.12</jackson.version>
     <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
     <jackson2.version>2.4.2</jackson2.version>
@@ -577,9 +580,9 @@
         <version>${liquibase.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.jolbox</groupId>
-        <artifactId>bonecp</artifactId>
-        <version>${bonecp.version}</version>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP-java6</artifactId>
+        <version>${hikaricp.version}</version>
       </dependency>
 
       <!-- curator/zookeeper -->
@@ -732,12 +735,16 @@
          <checklistbank.db.password></checklistbank.db.password>
     -->
 
-    <!-- used by jenkins checklistbank-it for integration tests -->
     <profile>
-      <id>jenkins</id>
+      <id>prod</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://builds.gbif.org/clb</checklistbank.db.url>
+        <checklistbank.db.host>excalibur.gbif.org</checklistbank.db.host>
+        <checklistbank.db.name>prod_b_checklistbank</checklistbank.db.name>
         <checklistbank.db.username>clb</checklistbank.db.username>
+        <checklistbank.db.poolSize>20</checklistbank.db.poolSize>
+        <!-- below here only used for BUILDING THE WARS, not for tests! -->
+        <checklistbank.solr.server>http://apps.gbif.org:8082/checklistbank-solr</checklistbank.solr.server>
+        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
       </properties>
     </profile>
 
@@ -745,10 +752,9 @@
     <profile>
       <id>uat</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/clb2</checklistbank.db.url>
+        <checklistbank.db.host>boma.gbif.org</checklistbank.db.host>
+        <checklistbank.db.name>clb2</checklistbank.db.name>
         <checklistbank.db.username>clb</checklistbank.db.username>
-        <checklistbank.db.partitions>2</checklistbank.db.partitions>
-        <checklistbank.db.connections>10</checklistbank.db.connections>
         <checklistbank.solr.server>http://apps.gbif-uat.org:8082/checklistbank-solr</checklistbank.solr.server>
         <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
       </properties>
@@ -758,28 +764,26 @@
       <!-- the dev profile is for deploying the webapp, NOT FOR EXECUTING INTEGRATION TESTS !!! -->
       <id>dev</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/dev_clb</checklistbank.db.url>
+        <checklistbank.db.host>boma.gbif.org</checklistbank.db.host>
+        <checklistbank.db.name>dev_clb</checklistbank.db.name>
         <checklistbank.db.username>clb</checklistbank.db.username>
-	      <checklistbank.db.partitions>2</checklistbank.db.partitions>
-	      <checklistbank.db.connections>10</checklistbank.db.connections>
 	      <checklistbank.solr.server>http://apps.gbif-dev.org:8082/checklistbank-solr</checklistbank.solr.server>
         <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
       </properties>
     </profile>
 
+    <!-- used by jenkins checklistbank-it for integration tests -->
     <profile>
-      <id>prod</id>
+      <id>jenkins</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://excalibur.gbif.org/prod_b_checklistbank</checklistbank.db.url>
+        <checklistbank.db.host>builds.gbif.org</checklistbank.db.host>
+        <checklistbank.db.name>clb</checklistbank.db.name>
         <checklistbank.db.username>clb</checklistbank.db.username>
-	      <!-- below here only used for BUILDING THE WARS, not for tests! -->
-	      <checklistbank.db.partitions>2</checklistbank.db.partitions>
-	      <checklistbank.db.connections>10</checklistbank.db.connections>
-	      <checklistbank.solr.server>http://apps.gbif.org:8082/checklistbank-solr</checklistbank.solr.server>
-        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
       </properties>
     </profile>
+
   </profiles>
+
 
 </project>
 

@@ -1,13 +1,13 @@
 messaging:
   host: ${rabbit.host}
   virtualHost: ${rabbit.vhost}
-  username: ${rabbit.username}
+  username: ${rabbit.user}
   password: ${rabbit.password}
 neo:
   neoRepository: ${neo.repository}
 clb:
   url: "${checklistbank.db.url}"
-  username: ${checklistbank.db.username}
+  username: ${checklistbank.db.user}
   password: "${checklistbank.db.password}"
   connections: 10
 solr:

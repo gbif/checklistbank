@@ -55,7 +55,7 @@ public class ImportExternal {
     iCfg.neo = nCfg.neo;
     iCfg.clb.password="%BBJu2MgstXJ";
     iCfg.clb.url="jdbc:postgresql://localhost/clb";
-    iCfg.clb.username="postgres";
+    iCfg.clb.user ="postgres";
     iCfg.clb.password="pogo";
   }
 
