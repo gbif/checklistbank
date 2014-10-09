@@ -167,10 +167,16 @@
       <artifactId>jul-to-slf4j</artifactId>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- GBIF microservice dependencies -->
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-microservice</artifactId>
       <version>${gbif-microservice.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common</artifactId>
     </dependency>
   </dependencies>
 
