@@ -54,7 +54,6 @@ import static org.junit.Assert.assertNotNull;
 public class NameUsageSearchWsClientIT extends BaseResourceTest {
 
   private static final String PROPERTY_INDEXER_DEFAULT = "checklistbank-indexer-default.properties";
-  private static final String CONTEXT = "checklistbank-ws";
 
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageSearchWsClientIT.class);
 
@@ -94,7 +93,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
 
 
   public NameUsageSearchWsClientIT() {
-    super("org.gbif.checklistbank.ws", CONTEXT, ChecklistBankSearchWsTestModule.class);
+    super("org.gbif.checklistbank.ws", ClientMyBatisITBase.CONTEXT, ChecklistBankSearchWsTestModule.class);
   }
 
   @Before
@@ -105,13 +104,13 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    Injector clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), CONTEXT),
-      new ChecklistBankWsClientModule(props, true, false, false));
+    Injector clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), ClientMyBatisITBase.CONTEXT),
+      new ChecklistBankWsClientModule(props, true, false));
     wsClient = clientInjector.getInstance(NameUsageSearchService.class);
   }
 
   @Test
-  public void searchHighligtTest() {
+  public void searchHighlightTest() {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);
     searchRequest.setQ("puma");
     searchRequest.setHighlight(true);

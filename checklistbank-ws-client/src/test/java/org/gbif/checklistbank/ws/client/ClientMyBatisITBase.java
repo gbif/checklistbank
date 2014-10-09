@@ -22,6 +22,7 @@ import org.junit.Rule;
  */
 public class ClientMyBatisITBase<T> extends BaseResourceTest {
 
+  public static final String CONTEXT = "clb";
   protected static final String PROPERTIES_FILE = "checklistbank.properties";
 
   private Injector clientInjector;
@@ -34,14 +35,14 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
     new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
 
   public ClientMyBatisITBase(Class<T> wsClientClass) {
-    super("org.gbif.checklistbank.ws", "clb", ChecklistBankWsModule.class);
+    super("org.gbif.checklistbank.ws", CONTEXT, ChecklistBankWsModule.class);
     this.wsClientClass = wsClientClass;
   }
 
   @Before
   public void init() throws IOException {
     clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), contextPath),
-      new ChecklistBankWsClientModule(PropertiesUtil.loadProperties(PROPERTIES_FILE), false, true, false));
+      new ChecklistBankWsClientModule(PropertiesUtil.loadProperties(PROPERTIES_FILE), true, false));
     wsClient = clientInjector.getInstance(wsClientClass);
   }
 }

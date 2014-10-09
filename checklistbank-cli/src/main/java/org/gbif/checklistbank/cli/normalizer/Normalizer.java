@@ -31,6 +31,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -427,6 +428,9 @@ public class Normalizer extends NeoRunnable {
         if (accepted == null) {
           mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
           LOG.debug("acceptedNameUsageID {} not existing", id);
+          // is the accepted name also mapped?
+          String name = ObjectUtils.defaultIfNull(NeoMapper.value(n, DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
+          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id);
         }
       }
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
@@ -437,7 +441,7 @@ public class Normalizer extends NeoRunnable {
           accepted = nodeByCanonical(name);
           if (accepted == null) {
             LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n);
+            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null);
           }
         }
       }
@@ -445,7 +449,7 @@ public class Normalizer extends NeoRunnable {
 
     // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
     if (status.isSynonym() && accepted == null) {
-      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n);
+      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null);
     }
 
     if (accepted != null && !accepted.equals(n)) {
@@ -532,8 +536,17 @@ public class Normalizer extends NeoRunnable {
     return n;
   }
 
+  /**
+   *
+   * @param origin
+   * @param sciname
+   * @param rank
+   * @param status
+   * @param classificationSource
+   * @param taxonID the optional taxonID to apply to the new node
+   */
   private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status,
-    Node classificationSource) {
+    Node classificationSource, @Nullable String taxonID) {
     Node n = createTaxon(origin, sciname, rank, status);
     // copy props from source
     for (String p : CLASSIFICATION_PROPERTIES) {
@@ -542,6 +555,9 @@ public class Normalizer extends NeoRunnable {
       } catch (NotFoundException e) {
         // ignore
       }
+    }
+    if (!Strings.isNullOrEmpty(taxonID)) {
+      n.setProperty(TaxonProperties.TAXON_ID, taxonID);
     }
     return n;
   }

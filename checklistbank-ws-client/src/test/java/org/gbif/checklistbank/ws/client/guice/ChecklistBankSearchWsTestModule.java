@@ -1,20 +1,22 @@
 package org.gbif.checklistbank.ws.client.guice;
 
-import com.google.common.collect.Lists;
-import com.google.inject.Module;
 import org.gbif.checklistbank.search.SearchTestModule;
-import org.gbif.checklistbank.search.ws.guice.ChecklistBankSearchWsModule;
 import org.gbif.checklistbank.ws.client.NameUsageSearchWsClientIT;
+import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
 
 import java.util.List;
 import java.util.Properties;
 
-public class ChecklistBankSearchWsTestModule extends ChecklistBankSearchWsModule {
+import com.google.inject.Module;
+
+public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
 
   @Override
   protected List<Module> getModules(Properties properties) {
-    List<Module> modules = Lists.newArrayList();
+    List<Module> modules = super.getModules(properties);
     // very cowboy way of getting the solr index build first and "inject" the server here
+    // replace regular search module with the test one using the embedded solr server
+    modules.remove(1);
     modules.add(new SearchTestModule(properties, NameUsageSearchWsClientIT.setup().getSolr()));
     return modules;
   }

@@ -19,7 +19,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankSearchWs;
+import org.gbif.checklistbank.ws.client.guice.ChecklistBankWs;
 import org.gbif.ws.client.BaseWsSuggestClient;
 
 import java.util.List;
@@ -44,8 +44,8 @@ public class NameUsageSearchWsClient
     };
 
   @Inject
-  public NameUsageSearchWsClient(@ChecklistBankSearchWs WebResource resource) {
-    super(resource, SEARCH_TYPE, SUGGEST_TYPE);
+  public NameUsageSearchWsClient(@ChecklistBankWs WebResource resource) {
+    super(resource.path("species"), SEARCH_TYPE, SUGGEST_TYPE);
   }
 
 }

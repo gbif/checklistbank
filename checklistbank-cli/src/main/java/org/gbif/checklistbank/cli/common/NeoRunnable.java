@@ -14,18 +14,14 @@ import org.gbif.dwc.terms.DwcTerm;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Iterables;
 import com.yammer.metrics.Gauge;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -164,4 +160,5 @@ public abstract class NeoRunnable implements Runnable {
     }
     return mapper.readRankedName(n);
   }
+
 }

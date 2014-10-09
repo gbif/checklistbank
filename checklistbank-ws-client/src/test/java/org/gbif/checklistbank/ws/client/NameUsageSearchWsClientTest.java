@@ -47,6 +47,9 @@ public class NameUsageSearchWsClientTest {
 
   @Before
   public void setUp() {
+    when(resource.path(any(String.class))).thenReturn(resource);
+    when(resource.queryParam(Matchers.<String>any(), Matchers.<String>any())).thenReturn(resource);
+    when(resource.queryParams(any(MultivaluedMap.class))).thenReturn(resource);
     client = new NameUsageSearchWsClient(resource);
   }
 
@@ -58,9 +61,6 @@ public class NameUsageSearchWsClientTest {
     searchRequest.setQ("*");
     when(resource.type(any(String.class))).thenReturn(builder);
     when(resource.accept(any(String.class))).thenReturn(builder);
-    when(resource.path(any(String.class))).thenReturn(resource);
-    when(resource.queryParam(Matchers.<String>any(), Matchers.<String>any())).thenReturn(resource);
-    when(resource.queryParams(any(MultivaluedMap.class))).thenReturn(resource);
     // there is no path, it uses the default URL /checklist
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> defaultResponse =
       new SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);

@@ -261,13 +261,6 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.gbif.checklistbank</groupId>
-        <artifactId>checklistbank-search-ws</artifactId>
-        <version>${project.version}</version>
-        <classifier>classes</classifier>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.gbif.registry</groupId>
         <artifactId>registry-ws-client</artifactId>
         <version>${registry-client.version}</version>

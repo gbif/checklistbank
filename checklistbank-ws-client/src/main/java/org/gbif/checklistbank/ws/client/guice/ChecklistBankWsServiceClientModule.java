@@ -20,6 +20,7 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -30,6 +31,7 @@ import org.gbif.checklistbank.ws.client.DescriptionWsClient;
 import org.gbif.checklistbank.ws.client.DistributionWsClient;
 import org.gbif.checklistbank.ws.client.IdentifierWsClient;
 import org.gbif.checklistbank.ws.client.MultimediaWsClient;
+import org.gbif.checklistbank.ws.client.NameUsageSearchWsClient;
 import org.gbif.checklistbank.ws.client.NameUsageWsClient;
 import org.gbif.checklistbank.ws.client.ReferenceWsClient;
 import org.gbif.checklistbank.ws.client.SpeciesProfileWsClient;
@@ -45,7 +47,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * Guice module that includes implementations for all the ChecklistBank services apart from NameUsageSearchService.
+ * Guice module that includes implementations for all the ChecklistBank services including the NameUsageSearchService.
  * It required the ChecklistBankHttpClient annotated jersey client and should not be used on its own.
  * Use the main #ChecklistBankWsClientModule(false,true) instead with its configurable constructor.
  * The only things left for clients to do is:
@@ -67,6 +69,8 @@ public class ChecklistBankWsServiceClientModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    // search
+    bind(NameUsageSearchService.class).to(NameUsageSearchWsClient.class).in(Scopes.SINGLETON);
     // usages
     bind(NameUsageService.class).to(NameUsageWsClient.class).in(Scopes.SINGLETON);
     // usage components

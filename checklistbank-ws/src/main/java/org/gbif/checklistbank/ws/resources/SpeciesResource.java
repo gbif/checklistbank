@@ -12,13 +12,20 @@ import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -64,13 +71,14 @@ public class SpeciesResource {
   private final DescriptionService descriptionService;
   private final DistributionService distributionService;
   private final IdentifierService identifierService;
+  private final NameUsageSearchService searchService;
 
   @Inject
   public SpeciesResource(
     NameUsageService nameUsageService, VernacularNameService vernacularNameService,
     TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
     ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
-    DistributionService distributionService, IdentifierService identifierService
+    DistributionService distributionService, IdentifierService identifierService, NameUsageSearchService searchService
   ) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
@@ -81,6 +89,7 @@ public class SpeciesResource {
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
     this.identifierService = identifierService;
+    this.searchService = searchService;
   }
 
   /**
@@ -398,4 +407,20 @@ public class SpeciesResource {
     LOG.debug("Request root usages for Checklist [{}]: [pageSize({}) offset({})]",datasetKey, page.getLimit(), page.getOffset());
     return nameUsageService.listRoot(datasetKey, locale, page);
   }
+
+  @GET
+  @Path("search")
+  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
+    @Context NameUsageSearchRequest searchRequest) {
+    LOG.debug("Search operation received {} ", searchRequest);
+    return searchService.search(searchRequest);
+  }
+
+  @Path("suggest")
+  @GET
+  public List<NameUsageSuggestResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
+    LOG.debug("Suggest operation received {} ", searchSuggestRequest);
+    return searchService.suggest(searchSuggestRequest);
+  }
+
 }
