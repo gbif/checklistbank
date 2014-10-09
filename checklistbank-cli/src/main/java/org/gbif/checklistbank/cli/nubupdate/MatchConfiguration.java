@@ -2,11 +2,10 @@ package org.gbif.checklistbank.cli.nubupdate;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
+import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.common.search.inject.SolrConfig;
 
-import java.util.Properties;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -41,12 +40,7 @@ public class MatchConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public String matchWsUrl = "http://api.gbif.org/v1/species/match";
+  public MatchServiceConfiguration matching = new MatchServiceConfiguration();
 
-  public ChecklistBankWsClientModule createClientModule() {
-    Properties props = new Properties();
-    props.put("checklistbank.match.ws.url", matchWsUrl);
-    return new ChecklistBankWsClientModule(props, false, false, true);
-  }
 
 }

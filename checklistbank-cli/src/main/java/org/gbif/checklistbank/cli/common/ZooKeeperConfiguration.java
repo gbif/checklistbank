@@ -10,6 +10,8 @@ import com.google.common.base.Objects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A configuration class which can be used to get all the details needed to create a connection to ZooKeeper needed by
@@ -19,6 +21,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
  */
 @SuppressWarnings("PublicField")
 public class ZooKeeperConfiguration {
+  private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperConfiguration.class);
 
   @Parameter(
     names = "--zk-connection-string",
@@ -55,6 +58,7 @@ public class ZooKeeperConfiguration {
    */
   @JsonIgnore
   public CuratorFramework getCuratorFramework() throws IOException {
+    LOG.info("Connecting to zookeeper at {} within namespace {}", connectionString, namespace);
     CuratorFramework curator = CuratorFrameworkFactory.builder().namespace(namespace)
       .retryPolicy(new ExponentialBackoffRetry(baseSleepTime, maxRetries)).connectString(connectionString).build();
     curator.start();

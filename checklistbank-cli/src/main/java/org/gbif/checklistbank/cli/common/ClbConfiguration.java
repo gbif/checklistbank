@@ -66,6 +66,7 @@ public class ClbConfiguration {
         }
       }
     }
+    LOG.info("Connecting to checklistbank db {} with user {}", url, username);
     return new ChecklistBankServiceMyBatisModule(props);
   }
 

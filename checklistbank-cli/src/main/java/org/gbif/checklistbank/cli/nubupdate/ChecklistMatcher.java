@@ -48,8 +48,7 @@ public class ChecklistMatcher implements Runnable {
                                                      inj.getInstance(NameUsageIndexService.class));
     usageService = inj.getInstance(NameUsageService.class);
     // use ws clients for nub matching
-    Injector injClient = Guice.createInjector(cfg.createClientModule());
-    matchingService = injClient.getInstance(NameUsageMatchingService.class);
+    matchingService = cfg.matching.createMatchingService();
   }
 
   /**

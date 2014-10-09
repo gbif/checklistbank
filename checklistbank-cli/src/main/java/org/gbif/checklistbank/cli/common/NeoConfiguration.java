@@ -65,7 +65,7 @@ public class NeoConfiguration {
       .setConfig(GraphDatabaseSettings.nodestore_propertystore_mapped_memory_size, "32M")
       .setConfig(GraphDatabaseSettings.relationshipstore_mapped_memory_size, "512M")
       .newGraphDatabase();
-    LOG.info("Starting neo4j database from {}", storeDir.getAbsolutePath());
+    LOG.info("Starting embedded neo4j database from {}", storeDir.getAbsolutePath());
     return db;
   }
 

@@ -36,7 +36,7 @@ public class DeployedNubLookupCorrectnessTest {
       Properties props = new Properties();
       props.setProperty(wsProp, url);
 
-      ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, false, true);
+      ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, true);
       Injector injector = Guice.createInjector(mod);
       CLIENTS.add(injector.getInstance(NameUsageMatchingService.class));
     }

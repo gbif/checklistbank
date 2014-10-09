@@ -8,12 +8,15 @@ import com.google.common.base.Objects;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.ganglia.GangliaReporter;
 import info.ganglia.gmetric4j.gmetric.GMetric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A configuration class which holds the host and port to connect yammer metrics to a ganglia server.
  */
 @SuppressWarnings("PublicField")
 public class GangliaConfiguration {
+  private static final Logger LOG = LoggerFactory.getLogger(GangliaConfiguration.class);
 
   @Parameter(names = "--ganglia-host")
   public String gangliaHost;
@@ -27,6 +30,7 @@ public class GangliaConfiguration {
   @JsonIgnore
   public void start(MetricRegistry registry) {
     if (gangliaHost != null && gangliaPort > 0) {
+      LOG.info("Reporting to ganglia at {}:{}", gangliaHost, gangliaPort);
       final GMetric ganglia = new GMetric(gangliaHost, gangliaPort, GMetric.UDPAddressingMode.MULTICAST, 1);
       final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
         .convertRatesTo(TimeUnit.SECONDS)
