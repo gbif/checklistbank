@@ -33,7 +33,7 @@ public class NubBuildModule extends PrivateModule {
   @Override
   protected void configure() {
     install(new ChecklistBankServiceMyBatisModule(properties));
-    install(new ChecklistBankWsClientModule(properties, false, false, true));
+    install(new ChecklistBankWsClientModule(properties, false, true));
     install(new RegistryWsClientModule(properties));
     // required by registry client
     install(new AnonymousAuthModule());
