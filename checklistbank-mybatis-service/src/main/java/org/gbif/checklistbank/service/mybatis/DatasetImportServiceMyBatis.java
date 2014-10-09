@@ -180,6 +180,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
       rawMapper.insert(raw);
     }
 
+    // insert nub mapping
+    if (usage.getNubKey() != null) {
+      nubRelMapper.insert(datasetKey, usageKey, usage.getNubKey());
+    }
+
     return usageKey;
   }
 
@@ -259,6 +264,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
       raw.setDatasetKey(datasetKey);
       raw.setData(vParser.write(verbatim));
       rawMapper.update(raw);
+    }
+
+    // update nub mapping
+    nubRelMapper.delete(usageKey);
+    if (usage.getNubKey() != null) {
+      nubRelMapper.insert(datasetKey, usageKey, usage.getNubKey());
     }
 
     return usageKey;
