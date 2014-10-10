@@ -54,7 +54,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     //install(new ValidationModule());
 
     // install mybatis module
-    MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule();
+    MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule(getProperties());
     install(mybatModule);
     // expose a named datasource binding
     expose(mybatModule.getDatasourceKey());
