@@ -22,6 +22,11 @@
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>src/main/webapp</directory>
+        <filtering>true</filtering>
+        <targetPath>webapp</targetPath>
+      </resource>
     </resources>
     <defaultGoal>jetty:run</defaultGoal>
     <plugins>
