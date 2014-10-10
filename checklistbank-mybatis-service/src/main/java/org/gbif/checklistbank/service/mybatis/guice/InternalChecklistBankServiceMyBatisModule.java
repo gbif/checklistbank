@@ -76,6 +76,7 @@ import org.gbif.mybatis.type.UriTypeHandler;
 import org.gbif.mybatis.type.UuidTypeHandler;
 
 import java.net.URI;
+import java.util.Properties;
 import java.util.UUID;
 
 import com.google.inject.Scopes;
@@ -88,8 +89,8 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
   public static final String DATASOURCE_BINDING_NAME = "checklistbank";
 
-  public InternalChecklistBankServiceMyBatisModule() {
-    super(DATASOURCE_BINDING_NAME);
+  public InternalChecklistBankServiceMyBatisModule(Properties props) {
+    super(DATASOURCE_BINDING_NAME, props);
   }
 
   @Override
