@@ -1,7 +1,7 @@
 messaging:
   host: ${rabbit.host}
   virtualHost: ${rabbit.vhost}
-  username: ${rabbit.user}
+  username: ${rabbit.username}
   password: ${rabbit.password}
 neo:
   neoRepository: ${neo.repository}
