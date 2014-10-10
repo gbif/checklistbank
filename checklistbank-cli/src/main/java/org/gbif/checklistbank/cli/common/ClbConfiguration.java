@@ -25,11 +25,11 @@ public class ClbConfiguration {
   private static final Set<String> DATASOURCE_SET = Sets.newHashSet("serverName","databaseName","user","password");
 
   @NotNull
-  @Parameter(names = "--clb-url")
+  @Parameter(names = "--clb-host")
   public String serverName;
 
   @NotNull
-  @Parameter(names = "--clb-url")
+  @Parameter(names = "--clb-db")
   public String databaseName;
 
   @NotNull

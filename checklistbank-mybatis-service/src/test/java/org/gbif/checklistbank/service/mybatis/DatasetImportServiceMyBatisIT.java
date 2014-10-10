@@ -94,6 +94,8 @@ public class DatasetImportServiceMyBatisIT {
     u.setAccordingTo("Chuck told me this");
     u.setNumDescendants(321);
 
+    u.setNubKey(p.getKey());
+
     u.getDescriptions().add(buildDescription());
     u.getDistributions().add(buildDistribution());
     u.getIdentifiers().add(buildIdentifier());
@@ -139,7 +141,7 @@ public class DatasetImportServiceMyBatisIT {
     assertEquals(u.getOrigin(), u2.getOrigin());
     assertNotNull(u2.getLastInterpreted());
     assertEquals(u.getModified(), u2.getModified());
-
+    assertEquals(p.getKey(), u2.getNubKey());
 
     // Try an update now with verbatim data (remove usage key as we detect existing record by taxonID only!)
     u.setKey(null);
@@ -164,6 +166,7 @@ public class DatasetImportServiceMyBatisIT {
     assertEquals(g.getKey(), u2.getParentKey());
     assertEquals((Integer)k1, u2.getBasionymKey());
     assertEquals((Integer)k1, u2.getProParteKey());
+    assertEquals(p.getKey(), u2.getNubKey());
   }
 
 

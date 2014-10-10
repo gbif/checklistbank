@@ -12,7 +12,7 @@
 
   <insert id="insert">
     INSERT INTO nub_rel (dataset_key, usage_fk, nub_fk)
-    VALUES #{uuid}, #{usageKey}, #{nubKey}
+    VALUES (#{uuid}, #{usageKey}, #{nubKey})
   </insert>
 
 </mapper>
