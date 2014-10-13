@@ -87,6 +87,7 @@ public class Importer extends NeoRunnable implements Runnable {
 
     try (Transaction tx = db.beginTx()) {
       // returns all nodes, accepted and synonyms
+      int counter = 0;
       for (Node n : TaxonomicNodeIterator.all(db)) {
         try {
           VerbatimNameUsage verbatim = mapper.readVerbatim(n);
@@ -100,8 +101,15 @@ public class Importer extends NeoRunnable implements Runnable {
             firstUsageKey = usageKey;
             LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
           }
+          counter++;
           syncMeter.mark();
           syncCounter++;
+          if (counter % 10000 == 0) {
+            LOG.info("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
+          } else if (counter % 100 == 0) {
+            LOG.debug("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
+          }
+
         } catch (Exception e) {
           failedCounter++;
           Object taxID = n.getProperty(TaxonProperties.TAXON_ID, null);

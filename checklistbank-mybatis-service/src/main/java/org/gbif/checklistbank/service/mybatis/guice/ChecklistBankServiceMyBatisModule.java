@@ -24,16 +24,17 @@ import java.util.Properties;
 /**
  * Guice Module to use the database backed ChecklistBank MyBatis layer.
  * To use this instantiate this module using one of the available constructors and provide the required properties. You
- * need to provide at least a JDBC driver, URL, username and password for this to work. All properties have to be
- * prefixed with {@code checklistbank.db} (e.g. {@code checklistbank.db.JDBC.driver}:
+ * need to provide at least the following entries for this to work. All properties have to be
+ * prefixed with {@code checklistbank.db}:
  * <ul>
- * <li>{@code JDBC.driver}</li>
- * <li>{@code JDBC.url}</li>
- * <li>{@code JDBC.username}</li>
- * <li>{@code JDBC.password}</li>
+ * <li>{@code checklistbank.db.dataSource.serverName</li>
+ * <li>{@code checklistbank.db.dataSource.databaseName</li>
+ * <li>{@code checklistbank.db.dataSource.user</li>
+ * <li>{@code checklistbank.db.dataSource.password</li>
  * </ul>
- * But you can also use any other properties that MyBatis understands (for example to configure BoneCP) as long as they
+ * You can also use any other properties that MyBatis or HikariCP understands as long as they
  * have the proper prefix.
+ * See https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
  */
 
 public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {

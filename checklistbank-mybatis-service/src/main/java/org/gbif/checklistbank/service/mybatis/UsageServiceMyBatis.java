@@ -3,20 +3,19 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 
 import com.google.inject.Inject;
-import com.jolbox.bonecp.ConnectionHandle;
+import com.zaxxer.hikari.proxy.IHikariConnectionProxy;
 import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,24 +42,15 @@ public class UsageServiceMyBatis implements UsageService {
 
   @Override
   public List<Integer> listAll() {
-    Connection con = null;
-    try {
-      con = ds.getConnection();
-      ConnectionHandle boneCon = (ConnectionHandle) con;
-      PGConnection pgcon = (PGConnection) boneCon.getInternalConnection();
+    try (Connection con = ds.getConnection()){
+      IHikariConnectionProxy hakiri = (IHikariConnectionProxy) con;
+      PGConnection pgcon = (PGConnection) hakiri.getPoolBagEntry().connection;
       IntArrayPgWriter intMapper = new IntArrayPgWriter();
       pgcon.getCopyAPI().copyOut("copy (select id from name_usage) TO STDOUT WITH NULL '' ", intMapper);
       return intMapper.result();
     } catch (Exception e) {
       LOG.error("Failed to load all usage ids", e);
       throw new RuntimeException("Exception while loading usage ids", e);
-    } finally {
-      if (con != null) {
-        try {
-          con.close();
-        } catch (SQLException e) {
-        }
-      }
     }
   }
 

@@ -6,10 +6,11 @@ messaging:
 neo:
   neoRepository: ${neo.repository}
 clb:
-  url: "${checklistbank.db.url}"
-  username: ${checklistbank.db.username}
+  serverName: "${checklistbank.db.host}"
+  databaseName: "${checklistbank.db.name}"
+  user: ${checklistbank.db.username}
   password: "${checklistbank.db.password}"
-  connections: 10
+  maximumPoolSize: 10
 solr:
   serverType: HTTP
   serverHome: ${checklistbank.solr.server}

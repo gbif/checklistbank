@@ -4,12 +4,12 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,42 +21,39 @@ import org.slf4j.LoggerFactory;
 public class ClbConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
-  private static final String PROPERTY_PREFIX = "checklistbank.db.JDBC.";
-  private static final Map<String, String> PROPERTY_MAP = ImmutableMap.<String, String>builder()
-    .put("partitions", "checklistbank.db.bonecp.partitionCount")
-    .put("connections", "checklistbank.db.bonecp.maxConnectionsPerPartition")
-    .put("maxAge", "checklistbank.db.bonecp.maxConnectionAgeInSeconds")
-    .build();
+  private static final String PROPERTY_PREFIX = "checklistbank.db.";
+  private static final Set<String> DATASOURCE_SET = Sets.newHashSet("serverName","databaseName","user","password");
 
   @NotNull
-  @Parameter(names = "--clb-url")
-  public String url;
+  @Parameter(names = "--clb-host")
+  public String serverName;
 
   @NotNull
-  @Parameter(names = "--clb-username")
-  public String username;
+  @Parameter(names = "--clb-db")
+  public String databaseName;
+
+  @NotNull
+  @Parameter(names = "--clb-user")
+  public String user;
 
   @NotNull
   @Parameter(names = "--clb-password", password = true)
   public String password;
 
-  @Parameter(names = "--clb-partitions")
-  public int partitions = 1;
+  @Parameter(names = "--clb-maximumPoolSize")
+  public int maximumPoolSize = 10;
 
-  @Parameter(names = "--clb-connections")
-  public int connections = 10;
-
-  @Parameter(names = "--clb-maxAge")
-  public int maxAge = 120;
+  @Parameter(names = "--clb-connectionTimeout")
+  public int connectionTimeout = 10000;
 
   public ChecklistBankServiceMyBatisModule createServiceModule() {
     Properties props = new Properties();
-    props.put(PROPERTY_PREFIX + "driver", "org.postgresql.Driver");
+    props.put(PROPERTY_PREFIX + "dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers())) {
         try {
-          if (PROPERTY_MAP.containsKey(field.getName())) {
-            props.put(PROPERTY_MAP.get(field.getName()), String.valueOf(field.get(this)));
+          if (DATASOURCE_SET.contains(field.getName())) {
+            props.put(PROPERTY_PREFIX + "dataSource." + field.getName(), String.valueOf(field.get(this)));
           } else {
             props.put(PROPERTY_PREFIX + field.getName(), String.valueOf(field.get(this)));
           }
@@ -66,6 +63,7 @@ public class ClbConfiguration {
         }
       }
     }
+    LOG.info("Connecting to checklistbank db {} on {} with user {}", databaseName, serverName, user);
     return new ChecklistBankServiceMyBatisModule(props);
   }
 

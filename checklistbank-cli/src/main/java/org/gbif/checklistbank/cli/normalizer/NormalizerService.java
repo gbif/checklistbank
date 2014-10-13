@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.UUID;
 
 import com.google.common.util.concurrent.AbstractIdleService;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.yammer.metrics.Counter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
@@ -75,8 +73,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     listener.listen(QUEUE, cfg.messaging.poolSize, this);
 
     // use ws clients for nub matching
-    Injector injClient = Guice.createInjector(cfg.createMatchClientModule());
-    matchingService = injClient.getInstance(NameUsageMatchingService.class);
+    matchingService = cfg.matching.createMatchingService();
   }
 
   @Override

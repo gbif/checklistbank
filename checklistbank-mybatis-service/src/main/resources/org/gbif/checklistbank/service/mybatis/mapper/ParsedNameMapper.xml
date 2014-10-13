@@ -47,7 +47,7 @@
       nom_status, sensu, remarks)
     VALUES (#{pn.scientificName}, #{canonicalName}, #{pn.type}::name_type,
       #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
-      #{pn.notho}, #{pn.rankMarker}, #{pn.authorsParsed},
+      #{pn.notho}::name_part, #{pn.rankMarker}, #{pn.authorsParsed},
       #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
       #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks})
   </insert>
