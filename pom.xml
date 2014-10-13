@@ -758,7 +758,7 @@
       <!-- the dev profile is for deploying the webapp, NOT FOR EXECUTING INTEGRATION TESTS !!! -->
       <id>dev</id>
       <properties>
-        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/dev_clb2</checklistbank.db.url>
+        <checklistbank.db.url>jdbc:postgresql://boma.gbif.org/dev_clb</checklistbank.db.url>
         <checklistbank.db.username>clb</checklistbank.db.username>
 	      <checklistbank.db.partitions>2</checklistbank.db.partitions>
 	      <checklistbank.db.connections>10</checklistbank.db.connections>
