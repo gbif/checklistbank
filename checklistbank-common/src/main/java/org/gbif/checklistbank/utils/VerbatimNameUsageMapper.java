@@ -32,7 +32,8 @@ public class VerbatimNameUsageMapper {
     // ignore properties of certain types in VerbatimNameUsage that are stored as individual columns in the backends.
     mapper.getSerializationConfig().addMixInAnnotations(Date.class, IgnoreMixin.class);
     mapper.getSerializationConfig().addMixInAnnotations(Integer.class, IgnoreMixin.class);
-
+    // object readers & writers are slightly more performant than simple object mappers
+    // they also are thread safe!
     reader = mapper.reader(VerbatimNameUsage.class);
     writer = mapper.writerWithView(VerbatimNameUsage.class);
   }
