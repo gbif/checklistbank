@@ -13,7 +13,8 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -21,14 +22,44 @@ import static org.junit.Assert.assertEquals;
 public class VerbatimNameUsageMapperTest {
 
   @Test
-  @Ignore
   public void testSmile() throws Exception {
     VerbatimNameUsageMapper parser = new VerbatimNameUsageMapper();
 
     VerbatimNameUsage v = new VerbatimNameUsage();
-    v.setCoreField(DwcTerm.scientificName, "Abies alba");
+    for (DwcTerm t : DwcTerm.values()) {
+      v.setCoreField(t, RandomStringUtils.random(20));
+    }
+    v.getExtensions().put(Extension.DESCRIPTION, Lists.<Map<Term, String>>newArrayList());
+    for (int i=0; i < 6; i++) {
+      Map<Term, String> rec = Maps.newHashMap();
+      rec.put(DcTerm.identifier, RandomStringUtils.random(10));
+      rec.put(DcTerm.type, "description");
+      rec.put(DcTerm.description, RandomStringUtils.random(1000));
+      v.getExtensions().get(Extension.DESCRIPTION).add(rec);
+    }
 
-    System.out.println( parser.write(v) );
+    byte[] data = parser.write(v);
+    VerbatimNameUsage v2 = parser.read(data);
+    assertEquals(v, v2);
+
+    long start = System.nanoTime();
+    for (int x=1000; x>0; x--) {
+      VerbatimNameUsage vx = parser.read(data);
+    }
+    long end = System.nanoTime();
+    System.out.println(end - start);
+
+    // mapper
+    // 1259174000
+
+    // reader & writer
+    // 1247837000
+
+    // ohne mixins
+    // 1236704000
+
+    // ohne smile
+    // 1322153000
   }
 
   @Test
