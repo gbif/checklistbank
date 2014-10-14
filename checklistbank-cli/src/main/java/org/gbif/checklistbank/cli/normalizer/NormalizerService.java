@@ -61,6 +61,9 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    // use ws clients for nub matching
+    matchingService = cfg.matching.createMatchingService();
   }
 
   @Override
@@ -71,9 +74,6 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
     listener.listen(QUEUE, cfg.messaging.poolSize, this);
-
-    // use ws clients for nub matching
-    matchingService = cfg.matching.createMatchingService();
   }
 
   @Override

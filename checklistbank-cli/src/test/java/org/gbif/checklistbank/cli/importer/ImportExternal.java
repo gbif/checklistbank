@@ -49,7 +49,6 @@ public class ImportExternal {
     nCfg.neo = new NeoConfiguration();
     nCfg.neo.neoRepository = neo;
     nCfg.archiveRepository = dwca;
-    nCfg.matchWsUrl = "http://api.gbif.org/v1/species/match";
 
     iCfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
