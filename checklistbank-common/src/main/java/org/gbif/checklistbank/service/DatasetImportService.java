@@ -28,10 +28,9 @@ public interface DatasetImportService {
 
     /**
      * Inserts or updates a complete name usage with all its extension data.
+     * The usage will have the key set to either an existing key or a newly generated one.
      *
-     * @param usage
-     * @param metrics
-     * @return the new or existing usage key
+     * @return the new or existing usage key, same as usage.key
      */
     int syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 

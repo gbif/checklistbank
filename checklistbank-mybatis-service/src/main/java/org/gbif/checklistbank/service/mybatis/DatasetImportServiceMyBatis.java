@@ -163,6 +163,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     nameUsageMapper.insert(uw);
     final int usageKey = uw.getKey();
     usage.setKey(usageKey);
+    // update self references indicated by -1 so that the usage does not contain any bad foreign keys anymore
+    // this is needed for subsequent syncing of solr!
+    updateSelfReferences(usageKey, usage);
 
     // insert extension data
     insertExtensions(usage);
