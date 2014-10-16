@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A thin wrapper that delegates all import methods to both postgres and solr.
  * Solr index updates are handled asynchroneously in a separate thread but if the queue gets too large
@@ -33,8 +35,9 @@ public class DatasetImportServiceCombined implements DatasetImportService {
   }
 
   @Override
-  public int syncUsage(UUID datasetKey, NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
-    int key = sqlService.syncUsage(datasetKey, usage, verbatim, metrics);
+  public int syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+    Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
+    int key = sqlService.syncUsage(usage, verbatim, metrics);
     solrService.insertOrUpdate(usage, usage.getVernacularNames(), usage.getDescriptions(), usage.getDistributions(), usage.getSpeciesProfiles());
     return key;
   }

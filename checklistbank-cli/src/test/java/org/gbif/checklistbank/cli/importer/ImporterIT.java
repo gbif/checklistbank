@@ -112,6 +112,7 @@ public class ImporterIT extends NeoTest {
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 500));
     assertEquals(20, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
+      assertEquals("Bad datasetKey", datasetKey, u.getDatasetKey());
       if (u.isSynonym()) {
         assertNotNull(u.getAcceptedKey());
         assertNotNull(u.getAccepted());

@@ -65,8 +65,7 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
   @Override
   public void delete(UUID datasetKey) {
     try {
-      // TODO: implement the delete query
-      solr.deleteByQuery(null, commitWithinMs);
+      solr.deleteByQuery("dataset_key:"+datasetKey.toString(), commitWithinMs);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

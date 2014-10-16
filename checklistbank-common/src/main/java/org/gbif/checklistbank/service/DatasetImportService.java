@@ -33,7 +33,7 @@ public interface DatasetImportService {
      * @param metrics
      * @return the new or existing usage key
      */
-    int syncUsage(UUID datasetKey, NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
+    int syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
 
     void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey);
 

@@ -94,7 +94,7 @@ public class Importer extends NeoRunnable implements Runnable {
           NameUsageContainer u = buildClbNameUsage(n);
           NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
-          final int usageKey = importService.syncUsage(datasetKey, u, verbatim, metrics);
+          final int usageKey = importService.syncUsage(u, verbatim, metrics);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
@@ -209,6 +209,7 @@ public class Importer extends NeoRunnable implements Runnable {
     for (Rank r : Rank.DWC_RANKS) {
       ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
     }
+    u.setDatasetKey(datasetKey);
     return u;
   }
 
