@@ -142,7 +142,7 @@ public class NeoInserter {
         meta.incRank(u.getRank());
         insertMeter.mark();
         if (meta.getRecords() % (batchSize * 10) == 0) {
-          LOG.debug("insert: {}", meta.getRecords());
+          LOG.info("Inserts done into neo4j: {}", meta.getRecords());
         }
 
       } catch (IgnoreNameUsageException e) {

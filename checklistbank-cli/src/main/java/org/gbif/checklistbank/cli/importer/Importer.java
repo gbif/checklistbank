@@ -104,7 +104,7 @@ public class Importer extends NeoRunnable implements Runnable {
           counter++;
           syncMeter.mark();
           syncCounter++;
-          if (counter % 10000 == 0) {
+          if (counter % 100000 == 0) {
             LOG.info("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
           } else if (counter % 100 == 0) {
             LOG.debug("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);

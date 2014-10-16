@@ -84,13 +84,15 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
         Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
         Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished,
             importer.getSyncCounter(), importer.getDelCounter());
-        LOG.debug("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
+        LOG.info("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());
         publisher.send(doneMsg);
       } catch (IOException e) {
         LOG.warn("Could not send ChecklistSyncedMessage for dataset [{}]", msg.getDatasetUuid(), e);
         zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
       }
-    } catch (RuntimeException e) {
+
+    } catch (Throwable e) {
+      failed.inc();
       LOG.error("Unknown error while importing dataset [{}]", msg.getDatasetUuid(), e);
       zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
 

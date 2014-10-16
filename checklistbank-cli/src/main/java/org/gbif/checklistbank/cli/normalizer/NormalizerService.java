@@ -99,19 +99,22 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
       Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
       started.inc();
       normalizer.run();
-      Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
-      LOG.debug("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
-      publisher.send(doneMsg);
       zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
 
-    } catch (IOException e) {
-      error(msg.getDatasetUuid(), "Could not send ChecklistNormalizedMessage for dataset [{}]", e);
+      try {
+        Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
+        LOG.info("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
+        publisher.send(doneMsg);
+      } catch (IOException e) {
+        error(msg.getDatasetUuid(), "Could not send ChecklistNormalizedMessage for dataset [{}]", e);
+      }
 
     } catch (NormalizationFailedException e) {
       failed.inc();
       error(msg.getDatasetUuid(), "Failed to normalize dataset {}", e);
 
-    } catch (RuntimeException e) {
+    } catch (Throwable e) {
+      failed.inc();
       error(msg.getDatasetUuid(), "Unknown error while importing dataset [{}]", e);
 
     } finally {

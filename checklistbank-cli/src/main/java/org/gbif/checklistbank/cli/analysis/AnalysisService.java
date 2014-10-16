@@ -67,12 +67,16 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
 
     try {
       analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
-      Message doneMsg = new ChecklistAnalyzedMessage(msg.getDatasetUuid());
-      LOG.debug("Sending ChecklistAnalyzedMessage for dataset {}", msg.getDatasetUuid());
-      publisher.send(doneMsg);
+      try {
+        Message doneMsg = new ChecklistAnalyzedMessage(msg.getDatasetUuid());
+        LOG.info("Sending ChecklistAnalyzedMessage for dataset {}", msg.getDatasetUuid());
+        publisher.send(doneMsg);
+      } catch (IOException e) {
+        LOG.warn("Could not send ChecklistMatchedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+      }
 
-    } catch (IOException e) {
-      LOG.warn("Could not send ChecklistMatchedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+    } catch (Throwable e) {
+      LOG.error("Failed to analyze dataset [{}]", msg.getDatasetUuid(), e);
 
     } finally {
       context.stop();
