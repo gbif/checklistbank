@@ -229,9 +229,13 @@ public class Normalizer extends NeoRunnable {
           Relationship sr = (Relationship) IteratorUtil.first(result.columnAs("sr"));
 
           Node syn = sr.getStartNode();
-          cycles.add((String) syn.getProperty(TaxonProperties.TAXON_ID, null));
+          mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
+          mapper.addIssue(syn, NameUsageIssue.PARENT_CYCLE);
+          String taxonID = (String) syn.getProperty(TaxonProperties.TAXON_ID, null);
+          cycles.add(taxonID);
 
           Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL);
+          mapper.addRemark(acc, "Synonym cycle cut for taxonID " + taxonID);
           createSynonymRel(syn, acc, true);
           sr.delete();
         }
@@ -254,6 +258,7 @@ public class Normalizer extends NeoRunnable {
           Node acc = (Node) row.get("t");
           for (Relationship sr : (Collection<Relationship>) row.get("sr")) {
             Node syn = sr.getStartNode();
+            mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
             createSynonymRel(syn, acc, true);
             sr.delete();
           }
@@ -449,6 +454,7 @@ public class Normalizer extends NeoRunnable {
 
     // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
     if (status.isSynonym() && accepted == null) {
+      mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_MISSING);
       accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null);
     }
 

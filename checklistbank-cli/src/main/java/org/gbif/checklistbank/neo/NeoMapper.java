@@ -479,6 +479,17 @@ public class NeoMapper {
     }
   }
 
+  /**
+   * Adds a string remark to the taxonRemarks property of a usage.
+   * Existing remarks are left untouched and the new string is appended.
+   */
+  public void addRemark(Node n, String remark) {
+    if (n.hasProperty(TaxonProperties.REMARKS)) {
+      remark = n.getProperty(TaxonProperties.REMARKS) + "; " + remark;
+    }
+    n.setProperty(TaxonProperties.REMARKS, remark);
+  }
+
   public void setNubKey(Node n, Integer nubKey) {
     if (nubKey != null) {
       n.setProperty(TaxonProperties.NUB_KEY, nubKey);

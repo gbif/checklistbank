@@ -34,8 +34,8 @@ public class ImportExternal {
   public void index(String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init();
-    //download(url);
-    //normalize();
+    download(url);
+    normalize();
     sync();
   }
 
@@ -94,7 +94,7 @@ public class ImportExternal {
   public static void main(String[] args) throws Exception{
     ImportExternal imp = new ImportExternal();
     //imp.index("http://ipt.speciesfile.org:8080/archive.do?r=coleorrhyncha", UUID.fromString(""));
-    imp.index("http://IPT.speciesfile.org:8080/archive.do?r=mantodea", UUID.fromString("99948a8b-63b2-41bf-9d10-6e007e967789"));
+    imp.index("http://ipt.speciesfile.org:8080/archive.do?r=blattodea", UUID.fromString("3e812f13-bd5f-46b6-9bae-710766be526d"));
 
   }
 }

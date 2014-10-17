@@ -16,6 +16,7 @@ public class TaxonProperties {
   public static final String ISSUE = "issues";
   public static final String STATUS = DwcTerm.taxonomicStatus.simpleName();
   public static final String NUB_KEY = "nubKey";
+  public static final String REMARKS = "remarks";
 
   private TaxonProperties() {
   }
