@@ -11,6 +11,6 @@ public class MessagingConfiguration extends org.gbif.common.messaging.config.Mes
 
   @Parameter(names = "--messaging-pool-size")
   @Min(1)
-  public int poolSize = 5;
+  public int poolSize = 3;
 
 }

@@ -27,24 +27,20 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
   public static final String QUEUE = "clb-importer";
 
-  public static final String SYNC_METER = "taxon.sync";
-  public static final String SYNC_BASIONYM_METER = "taxon.sync.basionym";
-  public static final String DELETE_TIMER = "taxon.sync.delete";
 
   private final ImporterConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
   private final MetricRegistry registry = new MetricRegistry("importer");
-  private final Timer timer = registry.timer("importer process time");
-  private final Counter started = registry.counter("started imports");
-  private final Counter failed = registry.counter("failed imports");
+  public static final String SYNC_METER = "taxon.sync";
+  private final Timer timer = registry.timer("importer.time");
+  private final Counter started = registry.counter("importer.started");
+  private final Counter failed = registry.counter("importer.failed");
   private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration configuration) {
     this.cfg = configuration;
     registry.meter(SYNC_METER);
-    registry.meter(SYNC_BASIONYM_METER);
-    registry.timer(DELETE_TIMER);
     try {
       zkUtils = new ZookeeperUtils(configuration.zookeeper.getCuratorFramework());
     } catch (IOException e) {

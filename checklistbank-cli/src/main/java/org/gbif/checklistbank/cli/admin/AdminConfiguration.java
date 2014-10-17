@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
+import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 
 import java.util.UUID;
 import javax.validation.Valid;
@@ -19,13 +20,19 @@ public class AdminConfiguration {
   @Valid
   public MessagingConfiguration messaging = new MessagingConfiguration();
 
-  @Parameter(names = {"-d", "--dataset-key"}, required = true)
+  @ParametersDelegate
   @NotNull
+  @Valid
+  public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+
+  @Parameter(names = {"-d", "--dataset-key"}, required = false)
   public UUID datasetKey;
+
+  @Parameter(names = {"-p", "--publisher-key"}, required = false)
+  public UUID publisherKey;
 
   @Parameter(names = {"-op", "--operation"}, required = true)
   @NotNull
   public AdminOperation operation;
-
 
 }

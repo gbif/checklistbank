@@ -14,10 +14,13 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
@@ -25,8 +28,11 @@ import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import com.zaxxer.hikari.HikariDataSource;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -39,12 +45,9 @@ public class Importer extends NeoRunnable implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
 
-  private final ImporterConfiguration cfg;
   private final Meter syncMeter;
   private int syncCounter;
   private int delCounter;
-  private int failedCounter;
-  private final Meter basionymMeter;
   private final DatasetImportServiceCombined importService;
   private final NameUsageService usageService;
   // neo internal ids to clb usage keys
@@ -53,17 +56,18 @@ public class Importer extends NeoRunnable implements Runnable {
   private IntObjectOpenHashMap<Integer[]> postKeys = new IntObjectOpenHashMap<Integer[]>();
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
   private final int keyTypeSize = KeyType.values().length;
+  private final HikariDataSource hds;
 
-  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) {
+  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) throws SQLException {
     super(datasetKey, cfg.neo, registry);
-    this.cfg = cfg;
     this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
-    this.basionymMeter = registry.getMeters().get(ImporterService.SYNC_BASIONYM_METER);
     // init mybatis layer and solr from cfg instance
     Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
     importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class),
                                                      inj.getInstance(NameUsageIndexService.class));
     usageService = inj.getInstance(NameUsageService.class);
+    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+    hds = (HikariDataSource) inj.getInstance(dsKey);
   }
 
   public void run() {
@@ -72,6 +76,7 @@ public class Importer extends NeoRunnable implements Runnable {
     syncDataset();
     tearDownDb();
     LOG.info("Importing of {} finished. Neo database shut down.", datasetKey);
+    hds.close();
   }
 
   /**
@@ -110,10 +115,11 @@ public class Importer extends NeoRunnable implements Runnable {
             LOG.debug("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
           }
 
-        } catch (Exception e) {
-          failedCounter++;
-          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, null);
-          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e);
+        } catch (Throwable e) {
+          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, "???");
+          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e.getMessage());
+          LOG.error("Aborting sync of dataset {}", datasetKey);
+          throw e;
         }
       }
     }
@@ -219,9 +225,5 @@ public class Importer extends NeoRunnable implements Runnable {
 
   public int getDelCounter() {
     return delCounter;
-  }
-
-  public int getFailedCounter() {
-    return failedCounter;
   }
 }

@@ -10,6 +10,7 @@ import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Maps;
@@ -30,7 +31,7 @@ public class ImportExternal {
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
 
-  public void index(String url, UUID datasetKey) throws IOException {
+  public void index(String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init();
     //download(url);
@@ -85,7 +86,7 @@ public class ImportExternal {
     System.out.println(stats);
   }
 
-  private void sync() {
+  private void sync() throws SQLException {
     Importer importer = ImporterIT.build(iCfg, datasetKey);
     importer.run();
   }

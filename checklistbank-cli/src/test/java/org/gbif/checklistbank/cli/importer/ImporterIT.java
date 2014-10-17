@@ -59,13 +59,12 @@ public class ImporterIT extends NeoTest {
   /**
    * Uses an internal metrics registry to setup the normalizer
    */
-  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) {
+  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     MetricRegistry registry = new MetricRegistry("normalizer");
     MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
     registry.registerAll(mgs);
 
     registry.meter(ImporterService.SYNC_METER);
-    registry.meter(ImporterService.SYNC_BASIONYM_METER);
 
     return new Importer(cfg, datasetKey, registry);
   }
@@ -99,7 +98,7 @@ public class ImporterIT extends NeoTest {
   }
 
   @Test
-  public void testIdList() {
+  public void testIdList() throws SQLException {
     final UUID datasetKey = NormalizerTest.datasetKey(1);
 
     // insert neo db
@@ -282,10 +281,9 @@ public class ImporterIT extends NeoTest {
     return resp.getResults().get(0);
   }
 
-  private Importer runImport(UUID datasetKey) {
+  private Importer runImport(UUID datasetKey) throws SQLException {
     Importer importer = build(iCfg, datasetKey);
     importer.run();
-    assertEquals("There have been "+importer.getFailedCounter()+"import failures", 0, importer.getFailedCounter());
     return importer;
   }
 

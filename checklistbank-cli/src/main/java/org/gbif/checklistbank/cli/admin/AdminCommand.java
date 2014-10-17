@@ -1,8 +1,12 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.common.paging.PagingRequest;
+import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.crawler.ChecklistValidationReport;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.NormalizerStats;
+import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -23,14 +27,18 @@ import java.util.UUID;
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 import org.kohsuke.MetaInfServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
  */
 @MetaInfServices(Command.class)
 public class AdminCommand extends BaseCommand {
+  private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
 
   private final AdminConfiguration cfg = new AdminConfiguration();
+  private MessagePublisher publisher;
 
   public AdminCommand() {
     super("admin");
@@ -44,7 +52,7 @@ public class AdminCommand extends BaseCommand {
   @Override
   protected void doRun() {
     try {
-      MessagePublisher publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
+      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
       switch (cfg.operation) {
         case DOWNLOAD:
           publisher.send( new StartCrawlMessage(cfg.datasetKey));
@@ -68,14 +76,34 @@ public class AdminCommand extends BaseCommand {
           publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
           break;
 
+        case CRAWL_PUBLISHER:
+          crawlPublisher(cfg.publisherKey);
+          break;
+
         default:
           throw new UnsupportedOperationException();
       }
 
-    } catch (IOException e) {
+    } catch (Throwable e) {
       throw new RuntimeException(e);
     }
 
   }
 
+  private void crawlPublisher(final UUID orgKey) throws IOException, InterruptedException {
+    final OrganizationService orgService = cfg.registry.createRegistryInjector().getInstance(OrganizationService.class);
+    final PagingRequest page = new PagingRequest(0, 10);
+    PagingResponse<Dataset> resp = null;
+    int counter = 0;
+    while (resp == null || !resp.isEndOfRecords()) {
+      resp = orgService.publishedDatasets(orgKey, page);
+      for (Dataset d : resp.getResults()) {
+        counter++;
+        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle());
+        publisher.send( new StartCrawlMessage(d.getKey()));
+      }
+      Thread.sleep(10000);
+      page.nextPage();
+    }
+  }
 }

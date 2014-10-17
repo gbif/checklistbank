@@ -30,19 +30,19 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
   public static final String QUEUE = "clb-normalizer";
 
+  public static final String HEAP_GAUGE = "heap.usage";
   public static final String INSERT_METER = "taxon.inserts";
   public static final String RELATION_METER = "taxon.relations";
   public static final String METRICS_METER = "taxon.metrics";
   public static final String DENORMED_METER = "taxon.denormed";
-  public static final String HEAP_GAUGE = "heap.usage";
 
   private final NormalizerConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
   private final MetricRegistry registry = new MetricRegistry("normalizer");
-  private final Timer timer = registry.timer("normalizer process time");
-  private final Counter started = registry.counter("started normalizations");
-  private final Counter failed = registry.counter("failed normalizations");
+  private final Timer timer = registry.timer("normalizer.time");
+  private final Counter started = registry.counter("normalizer.started");
+  private final Counter failed = registry.counter("normalizer.failed");
   private final ZookeeperUtils zkUtils;
   private NameUsageMatchingService matchingService;
 
