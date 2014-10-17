@@ -54,7 +54,7 @@ public class TaxonWalker {
         if (meter != null) {
           meter.mark();
         }
-        logPath(p);
+        //logPath(p);
         if (lastPath != null) {
           PeekingIterator<Node> lIter = Iterators.peekingIterator(lastPath.nodes().iterator());
           PeekingIterator<Node> cIter = Iterators.peekingIterator(p.nodes().iterator());
@@ -101,7 +101,7 @@ public class TaxonWalker {
       if (sb.length() > 0) {
         sb.append(" -- ");
       }
-      sb.append((String) n.getProperty(DwcTerm.scientificName.simpleName()));
+      sb.append((String) n.getProperty(DwcTerm.scientificName.simpleName(), "no name"));
     }
     LOG.debug(sb.toString());
   }
