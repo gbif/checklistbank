@@ -14,6 +14,7 @@
     <result property="countByKingdom" column="count_by_kingdom" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreKingdomCountCountTypeHandler"/>
     <result property="countByRank" column="count_by_rank" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreRankCountCountTypeHandler"/>
     <result property="countByOrigin" column="count_by_origin" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreOriginCountCountTypeHandler"/>
+    <result property="countByIssue" column="count_by_issue" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreIssueCountCountTypeHandler"/>
     <result property="countExtRecordsByExtension" column="count_extensions" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreExtensionCountTypeHandler"/>
     <result property="countNamesByLanguage" column="count_vernacular_by_lang" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreLanguageCountCountTypeHandler"/>
     <result property="otherCount" column="count_other" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreStringCountTypeHandler"/>
@@ -37,8 +38,8 @@
     count_col, count_nub,
     CASE WHEN count_usages=0 THEN 0 ELSE 100 * count_col / count_usages END AS colCoverage,
     CASE WHEN count_usages=0 THEN 0 ELSE 100 * count_nub / count_usages END AS nubCoverage,
-    count_by_kingdom, count_by_rank, count_by_origin, count_extensions, count_vernacular_by_lang, count_other,
-    downloaded, created
+    count_by_kingdom, count_by_rank, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang,
+    count_other, downloaded, created
   </sql>
 
   <select id="get" parameterType="map" resultMap="datasetMetrics">
@@ -62,7 +63,7 @@
 UPDATE dataset_metrics SET latest=false WHERE dataset_key=#{uuid} AND latest=true;
 
 INSERT INTO dataset_metrics
-  (dataset_key,downloaded,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_kingdom, count_by_origin, count_extensions, count_vernacular_by_lang)
+  (dataset_key,downloaded,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_kingdom, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang)
 SELECT #{uuid}, #{downloaded},
     (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid}),
     (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid} AND is_synonym=true),
@@ -90,6 +91,11 @@ SELECT #{uuid}, #{downloaded},
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
         (SELECT origin AS key, count(*)::text AS cnt FROM name_usage WHERE dataset_key=#{uuid} GROUP BY origin) AS origins
+    ),
+    (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
+      (SELECT iss AS key, count(*)::text AS cnt FROM (
+        SELECT unnest(issues) iss from name_usage WHERE dataset_key=#{uuid}
+      ) AS dis GROUP BY key) AS issues
     ),
     (SELECT ('DESCRIPTION => ' || (SELECT count(*)::text FROM description x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
         || ('DISTRIBUTION => ' || (SELECT count(*)::text FROM distribution x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
