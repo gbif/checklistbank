@@ -2,7 +2,12 @@ package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
+import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.index.NameUsageIndexService;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
+import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
@@ -11,13 +16,22 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.UUID;
+import javax.sql.DataSource;
 
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.yammer.metrics.Counter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +45,9 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
   private final ImporterConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
+  private HikariDataSource hds;
+  private DatasetImportServiceCombined importService;
+  private NameUsageService usageService;
   private final MetricRegistry registry = new MetricRegistry("importer");
   public static final String SYNC_METER = "taxon.sync";
   private final Timer timer = registry.timer("importer.time");
@@ -52,6 +69,13 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
   protected void startUp() throws Exception {
     cfg.ganglia.start(registry);
 
+    // init mybatis layer and solr from cfg instance
+    Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
+    usageService = inj.getInstance(NameUsageService.class);
+    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+    hds = (HikariDataSource) inj.getInstance(dsKey);
+
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
@@ -66,6 +90,9 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     if (publisher != null) {
       publisher.close();
     }
+    if (hds != null) {
+      hds.close();
+    }
   }
 
   @Override
@@ -73,7 +100,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     final Timer.Context context = timer.time();
 
     try {
-      Importer importer = new Importer(cfg, msg.getDatasetUuid(), registry);
+      Importer importer = new Importer(cfg, msg.getDatasetUuid(), registry, importService, usageService);
       started.inc();
       importer.run();
       try {
@@ -86,6 +113,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
         LOG.warn("Could not send ChecklistSyncedMessage for dataset [{}]", msg.getDatasetUuid(), e);
         zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
       }
+      deleteDb(msg.getDatasetUuid());
 
     } catch (Throwable e) {
       failed.inc();
@@ -95,6 +123,18 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
     } finally {
       context.stop();
       zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+    }
+  }
+
+  private void deleteDb(UUID datasetKey) {
+    if (cfg.deleteNeo) {
+      File db = cfg.neo.neoDir(datasetKey);
+      try {
+        FileUtils.deleteDirectory(db);
+        LOG.info("Deleted neo database {}", db.getAbsoluteFile());
+      } catch (IOException e) {
+        LOG.error("Unable to delete neo database {}", db.getAbsoluteFile());
+      }
     }
   }
 

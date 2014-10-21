@@ -87,7 +87,8 @@ public class ImportExternal {
   }
 
   private void sync() throws SQLException {
-    Importer importer = ImporterIT.build(iCfg, datasetKey);
+    ImporterIT iit = new ImporterIT();
+    Importer importer = iit.build(iCfg, datasetKey);
     importer.run();
   }
 

@@ -10,6 +10,7 @@ import org.gbif.common.search.inject.SolrConfig;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
 /**
@@ -27,6 +28,9 @@ public class ImporterConfiguration {
   @Valid
   @NotNull
   public NeoConfiguration neo = new NeoConfiguration();
+
+  @Parameter(names = "--deleteNeo")
+  public boolean deleteNeo = true;
 
   @ParametersDelegate
   @NotNull

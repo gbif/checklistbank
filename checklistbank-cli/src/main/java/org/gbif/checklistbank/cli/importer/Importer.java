@@ -8,31 +8,21 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
-import org.gbif.checklistbank.index.NameUsageIndexService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import com.zaxxer.hikari.HikariDataSource;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -56,18 +46,13 @@ public class Importer extends NeoRunnable implements Runnable {
   private IntObjectOpenHashMap<Integer[]> postKeys = new IntObjectOpenHashMap<Integer[]>();
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
   private final int keyTypeSize = KeyType.values().length;
-  private final HikariDataSource hds;
 
-  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) throws SQLException {
+  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+    DatasetImportServiceCombined importService, NameUsageService usageService) throws SQLException {
     super(datasetKey, cfg.neo, registry);
+    this.importService = importService;
+    this.usageService = usageService;
     this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
-    // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
-    importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class),
-                                                     inj.getInstance(NameUsageIndexService.class));
-    usageService = inj.getInstance(NameUsageService.class);
-    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-    hds = (HikariDataSource) inj.getInstance(dsKey);
   }
 
   public void run() {
@@ -76,7 +61,6 @@ public class Importer extends NeoRunnable implements Runnable {
     syncDataset();
     tearDownDb();
     LOG.info("Importing of {} finished. Neo database shut down.", datasetKey);
-    hds.close();
   }
 
   /**

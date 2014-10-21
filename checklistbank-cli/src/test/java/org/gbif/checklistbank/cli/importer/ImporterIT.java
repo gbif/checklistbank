@@ -12,6 +12,9 @@ import org.gbif.checklistbank.cli.normalizer.NeoTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
+import org.gbif.checklistbank.index.NameUsageIndexService;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
+import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URL;
@@ -34,6 +37,8 @@ import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
+import com.zaxxer.hikari.HikariDataSource;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,7 +56,8 @@ public class ImporterIT extends NeoTest {
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
   private NameUsageService usageService;
-
+  private DatasetImportServiceCombined importService;
+  private HikariDataSource hds;
   public ImporterIT() {
     super(false);
   }
@@ -59,14 +65,26 @@ public class ImporterIT extends NeoTest {
   /**
    * Uses an internal metrics registry to setup the normalizer
    */
-  public static Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
+  public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     MetricRegistry registry = new MetricRegistry("normalizer");
     MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
     registry.registerAll(mgs);
 
     registry.meter(ImporterService.SYNC_METER);
 
-    return new Importer(cfg, datasetKey, registry);
+    initGuice(cfg);
+    return new Importer(cfg, datasetKey, registry, importService, usageService);
+  }
+
+  private void initGuice(ImporterConfiguration cfg) {
+    if (hds == null) {
+      // init mybatis layer and solr from cfg instance
+      Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+      Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+      hds = (HikariDataSource) inj.getInstance(dsKey);
+      usageService = inj.getInstance(NameUsageService.class);
+      importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
+    }
   }
 
   @Before
@@ -80,20 +98,21 @@ public class ImporterIT extends NeoTest {
 
     iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
-    Injector inj = Guice.createInjector(iCfg.clb.createServiceModule());
-    usageService = inj.getInstance(NameUsageService.class);
-    // truncate tables
-    truncate(inj.getInstance(
-      Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME))
-    ));
-  }
 
-  private void truncate(DataSource ds) throws SQLException {
-    try (Connection con = ds.getConnection()){
+    initGuice(iCfg);
+    // truncate tables
+    try (Connection con = hds.getConnection()){
       try (Statement st = con.createStatement()){
         st.execute("TRUNCATE citation CASCADE");
         st.execute("TRUNCATE name CASCADE");
       }
+    }
+  }
+
+  @After
+  public void shutdownPool() throws Exception {
+    if (hds != null) {
+      hds.close();
     }
   }
 
@@ -189,7 +208,7 @@ public class ImporterIT extends NeoTest {
     // insert neo db
     insertNeo(datasetKey);
 
-    // 1st import
+    // 1st import, keep neo db
     runImport(datasetKey);
     // remember ids
     Map<Integer, String> ids = Maps.newHashMap();

@@ -41,7 +41,7 @@ public class ClbConfiguration {
   public String password;
 
   @Parameter(names = "--clb-maximumPoolSize")
-  public int maximumPoolSize = 10;
+  public int maximumPoolSize = 12;
 
   @Parameter(names = "--clb-connectionTimeout")
   public int connectionTimeout = 10000;
