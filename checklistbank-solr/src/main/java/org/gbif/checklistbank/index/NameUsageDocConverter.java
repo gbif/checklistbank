@@ -7,6 +7,7 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Language;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 import org.gbif.common.search.util.AnnotationUtils;
@@ -114,6 +115,7 @@ public class NameUsageDocConverter {
       addDistributionsAndThreatStatus(nameUsage, solrInputDocument, distributions);
       addSpeciesProfiles(nameUsage, solrInputDocument, speciesProfiles);
       // enums
+      addIssues(nameUsage, solrInputDocument);
       addNomenclaturalStatus(nameUsage, solrInputDocument);
       addTaxonomicStatus(nameUsage, solrInputDocument);
       addRank(nameUsage, solrInputDocument);
@@ -123,6 +125,19 @@ public class NameUsageDocConverter {
     } catch (Exception e) {
       log.error("Error converting usage {} to solr document: {}", nameUsage.getKey(), e.getMessage());
       throw new RuntimeException(e);
+    }
+  }
+
+  private void addIssues(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
+    try {
+      if (!nameUsage.getIssues().isEmpty()) {
+        for (NameUsageIssue issue : nameUsage.getIssues()) {
+          // Uses the converter to get the key and name values
+          solrInputDocument.addField("issues", issue.ordinal());
+        }
+      }
+    } catch (Exception e) {
+      log.error("Error converting issues for usage {}", nameUsage.getKey(), e);
     }
   }
 
@@ -167,6 +182,22 @@ public class NameUsageDocConverter {
    * @param solrInputDocument to be modified by adding the higher taxon fields.
    */
   private void addHigherTaxonKeys(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getKingdomKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getPhylumKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getClassKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getOrderKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getFamilyKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getGenusKey());
+    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getSpeciesKey());
+  }
+
+  /**
+   * Adds the multivalued field higher_taxon_nub_key field.
+   *
+   * @param nameUsage         a existing {@link NameUsage}.
+   * @param solrInputDocument to be modified by adding the higher taxon fields.
+   */
+  private void addHigherTaxonKeys2(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
     solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getKingdomKey());
     solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getPhylumKey());
     solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getClassKey());

@@ -8,13 +8,11 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
-import org.gbif.checklistbank.index.NameUsageIndexService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
-import org.gbif.checklistbank.service.DatasetImportService;
 
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -23,8 +21,6 @@ import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Node;
@@ -39,12 +35,9 @@ public class Importer extends NeoRunnable implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
 
-  private final ImporterConfiguration cfg;
   private final Meter syncMeter;
   private int syncCounter;
   private int delCounter;
-  private int failedCounter;
-  private final Meter basionymMeter;
   private final DatasetImportServiceCombined importService;
   private final NameUsageService usageService;
   // neo internal ids to clb usage keys
@@ -54,16 +47,12 @@ public class Importer extends NeoRunnable implements Runnable {
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
   private final int keyTypeSize = KeyType.values().length;
 
-  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry) {
+  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+    DatasetImportServiceCombined importService, NameUsageService usageService) throws SQLException {
     super(datasetKey, cfg.neo, registry);
-    this.cfg = cfg;
+    this.importService = importService;
+    this.usageService = usageService;
     this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
-    this.basionymMeter = registry.getMeters().get(ImporterService.SYNC_BASIONYM_METER);
-    // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
-    importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class),
-                                                     inj.getInstance(NameUsageIndexService.class));
-    usageService = inj.getInstance(NameUsageService.class);
   }
 
   public void run() {
@@ -94,7 +83,7 @@ public class Importer extends NeoRunnable implements Runnable {
           NameUsageContainer u = buildClbNameUsage(n);
           NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
-          final int usageKey = importService.syncUsage(datasetKey, u, verbatim, metrics);
+          final int usageKey = importService.syncUsage(u, verbatim, metrics);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
@@ -104,16 +93,17 @@ public class Importer extends NeoRunnable implements Runnable {
           counter++;
           syncMeter.mark();
           syncCounter++;
-          if (counter % 10000 == 0) {
+          if (counter % 100000 == 0) {
             LOG.info("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
           } else if (counter % 100 == 0) {
             LOG.debug("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
           }
 
-        } catch (Exception e) {
-          failedCounter++;
-          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, null);
-          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e);
+        } catch (Throwable e) {
+          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, "???");
+          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e.getMessage());
+          LOG.error("Aborting sync of dataset {}", datasetKey);
+          throw e;
         }
       }
     }
@@ -209,6 +199,7 @@ public class Importer extends NeoRunnable implements Runnable {
     for (Rank r : Rank.DWC_RANKS) {
       ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
     }
+    u.setDatasetKey(datasetKey);
     return u;
   }
 
@@ -218,9 +209,5 @@ public class Importer extends NeoRunnable implements Runnable {
 
   public int getDelCounter() {
     return delCounter;
-  }
-
-  public int getFailedCounter() {
-    return failedCounter;
   }
 }

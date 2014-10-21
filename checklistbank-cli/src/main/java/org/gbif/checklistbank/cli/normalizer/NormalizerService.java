@@ -30,19 +30,19 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
   public static final String QUEUE = "clb-normalizer";
 
+  public static final String HEAP_GAUGE = "heap.usage";
   public static final String INSERT_METER = "taxon.inserts";
   public static final String RELATION_METER = "taxon.relations";
   public static final String METRICS_METER = "taxon.metrics";
   public static final String DENORMED_METER = "taxon.denormed";
-  public static final String HEAP_GAUGE = "heap.usage";
 
   private final NormalizerConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
   private final MetricRegistry registry = new MetricRegistry("normalizer");
-  private final Timer timer = registry.timer("normalizer process time");
-  private final Counter started = registry.counter("started normalizations");
-  private final Counter failed = registry.counter("failed normalizations");
+  private final Timer timer = registry.timer("normalizer.time");
+  private final Counter started = registry.counter("normalizer.started");
+  private final Counter failed = registry.counter("normalizer.failed");
   private final ZookeeperUtils zkUtils;
   private NameUsageMatchingService matchingService;
 
@@ -61,6 +61,9 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+
+    // use ws clients for nub matching
+    matchingService = cfg.matching.createMatchingService();
   }
 
   @Override
@@ -71,9 +74,6 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters());
     listener.listen(QUEUE, cfg.messaging.poolSize, this);
-
-    // use ws clients for nub matching
-    matchingService = cfg.matching.createMatchingService();
   }
 
   @Override
@@ -99,19 +99,22 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
       Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
       started.inc();
       normalizer.run();
-      Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
-      LOG.debug("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
-      publisher.send(doneMsg);
       zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
 
-    } catch (IOException e) {
-      error(msg.getDatasetUuid(), "Could not send ChecklistNormalizedMessage for dataset [{}]", e);
+      try {
+        Message doneMsg = new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats());
+        LOG.info("Sending ChecklistNormalizedMessage for dataset [{}]", msg.getDatasetUuid());
+        publisher.send(doneMsg);
+      } catch (IOException e) {
+        error(msg.getDatasetUuid(), "Could not send ChecklistNormalizedMessage for dataset [{}]", e);
+      }
 
     } catch (NormalizationFailedException e) {
       failed.inc();
       error(msg.getDatasetUuid(), "Failed to normalize dataset {}", e);
 
-    } catch (RuntimeException e) {
+    } catch (Throwable e) {
+      failed.inc();
       error(msg.getDatasetUuid(), "Unknown error while importing dataset [{}]", e);
 
     } finally {

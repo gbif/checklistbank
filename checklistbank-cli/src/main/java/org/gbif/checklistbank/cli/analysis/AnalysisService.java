@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.analysis;
 
 import org.gbif.checklistbank.service.DatasetAnalysisService;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
@@ -11,11 +12,16 @@ import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
 import java.io.IOException;
 
+import javax.sql.DataSource;
+
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +39,15 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
   private final MetricRegistry registry = new MetricRegistry("checklist.analysis");
   private final Timer timer = registry.timer("checklist.analysis.time");
   private final DatasetAnalysisService analysisService;
+  private final HikariDataSource hds;
 
   public AnalysisService(AnalysisConfiguration configuration) {
     this.cfg = configuration;
     registry.meter(MATCH_METER);
     Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
     analysisService = inj.getInstance(DatasetAnalysisService.class);
+    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+    hds = (HikariDataSource) inj.getInstance(dsKey);
   }
 
   @Override
@@ -59,6 +68,7 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
     if (publisher != null) {
       publisher.close();
     }
+    hds.close();
   }
 
   @Override
@@ -67,12 +77,16 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
 
     try {
       analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
-      Message doneMsg = new ChecklistAnalyzedMessage(msg.getDatasetUuid());
-      LOG.debug("Sending ChecklistAnalyzedMessage for dataset {}", msg.getDatasetUuid());
-      publisher.send(doneMsg);
+      try {
+        Message doneMsg = new ChecklistAnalyzedMessage(msg.getDatasetUuid());
+        LOG.info("Sending ChecklistAnalyzedMessage for dataset {}", msg.getDatasetUuid());
+        publisher.send(doneMsg);
+      } catch (IOException e) {
+        LOG.warn("Could not send ChecklistMatchedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+      }
 
-    } catch (IOException e) {
-      LOG.warn("Could not send ChecklistMatchedMessage for dataset [{}]", msg.getDatasetUuid(), e);
+    } catch (Throwable e) {
+      LOG.error("Failed to analyze dataset [{}]", msg.getDatasetUuid(), e);
 
     } finally {
       context.stop();

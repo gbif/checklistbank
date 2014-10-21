@@ -38,21 +38,28 @@ public class NeoMapperTest extends NeoTest {
   final UUID dKey = UUID.randomUUID();
   final UUID cKey = UUID.randomUUID();
 
-  public NameUsage usage() {
+  private NameUsage usage() {
     return usage(true);
   }
 
-  public NameUsage usage(boolean addKeys) {
-    NameUsage u = new NameUsage();
+  private NameUsage usage(boolean addKeys) {
     if (addKeys) {
-      u.setKey(100);
-      u.setBasionymKey(20);
-      u.setParentKey(23);
-      u.setClassKey(1);
+      //u.setClassKey(1);
+      return usage(100, "Abies alba", 23, 20);
+    } else {
+      return usage(null, "Abies alba", null, null);
     }
+  }
+
+  private NameUsage usage(Integer key, String name, Integer parentKey, Integer basionymKey) {
+    NameUsage u = new NameUsage();
+    u.setKey(key);
+    u.setParentKey(parentKey);
+    u.setBasionymKey(basionymKey);
     u.setDatasetKey(dKey);
     u.setConstituentKey(cKey);
-    u.setScientificName("Abies alba");
+    u.setCanonicalName(name);
+    u.setScientificName(name);
     u.setParent("Abies");
     u.setClazz("Trees");
     u.setLastCrawled(new Date());
@@ -72,6 +79,7 @@ public class NeoMapperTest extends NeoTest {
   public void testPropertyMap() throws Exception {
     NeoMapper mapper = NeoMapper.instance();
     NameUsage u = usage();
+    u.setClassKey(1);
 
     Map<String, Object> map = mapper.propertyMap(u, false);
     assertEquals(100, map.get("key"));
@@ -93,16 +101,17 @@ public class NeoMapperTest extends NeoTest {
     assertNotNull(map.get("nomenclaturalStatus"));
 
     // isSynonym is set to false by default
-    assertEquals(18, map.size());
+    assertEquals(19, map.size());
   }
 
   @Test
   public void testNodeStore() throws Exception {
     NeoMapper mapper = NeoMapper.instance();
-    initDb(UUID.randomUUID());
+    initDb(dKey);
 
     try (Transaction tx = beginTx()) {
       NameUsage u = usage();
+      u.setClassKey(1);
       Node n = db.createNode();
 
       mapper.store(n, u, true);
@@ -125,8 +134,34 @@ public class NeoMapperTest extends NeoTest {
       assertNotNull(n.getProperty("nomenclaturalStatus"));
 
       // isSynonym is set to false by default
-      assertEquals(18, IteratorUtil.count(n.getPropertyKeys()));
+      assertEquals(19, IteratorUtil.count(n.getPropertyKeys()));
 
+    }
+  }
+
+  @Test
+  public void testReadContainer() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(dKey);
+
+    try (Transaction tx = beginTx()) {
+      Node p = db.createNode();
+      Node b = db.createNode();
+      Node n = db.createNode();
+      mapper.store(p, usage(null, "Polygala", null, null), true);
+      mapper.store(b, usage(null, "Polygala alpina", null, null), true);
+      mapper.store(n, usage(null, "Polygala vulgaris", 1, 2), true);
+      p.createRelationshipTo(n, RelType.PARENT_OF);
+      b.createRelationshipTo(n, RelType.BASIONYM_OF);
+
+      NameUsageContainer u = mapper.read(n);
+
+      assertEquals((Integer)2, u.getKey());
+      assertEquals(dKey, u.getDatasetKey());
+      assertEquals((Integer)0, u.getParentKey());
+      assertEquals("Polygala", u.getParent());
+      assertEquals((Integer)1, u.getBasionymKey());
+      assertEquals("Polygala alpina", u.getBasionym());
     }
   }
 

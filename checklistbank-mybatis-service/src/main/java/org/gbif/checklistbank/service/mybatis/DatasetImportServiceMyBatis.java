@@ -132,20 +132,20 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   @Transactional(
     exceptionMessage = "Something went wrong syncing dataset {0}, usage {1}"
   )
-  public int syncUsage(final UUID datasetKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
+  public int syncUsage(NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
                            NameUsageMetrics metrics) {
-    Preconditions.checkNotNull(datasetKey);
     Preconditions.checkNotNull(usage);
+    Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
     Preconditions.checkNotNull(metrics);
-    Integer usageKey = nameUsageMapper.getKey(datasetKey, usage.getTaxonID());
+    Integer usageKey = nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID());
 
     int key;
     if (usageKey == null) {
-      key = insertNewUsage(datasetKey, usage, verbatim, metrics);
-      LOG.debug("inserted usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
+      key = insertNewUsage(usage, verbatim, metrics);
+      LOG.debug("inserted usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), usage.getDatasetKey());
     } else {
-      key = updateUsage(datasetKey, usageKey, usage, verbatim, metrics);
-      LOG.debug("updated usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), datasetKey);
+      key = updateUsage(usageKey, usage, verbatim, metrics);
+      LOG.debug("updated usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), usage.getDatasetKey());
     }
     return key;
   }
@@ -155,14 +155,17 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     nameUsageMapper.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
   }
 
-  private int insertNewUsage(UUID datasetKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
-                                 NameUsageMetrics metrics) {
+  private int insertNewUsage(NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+    final UUID datasetKey = usage.getDatasetKey();
 
     // insert main usage, creating name and citation records before
     NameUsageWritable uw = toWritable(datasetKey, usage);
     nameUsageMapper.insert(uw);
     final int usageKey = uw.getKey();
     usage.setKey(usageKey);
+    // update self references indicated by -1 so that the usage does not contain any bad foreign keys anymore
+    // this is needed for subsequent syncing of solr!
+    updateSelfReferences(usageKey, usage);
 
     // insert extension data
     insertExtensions(usage);
@@ -224,15 +227,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
    * Checking whether a usage has changed is a bit of work and error prone so we always update currently.
    * In the future we should try to update only when needed though. We would need to compare the usage itself,
    * the raw data, the usage metrics and all extension data in the container though.
-   * @param datasetKey
    * @param usageKey existing name usage key
    * @param usage updated usage
    * @param verbatim
    * @param metrics
    * @return
    */
-  private Integer updateUsage(UUID datasetKey, final int usageKey, NameUsageContainer usage,
-                              @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+  private Integer updateUsage(final int usageKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+    final UUID datasetKey = usage.getDatasetKey();
+
     usage.setKey(usageKey);
     // update self references indicated by -1
     updateSelfReferences(usageKey, usage);

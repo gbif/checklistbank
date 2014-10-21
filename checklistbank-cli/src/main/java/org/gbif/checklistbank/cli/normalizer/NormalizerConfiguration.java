@@ -45,11 +45,6 @@ public class NormalizerConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public String matchWsUrl = "http://api.gbif.org/v1/species/match";
-
-  @ParametersDelegate
-  @Valid
-  @NotNull
   public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
   @ParametersDelegate

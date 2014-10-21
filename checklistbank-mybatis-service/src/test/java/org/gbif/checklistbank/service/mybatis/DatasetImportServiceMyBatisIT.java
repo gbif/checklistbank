@@ -77,6 +77,7 @@ public class DatasetImportServiceMyBatisIT {
     String name = "Abies alba Mill.";
 
     NameUsageContainer u = new NameUsageContainer();
+    u.setDatasetKey(CHECKLIST_KEY);
     u.setScientificName(name);
     u.setTaxonID(taxonID);
     u.setOrigin(Origin.SOURCE);
@@ -117,7 +118,7 @@ public class DatasetImportServiceMyBatisIT {
     u.setGenusKey(g.getKey());
     u.setSpeciesKey(u.getKey());
 
-    int k1 = ddt.getService().syncUsage(CHECKLIST_KEY, u, null, m);
+    int k1 = ddt.getService().syncUsage(u, null, m);
 
     // verify props
     NameUsage u2 = uService.get(k1, null);
@@ -152,7 +153,7 @@ public class DatasetImportServiceMyBatisIT {
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    int k2 = ddt.getService().syncUsage(CHECKLIST_KEY, u, v, m);
+    int k2 = ddt.getService().syncUsage(u, v, m);
     assertEquals(k1, k2);
 
     // verify props
@@ -172,6 +173,7 @@ public class DatasetImportServiceMyBatisIT {
 
   private NameUsageContainer addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) {
     NameUsageContainer p = new NameUsageContainer();
+    p.setDatasetKey(CHECKLIST_KEY);
     p.setKey(key);
     p.setParentKey(parentKey);
     if (higherKeys != null) {
@@ -192,7 +194,7 @@ public class DatasetImportServiceMyBatisIT {
     NameUsageMetrics m = new NameUsageMetrics();
     m.setKey(key);
 
-    ddt.getService().syncUsage(CHECKLIST_KEY, p, null, m);
+    ddt.getService().syncUsage(p, null, m);
 
     return p;
   }

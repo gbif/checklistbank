@@ -7,6 +7,8 @@ import java.util.Date;
 
 import org.codehaus.jackson.annotate.JsonIgnoreType;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.ObjectReader;
+import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.smile.SmileFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,23 +20,28 @@ import org.slf4j.LoggerFactory;
 public class VerbatimNameUsageMapper {
 
   private static final Logger LOG = LoggerFactory.getLogger(VerbatimNameUsageMapper.class);
-  private final ObjectMapper mapper;
+  private final ObjectReader reader;
+  private final ObjectWriter writer;
 
   @JsonIgnoreType
   public static class IgnoreMixin {}
 
   public VerbatimNameUsageMapper() {
     SmileFactory f = new SmileFactory();
-    mapper = new ObjectMapper(f);
+    ObjectMapper mapper = new ObjectMapper(f);
     // ignore properties of certain types in VerbatimNameUsage that are stored as individual columns in the backends.
     mapper.getSerializationConfig().addMixInAnnotations(Date.class, IgnoreMixin.class);
     mapper.getSerializationConfig().addMixInAnnotations(Integer.class, IgnoreMixin.class);
+    // object readers & writers are slightly more performant than simple object mappers
+    // they also are thread safe!
+    reader = mapper.reader(VerbatimNameUsage.class);
+    writer = mapper.writerWithView(VerbatimNameUsage.class);
   }
 
   public VerbatimNameUsage read(byte[] smile) {
     if (smile != null) {
       try {
-        return mapper.readValue(smile, VerbatimNameUsage.class);
+        return reader.readValue(smile);
       } catch (IOException e) {
         LOG.error("Cannot deserialize raw json data", e);
       }
@@ -45,7 +52,7 @@ public class VerbatimNameUsageMapper {
   public byte[] write(VerbatimNameUsage verbatim) {
     if (verbatim != null) {
       try {
-        return mapper.writeValueAsBytes(verbatim);
+        return writer.writeValueAsBytes(verbatim);
 
       } catch (IOException e) {
         LOG.error("Cannot deserialize raw json data", e);

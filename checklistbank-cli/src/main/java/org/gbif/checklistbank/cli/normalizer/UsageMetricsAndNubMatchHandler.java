@@ -17,9 +17,11 @@ import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
+import com.google.common.base.Preconditions;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -50,7 +52,7 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
   private Map<Rank, Integer> countByRank = Maps.newHashMap();
 
   public UsageMetricsAndNubMatchHandler(NameUsageMatchingService matchingService, GraphDatabaseService db) {
-    this.matchingService = matchingService;
+    this.matchingService = Preconditions.checkNotNull(matchingService, "Backbone matching client required");
     synonymsTD = db.traversalDescription()
       .breadthFirst()
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
@@ -114,8 +116,41 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     }
   }
 
+  /**
+   * Use the backbone matching webservice and make sure the service is working.
+   * We continue with retries for up to 12h before we let an IllegalStateException bring down the entire normalization.
+   * @param n
+   * @param usage
+   * @param name
+   * @param rank
+   */
   private void matchToNub(Node n, LinneanClassification usage, String name, Rank rank) {
-    NameUsageMatch match = matchingService.match(name, rank, usage, true, false);
+    NameUsageMatch match = null;
+    final long started = System.currentTimeMillis();
+    boolean first = true;
+    while (match == null) {
+      try {
+        match = matchingService.match(name, rank, usage, true, false);
+      } catch (Exception e) {
+        LOG.debug("Nub matching for >{}< failed. Sleep and then retry", name, e);
+        try {
+          // first time we retry after 5s, then after every minute
+          if (first) {
+            Thread.sleep(5000);
+            first = false;
+          } else {
+            // check if we tried for a long time already
+            long sinceHours = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - started);
+            if (sinceHours > 12) {
+              throw new IllegalStateException("Backbone matching service unavailable for at least 12h. Interrupting normalization!");
+            }
+            Thread.sleep(60000);
+          }
+        } catch (InterruptedException e1) {
+        }
+      }
+    }
+
     // store nub key
     mapper.setNubKey(n, match.getUsageKey());
     if (match.getUsageKey() == null) {

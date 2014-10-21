@@ -10,6 +10,7 @@ import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Maps;
@@ -30,11 +31,11 @@ public class ImportExternal {
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
 
-  public void index(String url, UUID datasetKey) throws IOException {
+  public void index(String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init();
-    //download(url);
-    //normalize();
+    download(url);
+    normalize();
     sync();
   }
 
@@ -49,7 +50,6 @@ public class ImportExternal {
     nCfg.neo = new NeoConfiguration();
     nCfg.neo.neoRepository = neo;
     nCfg.archiveRepository = dwca;
-    nCfg.matchWsUrl = "http://api.gbif.org/v1/species/match";
 
     iCfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
@@ -86,15 +86,16 @@ public class ImportExternal {
     System.out.println(stats);
   }
 
-  private void sync() {
-    Importer importer = ImporterIT.build(iCfg, datasetKey);
+  private void sync() throws SQLException {
+    ImporterIT iit = new ImporterIT();
+    Importer importer = iit.build(iCfg, datasetKey);
     importer.run();
   }
 
   public static void main(String[] args) throws Exception{
     ImportExternal imp = new ImportExternal();
     //imp.index("http://ipt.speciesfile.org:8080/archive.do?r=coleorrhyncha", UUID.fromString(""));
-    imp.index("http://IPT.speciesfile.org:8080/archive.do?r=mantodea", UUID.fromString("99948a8b-63b2-41bf-9d10-6e007e967789"));
+    imp.index("http://ipt.speciesfile.org:8080/archive.do?r=blattodea", UUID.fromString("3e812f13-bd5f-46b6-9bae-710766be526d"));
 
   }
 }

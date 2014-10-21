@@ -2,12 +2,13 @@ package org.gbif.checklistbank.cli.common;
 
 import java.io.File;
 import java.util.UUID;
-import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Preconditions;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.slf4j.Logger;
@@ -29,6 +30,25 @@ public class NeoConfiguration {
   @Parameter(names = "--neo-batchsize")
   public int batchSize = 10000;
 
+  @Parameter(names = "--neo-debug")
+  public boolean debug = false;
+
+  /**
+   * none, soft, weak, strong
+   * see http://docs.neo4j.org/chunked/stable/configuration-caches.html
+   */
+  @NotNull
+  @Parameter(names = "--neo-cache-type")
+  public String cacheType = "soft";
+
+  @Min(16)
+  @Parameter(names = "--neo-mapped-memory")
+  public int mappedMemory = 64;
+
+  @Min(64)
+  @Parameter(names = "--neo-mapped-memory-page-size")
+  public int mappedMemoryPageSize = 8192;
+
   public File neoDir(UUID datasetKey) {
     return new File(neoRepository, datasetKey.toString());
   }
@@ -40,33 +60,25 @@ public class NeoConfiguration {
    */
   public GraphDatabaseService newEmbeddedDb(UUID datasetKey) {
     Preconditions.checkNotNull(datasetKey);
-    return embeddedDb(datasetKey);
-  }
-
-  /**
-   * Creates a new emedded db directly in the neoRepository folder.
-   */
-  public GraphDatabaseService newEmbeddedDb() {
-    return embeddedDb(null);
-  }
-
-  /**
-   * Creates a new embedded db in the neoRepository folder.
-   *
-   * @param datasetKey subfolder for the db, if null uses neoRepo directly
-   */
-  private GraphDatabaseService embeddedDb(@Nullable UUID datasetKey) {
+    File storeDir = neoDir(datasetKey);
     GraphDatabaseFactory factory = new GraphDatabaseFactory();
-    File storeDir = datasetKey == null ? neoRepository : neoDir(datasetKey);
-    GraphDatabaseService db = factory.newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
-      .setConfig(GraphDatabaseSettings.cache_type, "none")
-      .setConfig(GraphDatabaseSettings.nodestore_mapped_memory_size, "256M")
-      .setConfig(GraphDatabaseSettings.nodestore_propertystore_index_keys_mapped_memory_size, "64M")
-      .setConfig(GraphDatabaseSettings.nodestore_propertystore_mapped_memory_size, "32M")
-      .setConfig(GraphDatabaseSettings.relationshipstore_mapped_memory_size, "512M")
-      .newGraphDatabase();
+    GraphDatabaseBuilder builder = factory.newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
+      .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
+      .setConfig(GraphDatabaseSettings.cache_type, cacheType)
+      .setConfig(GraphDatabaseSettings.mapped_memory_page_size, mb(mappedMemoryPageSize))
+      .setConfig(GraphDatabaseSettings.all_stores_total_mapped_memory_size, mb(mappedMemory));
+    if (debug) {
+      builder
+        .setConfig(GraphDatabaseSettings.log_mapped_memory_stats, "true")
+        .setConfig(GraphDatabaseSettings.dump_configuration, "true");
+    }
+    GraphDatabaseService db = builder.newGraphDatabase();
     LOG.info("Starting embedded neo4j database from {}", storeDir.getAbsolutePath());
     return db;
+  }
+
+  private String mb(int memoryInMB) {
+    return memoryInMB + "M";
   }
 
 }

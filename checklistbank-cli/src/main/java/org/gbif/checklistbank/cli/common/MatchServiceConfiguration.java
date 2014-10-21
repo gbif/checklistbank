@@ -26,17 +26,12 @@ public class MatchServiceConfiguration {
   public String matchWsUrl = "http://api.gbif.org/v1/species/match";
 
   public NameUsageMatchingService createMatchingService() {
-    // use ws clients for nub matching
-    Injector injClient = Guice.createInjector(createMatchClientModule());
-    return injClient.getInstance(NameUsageMatchingService.class);
-  }
-
-  public ChecklistBankWsClientModule createMatchClientModule() {
-    LOG.info("Connecting to species match service at {}", matchWsUrl);
     Properties props = new Properties();
     props.put("checklistbank.match.ws.url", matchWsUrl);
-    return new ChecklistBankWsClientModule(props, false, true);
+    // use ws clients for nub matching
+    Injector injClient = Guice.createInjector(new ChecklistBankWsClientModule(props, false, true));
+    LOG.info("Connecting to species match service at {}", matchWsUrl);
+    return injClient.getInstance(NameUsageMatchingService.class);
   }
-
 
 }

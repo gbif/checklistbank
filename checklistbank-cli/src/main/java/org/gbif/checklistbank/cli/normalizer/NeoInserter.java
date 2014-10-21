@@ -142,7 +142,7 @@ public class NeoInserter {
         meta.incRank(u.getRank());
         insertMeter.mark();
         if (meta.getRecords() % (batchSize * 10) == 0) {
-          LOG.debug("insert: {}", meta.getRecords());
+          LOG.info("Inserts done into neo4j: {}", meta.getRecords());
         }
 
       } catch (IgnoreNameUsageException e) {
@@ -235,13 +235,16 @@ public class NeoInserter {
     u.setSubgenus(v.getCoreField(DwcTerm.subgenus));
 
     // rank
-    Rank rank = rankParser.parse(v.getCoreField(DwcTerm.taxonRank)).getPayload();
-    if (rank == null) {
-      rank = rankParser.parse(v.getCoreField(DwcTerm.verbatimTaxonRank)).getPayload();
-    } else {
-      u.addIssue(NameUsageIssue.RANK_INVALID);
+    String vRank = firstClean(v, DwcTerm.taxonRank, DwcTerm.verbatimTaxonRank);
+    if (!Strings.isNullOrEmpty(vRank)) {
+      ParseResult<Rank> rankParse = rankParser.parse(vRank);
+      if (rankParse.isSuccessful()) {
+        u.setRank(rankParse.getPayload());
+      } else {
+        u.addIssue(NameUsageIssue.RANK_INVALID);
+      }
     }
-    u.setRank(rank);
+    final Rank rank = u.getRank();
 
     // build best name
     ParsedName pn = setScientificName(u,v,rank);
@@ -329,7 +332,7 @@ public class NeoInserter {
     return pn;
   }
 
-  private String firstClean(VerbatimNameUsage v, Term ... terms) {
+  private static String firstClean(VerbatimNameUsage v, Term ... terms) {
     for (Term t : terms) {
       String x = clean(v.getCoreField(t));
       if (x != null) {

@@ -70,7 +70,8 @@ import org.codehaus.jackson.annotate.JsonIgnore;
     @FacetField(name = "IS_EXTINCT", field = "extinct", method = Method.ENUM),
     @FacetField(name = "NOMENCLATURAL_STATUS", field = "nomenclatural_status_key", method = Method.ENUM),
     @FacetField(name = "NAME_TYPE", field = "name_type", method = Method.ENUM),
-    @FacetField(name = "HABITAT", field = "marine", method = Method.ENUM)
+    @FacetField(name = "HABITAT", field = "marine", method = Method.ENUM),
+    @FacetField(name = "ISSUE", field = "issues", method = Method.ENUM)
   },
   fulltextFields = {
     @FullTextSearchField(field = "canonical_name", exactMatchScore = 100.0d,

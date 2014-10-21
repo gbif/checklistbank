@@ -8,6 +8,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.IdName;
 import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.dwc.terms.DcTerm;
@@ -294,12 +295,22 @@ public class NeoMapper {
       NameUsageContainer u = read(n, new NameUsageContainer());
       // map node id to key, its not fixed across tests but stable within one
       u.setKey((int) n.getId());
-      u.setParentKey(getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING));
-      u.setBasionymKey(getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING));
+      IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
+      if (in != null) {
+        u.setParentKey(in.id);
+        u.setParent(in.name);
+      }
+      in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
+      if (in != null) {
+        u.setBasionymKey(in.id);
+        u.setBasionym(in.name);
+      }
       // there might be several accepted taxa for pro parte synonyms
-      u.setAcceptedKey(getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING));
-      // update synonym flag based on relations
-      if (u.getAcceptedKey() != null) {
+      in = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
+      if (in != null) {
+        u.setAcceptedKey(in.id);
+        u.setAccepted(in.name);
+        // update synonym flag based on relations
         u.setSynonym(true);
       }
       return u;
@@ -314,10 +325,14 @@ public class NeoMapper {
     return null;
   }
 
-  private Integer getRelatedTaxonKey(Node n, RelType type, Direction dir) {
+  private IdName getRelatedTaxonKey(Node n, RelType type, Direction dir) {
     Relationship rel = n.getSingleRelationship(type, dir);
     if (rel != null) {
-      return (int) rel.getOtherNode(n).getId();
+      IdName in = new IdName();
+      Node n2 = rel.getOtherNode(n);
+      in.id = (int)n2.getId();
+      in.name = (String) n2.getProperty(TaxonProperties.CANONICAL_NAME, n2.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
+      return in;
     }
     return null;
   }
@@ -462,6 +477,17 @@ public class NeoMapper {
     } catch (IOException e) {
       // TODO: Handle exception
     }
+  }
+
+  /**
+   * Adds a string remark to the taxonRemarks property of a usage.
+   * Existing remarks are left untouched and the new string is appended.
+   */
+  public void addRemark(Node n, String remark) {
+    if (n.hasProperty(TaxonProperties.REMARKS)) {
+      remark = n.getProperty(TaxonProperties.REMARKS) + "; " + remark;
+    }
+    n.setProperty(TaxonProperties.REMARKS, remark);
   }
 
   public void setNubKey(Node n, Integer nubKey) {
