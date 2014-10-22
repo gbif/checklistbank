@@ -41,11 +41,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import org.apache.commons.io.FileUtils;
-import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.index.lucene.unsafe.batchinsert.LuceneBatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
-import org.neo4j.unsafe.batchinsert.BatchInserterIndex;
-import org.neo4j.unsafe.batchinsert.BatchInserterIndexProvider;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,17 +73,6 @@ public class NeoInserter {
     LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
     initNeoDir(storeDir);
     final BatchInserter inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
-
-    final BatchInserterIndexProvider indexProvider = new LuceneBatchInserterIndexProvider(inserter);
-    final BatchInserterIndex taxonIdx =
-      indexProvider.nodeIndex(TaxonProperties.TAXON_ID, MapUtil.stringMap("type", "exact"));
-    taxonIdx.setCacheCapacity(TaxonProperties.TAXON_ID, 10000);
-    final BatchInserterIndex sciNameIdx =
-      indexProvider.nodeIndex(TaxonProperties.SCIENTIFIC_NAME, MapUtil.stringMap("type", "exact"));
-    sciNameIdx.setCacheCapacity(TaxonProperties.SCIENTIFIC_NAME, 10000);
-    final BatchInserterIndex canonNameIdx =
-      indexProvider.nodeIndex(TaxonProperties.CANONICAL_NAME, MapUtil.stringMap("type", "exact"));
-    canonNameIdx.setCacheCapacity(TaxonProperties.CANONICAL_NAME, 10000);
 
     final long startSort = System.currentTimeMillis();
     LOG.debug("Sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
@@ -135,8 +120,7 @@ public class NeoInserter {
         putProp(props, DwcTerm.originalNameUsageID, v);
         putProp(props, DwcTerm.originalNameUsage, v);
 
-        long node = inserter.createNode(props, Labels.TAXON);
-        taxonIdx.add(node, props);
+        inserter.createNode(props, Labels.TAXON);
 
         meta.incRecords();
         meta.incRank(u.getRank());
@@ -153,7 +137,11 @@ public class NeoInserter {
     LOG.info("Data insert completed, {} nodes created", meta.getRecords());
     LOG.info("Insert rate: {}", insertMeter.getMeanRate());
 
-    indexProvider.shutdown();
+    // define indices
+    LOG.info("Building lucene indices...");
+    inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(TaxonProperties.TAXON_ID).create();
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
     inserter.shutdown();
     LOG.info("Neo shutdown, data flushed to disk", meta.getRecords());
 

@@ -53,6 +53,7 @@ public class ImportExternal {
 
     iCfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
+    iCfg.deleteNeo=false;
     iCfg.clb.serverName="localhost";
     iCfg.clb.databaseName="clb";
     iCfg.clb.user ="postgres";
