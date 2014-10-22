@@ -41,7 +41,7 @@ public class NeoConfiguration {
   @Parameter(names = "--neo-cache-type")
   public String cacheType = "soft";
 
-  @Min(16)
+  @Min(0)
   @Parameter(names = "--neo-mapped-memory")
   public int mappedMemory = 64;
 

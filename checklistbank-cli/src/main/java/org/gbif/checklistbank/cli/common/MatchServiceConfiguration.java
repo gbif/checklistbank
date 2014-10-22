@@ -7,7 +7,6 @@ import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import java.util.Properties;
 import javax.validation.Valid;
 
-import com.beust.jcommander.ParametersDelegate;
 import com.google.common.base.Strings;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -25,7 +24,6 @@ public class MatchServiceConfiguration {
    * The backbone matching URL to use.
    * If empty no backbone matching will be done.
    */
-  @ParametersDelegate
   @Valid
   public String matchWsUrl = null;
 
