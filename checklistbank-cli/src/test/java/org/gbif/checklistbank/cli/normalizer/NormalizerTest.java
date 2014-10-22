@@ -10,7 +10,6 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.MockMatchingService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.TaxonProperties;
 
@@ -77,7 +76,7 @@ public class NormalizerTest extends NeoTest {
     registry.meter(NormalizerService.METRICS_METER);
     registry.meter(NormalizerService.DENORMED_METER);
 
-    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new MockMatchingService());
+    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
   }
 
   @Test
@@ -109,7 +108,8 @@ public class NormalizerTest extends NeoTest {
         assertTrue(taxonIndices.remove(idxProps.get(0)));
       }
 
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
+      assertNotNull(
+        IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
       assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
       assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
 

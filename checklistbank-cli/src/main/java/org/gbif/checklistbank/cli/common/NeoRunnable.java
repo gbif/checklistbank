@@ -21,8 +21,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -65,25 +63,6 @@ public abstract class NeoRunnable implements Runnable {
 
   protected void tearDownDb() {
     db.shutdown();
-  }
-
-  /**
-   * Creates a neo4j index for taxonID, canonical and scientific name.
-   */
-  private void setupIndices() {
-    try (Transaction tx = db.beginTx()) {
-      Schema schema = db.schema();
-      if (IteratorUtil.count(schema.getIndexes(Labels.TAXON)) == 0) {
-        LOG.debug("Create db indices ...");
-        // setup unique index for TAXON_ID
-        schema.constraintFor(Labels.TAXON).assertPropertyIsUnique(TaxonProperties.TAXON_ID).create();
-        schema.indexFor(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
-        schema.indexFor(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
-        tx.success();
-      } else {
-        LOG.debug("Neo indices existing already");
-      }
-    }
   }
 
   protected void logMemory() {

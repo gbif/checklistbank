@@ -5,7 +5,6 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.MockMatchingService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
@@ -53,7 +52,7 @@ public class UsageMetricsAndNubMatchHandlerTest extends NeoTest {
       tx.success();
     }
 
-    UsageMetricsAndNubMatchHandler handler = new UsageMetricsAndNubMatchHandler(new MockMatchingService(), db);
+    UsageMetricsAndNubMatchHandler handler = new UsageMetricsAndNubMatchHandler(new NoneMatchingService(), db);
     TaxonWalker.walkAccepted(db, handler, 5, null);
 
     NormalizerStats stats = handler.getStats(1, Lists.<String>newArrayList());

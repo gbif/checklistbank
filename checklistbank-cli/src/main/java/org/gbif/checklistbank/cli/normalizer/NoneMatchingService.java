@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli;
+package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 /**
  * Mock matching service configured to always return none matches.
  */
-public class MockMatchingService implements NameUsageMatchingService {
+public class NoneMatchingService implements NameUsageMatchingService {
 
   @Override
   public NameUsageMatch match(String scientificName, @Nullable Rank rank,
