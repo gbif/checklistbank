@@ -50,6 +50,7 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
   private int synonyms;
   private Map<Origin, Integer> countByOrigin = Maps.newHashMap();
   private Map<Rank, Integer> countByRank = Maps.newHashMap();
+  private boolean warnSlowMatching = true;
 
   public UsageMetricsAndNubMatchHandler(NameUsageMatchingService matchingService, GraphDatabaseService db) {
     this.matchingService = Preconditions.checkNotNull(matchingService, "Backbone matching client required");
@@ -65,6 +66,10 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     // increase counters
     count(n);
     counter++;
+    if (counter % 10000 == 0) {
+      warnSlowMatching = true;
+      LOG.debug("Metrics & nub matching done for: {}", counter);
+    }
     depth++;
     if (depth > maxDepth) {
       maxDepth = depth;
@@ -72,7 +77,6 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     if (depth == 1) {
       roots++;
     }
-
     Rank rank = mapper.readRank(n);
     if (rank != null && rank.isLinnean()) {
       ClassificationUtils.setHigherRankKey(classification, rank, (int)n.getId());
@@ -131,6 +135,11 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     while (match == null) {
       try {
         match = matchingService.match(name, rank, usage, true, false);
+        if (warnSlowMatching && System.currentTimeMillis() - started > 50) {
+          LOG.warn("Nub matching for {} took {}ms", name, System.currentTimeMillis() - started);
+          // log this only once per reporting batch!
+          warnSlowMatching = false;
+        }
       } catch (Exception e) {
         LOG.debug("Nub matching for >{}< failed. Sleep and then retry", name, e);
         try {

@@ -9,7 +9,6 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
-import org.gbif.dwc.terms.DwcTerm;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -22,8 +21,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -54,35 +51,18 @@ public abstract class NeoRunnable implements Runnable {
     this.neoCfg = cfg;
   }
 
-  protected void setupDb() {
+  protected GraphDatabaseService setupDb() {
     db = neoCfg.newEmbeddedDb(datasetKey);
     engine = new ExecutionEngine(db, StringLogger.SYSTEM);
     parentsTraversal = db.traversalDescription()
       .relationships(RelType.PARENT_OF, Direction.INCOMING)
       .depthFirst()
       .evaluator(Evaluators.excludeStartPosition());
+    return db;
   }
 
   protected void tearDownDb() {
     db.shutdown();
-  }
-
-  /**
-   * Creates a neo4j index for taxonID, canonical and scientific name.
-   */
-  protected void setupIndices() {
-    // setup unique index for TAXON_ID if not yet existing
-    try (Transaction tx = db.beginTx()) {
-      Schema schema = db.schema();
-      if (IteratorUtil.count(schema.getIndexes(Labels.TAXON)) == 0) {
-        LOG.debug("Create db indices ...");
-        schema.constraintFor(Labels.TAXON).assertPropertyIsUnique(DwcTerm.taxonID.simpleName()).create();
-        schema.indexFor(Labels.TAXON).on(DwcTerm.scientificName.simpleName()).create();
-        tx.success();
-      } else {
-        LOG.debug("Neo indices existing already");
-      }
-    }
   }
 
   protected void logMemory() {

@@ -105,7 +105,6 @@ public class Normalizer extends NeoRunnable {
     batchInsertData();
     // insert regular neo db for further processing
     setupDb();
-    setupIndices();
     setupRelations();
     buildMetricsAndMatchBackbone();
     tearDownDb();
@@ -413,8 +412,7 @@ public class Normalizer extends NeoRunnable {
     // finally resolve cycles and other bad relations
     cleanupRelations();
 
-    LOG.info("Relation setup completed, {} nodes processed", counter);
-    LOG.info("Relation setup rate: {}", relationMeter.getMeanRate());
+    LOG.info("Relation setup completed, {} nodes processed. Setup rate: {}", counter, relationMeter.getMeanRate());
   }
 
   /**
@@ -536,7 +534,7 @@ public class Normalizer extends NeoRunnable {
     }
   }
 
-  protected Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
+  private Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
     Node n = super.create(origin, sciname, rank, status);
     n.addLabel(Labels.ROOT);
     return n;

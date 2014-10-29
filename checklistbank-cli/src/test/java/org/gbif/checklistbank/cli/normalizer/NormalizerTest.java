@@ -10,7 +10,8 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.MockMatchingService;
+import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.TaxonProperties;
 
 import java.net.URI;
 import java.net.URL;
@@ -28,10 +29,14 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.schema.IndexDefinition;
+import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.helpers.collection.IteratorUtil;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -71,7 +76,7 @@ public class NormalizerTest extends NeoTest {
     registry.meter(NormalizerService.METRICS_METER);
     registry.meter(NormalizerService.DENORMED_METER);
 
-    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new MockMatchingService());
+    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
   }
 
   @Test
@@ -81,6 +86,37 @@ public class NormalizerTest extends NeoTest {
     assertThat(Normalizer.splitByCommonDelimiters("1234  135286 678231612")).containsExactly("1234","135286","678231612");
     assertThat(Normalizer.splitByCommonDelimiters("1234; 135286; 678231612")).containsExactly("1234","135286","678231612");
     assertThat(Normalizer.splitByCommonDelimiters("1234,135286 | 67.8231612")).containsExactly("1234,135286","67.8231612");
+  }
+
+  @Test
+  public void testNeoIndices() throws Exception {
+    final UUID datasetKey = datasetKey(1);
+
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    norm.run();
+    db = cfg.neo.newEmbeddedDb(datasetKey);
+
+    Set<String> taxonIndices = Sets.newHashSet();
+    taxonIndices.add(TaxonProperties.TAXON_ID);
+    taxonIndices.add(TaxonProperties.SCIENTIFIC_NAME);
+    taxonIndices.add(TaxonProperties.CANONICAL_NAME);
+    try (Transaction tx = beginTx()) {
+      Schema schema = db.schema();
+      for (IndexDefinition idf : schema.getIndexes(Labels.TAXON)) {
+        List<String> idxProps = IteratorUtil.asList(idf.getPropertyKeys());
+        assertTrue(idxProps.size() == 1);
+        assertTrue(taxonIndices.remove(idxProps.get(0)));
+      }
+
+      assertNotNull(
+        IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
+      assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
+      assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
+
+      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "x1001")));
+      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
+      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "xCrepis bakeri")));
+    }
   }
 
   @Test
