@@ -130,7 +130,7 @@ public class Normalizer extends NeoRunnable {
    * is variable and must not always include a rank.
    */
   private void applyDenormedClassification() {
-    LOG.debug("Start processing higher classification ...");
+    LOG.info("Start processing higher denormalized classification ...");
     if (!meta.isDenormedClassificationMapped()) {
       LOG.info("No higher classification mapped");
       return;
@@ -143,7 +143,7 @@ public class Normalizer extends NeoRunnable {
         if (counter % batchSize == 0) {
           tx.success();
           tx.close();
-          LOG.debug("Higher classifications processed for {} taxa", counter);
+          LOG.info("Higher classifications processed for {} taxa", counter);
           tx = db.beginTx();
         }
         applyDenormedClassification(n);

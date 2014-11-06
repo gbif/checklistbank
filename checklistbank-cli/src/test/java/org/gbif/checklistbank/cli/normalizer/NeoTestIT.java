@@ -84,7 +84,6 @@ public class NeoTestIT extends NeoTest {
   public void testIndexPerformance() throws Exception {
     final UUID dKey = UUID.randomUUID();
     initDb(dKey);
-    cleanup=false;
     try (Transaction tx = beginTx()) {
       db.schema().indexFor(Labels.TAXON).on(TaxonProperties.TAXON_ID).create();
       db.schema().indexFor(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();

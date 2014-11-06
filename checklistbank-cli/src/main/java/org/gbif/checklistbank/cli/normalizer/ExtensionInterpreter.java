@@ -152,7 +152,6 @@ public class ExtensionInterpreter {
         VernacularName vn = new VernacularName();
         vn.setVernacularName(value(rec, DwcTerm.vernacularName));
         if (vn.getVernacularName() == null) {
-          LOG.debug("Ignore invalid vernacular name record missing a common name");
           u.addIssue(NameUsageIssue.VERNACULAR_NAME_INVALID);
           continue;
         }
@@ -242,7 +241,6 @@ public class ExtensionInterpreter {
         URI link = UrlParser.parse(value(rec, furtherInformationURL, DcTerm.references, attributionLinkURL));
         // link or media uri must exist
         if (uri == null && link == null) {
-          LOG.debug("Ignore invalid multimedia record missing a URL for the image or webpage");
           u.addIssue(NameUsageIssue.MULTIMEDIA_INVALID);
         } else {
           NameUsageMediaObject m = new NameUsageMediaObject();
@@ -316,7 +314,6 @@ public class ExtensionInterpreter {
         // interpret rec
         i.setIdentifier(value(rec, DcTerm.identifier));
         if (i.getIdentifier() == null) {
-          LOG.debug("Ignore invalid identifier record missing an identifier value");
           u.addIssue(NameUsageIssue.ALT_IDENTIFIER_INVALID);
           continue;
         }
@@ -337,7 +334,6 @@ public class ExtensionInterpreter {
         d.setCountry(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, countryParser, u, DwcTerm.country, DwcTerm.countryCode));
         // some location is required, otherwise its pointless
         if (d.getLocality() == null && d.getLocationId() == null && d.getCountry() == null) {
-          LOG.debug("Ignore invalid distribution record missing any spatial context");
           u.addIssue(NameUsageIssue.DISTRIBUTION_INVALID);
           continue;
         }
@@ -365,7 +361,6 @@ public class ExtensionInterpreter {
         d.setType(value(rec, DcTerm.type));
         // make sure we have some description
         if (d.getDescription() == null) {
-          LOG.debug("Ignore invalid description record missing a description text");
           u.addIssue(NameUsageIssue.DESCRIPTION_INVALID);
           continue;
         }
