@@ -209,6 +209,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
       multimediaMapper.insert(usage.getKey(), m, citationService.createOrGet(m.getSource()));
     }
     for (Reference r : usage.getReferenceList()) {
+      //TODO: remove once known why we get NPEs here...
+      if (r==null) {
+        LOG.warn("Getting NULL reference for usage {}, {}", usage.getKey(), usage.getScientificName());
+        continue;
+      }
       referenceMapper.insert(usage.getKey(), citationService.createOrGet(r.getCitation()), r, citationService.createOrGet(r.getSource()));
     }
     for (SpeciesProfile s : usage.getSpeciesProfiles()) {
