@@ -31,17 +31,17 @@ public class ImportExternal {
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
 
-  public void index(String url, UUID datasetKey) throws IOException, SQLException {
+  public void index(String repo, String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
-    init();
-    download(url);
-    normalize();
+    init(repo);
+//    download(url);
+//    normalize();
     sync();
   }
 
-  private void init() throws IOException {
+  private void init(String repo) throws IOException {
     System.out.println("Init environment for dataset " + datasetKey);
-    File tmp = new File("/tmp/gbif-storage");
+    File tmp = new File(repo);
     File dwca = new File(tmp, "dwca");
     File neo = new File(tmp, "neo");
 
@@ -96,7 +96,7 @@ public class ImportExternal {
   public static void main(String[] args) throws Exception{
     ImportExternal imp = new ImportExternal();
     //imp.index("http://ipt.speciesfile.org:8080/archive.do?r=coleorrhyncha", UUID.fromString(""));
-    imp.index("http://ipt.speciesfile.org:8080/archive.do?r=blattodea", UUID.fromString("3e812f13-bd5f-46b6-9bae-710766be526d"));
+    imp.index("/Users/markus/Desktop/repo", "http://ipt.speciesfile.org:8080/archive.do?r=blattodea", UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
 
   }
 }

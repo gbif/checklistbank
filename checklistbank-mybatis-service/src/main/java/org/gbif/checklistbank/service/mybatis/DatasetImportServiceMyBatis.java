@@ -45,6 +45,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
@@ -192,39 +193,83 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   private void insertExtensions(NameUsageContainer usage) {
-    for (Description d : usage.getDescriptions()) {
-      Integer sk = citationService.createOrGet(d.getSource());
-      descriptionMapper.insert(usage.getKey(), d, sk);
-    }
-    for (Distribution d : usage.getDistributions()) {
-      distributionMapper.insert(usage.getKey(), d, citationService.createOrGet(d.getSource()));
-    }
-    for (Identifier i : usage.getIdentifiers()) {
-      if (i.getType() == null) {
-        i.setType(IdentifierType.UNKNOWN);
+    try {
+      for (Description d : usage.getDescriptions()) {
+        Integer sk = citationService.createOrGet(d.getSource());
+        descriptionMapper.insert(usage.getKey(), d, sk);
       }
-      identifierMapper.insert(usage.getKey(), i);
-    }
-    for (NameUsageMediaObject m : usage.getMedia()) {
-      multimediaMapper.insert(usage.getKey(), m, citationService.createOrGet(m.getSource()));
-    }
-    for (Reference r : usage.getReferenceList()) {
-      //TODO: remove once known why we get NPEs here...
-      if (r==null) {
-        LOG.warn("Getting NULL reference for usage {}, {}", usage.getKey(), usage.getScientificName());
-        continue;
+      for (Distribution d : usage.getDistributions()) {
+        distributionMapper.insert(usage.getKey(), d, citationService.createOrGet(d.getSource()));
       }
-      referenceMapper.insert(usage.getKey(), citationService.createOrGet(r.getCitation()), r, citationService.createOrGet(r.getSource()));
+      for (Identifier i : usage.getIdentifiers()) {
+        if (i.getType() == null) {
+          i.setType(IdentifierType.UNKNOWN);
+        }
+        identifierMapper.insert(usage.getKey(), i);
+      }
+      for (NameUsageMediaObject m : usage.getMedia()) {
+        multimediaMapper.insert(usage.getKey(), m, citationService.createOrGet(m.getSource()));
+      }
+      for (Reference r : usage.getReferenceList()) {
+        String citation = r.getCitation();
+        if (Strings.isNullOrEmpty(citation)) {
+          // try to build from pieces if full citation is not given!!!
+          citation = buildCitation(r);
+        }
+        if (!Strings.isNullOrEmpty(citation)) {
+          referenceMapper.insert(usage.getKey(), citationService.createOrGet(citation), r, citationService.createOrGet(r.getSource()));
+        }
+      }
+      for (SpeciesProfile s : usage.getSpeciesProfiles()) {
+        speciesProfileMapper.insert(usage.getKey(), s, citationService.createOrGet(s.getSource()));
+      }
+      for (TypeSpecimen t : usage.getTypeSpecimens()) {
+        typeSpecimenMapper.insert(usage.getKey(), t, citationService.createOrGet(t.getSource()));
+      }
+      for (VernacularName v : usage.getVernacularNames()) {
+        vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
+      }
+
+    //TODO: remove once known why we get NPEs here...
+    } catch (Exception e) {
+      LOG.warn("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
+      LOG.info("failed usage {}", usage);
+      LOG.info("getDescriptions {}", usage.getDescriptions());
+      LOG.info("getDistributions {}", usage.getDistributions());
+      LOG.info("getIdentifiers {}", usage.getIdentifiers());
+      LOG.info("getMedia {}", usage.getMedia());
+      LOG.info("getReferenceList {}", usage.getReferenceList());
+      LOG.info("getSpeciesProfiles {}", usage.getSpeciesProfiles());
+      LOG.info("getTypeSpecimens {}", usage.getTypeSpecimens());
+      LOG.info("getVernacularNames {}", usage.getVernacularNames());
     }
-    for (SpeciesProfile s : usage.getSpeciesProfiles()) {
-      speciesProfileMapper.insert(usage.getKey(), s, citationService.createOrGet(s.getSource()));
+  }
+
+  protected static String buildCitation(Reference r) {
+    StringBuilder sb = new StringBuilder();
+    if (!Strings.isNullOrEmpty(r.getAuthor())) {
+      sb.append(r.getAuthor());
+      if (Strings.isNullOrEmpty(r.getDate())) {
+        sb.append(": ");
+      } else {
+        sb.append(" ");
+      }
     }
-    for (TypeSpecimen t : usage.getTypeSpecimens()) {
-      typeSpecimenMapper.insert(usage.getKey(), t, citationService.createOrGet(t.getSource()));
+    if (!Strings.isNullOrEmpty(r.getDate())) {
+      sb.append("(");
+      sb.append(r.getDate());
+      sb.append(") ");
     }
-    for (VernacularName v : usage.getVernacularNames()) {
-      vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
+    if (!Strings.isNullOrEmpty(r.getTitle())) {
+      sb.append(r.getTitle());
     }
+    if (!Strings.isNullOrEmpty(r.getSource())) {
+      if (!Strings.isNullOrEmpty(r.getTitle())) {
+        sb.append(": ");
+      }
+      sb.append(r.getSource());
+    }
+    return Strings.emptyToNull(sb.toString().trim());
   }
 
   /**
