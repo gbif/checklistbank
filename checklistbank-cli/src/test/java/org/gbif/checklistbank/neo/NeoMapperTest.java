@@ -1,7 +1,10 @@
 package org.gbif.checklistbank.neo;
 
+import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.Reference;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Country;
@@ -309,6 +312,18 @@ public class NeoMapperTest extends NeoTest {
       v2.setLanguage(Language.ENGLISH);
       v2.setCountry(Country.AFGHANISTAN);
       u.getVernacularNames().add(v2);
+
+      Reference r = new Reference();
+      r.setCitation("foxy citation");
+      u.getReferenceList().add(r);
+
+      Description d = new Description();
+      d.setDescription("bla bla bla");
+      u.getDescriptions().add(d);
+
+      SpeciesProfile sp = new SpeciesProfile();
+      sp.setExtinct(true);
+      u.getSpeciesProfiles().add(sp);
 
       Node n = db.createNode();
       mapper.store(n, u, true);

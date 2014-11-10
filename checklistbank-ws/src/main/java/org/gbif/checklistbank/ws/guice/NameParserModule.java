@@ -19,7 +19,7 @@ public class NameParserModule extends AbstractModule {
   @Singleton
   public NameParser provideParser() {
     NameParser parser = new NameParser();
-    parser.readMonomialsRsGbifOrg();
+    parser.getNormalisedNameParser().readMonomialsRsGbifOrg();
     return parser;
   }
 }
