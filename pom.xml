@@ -255,7 +255,6 @@
         <groupId>org.gbif.checklistbank</groupId>
         <artifactId>checklistbank-ws</artifactId>
         <version>${project.version}</version>
-        <classifier>classes</classifier>
         <scope>test</scope>
       </dependency>
       <dependency>

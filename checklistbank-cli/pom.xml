@@ -143,6 +143,12 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-ws-client</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.gbif.checklistbank</groupId>
+          <artifactId>checklistbank-ws</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
