@@ -13,11 +13,6 @@
 
   <name>ChecklistBank Nub lookup web service</name>
 
-  <properties>
-    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
-    <gbif-microservice.version>0.1-SNAPSHOT</gbif-microservice.version>
-  </properties>
-
   <build>
     <resources>
       <resource>
@@ -146,6 +141,10 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-microservice</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
     </dependency>
@@ -190,13 +189,6 @@
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-ws-client</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <!-- GBIF microservice dependency -->
-    <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-microservice</artifactId>
-      <version>${gbif-microservice.version}</version>
     </dependency>
 
   </dependencies>
