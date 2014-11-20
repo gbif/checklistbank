@@ -5,6 +5,7 @@ target/
 .DS_Store
 checklistbank*/logs
 logs/
+dependency-reduced-pom.xml
 
 # Package Files #
 *.jar
