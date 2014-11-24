@@ -90,11 +90,6 @@
 
     <!-- TESTING -->
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
       <classifier>tests</classifier>

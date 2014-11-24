@@ -260,12 +260,6 @@
       <artifactId>checklistbank-mybatis-service</artifactId>
       <classifier>tests</classifier>
     </dependency>
-    <!-- required by checklistbank-mybatis-service:tests -->
-    <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-test</artifactId>
-      <scope>test</scope>
-    </dependency>
 
   </dependencies>
 
