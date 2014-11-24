@@ -124,8 +124,9 @@
 
     <!-- test scope -->
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-test</artifactId>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

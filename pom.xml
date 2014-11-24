@@ -42,7 +42,6 @@
     <gbif-common-mybatis.version>0.13</gbif-common-mybatis.version>
     <gbif-common-search.version>0.18</gbif-common-search.version>
     <gbif-common-service.version>0.11</gbif-common-service.version>
-    <gbif-common-test.version>0.7</gbif-common-test.version>
     <gbif-common-ws.version>0.16</gbif-common-ws.version>
     <gbif-httputils.version>0.5</gbif-httputils.version>
     <gbif-microservice.version>0.1</gbif-microservice.version>
@@ -173,12 +172,6 @@
         <groupId>org.gbif.common</groupId>
         <artifactId>gbif-cli</artifactId>
         <version>${gbif-cli.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gbif</groupId>
-        <artifactId>gbif-common-test</artifactId>
-        <version>${gbif-common-test.version}</version>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>

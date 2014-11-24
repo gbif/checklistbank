@@ -2,7 +2,6 @@ package org.gbif.checklistbank.service.mybatis.postgres;
 
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.test.DatabaseDrivenTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
