@@ -105,6 +105,10 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
       importer.run();
       try {
         Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
+        if (crawlFinished==null) {
+          LOG.warn("No crawlFinished date found in zookeeper, use current date instead for dataset {}", msg.getDatasetUuid());
+          crawlFinished=new Date();
+        }
         Message doneMsg = new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished,
             importer.getSyncCounter(), importer.getDelCounter());
         LOG.info("Sending ChecklistSyncedMessage for dataset [{}], synced={}, deleted={}, ", msg.getDatasetUuid(), importer.getSyncCounter(), importer.getDelCounter());

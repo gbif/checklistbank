@@ -72,7 +72,7 @@ public class AdminCommand extends BaseCommand {
             Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
           break;
 
-        case METRICS:
+        case ANALYZE:
           publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
           break;
 
