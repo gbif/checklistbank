@@ -2,6 +2,7 @@ package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
+import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 
 import java.util.UUID;
 import javax.validation.Valid;
@@ -24,6 +25,11 @@ public class AdminConfiguration {
   @NotNull
   @Valid
   public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
   @Parameter(names = {"-d", "--dataset-key"}, required = false)
   public UUID datasetKey;

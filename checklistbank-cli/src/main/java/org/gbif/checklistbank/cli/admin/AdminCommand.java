@@ -10,6 +10,7 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -80,6 +81,10 @@ public class AdminCommand extends BaseCommand {
           crawlPublisher(cfg.publisherKey);
           break;
 
+        case CLEANUP:
+          cleanupCrawl(cfg.datasetKey);
+          break;
+
         default:
           throw new UnsupportedOperationException();
       }
@@ -87,7 +92,11 @@ public class AdminCommand extends BaseCommand {
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }
+  }
 
+  private void cleanupCrawl(final UUID datasetKey) throws IOException {
+    ZookeeperUtils zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
+    zkUtils.delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
   }
 
   private void crawlPublisher(final UUID orgKey) throws IOException, InterruptedException {
@@ -106,4 +115,5 @@ public class AdminCommand extends BaseCommand {
       page.nextPage();
     }
   }
+  
 }

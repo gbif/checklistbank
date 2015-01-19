@@ -58,6 +58,20 @@ public class ZookeeperUtils {
     return JOINER.join(paths);
   }
 
+  public void delete(String path) {
+    try {
+      Stat stat = curator.checkExists().forPath(path);
+      if (stat == null) {
+        LOG.info("Path {} not existing in Zookeeper", path);
+      } else {
+        curator.delete().deletingChildrenIfNeeded().forPath(path);
+        LOG.info("Deleted path {} in Zookeeper", path);
+      }
+    } catch (Exception e) {
+      LOG.error("Exception while deleting ZooKeeper path {}", path, e);
+    }
+  }
+
   public void createOrUpdate(String crawlPath, byte[] data) {
     try {
       Stat stat = curator.checkExists().forPath(crawlPath);

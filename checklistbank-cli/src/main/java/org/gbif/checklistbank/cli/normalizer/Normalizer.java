@@ -194,7 +194,7 @@ public class Normalizer extends NeoRunnable {
       }
     }
     // insert higher taxon if not found
-    parent.node = createTaxon(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED);
+    parent.node = createTaxon(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED, true);
     // insert parent relationship
     assignParent(parent.node, taxon);
 
@@ -233,7 +233,7 @@ public class Normalizer extends NeoRunnable {
           String taxonID = (String) syn.getProperty(TaxonProperties.TAXON_ID, null);
           cycles.add(taxonID);
 
-          Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL);
+          Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true);
           mapper.addRemark(acc, "Synonym cycle cut for taxonID " + taxonID);
           createSynonymRel(syn, acc, true);
           sr.delete();
@@ -419,6 +419,9 @@ public class Normalizer extends NeoRunnable {
    * Creates synonym_of relationship.
    * Assumes pro parte synonyms are dealt with before and the remaining accepted identifier refers to a single taxon only.
    * See #duplicateProParteSynonyms()
+   * @param taxonID taxonID of the synonym
+   * @param sciname scientificName of the synonym
+   * @param canonical canonical name of the synonym
    * @return true if it is a synonym of some type
    */
   private boolean setupAcceptedRel(Node n, @Nullable String taxonID, String sciname, @Nullable String canonical, Rank rank) {
@@ -433,7 +436,7 @@ public class Normalizer extends NeoRunnable {
           LOG.debug("acceptedNameUsageID {} not existing", id);
           // is the accepted name also mapped?
           String name = ObjectUtils.defaultIfNull(NeoMapper.value(n, DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
-          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id);
+          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id, "Placeholder for the missing accepted taxonID for synonym " + sciname);
         }
       }
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
@@ -444,7 +447,7 @@ public class Normalizer extends NeoRunnable {
           accepted = nodeByCanonical(name);
           if (accepted == null) {
             LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null);
+            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
           }
         }
       }
@@ -453,7 +456,7 @@ public class Normalizer extends NeoRunnable {
     // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
     if (status.isSynonym() && accepted == null) {
       mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_MISSING);
-      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null);
+      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null, "Placeholder for the missing accepted taxon for synonym " + sciname);
     }
 
     if (accepted != null && !accepted.equals(n)) {
@@ -492,7 +495,7 @@ public class Normalizer extends NeoRunnable {
         }
         if (parent == null) {
           LOG.debug("parentNameUsage {} not existing, materialize it", name);
-          parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL);
+          parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true);
         }
       }
     }
@@ -524,7 +527,7 @@ public class Normalizer extends NeoRunnable {
           }
           if (basionym == null) {
             LOG.debug("originalNameUsage {} not existing, materialize it", name);
-            basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL);
+            basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL, true);
           }
         }
       }
@@ -534,9 +537,11 @@ public class Normalizer extends NeoRunnable {
     }
   }
 
-  private Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {
+  private Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status, boolean isRoot) {
     Node n = super.create(origin, sciname, rank, status);
-    n.addLabel(Labels.ROOT);
+    if (isRoot) {
+      n.addLabel(Labels.ROOT);
+    }
     return n;
   }
 
@@ -550,8 +555,8 @@ public class Normalizer extends NeoRunnable {
    * @param taxonID the optional taxonID to apply to the new node
    */
   private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status,
-    Node classificationSource, @Nullable String taxonID) {
-    Node n = createTaxon(origin, sciname, rank, status);
+    Node classificationSource, @Nullable String taxonID, @Nullable String remarks) {
+    Node n = createTaxon(origin, sciname, rank, status, false);
     // copy props from source
     for (String p : CLASSIFICATION_PROPERTIES) {
       try {
@@ -562,6 +567,9 @@ public class Normalizer extends NeoRunnable {
     }
     if (!Strings.isNullOrEmpty(taxonID)) {
       n.setProperty(TaxonProperties.TAXON_ID, taxonID);
+    }
+    if (!Strings.isNullOrEmpty(remarks)) {
+      n.setProperty(TaxonProperties.REMARKS, remarks);
     }
     return n;
   }

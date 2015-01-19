@@ -34,8 +34,8 @@ public class ImportExternal {
   public void index(String repo, String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init(repo);
-//    download(url);
-//    normalize();
+    download(url);
+    normalize();
     sync();
   }
 
@@ -96,7 +96,9 @@ public class ImportExternal {
   public static void main(String[] args) throws Exception{
     ImportExternal imp = new ImportExternal();
     //imp.index("http://ipt.speciesfile.org:8080/archive.do?r=coleorrhyncha", UUID.fromString(""));
-    imp.index("/Users/markus/Desktop/repo", "http://ipt.speciesfile.org:8080/archive.do?r=blattodea", UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
+    imp.index("/Users/markus/Desktop/repo",
+      "https://dl.dropboxusercontent.com/u/457027/CatalogueOfAfrotropicalBeesMARKUS.zip",
+      UUID.fromString("da38f103-4410-43d1-b716-ea6b1b92bbac"));
 
   }
 }
