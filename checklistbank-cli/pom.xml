@@ -218,7 +218,6 @@
     <dependency>
       <groupId>com.carrotsearch</groupId>
       <artifactId>hppc</artifactId>
-      <version>0.6.0</version>
     </dependency>
 
     <!-- JACKSON 2.4 -->
