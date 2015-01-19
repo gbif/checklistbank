@@ -9,9 +9,17 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface RawUsageMapper {
 
+  /**
+   * @param key usage key
+   */
   RawUsage get(@Param("key") int key);
 
   void insert(@Param("r") RawUsage usage);
 
   void update(@Param("r") RawUsage usage);
+
+  /**
+   * @param key usage key
+   */
+  void delete(@Param("key") int key);
 }

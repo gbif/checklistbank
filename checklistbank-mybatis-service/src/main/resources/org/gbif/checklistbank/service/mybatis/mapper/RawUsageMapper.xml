@@ -26,4 +26,8 @@
     WHERE usage_fk = #{r.usageKey}
   </update>
 
+  <delete id="delete" parameterType="map">
+    DELETE FROM raw_usage
+    WHERE usage_fk=#{key}
+  </delete>
 </mapper>

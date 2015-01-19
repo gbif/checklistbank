@@ -56,7 +56,6 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
 
   /**
    * Iterates over all taxa from root down, also returning all synonyms for each accepted taxon.
-   * TODO: how to handle basionyms ???????
    */
   public static Iterable<Node> all(final GraphDatabaseService db) {
     return new Iterable<Node>() {

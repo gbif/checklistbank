@@ -317,6 +317,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
       raw.setDatasetKey(datasetKey);
       raw.setData(vParser.write(verbatim));
       rawMapper.update(raw);
+    } else {
+      rawMapper.delete(usageKey);
     }
 
     // update nub mapping

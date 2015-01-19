@@ -115,5 +115,5 @@ public class AdminCommand extends BaseCommand {
       page.nextPage();
     }
   }
-  
+
 }
