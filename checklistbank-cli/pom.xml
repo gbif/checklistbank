@@ -70,6 +70,7 @@
             </goals>
             <configuration>
               <finalName>${project.artifactId}</finalName>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <!-- This bit sets the main class for the executable jar as you otherwise -->
                 <!-- would with the assembly plugin                                       -->
