@@ -100,10 +100,12 @@ public class AdminCommand extends BaseCommand {
   private void cleanupCrawl(final UUID datasetKey) throws IOException {
     ZookeeperUtils zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
     zkUtils.delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
+    LOG.info("Removed crawl {} from zookeeper", datasetKey);
     // cleanup repo files
     final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
     FileUtils.deleteQuietly(dwcaFile);
     FileUtils.deleteDirectory(cfg.archiveDir(datasetKey));
+    LOG.info("Removed dwca files from repository {}", dwcaFile);
   }
 
   private void crawlPublisher(final UUID orgKey) throws IOException, InterruptedException {
