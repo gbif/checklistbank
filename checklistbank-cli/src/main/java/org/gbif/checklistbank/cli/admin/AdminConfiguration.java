@@ -4,6 +4,7 @@ import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 
+import java.io.File;
 import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -31,6 +32,10 @@ public class AdminConfiguration {
   @NotNull
   public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
+  @Parameter(names = "--archive-repository")
+  @NotNull
+  public File archiveRepository;
+
   @Parameter(names = {"-d", "--dataset-key"}, required = false)
   public UUID datasetKey;
 
@@ -41,4 +46,10 @@ public class AdminConfiguration {
   @NotNull
   public AdminOperation operation;
 
+  /**
+   * Returns the directory with the decompressed archive folder created by the dwca downloader.
+   */
+  public File archiveDir(UUID datasetKey) {
+    return new File(archiveRepository, datasetKey.toString());
+  }
 }

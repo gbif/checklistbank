@@ -20,6 +20,7 @@ import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
@@ -27,6 +28,7 @@ import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
 import org.kohsuke.MetaInfServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +39,7 @@ import org.slf4j.LoggerFactory;
 @MetaInfServices(Command.class)
 public class AdminCommand extends BaseCommand {
   private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
+  private static final String DWCA_SUFFIX = ".dwca";
 
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
@@ -97,6 +100,10 @@ public class AdminCommand extends BaseCommand {
   private void cleanupCrawl(final UUID datasetKey) throws IOException {
     ZookeeperUtils zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
     zkUtils.delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
+    // cleanup repo files
+    final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
+    FileUtils.deleteQuietly(dwcaFile);
+    FileUtils.deleteDirectory(cfg.archiveDir(datasetKey));
   }
 
   private void crawlPublisher(final UUID orgKey) throws IOException, InterruptedException {
