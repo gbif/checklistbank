@@ -176,13 +176,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     metricsMapper.insert(datasetKey, metrics);
 
     // insert verbatim
-    if (verbatim != null) {
-      RawUsage raw = new RawUsage();
-      raw.setUsageKey(usageKey);
-      raw.setDatasetKey(datasetKey);
-      raw.setData(vParser.write(verbatim));
-      rawMapper.insert(raw);
-    }
+    insertVerbatim(verbatim, datasetKey, usageKey);
 
     // insert nub mapping
     if (usage.getNubKey() != null) {
@@ -190,6 +184,16 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     }
 
     return usageKey;
+  }
+
+  private void insertVerbatim(@Nullable VerbatimNameUsage verbatim, UUID datasetKey, int usageKey) {
+    if (verbatim != null) {
+      RawUsage raw = new RawUsage();
+      raw.setUsageKey(usageKey);
+      raw.setDatasetKey(datasetKey);
+      raw.setData(vParser.write(verbatim));
+      rawMapper.insert(raw);
+    }
   }
 
   private void insertExtensions(NameUsageContainer usage) {
@@ -311,15 +315,10 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     metricsMapper.update(metrics);
 
     // update verbatim
-    if (verbatim != null) {
-      RawUsage raw = new RawUsage();
-      raw.setUsageKey(usageKey);
-      raw.setDatasetKey(datasetKey);
-      raw.setData(vParser.write(verbatim));
-      rawMapper.update(raw);
-    } else {
-      rawMapper.delete(usageKey);
-    }
+    // we delete and insert instead of updates to avoid updating non existing records
+    // see http://dev.gbif.org/issues/browse/POR-2617
+    rawMapper.delete(usageKey);
+    insertVerbatim(verbatim, datasetKey, usageKey);
 
     // update nub mapping
     nubRelMapper.delete(usageKey);
