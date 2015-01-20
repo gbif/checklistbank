@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>19-SNAPSHOT</version>
+    <version>19</version>
   </parent>
 
 
