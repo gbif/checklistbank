@@ -85,7 +85,7 @@
     <mybatis.version>3.2.8</mybatis.version>
     <mybatis-guice.version>3.6</mybatis-guice.version>
     <neo4j.version>2.1.5</neo4j.version>
-    <postgresql.version>9.3-1102-jdbc41</postgresql.version>
+    <postgresql.version>9.2-1003-jdbc4</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <servlet-api.version>2.5</servlet-api.version>
     <slf4j.version>1.7.10</slf4j.version>
