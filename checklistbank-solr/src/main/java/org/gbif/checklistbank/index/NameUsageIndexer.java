@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
 
-  private static final Version VERSION = Version.LUCENE_44;
+  private static final Version VERSION = Version.LUCENE_4_10_3;
 
   protected static AtomicLong counter = new AtomicLong(0L);
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexer.class);
@@ -156,7 +156,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     this.solrDocumentConverter = solrDocumentConverter;
     // final solr
     this.solrRef = solr;
-    this.indexDir = new File(solrRef.getSolr().getCoreContainer().getConfigFile().getParentFile(), "parts");
+    this.indexDir = new File(getSolrHome(), "parts");
     LOG.info("Creating solr indices in folder {}", indexDir.getAbsolutePath());
   }
 
@@ -206,13 +206,17 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     }
   }
 
+  private File getSolrHome() {
+    return new File(solrRef.getSolr().getCoreContainer().getSolrHome());
+  }
+
   private void mergeIndices() throws IOException, SolrServerException {
     if (numWriters == 1) {
       LOG.info("Optimizing single solr index ...");
       solrRef.getSolr().optimize();
 
     } else {
-      File solrHome = solrRef.getSolr().getCoreContainer().getConfigFile().getParentFile();
+      File solrHome = getSolrHome();
       // shutdown solr before we can merge into its index
       solrRef.getSolr().getCoreContainer().shutdown();
       File luceneDir = getLuceneDir(solrHome);

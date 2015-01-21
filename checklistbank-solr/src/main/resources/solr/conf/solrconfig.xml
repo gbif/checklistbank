@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-  <luceneMatchVersion>LUCENE_44</luceneMatchVersion>
+  <luceneMatchVersion>LUCENE_4_10_3</luceneMatchVersion>
   <lib dir="../../contrib/extraction/lib" regex=".*\.jar" />
   <lib dir="../dist/" regex="solr-cell-\d.*\.jar" />
   <lib dir="../../contrib/clustering/lib/" regex=".*\.jar" />

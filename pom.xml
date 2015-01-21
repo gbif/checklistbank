@@ -40,7 +40,7 @@
     <gbif-cli.version>0.9-SNAPSHOT</gbif-cli.version>
     <gbif-common.version>0.17</gbif-common.version>
     <gbif-common-mybatis.version>0.14-SNAPSHOT</gbif-common-mybatis.version>
-    <gbif-common-search.version>0.18</gbif-common-search.version>
+    <gbif-common-search.version>0.19-SNAPSHOT</gbif-common-search.version>
     <gbif-common-service.version>0.12-SNAPSHOT</gbif-common-service.version>
     <gbif-common-ws.version>0.17-SNAPSHOT</gbif-common-ws.version>
     <gbif-httputils.version>0.6-SNAPSHOT</gbif-httputils.version>
@@ -89,7 +89,7 @@
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <servlet-api.version>2.5</servlet-api.version>
     <slf4j.version>1.7.10</slf4j.version>
-    <solr-lucene.version>4.4.0</solr-lucene.version>
+    <solr-lucene.version>4.10.3</solr-lucene.version> <!--  4.4.0  -->
     <tika.version>1.7</tika.version>
     <trove.version>2.1.0</trove.version>
   </properties>
