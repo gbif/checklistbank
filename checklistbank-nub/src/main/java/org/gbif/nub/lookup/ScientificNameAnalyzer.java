@@ -1,7 +1,5 @@
 package org.gbif.nub.lookup;
 
-import org.gbif.nub.utils.Constants;
-
 import java.io.Reader;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -20,7 +18,7 @@ public class ScientificNameAnalyzer extends Analyzer {
   protected TokenStreamComponents createComponents(final String fieldName, final Reader reader) {
     KeywordTokenizer source = new KeywordTokenizer(reader, BUFFER_SIZE);
 
-    TokenStream result = new LowerCaseFilter(Constants.LUCENE_VERSION, source);
+    TokenStream result = new LowerCaseFilter(source);
     result = new ScientificNameSoundAlikeFilter(result);
 
     return new TokenStreamComponents(source, result);

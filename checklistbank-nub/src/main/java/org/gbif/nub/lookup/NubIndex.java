@@ -6,8 +6,8 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.service.UsageService;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -39,6 +39,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class NubIndex implements ClassificationResolver {
     index = new RAMDirectory();
     LOG.info("Init a new, empty nub index");
     analyzer = new ScientificNameAnalyzer();
-    cfg = new IndexWriterConfig(org.gbif.nub.utils.Constants.LUCENE_VERSION, analyzer);
+    cfg = new IndexWriterConfig(Version.LATEST, analyzer);
     writer = new TrackingIndexWriter(new IndexWriter(index, cfg));
     // creates initial index segments
     writer.getIndexWriter().commit();
@@ -159,12 +160,13 @@ public class NubIndex implements ClassificationResolver {
 
     // use lucene analyzer to normalize input without using the full query parser
     StringBuilder sb = new StringBuilder();
-    try {
-      TokenStream stream = new ScientificNameAnalyzer().tokenStream(NubIndex.FIELD_CANONICAL_NAME, new StringReader(name));
+    try (TokenStream stream = analyzer.tokenStream(NubIndex.FIELD_CANONICAL_NAME, new StringReader(name))) {
       CharTermAttribute termAtt = stream.getAttribute(CharTermAttribute.class);
+      stream.reset();
       while (stream.incrementToken()) {
         sb.append(termAtt.toString());
       }
+      stream.end();
     } catch (IOException e) {
       LOG.error("An impossible error happened", e);
     }
