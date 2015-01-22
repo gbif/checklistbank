@@ -300,8 +300,7 @@ public class NameUsageDocConverter {
    *
    * @param solrInputDocument to be modified by adding the vernacular name fields
    */
-  private void addVernacularNames(SolrInputDocument solrInputDocument,
-    List<VernacularName> vernacularNames) {
+  private void addVernacularNames(SolrInputDocument solrInputDocument, List<VernacularName> vernacularNames) {
     if (vernacularNames == null) {
       return;
     }
