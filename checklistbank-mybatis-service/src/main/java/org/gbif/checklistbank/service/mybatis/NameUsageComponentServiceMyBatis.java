@@ -79,6 +79,11 @@ public class NameUsageComponentServiceMyBatis<T> implements NameUsageExtensionSe
 
     Map<Integer, List<T>> result = Maps.newHashMap();
     for (UsageRelated<T> r : related) {
+      if (r.getValue() == null) {
+        // value can be null when all properties of the bean (e.g. SpeciesProfile) are null
+        // in that case mybatis DOES NOT CREATE AN OBJECT !!!
+        continue;
+      }
       if (!result.containsKey(r.getUsageKey())) {
         result.put(r.getUsageKey(), Lists.<T>newArrayList());
       }

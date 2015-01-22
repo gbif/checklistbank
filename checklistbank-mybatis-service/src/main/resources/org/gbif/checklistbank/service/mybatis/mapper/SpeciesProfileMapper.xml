@@ -21,8 +21,10 @@
 
   <resultMap id="speciesProfileRangeResultMap" type="UsageRelated" autoMapping="true">
     <id property="usageKey" column="usageKey"/>
-    <id property="value" column="id"></id>
-    <association property="value" javaType="SpeciesProfile" resultMap="speciesProfileResultMap" />
+    <id column="id"/>
+    <association property="value" column="id" javaType="SpeciesProfile" autoMapping="true">
+      <id column="id"/>
+    </association>
   </resultMap>
 
 

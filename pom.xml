@@ -765,48 +765,6 @@
   </dependencyManagement>
 
   <profiles>
-    <!--
-      All profiles are MISSING the following password variable:
-         <checklistbank.db.password></checklistbank.db.password>
-    -->
-
-    <profile>
-      <id>prod</id>
-      <properties>
-        <checklistbank.db.host>excalibur.gbif.org</checklistbank.db.host>
-        <checklistbank.db.name>prod_b_checklistbank</checklistbank.db.name>
-        <checklistbank.db.username>clb</checklistbank.db.username>
-        <checklistbank.db.poolSize>20</checklistbank.db.poolSize>
-        <!-- below here only used for BUILDING THE WARS, not for tests! -->
-        <checklistbank.solr.server>http://apps.gbif.org:8082/checklistbank-solr</checklistbank.solr.server>
-        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
-      </properties>
-    </profile>
-
-    <!-- uat profile uses the same database and lookup service on boma as the dev profile uses -->
-    <profile>
-      <id>uat</id>
-      <properties>
-        <checklistbank.db.host>boma.gbif.org</checklistbank.db.host>
-        <checklistbank.db.name>clb2</checklistbank.db.name>
-        <checklistbank.db.username>clb</checklistbank.db.username>
-        <checklistbank.solr.server>http://apps.gbif-uat.org:8082/checklistbank-solr</checklistbank.solr.server>
-        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
-      </properties>
-    </profile>
-
-    <profile>
-      <!-- the dev profile is for deploying the webapp, NOT FOR EXECUTING INTEGRATION TESTS !!! -->
-      <id>dev</id>
-      <properties>
-        <checklistbank.db.host>boma.gbif.org</checklistbank.db.host>
-        <checklistbank.db.name>dev_clb</checklistbank.db.name>
-        <checklistbank.db.username>clb</checklistbank.db.username>
-	      <checklistbank.solr.server>http://apps.gbif-dev.org:8082/checklistbank-solr</checklistbank.solr.server>
-        <checklistbank.solr.server.type>HTTP</checklistbank.solr.server.type>
-      </properties>
-    </profile>
-
     <!-- used by jenkins checklistbank-it for integration tests -->
     <profile>
       <id>jenkins</id>
@@ -816,10 +774,7 @@
         <checklistbank.db.username>clb</checklistbank.db.username>
       </properties>
     </profile>
-
   </profiles>
-
-
 </project>
 
 

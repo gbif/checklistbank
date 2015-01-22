@@ -1,20 +1,25 @@
 package org.gbif.checklistbank.index;
 
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.common.SolrInputDocument;
-import org.gbif.api.model.checklistbank.*;
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.common.SolrInputDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Executable job that creates a list of {@link SolrInputDocument} using a list of {@link NameUsage} objects.
@@ -26,7 +31,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
   /**
    * SolrServer instance.
    */
-  private final SolrServer indexWriter;
+  private final SolrServer solr;
 
   /**
    * Minimum usage key, inclusive, to process.
@@ -69,7 +74,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     this.startKey = startKey;
     this.endKey = endKey;
     this.solrDocumentConverter = solrDocumentConverter;
-    this.indexWriter = solr;
+    this.solr = solr;
   }
 
   /**
@@ -102,8 +107,9 @@ public class NameUsageIndexingJob implements Callable<Integer> {
           continue;
       }
       try {
-        indexWriter.add(solrDocumentConverter.toObject(usage, vernacularNameMap.get(usage.getKey()),
-        descriptionMap.get(usage.getKey()),distributionMap.get(usage.getKey()), speciesProfileMap.get(usage.getKey())));
+        solr.add(solrDocumentConverter.toObject(usage,
+          vernacularNameMap.get(usage.getKey()), descriptionMap.get(usage.getKey()),
+            distributionMap.get(usage.getKey()), speciesProfileMap.get(usage.getKey())));
 
       } catch (Exception e) {
         log.error("Error indexing document for usage {}", usage.getKey(), e);
