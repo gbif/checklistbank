@@ -46,7 +46,7 @@
     <gbif-httputils.version>0.6</gbif-httputils.version>
     <gbif-microservice.version>0.1</gbif-microservice.version>
     <gbif-postal-service.version>0.13</gbif-postal-service.version>
-    <registry-client.version>2.18</registry-client.version>
+    <registry-client.version>2.19</registry-client.version>
     <name-parser.version>2.5</name-parser.version>
     <gbif-parser.version>0.10</gbif-parser.version>
     <dwca-reader.version>1.20</dwca-reader.version>
