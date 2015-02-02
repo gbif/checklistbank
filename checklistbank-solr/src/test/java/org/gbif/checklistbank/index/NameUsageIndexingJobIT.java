@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.index;
 
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
@@ -55,16 +57,34 @@ public class NameUsageIndexingJobIT {
 
   @Test
   public void testSpeciesInfoRange() throws Exception {
-    int start = 109584190;
-    int end   = 109584210;
-    Map<Integer, List<SpeciesProfile>> sps = speciesProfileService.listRange(start, end);
-    assertEquals(0, sps.size());
+    int start = 114989960;
+    int end   = 114989970;
+    Map<Integer, List<SpeciesProfile>> range = speciesProfileService.listRange(start, end);
+    assertEquals(0, range.size());
+  }
+
+  @Test
+  public void testDescriptionRange() throws Exception {
+    int start = 110448010;
+    int end   = 110448020;
+    Map<Integer, List<Description>> range = descriptionService.listRange(start, end);
+    assertEquals(10, range.size());
+  }
+
+  @Test
+  public void testDistributionRange() throws Exception {
+    int start = 110448010;
+    int end   = 110448020;
+    Map<Integer, List<Distribution>> range = distributionService.listRange(start, end);
+    assertEquals(0, range.size());
   }
 
   @Test
   public void testCall() throws Exception {
-    int start = 109584190;
-    int end   = 109584210;
+    int start = 114989960;
+    int end   = 114989970;
+    start = 110448010;
+    end   = 110448020;
     NameUsageIndexingJob job = new NameUsageIndexingJob(solr, nameUsageService, start, end, new NameUsageDocConverter(),
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
     job.call();
