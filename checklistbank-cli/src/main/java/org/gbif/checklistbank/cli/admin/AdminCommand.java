@@ -14,6 +14,7 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
+import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
@@ -53,17 +54,23 @@ public class AdminCommand extends BaseCommand {
     return cfg;
   }
 
+  private void send(Message msg) throws IOException {
+    if (publisher == null) {
+      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
+    }
+    publisher.send(msg);
+  }
+
   @Override
   protected void doRun() {
     try {
-      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
       switch (cfg.operation) {
         case DOWNLOAD:
-          publisher.send( new StartCrawlMessage(cfg.datasetKey));
+          send( new StartCrawlMessage(cfg.datasetKey));
 
         case NORMALIZE:
           // validation result is a fake valid checklist validation
-          publisher.send( new DwcaMetasyncFinishedMessage(cfg.datasetKey, DatasetType.CHECKLIST,
+          send( new DwcaMetasyncFinishedMessage(cfg.datasetKey, DatasetType.CHECKLIST,
                   URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
                   new DwcaValidationReport(cfg.datasetKey,
                     new ChecklistValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
@@ -72,12 +79,12 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case IMPORT:
-          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,0,
+          send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,0,
             Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
           break;
 
         case ANALYZE:
-          publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
+          send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
           break;
 
         case CRAWL_PUBLISHER:
@@ -118,7 +125,7 @@ public class AdminCommand extends BaseCommand {
       for (Dataset d : resp.getResults()) {
         counter++;
         LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle());
-        publisher.send( new StartCrawlMessage(d.getKey()));
+        send( new StartCrawlMessage(d.getKey()));
       }
       Thread.sleep(10000);
       page.nextPage();
