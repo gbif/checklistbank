@@ -36,11 +36,9 @@ public class AdminConfiguration {
   @NotNull
   public File archiveRepository;
 
-  @Parameter(names = {"-d", "--dataset-key"}, required = false)
-  public UUID datasetKey;
-
-  @Parameter(names = {"-p", "--publisher-key"}, required = false)
-  public UUID publisherKey;
+  @Parameter(names = {"-k", "--key"}, required = false)
+  @NotNull
+  public UUID key;
 
   @Parameter(names = {"-op", "--operation"}, required = true)
   @NotNull
