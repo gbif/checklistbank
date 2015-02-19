@@ -52,7 +52,7 @@
     INSERT INTO media (usage_fk, type, format, identifier, "references", title, description, audience,
       created, creator, contributor, publisher, license, rights_holder, source_fk
     )
-    VALUES (#{key}, #{obj.type}, #{obj.format}, #{obj.identifier}, #{obj.references}, #{obj.title}, #{obj.description}, #{obj.audience},
+    VALUES (#{key}, #{obj.type}::media_type, #{obj.format}, #{obj.identifier}, #{obj.references}, #{obj.title}, #{obj.description}, #{obj.audience},
       #{obj.created}, #{obj.creator}, #{obj.contributor}, #{obj.publisher}, #{obj.license}, #{obj.rightsHolder}, #{sourceKey}
     )
   </insert>

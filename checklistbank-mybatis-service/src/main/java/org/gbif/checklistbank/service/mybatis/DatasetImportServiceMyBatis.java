@@ -46,6 +46,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
@@ -234,18 +235,18 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
       }
 
-    //TODO: remove once known why we get NPEs here...
     } catch (Exception e) {
-      LOG.warn("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
+      LOG.error("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
       LOG.info("failed usage {}", usage);
-      LOG.info("getDescriptions {}", usage.getDescriptions());
-      LOG.info("getDistributions {}", usage.getDistributions());
-      LOG.info("getIdentifiers {}", usage.getIdentifiers());
-      LOG.info("getMedia {}", usage.getMedia());
-      LOG.info("getReferenceList {}", usage.getReferenceList());
-      LOG.info("getSpeciesProfiles {}", usage.getSpeciesProfiles());
-      LOG.info("getTypeSpecimens {}", usage.getTypeSpecimens());
-      LOG.info("getVernacularNames {}", usage.getVernacularNames());
+      LOG.info("failed usage descriptions {}", usage.getDescriptions());
+      LOG.info("failed usage distributions {}", usage.getDistributions());
+      LOG.info("failed usage identifiers {}", usage.getIdentifiers());
+      LOG.info("failed usage media {}", usage.getMedia());
+      LOG.info("failed usage references {}", usage.getReferenceList());
+      LOG.info("failed usage speciesProfiles {}", usage.getSpeciesProfiles());
+      LOG.info("failed usage typeSpecimens {}", usage.getTypeSpecimens());
+      LOG.info("failed usage vernacularNames {}", usage.getVernacularNames());
+      Throwables.propagate(e);
     }
   }
 

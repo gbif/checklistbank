@@ -178,7 +178,7 @@ public class AdminCommand extends BaseCommand {
             continue;
           }
           counter++;
-          LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle());
+          LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
           send( new StartCrawlMessage(d.getKey()));
         }
         page.nextPage();

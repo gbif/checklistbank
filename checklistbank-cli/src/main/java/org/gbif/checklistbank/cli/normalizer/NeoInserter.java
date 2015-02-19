@@ -151,6 +151,7 @@ public class NeoInserter {
   private void openArchive(File dwca) throws NormalizationFailedException {
     meta = new InsertMetadata();
     try {
+      LOG.info("Reading dwc archive from {}", dwca);
       arch = ArchiveFactory.openArchive(dwca);
       if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
         LOG.warn("Using core ID for taxonID");
