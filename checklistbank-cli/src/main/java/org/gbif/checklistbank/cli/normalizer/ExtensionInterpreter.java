@@ -12,6 +12,7 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.IdentifierType;
+import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.common.parsers.BooleanParser;
 import org.gbif.common.parsers.CitesAppendixParser;
@@ -37,12 +38,14 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 
 import java.net.URI;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,15 +66,16 @@ public class ExtensionInterpreter {
   private final MediaTypeParser mediaTypeParser = MediaTypeParser.getInstance();
 
   private final TermFactory tf = TermFactory.instance();
-  // EOL & AUDUBON MEDIA TERMS
+  // AUDUBON MEDIA TERMS
   private final Term accessURI = tf.findTerm("http://rs.tdwg.org/ac/terms/accessURI");
   private final Term furtherInformationURL = tf.findTerm("http://rs.tdwg.org/ac/terms/furtherInformationURL");
-  private final Term createDate = tf.findTerm("http://ns.adobe.com/xap/1.0/CreateDate");
-  private final Term usageTerms = tf.findTerm("http://ns.adobe.com/xap/1.0/rights/UsageTerms");
-  private final Term owner = tf.findTerm("http://ns.adobe.com/xap/1.0/rights/Owner");
   private final Term derivedFrom = tf.findTerm("http://rs.tdwg.org/ac/terms/derivedFrom");
   private final Term caption = tf.findTerm("http://rs.tdwg.org/ac/terms/caption");
   private final Term attributionLinkURL = tf.findTerm("http://rs.tdwg.org/ac/terms/attributionLinkURL");
+  // Adobe terms
+  private final Term adobeCreateDate = tf.findTerm("http://ns.adobe.com/xap/1.0/CreateDate");
+  private final Term adobeUsageTerms = tf.findTerm("http://ns.adobe.com/xap/1.0/rights/UsageTerms");
+  private final Term adobeOwner = tf.findTerm("http://ns.adobe.com/xap/1.0/rights/Owner");
 
   /**
    * Tries various terms in given order until it finds a non empty value.
@@ -234,30 +238,35 @@ public class ExtensionInterpreter {
     }
   }
 
-  private void extractMedia(NameUsageContainer u, VerbatimNameUsage v, Extension ext) {
+  private void extractMedia(NameUsageContainer u, VerbatimNameUsage v, Extension ext, boolean requireType) {
     if (v.hasExtension(ext)) {
       for (Map<Term, String> rec : v.getExtensions().get(ext)) {
         URI uri = UrlParser.parse(value(rec, accessURI, DcTerm.identifier));
         URI link = UrlParser.parse(value(rec, furtherInformationURL, DcTerm.references, attributionLinkURL));
+        // EOL media extension is also used to publish text descriptions - avoid those
+        MediaType type = enumify(rec, null, mediaTypeParser, u, DcTerm.type);
+        if (requireType && type == null) {
+          continue;
+        }
         // link or media uri must exist
         if (uri == null && link == null) {
           u.addIssue(NameUsageIssue.MULTIMEDIA_INVALID);
         } else {
           NameUsageMediaObject m = new NameUsageMediaObject();
+          m.setType(type);
           m.setIdentifier(uri);
           m.setReferences(link);
           m.setTitle(value(rec, DcTerm.title, caption));
           m.setDescription(value(rec, DcTerm.description));
-          m.setLicense(value(rec, DcTerm.license, usageTerms, DcTerm.rights));
+          m.setLicense(value(rec, DcTerm.license, adobeUsageTerms, DcTerm.rights));
           m.setPublisher(value(rec, DcTerm.publisher));
           m.setContributor(value(rec, DcTerm.contributor));
           m.setSource(value(rec, derivedFrom, DcTerm.source));
           m.setAudience(value(rec, DcTerm.audience));
-          m.setRightsHolder(value(rec, owner, DcTerm.rightsHolder));
+          m.setRightsHolder(value(rec, adobeOwner, DcTerm.rightsHolder));
           m.setCreator(value(rec, DcTerm.creator));
-          m.setType(enumify(rec, null, mediaTypeParser, u, DcTerm.type));
           m.setFormat(mediaParser.parseMimeType(value(rec, DcTerm.format)));
-          String created = value(rec, createDate, DcTerm.created, DcTerm.date);
+          String created = value(rec, adobeCreateDate, DcTerm.created, DcTerm.date);
           if (created != null) {
             m.setCreated(DateParseUtils.parse(created).getPayload());
           }
@@ -269,10 +278,10 @@ public class ExtensionInterpreter {
   }
 
   private void interpretMultimedia(NameUsageContainer u, VerbatimNameUsage v) {
-    extractMedia(u, v, Extension.IMAGE);
-    extractMedia(u, v, Extension.MULTIMEDIA);
-    extractMedia(u, v, Extension.EOL_MEDIA);
-    extractMedia(u, v, Extension.AUDUBON);
+    extractMedia(u, v, Extension.IMAGE, false);
+    extractMedia(u, v, Extension.MULTIMEDIA, false);
+    extractMedia(u, v, Extension.EOL_MEDIA, true);
+    extractMedia(u, v, Extension.AUDUBON, false);
     extractMediaCore(u, v);
     /**
      * merges media records if the same image URL or link is given several times.
@@ -359,11 +368,6 @@ public class ExtensionInterpreter {
         // interpret rec
         d.setDescription(value(rec, DcTerm.description, DcTerm.abstract_));
         d.setType(value(rec, DcTerm.type));
-        // make sure we have some description
-        if (d.getDescription() == null) {
-          u.addIssue(NameUsageIssue.DESCRIPTION_INVALID);
-          continue;
-        }
         d.setSource(value(rec, DcTerm.source));
         d.setContributor(value(rec, DcTerm.contributor));
         d.setCreator(value(rec, DcTerm.creator, DcTerm.rightsHolder));
@@ -372,6 +376,49 @@ public class ExtensionInterpreter {
         u.getDescriptions().add(d);
       }
     }
+    // EOL MULTIMEDIA
+    else if (v.hasExtension(Extension.EOL_MEDIA)) {
+      for (Map<Term, String> rec : v.getExtensions().get(Extension.EOL_MEDIA)) {
+        // ignore non text type records
+        if (!isTextType(value(rec, DcTerm.type))) {
+          continue;
+        }
+        Description d = new Description();
+        // interpret rec
+        d.setType(value(rec, DcTerm.title));
+        d.setDescription(value(rec, DcTerm.description, DcTerm.abstract_));
+        // make sure we have some description
+        if (d.getDescription() == null) {
+          u.addIssue(NameUsageIssue.DESCRIPTION_INVALID);
+          continue;
+        }
+        d.setSource(value(rec, DcTerm.source, DcTerm.bibliographicCitation));
+        d.setContributor(value(rec, DcTerm.contributor));
+        d.setCreator(value(rec, DcTerm.creator, DcTerm.rightsHolder, adobeOwner, DcTerm.publisher));
+        d.setLanguage(enumify(rec, NameUsageIssue.DESCRIPTION_INVALID, languageParser, u, DcTerm.language));
+        d.setLicense(value(rec, DcTerm.license, DcTerm.rights, adobeUsageTerms));
+        u.getDescriptions().add(d);
+      }
+    }
+    // verify descriptions
+    // make sure we have some description
+    Iterator<Description> iter = u.getDescriptions().iterator();
+    while(iter.hasNext()) {
+      Description d = iter.next();
+      if (StringUtils.isBlank(d.getDescription())) {
+        u.addIssue(NameUsageIssue.DESCRIPTION_INVALID);
+        iter.remove();
+      }
+    }
+  }
+
+  private boolean isTextType(String type) {
+    return type.equalsIgnoreCase("http://purl.org/dc/dcmitype/Text")
+           || type.equalsIgnoreCase("purl.org/dc/dcmitype/Text")
+           || type.equalsIgnoreCase("dcmitype:Text")
+           || type.equalsIgnoreCase("dctype:Text")
+           || type.equalsIgnoreCase("dc:Text")
+           || type.equalsIgnoreCase("Text");
   }
 
   public void interpret(NameUsageContainer u, VerbatimNameUsage v) {
