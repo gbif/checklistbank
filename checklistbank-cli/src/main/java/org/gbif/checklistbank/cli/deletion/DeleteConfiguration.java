@@ -30,7 +30,7 @@ public class DeleteConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public SolrConfig solr = new SolrConfig();
+  public NeoConfiguration neo = new NeoConfiguration();
 
   @ParametersDelegate
   @Valid
@@ -40,6 +40,5 @@ public class DeleteConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public NeoConfiguration neo = new NeoConfiguration();
-
+  public SolrConfig solr = new SolrConfig();
 }
