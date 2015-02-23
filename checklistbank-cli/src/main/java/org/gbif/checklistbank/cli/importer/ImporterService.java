@@ -38,9 +38,8 @@ import org.slf4j.LoggerFactory;
 public class ImporterService extends AbstractIdleService implements MessageCallback<ChecklistNormalizedMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
-
-  public static final String QUEUE = "clb-importer";
-
+  private static final String QUEUE = "clb-importer";
+  private static final String SYNC_METER = "taxon.sync";
 
   private final ImporterConfiguration cfg;
   private MessageListener listener;
@@ -49,7 +48,6 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
   private DatasetImportServiceCombined importService;
   private NameUsageService usageService;
   private final MetricRegistry registry = new MetricRegistry("importer");
-  public static final String SYNC_METER = "taxon.sync";
   private final Timer timer = registry.timer("importer.time");
   private final Counter started = registry.counter("importer.started");
   private final Counter failed = registry.counter("importer.failed");
@@ -84,14 +82,14 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
   @Override
   protected void shutDown() throws Exception {
+    if (hds != null) {
+      hds.close();
+    }
     if (listener != null) {
       listener.close();
     }
     if (publisher != null) {
       publisher.close();
-    }
-    if (hds != null) {
-      hds.close();
     }
   }
 

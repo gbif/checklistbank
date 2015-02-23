@@ -10,6 +10,8 @@ import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 import javax.sql.DataSource;
 
@@ -21,6 +23,7 @@ import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +31,8 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
 
   private static final Logger LOG = LoggerFactory.getLogger(DeleteService.class);
 
-  public static final String QUEUE = "clb-deletion";
-
-  public static final String DELETION_METER = "checklist.deleted";
+  private static final String QUEUE = "clb-deletion";
+  private static final String DELETION_METER = "checklist.deleted";
 
   private final DeleteConfiguration cfg;
   private MessageListener listener;
@@ -51,7 +53,8 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
     cfg.ganglia.start(registry);
 
     // init mybatis layer and solr from cfg instance
-    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+    Key<DataSource> dsKey = Key.get(DataSource.class,
+      Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
     Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
     hds = (HikariDataSource) inj.getInstance(dsKey);
     solrService = inj.getInstance(NameUsageIndexService.class);
@@ -63,10 +66,12 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
 
   @Override
   protected void shutDown() throws Exception {
+    if (hds != null) {
+      hds.close();
+    }
     if (listener != null) {
       listener.close();
     }
-    hds.close();
   }
 
   @Override
@@ -93,6 +98,13 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
     solrService.delete(key);
     // postgres usage
     mybatisService.deleteDataset(key);
+    // delete neo storage files
+    File neoDir = cfg.neo.neoDir(key);
+    try {
+      FileUtils.deleteDirectory(neoDir);
+    } catch (IOException e) {
+      LOG.warn("Failed to delete neo data dir {}", neoDir.getAbsoluteFile());
+    }
     LOG.info("Deleted data for checklist {}", key);
   }
 

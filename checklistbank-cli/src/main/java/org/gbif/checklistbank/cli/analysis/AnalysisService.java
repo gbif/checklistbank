@@ -29,9 +29,8 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisService.class);
 
-  public static final String QUEUE = "clb-analysis";
-
-  public static final String MATCH_METER = "checklist.analysis";
+  private static final String QUEUE = "clb-analysis";
+  private static final String MATCH_METER = "checklist.analysis";
 
   private final AnalysisConfiguration cfg;
   private MessageListener listener;
@@ -62,13 +61,15 @@ public class AnalysisService extends AbstractIdleService implements MessageCallb
 
   @Override
   protected void shutDown() throws Exception {
+    if (hds != null) {
+      hds.close();
+    }
     if (listener != null) {
       listener.close();
     }
     if (publisher != null) {
       publisher.close();
     }
-    hds.close();
   }
 
   @Override

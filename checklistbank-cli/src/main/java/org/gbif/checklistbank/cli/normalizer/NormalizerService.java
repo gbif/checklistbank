@@ -28,7 +28,7 @@ public class NormalizerService extends AbstractIdleService implements MessageCal
 
   private static final Logger LOG = LoggerFactory.getLogger(NormalizerService.class);
 
-  public static final String QUEUE = "clb-normalizer";
+  private static final String QUEUE = "clb-normalizer";
 
   public static final String HEAP_GAUGE = "heap.usage";
   public static final String INSERT_METER = "taxon.inserts";

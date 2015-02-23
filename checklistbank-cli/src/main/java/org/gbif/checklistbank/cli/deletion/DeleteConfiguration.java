@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.deletion;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MessagingConfiguration;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
@@ -35,5 +36,10 @@ public class DeleteConfiguration {
   @Valid
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public NeoConfiguration neo = new NeoConfiguration();
 
 }
