@@ -39,7 +39,8 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
   private static final String QUEUE = "clb-importer";
-  private static final String SYNC_METER = "taxon.sync";
+
+  static final String SYNC_METER = "taxon.sync";
 
   private final ImporterConfiguration cfg;
   private MessageListener listener;
