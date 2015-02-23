@@ -39,7 +39,8 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
   private NameUsageIndexService solrService;
   private DatasetImportService mybatisService;
   private final MetricRegistry registry = new MetricRegistry("checklist.deletion");
-  private final Timer timer = registry.timer("checklist.deletion.time");
+  private final Timer timerSolr = registry.timer("checklist.deletion.solr.time");
+  private final Timer timerSql = registry.timer("checklist.deletion.sql.time");
   // we need to properly close the connection pool, so we keep a reference
   private HikariDataSource hds;
 
@@ -77,17 +78,9 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
   @Override
   public void handleMessage(RegistryChangeMessage msg) {
     if (RegistryChangeMessage.ChangeType.DELETED == msg.getChangeType() && Dataset.class.equals(msg.getObjectClass())) {
-      final Timer.Context context = timer.time();
       Dataset d = (Dataset) msg.getOldObject();
-      try {
-        if (DatasetType.CHECKLIST == d.getType()) {
-          deleteChecklist(d.getKey());
-        }
-      } catch (Throwable e) {
-        LOG.error("Failed to analyze dataset [{}]", d.getKey(), e);
-
-      } finally {
-        context.stop();
+      if (DatasetType.CHECKLIST == d.getType()) {
+        deleteChecklist(d.getKey());
       }
     }
   }
@@ -95,9 +88,25 @@ public class DeleteService extends AbstractIdleService implements MessageCallbac
   private void deleteChecklist(final UUID key) {
     LOG.info("Deleting data for checklist {}", key);
     // solr
-    solrService.delete(key);
+    Timer.Context context = timerSolr.time();
+    try {
+      solrService.delete(key);
+    } catch (Throwable e) {
+      LOG.error("Failed to delete dataset [{}] from solr", key, e);
+    } finally {
+      context.stop();
+    }
+
     // postgres usage
-    mybatisService.deleteDataset(key);
+    context = timerSql.time();
+    try {
+      mybatisService.deleteDataset(key);
+    } catch (Throwable e) {
+      LOG.error("Failed to delete dataset [{}] from postgres", key, e);
+    } finally {
+      context.stop();
+    }
+
     // delete neo storage files
     File neoDir = cfg.neo.neoDir(key);
     try {
