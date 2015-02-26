@@ -9,7 +9,6 @@ import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import java.io.File;
 import java.util.UUID;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
@@ -52,11 +51,6 @@ public class NormalizerConfiguration {
   @Valid
   @NotNull
   public MatchServiceConfiguration matching = new MatchServiceConfiguration();
-
-  @Parameter(names = "--pool-size",
-    description = "Configures the maximum numbers of normalizers allowed to run in parallel")
-  @Min(1)
-  public int poolSize = 1;
 
   /**
    * Returns the directory with the decompressed archive folder created by the dwca downloader.
