@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:md="eml://ecoinformatics.org/methods-2.1.1" xmlns:proj="eml://ecoinformatics.org/project-2.1.1" xmlns:d="eml://ecoinformatics.org/dataset-2.1.1" xmlns:res="eml://ecoinformatics.org/resource-2.1.1" xmlns:dc="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0.1/eml.xsd" packageId="http://bdj/eml/" system="http://bdj/" scope="system" xml:lang="eng">
+	<dataset>
+		<title xml:lang="eng">
+  Guide to the Vascular Flora of the Savannas and Flatwoods of Shaken Creek Preserve and Vicinity (Pender &amp; Onslow Counties, North Carolina, U.S.A.)
+</title>
+		<creator>
+			<individualName>
+				<givenName>Robert</givenName>
+				<surName>Thornhill</surName>
+			</individualName>
+			<organizationName>North Carolina State University</organizationName>
+			<positionName>Mr</positionName>
+			<address>
+				<city>Raleigh</city>
+				<country>United States of America</country>
+			</address>
+			<electronicMailAddress>thorn004@gmail.com</electronicMailAddress>
+		</creator>
+		<metadataProvider>
+			<individualName>
+				<givenName>Robert</givenName>
+				<surName>Thornhill</surName>
+			</individualName>
+			<organizationName>North Carolina State University</organizationName>
+			<positionName>Mr</positionName>
+			<address>
+				<city>Raleigh</city>
+				<country>United States of America</country>
+			</address>
+			<electronicMailAddress>thorn004@gmail.com</electronicMailAddress>
+		</metadataProvider>
+		<pubDate>2014-05-15</pubDate>
+		<language>eng</language>
+		<abstract>
+			<para>
+  Shaken Creek Preserve (“SCP”) is a 2,448 ha (6,050 ac) natural area in Pender and Onslow Counties, North Carolina (U.S.A). Best known for its high-quality longleaf pine savanna habitat, the site contains seven savanna or savanna-like plant community types (i.e., flatwoods or sandhills), three of which are globally critically imperiled (G1): Sandy Pine Savanna (Rush Featherling subtype), Wet Loamy Pine Savanna, and Very Wet Loamy Pine Savanna. SCP hosts three Federally Endangered plant species and six Federal Species of Concern. Formerly a private hunting club, the site was virtually unknown to scientists until the 1990s; consequently, few biological inventories of SCP have been conducted. In particular, no systematic floristic inventories of the species-rich savannas have been undertaken, despite the fact that floristic data is critical to the effective management of any natural area. The goals of this study were to (1) inventory the vascular flora of the savannas, flatwoods, and sandhill community types on site through the collection of voucher specimens; (2) provide a comprehensive checklist of the flora based on collections and reports made from the site and from the same or similar habitats in the vicinity (i.e., within 2 miles of SCP); and (3) create an illustrated guide based on the checklist. In order to increase the usefulness of the guide, taxa not currently known from SCP but collected or reported from the same or similar habitats within two miles of SCP, are included in the guide. Eighty-three families containing 450 taxa, including thirty-two Significantly Rare and thirty-eight Watch List taxa, were collected or reported from SCP; an additional seven families containing a total of 102 taxa, including eighteen Significantly Rare and seven Watch List taxa, were collected or reported from the vicinity. In total, ninety families containing 552 taxa, including fifty Significantly Rare and forty-five Watch List taxa, are treated in the guide. Dichotomous keys are provided to all vouchered or reported families, genera, and species. The following features are provided for all species and infraspecific taxa: flowering and fruiting phenology; synonymy with Manual of the Vascular Flora of the Carolinas, the Flora of North America, and Flora of the Southern and Mid-Atlantic States; relevant voucher information; and, for most taxa, line drawings and/or photographs. For taxa collected from SCP, community types in which the taxa occur and estimates of abundance on site are also provided.
+</para>
+		</abstract>
+		<intellectualRights>
+			<para>CC BY 4.0</para>
+		</intellectualRights>
+		<distribution scope="document">
+		  <online>
+		    <url function="information">10.3897/BDJ.2.e1099</url>
+		  </online>
+		</distribution>
+		<contact>
+			<individualName>
+				<givenName>Robert</givenName>
+				<surName>Thornhill</surName>
+			</individualName>
+			<organizationName>North Carolina State University</organizationName>
+			<positionName>Mr</positionName>
+			<address>
+				<city>Raleigh</city>
+				<country>United States of America</country>
+			</address>
+			<electronicMailAddress>thorn004@gmail.com</electronicMailAddress>
+		</contact>
+	</dataset>
+	<additionalMetadata>
+		<metadata>
+			<gbif>
+				<dateStamp>2014-05-15</dateStamp>
+				<hierarchyLevel>dataset</hierarchyLevel>
+				<citation identifier="Citation Identifier">Thornhill R, Krings A, Lindbo D, Stucky J (2014) Guide to the Vascular Flora of the Savannas and Flatwoods of Shaken Creek Preserve and Vicinity (Pender </citation>
+			</gbif>
+		</metadata>
+	</additionalMetadata>
+</eml:eml>

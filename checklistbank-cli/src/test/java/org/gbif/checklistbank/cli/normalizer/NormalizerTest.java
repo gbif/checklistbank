@@ -723,6 +723,13 @@ public class NormalizerTest extends NeoTest {
     }
   }
 
+  @Test
+  public void testDenormedClassificationBDJ() throws Exception {
+    NormalizerStats stats = normalize(17);
+    System.out.println(stats);
+    assertEquals(1, stats.getRoots());
+  }
+
   private void assertUsage(NameUsage u, Rank rank, String sciName, boolean synonym) {
     assertEquals(synonym, u.isSynonym());
     assertEquals(rank, u.getRank());
