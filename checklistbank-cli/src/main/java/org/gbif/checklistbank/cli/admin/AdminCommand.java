@@ -150,6 +150,10 @@ public class AdminCommand extends BaseCommand {
       while (resp == null || !resp.isEndOfRecords()) {
         resp = os().publishedDatasets(key, page);
         for (Dataset d : resp.getResults()) {
+          if (cfg.type != null && d.getType() != cfg.type) {
+            LOG.debug("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            continue;
+          }
           try {
             cleanupCrawl(d.getKey());
           } catch (IOException e) {

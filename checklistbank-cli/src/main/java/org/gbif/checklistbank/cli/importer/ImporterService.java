@@ -77,7 +77,7 @@ public class ImporterService extends AbstractIdleService implements MessageCallb
 
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
-    listener = new MessageListener(cfg.messaging.getConnectionParameters());
+    listener = new MessageListener(cfg.messaging.getConnectionParameters(), 1);
     listener.listen(QUEUE, cfg.messaging.poolSize, this);
   }
 

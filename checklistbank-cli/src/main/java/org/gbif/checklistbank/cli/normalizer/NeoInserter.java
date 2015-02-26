@@ -20,6 +20,7 @@ import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.dwc.record.Record;
+import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
@@ -57,7 +58,6 @@ public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
   private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
-  private static final Term FURTHERINFORMATIONURL = TermFactory.instance().findTerm("http://rs.tdwg.org/ac/terms/furtherInformationURL");
 
   private Archive arch;
   private Map<String, UUID> constituents;
@@ -286,7 +286,7 @@ public class NeoInserter implements AutoCloseable {
 
     u.setReferences(coalesce(
       UrlParser.parse(v.getCoreField(DcTerm.references)),
-      UrlParser.parse(v.getCoreField(FURTHERINFORMATIONURL)),
+      UrlParser.parse(v.getCoreField(AcTerm.furtherInformationURL)),
       UrlParser.parse(v.getCoreField(DcTerm.source))
     ));
 
