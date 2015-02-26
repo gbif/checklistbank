@@ -98,6 +98,10 @@ public class ImporterIT extends NeoTest {
 
     iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
+    iCfg.clb.serverName="127.0.0.1";
+    iCfg.clb.databaseName="clb";
+    iCfg.clb.user="postgres";
+    iCfg.clb.password="pogo";
 
     initGuice(iCfg);
     // truncate tables
@@ -241,6 +245,28 @@ public class ImporterIT extends NeoTest {
   }
 
   /**
+   * Test richer nomenclatural data, make sure namePublishedIn is set.
+   * See bottom comments on http://dev.gbif.org/issues/browse/POR-2480
+   */
+  @Test
+  public void testIndexFungorumNomen() throws Exception {
+    final UUID datasetKey = NormalizerTest.datasetKey(6);
+
+    // insert neo db
+    NormalizerStats stats = insertNeo(datasetKey);
+    assertEquals(1, stats.getRoots());
+    assertEquals(297, stats.getCount());
+    assertEquals(36, stats.getSynonyms());
+
+    // 1st import
+    runImport(datasetKey);
+
+    // check first name
+    NameUsage u = getUsageByTaxonID(datasetKey, "426221");
+    assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u.getPublishedIn());
+  }
+
+  /**
    * Import a dataset that has basionym & proparte links to not previously imported usages.
    * We need to post update those foreign keys after all records have been inserted!
    */
@@ -268,7 +294,6 @@ public class ImporterIT extends NeoTest {
     runImport(datasetKey);
     // verify
     verify14(datasetKey);
-
   }
 
   private void verify14(UUID datasetKey) {

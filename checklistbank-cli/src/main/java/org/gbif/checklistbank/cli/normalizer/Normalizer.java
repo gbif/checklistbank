@@ -118,8 +118,8 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void batchInsertData() throws NormalizationFailedException {
-    NeoInserter inserter = new NeoInserter();
-    meta = inserter.insert(storeDir, dwca, batchSize, insertMeter, constituents);
+    NeoInserter inserter = new NeoInserter(storeDir, batchSize, insertMeter);
+    meta = inserter.insert(dwca, constituents);
   }
 
   /**

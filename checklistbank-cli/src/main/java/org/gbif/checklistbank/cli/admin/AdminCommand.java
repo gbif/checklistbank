@@ -181,6 +181,10 @@ public class AdminCommand extends BaseCommand {
             LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
             continue;
           }
+          if (cfg.type != null && d.getType() != cfg.type) {
+            LOG.debug("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            continue;
+          }
           counter++;
           LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
           send( new StartCrawlMessage(d.getKey()));

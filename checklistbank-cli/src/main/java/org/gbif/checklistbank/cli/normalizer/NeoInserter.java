@@ -16,17 +16,21 @@ import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.TaxStatusParser;
+import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.dwc.record.Record;
+import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
 import org.gbif.dwc.text.Archive;
 import org.gbif.dwc.text.ArchiveFactory;
 import org.gbif.dwc.text.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.utils.file.ClosableIterator;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,10 +53,11 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class NeoInserter {
+public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
   private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
+  private static final Term FURTHERINFORMATIONURL = TermFactory.instance().findTerm("http://rs.tdwg.org/ac/terms/furtherInformationURL");
 
   private Archive arch;
   private Map<String, UUID> constituents;
@@ -61,91 +66,97 @@ public class NeoInserter {
   private RankParser rankParser = RankParser.getInstance();
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
-  private InsertMetadata meta;
+  private InsertMetadata meta = new InsertMetadata();
   private ExtensionInterpreter extensionInterpreter = new ExtensionInterpreter();
+  private final BatchInserter inserter;
+  private final int batchSize;
+  private final Meter insertMeter;
 
-  public InsertMetadata insert(File storeDir, File dwca, int batchSize, Meter insertMeter,
-                               Map<String, UUID> constituents) throws NormalizationFailedException {
-    this.constituents = constituents;
-
-    openArchive(dwca);
-
+  public NeoInserter(File storeDir, int batchSize, Meter insertMeter) {
     LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
     initNeoDir(storeDir);
-    final BatchInserter inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
+    inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
+    this.batchSize = batchSize;
+    this.insertMeter = insertMeter;
+  }
+
+  public InsertMetadata insert(File dwca, Map<String, UUID> constituents) throws NormalizationFailedException {
+    this.constituents = constituents;
 
     final long startSort = System.currentTimeMillis();
-    LOG.debug("Sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
+    openArchive(dwca);
+    ClosableIterator<StarRecord> iter = arch.iterator();
+    iter.close();
+    LOG.debug("Opened and sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
 
     for (StarRecord star : arch) {
-      try {
-        VerbatimNameUsage v = new VerbatimNameUsage();
-
-        // set core props
-        Record core = star.core();
-        for (Term t : core.terms()) {
-          String val = clean(core.value(t));
-          if (val != null) {
-            v.setCoreField(t, val);
-          }
-        }
-        // make sure this is last to override already put taxonID keys
-        v.setCoreField(DwcTerm.taxonID, taxonID(core));
-        // read extensions data
-        for (Extension ext : Extension.values()) {
-          if (star.hasExtension(ext.getRowType())) {
-            v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
-            for (Record eRec : star.extension(ext.getRowType())) {
-              Map<Term, String> data = Maps.newHashMap();
-              for (Term t : eRec.terms()) {
-                String val = clean(eRec.value(t));
-                if (val != null) {
-                  data.put(t, val);
-                }
-              }
-              v.getExtensions().get(ext).add(data);
-            }
-          }
-        }
-        // convert into a NameUsage interpreting all enums and other needed types
-        NameUsageContainer u = buildUsage(v);
-
-        // ... and into neo
-        Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
-        // add more neo properties to be used in resolving the relations later:
-        putProp(props, DwcTerm.parentNameUsageID, v);
-        putProp(props, DwcTerm.parentNameUsage, v);
-        putProp(props, DwcTerm.acceptedNameUsageID, v);
-        putProp(props, DwcTerm.acceptedNameUsage, v);
-        putProp(props, DwcTerm.originalNameUsageID, v);
-        putProp(props, DwcTerm.originalNameUsage, v);
-
-        inserter.createNode(props, Labels.TAXON);
-
-        meta.incRecords();
-        meta.incRank(u.getRank());
-        insertMeter.mark();
-        if (meta.getRecords() % (batchSize * 10) == 0) {
-          LOG.info("Inserts done into neo4j: {}", meta.getRecords());
-        }
-
-      } catch (IgnoreNameUsageException e) {
-        meta.incIgnored();
-        LOG.info("Ignoring record {}: {}", star.core().id(), e.getMessage());
-      }
+      insertStarRecord(star);
     }
     LOG.info("Data insert completed, {} nodes created", meta.getRecords());
     LOG.info("Insert rate: {}", insertMeter.getMeanRate());
 
-    // define indices
-    LOG.info("Building lucene indices...");
-    inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(TaxonProperties.TAXON_ID).create();
-    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
-    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
-    inserter.shutdown();
-    LOG.info("Neo shutdown, data flushed to disk", meta.getRecords());
+    close();
 
     return meta;
+  }
+
+  @VisibleForTesting
+  protected void insertStarRecord(StarRecord star) {
+    try {
+      VerbatimNameUsage v = new VerbatimNameUsage();
+
+      // set core props
+      Record core = star.core();
+      for (Term t : core.terms()) {
+        String val = clean(core.value(t));
+        if (val != null) {
+          v.setCoreField(t, val);
+        }
+      }
+      // make sure this is last to override already put taxonID keys
+      v.setCoreField(DwcTerm.taxonID, taxonID(core));
+      // read extensions data
+      for (Extension ext : Extension.values()) {
+        if (star.hasExtension(ext.getRowType())) {
+          v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
+          for (Record eRec : star.extension(ext.getRowType())) {
+            Map<Term, String> data = Maps.newHashMap();
+            for (Term t : eRec.terms()) {
+              String val = clean(eRec.value(t));
+              if (val != null) {
+                data.put(t, val);
+              }
+            }
+            v.getExtensions().get(ext).add(data);
+          }
+        }
+      }
+      // convert into a NameUsage interpreting all enums and other needed types
+      NameUsageContainer u = buildUsage(v);
+
+      // ... and into neo
+      Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
+      // add more neo properties to be used in resolving the relations later:
+      putProp(props, DwcTerm.parentNameUsageID, v);
+      putProp(props, DwcTerm.parentNameUsage, v);
+      putProp(props, DwcTerm.acceptedNameUsageID, v);
+      putProp(props, DwcTerm.acceptedNameUsage, v);
+      putProp(props, DwcTerm.originalNameUsageID, v);
+      putProp(props, DwcTerm.originalNameUsage, v);
+
+      inserter.createNode(props, Labels.TAXON);
+
+      meta.incRecords();
+      meta.incRank(u.getRank());
+      insertMeter.mark();
+      if (meta.getRecords() % (batchSize * 10) == 0) {
+        LOG.info("Inserts done into neo4j: {}", meta.getRecords());
+      }
+
+    } catch (IgnoreNameUsageException e) {
+      meta.incIgnored();
+      LOG.info("Ignoring record {}: {}", star.core().id(), e.getMessage());
+    }
   }
 
   private void openArchive(File dwca) throws NormalizationFailedException {
@@ -267,10 +278,27 @@ public class NeoInserter {
       }
     }
 
+    // other properties
+    u.setPublishedIn(v.getCoreField(DwcTerm.namePublishedIn));
+    u.setAccordingTo(v.getCoreField(DwcTerm.nameAccordingTo));
+    u.setRemarks(v.getCoreField(DwcTerm.taxonRemarks));
+    u.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
+
+    u.setReferences(coalesce(
+      UrlParser.parse(v.getCoreField(DcTerm.references)),
+      UrlParser.parse(v.getCoreField(FURTHERINFORMATIONURL)),
+      UrlParser.parse(v.getCoreField(DcTerm.source))
+    ));
+
     // INTERPRET EXTENSIONS
     extensionInterpreter.interpret(u, v);
 
     return u;
+  }
+
+  private static <T> T coalesce(T ...items) {
+    for(T i : items) if(i != null) return i;
+    return null;
   }
 
   @VisibleForTesting
@@ -346,4 +374,14 @@ public class NeoInserter {
     return Strings.emptyToNull(x.trim());
   }
 
+  @Override
+  public void close() {
+    // define indices
+    LOG.info("Building lucene indices...");
+    inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(TaxonProperties.TAXON_ID).create();
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
+    inserter.shutdown();
+    LOG.info("Neo shutdown, data flushed to disk", meta.getRecords());
+  }
 }
