@@ -150,7 +150,11 @@ public class AdminCommand extends BaseCommand {
       while (resp == null || !resp.isEndOfRecords()) {
         resp = os().publishedDatasets(key, page);
         for (Dataset d : resp.getResults()) {
-          cleanupCrawl(d.getKey());
+          try {
+            cleanupCrawl(d.getKey());
+          } catch (IOException e) {
+            LOG.warn("Failed to cleanup crawl {}: {}", d.getKey(), e.getMessage());
+          }
         }
         page.nextPage();
       }
@@ -202,7 +206,10 @@ public class AdminCommand extends BaseCommand {
     // cleanup repo files
     final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
     FileUtils.deleteQuietly(dwcaFile);
-    FileUtils.deleteDirectory(cfg.archiveDir(datasetKey));
+    File dir = cfg.archiveDir(datasetKey);
+    if (dir.exists() && dir.isDirectory()) {
+      FileUtils.deleteDirectory(dir);
+    }
     LOG.info("Removed dwca files from repository {}", dwcaFile);
   }
 
