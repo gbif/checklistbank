@@ -1,5 +1,7 @@
-package org.gbif.checklistbank.cli.importer;
+package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
+import org.gbif.checklistbank.cli.importer.ImporterService;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
