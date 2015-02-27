@@ -151,7 +151,7 @@ public class AdminCommand extends BaseCommand {
         resp = os().publishedDatasets(key, page);
         for (Dataset d : resp.getResults()) {
           if (cfg.type != null && d.getType() != cfg.type) {
-            LOG.debug("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
             continue;
           }
           try {
@@ -172,7 +172,7 @@ public class AdminCommand extends BaseCommand {
    */
   private void crawl(final UUID key) throws IOException {
     if (isDataset(key)) {
-      send( new StartCrawlMessage(key));
+      crawlDataset(key);
 
     } else if (isOrg(key)) {
       final PagingRequest page = new PagingRequest(0, 10);
@@ -186,18 +186,23 @@ public class AdminCommand extends BaseCommand {
             continue;
           }
           if (cfg.type != null && d.getType() != cfg.type) {
-            LOG.debug("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
             continue;
           }
           counter++;
           LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-          send( new StartCrawlMessage(d.getKey()));
+          crawlDataset(key);
         }
         page.nextPage();
       }
     } else {
       LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
     }
+  }
+
+  private void crawlDataset(UUID key) throws IOException {
+    cleanupCrawl(key);
+    send( new StartCrawlMessage(key));
   }
 
   private boolean isOrg(UUID key) {

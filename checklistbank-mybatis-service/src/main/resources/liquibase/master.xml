@@ -49,5 +49,8 @@
   <changeSet id="15" author="markus">
     <sqlFile path="liquibase/issue_metrics.sql"/>
   </changeSet>
+  <changeSet id="16" author="markus">
+    <sql>create index on name_usage (constituent_key);</sql>
+  </changeSet>
 
 </databaseChangeLog>

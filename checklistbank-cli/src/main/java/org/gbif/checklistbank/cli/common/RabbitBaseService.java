@@ -70,6 +70,7 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
 
     publisher = new DefaultMessagePublisher(mCfg.getConnectionParameters());
 
+    // dataset messages are slow, long running processes. Only prefetch one message
     listener = new MessageListener(mCfg.getConnectionParameters(), 1);
     listener.listen(queue, poolSize, this);
   }
@@ -99,13 +100,11 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
       final UUID datasetKey = msg instanceof DatasetBasedMessage ? ((DatasetBasedMessage) msg ).getDatasetUuid() : null;
       if (datasetKey != null) {
         LOG.error("Failed to process dataset {}", datasetKey, e);
+        failed(datasetKey);
       } else {
         LOG.error("Failed to process {} message", msg.getClass().getSimpleName(), e);
       }
       failed.inc();
-      if (datasetKey != null) {
-        failed(datasetKey);
-      }
     } finally {
       context.stop();
     }
