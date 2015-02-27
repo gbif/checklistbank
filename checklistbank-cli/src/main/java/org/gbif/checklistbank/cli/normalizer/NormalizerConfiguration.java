@@ -2,13 +2,14 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
-import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
+import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;
 import java.util.UUID;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
@@ -38,10 +39,6 @@ public class NormalizerConfiguration {
   @Valid
   public MessagingConfiguration messaging = new MessagingConfiguration();
 
-  @Parameter(names = "--archive-repository")
-  @NotNull
-  public File archiveRepository;
-
   @ParametersDelegate
   @Valid
   @NotNull
@@ -51,6 +48,14 @@ public class NormalizerConfiguration {
   @Valid
   @NotNull
   public MatchServiceConfiguration matching = new MatchServiceConfiguration();
+
+  @Parameter(names = "--pool-size")
+  @Min(1)
+  public int poolSize = 3;
+
+  @Parameter(names = "--archive-repository")
+  @NotNull
+  public File archiveRepository;
 
   /**
    * Returns the directory with the decompressed archive folder created by the dwca downloader.

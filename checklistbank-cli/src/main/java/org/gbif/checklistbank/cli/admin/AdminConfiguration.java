@@ -1,9 +1,9 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.checklistbank.cli.common.MessagingConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
+import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;
 import java.util.UUID;

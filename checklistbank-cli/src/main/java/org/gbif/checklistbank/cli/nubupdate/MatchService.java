@@ -38,7 +38,7 @@ public class MatchService extends AbstractIdleService implements MessageCallback
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters(), 1);
-    listener.listen(QUEUE, cfg.messaging.poolSize, this);
+    listener.listen(QUEUE, 1, this);
   }
 
   @Override

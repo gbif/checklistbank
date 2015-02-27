@@ -19,19 +19,22 @@ public class GangliaConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(GangliaConfiguration.class);
 
   @Parameter(names = "--ganglia-host")
-  public String gangliaHost;
+  public String host;
 
   @Parameter(names = "--ganglia-port")
-  public int gangliaPort = 8649;
+  public int port = 8649;
+
+  @Parameter(names = "--ganglia-name")
+  public String name;
 
   /**
    * Starts the GangliaReporter, pointing to the configured host and port.
    */
   @JsonIgnore
   public void start(MetricRegistry registry) {
-    if (gangliaHost != null && gangliaPort > 0) {
-      LOG.info("Reporting to ganglia at {}:{}", gangliaHost, gangliaPort);
-      final GMetric ganglia = new GMetric(gangliaHost, gangliaPort, GMetric.UDPAddressingMode.MULTICAST, 1);
+    if (host != null && port > 0) {
+      LOG.info("Reporting to ganglia at {}:{}", host, port);
+      final GMetric ganglia = new GMetric(host, port, GMetric.UDPAddressingMode.MULTICAST, 1);
       final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
         .convertRatesTo(TimeUnit.SECONDS)
         .convertDurationsTo(TimeUnit.MILLISECONDS)
@@ -42,6 +45,10 @@ public class GangliaConfiguration {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("gangliaHost", gangliaHost).add("gangliaPort", gangliaPort).toString();
+    return Objects.toStringHelper(this)
+      .add("host", host)
+      .add("port", port)
+      .add("name", name)
+      .toString();
   }
 }
