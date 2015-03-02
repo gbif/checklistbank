@@ -17,7 +17,10 @@ public class SimpleParameterMap extends MultivaluedMapImpl {
    */
   public SimpleParameterMap param(String parameter, String value) {
     if (!Strings.isNullOrEmpty(value)) {
-      putSingle(parameter, value);
+      // Jersey clients have problems dealing with curly brackets which is seen as a URI template variable.
+      // We replace them specifically with the url encoded value to bypass this URIBuilder exception.
+      //See http://dev.gbif.org/issues/browse/POR-2688
+      putSingle(parameter, value.replaceAll("\\{", "%7B"));
     }
     return this;
   }

@@ -38,6 +38,10 @@ public class AdminConfiguration {
   @NotNull
   public File archiveRepository;
 
+  @NotNull
+  @Parameter(names = "--neo-repo")
+  public File neoRepository;
+
   @Parameter(names = {"-k", "--key"}, required = false)
   @NotNull
   public UUID key;

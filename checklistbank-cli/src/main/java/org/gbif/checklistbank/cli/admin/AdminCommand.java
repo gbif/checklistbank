@@ -201,7 +201,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void crawlDataset(UUID key) throws IOException {
-    cleanupCrawl(key);
+    //cleanupCrawl(key);
     send( new StartCrawlMessage(key));
   }
 
@@ -216,6 +216,7 @@ public class AdminCommand extends BaseCommand {
   private void cleanupCrawl(final UUID datasetKey) throws IOException {
     zk().delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
     LOG.info("Removed crawl {} from zookeeper", datasetKey);
+
     // cleanup repo files
     final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
     FileUtils.deleteQuietly(dwcaFile);
@@ -224,6 +225,13 @@ public class AdminCommand extends BaseCommand {
       FileUtils.deleteDirectory(dir);
     }
     LOG.info("Removed dwca files from repository {}", dwcaFile);
+
+    // cleanup neo
+    final File neoDir = new File(cfg.neoRepository, datasetKey.toString());
+    if (neoDir.exists()) {
+      FileUtils.deleteDirectory(neoDir);
+    }
+    LOG.info("Removed neo files from {}", neoDir);
   }
 
 }
