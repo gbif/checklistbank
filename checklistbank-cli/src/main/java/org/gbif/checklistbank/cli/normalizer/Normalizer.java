@@ -118,8 +118,8 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void batchInsertData() throws NormalizationFailedException {
-    NeoInserter inserter = new NeoInserter();
-    meta = inserter.insert(storeDir, dwca, batchSize, insertMeter, constituents);
+    NeoInserter inserter = new NeoInserter(storeDir, batchSize, insertMeter);
+    meta = inserter.insert(dwca, constituents);
   }
 
   /**
@@ -162,8 +162,8 @@ public class Normalizer extends NeoRunnable {
     if (meta.isParentNameMapped()) {
       // verify if we already have a classification, that it ends with a known rank
       highest = getHighestParent(n);
-      if (highest.rank == null || UNKNOWN_RANKS.contains(highest.rank)) {
-        LOG.debug("Taxon {} already has a classification which ends in an uncomparable rank.");
+      if (highest.node != n && highest.rank == null || UNKNOWN_RANKS.contains(highest.rank)) {
+        LOG.debug("Node {} already has a classification which ends in an uncomparable rank.", n.getId());
         mapper.addIssue(n, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
         return;
       }

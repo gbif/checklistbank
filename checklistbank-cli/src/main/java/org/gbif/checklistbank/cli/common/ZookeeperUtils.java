@@ -30,7 +30,7 @@ public class ZookeeperUtils {
   public static final String PAGES_FRAGMENTED_SUCCESSFUL = "pagesFragmented/successful";
   public static final String PAGES_FRAGMENTED_ERROR = "pagesFragmented/error";
 
-  private static final String CRAWL_INFO = "crawls";
+  private static final String CRAWL_INFO = "/crawls";
   private final CuratorFramework curator;
 
   public ZookeeperUtils(CuratorFramework curator) {

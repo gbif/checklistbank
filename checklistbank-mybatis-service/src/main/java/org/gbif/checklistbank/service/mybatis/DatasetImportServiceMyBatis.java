@@ -22,6 +22,7 @@ import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.IdentifierMapper;
@@ -46,6 +47,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
@@ -79,6 +81,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   private final SpeciesProfileMapper speciesProfileMapper;
   private final TypeSpecimenMapper typeSpecimenMapper;
   private final VernacularNameMapper vernacularNameMapper;
+  private final DatasetMetricsMapper datasetMetricsMapper;
 
   @Inject
   DatasetImportServiceMyBatis(UsageMapper usageMapper, NameUsageMapper nameUsageMapper,
@@ -86,7 +89,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     ParsedNameService nameService, CitationService citationService, DescriptionMapper descriptionMapper,
     DistributionMapper distributionMapper, IdentifierMapper identifierMapper, MultimediaMapper multimediaMapper,
     ReferenceMapper referenceMapper, SpeciesProfileMapper speciesProfileMapper, TypeSpecimenMapper typeSpecimenMapper,
-    VernacularNameMapper vernacularNameMapper) {
+    VernacularNameMapper vernacularNameMapper, DatasetMetricsMapper datasetMetricsMapper) {
     this.nameUsageMapper = nameUsageMapper;
     this.metricsMapper = metricsMapper;
     this.nameService = nameService;
@@ -102,6 +105,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     this.speciesProfileMapper = speciesProfileMapper;
     this.typeSpecimenMapper = typeSpecimenMapper;
     this.vernacularNameMapper = vernacularNameMapper;
+    this.datasetMetricsMapper = datasetMetricsMapper;
   }
 
   @Override
@@ -234,18 +238,18 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
       }
 
-    //TODO: remove once known why we get NPEs here...
     } catch (Exception e) {
-      LOG.warn("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
+      LOG.error("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
       LOG.info("failed usage {}", usage);
-      LOG.info("getDescriptions {}", usage.getDescriptions());
-      LOG.info("getDistributions {}", usage.getDistributions());
-      LOG.info("getIdentifiers {}", usage.getIdentifiers());
-      LOG.info("getMedia {}", usage.getMedia());
-      LOG.info("getReferenceList {}", usage.getReferenceList());
-      LOG.info("getSpeciesProfiles {}", usage.getSpeciesProfiles());
-      LOG.info("getTypeSpecimens {}", usage.getTypeSpecimens());
-      LOG.info("getVernacularNames {}", usage.getVernacularNames());
+      LOG.info("failed usage descriptions {}", usage.getDescriptions());
+      LOG.info("failed usage distributions {}", usage.getDistributions());
+      LOG.info("failed usage identifiers {}", usage.getIdentifiers());
+      LOG.info("failed usage media {}", usage.getMedia());
+      LOG.info("failed usage references {}", usage.getReferenceList());
+      LOG.info("failed usage speciesProfiles {}", usage.getSpeciesProfiles());
+      LOG.info("failed usage typeSpecimens {}", usage.getTypeSpecimens());
+      LOG.info("failed usage vernacularNames {}", usage.getVernacularNames());
+      Throwables.propagate(e);
     }
   }
 
@@ -418,7 +422,10 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   @Override
   public int deleteDataset(UUID datasetKey) {
     LOG.info("Deleting entire dataset {}", datasetKey);
-    return usageMapper.deleteByDataset(datasetKey);
+    int numDeleted = usageMapper.deleteByDataset(datasetKey);
+    // we do not remove old dataset metrics, just add a new, empty one as the most recent
+    datasetMetricsMapper.insert(datasetKey, new Date());
+    return numDeleted;
   }
 
   @Override

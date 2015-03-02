@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.core.UriBuilderException;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
@@ -135,17 +136,22 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     while (match == null) {
       try {
         match = matchingService.match(name, rank, usage, true, false);
-        if (warnSlowMatching && System.currentTimeMillis() - started > 50) {
+        if (warnSlowMatching && System.currentTimeMillis() - started > 100) {
           LOG.warn("Nub matching for {} took {}ms", name, System.currentTimeMillis() - started);
           // log this only once per reporting batch!
           warnSlowMatching = false;
         }
+      } catch (UriBuilderException e) {
+        LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
+        match = new NameUsageMatch();
+        match.setMatchType(NameUsageMatch.MatchType.NONE);
+
       } catch (Exception e) {
-        LOG.debug("Nub matching for >{}< failed. Sleep and then retry", name, e);
+        LOG.warn("Nub matching for >{}< failed. Sleep and then retry", name, e);
         try {
           // first time we retry after 5s, then after every minute
           if (first) {
-            Thread.sleep(5000);
+            Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             first = false;
           } else {
             // check if we tried for a long time already
@@ -153,7 +159,7 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
             if (sinceHours > 12) {
               throw new IllegalStateException("Backbone matching service unavailable for at least 12h. Interrupting normalization!");
             }
-            Thread.sleep(60000);
+            Thread.sleep(TimeUnit.MINUTES.toMillis(1));
           }
         } catch (InterruptedException e1) {
         }
@@ -235,4 +241,5 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
       }
     }
   }
+
 }

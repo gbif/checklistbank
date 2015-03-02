@@ -151,22 +151,28 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
 
   <!--  list usage children -->
   <select id="listChildren" parameterType="map" resultMap="usageResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE u.parent_fk=#{key} and u.is_synonym=false
-    ORDER BY u.rank, n.scientific_name
+    WITH child_query AS (
+      SELECT
+      <include refid="select"/>
+      FROM
+      <include refid="from"/>
+      WHERE u.parent_fk=#{key} and u.is_synonym=false
+    )
+    SELECT * FROM child_query
+    ORDER BY rank, scientific_name
     <include refid="page"/>
   </select>
 
   <!--  list usage synonyms -->
   <select id="listSynonyms" parameterType="map" resultMap="usageResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE u.parent_fk=#{key} and u.is_synonym=true
+    WITH child_query AS (
+      SELECT
+      <include refid="select"/>
+      FROM
+      <include refid="from"/>
+      WHERE u.parent_fk=#{key} and u.is_synonym=true
+    )
+    SELECT * FROM child_query
     ORDER BY scientific_name
     <include refid="page"/>
   </select>

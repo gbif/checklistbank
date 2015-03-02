@@ -3,7 +3,7 @@ package org.gbif.checklistbank.cli.nubupdate;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
-import org.gbif.checklistbank.cli.common.MessagingConfiguration;
+import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
@@ -41,6 +41,5 @@ public class MatchConfiguration {
   @Valid
   @NotNull
   public MatchServiceConfiguration matching = new MatchServiceConfiguration();
-
 
 }

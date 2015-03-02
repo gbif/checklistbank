@@ -1,8 +1,10 @@
-package org.gbif.checklistbank.cli.analysis;
+package org.gbif.checklistbank.cli.deletion;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -15,7 +17,7 @@ import com.beust.jcommander.ParametersDelegate;
  *
  */
 @SuppressWarnings("PublicField")
-public class AnalysisConfiguration {
+public class DeleteConfiguration {
 
   @ParametersDelegate
   @Valid
@@ -30,7 +32,17 @@ public class AnalysisConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
+  public NeoConfiguration neo = new NeoConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public SolrConfig solr = new SolrConfig();
 
   @Parameter(names = "--pool-size")
   @Min(1)

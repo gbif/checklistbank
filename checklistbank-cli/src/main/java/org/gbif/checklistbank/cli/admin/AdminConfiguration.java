@@ -1,11 +1,13 @@
 package org.gbif.checklistbank.cli.admin;
 
-import org.gbif.checklistbank.cli.common.MessagingConfiguration;
+import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
+import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -36,11 +38,17 @@ public class AdminConfiguration {
   @NotNull
   public File archiveRepository;
 
-  @Parameter(names = {"-d", "--dataset-key"}, required = false)
-  public UUID datasetKey;
+  @NotNull
+  @Parameter(names = "--neo-repo")
+  public File neoRepository;
 
-  @Parameter(names = {"-p", "--publisher-key"}, required = false)
-  public UUID publisherKey;
+  @Parameter(names = {"-k", "--key"}, required = false)
+  @NotNull
+  public UUID key;
+
+  @Parameter(names = {"-t", "--type"}, required = false)
+  @Nullable
+  public DatasetType type;
 
   @Parameter(names = {"-op", "--operation"}, required = true)
   @NotNull

@@ -6,6 +6,7 @@ import org.gbif.api.model.crawler.ChecklistValidationReport;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Origin;
@@ -14,6 +15,7 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
+import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
@@ -27,7 +29,9 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.MetaInfServices;
 import org.slf4j.Logger;
@@ -43,6 +47,9 @@ public class AdminCommand extends BaseCommand {
 
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
+  private ZookeeperUtils zkUtils;
+  private DatasetService datasetService;
+  private OrganizationService organizationService;
 
   public AdminCommand() {
     super("admin");
@@ -53,39 +60,72 @@ public class AdminCommand extends BaseCommand {
     return cfg;
   }
 
+  private DatasetService ds() {
+    if (datasetService == null) {
+      initRegistry();
+    }
+    return datasetService;
+  }
+
+  private OrganizationService os() {
+    if (organizationService == null) {
+      initRegistry();
+    }
+    return organizationService;
+  }
+
+  private void initRegistry() {
+    Injector inj = cfg.registry.createRegistryInjector();
+    datasetService  = inj.getInstance(DatasetService.class);
+    organizationService  = inj.getInstance(OrganizationService.class);
+  }
+
+  private ZookeeperUtils zk() {
+    if (zkUtils == null) {
+      try {
+        zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
+      } catch (IOException e) {
+        Throwables.propagate(e);
+      }
+    }
+    return zkUtils;
+  }
+
+  private void send(Message msg) throws IOException {
+    if (publisher == null) {
+      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
+    }
+    publisher.send(msg);
+  }
+
   @Override
   protected void doRun() {
     try {
-      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
       switch (cfg.operation) {
-        case DOWNLOAD:
-          publisher.send( new StartCrawlMessage(cfg.datasetKey));
+        case CRAWL:
+          crawl(cfg.key);
 
         case NORMALIZE:
           // validation result is a fake valid checklist validation
-          publisher.send( new DwcaMetasyncFinishedMessage(cfg.datasetKey, DatasetType.CHECKLIST,
+          send( new DwcaMetasyncFinishedMessage(cfg.key, DatasetType.CHECKLIST,
                   URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                  new DwcaValidationReport(cfg.datasetKey,
+                  new DwcaValidationReport(cfg.key,
                     new ChecklistValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
                   )
           );
           break;
 
         case IMPORT:
-          publisher.send( new ChecklistNormalizedMessage(cfg.datasetKey, new NormalizerStats(1,1,0,0,
-            Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())) );
+          send( new ChecklistNormalizedMessage(cfg.key, new NormalizerStats(1,1,0,0,
+            Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())));
           break;
 
         case ANALYZE:
-          publisher.send( new ChecklistSyncedMessage(cfg.datasetKey, new Date(), 0, 0) );
-          break;
-
-        case CRAWL_PUBLISHER:
-          crawlPublisher(cfg.publisherKey);
+          send( new ChecklistSyncedMessage(cfg.key, new Date(), 0, 0) );
           break;
 
         case CLEANUP:
-          cleanupCrawl(cfg.datasetKey);
+          cleanup(cfg.key);
           break;
 
         default:
@@ -97,32 +137,101 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
+  /**
+   * @param key publisher or dataset key
+   */
+  private void cleanup(final UUID key) throws IOException {
+    if (isDataset(key)) {
+      cleanupCrawl(key);
+
+    } else if (isOrg(key)) {
+      final PagingRequest page = new PagingRequest(0, 25);
+      PagingResponse<Dataset> resp = null;
+      while (resp == null || !resp.isEndOfRecords()) {
+        resp = os().publishedDatasets(key, page);
+        for (Dataset d : resp.getResults()) {
+          if (cfg.type != null && d.getType() != cfg.type) {
+            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            continue;
+          }
+          try {
+            cleanupCrawl(d.getKey());
+          } catch (IOException e) {
+            LOG.warn("Failed to cleanup crawl {}: {}", d.getKey(), e.getMessage());
+          }
+        }
+        page.nextPage();
+      }
+    } else {
+      LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+    }
+  }
+
+  /**
+   * @param key publisher or dataset key
+   */
+  private void crawl(final UUID key) throws IOException {
+    if (isDataset(key)) {
+      crawlDataset(key);
+
+    } else if (isOrg(key)) {
+      final PagingRequest page = new PagingRequest(0, 10);
+      PagingResponse<Dataset> resp = null;
+      int counter = 0;
+      while (resp == null || !resp.isEndOfRecords()) {
+        resp = os().publishedDatasets(key, page);
+        for (Dataset d : resp.getResults()) {
+          if (d.getDeleted() != null) {
+            LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
+            continue;
+          }
+          if (cfg.type != null && d.getType() != cfg.type) {
+            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+            continue;
+          }
+          counter++;
+          LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
+          crawlDataset(key);
+        }
+        page.nextPage();
+      }
+    } else {
+      LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+    }
+  }
+
+  private void crawlDataset(UUID key) throws IOException {
+    //cleanupCrawl(key);
+    send( new StartCrawlMessage(key));
+  }
+
+  private boolean isOrg(UUID key) {
+    return os().get(key) != null;
+  }
+
+  private boolean isDataset(UUID key) {
+    return ds().get(key) != null;
+  }
+
   private void cleanupCrawl(final UUID datasetKey) throws IOException {
-    ZookeeperUtils zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
-    zkUtils.delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
+    zk().delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
     LOG.info("Removed crawl {} from zookeeper", datasetKey);
+
     // cleanup repo files
     final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
     FileUtils.deleteQuietly(dwcaFile);
-    FileUtils.deleteDirectory(cfg.archiveDir(datasetKey));
-    LOG.info("Removed dwca files from repository {}", dwcaFile);
-  }
-
-  private void crawlPublisher(final UUID orgKey) throws IOException, InterruptedException {
-    final OrganizationService orgService = cfg.registry.createRegistryInjector().getInstance(OrganizationService.class);
-    final PagingRequest page = new PagingRequest(0, 10);
-    PagingResponse<Dataset> resp = null;
-    int counter = 0;
-    while (resp == null || !resp.isEndOfRecords()) {
-      resp = orgService.publishedDatasets(orgKey, page);
-      for (Dataset d : resp.getResults()) {
-        counter++;
-        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle());
-        publisher.send( new StartCrawlMessage(d.getKey()));
-      }
-      Thread.sleep(10000);
-      page.nextPage();
+    File dir = cfg.archiveDir(datasetKey);
+    if (dir.exists() && dir.isDirectory()) {
+      FileUtils.deleteDirectory(dir);
     }
+    LOG.info("Removed dwca files from repository {}", dwcaFile);
+
+    // cleanup neo
+    final File neoDir = new File(cfg.neoRepository, datasetKey.toString());
+    if (neoDir.exists()) {
+      FileUtils.deleteDirectory(neoDir);
+    }
+    LOG.info("Removed neo files from {}", neoDir);
   }
 
 }
