@@ -27,4 +27,13 @@ public class NameUsageMatchWsClientTest {
     client.match("Nereis southerni {{nowrap Abdel-Moez & Humphries, 1955", null, null, false, false);
   }
 
+  @Test
+  public void testCurlyBrackets2() {
+    WebResource api = Client.create().resource("http://api.gbif-dev.org/v1/species/match");
+    System.out.print( api.get(String.class) );
+
+    NameUsageMatchWsClient client = new NameUsageMatchWsClient(api);
+    client.match("Nereis southerni {{nowrap Abdel-Moez & Humphries, 1955", null, null, false, false);
+  }
+
 }

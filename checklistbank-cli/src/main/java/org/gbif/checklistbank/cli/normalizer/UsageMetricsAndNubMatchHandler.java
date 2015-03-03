@@ -18,11 +18,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.UriBuilderException;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Preconditions;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -136,33 +136,38 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
     while (match == null) {
       try {
         match = matchingService.match(name, rank, usage, true, false);
-        if (warnSlowMatching && System.currentTimeMillis() - started > 100) {
+        if (first && warnSlowMatching && System.currentTimeMillis() - started > 100) {
           LOG.warn("Nub matching for {} took {}ms", name, System.currentTimeMillis() - started);
           // log this only once per reporting batch!
           warnSlowMatching = false;
         }
-      } catch (UriBuilderException e) {
-        LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
-        match = new NameUsageMatch();
-        match.setMatchType(NameUsageMatch.MatchType.NONE);
+      } catch (UniformInterfaceException e) {
+        // in case of a 404 allow a retry for 30 minutes in case the service needs to be starting up still
+        if (e.getResponse().getStatus() == 404) {
+          try {
+            // first time we retry after 5s, then after every minute
+            if (first) {
+              LOG.warn("Nub matching for >{}< failed with 404. Retry ever minute", name, e);
+              Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+              first = false;
+            } else {
+              // check if we tried for a long time already
+              long sinceMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - started);
+              if (sinceMinutes > 30) {
+                throw new IllegalStateException("Backbone matching service unavailable for at least 30 minutes. Interrupting normalization!");
+              }
+              Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+            }
+          } catch (InterruptedException e1) {
+          }
+        } else {
+          LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
+          match = new NameUsageMatch();
+        }
 
       } catch (Exception e) {
-        LOG.warn("Nub matching for >{}< failed. Sleep and then retry", name, e);
-        try {
-          // first time we retry after 5s, then after every minute
-          if (first) {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(5));
-            first = false;
-          } else {
-            // check if we tried for a long time already
-            long sinceHours = TimeUnit.MILLISECONDS.toHours(System.currentTimeMillis() - started);
-            if (sinceHours > 12) {
-              throw new IllegalStateException("Backbone matching service unavailable for at least 12h. Interrupting normalization!");
-            }
-            Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-          }
-        } catch (InterruptedException e1) {
-        }
+        LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
+        match = new NameUsageMatch();
       }
     }
 
