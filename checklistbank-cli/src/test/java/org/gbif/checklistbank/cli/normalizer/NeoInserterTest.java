@@ -6,11 +6,11 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.dwc.record.RecordImpl;
+import org.gbif.dwc.record.StarRecordImpl;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.text.ArchiveField;
-import org.gbif.dwc.text.StarRecord;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
@@ -70,8 +70,8 @@ public class NeoInserterTest {
     addColumn(DwcTerm.taxonRemarks, "bugger off");
     addColumn(DcTerm.references, "http://gbif.org");
 
-    StarRecord star = new StarRecord(Lists.<String>newArrayList());
-    RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon.qualifiedName(), true);
+    StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
+    RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
     rec.setRow(values.toArray(new String[] {}));
     star.newCoreRecord(rec);
     ins.insertStarRecord(star);

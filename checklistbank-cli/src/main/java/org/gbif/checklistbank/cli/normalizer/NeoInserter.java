@@ -28,7 +28,7 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 import org.gbif.dwc.text.Archive;
 import org.gbif.dwc.text.ArchiveFactory;
-import org.gbif.dwc.text.StarRecord;
+import org.gbif.dwc.record.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 import org.gbif.utils.file.ClosableIterator;
@@ -58,6 +58,7 @@ public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
   private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
+  private static final TermFactory TF = TermFactory.instance();
 
   private Archive arch;
   private Map<String, UUID> constituents;
@@ -71,6 +72,7 @@ public class NeoInserter implements AutoCloseable {
   private final BatchInserter inserter;
   private final int batchSize;
   private final Meter insertMeter;
+  private final Map<Term, Extension> extensions;
 
   public NeoInserter(File storeDir, int batchSize, Meter insertMeter) {
     LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
@@ -78,6 +80,10 @@ public class NeoInserter implements AutoCloseable {
     inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
     this.batchSize = batchSize;
     this.insertMeter = insertMeter;
+    extensions = Maps.newHashMap();
+    for (Extension e : Extension.values()) {
+      extensions.put(TF.findTerm(e.getRowType()), e);
+    }
   }
 
   public InsertMetadata insert(File dwca, Map<String, UUID> constituents) throws NormalizationFailedException {
@@ -102,6 +108,7 @@ public class NeoInserter implements AutoCloseable {
 
   @VisibleForTesting
   protected void insertStarRecord(StarRecord star) {
+
     try {
       VerbatimNameUsage v = new VerbatimNameUsage();
 
@@ -116,10 +123,10 @@ public class NeoInserter implements AutoCloseable {
       // make sure this is last to override already put taxonID keys
       v.setCoreField(DwcTerm.taxonID, taxonID(core));
       // read extensions data
-      for (Extension ext : Extension.values()) {
-        if (star.hasExtension(ext.getRowType())) {
-          v.getExtensions().put(ext, Lists.<Map<Term, String>>newArrayList());
-          for (Record eRec : star.extension(ext.getRowType())) {
+      for (Map.Entry<Term, Extension> ext : extensions.entrySet()) {
+        if (star.hasExtension(ext.getKey())) {
+          v.getExtensions().put(ext.getValue(), Lists.<Map<Term, String>>newArrayList());
+          for (Record eRec : star.extension(ext.getKey())) {
             Map<Term, String> data = Maps.newHashMap();
             for (Term t : eRec.terms()) {
               String val = clean(eRec.value(t));
@@ -127,7 +134,7 @@ public class NeoInserter implements AutoCloseable {
                 data.put(t, val);
               }
             }
-            v.getExtensions().get(ext).add(data);
+            v.getExtensions().get(ext.getValue()).add(data);
           }
         }
       }
