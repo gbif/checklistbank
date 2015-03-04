@@ -49,7 +49,7 @@
     <registry-client.version>2.25</registry-client.version>
     <name-parser.version>2.5</name-parser.version>
     <gbif-parser.version>0.11-SNAPSHOT</gbif-parser.version>
-    <dwca-reader.version>1.20</dwca-reader.version>
+    <dwca-reader.version>1.21-SNAPSHOT</dwca-reader.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
