@@ -73,7 +73,7 @@ Not all taxa of the given classification might explicitly exist in the dataset a
 For example image a checklist of just one record like this:
 
 taxonID | scientificName | taxonRank | family | order | kingdom
- -- | -- | -- | -- | -- 
+--- | --- | --- | --- | ---
 t1 | Abies alba Mill. | species | Pinaceae | Pinales | Plantae
 
 As checklist bank stores the classification in a parent child relationship exclusively, we need to "materialize" implicit higher taxa so we ultimately end up with 4 records like this:

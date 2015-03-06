@@ -161,12 +161,12 @@ public class UsageMetricsAndNubMatchHandler implements StartEndHandler {
           } catch (InterruptedException e1) {
           }
         } else {
-          LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
+          LOG.error("Species matching for >>{}<< failed due to http error {}. Continue without match", name, e.getResponse().getStatus(), e);
           match = new NameUsageMatch();
         }
 
       } catch (Exception e) {
-        LOG.error("Species matching for {} failed due to jersey client error >{}<. Continue without match", name, e);
+        LOG.error("Species matching for {} failed due to jersey client error. Continue without match", name, e);
         match = new NameUsageMatch();
       }
     }
