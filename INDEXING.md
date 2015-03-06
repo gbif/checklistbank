@@ -73,13 +73,13 @@ Not all taxa of the given classification might explicitly exist in the dataset a
 For example image a checklist of just one record like this:
 
 taxonID | scientificName | taxonRank | family | order | kingdom
---- | --- | --- | --- | ---
+--- | --- | --- | --- | --- | ---
 t1 | Abies alba Mill. | species | Pinaceae | Pinales | Plantae
 
 As checklist bank stores the classification in a parent child relationship exclusively, we need to "materialize" implicit higher taxa so we ultimately end up with 4 records like this:
 
 taxonID | parentID | scientificName | rank | origin
- -- | -- | -- | -- | --
+--- | --- | --- | --- | ---
 t1 | 001 | Abies alba Mill. | species | SOURCE
 001 | 002 | Pinaceae | family | DENORMED_CLASSIFICATION
 002 | 003 | Pinales | order | DENORMED_CLASSIFICATION
@@ -123,14 +123,14 @@ The scientific name should be as complete as possible including infraspecific ra
 If a scientificName was given and in addition also the authorship in dwc:scientificNameAuthorship make sure the same authorship is part of that name already. If its a canonical name only, append the authorship to the scientific name:
 
 scientificName | scientificNameAuthorship
- -- | -- 
+--- | ---
 Gerardia paupercula var. borealis  | (Pennell) Deam
 
 
 If the scientificName is given in atomic parts reassemble the full name string using the ParsedName class:
 
 genus | specificEpitheton | (verbatim)taxonRank | infraspecificEpitheton | scientificNameAuthorship
- -- | -- | -- | -- | -- 
+--- | --- | --- | --- | ---
 Gerardia | paupercula | var. | borealis  | (Pennell) Deam
 
 
