@@ -9,11 +9,13 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -21,10 +23,14 @@ import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,9 +87,10 @@ public class Importer extends NeoRunnable implements Runnable {
         try {
           VerbatimNameUsage verbatim = mapper.readVerbatim(n);
           NameUsageContainer u = buildClbNameUsage(n);
+          List<Integer> parents = buildClbParents(n);
           NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
-          final int usageKey = importService.syncUsage(u, verbatim, metrics);
+          final int usageKey = importService.syncUsage(u, parents, verbatim, metrics);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
@@ -134,6 +141,20 @@ public class Importer extends NeoRunnable implements Runnable {
     // use 2 seconds before first insert/update as the threshold to remove records
     cal.add(Calendar.SECOND, -2);
     delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
+  }
+
+  /**
+   * @return list of parental node ids
+   */
+  private List<Integer> buildClbParents(Node n) {
+    return com.google.common.collect.Lists
+      .transform(IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
+        new Function<Relationship, Integer>() {
+          @Override
+          public Integer apply(Relationship rel) {
+            return rel != null ? clbKey((int)rel.getEndNode().getId()) : null;
+          }
+        });
   }
 
   /**

@@ -25,6 +25,19 @@
     SELECT id FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND last_interpreted &lt; #{before}
   </select>
 
+  <select id="listParents" parameterType="map" resultType="java.lang.Integer">
+    WITH RECURSIVE a AS (
+      SELECT id, parent_fk
+      FROM name_usage
+      WHERE id = #{key}
+    UNION ALL
+      SELECT p.id, p.parent_fk
+      FROM a JOIN name_usage p ON a.parent_fk = p.id
+    )
+    SELECT id FROM a
+    WHERE id!=#{key};
+  </select>
+
   <delete id="deleteByDataset">
     DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER}
   </delete>

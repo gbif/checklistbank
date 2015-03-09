@@ -21,4 +21,10 @@ public class UsageServiceMyBatisTest {
     List<Integer> squirrels = ddt.getService().listAll();
     assertEquals(46, squirrels.size());
   }
+
+  @Test
+  public void testlistParents() {
+    List<Integer> squirrels = ddt.getService().listParents(100000007);
+    assertEquals(8, squirrels.size());
+  }
 }

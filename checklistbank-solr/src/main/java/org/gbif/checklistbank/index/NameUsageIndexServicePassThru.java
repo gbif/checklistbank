@@ -31,7 +31,7 @@ public class NameUsageIndexServicePassThru implements NameUsageIndexService {
   }
 
   @Override
-  public void insertOrUpdate(NameUsage usage, List<VernacularName> vernaculars,
+  public void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, List<VernacularName> vernaculars,
     List<Description> descriptions, List<Distribution> distributions, List<SpeciesProfile> profiles) {
   }
 }

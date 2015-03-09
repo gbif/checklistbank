@@ -224,7 +224,7 @@
     <field name="vernacular_name_lang" type="sciname" indexed="true" stored="true" multiValued="true"/>
     <field name="vernacular_lang" type="lowercase" indexed="true" stored="false" multiValued="true"/>
 
-    <field name="higher_taxon_nub_key" type="int" indexed="true" stored="false" multiValued="true"/>
+    <field name="higher_taxon_key" type="int" indexed="true" stored="false" multiValued="true"/>
     <field name="issues" type="int" indexed="true" stored="false" multiValued="true"/>
   </fields>
   <!-- Field to use to determine and enforce document uniqueness. Unless this

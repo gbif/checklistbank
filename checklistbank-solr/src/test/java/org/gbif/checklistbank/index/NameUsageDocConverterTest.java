@@ -27,7 +27,7 @@ public class NameUsageDocConverterTest {
     u.getIssues().add(NameUsageIssue.RANK_INVALID);
     u.getIssues().add(NameUsageIssue.BACKBONE_MATCH_FUZZY);
 
-    SolrInputDocument doc = conv.toObject(u, null, null, null, null);
+    SolrInputDocument doc = conv.toObject(u, null, null, null, null, null);
     assertEquals(u.getKey().toString(), doc.get("key").getValue());
     assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
     assertEquals(u.getParentKey().toString(), doc.get("parent_key").getValue());

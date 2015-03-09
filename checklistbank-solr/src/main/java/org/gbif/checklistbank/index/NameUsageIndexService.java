@@ -23,6 +23,6 @@ public interface NameUsageIndexService {
 
   void insertOrUpdate(Collection<Integer> usageKeys);
 
-  void insertOrUpdate(NameUsage usage, List<VernacularName> vernaculars,
+  void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, List<VernacularName> vernaculars,
     List<Description> descriptions, List<Distribution> distributions, List<SpeciesProfile> profiles);
 }

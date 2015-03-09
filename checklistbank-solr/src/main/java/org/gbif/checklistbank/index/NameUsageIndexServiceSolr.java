@@ -79,6 +79,7 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
     if (!range.isEmpty()) {
       NameUsage u = range.get(0);
       insertOrUpdate(u,
+        usageService.listParents(key),
         vernacularNameService.listByUsage(key, page).getResults(),
         descriptionService.listByUsage(key, page).getResults(),
         distributionService.listByUsage(key, page).getResults(),
@@ -100,12 +101,13 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
   @Override
   public void insertOrUpdate(
     NameUsage usage,
+    List<Integer> parentKeys,
     List<VernacularName> vernaculars,
     List<Description> descriptions,
     List<Distribution> distributions,
     List<SpeciesProfile> profiles
   ) {
-    SolrInputDocument doc = converter.toObject(usage, vernaculars, descriptions, distributions, profiles);
+    SolrInputDocument doc = converter.toObject(usage, parentKeys, vernaculars, descriptions, distributions, profiles);
     try {
       solr.add(doc, commitWithinMs);
     } catch (Exception e) {

@@ -65,6 +65,11 @@ public class UsageServiceMyBatis implements UsageService {
   }
 
   @Override
+  public List<Integer> listParents(int usageKey) {
+    return usageMapper.listParents(usageKey);
+  }
+
+  @Override
   public PagingResponse<Usage> list(UUID datasetKey, Pageable page) {
     return new PagingResponse<Usage>(page, null, usageMapper.list(datasetKey, page));
   }

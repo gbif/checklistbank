@@ -20,4 +20,7 @@ public interface UsageMapper {
   int deleteByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
 
   List<Integer> listByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
+
+  List<Integer> listParents(@Param("key") int usageKey);
+
 }

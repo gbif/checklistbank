@@ -107,7 +107,8 @@ public class NameUsageIndexingJob implements Callable<Integer> {
           continue;
       }
       try {
-        solr.add(solrDocumentConverter.toObject(usage,
+        List<Integer> parents = nameUsageService.listParents(usage.getKey());
+        solr.add(solrDocumentConverter.toObject(usage, parents,
           vernacularNameMap.get(usage.getKey()), descriptionMap.get(usage.getKey()),
             distributionMap.get(usage.getKey()), speciesProfileMap.get(usage.getKey())));
 

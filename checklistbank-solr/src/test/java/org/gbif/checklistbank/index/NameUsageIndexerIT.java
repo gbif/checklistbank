@@ -120,6 +120,13 @@ public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
       // make sure we don't have html tags in the descriptions
       assertFalse(d.getDescription().contains("<"));
     }
+
+    // test a subfamily search
+    query = new SolrQuery();
+    query.setQuery("higher_taxon_key:100000042");
+    rsp = solr().query(query);
+    docs = rsp.getResults();
+    assertEquals(5, docs.size());
   }
 
 

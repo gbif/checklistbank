@@ -93,7 +93,7 @@ public class NameUsageDocConverter {
    *
    * @return a {@link SolrInputDocument} using the Object parameter.
    */
-  public SolrInputDocument toObject(NameUsage nameUsage, List<VernacularName> vernacularNames,
+  public SolrInputDocument toObject(NameUsage nameUsage, List<Integer> parents, List<VernacularName> vernacularNames,
     List<Description> descriptions, List<Distribution> distributions, List<SpeciesProfile> speciesProfiles) {
     try {
       SolrInputDocument solrInputDocument = new SolrInputDocument();
@@ -108,7 +108,7 @@ public class NameUsageDocConverter {
         }
       }
       // higher taxa
-      addHigherTaxonKeys(nameUsage, solrInputDocument);
+      addHigherTaxonKeys(parents, solrInputDocument);
       // extract info from usage components
       addVernacularNames(solrInputDocument, vernacularNames);
       addDescriptions(nameUsage, solrInputDocument, descriptions);
@@ -176,35 +176,16 @@ public class NameUsageDocConverter {
   }
 
   /**
-   * Adds the multivalued field higher_taxon_nub_key field.
-   *
-   * @param nameUsage         a existing {@link NameUsage}.
+   * Adds the multivalued field higher_taxon_key field.
+   * @param parents
    * @param solrInputDocument to be modified by adding the higher taxon fields.
    */
-  private void addHigherTaxonKeys(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getKingdomKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getPhylumKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getClassKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getOrderKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getFamilyKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getGenusKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getSpeciesKey());
-  }
-
-  /**
-   * Adds the multivalued field higher_taxon_nub_key field.
-   *
-   * @param nameUsage         a existing {@link NameUsage}.
-   * @param solrInputDocument to be modified by adding the higher taxon fields.
-   */
-  private void addHigherTaxonKeys2(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getKingdomKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getPhylumKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getClassKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getOrderKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getFamilyKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getGenusKey());
-    solrInputDocument.addField("higher_taxon_nub_key", nameUsage.getSpeciesKey());
+  private void addHigherTaxonKeys(List<Integer> parents, SolrInputDocument solrInputDocument) {
+    if (parents != null) {
+      for (Integer key : parents) {
+        solrInputDocument.addField("higher_taxon_key", key);
+      }
+    }
   }
 
   /**
