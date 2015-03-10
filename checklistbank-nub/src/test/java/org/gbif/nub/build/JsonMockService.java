@@ -12,7 +12,6 @@ import org.gbif.utils.file.InputStreamUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -52,12 +51,6 @@ public class JsonMockService implements UsageService, ParsedNameService {
 
   @Override
   public List<Integer> listParents(int usageKey) {
-    // TODO: Write implementation
-    throw new UnsupportedOperationException("Not implemented yet");
-  }
-
-  @Override
-  public Map<Integer, List<Integer>> listParentsRange(int usageKeyStart, int usageKeyEnd) {
     // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }
