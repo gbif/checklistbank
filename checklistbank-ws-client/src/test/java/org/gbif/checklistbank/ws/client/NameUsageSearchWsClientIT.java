@@ -1,15 +1,3 @@
-/*
- * Copyright 2011 Global Biodiversity Information Facility (GBIF)
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.Constants;
@@ -26,6 +14,7 @@ import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.index.IndexingTestModule;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
+import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 import org.gbif.checklistbank.ws.UrlBindingModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankSearchWsTestModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
@@ -37,11 +26,13 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
+import com.google.common.base.Throwables;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +61,19 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
       return solrRef;
     }
 
+    // run liquibase
+    LOG.info("Run liquibase once");
+    try {
+      DatabaseDrivenChecklistBankTestRule rule = new DatabaseDrivenChecklistBankTestRule(null);
+      rule.apply(new Statement() {
+        public void evaluate() throws Throwable {
+          // do nothing
+        }
+      }, null).evaluate();
+    } catch (Throwable throwable) {
+      Throwables.propagate(throwable);
+    }
+
     // Creates the injector, merging properties taken from default test indexing and checklistbank
     try {
       Properties props = PropertiesUtil.loadProperties(PROPERTY_INDEXER_DEFAULT);
@@ -82,6 +86,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
 
       // build the solr index
       NameUsageIndexer nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
+      LOG.info("Build solr index");
       nameUsageIndexer.run();
 
       return solrRef;
@@ -159,47 +164,48 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     // RANK
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result =
       assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, 10L, null);
-    result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
+    assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
     result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.SPECIES, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertEquals("Sciurus vulgaris Linnaeus, 1758", result.getResults().get(0).getScientificName());
 
     // CHECKLIST
-    result = assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, 46L, null);
-    result =
-      assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString(), 2l, null);
+     assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, 46L, null);
+    result = assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString(), 2l, null);
     assertEquals((Integer) 1, result.getResults().get(0).getKey());
-    result = assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, UUID.randomUUID().toString(), 0l, null);
+    assertSearch("Animalia", NameUsageSearchParameter.DATASET_KEY, UUID.randomUUID().toString(), 0l, null);
 
     // HIGHERTAXON
-    result = assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, 42L, null);
+    assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, 42L, null);
+    // we only have the order Rodentia in the nub without children
     result = assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, "1", 1l, null);
     assertEquals((Integer) 10, result.getResults().get(0).getKey());
-    result = assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, "100000024", 0l, null);
+    // we have the order Rodentia in the checklist linked to subgenus Scirius (100000024) with 14 children
+    assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, "100000024", 14l, null);
 
     // TAXSTATUS
-    result = assertSearch("Sciurus", NameUsageSearchParameter.STATUS, 30L, null);
-    result = assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.SYNONYM, 15l, null);
-    result = assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.HETEROTYPIC_SYNONYM, 1l, null);
-    result = assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.MISAPPLIED, 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, 30L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.SYNONYM, 15l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.HETEROTYPIC_SYNONYM, 1l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.MISAPPLIED, 0l, null);
 
     // EXTINCT
-    result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 30L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 30L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "false", 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
-    result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 0l, null);
 
     // MARINE
-    result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, "false", 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
-    result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, "true", 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, "true", 0l, null);
 
     // THREAT
-    result = assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, 5L, null);
+    assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, 5L, null);
     result = assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, ThreatStatus.NEAR_THREATENED, 1l, null);
     assertEquals((Integer) 100000007, result.getResults().get(0).getKey());
-    result = assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, ThreatStatus.EXTINCT_IN_THE_WILD, 0l, null);
+    assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, ThreatStatus.EXTINCT_IN_THE_WILD, 0l, null);
 
     // HIGHERTAXON & RANK
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 20);
@@ -208,7 +214,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     assertSearch(searchRequest, true, 30l, null);
 
     searchRequest.addParameter(NameUsageSearchParameter.HIGHERTAXON_KEY, "100000025");
-    assertSearch(searchRequest, true, 14l, null);
+    assertSearch(searchRequest, true, 13l, null);
 
     searchRequest.addParameter(NameUsageSearchParameter.RANK, Rank.VARIETY);
     assertSearch(searchRequest, true, 2l, null);

@@ -12,7 +12,7 @@
   <logger name="org.gbif" level="DEBUG"/>
   <logger name="org.apache.http.headers" level="DEBUG"/>
   -->
-  <logger name="org.apache.http.wire" level="DEBUG"/>
+  <logger name="org.apache.http.wire" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
