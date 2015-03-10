@@ -63,7 +63,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @SearchMapping(
   facets = {
     @FacetField(name = "DATASET_KEY", field = "dataset_key", method = Method.ENUM),
-    @FacetField(name = "HIGHERTAXON_KEY", field = "higher_taxon_nub_key"),
+    @FacetField(name = "HIGHERTAXON_KEY", field = "higher_taxon_key"),
     @FacetField(name = "STATUS", field = "taxonomic_status_key", method = Method.ENUM),
     @FacetField(name = "RANK", field = "rank_key", method = Method.ENUM),
     @FacetField(name = "THREAT", field = "threat_status_key", method = Method.ENUM),
