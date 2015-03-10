@@ -194,14 +194,14 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 30L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "false", 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
-    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 1l, null);
 
     // HABITAT
     assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.TERRESTRIAL, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.MARINE, 0l, null);
-    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.FRESHWATER, 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.FRESHWATER, 1l, null);
 
     // THREAT
     assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, 5L, null);

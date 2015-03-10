@@ -62,7 +62,7 @@ public class SpeciesProfileServiceMyBatisIT {
   @Test
   public void testListByRange() {
     Map<Integer, List<SpeciesProfile>> map = ((SpeciesProfileServiceMyBatis) ddt.getService()).listRange(1, 100000130);
-    assertEquals(1, map.size());
+    assertEquals(2, map.size());
 
     List<SpeciesProfile> records = map.get(100000025);
     assertEquals(2, records.size());
