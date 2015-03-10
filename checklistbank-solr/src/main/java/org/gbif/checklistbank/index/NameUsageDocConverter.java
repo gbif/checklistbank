@@ -92,41 +92,44 @@ public class NameUsageDocConverter {
   /**
    * Takes a Generic object and transform it into a {@link SolrInputDocument}.
    *
-   * @param nameUsage to be transformed into a {@link SolrInputDocument}.
+   * @param usage container to be transformed into a {@link SolrInputDocument}.
+   *              vernacular names, descriptions, species profiles and distributions are used, so populate them!
    *
    * @return a {@link SolrInputDocument} using the Object parameter.
    */
-  public SolrInputDocument toObject(NameUsage nameUsage, List<Integer> parents, List<VernacularName> vernacularNames,
-    List<Description> descriptions, List<Distribution> distributions, List<SpeciesProfile> speciesProfiles) {
+  public SolrInputDocument toObject(NameUsageContainer usage, List<Integer> parents) {
     try {
       SolrInputDocument doc = new SolrInputDocument();
       // Uses the pre-initialized field-property map to find the corresponding Solr field of a Java field.
       for (String field : fieldPropertyMap.keySet()) {
         String property = fieldPropertyMap.get(field);
         // Complex properties and Enum types properties are handled by utility methods.
-        if (!property.endsWith("Serialized") && !property.equals("extinct")
-            && !property.equals("habitatAsInts") && !property.equals("nomenclaturalStatusAsInts") && !property
-          .equals("taxonomicStatus") && !property.equals("rank") && !property.equals("nameType")) {
-          doc.addField(field, BeanUtils.getProperty(nameUsage, property));
+        if (!property.endsWith("Serialized")
+            && !property.equals("extinct")
+            && !property.equals("habitatAsInts")
+            && !property.equals("nomenclaturalStatusAsInts")
+            && !property.equals("taxonomicStatus") && !property.equals("rank")
+            && !property.equals("nameType")) {
+          doc.addField(field, BeanUtils.getProperty(usage, property));
         }
       }
       // higher taxa
       addHigherTaxonKeys(parents, doc);
       // extract info from usage components
-      addVernacularNames(doc, vernacularNames);
-      addDescriptions(nameUsage, doc, descriptions);
-      addDistributionsAndThreatStatus(nameUsage, doc, distributions);
-      addSpeciesProfiles(nameUsage, doc, speciesProfiles);
+      addVernacularNames(doc, usage);
+      addDescriptions(doc, usage);
+      addDistributionsAndThreatStatus(doc, usage);
+      addSpeciesProfiles(doc, usage);
       // enums
-      addIssues(nameUsage, doc);
-      addNomenclaturalStatus(nameUsage, doc);
-      addTaxonomicStatus(nameUsage, doc);
-      addRank(nameUsage, doc);
-      addNameType(nameUsage, doc);
+      addIssues(usage, doc);
+      addNomenclaturalStatus(usage, doc);
+      addTaxonomicStatus(usage, doc);
+      addRank(usage, doc);
+      addNameType(usage, doc);
       return doc;
 
     } catch (Exception e) {
-      log.error("Error converting usage {} to solr document: {}", nameUsage.getKey(), e.getMessage());
+      log.error("Error converting usage {} to solr document: {}", usage.getKey(), e.getMessage());
       throw new RuntimeException(e);
     }
   }
@@ -147,15 +150,13 @@ public class NameUsageDocConverter {
   /**
    * Utility method that iterates over all the {@link Description} objects of a {@link NameUsage}.
    *
-   * @param nameUsage         existing {@link NameUsage}
    * @param doc to be modified by adding the description fields
    */
-  private void addDescriptions(NameUsage nameUsage, SolrInputDocument doc,
-    List<Description> descriptions) {
-    if (descriptions == null) {
+  private void addDescriptions(SolrInputDocument doc, NameUsageContainer usage) {
+    if (usage.getDescriptions() == null) {
       return;
     }
-    for (Description description : descriptions) {
+    for (Description description : usage.getDescriptions()) {
       doc.addField("description", serializeDescription(description));
     }
   }
@@ -163,15 +164,13 @@ public class NameUsageDocConverter {
   /**
    * Utility method that iterates over all the {@link Distribution} objects of a {@link NameUsage}.
    *
-   * @param nameUsage         existing {@link NameUsage}
    * @param doc to be modified by adding the distributions fields
    */
-  private void addDistributionsAndThreatStatus(NameUsage nameUsage, SolrInputDocument doc,
-    List<Distribution> distributions) {
-    if (distributions == null) {
+  private void addDistributionsAndThreatStatus(SolrInputDocument doc, NameUsageContainer usage) {
+    if (usage.getDistributions() == null) {
       return;
     }
-    for (Distribution distribution : distributions) {
+    for (Distribution distribution : usage.getDistributions()) {
       if (distribution.getThreatStatus() != null) {
         doc.addField("threat_status_key", distribution.getThreatStatus().ordinal());
       }
@@ -226,26 +225,22 @@ public class NameUsageDocConverter {
   /**
    * Utility method that iterates over all the {@link SpeciesProfile} objects of a {@link NameUsage}.
    *
-   * @param nameUsage         existing {@link NameUsage}
    * @param doc to be modified by adding the species profiles(extinct & marine) fields
    */
-  private void addSpeciesProfiles(NameUsage nameUsage, SolrInputDocument doc,
-    List<SpeciesProfile> speciesProfiles) {
-    if (speciesProfiles == null) {
+  private void addSpeciesProfiles(SolrInputDocument doc, NameUsageContainer usage) {
+    if (usage.getSpeciesProfiles() == null) {
       return;
-    }    // add profiles to container that has logic to calculate a single boolean flag
-    NameUsageContainer container = new NameUsageContainer();
-    container.setSpeciesProfiles(speciesProfiles);
+    }
 
     // use container logic to build a single value
-    doc.addField("extinct", container.isExtinct());
+    doc.addField("extinct", usage.isExtinct());
     // derive habitat values from boolean flags
-    addHabitat(doc, container.isFreshwater(), Habitat.FRESHWATER);
-    addHabitat(doc, container.isMarine(), Habitat.MARINE);
-    addHabitat(doc, container.isTerrestrial(), Habitat.TERRESTRIAL);
+    addHabitat(doc, usage.isFreshwater(), Habitat.FRESHWATER);
+    addHabitat(doc, usage.isMarine(), Habitat.MARINE);
+    addHabitat(doc, usage.isTerrestrial(), Habitat.TERRESTRIAL);
     // see if we can make use of uncontrolled habitat values with the parser, CoL uses it a lot!
     HabitatParser hp = HabitatParser.getInstance();
-    for (String habitat : container.getHabitats()) {
+    for (String habitat : usage.getHabitats()) {
       ParseResult<Habitat> result = hp.parse(habitat);
       if (result.isSuccessful()) {
         addHabitat(doc, result.getPayload());
@@ -279,11 +274,11 @@ public class NameUsageDocConverter {
    *
    * @param doc to be modified by adding the vernacular name fields
    */
-  private void addVernacularNames(SolrInputDocument doc, List<VernacularName> vernacularNames) {
-    if (vernacularNames == null) {
+  private void addVernacularNames(SolrInputDocument doc, NameUsageContainer usage) {
+    if (usage.getVernacularNames() == null) {
       return;
     }
-    for (VernacularName vernacularName : vernacularNames) {
+    for (VernacularName vernacularName : usage.getVernacularNames()) {
       doc.addField("vernacular_name", vernacularName.getVernacularName());
       if (vernacularName.getLanguage() != null) {
         doc.addField("vernacular_lang", vernacularName.getLanguage().getIso2LetterCode());

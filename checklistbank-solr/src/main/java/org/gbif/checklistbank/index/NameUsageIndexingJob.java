@@ -3,6 +3,7 @@ package org.gbif.checklistbank.index;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.service.UsageService;
@@ -107,10 +108,14 @@ public class NameUsageIndexingJob implements Callable<Integer> {
           continue;
       }
       try {
+        NameUsageContainer container = new NameUsageContainer(usage);
+        container.setSpeciesProfiles(speciesProfileMap.get(usage.getKey()));
+        container.setVernacularNames(vernacularNameMap.get(usage.getKey()));
+        container.setDescriptions(descriptionMap.get(usage.getKey()));
+        container.setDistributions(distributionMap.get(usage.getKey()));
+
         List<Integer> parents = nameUsageService.listParents(usage.getKey());
-        solr.add(solrDocumentConverter.toObject(usage, parents,
-          vernacularNameMap.get(usage.getKey()), descriptionMap.get(usage.getKey()),
-            distributionMap.get(usage.getKey()), speciesProfileMap.get(usage.getKey())));
+        solr.add(solrDocumentConverter.toObject(container, parents));
 
       } catch (Exception e) {
         log.error("Error indexing document for usage {}", usage.getKey(), e);

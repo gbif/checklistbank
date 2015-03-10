@@ -1,10 +1,7 @@
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
@@ -77,14 +74,13 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
     // leaving out fields that we do not index in solr
     List<NameUsage> range = usageService.listRange(key, key);
     if (!range.isEmpty()) {
-      NameUsage u = range.get(0);
-      insertOrUpdate(u,
-        usageService.listParents(key),
-        vernacularNameService.listByUsage(key, page).getResults(),
-        descriptionService.listByUsage(key, page).getResults(),
-        distributionService.listByUsage(key, page).getResults(),
-        speciesProfileService.listByUsage(key, page).getResults()
-      );
+      NameUsageContainer u = new NameUsageContainer(range.get(0));
+      u.setDistributions(distributionService.listByUsage(key, page).getResults());
+      u.setDescriptions(descriptionService.listByUsage(key, page).getResults());
+      u.setVernacularNames(vernacularNameService.listByUsage(key, page).getResults());
+      u.setSpeciesProfiles(speciesProfileService.listByUsage(key, page).getResults());
+
+      insertOrUpdate(u, usageService.listParents(key));
     }
   }
 
@@ -99,15 +95,8 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
   }
 
   @Override
-  public void insertOrUpdate(
-    NameUsage usage,
-    List<Integer> parentKeys,
-    List<VernacularName> vernaculars,
-    List<Description> descriptions,
-    List<Distribution> distributions,
-    List<SpeciesProfile> profiles
-  ) {
-    SolrInputDocument doc = converter.toObject(usage, parentKeys, vernaculars, descriptions, distributions, profiles);
+  public void insertOrUpdate(NameUsageContainer usage, List<Integer> parentKeys) {
+    SolrInputDocument doc = converter.toObject(usage, parentKeys);
     try {
       solr.add(doc, commitWithinMs);
     } catch (Exception e) {

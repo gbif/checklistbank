@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Habitat;
@@ -23,7 +23,8 @@ public class NameUsageDocConverterTest {
   @Test
   public void testToObject() throws Exception {
     NameUsageDocConverter conv = new NameUsageDocConverter();
-    NameUsage u = new NameUsage();
+
+    NameUsageContainer u = new NameUsageContainer();
     u.setKey(12);
     u.setDatasetKey(UUID.randomUUID());
     u.setScientificName("Abies alba Mill.");
@@ -37,6 +38,7 @@ public class NameUsageDocConverterTest {
     SpeciesProfile sp = new SpeciesProfile();
     sp.setTerrestrial(true);
     sp.setHabitat("brackish");
+    u.getSpeciesProfiles().add(sp);
 
     VernacularName v1 = new VernacularName();
     v1.setLanguage(Language.GERMAN);
@@ -44,8 +46,11 @@ public class NameUsageDocConverterTest {
     VernacularName v2 = new VernacularName();
     v2.setLanguage(Language.GERMAN);
     v2.setVernacularName("Kohl Tanne");
+    u.getVernacularNames().add(v1);
+    u.getVernacularNames().add(v2);
 
-    SolrInputDocument doc = conv.toObject(u, Lists.newArrayList(12,15,20,100), Lists.newArrayList(v1,v2), null, null, Lists.newArrayList(sp));
+    SolrInputDocument doc = conv.toObject(u, Lists.newArrayList(12,15,20,100));
+
     assertEquals(u.getKey().toString(), doc.get("key").getValue());
     assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
     assertEquals(u.getParentKey().toString(), doc.get("parent_key").getValue());
