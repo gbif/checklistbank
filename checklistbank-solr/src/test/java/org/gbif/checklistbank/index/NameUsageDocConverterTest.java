@@ -36,7 +36,7 @@ public class NameUsageDocConverterTest {
 
     SpeciesProfile sp = new SpeciesProfile();
     sp.setTerrestrial(true);
-    sp.setFreshwater(true);
+    sp.setHabitat("brackish");
 
     VernacularName v1 = new VernacularName();
     v1.setLanguage(Language.GERMAN);

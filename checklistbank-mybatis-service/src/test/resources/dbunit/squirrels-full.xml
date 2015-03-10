@@ -1362,4 +1362,5 @@
   <vernacular_name id="100010" usage_fk="100000040" language="de" name="Kaukasischen Eichhörnchen" />
   <species_info id="1" usage_fk="100000025" age_in_days="3650" extinct="false" terrestrial="true" marine="false" habitat="boreal forest" hybrid="false" living_period="Pleistocene to Present" mass_in_gram="340" size_in_millimeter="430"/>
   <species_info id="2" usage_fk="100000025" age_in_days="3650" extinct="false" terrestrial="true" marine="false" habitat="temperate" hybrid="false" living_period="Pleistocene to Present" mass_in_gram="340" size_in_millimeter="430"/>
+  <species_info id="3" usage_fk="100000036" extinct="true" habitat="brackish" />
 </dataset>

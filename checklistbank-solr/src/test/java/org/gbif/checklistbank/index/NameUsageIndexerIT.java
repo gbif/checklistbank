@@ -95,6 +95,15 @@ public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
     u1 = usages.get(0);
     assertEquals((Integer) 100000007, u1.getKey());
 
+    // habitat
+    query = new SolrQuery();
+    query.setQuery("habitat_key:*");
+    rsp = solr().query(query);
+    docs = rsp.getResults();
+    assertEquals(2, docs.size());
+    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
+    usages.isEmpty();
+
     // nub key
     query = new SolrQuery();
     query.setQuery("nub_key:1");

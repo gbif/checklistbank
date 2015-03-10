@@ -6,11 +6,13 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
+import org.gbif.common.parsers.HabitatParser;
+import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.common.search.util.AnnotationUtils;
 
 import java.util.List;
@@ -241,10 +243,24 @@ public class NameUsageDocConverter {
     addHabitat(doc, container.isFreshwater(), Habitat.FRESHWATER);
     addHabitat(doc, container.isMarine(), Habitat.MARINE);
     addHabitat(doc, container.isTerrestrial(), Habitat.TERRESTRIAL);
+    // see if we can make use of uncontrolled habitat values with the parser, CoL uses it a lot!
+    HabitatParser hp = HabitatParser.getInstance();
+    for (String habitat : container.getHabitats()) {
+      ParseResult<Habitat> result = hp.parse(habitat);
+      if (result.isSuccessful()) {
+        addHabitat(doc, result.getPayload());
+      }
+    }
   }
 
   private void addHabitat(SolrInputDocument doc, Boolean add, Habitat habitat) {
-    if (add != null && add && habitat != null) {
+    if (add != null && add) {
+      addHabitat(doc, habitat);
+    }
+  }
+
+  private void addHabitat(SolrInputDocument doc, Habitat habitat) {
+    if (habitat != null) {
       doc.addField("habitat_key", habitat.ordinal());
     }
   }
