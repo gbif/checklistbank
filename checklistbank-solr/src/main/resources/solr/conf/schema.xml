@@ -183,6 +183,7 @@
     <field name="nomenclatural_status_key" type="int" indexed="true" stored="true" multiValued="true"/>
     <field name="threat_status_key" type="int" indexed="true" stored="true" multiValued="true"/>
     <field name="rank_key" type="int" indexed="true" stored="true"/>
+    <field name="habitat_key" type="int" indexed="true" stored="true" multiValued="true"/>
 
     <field name="published_in" type="text" indexed="true" stored="true"/>
     <field name="according_to" type="text" indexed="true" stored="true"/>
@@ -216,7 +217,6 @@
     <field name="source_id" type="string" indexed="true" stored="true"/>
     <field name="is_synonym" type="boolean" indexed="true" stored="true"/>
     <field name="extinct" type="boolean" indexed="true" stored="true"/>
-    <field name="marine" type="boolean" indexed="true" stored="true"/>
 
     <field name="description" type="text" indexed="true" stored="true" multiValued="true"/>
 

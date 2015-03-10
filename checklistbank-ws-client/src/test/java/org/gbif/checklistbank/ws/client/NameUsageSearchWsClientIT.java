@@ -8,6 +8,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
+import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
@@ -195,11 +196,12 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 0l, null);
 
-    // MARINE
+    // HABITAT
     assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);
-    result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, "false", 1l, null);
+    result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.TERRESTRIAL, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
-    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, "true", 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.MARINE, 0l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.FRESHWATER, 0l, null);
 
     // THREAT
     assertSearch("Sciurillus", NameUsageSearchParameter.THREAT, 5L, null);

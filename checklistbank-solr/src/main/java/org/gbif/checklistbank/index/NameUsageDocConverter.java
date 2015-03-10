@@ -8,6 +8,7 @@ import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 import org.gbif.common.search.util.AnnotationUtils;
@@ -96,31 +97,31 @@ public class NameUsageDocConverter {
   public SolrInputDocument toObject(NameUsage nameUsage, List<Integer> parents, List<VernacularName> vernacularNames,
     List<Description> descriptions, List<Distribution> distributions, List<SpeciesProfile> speciesProfiles) {
     try {
-      SolrInputDocument solrInputDocument = new SolrInputDocument();
+      SolrInputDocument doc = new SolrInputDocument();
       // Uses the pre-initialized field-property map to find the corresponding Solr field of a Java field.
       for (String field : fieldPropertyMap.keySet()) {
         String property = fieldPropertyMap.get(field);
         // Complex properties and Enum types properties are handled by utility methods.
         if (!property.endsWith("Serialized") && !property.equals("extinct")
-            && !property.equals("marine") && !property.equals("nomenclaturalStatusAsInts") && !property
+            && !property.equals("habitatAsInts") && !property.equals("nomenclaturalStatusAsInts") && !property
           .equals("taxonomicStatus") && !property.equals("rank") && !property.equals("nameType")) {
-          solrInputDocument.addField(field, BeanUtils.getProperty(nameUsage, property));
+          doc.addField(field, BeanUtils.getProperty(nameUsage, property));
         }
       }
       // higher taxa
-      addHigherTaxonKeys(parents, solrInputDocument);
+      addHigherTaxonKeys(parents, doc);
       // extract info from usage components
-      addVernacularNames(solrInputDocument, vernacularNames);
-      addDescriptions(nameUsage, solrInputDocument, descriptions);
-      addDistributionsAndThreatStatus(nameUsage, solrInputDocument, distributions);
-      addSpeciesProfiles(nameUsage, solrInputDocument, speciesProfiles);
+      addVernacularNames(doc, vernacularNames);
+      addDescriptions(nameUsage, doc, descriptions);
+      addDistributionsAndThreatStatus(nameUsage, doc, distributions);
+      addSpeciesProfiles(nameUsage, doc, speciesProfiles);
       // enums
-      addIssues(nameUsage, solrInputDocument);
-      addNomenclaturalStatus(nameUsage, solrInputDocument);
-      addTaxonomicStatus(nameUsage, solrInputDocument);
-      addRank(nameUsage, solrInputDocument);
-      addNameType(nameUsage, solrInputDocument);
-      return solrInputDocument;
+      addIssues(nameUsage, doc);
+      addNomenclaturalStatus(nameUsage, doc);
+      addTaxonomicStatus(nameUsage, doc);
+      addRank(nameUsage, doc);
+      addNameType(nameUsage, doc);
+      return doc;
 
     } catch (Exception e) {
       log.error("Error converting usage {} to solr document: {}", nameUsage.getKey(), e.getMessage());
@@ -128,12 +129,12 @@ public class NameUsageDocConverter {
     }
   }
 
-  private void addIssues(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
+  private void addIssues(NameUsage nameUsage, SolrInputDocument doc) {
     try {
       if (!nameUsage.getIssues().isEmpty()) {
         for (NameUsageIssue issue : nameUsage.getIssues()) {
           // Uses the converter to get the key and name values
-          solrInputDocument.addField("issues", issue.ordinal());
+          doc.addField("issues", issue.ordinal());
         }
       }
     } catch (Exception e) {
@@ -145,15 +146,15 @@ public class NameUsageDocConverter {
    * Utility method that iterates over all the {@link Description} objects of a {@link NameUsage}.
    *
    * @param nameUsage         existing {@link NameUsage}
-   * @param solrInputDocument to be modified by adding the description fields
+   * @param doc to be modified by adding the description fields
    */
-  private void addDescriptions(NameUsage nameUsage, SolrInputDocument solrInputDocument,
+  private void addDescriptions(NameUsage nameUsage, SolrInputDocument doc,
     List<Description> descriptions) {
     if (descriptions == null) {
       return;
     }
     for (Description description : descriptions) {
-      solrInputDocument.addField("description", serializeDescription(description));
+      doc.addField("description", serializeDescription(description));
     }
   }
 
@@ -161,16 +162,16 @@ public class NameUsageDocConverter {
    * Utility method that iterates over all the {@link Distribution} objects of a {@link NameUsage}.
    *
    * @param nameUsage         existing {@link NameUsage}
-   * @param solrInputDocument to be modified by adding the distributions fields
+   * @param doc to be modified by adding the distributions fields
    */
-  private void addDistributionsAndThreatStatus(NameUsage nameUsage, SolrInputDocument solrInputDocument,
+  private void addDistributionsAndThreatStatus(NameUsage nameUsage, SolrInputDocument doc,
     List<Distribution> distributions) {
     if (distributions == null) {
       return;
     }
     for (Distribution distribution : distributions) {
       if (distribution.getThreatStatus() != null) {
-        solrInputDocument.addField("threat_status_key", distribution.getThreatStatus().ordinal());
+        doc.addField("threat_status_key", distribution.getThreatStatus().ordinal());
       }
     }
   }
@@ -178,12 +179,12 @@ public class NameUsageDocConverter {
   /**
    * Adds the multivalued field higher_taxon_key field.
    * @param parents
-   * @param solrInputDocument to be modified by adding the higher taxon fields.
+   * @param doc to be modified by adding the higher taxon fields.
    */
-  private void addHigherTaxonKeys(List<Integer> parents, SolrInputDocument solrInputDocument) {
+  private void addHigherTaxonKeys(List<Integer> parents, SolrInputDocument doc) {
     if (parents != null) {
       for (Integer key : parents) {
-        solrInputDocument.addField("higher_taxon_key", key);
+        doc.addField("higher_taxon_key", key);
       }
     }
   }
@@ -192,51 +193,31 @@ public class NameUsageDocConverter {
    * Adds the name type field to the Solr document.
    *
    * @param nameUsage         a existing {@link NameUsage}.
-   * @param solrInputDocument to be modified by adding the name type fields.
+   * @param doc to be modified by adding the name type fields.
    */
-  private void addNameType(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    try {
-      // Uses the converter to get the key value
-      if (nameUsage.getNameType() != null) {
-        solrInputDocument.addField("name_type", nameUsage.getNameType().ordinal());
-      }
-    } catch (Exception e) {
-      log.error("Error converting enum", e);
+  private void addNameType(NameUsage nameUsage, SolrInputDocument doc) {
+    if (nameUsage.getNameType() != null) {
+      doc.addField("name_type", nameUsage.getNameType().ordinal());
     }
   }
 
   /**
    * Adds the nomenclatural status fields to the Solr document.
-   *
-   * @param nameUsage         a existing {@link NameUsage}.
-   * @param solrInputDocument to be modified by adding the nomenclatural status fields.
    */
-  private void addNomenclaturalStatus(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    try {
-      if (nameUsage.getNomenclaturalStatus() != null) {
-        for (NomenclaturalStatus ns : nameUsage.getNomenclaturalStatus()) {
-          // Uses the converter to get the key and name values
-          solrInputDocument.addField("nomenclatural_status_key", ns.ordinal());
-        }
+  private void addNomenclaturalStatus(NameUsage nameUsage, SolrInputDocument doc) {
+    if (nameUsage.getNomenclaturalStatus() != null) {
+      for (NomenclaturalStatus ns : nameUsage.getNomenclaturalStatus()) {
+        doc.addField("nomenclatural_status_key", ns.ordinal());
       }
-    } catch (Exception e) {
-      log.error("Error converting enum", e);
     }
   }
 
   /**
    * Adds the rank fields to the Solr document.
-   *
-   * @param nameUsage         a existing {@link NameUsage}.
-   * @param solrInputDocument to be modified by adding the rank fields.
    */
-  private void addRank(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    try {
-      if (nameUsage.getRank() != null) {
-        solrInputDocument.addField("rank_key", nameUsage.getRank().ordinal());
-      }
-    } catch (Exception e) {
-      log.error("Error converting enum", e);
+  private void addRank(NameUsage nameUsage, SolrInputDocument doc) {
+    if (nameUsage.getRank() != null) {
+      doc.addField("rank_key", nameUsage.getRank().ordinal());
     }
   }
 
@@ -244,9 +225,9 @@ public class NameUsageDocConverter {
    * Utility method that iterates over all the {@link SpeciesProfile} objects of a {@link NameUsage}.
    *
    * @param nameUsage         existing {@link NameUsage}
-   * @param solrInputDocument to be modified by adding the species profiles(extinct & marine) fields
+   * @param doc to be modified by adding the species profiles(extinct & marine) fields
    */
-  private void addSpeciesProfiles(NameUsage nameUsage, SolrInputDocument solrInputDocument,
+  private void addSpeciesProfiles(NameUsage nameUsage, SolrInputDocument doc,
     List<SpeciesProfile> speciesProfiles) {
     if (speciesProfiles == null) {
       return;
@@ -255,41 +236,42 @@ public class NameUsageDocConverter {
     container.setSpeciesProfiles(speciesProfiles);
 
     // use container logic to build a single value
-    solrInputDocument.addField("extinct", container.isExtinct());
-    solrInputDocument.addField("marine", container.isMarine());
+    doc.addField("extinct", container.isExtinct());
+    // derive habitat values from boolean flags
+    addHabitat(doc, container.isFreshwater(), Habitat.FRESHWATER);
+    addHabitat(doc, container.isMarine(), Habitat.MARINE);
+    addHabitat(doc, container.isTerrestrial(), Habitat.TERRESTRIAL);
+  }
+
+  private void addHabitat(SolrInputDocument doc, Boolean add, Habitat habitat) {
+    if (add != null && add && habitat != null) {
+      doc.addField("habitat_key", habitat.ordinal());
+    }
   }
 
   /**
    * Adds the taxonomic status fields to the Solr document.
-   *
-   * @param nameUsage         a existing {@link NameUsage}.
-   * @param solrInputDocument to be modified by adding the taxonomic statu fields.
    */
-  private void addTaxonomicStatus(NameUsage nameUsage, SolrInputDocument solrInputDocument) {
-    try {
-      if (nameUsage.getTaxonomicStatus() != null) {
-        // Uses the converter to get the key and name values
-        solrInputDocument.addField("taxonomic_status_key", nameUsage.getTaxonomicStatus().ordinal());
-      }
-    } catch (Exception e) {
-      log.error("Error converting enum", e);
+  private void addTaxonomicStatus(NameUsage nameUsage, SolrInputDocument doc) {
+    if (nameUsage.getTaxonomicStatus() != null) {
+      doc.addField("taxonomic_status_key", nameUsage.getTaxonomicStatus().ordinal());
     }
   }
 
   /**
    * Utility method that iterates over all the {@link VernacularName} objects of a {@link NameUsage}.
    *
-   * @param solrInputDocument to be modified by adding the vernacular name fields
+   * @param doc to be modified by adding the vernacular name fields
    */
-  private void addVernacularNames(SolrInputDocument solrInputDocument, List<VernacularName> vernacularNames) {
+  private void addVernacularNames(SolrInputDocument doc, List<VernacularName> vernacularNames) {
     if (vernacularNames == null) {
       return;
     }
     for (VernacularName vernacularName : vernacularNames) {
-      solrInputDocument.addField("vernacular_name", vernacularName.getVernacularName());
+      doc.addField("vernacular_name", vernacularName.getVernacularName());
       if (vernacularName.getLanguage() != null) {
-        solrInputDocument.addField("vernacular_lang", vernacularName.getLanguage().getIso2LetterCode());
-        solrInputDocument.addField("vernacular_name_lang", serializeVernacularName(vernacularName));
+        doc.addField("vernacular_lang", vernacularName.getLanguage().getIso2LetterCode());
+        doc.addField("vernacular_name_lang", serializeVernacularName(vernacularName));
       }
     }
   }

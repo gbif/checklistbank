@@ -15,6 +15,7 @@ package org.gbif.checklistbank.index.model;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
@@ -70,7 +71,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
     @FacetField(name = "IS_EXTINCT", field = "extinct", method = Method.ENUM),
     @FacetField(name = "NOMENCLATURAL_STATUS", field = "nomenclatural_status_key", method = Method.ENUM),
     @FacetField(name = "NAME_TYPE", field = "name_type", method = Method.ENUM),
-    @FacetField(name = "HABITAT", field = "marine", method = Method.ENUM),
+    @FacetField(name = "HABITAT", field = "habitat_key", method = Method.ENUM),
     @FacetField(name = "ISSUE", field = "issues", method = Method.ENUM)
   },
   fulltextFields = {
@@ -231,10 +232,15 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
     super.setKingdomKey(kingdomKey);
   }
 
-  @Override
-  @Field("marine")
-  public void setMarine(Boolean marine) {
-    super.setMarine(marine);
+  @Field("habitat_key")
+  public void setHabitatAsInts(List<Integer> habitatKeys) {
+    List<Habitat> habitats = Lists.newArrayList();
+    if (habitatKeys != null) {
+      for (Integer habitatIdx : habitatKeys) {
+        habitats.add(Habitat.values()[habitatIdx]);
+      }
+    }
+    super.setHabitats(habitats);
   }
 
   @Field("name_type")

@@ -1,12 +1,14 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 
 import java.io.IOException;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -60,7 +62,7 @@ public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
     assertEquals((Integer) 100000025, u1.getKey());
     assertFalse(u1.isSynonym());
     assertFalse(u1.isExtinct());
-    assertFalse(u1.isMarine());
+    assertEquals(Lists.newArrayList(Habitat.TERRESTRIAL), u1.getHabitats());
     assertEquals(Rank.SPECIES, u1.getRank());
     assertEquals((Integer) 100000024, u1.getSubgenusKey());
     assertEquals((Integer) 100000011, u1.getGenusKey());
