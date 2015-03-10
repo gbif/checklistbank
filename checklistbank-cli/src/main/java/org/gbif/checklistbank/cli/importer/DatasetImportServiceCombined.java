@@ -4,11 +4,9 @@ import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.index.NameUsageIndexService;
-import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,14 +27,10 @@ public class DatasetImportServiceCombined {
     this.solrService = solrService;
   }
 
-  public void insertUsages(UUID datasetKey, Iterator<Usage> usages) {
-    throw new UnsupportedOperationException();
-  }
-
   public int syncUsage(NameUsageContainer usage, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
     Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
     int key = sqlService.syncUsage(usage, verbatim, metrics);
-    solrService.insertOrUpdate(usage, parents, usage.getVernacularNames(), usage.getDescriptions(), usage.getDistributions(), usage.getSpeciesProfiles());
+    solrService.insertOrUpdate(usage, parents);
     return key;
   }
 
