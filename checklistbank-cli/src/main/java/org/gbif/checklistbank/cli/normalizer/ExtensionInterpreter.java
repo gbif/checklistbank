@@ -43,11 +43,11 @@ import org.gbif.dwc.terms.XmpTerm;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,13 +168,16 @@ public class ExtensionInterpreter {
     }
   }
 
-  //TODO: decide whether we want to index specimens ???
+  /**
+   * We only keep type names and ignore specimens...
+   */
   private void interpretTypes(NameUsageContainer u, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.TYPES_AND_SPECIMEN)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.TYPES_AND_SPECIMEN)) {
         TypeSpecimen t = new TypeSpecimen();
         // interpret
-        t.setScientificName(value(rec, DwcTerm.scientificName));
+        t.setScientificName(expandGenus(value(rec, DwcTerm.scientificName), u.getScientificName()));
+
         if (t.getScientificName() == null || t.getScientificName().equalsIgnoreCase(u.getScientificName())) {
           LOG.debug("Ignore type specimens and type names if the name is the same as the taxon");
           continue;
@@ -187,6 +190,26 @@ public class ExtensionInterpreter {
         u.getTypeSpecimens().add(t);
       }
     }
+  }
+
+  /**
+   * Expands abbreviated genus names with the full genus
+   * @param abbreviatedName the potentially abbreviated scientific name, e.g. "A. alba"
+   * @param scientificName the full scientific name for the main taxon
+   */
+  @VisibleForTesting
+  protected static String expandGenus(String abbreviatedName, String scientificName) {
+    // test if name has an abbreviated genus
+    if (abbreviatedName != null && abbreviatedName.length() > 1 && scientificName != null && scientificName.length() > 2) {
+      String[] parts = abbreviatedName.split("\\s+", 2);
+      String genus = scientificName.split("\\s+", 2)[0];
+      String abbrev = parts[0].replaceAll("\\.$", "");
+
+      if (parts.length == 2 && abbrev.length() < 4 && genus.startsWith(abbrev)) {
+        return genus + " " + parts[1];
+      }
+    }
+    return abbreviatedName;
   }
 
   private void interpretSpeciesProfiles(NameUsageContainer u, VerbatimNameUsage v) {
