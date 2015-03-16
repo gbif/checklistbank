@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
@@ -33,11 +33,11 @@ public class ClbBatchServiceMyBatisIT {
 
   @Test
   public void testListRange() {
-    List<NameUsage> usages = ddt.getService().listRange(100000001, 100000020);
+    List<NameUsageContainer> usages = ddt.getService().listRange(100000001, 100000020);
     assertEquals(20, usages.size());
 
     boolean found = false;
-    for (NameUsage nu : usages) {
+    for (NameUsageContainer nu : usages) {
       assertNull(nu.getVernacularName());
       assertNotNull(nu.getScientificName());
       assertTrue(nu.getKey() >= 100000001 && nu.getKey() <= 100000020);

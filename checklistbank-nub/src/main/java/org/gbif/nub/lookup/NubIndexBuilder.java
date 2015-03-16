@@ -2,6 +2,7 @@ package org.gbif.nub.lookup;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.index.ThreadPoolRunner;
 import org.gbif.checklistbank.service.UsageService;
 
@@ -14,7 +15,7 @@ import org.apache.lucene.index.TrackingIndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
+public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubIndexBuilder.class);
 
@@ -41,7 +42,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
   }
 
   @Override
-  protected Callable<List<NameUsage>> newJob() {
+  protected Callable<List<NameUsageContainer>> newJob() {
     if (offset >= max) {
       // no more jobs!
       return null;
@@ -56,7 +57,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
   /**
    * Consumes the batch results and inserts them into the index.
    */
-  protected void taskResponseHook(List<NameUsage> usages) {
+  protected void taskResponseHook(List<NameUsageContainer> usages) {
     LOG.debug("Add {} usages to index", usages.size());
     if (!usages.isEmpty()) {
       LOG.debug("First usage is: {}", usages.get(0).getScientificName());
@@ -73,7 +74,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
   }
 
 
-  public class ReadUsageBatch implements Callable<List<NameUsage>> {
+  public class ReadUsageBatch implements Callable<List<NameUsageContainer>> {
       private final int start;
       private final int end;
       private final UsageService usageService;
@@ -85,9 +86,9 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
       }
 
       @Override
-      public List<NameUsage> call() throws Exception {
+      public List<NameUsageContainer> call() throws Exception {
         LOG.debug("Retrieve usages from CLB in range {}-{}", start, end);
-        List<NameUsage> usages = usageService.listRange(start, end);
+        List<NameUsageContainer> usages = usageService.listRange(start, end);
         LOG.debug("Retrieved {} usages from CLB in range {}-{}", usages.size(), start, end);
         return usages;
       }

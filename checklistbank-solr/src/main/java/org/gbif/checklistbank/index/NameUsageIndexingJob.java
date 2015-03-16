@@ -91,7 +91,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     log.info("Adding usages from id {} to {}", startKey, endKey);
     int docCount = 0;
     // Get all usages
-    List<NameUsage> usages = nameUsageService.listRange(startKey, endKey);
+    List<NameUsageContainer> usages = nameUsageService.listRange(startKey, endKey);
     // get all component maps into memory first
     Map<Integer, List<VernacularName>> vernacularNameMap = vernacularNameService.listRange(startKey, endKey);
 
@@ -102,20 +102,19 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
 
     // now we're ready to build the solr indices quicky!
-    for (NameUsage usage : usages) {
+    for (NameUsageContainer usage : usages) {
       if (usage==null) {
           log.warn("Unexpected numm usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
           continue;
       }
       try {
-        NameUsageContainer container = new NameUsageContainer(usage);
-        container.setSpeciesProfiles(speciesProfileMap.get(usage.getKey()));
-        container.setVernacularNames(vernacularNameMap.get(usage.getKey()));
-        container.setDescriptions(descriptionMap.get(usage.getKey()));
-        container.setDistributions(distributionMap.get(usage.getKey()));
+        usage.setSpeciesProfiles(speciesProfileMap.get(usage.getKey()));
+        usage.setVernacularNames(vernacularNameMap.get(usage.getKey()));
+        usage.setDescriptions(descriptionMap.get(usage.getKey()));
+        usage.setDistributions(distributionMap.get(usage.getKey()));
 
         List<Integer> parents = nameUsageService.listParents(usage.getKey());
-        solr.add(solrDocumentConverter.toObject(container, parents));
+        solr.add(solrDocumentConverter.toObject(usage, parents));
 
       } catch (Exception e) {
         log.error("Error indexing document for usage {}", usage.getKey(), e);

@@ -1,6 +1,6 @@
 package org.gbif.nub.build;
 
-import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
@@ -44,7 +44,7 @@ public class JsonMockService implements UsageService, ParsedNameService {
   }
 
   @Override
-  public List<NameUsage> listRange(int usageKeyStart, int usageKeyEnd) {
+  public List<NameUsageContainer> listRange(int usageKeyStart, int usageKeyEnd) {
     // TODO: Write implementation
     throw new UnsupportedOperationException("Not implemented yet");
   }

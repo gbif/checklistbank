@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DescriptionService;
@@ -72,9 +71,9 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
   public void insertOrUpdate(int key) {
     // we use the list service for just one record cause its more effective
     // leaving out fields that we do not index in solr
-    List<NameUsage> range = usageService.listRange(key, key);
+    List<NameUsageContainer> range = usageService.listRange(key, key);
     if (!range.isEmpty()) {
-      NameUsageContainer u = new NameUsageContainer(range.get(0));
+      NameUsageContainer u = range.get(0);
       u.setDistributions(distributionService.listByUsage(key, page).getResults());
       u.setDescriptions(descriptionService.listByUsage(key, page).getResults());
       u.setVernacularNames(vernacularNameService.listByUsage(key, page).getResults());

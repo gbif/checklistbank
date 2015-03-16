@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.checklistbank.model.NameUsageWritable;
 
@@ -42,13 +43,14 @@ public interface NameUsageMapper {
   List<NameUsage> listByCanonicalName(@Param("canonical") String canonicalName, @Param("uuids") UUID[] datasetKey,
     @Param("page") Pageable page);
 
-  List<NameUsage> listRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
   List<NameUsage> listRoot(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
 
   List<NameUsage> listChildren(@Param("key") int parentKey, @Param("page") Pageable page);
 
   List<NameUsage> listSynonyms(@Param("key") int usageKey, @Param("page") Pageable page);
+
+  List<NameUsageContainer> listRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
   /**
    * List all related name usages that have a given nubKey.

@@ -2,6 +2,7 @@ package org.gbif.nub.export;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
@@ -49,7 +50,7 @@ public class NubGitExporter {
     LOG.info("Retrieved max backbone usage key {}", max);
     while (start < max) {
       int end = start + PAGE_SIZE - 1;
-      List<NameUsage> usages = usageService.listRange(start, end);
+      List<NameUsageContainer> usages = usageService.listRange(start, end);
       LOG.info("Retrieved {} usages from {}-{}", usages.size(), start, end);
       for (NameUsage u : usages) {
         dumpUsage(u);
