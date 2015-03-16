@@ -25,6 +25,7 @@
     SELECT id FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER} AND last_interpreted &lt; #{before}
   </select>
 
+  <!-- limit the max amounts of returned parents to 100 to avoid endless loops that bring down the JVM -->
   <select id="listParents" parameterType="map" resultType="java.lang.Integer">
     WITH RECURSIVE a AS (
       SELECT id, parent_fk
@@ -35,7 +36,8 @@
       FROM a JOIN name_usage p ON a.parent_fk = p.id
     )
     SELECT id FROM a
-    WHERE id!=#{key};
+    WHERE id!=#{key}
+    LIMIT 100;
   </select>
 
   <delete id="deleteByDataset">

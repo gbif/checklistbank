@@ -21,6 +21,10 @@ public interface UsageMapper {
 
   List<Integer> listByDatasetAndDate(@Param("uuid") UUID datasetKey, @Param("before") Date before);
 
+  /**
+   * Return ids of all parents, limited to max 100 to avoid endless loops that bring down the JVM
+   * as seen during CoL solr index build
+   */
   List<Integer> listParents(@Param("key") int usageKey);
 
 }
