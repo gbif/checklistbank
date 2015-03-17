@@ -62,8 +62,8 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
       return solrRef;
     }
 
-    // run liquibase
-    LOG.info("Run liquibase once");
+    // run liquibase & dbunit
+    LOG.info("Run liquibase & dbunit once");
     try {
       DatabaseDrivenChecklistBankTestRule rule = new DatabaseDrivenChecklistBankTestRule(null);
       rule.apply(new Statement() {

@@ -8,11 +8,12 @@ import java.io.IOException;
 import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.google.common.base.Throwables;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -29,11 +30,22 @@ public abstract class NameUsageIndexerBaseIT {
   private static EmbeddedSolrReference solrRef;
   private static NameUsageIndexer nameUsageIndexer;
 
-  @Rule
-  public DatabaseDrivenChecklistBankTestRule<?> squirrel = new DatabaseDrivenChecklistBankTestRule(null);
-
   @BeforeClass
   public static void setup() throws IOException, SAXException, ParserConfigurationException {
+
+    // run liquibase & dbunit
+    LOG.info("Run liquibase & dbunit once");
+    try {
+      DatabaseDrivenChecklistBankTestRule rule = new DatabaseDrivenChecklistBankTestRule(null);
+      rule.apply(new Statement() {
+        public void evaluate() throws Throwable {
+          // do nothing
+        }
+      }, null).evaluate();
+    } catch (Throwable throwable) {
+      Throwables.propagate(throwable);
+    }
+
     // Creates the injector, merging properties taken from default test indexing and checklistbank
     Properties props = PropertiesUtil.loadProperties(PROPERTY_DEFAULT_FILE);
     Properties props2 = PropertiesUtil.loadProperties(PROPERTY_FILE);
