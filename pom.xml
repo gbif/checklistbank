@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>19</version>
+    <version>20</version>
   </parent>
 
 
@@ -29,27 +29,27 @@
   <properties>
     <jdkLevel>1.7</jdkLevel>
     <!-- datasource defaults, time in milliseconds -->
-    <checklistbank.db.poolSize>10</checklistbank.db.poolSize>
+    <checklistbank.db.poolSize>8</checklistbank.db.poolSize>
     <!-- This property controls the maximum number of milliseconds that a client will wait for a connection from the pool.
     If this time is exceeded without a connection becoming available, a SQLException will be thrown. -->
     <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
     <!-- dependency versions -->
-    <dwc-api.version>1.11-SNAPSHOT</dwc-api.version>
-    <gbif-api.version>0.18-SNAPSHOT</gbif-api.version>
+    <dwc-api.version>1.11</dwc-api.version>
+    <gbif-api.version>0.18</gbif-api.version>
     <gbif-cli.version>0.9</gbif-cli.version>
     <gbif-common.version>0.17</gbif-common.version>
     <gbif-common-mybatis.version>0.14</gbif-common-mybatis.version>
-    <gbif-common-search.version>0.21-SNAPSHOT</gbif-common-search.version>
+    <gbif-common-search.version>0.21</gbif-common-search.version>
     <gbif-common-service.version>0.12</gbif-common-service.version>
     <gbif-common-ws.version>0.18</gbif-common-ws.version>
     <gbif-httputils.version>0.6</gbif-httputils.version>
     <gbif-microservice.version>0.2</gbif-microservice.version>
-    <gbif-postal-service.version>0.14-SNAPSHOT</gbif-postal-service.version>
-    <registry-client.version>2.25</registry-client.version>
-    <name-parser.version>2.6-SNAPSHOT</name-parser.version>
-    <gbif-parser.version>0.11-SNAPSHOT</gbif-parser.version>
-    <dwca-reader.version>1.21-SNAPSHOT</dwca-reader.version>
+    <gbif-postal-service.version>0.14</gbif-postal-service.version>
+    <registry-client.version>2.26</registry-client.version>
+    <name-parser.version>2.6</name-parser.version>
+    <gbif-parser.version>0.11</gbif-parser.version>
+    <dwca-reader.version>1.21</dwca-reader.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
