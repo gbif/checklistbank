@@ -76,6 +76,7 @@
     <jersey.version>1.18.3</jersey.version>
     <jsoup.version>1.8.1</jsoup.version>
     <junit.version>4.11</junit.version>
+    <kryo.version>3.0.0</kryo.version>
     <liquibase.version>3.0.7</liquibase.version>
     <logback.version>1.1.2</logback.version>
     <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
@@ -112,6 +113,7 @@
     <module>checklistbank-nub-ws</module>
     <module>checklistbank-col</module>
     <module>checklistbank-cli</module>
+    <module>update-verbatim</module>
   </modules>
 
 
@@ -337,17 +339,12 @@
         <artifactId>jackson-databind</artifactId>
         <version>${jackson2.version}</version>
       </dependency>
-      <!--
-      cant use the guava jackson2 types cause they do conflict with the jackson 1.9 version
-      using the same fasterxml package names !
-
+      <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
       <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-guava</artifactId>
-        <version>${jackson2.version}</version>
-        <scope>runtime</scope>
+        <groupId>com.esotericsoftware</groupId>
+        <artifactId>kryo</artifactId>
+        <version>${kryo.version}</version>
       </dependency>
-      -->
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-smile</artifactId>

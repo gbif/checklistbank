@@ -16,6 +16,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +47,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
   private final ParsedNameMapper parsedNameMapper;
   private final VernacularNameMapper vernacularNameMapper;
   private final RawUsageMapper rawUsageMapper;
-  private final VerbatimNameUsageMapper jsonParser = new VerbatimNameUsageMapper();
+  private final VerbatimNameUsageMapper verbatimParser = new VerbatimNameUsageMapperKryo();
 
   @Inject
   private DataSource ds;
@@ -74,7 +75,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
     VerbatimNameUsage v = null;
     RawUsage raw = rawUsageMapper.get(usageKey);
     if (raw != null) {
-      v = jsonParser.read(raw.getData());
+      v = verbatimParser.read(raw.getData());
       if (v != null) {
         // we might not have crawled that record yet with the new crawling
         v.setKey(usageKey);

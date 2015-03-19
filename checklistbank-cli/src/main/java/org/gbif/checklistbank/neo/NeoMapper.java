@@ -11,6 +11,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.IdName;
 import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -25,7 +26,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Sets;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,7 +38,6 @@ import org.codehaus.jackson.type.JavaType;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +55,7 @@ public class NeoMapper {
   private final static Map<Rank, DwcTerm> classificationTerms = Maps.newTreeMap();
   private static NeoMapper instance;
   private final ObjectMapper objMapper;
-  private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapper();
+  private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapperKryo();
   private final TypeFactory tf = TypeFactory.defaultInstance();
   private final JavaType issueType;
   enum FieldType {PRIMITIVE, NATIVE, ENUM, OTHER}

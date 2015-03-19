@@ -41,10 +41,10 @@ public class ClbConfiguration {
   public String password;
 
   @Parameter(names = "--clb-maximumPoolSize")
-  public int maximumPoolSize = 12;
+  public int maximumPoolSize = 8;
 
   @Parameter(names = "--clb-connectionTimeout")
-  public int connectionTimeout = 10000;
+  public int connectionTimeout = 5000;
 
   public ChecklistBankServiceMyBatisModule createServiceModule() {
     Properties props = new Properties();

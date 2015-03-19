@@ -37,6 +37,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -70,7 +71,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   private final NameUsageMetricsMapper metricsMapper;
   private final NubRelMapper nubRelMapper;
   private final RawUsageMapper rawMapper;
-  private final VerbatimNameUsageMapper vParser = new VerbatimNameUsageMapper();
+  private final VerbatimNameUsageMapper vParser = new VerbatimNameUsageMapperKryo();
   private final ParsedNameService nameService;
   private final CitationService citationService;
   private final DescriptionMapper descriptionMapper;
