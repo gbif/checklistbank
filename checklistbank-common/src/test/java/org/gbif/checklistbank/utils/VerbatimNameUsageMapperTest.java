@@ -22,9 +22,18 @@ import static org.junit.Assert.assertEquals;
 
 public class VerbatimNameUsageMapperTest {
 
+  /**
+   * Very simple performance comparison of the 3 different serlialization mappers.
+   * As the kryo based one is 10 times faster we only use that:
+   * <ul>
+   *   <li>kryo: 1163ms</li>
+   *   <li>json: 11740ms</li>
+   *   <li>smile: 11255ms</li>
+   * </ul>
+   */
   @Test
-  public void testSmile() throws Exception {
-    VerbatimNameUsageMapper parser = new VerbatimNameUsageMapperJson();
+  public void testPerformance() throws Exception {
+    VerbatimNameUsageMapper parser = new VerbatimNameUsageMapperKryo();
 
     VerbatimNameUsage v = new VerbatimNameUsage();
     v.setKey(4712681);
@@ -47,19 +56,10 @@ public class VerbatimNameUsageMapperTest {
 
     long start = System.nanoTime();
     for (int x=10000; x>0; x--) {
-      VerbatimNameUsage vx = parser.read(data);
+      parser.read(data);
     }
     long end = System.nanoTime();
     System.out.println(end - start);
-
-    // json
-    // 11746862000
-
-    // smile
-    // 11255459000
-
-    // kryo
-    // 1163882000
   }
 
   @Test

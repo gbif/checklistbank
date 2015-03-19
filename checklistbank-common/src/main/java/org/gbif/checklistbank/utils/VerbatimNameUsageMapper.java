@@ -8,7 +8,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
  */
 public interface VerbatimNameUsageMapper {
 
-  VerbatimNameUsage read(byte[] smile);
+  VerbatimNameUsage read(byte[] data);
 
   byte[] write(VerbatimNameUsage verbatim);
 

@@ -4,7 +4,6 @@
 
   <resultMap id="rawResultMap" type="RawUsage" autoMapping="true">
     <id property="usageKey" column="usage_fk"/>
-    <result property="data" column="smile"/>
     <result property="lastCrawled" column="downloaded"/>
   </resultMap>
 
@@ -17,12 +16,12 @@
   </select>
 
   <insert id="insert" parameterType="RawUsage" useGeneratedKeys="false" keyProperty="usage_fk">
-    INSERT INTO raw_usage (usage_fk, dataset_key, smile)
+    INSERT INTO raw_usage (usage_fk, dataset_key, data)
     VALUES  (#{r.usageKey}, #{r.datasetKey}, #{r.data})
   </insert>
 
   <update id="update" parameterType="RawUsage">
-    UPDATE raw_usage SET smile = #{r.data}
+    UPDATE raw_usage SET data = #{r.data}
     WHERE usage_fk = #{r.usageKey}
   </update>
 
