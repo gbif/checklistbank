@@ -129,11 +129,11 @@ public class NubMatchingServiceImplIT {
 
   private void assertNubIdNotNullAndNotEqualToAnyHigherRank(NameUsageMatch x) {
     assertNotNull(x.getUsageKey());
-    assertFalse(x.getUsageKey() == x.getKingdomKey());
-    assertFalse(x.getUsageKey() == x.getPhylumKey());
-    assertFalse(x.getUsageKey() == x.getClassKey());
-    assertFalse(x.getUsageKey() == x.getOrderKey());
-    assertFalse(x.getUsageKey() == x.getFamilyKey());
+    assertFalse(x.getUsageKey().equals(x.getKingdomKey()));
+    assertFalse(x.getUsageKey().equals(x.getPhylumKey()));
+    assertFalse(x.getUsageKey().equals(x.getClassKey()));
+    assertFalse(x.getUsageKey().equals(x.getOrderKey()));
+    assertFalse(x.getUsageKey().equals(x.getFamilyKey()));
   }
 
   @Test
@@ -275,4 +275,110 @@ public class NubMatchingServiceImplIT {
     //TODO: implement
   }
 
+  /**
+   * Non existing species with old family classification should match genus Linaria.
+   * http://dev.gbif.org/issues/browse/POR-2704
+   */
+  @Test
+  @Ignore
+  public void testPOR2704() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("Scrophulariaceae"); // nowadays Plantaginaceae as in our nub/col
+    assertMatch("Linaria pedunculata (L.) Chaz.", cl, 3172168, new IntRange(90,100));
+  }
+
+  /**
+   * Non existing species should match genus Quedius
+   * http://dev.gbif.org/issues/browse/POR-1712
+   */
+  @Test
+  @Ignore
+  public void testPOR1712() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setClazz("Hexapoda");
+    cl.setFamily("Staphylinidae");
+    cl.setGenus("Quedius");
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Arthropoda");
+    assertMatch("Quedius caseyi divergens", cl, 4290501, new IntRange(90, 100));
+  }
+
+  /**
+   * Indet subspecies should match to species Panthera pardus
+   * http://dev.gbif.org/issues/browse/POR-2701
+   */
+  @Test
+  @Ignore
+  public void testPOR2701() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setPhylum("Chordata");
+    cl.setClazz("Mammalia");
+    cl.setOrder("Carnivora");
+    cl.setFamily("Felidae");
+    cl.setGenus("Panthera");
+    assertMatch("Panthera pardus ssp.", cl, 5219436, new IntRange(98, 100));
+  }
+
+
+  /**
+   * Brunella alba Pallas ex Bieb.(Labiatae, Plantae) is wrongly matched to
+   * Brunerella alba R.F. Castañeda & Vietinghoff (Fungi)
+   *
+   * The species does not exist in the nub and the genus Brunella is a synonym of Prunella.
+   * Match to family cause we dont have Brunella in the nub???
+   * http://dev.gbif.org/issues/browse/POR-2684
+   */
+  @Test
+  @Ignore
+  public void testPOR2684() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("Labiatae");
+    cl.setGenus("Brunella");
+    assertMatch("Brunella alba Pallas ex Bieb.", cl, 4273218, new IntRange(90, 100));
+  }
+
+
+  /**
+   * The wasp species does not exist and became a spider instead.
+   * Should match to the wasp genus.
+   *
+   * http://dev.gbif.org/issues/browse/POR-2469
+   */
+  @Test
+  @Ignore
+  public void testPOR2469() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Arthropoda");
+    cl.setClazz("Insecta");
+    cl.setOrder("Hymenoptera");
+    cl.setFamily("Tiphiidae");
+    cl.setGenus("Eirone");
+    assertMatch("Eirone neocaledonica Williams", cl, 4674090, new IntRange(90, 100));
+  }
+
+
+  /**
+   * The beetle Oreina elegans does not exist in the nub and became a spider instead.
+   * Should match to the wasp genus.
+   *
+   * http://dev.gbif.org/issues/browse/POR-2607
+   */
+  @Test
+  @Ignore
+  public void testPOR2607() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setFamily("Chrysomelidae");
+    assertMatch("Oreina", cl, 6757727, new IntRange(95, 100));
+    assertMatch("Oreina elegans", cl, 6757727, new IntRange(90, 100));
+
+    cl.setPhylum("Arthropoda");
+    cl.setClazz("Insecta");
+    cl.setOrder("Coleoptera");
+    assertMatch("Oreina", cl, 6757727, new IntRange(98, 100));
+    assertMatch("Oreina elegans", cl, 6757727, new IntRange(90, 100));
+  }
 }

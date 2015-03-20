@@ -60,6 +60,8 @@ public class NubIndex implements ClassificationResolver {
   private static final String FIELD_SCIENTIFIC_NAME = "sciname";
   private static final String FIELD_RANK = "rank";
   private static final String FIELD_SYNONYM = "syn";
+  private static final int TRUE = 1;
+  private static final int FALSE = 0;
   private static final Map<Rank, String> HIGHER_RANK_ID_FIELD_MAP = ImmutableMap.<Rank, String>builder()
     .put(Rank.KINGDOM, "k")
     .put(Rank.PHYLUM, "p")
@@ -252,7 +254,7 @@ public class NubIndex implements ClassificationResolver {
       u.setRank(Rank.UNRANKED);
     }
 
-    u.setSynonym(doc.get(FIELD_SYNONYM).equals("0") ? false : true);
+    u.setSynonym(doc.getField(FIELD_SYNONYM).numericValue().equals(TRUE));
 
     return u;
   }
@@ -299,7 +301,7 @@ public class NubIndex implements ClassificationResolver {
     }
 
     // store synonym boolean as simple int with 0=false
-    doc.add(new StoredField(FIELD_SYNONYM, synonym ? 1 : 0));
+    doc.add(new StoredField(FIELD_SYNONYM, synonym ? TRUE : FALSE));
 
     // store rank if existing as ordinal int
     // this lucene index is not persistent, so not risk in changing ordinal numbers

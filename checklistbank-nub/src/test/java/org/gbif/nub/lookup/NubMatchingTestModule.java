@@ -77,7 +77,7 @@ public class NubMatchingTestModule extends PrivateModule {
     ObjectMapper mapper = new ObjectMapper();
 
     int id = 0;
-    while (id < 100) {
+    while (id < 150) {
       String file = "index/nub"+id+".json";
       InputStream json = isu.classpathStream(file);
       if (json != null) {

@@ -104,5 +104,9 @@ public class NubIndexTest {
 
     assertTrue(index.matchByName("Abies elba", false, 2).isEmpty());
 
+    // synonym matching
+    m = index.matchByName("Picea abies", false, 2).get(0);
+    assertTrue(m.isSynonym());
+
   }
 }
