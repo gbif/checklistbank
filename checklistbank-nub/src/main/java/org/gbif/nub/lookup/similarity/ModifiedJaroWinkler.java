@@ -35,17 +35,17 @@ import java.util.Arrays;
  *
  * Modified to slightly increase the similarity for strings longer than a given threshold, defaulting to 8 chars.
  */
-public class ModifiedJaroWinklerSimilarity implements StringSimilarity {
-
-  private final String s1;
-  private final String s2;
+public class ModifiedJaroWinkler implements StringSimilarity {
 
   private float threshold = 0.7f;
-  private static int BOOST_LENGTH_THRESHOLD = 8;
+  private final int boostLengthThreshold;
 
-  public ModifiedJaroWinklerSimilarity(String str1, String str2) {
-    this.s1 = str1;
-    this.s2 = str2;
+  public ModifiedJaroWinkler() {
+    this.boostLengthThreshold = 8;
+  }
+
+  public ModifiedJaroWinkler(int boostLengthThreshold) {
+    this.boostLengthThreshold = boostLengthThreshold;
   }
 
   private int[] matches(String s1, String s2) {
@@ -105,38 +105,19 @@ public class ModifiedJaroWinklerSimilarity implements StringSimilarity {
   }
 
   @Override
-  public double getSimilarity() {
+  public double getSimilarity(String s1, String s2) {
     int[] mtp = matches(s1, s2);
     float m = (float) mtp[0];
     if (m == 0) {
       return 0;
     }
     float j = ((m / s1.length() + m / s2.length() + (m - mtp[1]) / m)) / 3;
-    float jw = j < getThreshold() ? j : j + Math.min(0.1f, 1f / mtp[3]) * mtp[2] * (1 - j);
+    float jw = j < threshold ? j : j + Math.min(0.1f, 1f / mtp[3]) * mtp[2] * (1 - j);
 
     // spread the similarities close to 1 a lot more
     double sim = 100d * Math.pow(jw, 5);
     // slightly increase similarity for long strings larger than specified characters if above threshold
-    return sim < threshold ? sim : (100d - (100d-sim) / Math.pow(Math.max(1, mtp[3]-BOOST_LENGTH_THRESHOLD), 0.2));
+    return sim < threshold ? sim : (100d - (100d-sim) / Math.pow(Math.max(1, mtp[3]- boostLengthThreshold), 0.2));
   }
 
-  /**
-   * Sets the threshold used to determine when Winkler bonus should be used.
-   * Set to a negative value to get the Jaro distance.
-   *
-   * @param threshold the new value of the threshold
-   */
-  public void setThreshold(float threshold) {
-    this.threshold = threshold;
-  }
-
-  /**
-   * Returns the current value of the threshold used for adding the Winkler bonus.
-   * The default value is 0.7.
-   *
-   * @return the current value of the threshold
-   */
-  public float getThreshold() {
-    return threshold;
-  }
 }

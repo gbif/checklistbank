@@ -7,8 +7,6 @@ package org.gbif.nub.lookup.similarity;
 import java.util.Arrays;
 
 public class ModifiedDamerauLevenshtein implements StringSimilarity {
-	private final String s1;
-	private final String s2;
 	private final int pBlockLimit;
 
 	// this variable holds a shared array, to reduce heap use
@@ -18,17 +16,26 @@ public class ModifiedDamerauLevenshtein implements StringSimilarity {
 	private static volatile int[] a_matrix = new int[64 * 64];
 	private static final Object mutex = new Object();
 
-	public ModifiedDamerauLevenshtein(String a, String b, int limit) {
-		this.s1 = a == null ? "" : a;
-		this.s2 = b == null ? "" : b;
+  /**
+   * A default MDL with a block limit of just 2 edits.
+   */
+  public ModifiedDamerauLevenshtein() {
+    this.pBlockLimit = 2;
+  }
+
+  /**
+   * @param limit the maximum allowed distance
+   */
+  public ModifiedDamerauLevenshtein(int limit) {
 		this.pBlockLimit = limit;
 	}
 
-	public double getSimilarity() {
-		return DamerauLevenshtein.convertEditDistanceToSimilarity(getSimilarity(s1, s2, pBlockLimit), s1, s2);
-	}
+  @Override
+  public double getSimilarity(String x1, String x2) {
+    return DistanceUtils.convertEditDistanceToSimilarity(getEditDistance(x1, x2), x1, x2);
+  }
 
-	public final static int getSimilarity(final String s1, final String s2, final int pBlockLimit) {
+  public final int getEditDistance(final String s1, final String s2) {
 		if (s1.equals(s2))
 			return 0;
 		else if (s1.isEmpty() || s2.isEmpty())
@@ -172,5 +179,4 @@ public class ModifiedDamerauLevenshtein implements StringSimilarity {
 		}
 		return true;
 	}
-
 }

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore
+
 public class NubMatchingServiceImplIT {
 
   private static NubMatchingServiceImpl matcher;
@@ -139,8 +139,8 @@ public class NubMatchingServiceImplIT {
   @Test
   public void testMatching() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Anephlus", cl, 1100135, new IntRange(92,93));
-    assertMatch("Aneplus", cl, 1100050, new IntRange(92,94));
+    assertMatch("Anephlus", cl, 1100135, new IntRange(90,93));
+    assertMatch("Aneplus", cl, 1100050, new IntRange(90,94));
 
     cl.setKingdom("Animalia");
     cl.setClazz("Insecta");
@@ -149,11 +149,12 @@ public class NubMatchingServiceImplIT {
     // genus Aneplus is order=Coleoptera, but Anelus is a Spirobolida in class Diplopoda
     cl.setClazz("Diplopoda");
     cl.setOrder("Spirobolida");
-    assertMatch("Aneplus", cl, 1027792, new IntRange(92, 95));
+    assertMatch("Aneplus", cl, 1027792, new IntRange(86, 92));
 
     cl.setFamily("Atopetholidae");
-    assertMatch("Aneplus", cl, 1027792, new IntRange(99, 100));
-    assertMatch("Annepluss", cl, 1027792, new IntRange(95,99));
+    assertMatch("Aneplus", cl, 1027792, new IntRange(98, 100));
+    // too far off
+    assertMatch("Annepluss", cl, 1, new IntRange(90,100));
 
     assertNoMatch("Annepluss", new NameUsageMatch(), new IntRange(30,80));
   }
@@ -169,7 +170,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Sabia parviflora", cl, 7268473, new IntRange(99,100));
 
     // hit the plant family
-    assertMatch("Sabiaceae", cl, 2409, new IntRange(95,100));
+    assertMatch("Sabiaceae", cl, 2409, new IntRange(90,100));
 
     // make sure its the family
     cl.setKingdom("Plantae");
@@ -183,7 +184,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Tibetia tongolensis", cl, 7301567, new IntRange(99,100));
 
     // hit the plant family
-    assertMatch("Fabaceae", cl, 5386, new IntRange(95,100));
+    assertMatch("Fabaceae", cl, 5386, new IntRange(90,100));
 
     // make sure its the family
     cl.setKingdom("Plantae");
@@ -202,24 +203,30 @@ public class NubMatchingServiceImplIT {
 
     cl.setKingdom("Plantae");
     assertMatch("Oenanthe", cl, 3034893, new IntRange(96, 99));
-    assertMatch("Oenante", cl, 3034893, new IntRange(94,99));
+    assertMatch("Oenante", cl, 3034893, new IntRange(85,95));
 
 
     // Acanthophora
     cl = new NameUsageMatch();
     assertNoMatch("Acanthophora", cl, null);
 
+    // there are 3 genera in animalia, 2 synonyms and 1 doubtful.
+    // Do not match to the doubtful one in this case but just to Animalia
     cl.setKingdom("Animalia");
+    assertMatch("Acanthophora", cl, 1, new IntRange(90, 100));
+
+    // now try with molluscs to just get the doubtful one
+    cl.setPhylum("Porifera");
     assertMatch("Acanthophora", cl, 3251480, new IntRange(93,97));
 
     cl.setKingdom("Plantae"); // there are multiple plant genera, this should match to plantae now
-    assertMatch("Acanthophora", cl, 6, new IntRange(98,100));
+    assertMatch("Acanthophora", cl, 6, new IntRange(95,100));
 
     cl.setFamily("Araliaceae");
     assertMatch("Acanthophora", cl, 3036337, new IntRange(98, 100));
     assertMatch("Acantophora", cl, 3036337, new IntRange(96,100)); // fuzzy match
     // try matching with authors
-    assertMatch("Acantophora Merrill", cl, 3036337, new IntRange(97, 100)); // fuzzy match
+    assertMatch("Acantophora Merrill", cl, 3036337, new IntRange(95, 100)); // fuzzy match
 
     cl.setFamily("Rhodomelaceae");
     assertMatch("Acanthophora", cl, 2659277, new IntRange(97, 100));
@@ -247,10 +254,10 @@ public class NubMatchingServiceImplIT {
     // Picea concolor is a plant, but this fuzzy match is too far off
     assertMatch("Pima concolor", cl, 6, null);
     // this one should match though
-    assertMatch("Pica concolor", cl, 5284657, new IntRange(92, 97));
+    assertMatch("Pica concolor", cl, 5284657, new IntRange(85, 90));
 
     cl.setFamily("Pinaceae");
-    assertMatch("Pima concolor", cl, 5284657, new IntRange(93, 96));
+    assertMatch("Pima concolor", cl, 5284657, new IntRange(90, 95));
 
 
     // Amphibia is a homonym genus, but also and most prominently a class!
@@ -280,7 +287,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-2704
    */
   @Test
-  @Ignore
   public void testPOR2704() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
@@ -293,7 +299,7 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-1712
    */
   @Test
-  @Ignore
+
   public void testPOR1712() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setClazz("Hexapoda");
@@ -309,7 +315,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-2701
    */
   @Test
-  @Ignore
   public void testPOR2701() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setPhylum("Chordata");
@@ -330,7 +335,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-2684
    */
   @Test
-  @Ignore
   public void testPOR2684() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
@@ -347,7 +351,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-2469
    */
   @Test
-  @Ignore
   public void testPOR2469() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Animalia");
@@ -367,7 +370,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-2607
    */
   @Test
-  @Ignore
   public void testPOR2607() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Animalia");

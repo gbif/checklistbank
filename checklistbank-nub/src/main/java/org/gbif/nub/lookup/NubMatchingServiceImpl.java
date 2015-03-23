@@ -7,9 +7,10 @@ import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
-import org.gbif.nub.lookup.similarity.ModifiedJaroWinklerSimilarity;
+import org.gbif.nub.lookup.similarity.ModifiedDamerauLevenshtein;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 
 import java.util.Collections;
@@ -22,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
@@ -42,9 +44,12 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private ClassificationResolver externalResolver;
   // name string to usageId
   private Map<String, NameUsageMatch> hackMap = Maps.newHashMap();
+  private final StringSimilarity sim = new ModifiedDamerauLevenshtein(3);
 
   private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM,
     Rank.KINGDOM);
+  public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
+    ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
 
   /**
    * @param nubIndex
@@ -111,7 +116,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       // use name parser to make the name a canonical one
       pn = parser.parse(scientificName);
       interpretGenus(pn, classification.getGenus());
-      scientificName = pn.canonicalName();
+      scientificName = pn.buildName(false, false, false, false, false, true, false, false, false, false, false, false);
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
@@ -209,23 +214,23 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     // do a lucene matching
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, fuzzySearch, 50);
     for (NameUsageMatch m : matches) {
-      // 0 - 100
+      // 0 - +100
       final int nameSimilarity = nameSimilarity(canonicalName, m);
-      // -50 - 50
+      // -50 - +50
       LinneanClassification mCl = externalResolver == null ? m : externalResolver.getClassification(m.getUsageKey());
       final int classificationSimilarity = classificationSimilarity(lc, mCl);
-      // -10 - 5
+      // -10 - +5
       final int rankSimilarity = rankSimilarity(rank, m.getRank());
-      // 0 - 1
-      final int boostAccepted = m.isSynonym() ? 0 : 1;
+      // -5 - +1
+      final int statusScore = STATUS_SCORE.get(m.getStatus());
       // preliminary total score, -5 - 20 distance to next best match coming below!
-      m.setConfidence(nameSimilarity + classificationSimilarity + rankSimilarity + boostAccepted);
+      m.setConfidence(nameSimilarity + classificationSimilarity + rankSimilarity + statusScore);
 
       if (verbose) {
         addNote(m, "Individual confidence: name="+nameSimilarity);
         addNote(m, "classification="+classificationSimilarity);
         addNote(m, "rank="+rankSimilarity);
-        addNote(m, "accepted="+boostAccepted);
+        addNote(m, "status="+statusScore);
       }
     }
 
@@ -310,14 +315,18 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
     } else {
       // fuzzy - be careful!
-      StringSimilarity sim = new ModifiedJaroWinklerSimilarity(canonicalName, m.getCanonicalName());
-      // regular JW is only good for very high similarities
-      confidence = (int) sim.getSimilarity() - 5;
-      // binomial at least? That is slightly more trustworthy
-      if (m.getCanonicalName().contains(" ")) {
-        confidence += 5;
+      confidence = (int) sim.getSimilarity(canonicalName, m.getCanonicalName()) - 5;
+      // modify confidence according to genus comparison in bionomials.
+      // slightly trust binomials with a matching genus more, and truss less if we matched a different genus name
+      int spaceIdx = m.getCanonicalName().indexOf(" ");
+      if (spaceIdx > 0) {
+        String genus = m.getCanonicalName().substring(0, spaceIdx);
+        if (canonicalName.startsWith(genus)) {
+          confidence += 5;
+        } else {
+          confidence -= 10;
+        }
       }
-
     }
     return confidence;
   }
@@ -325,7 +334,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   @VisibleForTesting
   protected int classificationSimilarity(LinneanClassification query, LinneanClassification reference) {
     // kingdom is super important
-    int rate = compareHigherRank(Rank.KINGDOM, query, reference, 8, -10, -1);
+    int rate = compareHigherRank(Rank.KINGDOM, query, reference, 5, -10, -1);
     // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
     if (rate == -10 && isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE) && isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)){
       //TODO: decrease this to 30 once the backbone is in a better state again !!!
@@ -333,9 +342,9 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     }
     // phylum to family
     rate += compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
-    rate += compareHigherRank(Rank.CLASS, query, reference, 15, -7, 0);
-    rate += compareHigherRank(Rank.ORDER, query, reference, 15, -5, 0);
-    rate += compareHigherRank(Rank.FAMILY, query, reference, 25, -3, 0);
+    rate += compareHigherRank(Rank.CLASS, query, reference, 15, -10, 0);
+    rate += compareHigherRank(Rank.ORDER, query, reference, 15, -10, 0);
+    rate += compareHigherRank(Rank.FAMILY, query, reference, 25, -15, 0);
 
     return minMax(-60, 50, rate);
   }

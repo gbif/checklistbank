@@ -1,10 +1,4 @@
-package org.gbif.nub.lookup;
-
-import org.gbif.nub.lookup.similarity.DamerauLevenshtein;
-import org.gbif.nub.lookup.similarity.JaroWinklerSimilarity;
-import org.gbif.nub.lookup.similarity.ModifiedDamerauLevenshtein;
-import org.gbif.nub.lookup.similarity.ModifiedJaroWinklerSimilarity;
-import org.gbif.nub.lookup.similarity.StringSimilarity;
+package org.gbif.nub.lookup.similarity;
 
 import java.util.List;
 
@@ -15,6 +9,13 @@ import org.slf4j.LoggerFactory;
 
 public class DistanceComparisonTest {
   private static final Logger LOG = LoggerFactory.getLogger(DistanceComparisonTest.class);
+
+  private final StringSimilarity DL = new DamerauLevenshtein();
+  private final StringSimilarity MDL2= new ModifiedDamerauLevenshtein(2);
+  private final StringSimilarity MDL3= new ModifiedDamerauLevenshtein(3);
+  private final StringSimilarity JW = new JaroWinkler();
+  private final StringSimilarity MJW= new ModifiedJaroWinkler();
+
 
   private List<String[]> names = ImmutableList.of(
     new String[] {"Helga", "Markus"},
@@ -72,10 +73,11 @@ public class DistanceComparisonTest {
   public void testGetSimilarity() throws Exception {
     for (String[] ns : names) {
       LOG.debug(ns[0] + "  x  " + ns[1]);
-      doit("DL ", new DamerauLevenshtein(ns[0], ns[1]));
-      doit("MDL", new ModifiedDamerauLevenshtein(ns[0], ns[1], 3));
-      doit("JW ", new JaroWinklerSimilarity(ns[0], ns[1]));
-      doit("MJW", new ModifiedJaroWinklerSimilarity(ns[0], ns[1]));
+      doit("DL  ", DL, ns[0], ns[1]);
+      doit("MDL2", MDL2, ns[0], ns[1]);
+      doit("MDL3", MDL3, ns[0], ns[1]);
+      doit("JW  ", JW, ns[0], ns[1]);
+      doit("MJW ", MJW, ns[0], ns[1]);
     }
   }
 
@@ -89,18 +91,18 @@ public class DistanceComparisonTest {
     }
   }
 
-  private double doit(String name, StringSimilarity sim) {
-    double s = sim.getSimilarity();
+  private double doit(String name, StringSimilarity sim, String x1, String x2) {
+    double s = sim.getSimilarity(x1, x2);
     LOG.debug(" {}={}", name, s);
     return s;
   }
 
-  private double doitTime(String name, StringSimilarity sim) {
+  private double doitTime(String name, StringSimilarity sim, String x1, String x2) {
     long start = System.currentTimeMillis();
-    double s = sim.getSimilarity();
+    double s = sim.getSimilarity(x1, x2);
     int repeat = 1000;
     while (repeat > 0) {
-      sim.getSimilarity();
+      sim.getSimilarity(x1, x2);
       repeat--;
     }
     long stop = System.currentTimeMillis();

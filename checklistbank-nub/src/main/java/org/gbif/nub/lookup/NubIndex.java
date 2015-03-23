@@ -6,6 +6,7 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.service.UsageService;
 
@@ -14,7 +15,6 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.lucene.analysis.Analyzer;
@@ -23,10 +23,10 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TrackingIndexWriter;
 import org.apache.lucene.search.ControlledRealTimeReopenThread;
@@ -59,7 +59,7 @@ public class NubIndex implements ClassificationResolver {
   protected static final String FIELD_CANONICAL_NAME = "canonical";
   private static final String FIELD_SCIENTIFIC_NAME = "sciname";
   private static final String FIELD_RANK = "rank";
-  private static final String FIELD_SYNONYM = "syn";
+  private static final String FIELD_STATUS = "status";
   private static final int TRUE = 1;
   private static final int FALSE = 0;
   private static final Map<Rank, String> HIGHER_RANK_ID_FIELD_MAP = ImmutableMap.<Rank, String>builder()
@@ -131,7 +131,7 @@ public class NubIndex implements ClassificationResolver {
    * @throws IOException
    */
   public void addNameUsage(Usage u, String canonical) throws IOException {
-    reopenToken = writer.addDocument(toDoc(u.key, canonical, null, u.status.isSynonym(), u.rank, null, null));
+    reopenToken = writer.addDocument(toDoc(u.key, canonical, null, u.status, u.rank, null, null));
   }
 
   public NameUsageMatch matchByUsageId(Integer usageID) {
@@ -237,38 +237,35 @@ public class NubIndex implements ClassificationResolver {
    */
   private static NameUsageMatch fromDoc(Document doc) {
     NameUsageMatch u = new NameUsageMatch();
-    u.setUsageKey(toInt(doc.get(FIELD_ID)));
+    u.setUsageKey(toInt(doc, FIELD_ID));
 
     u.setScientificName(doc.get(FIELD_SCIENTIFIC_NAME));
     u.setCanonicalName(doc.get(FIELD_CANONICAL_NAME));
 
     // higher ranks
     for (Rank r : HIGHER_RANK_FIELD_MAP.keySet()) {
-      ClassificationUtils.setHigherRank(u, r, doc.get(HIGHER_RANK_FIELD_MAP.get(r)), toInt(doc.get(HIGHER_RANK_ID_FIELD_MAP.get(r))));
+      ClassificationUtils.setHigherRank(u, r, doc.get(HIGHER_RANK_FIELD_MAP.get(r)), toInteger(doc, HIGHER_RANK_ID_FIELD_MAP.get(r)));
     }
 
-    Integer rankOrdinal = toInt(doc.get(FIELD_RANK));
-    if (rankOrdinal != null) {
-      u.setRank(Rank.values()[rankOrdinal]);
-    } else {
-      u.setRank(Rank.UNRANKED);
-    }
-
-    u.setSynonym(doc.getField(FIELD_SYNONYM).numericValue().equals(TRUE));
+    u.setRank(Rank.values()[toInt(doc, FIELD_RANK)]);
+    u.setStatus(TaxonomicStatus.values()[toInt(doc, FIELD_STATUS)]);
 
     return u;
   }
 
   protected static Document toDoc(NameUsage u) {
-    return toDoc(u.getKey(), u.getCanonicalName(), u.getScientificName(), u.isSynonym(), u.getRank(), u, u);
+    return toDoc(u.getKey(), u.getCanonicalName(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
   }
 
-  protected static Document toDoc(int key, String canonical, String sciname, boolean synonym, Rank rank,
+  /**
+   * @param status any status incl null. Will be converted to just 3 accepted, synonym & doubtful
+   */
+  protected static Document toDoc(int key, String canonical, String sciname, TaxonomicStatus status, Rank rank,
     LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
 
-    doc.add(new StringField(FIELD_ID, String.valueOf(key), Field.Store.YES));
+    doc.add(new StoredField(FIELD_ID, key));
 
     // analyzed name field - this is what we search upon
     if (canonical != null) {
@@ -300,20 +297,32 @@ public class NubIndex implements ClassificationResolver {
       }
     }
 
-    // store synonym boolean as simple int with 0=false
-    doc.add(new StoredField(FIELD_SYNONYM, synonym ? TRUE : FALSE));
-
     // store rank if existing as ordinal int
     // this lucene index is not persistent, so not risk in changing ordinal numbers
-    if (rank != null) {
-      doc.add(new StoredField(FIELD_RANK, rank.ordinal()));
+    doc.add(new StoredField(FIELD_RANK, rank == null ? Rank.UNRANKED.ordinal() : rank.ordinal()));
+
+    // allow only 3 values for status, accepted, doubtful and synonym
+    if (status == null) {
+      status = TaxonomicStatus.DOUBTFUL;
+    } else if (status.isSynonym()) {
+      status = TaxonomicStatus.SYNONYM;
     }
+    doc.add(new StoredField(FIELD_STATUS, status.ordinal()));
+
 
     return doc;
   }
 
-  private static Integer toInt(String val) {
-    return Strings.isNullOrEmpty(val) ? null : Integer.valueOf(val);
+  private static int toInt(Document doc, String field) {
+    return (int) doc.getField(field).numericValue();
+  }
+
+  private static Integer toInteger(Document doc, String field) {
+    IndexableField f = doc.getField(field);
+    if ( f != null) {
+      return (Integer) f.numericValue();
+    }
+    return null;
   }
 
   @Override

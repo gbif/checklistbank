@@ -34,17 +34,9 @@ import java.util.Arrays;
  * </ul>
  *
  */
-public class JaroWinklerSimilarity implements StringSimilarity {
-
-  private final String s1;
-  private final String s2;
+public class JaroWinkler implements StringSimilarity {
 
   private float threshold = 0.7f;
-
-  public JaroWinklerSimilarity(String str1, String str2) {
-    this.s1 = str1;
-    this.s2 = str2;
-  }
 
   private int[] matches(String s1, String s2) {
     String max, min;
@@ -103,37 +95,18 @@ public class JaroWinklerSimilarity implements StringSimilarity {
   }
 
   @Override
-  public double getSimilarity() {
+  public double getSimilarity(String s1, String s2) {
     int[] mtp = matches(s1, s2);
     float m = (float) mtp[0];
     if (m == 0) {
       return 0;
     }
     float j = ((m / s1.length() + m / s2.length() + (m - mtp[1]) / m)) / 3;
-    float jw = j < getThreshold() ? j : j + Math.min(0.1f, 1f / mtp[3]) * mtp[2] * (1 - j);
+    float jw = j < threshold ? j : j + Math.min(0.1f, 1f / mtp[3]) * mtp[2] * (1 - j);
 
     //(100d - (100d-s) / Math.pow(Math.max(1,l-8), 0.2))
 
     return 100d * jw;
   }
 
-  /**
-   * Sets the threshold used to determine when Winkler bonus should be used.
-   * Set to a negative value to get the Jaro distance.
-   *
-   * @param threshold the new value of the threshold
-   */
-  public void setThreshold(float threshold) {
-    this.threshold = threshold;
-  }
-
-  /**
-   * Returns the current value of the threshold used for adding the Winkler bonus.
-   * The default value is 0.7.
-   *
-   * @return the current value of the threshold
-   */
-  public float getThreshold() {
-    return threshold;
-  }
 }

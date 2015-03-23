@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.file.CSVReader;
 import org.gbif.file.CSVReaderFactory;
 import org.gbif.nameparser.NameParser;
@@ -57,8 +58,9 @@ public class NubIndexTest {
       n.setClazz(row[4]);
       n.setPhylum(row[5]);
       n.setKingdom(row[6]);
-      n.setSynonym(Boolean.parseBoolean(row[7]));
-      n.setRank( (Rank) VocabularyUtils.lookupEnum(row[8], Rank.class) );
+      boolean isSynonym = Boolean.parseBoolean(row[7]);
+      n.setTaxonomicStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
+      n.setRank( VocabularyUtils.lookupEnum(row[8], Rank.class) );
       usages.add(n);
     }
 

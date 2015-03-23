@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class NubMatchingServiceImplLegacyIT {
@@ -107,7 +108,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     // test identical
     int score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score > 45);
+    assertTrue(score > 35);
 
 
     // test kingdom synonym
@@ -118,7 +119,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     // test identical
     score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score > 15);
+    assertTrue(score >= 15);
 
     // test vague kingdom
     cn2.setKingdom("Protozoa");
@@ -148,7 +149,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     // test identical
     int score = matcher.classificationSimilarity(cn1, cn2);
-    assertTrue(score > 16);
+    assertTrue(score > 10);
 
   }
 
@@ -208,14 +209,22 @@ public class NubMatchingServiceImplLegacyIT {
   }
 
   @Test
-  public void testFuzzyMacthing() throws IOException {
+  public void testFuzzyMatching() throws IOException {
     LinneanClassification query = new NameUsageMatch();
     query.setKingdom("Animalia");
     query.setPhylum("Porifera");
     assertMatchedUsageKey("Acanthophora", query, 3);
     assertMatchedUsageKey("Acantopora", query, 3);
     assertMatchedUsageKey("Akantophora", query, 3);
-    assertMatchedUsageKey("Acantoofora", query, 3);
+    assertMatchedUsageKey("Acanthofora", query, 3);
+    assertNoMatch("Acanthoofoora", query);
+    assertNoMatch("Acantoofora", query);
+  }
+
+  private void assertNoMatch(String name, LinneanClassification query) {
+    NameUsageMatch best = matcher.match(name, null, query, false, true);
+    assertEquals(NameUsageMatch.MatchType.NONE, best.getMatchType());
+    assertNull(best.getUsageKey());
   }
 
 }
