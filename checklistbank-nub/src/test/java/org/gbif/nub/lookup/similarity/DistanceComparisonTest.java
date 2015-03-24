@@ -3,6 +3,7 @@ package org.gbif.nub.lookup.similarity;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,11 +74,11 @@ public class DistanceComparisonTest {
   public void testGetSimilarity() throws Exception {
     for (String[] ns : names) {
       LOG.debug(ns[0] + "  x  " + ns[1]);
-      doit("DL  ", DL, ns[0], ns[1]);
-      doit("MDL2", MDL2, ns[0], ns[1]);
-      doit("MDL3", MDL3, ns[0], ns[1]);
-      doit("JW  ", JW, ns[0], ns[1]);
-      doit("MJW ", MJW, ns[0], ns[1]);
+      doitTime("DL  ", DL, ns[0], ns[1]);
+      doitTime("MDL2", MDL2, ns[0], ns[1]);
+      doitTime("MDL3", MDL3, ns[0], ns[1]);
+      doitTime("JW  ", JW, ns[0], ns[1]);
+      doitTime("MJW ", MJW, ns[0], ns[1]);
     }
   }
 
@@ -98,15 +99,15 @@ public class DistanceComparisonTest {
   }
 
   private double doitTime(String name, StringSimilarity sim, String x1, String x2) {
-    long start = System.currentTimeMillis();
+    StopWatch watch = new StopWatch();
+    watch.start();
     double s = sim.getSimilarity(x1, x2);
-    int repeat = 1000;
+    int repeat = 5000;
     while (repeat > 0) {
       sim.getSimilarity(x1, x2);
       repeat--;
     }
-    long stop = System.currentTimeMillis();
-    LOG.debug(" {}={}   1000x in {} ms", name, s, stop-start);
+    LOG.debug(" {}={}   1000x in {} microsec", name, s, watch.getNanoTime() / 1000);
     return s;
   }
 

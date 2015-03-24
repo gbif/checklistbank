@@ -22,8 +22,11 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -32,6 +35,7 @@ import org.apache.lucene.index.TrackingIndexWriter;
 import org.apache.lucene.search.ControlledRealTimeReopenThread;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.SearcherManager;
@@ -55,13 +59,26 @@ import org.slf4j.LoggerFactory;
  */
 public class NubIndex implements ClassificationResolver {
 
+  /**
+   * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
+   */
+  private static final FieldType INT_FIELD_MAX_PRECISION = new FieldType();
+  static {
+    INT_FIELD_MAX_PRECISION.setIndexed(true);
+    INT_FIELD_MAX_PRECISION.setTokenized(false);
+    INT_FIELD_MAX_PRECISION.setOmitNorms(true);
+    INT_FIELD_MAX_PRECISION.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
+    INT_FIELD_MAX_PRECISION.setNumericType(FieldType.NumericType.INT);
+    INT_FIELD_MAX_PRECISION.setNumericPrecisionStep(Integer.MAX_VALUE);
+    INT_FIELD_MAX_PRECISION.setStored(true);
+    INT_FIELD_MAX_PRECISION.freeze();
+  }
+
   protected static final String FIELD_ID = "id";
   protected static final String FIELD_CANONICAL_NAME = "canonical";
   private static final String FIELD_SCIENTIFIC_NAME = "sciname";
   private static final String FIELD_RANK = "rank";
   private static final String FIELD_STATUS = "status";
-  private static final int TRUE = 1;
-  private static final int FALSE = 0;
   private static final Map<Rank, String> HIGHER_RANK_ID_FIELD_MAP = ImmutableMap.<Rank, String>builder()
     .put(Rank.KINGDOM, "k")
     .put(Rank.PHYLUM, "p")
@@ -136,8 +153,8 @@ public class NubIndex implements ClassificationResolver {
 
   public NameUsageMatch matchByUsageId(Integer usageID) {
 
-    Term tUsageID = new Term(NubIndex.FIELD_ID, usageID.toString());
-    Query q = new TermQuery(tUsageID);
+    Query q = NumericRangeQuery.newIntRange(NubIndex.FIELD_ID, Integer.MAX_VALUE, usageID, usageID, true, true);
+
     try {
       IndexSearcher searcher = obtainSearcher();
       TopDocs docs = searcher.search(q, 3);
@@ -244,7 +261,8 @@ public class NubIndex implements ClassificationResolver {
 
     // higher ranks
     for (Rank r : HIGHER_RANK_FIELD_MAP.keySet()) {
-      ClassificationUtils.setHigherRank(u, r, doc.get(HIGHER_RANK_FIELD_MAP.get(r)), toInteger(doc, HIGHER_RANK_ID_FIELD_MAP.get(r)));
+      ClassificationUtils.setHigherRank(u, r, doc.get(HIGHER_RANK_FIELD_MAP.get(r)), toInteger(doc,
+        HIGHER_RANK_ID_FIELD_MAP.get(r)));
     }
 
     u.setRank(Rank.values()[toInt(doc, FIELD_RANK)]);
@@ -265,7 +283,8 @@ public class NubIndex implements ClassificationResolver {
 
     Document doc = new Document();
 
-    doc.add(new StoredField(FIELD_ID, key));
+    // use custom precision step as we do not need range queries and prefer to save memory usage instead
+    doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));
 
     // analyzed name field - this is what we search upon
     if (canonical != null) {

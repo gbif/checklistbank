@@ -41,4 +41,6 @@ public class StringSimilarityComparisonTest {
     watch.start();
     System.out.println(name+"=" + sim.getSimilarity(x1, x2) + "   " + watch.getNanoTime());
   }
+
+
 }

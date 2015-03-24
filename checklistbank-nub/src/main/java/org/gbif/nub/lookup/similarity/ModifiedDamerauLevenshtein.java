@@ -36,14 +36,13 @@ public class ModifiedDamerauLevenshtein implements StringSimilarity {
   }
 
   public final int getEditDistance(final String s1, final String s2) {
-		if (s1.equals(s2))
+		if (s1.equals(s2)) {
 			return 0;
-		else if (s1.isEmpty() || s2.isEmpty())
+    } else if (s1.isEmpty() || s2.isEmpty()) {
 			return Math.max(s1.length(), s2.length());
-		else if (s1.length() == 1 && s2.length() == 1) return 1;
-
-		//final String temp1;
-		//final String temp2;
+    } else if (s1.length() == 1 && s2.length() == 1) {
+      return 1;
+    }
 
 		final char[] t1;
 		final char[] t2;
