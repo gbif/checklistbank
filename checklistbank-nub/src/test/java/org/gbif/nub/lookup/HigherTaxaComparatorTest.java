@@ -27,18 +27,18 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author markus
  */
-public class HigherTaxaLookupTest {
+public class HigherTaxaComparatorTest {
 
   @Test
   public void testReloading() throws IOException {
-    HigherTaxaLookup htl = new HigherTaxaLookup();
+    HigherTaxaComparator htl = new HigherTaxaComparator();
     htl.loadClasspathDicts("dicts");
     assertTrue(htl.size() > 10);
   }
 
   @Test
   public void testKingdoms() throws IOException {
-    HigherTaxaLookup htl = new HigherTaxaLookup();
+    HigherTaxaComparator htl = new HigherTaxaComparator();
     htl.loadClasspathDicts("dicts");
     // Animalia varieties
     assertEquals("Animalia", htl.lookup("Animalia", Rank.KINGDOM));
@@ -51,7 +51,7 @@ public class HigherTaxaLookupTest {
 
   @Test
   public void testBlacklist() throws IOException {
-    HigherTaxaLookup htl = new HigherTaxaLookup();
+    HigherTaxaComparator htl = new HigherTaxaComparator();
     htl.loadClasspathDicts("dicts");
 
     assertFalse(htl.isBlacklisted("Animals"));
@@ -62,15 +62,15 @@ public class HigherTaxaLookupTest {
 
   @Test
   public void testNormalization() throws IOException {
-    assertEquals("ANIMALS", HigherTaxaLookup.norm("Animals"));
-    assertEquals("ANIMALS", HigherTaxaLookup.norm("  Animals"));
-    assertEquals("ANIMALS", HigherTaxaLookup.norm("12Animals???"));
-    assertEquals("DRECKS ASTERACEAE", HigherTaxaLookup.norm("drecks Asteraceae"));
-    assertNull(HigherTaxaLookup.norm(null));
-    assertNull(HigherTaxaLookup.norm(" "));
-    assertNull(HigherTaxaLookup.norm("321"));
-    assertNull(HigherTaxaLookup.norm(""));
-    assertNull(HigherTaxaLookup.norm(",.-öä? "));
+    assertEquals("ANIMALS", HigherTaxaComparator.norm("Animals"));
+    assertEquals("ANIMALS", HigherTaxaComparator.norm("  Animals"));
+    assertEquals("ANIMALS", HigherTaxaComparator.norm("12Animals???"));
+    assertEquals("DRECKS ASTERACEAE", HigherTaxaComparator.norm("drecks Asteraceae"));
+    assertNull(HigherTaxaComparator.norm(null));
+    assertNull(HigherTaxaComparator.norm(" "));
+    assertNull(HigherTaxaComparator.norm("321"));
+    assertNull(HigherTaxaComparator.norm(""));
+    assertNull(HigherTaxaComparator.norm(",.-öä? "));
   }
 
 }

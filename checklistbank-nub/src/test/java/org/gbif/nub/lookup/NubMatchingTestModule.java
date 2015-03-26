@@ -1,6 +1,5 @@
 package org.gbif.nub.lookup;
 
-import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.nameparser.NameParser;
@@ -17,6 +16,7 @@ import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.slf4j.Logger;
@@ -39,21 +39,14 @@ public class NubMatchingTestModule extends PrivateModule {
   @Inject
   @Singleton
   public static NubIndex provideIndex() throws IOException {
-    NubIndex index = new NubIndex();
-    LOG.info("Start loading test nub usages into lucene index ...");
-
-    for (NameUsage u : loadIndexJson()) {
-      index.addNameUsage(u);
-    }
-    LOG.info("Lucene index initialized");
-    return index;
+    return NubIndexImmutable.newMemoryIndex(loadIndexJson());
   }
 
   @Provides
   @Singleton
-  public static HigherTaxaLookup provideSynonyms() throws IOException {
+  public static HigherTaxaComparator provideSynonyms() throws IOException {
     LOG.info("Loading synonym dictionaries from classpath ...");
-    HigherTaxaLookup syn = new HigherTaxaLookup();
+    HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");
     return syn;
   }
@@ -70,23 +63,24 @@ public class NubMatchingTestModule extends PrivateModule {
    * The individual nubXX.json files are regular results of a NameUsageMatch and can be added to the folder
    * to be picked up here.
    */
-  private static List<NameUsage> loadIndexJson() {
-    Map<Integer, NameUsage> usages = Maps.newHashMap();
+  private static List<NameUsageMatch> loadIndexJson() {
+    Map<Integer, NameUsageMatch> usages = Maps.newHashMap();
 
     InputStreamUtils isu = new InputStreamUtils();
     ObjectMapper mapper = new ObjectMapper();
+    mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     int id = 0;
-    while (id < 150) {
+    while (id < 250) {
       String file = "index/nub"+id+".json";
       InputStream json = isu.classpathStream(file);
       if (json != null) {
         try {
           int before = usages.size();
           NameUsageMatch m = mapper.readValue(json, NameUsageMatch.class);
-          for (NameUsage u : extractUsages(m)) {
+          for (NameUsageMatch u : extractUsages(m)) {
             if (u != null) {
-              usages.put(u.getKey(), u);
+              usages.put(u.getUsageKey(), u);
             }
           }
           System.out.println("Loaded " + (usages.size() - before) + " new usage(s) from " + file);
@@ -99,44 +93,13 @@ public class NubMatchingTestModule extends PrivateModule {
     return Lists.newArrayList(usages.values());
   }
 
-  private static List<NameUsage> extractUsages(NameUsageMatch m) {
-    List<NameUsage> usages = Lists.newArrayList();
-    usages.add(toUsage(m));
+  private static List<NameUsageMatch> extractUsages(NameUsageMatch m) {
+    List<NameUsageMatch> usages = Lists.newArrayList();
+    usages.add(m);
     if (m.getAlternatives() != null) {
-      for (NameUsageMatch m2 : m.getAlternatives()) {
-        usages.add(toUsage(m2));
-      }
+      usages.addAll(m.getAlternatives());
     }
     return usages;
-  }
-
-  private static NameUsage toUsage(NameUsageMatch m) {
-    if (m.getMatchType() != NameUsageMatch.MatchType.NONE) {
-      NameUsage u = new NameUsage();
-      u.setKey(m.getUsageKey());
-      u.setCanonicalName(m.getCanonicalName());
-      u.setScientificName(m.getScientificName());
-      u.setRank(m.getRank());
-      u.setSynonym(m.isSynonym());
-
-      u.setKingdom(m.getKingdom());
-      u.setPhylum(m.getPhylum());
-      u.setClazz(m.getClazz());
-      u.setFamily(m.getFamily());
-      u.setGenus(m.getGenus());
-      u.setSubgenus(m.getSubgenus());
-      u.setSpecies(m.getSpecies());
-
-      u.setKingdomKey(m.getKingdomKey());
-      u.setPhylumKey(m.getPhylumKey());
-      u.setClassKey(m.getClassKey());
-      u.setFamilyKey(m.getFamilyKey());
-      u.setGenusKey(m.getGenusKey());
-      u.setSubgenusKey(m.getSubgenusKey());
-      u.setSpeciesKey(m.getSpeciesKey());
-      return u;
-    }
-    return null;
   }
 
 }

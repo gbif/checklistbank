@@ -1,5 +1,6 @@
 package org.gbif.nub.build;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
@@ -18,14 +19,13 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.model.Usage;
-import org.gbif.nub.lookup.NubIndex;
+import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.UsageService;
+import org.gbif.nub.lookup.NubIndexMutable;
 import org.gbif.nub.lookup.NubMatchingModule;
 import org.gbif.nub.lookup.NubMatchingServiceImpl;
 import org.gbif.nub.utils.CacheUtils;
-import org.gbif.api.model.Constants;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class NubGenerator {
   private Dataset currDataset;
   private NubReporter.DatasetReport currReport;
   // keep an index of nub usages in order to clever merging of taxa
-  private NubIndex index;
+  private NubIndexMutable index;
   private NubMatchingServiceImpl internalMatcher;
   private NameUsageMatchingService previousNubMatcher;
   private ChecklistCache nubCache;
@@ -115,7 +115,7 @@ public class NubGenerator {
     this.nameService = nameService;
     this.previousNubMatcher = previousNubMatcher;
     uService = service;
-    index = new NubIndex();
+    index = NubIndexMutable.newNubIndex();
     srcCache = new ChecklistCacheHashMap();
     nubCache = new ChecklistCacheHashMap();
     internalMatcher = new NubMatchingServiceImpl(index, NubMatchingModule.provideSynonyms(), NubMatchingModule.provideParser());

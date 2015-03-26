@@ -39,7 +39,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private static final int MIN_CONFIDENCE_FOR_HIGHER_MATCHES = 90;
   private static ConfidenceOrder CONFIDENCE_ORDER = new ConfidenceOrder();
   private final NubIndex nubIndex;
-  private final HigherTaxaLookup synonyms;
+  private final HigherTaxaComparator htComp;
   private final NameParser parser;
   private ClassificationResolver externalResolver;
   // name string to usageId
@@ -53,13 +53,13 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   /**
    * @param nubIndex
-   * @param synonyms
+   * @param htComp
    * @param parser
    */
   @Inject
-  public NubMatchingServiceImpl(NubIndex nubIndex, HigherTaxaLookup synonyms, NameParser parser) {
+  public NubMatchingServiceImpl(NubIndex nubIndex, HigherTaxaComparator htComp, NameParser parser) {
     this.nubIndex = nubIndex;
-    this.synonyms = synonyms;
+    this.htComp = htComp;
     this.parser = parser;
     initHackMap();
   }
@@ -334,55 +334,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   @VisibleForTesting
   protected int classificationSimilarity(LinneanClassification query, LinneanClassification reference) {
     // kingdom is super important
-    int rate = compareHigherRank(Rank.KINGDOM, query, reference, 5, -10, -1);
+    int rate = htComp.compareHigherRank(Rank.KINGDOM, query, reference, 5, -10, -1);
     // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
-    if (rate == -10 && isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE) && isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)){
+    if (rate == -10 && htComp.isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE)
+        && htComp.isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)){
       //TODO: decrease this to 30 once the backbone is in a better state again !!!
       rate = -51;
     }
     // phylum to family
-    rate += compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
-    rate += compareHigherRank(Rank.CLASS, query, reference, 15, -10, 0);
-    rate += compareHigherRank(Rank.ORDER, query, reference, 15, -10, 0);
-    rate += compareHigherRank(Rank.FAMILY, query, reference, 25, -15, 0);
+    rate += htComp.compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
+    rate += htComp.compareHigherRank(Rank.CLASS, query, reference, 15, -10, 0);
+    rate += htComp.compareHigherRank(Rank.ORDER, query, reference, 15, -10, 0);
+    rate += htComp.compareHigherRank(Rank.FAMILY, query, reference, 25, -15, 0);
 
     return minMax(-60, 50, rate);
   }
 
-  /**
-   * Compares a single higher rank and returns the matching confidence supplied.
-   * @param rank the rank to be compared
-   * @param query the classification of the query
-   * @param ref the classification of the nub reference usage
-   * @param match confidence returned if the classifications match for the given rank
-   * @param mismatch confidence returned if the classifications do not match for the given rank
-   * @param missing confidence returned if one or both classifications have missing information for the given rank
-   * @return match, mismatch or missing confidence depending on match
-   */
-  private int compareHigherRank(Rank rank, LinneanClassification query, LinneanClassification ref, int match, int mismatch, int missing) {
-    if (!StringUtils.isBlank(query.getHigherRank(rank)) && !StringUtils.isBlank(ref.getHigherRank(rank))) {
-      String querySyn = synonyms.lookup(query.getHigherRank(rank), rank);
-      String refSyn = synonyms.lookup(ref.getHigherRank(rank), rank);
-      if (!StringUtils.isBlank(querySyn) && !StringUtils.isBlank(refSyn) && querySyn.equalsIgnoreCase(refSyn)){
-        return match;
-      } else {
-        return mismatch;
-      }
-    }
-    return missing;
-  }
-
-  private boolean isInKingdoms(LinneanClassification n, Kingdom ... kingdoms){
-    String syn = synonyms.lookup(n.getKingdom(), Rank.KINGDOM);
-    if (!Strings.isNullOrEmpty(syn)){
-      for (Kingdom kingdom : kingdoms){
-        if (syn.equalsIgnoreCase(kingdom.name())){
-          return true;
-        }
-      }
-    }
-    return false;
-  }
 
   // rate ranks from -10 to +5, zero if nothing is know
   private int rankSimilarity(Rank query, Rank ref) {

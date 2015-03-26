@@ -13,6 +13,7 @@
 
 package org.gbif.nub.lookup;
 
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nub.utils.RsGbifOrg;
@@ -43,10 +44,11 @@ import org.slf4j.LoggerFactory;
  * A tool to lookup synonyms for higher taxa names. It does a rather strong match and tries to normalize names
  * a lot so we can use them for comparisons of entire higher classifications.
  *
- * The class uses file based dictionaries which are maintained on rs.gbif.org with OpenRefine based on real data found
- * in occurrence and checklist records.
+ * The class uses file based dictionaries which are hosted on http://rs.gbif.org/dictionaries/synonyms/
+ * and which are maintained with OpenRefine based on real data found in occurrence and checklist records in github:
+ * https://github.com/gbif/rs.gbif.org/tree/master/dictionaries/synonyms
  */
-public class HigherTaxaLookup {
+public class HigherTaxaComparator {
   private final static Map<Rank, String> SYNONYM_FILENAMES = Maps.newHashMap();
   static {
     SYNONYM_FILENAMES.put(Rank.KINGDOM, "kingdom.txt");
@@ -57,17 +59,52 @@ public class HigherTaxaLookup {
   }
   private static final Set<String> NON_NAMES = Sets.newHashSet();
 
-  private Logger log = LoggerFactory.getLogger(HigherTaxaLookup.class);
+  private Logger log = LoggerFactory.getLogger(HigherTaxaComparator.class);
   private Map<Rank, Map<String, String>> syn = Maps.newHashMap();
   private Map<String, Kingdom> kingdoms = Maps.newHashMap();
 
   /**
    *
    */
-  public HigherTaxaLookup() {
+  public HigherTaxaComparator() {
     for (Kingdom k : Kingdom.values()) {
       this.kingdoms.put(norm(k.name()), k);
     }
+  }
+
+  /**
+   * Compares a single higher rank and returns the matching confidence supplied.
+   * @param rank the rank to be compared
+   * @param query the classification of the query
+   * @param ref the classification of the nub reference usage
+   * @param match confidence returned if the classifications match for the given rank
+   * @param mismatch confidence returned if the classifications do not match for the given rank
+   * @param missing confidence returned if one or both classifications have missing information for the given rank
+   * @return match, mismatch or missing confidence depending on match
+   */
+  public int compareHigherRank(Rank rank, LinneanClassification query, LinneanClassification ref, int match, int mismatch, int missing) {
+    if (!StringUtils.isBlank(query.getHigherRank(rank)) && !StringUtils.isBlank(ref.getHigherRank(rank))) {
+      String querySyn = lookup(query.getHigherRank(rank), rank);
+      String refSyn = lookup(ref.getHigherRank(rank), rank);
+      if (!StringUtils.isBlank(querySyn) && !StringUtils.isBlank(refSyn) && querySyn.equalsIgnoreCase(refSyn)){
+        return match;
+      } else {
+        return mismatch;
+      }
+    }
+    return missing;
+  }
+
+  public boolean isInKingdoms(LinneanClassification n, Kingdom ... kingdoms){
+    String syn = lookup(n.getKingdom(), Rank.KINGDOM);
+    if (!Strings.isNullOrEmpty(syn)){
+      for (Kingdom kingdom : kingdoms){
+        if (syn.equalsIgnoreCase(kingdom.name())){
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /**
@@ -76,7 +113,8 @@ public class HigherTaxaLookup {
    * @param higherTaxon
    * @return the looked up accepted name or the original higherTaxon
    */
-  public String lookup(String higherTaxon) {
+  @VisibleForTesting
+  protected String lookup(String higherTaxon) {
     if (higherTaxon == null) {
       return null;
     }
@@ -97,7 +135,8 @@ public class HigherTaxaLookup {
    * @param rank the rank to lookup for
    * @return the looked up accepted name, null for blacklisted names or the original higherTaxon if no synonym is known
    */
-  public String lookup(String higherTaxon, Rank rank) {
+  @VisibleForTesting
+  protected String lookup(String higherTaxon, Rank rank) {
     if (higherTaxon == null) {
       return null;
     }
@@ -352,18 +391,6 @@ public class HigherTaxaLookup {
       return null;
     }
     return kingdoms.get(kingdom.trim().toUpperCase());
-  }
-
-  public Kingdom toKingdomSynonymOnly(String kingdom) {
-    if (kingdom == null) {
-      return null;
-    }
-    Kingdom k = kingdoms.get(kingdom.trim().toUpperCase());
-    if (k != null && k.name().equalsIgnoreCase(kingdom)) {
-      // we have the accepted kingdom name, dont return it
-      return null;
-    }
-    return k;
   }
 
 }

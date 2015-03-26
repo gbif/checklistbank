@@ -88,7 +88,8 @@
     <neo4j.version>2.1.5</neo4j.version>
     <postgresql.version>9.2-1003-jdbc4</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
-    <servlet-api.version>2.5</servlet-api.version>
+    <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
+    <servlet-api.version>3.1.0</servlet-api.version>
     <slf4j.version>1.7.10</slf4j.version>
     <solr-lucene.version>4.10.3</solr-lucene.version>
     <tika.version>1.7</tika.version>
@@ -642,7 +643,7 @@
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
+        <artifactId>javax.servlet-api</artifactId>
         <version>${servlet-api.version}</version>
         <scope>provided</scope>
       </dependency>

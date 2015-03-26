@@ -1,6 +1,5 @@
 package org.gbif.nub.lookup;
 
-import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
@@ -23,34 +22,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class NubIndexTest {
+public class NubIndexImmutableTest {
 
   private static NubIndex index;
-  private static List<NameUsage> names;
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
-    HigherTaxaLookup syn = new HigherTaxaLookup();
+    HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");
-
-    names = readTestNames();
-
-    index = new NubIndex();
-    for (NameUsage u : names) {
-      index.addNameUsage(u);
-    }
+    index = NubIndexImmutable.newMemoryIndex(readTestNames());
   }
 
-  public static List<NameUsage> readTestNames() throws IOException {
-    List<NameUsage> usages = Lists.newArrayList();
+  public static List<NameUsageMatch> readTestNames() throws IOException {
+    List<NameUsageMatch> usages = Lists.newArrayList();
 
     NameParser parser = new NameParser();
 
     InputStream in = Resources.newInputStreamSupplier(Resources.getResource("testNames.txt")).getInput();
     CSVReader reader = CSVReaderFactory.build(in, "UTF8", "\t", null, 0);
     for (String[] row : reader) {
-      NameUsage n = new NameUsage();
-      n.setKey(Integer.valueOf(row[0]));
+      NameUsageMatch n = new NameUsageMatch();
+      n.setUsageKey(Integer.valueOf(row[0]));
       n.setScientificName(row[1]);
       n.setCanonicalName(parser.parseToCanonical(n.getScientificName()));
       n.setFamily(row[2]);
@@ -59,7 +51,7 @@ public class NubIndexTest {
       n.setPhylum(row[5]);
       n.setKingdom(row[6]);
       boolean isSynonym = Boolean.parseBoolean(row[7]);
-      n.setTaxonomicStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
+      n.setStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
       n.setRank( VocabularyUtils.lookupEnum(row[8], Rank.class) );
       usages.add(n);
     }

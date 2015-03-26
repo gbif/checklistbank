@@ -3,7 +3,7 @@ package org.gbif.nub.build;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.nameparser.NameParser;
-import org.gbif.nub.lookup.HigherTaxaLookup;
+import org.gbif.nub.lookup.HigherTaxaComparator;
 import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.ws.client.guice.AnonymousAuthModule;
 
@@ -43,8 +43,8 @@ public class NubBuildModule extends PrivateModule {
 
   @Provides
   @Singleton
-  public static HigherTaxaLookup provideSynonyms() {
-    HigherTaxaLookup synonyms = new HigherTaxaLookup();
+  public static HigherTaxaComparator provideSynonyms() {
+    HigherTaxaComparator synonyms = new HigherTaxaComparator();
     LOG.info("Start loading synonym dictionaries from rs.gbif.org ...");
     synonyms.loadOnlineDicts();
     LOG.info("Online synonym dictionaries loaded");

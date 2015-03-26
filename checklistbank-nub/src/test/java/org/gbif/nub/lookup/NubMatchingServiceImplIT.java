@@ -32,7 +32,7 @@ public class NubMatchingServiceImplIT {
 
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
-    System.out.println(name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
+    System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
     System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
     System.out.println("  " + best.getNote());
 
@@ -137,9 +137,9 @@ public class NubMatchingServiceImplIT {
   }
 
   @Test
-  public void testMatching() throws IOException {
+  public void testMatching() throws IOException, InterruptedException {
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Anephlus", cl, 1100135, new IntRange(90,93));
+    assertMatch("Anephlus", cl, 1100135, new IntRange(90,95));
     assertMatch("Aneplus", cl, 1100050, new IntRange(90,94));
 
     cl.setKingdom("Animalia");
@@ -149,7 +149,7 @@ public class NubMatchingServiceImplIT {
     // genus Aneplus is order=Coleoptera, but Anelus is a Spirobolida in class Diplopoda
     cl.setClazz("Diplopoda");
     cl.setOrder("Spirobolida");
-    assertMatch("Aneplus", cl, 1027792, new IntRange(86, 92));
+    assertMatch("Aneplus", cl, 1027792, new IntRange(90, 99));
 
     cl.setFamily("Atopetholidae");
     assertMatch("Aneplus", cl, 1027792, new IntRange(98, 100));
@@ -210,14 +210,14 @@ public class NubMatchingServiceImplIT {
     cl = new NameUsageMatch();
     assertNoMatch("Acanthophora", cl, null);
 
-    // there are 3 genera in animalia, 2 synonyms and 1 doubtful.
-    // Do not match to the doubtful one in this case but just to Animalia
+    // there are 3 genera in animalia, 2 synonyms and 1 accepted.
+    // We prefer to match to the single accepted in this case
     cl.setKingdom("Animalia");
-    assertMatch("Acanthophora", cl, 1, new IntRange(90, 100));
+    assertMatch("Acanthophora", cl, 3251480, new IntRange(92, 99));
 
     // now try with molluscs to just get the doubtful one
     cl.setPhylum("Porifera");
-    assertMatch("Acanthophora", cl, 3251480, new IntRange(93,97));
+    assertMatch("Acanthophora", cl, 3251480, new IntRange(97,99));
 
     cl.setKingdom("Plantae"); // there are multiple plant genera, this should match to plantae now
     assertMatch("Acanthophora", cl, 6, new IntRange(95,100));
@@ -299,7 +299,6 @@ public class NubMatchingServiceImplIT {
    * http://dev.gbif.org/issues/browse/POR-1712
    */
   @Test
-
   public void testPOR1712() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setClazz("Hexapoda");
@@ -331,7 +330,7 @@ public class NubMatchingServiceImplIT {
    * Brunerella alba R.F. Castañeda & Vietinghoff (Fungi)
    *
    * The species does not exist in the nub and the genus Brunella is a synonym of Prunella.
-   * Match to family cause we dont have Brunella in the nub???
+   * Match to synonym genus Brunella
    * http://dev.gbif.org/issues/browse/POR-2684
    */
   @Test
@@ -340,7 +339,7 @@ public class NubMatchingServiceImplIT {
     cl.setKingdom("Plantae");
     cl.setFamily("Labiatae");
     cl.setGenus("Brunella");
-    assertMatch("Brunella alba Pallas ex Bieb.", cl, 4273218, new IntRange(90, 100));
+    assertMatch("Brunella alba Pallas ex Bieb.", cl, 6008586, new IntRange(96, 100));
   }
 
 

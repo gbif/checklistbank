@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.lucene.index.TrackingIndexWriter;
+import org.apache.lucene.index.IndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +19,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
 
   private static final Logger LOG = LoggerFactory.getLogger(NubIndexBuilder.class);
 
-  private final TrackingIndexWriter writer;
+  private final IndexWriter writer;
   private AtomicInteger counter = new AtomicInteger();
   private UsageService usageService;
   private int offset;
@@ -28,7 +28,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
   // Not all keys exist and they are not evenly distributed, so this is the max of usages returned, but its usually less
   private final int window;
 
-  NubIndexBuilder(TrackingIndexWriter writer, UsageService usageService, int threads) {
+  NubIndexBuilder(IndexWriter writer, UsageService usageService, int threads) {
     super(threads);
     this.writer = writer;
     this.usageService = usageService;

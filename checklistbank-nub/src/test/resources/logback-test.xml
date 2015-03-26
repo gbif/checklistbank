@@ -6,7 +6,6 @@
     </encoder>
   </appender>
 
-  <logger name="org.gbif.nub.lookup" level="WARN"/>
   <!--
   <logger name="org.gbif.nub" level="DEBUG"/>
   <logger name="org.gbif.checklistbank.index" level="DEBUG"/>

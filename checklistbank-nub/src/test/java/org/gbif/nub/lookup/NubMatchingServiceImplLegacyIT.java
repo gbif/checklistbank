@@ -22,15 +22,11 @@ public class NubMatchingServiceImplLegacyIT {
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
-    HigherTaxaLookup syn = new HigherTaxaLookup();
+    HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");
 
-    names = NubIndexTest.readTestNames();
+    NubIndex index = NubIndexImmutable.newMemoryIndex(NubIndexImmutableTest.readTestNames());
 
-    NubIndex index = new NubIndex();
-    for (NameUsage u : names) {
-      index.addNameUsage(u);
-    }
     matcher = new NubMatchingServiceImpl(index, syn, new NameParser());
   }
 

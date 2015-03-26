@@ -7,8 +7,6 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.model.Usage;
-import org.gbif.checklistbank.service.UsageService;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -27,23 +25,15 @@ import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.FieldInfo;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TrackingIndexWriter;
-import org.apache.lucene.search.ControlledRealTimeReopenThread;
 import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.NumericRangeQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * For the entire nub with roughly 4.5 million usages this index requires 4GB of java memory.
  */
-public class NubIndex implements ClassificationResolver {
+public abstract class NubIndex implements ClassificationResolver {
 
   /**
    * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
@@ -101,55 +91,8 @@ public class NubIndex implements ClassificationResolver {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
 
-  private final Directory index;
-  private final IndexWriterConfig cfg;
-  private final Analyzer analyzer;
-  private final TrackingIndexWriter writer;
-  private SearcherManager searchManager;
-  private final ControlledRealTimeReopenThread<IndexSearcher> indexSearcherReopenThread;
-  private long reopenToken;
+  protected static final Analyzer analyzer = new ScientificNameAnalyzer();
 
-  public NubIndex() throws IOException {
-    index = new RAMDirectory();
-    LOG.info("Init a new, empty nub index");
-    analyzer = new ScientificNameAnalyzer();
-    cfg = new IndexWriterConfig(Version.LATEST, analyzer);
-    writer = new TrackingIndexWriter(new IndexWriter(index, cfg));
-    // creates initial index segments
-    writer.getIndexWriter().commit();
-    searchManager = new SearcherManager(writer.getIndexWriter(), false, null);
-    // Create the ControlledRealTimeReopenThread that reopens the index periodically having into
-    // account the changes made to the index and tracked by the TrackingIndexWriter instance
-    // The index is refreshed every 10 minutes when nobody is waiting
-    // and every 10 millis whenever is someone waiting (see search method)
-    indexSearcherReopenThread = new ControlledRealTimeReopenThread<IndexSearcher>(writer, searchManager, 600, 0.1);
-    indexSearcherReopenThread.start(); // start the refresher thread
-  }
-
-  public static NubIndex newNubIndex(UsageService usageService) throws IOException {
-    NubIndex idx = new NubIndex();
-    NubIndexBuilder nubLoader = new NubIndexBuilder(idx.writer, usageService, 4);
-    nubLoader.run();
-    idx.searchManager.maybeRefresh();
-    return idx;
-  }
-
-  public void addNameUsage(NameUsage usage) throws IOException {
-    reopenToken = writer.addDocument(toDoc(usage));
-  }
-
-  /**
-   * Adds the minimal usage information to the index required for a lookup.
-   * The returned match objects are lacking any classification information though, so make sure
-   * to use an external classification resolver with the nub matching service.
-   * Use the regular addNameUsage(usage) method for complete objects.
-   * @param u minimal usage
-   * @param canonical
-   * @throws IOException
-   */
-  public void addNameUsage(Usage u, String canonical) throws IOException {
-    reopenToken = writer.addDocument(toDoc(u.key, canonical, null, u.status, u.rank, null, null));
-  }
 
   public NameUsageMatch matchByUsageId(Integer usageID) {
 
@@ -234,20 +177,8 @@ public class NubIndex implements ClassificationResolver {
     return results;
   }
 
-  private IndexSearcher obtainSearcher() {
-    try {
-      indexSearcherReopenThread.waitForGeneration(reopenToken);
-      return searchManager.acquire();
+  abstract IndexSearcher obtainSearcher();
 
-    } catch (IOException e) {
-      LOG.error("Could not obtain lucene searcher", e);
-      throw new RuntimeException(e);
-
-    } catch (InterruptedException e) {
-      LOG.error("Could not obtain lucene searcher in time", e);
-      throw new RuntimeException(e);
-    }
-  }
   /**
    * Builds a NameUsageMatch instance from a lucene Document and populates all fields but the matching specifics
    * i.e. confidence and matchType.
@@ -273,6 +204,10 @@ public class NubIndex implements ClassificationResolver {
 
   protected static Document toDoc(NameUsage u) {
     return toDoc(u.getKey(), u.getCanonicalName(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
+  }
+
+  protected static Document toDoc(NameUsageMatch u) {
+    return toDoc(u.getUsageKey(), u.getCanonicalName(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
   }
 
   /**
