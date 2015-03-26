@@ -118,7 +118,6 @@ public abstract class NubIndex implements ClassificationResolver {
   }
 
   public List<NameUsageMatch> matchByName(String name, boolean fuzzySearch, int maxMatches) {
-    List<NameUsageMatch> results = Lists.newArrayList();
 
     // use lucene analyzer to normalize input without using the full query parser
     StringBuilder sb = new StringBuilder();
@@ -137,8 +136,9 @@ public abstract class NubIndex implements ClassificationResolver {
 
     // query needs to have at least 2 letters to match a real name
     if (sb.length() < 2) {
-      return results;
+      return Lists.newArrayList();
     }
+
 
     final String analyzedName = sb.toString();
     Term t = new Term(NubIndex.FIELD_CANONICAL_NAME, analyzedName);
@@ -149,6 +149,18 @@ public abstract class NubIndex implements ClassificationResolver {
     } else {
       q = new TermQuery(t);
     }
+
+    try {
+      return search(q, name, fuzzySearch, maxMatches);
+    } catch (RuntimeException e) {
+      // for example TooComplexToDeterminizeException, see http://dev.gbif.org/issues/browse/POR-2725
+      LOG.warn("Lucene failed to fuzzy search for name [{}]. Try a straight match instead", name);
+      return search(new TermQuery(t), name, false, maxMatches);
+    }
+  }
+
+  private List<NameUsageMatch> search(Query q, String name, boolean fuzzySearch, int maxMatches) {
+    List<NameUsageMatch> results = Lists.newArrayList();
     try {
       IndexSearcher searcher = obtainSearcher();
       TopDocs docs = searcher.search(q, maxMatches);
@@ -173,7 +185,6 @@ public abstract class NubIndex implements ClassificationResolver {
     } catch (IOException e) {
       LOG.error("lucene search error", e);
     }
-
     return results;
   }
 
