@@ -382,4 +382,36 @@ public class NubMatchingServiceImplIT {
     assertMatch("Oreina", cl, 6757727, new IntRange(98, 100));
     assertMatch("Oreina elegans", cl, 6757727, new IntRange(90, 100));
   }
+
+
+  /**
+   * http://gbif.blogspot.com/2015/03/improving-gbif-backbone-matching.html
+   */
+  @Test
+  public void testBlogNames() throws IOException {
+    // http://www.gbif.org/occurrence/164267402/verbatim
+    LinneanClassification cl = new NameUsageMatch();
+    assertMatch("Xysticus sp.", cl, 2164999, new IntRange(94, 100));
+    assertMatch("Xysticus spec.", cl, 2164999, new IntRange(94, 100));
+
+    // http://www.gbif.org/occurrence/1061576151/verbatim
+    cl = new NameUsageMatch();
+    cl.setFamily("Poaceae");
+    cl.setGenus("Triodia");
+    assertMatch("Triodia sp.", cl, 2702695, new IntRange(98, 100));
+
+    // http://www.gbif.org/occurrence/1037140379/verbatim
+    cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("XYRIDACEAE");
+    cl.setGenus("Xyris");
+    assertMatch("Xyris kralii Wand.", cl, 2692599, new IntRange(98, 100));
+
+    // http://www.gbif.org/occurrence/144904719/verbatim
+    cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("GRAMINEAE");
+    assertMatch("Zea mays subsp. parviglumis var. huehuet Iltis & Doebley", cl, 5290052, new IntRange(98, 100));
+
+  }
 }

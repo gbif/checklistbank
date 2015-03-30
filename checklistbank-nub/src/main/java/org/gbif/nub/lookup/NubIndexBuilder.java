@@ -15,6 +15,10 @@ import org.apache.lucene.index.IndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A multithreaded nub index builder reading the backbone from a checkist bank postgres database in batches.
+ * It first reads out all usage id ints and partitions those in equal ranges of 20.000
+ */
 public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubIndexBuilder.class);
