@@ -412,6 +412,29 @@ public class NubMatchingServiceImplIT {
     cl.setKingdom("Plantae");
     cl.setFamily("GRAMINEAE");
     assertMatch("Zea mays subsp. parviglumis var. huehuet Iltis & Doebley", cl, 5290052, new IntRange(98, 100));
-
   }
+
+  @Test
+  public void testImprovedMatching() throws IOException {
+    // http://www.gbif.org/occurrence/164267402/verbatim
+    LinneanClassification cl = new NameUsageMatch();
+    assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
+    assertNoMatch("Zabideus novemaculeatus", cl, new IntRange(65, 80));
+
+    cl.setFamily("Ephippidae");
+    assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
+    assertMatch("Zabideus novemaculeatus", cl, 2394331, new IntRange(90, 98));
+    assertMatch("Zabidius novaemaculeatus", cl, 2394331, new IntRange(90, 98));
+
+    cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setFamily("Yoldiidae");
+    // genus match only
+    assertMatch("Yoldia bronni", cl, 2285488, new IntRange(98, 100));
+
+    cl.setFamily("Nuculanidae");
+    // genus match only
+    assertMatch("Yoldia frater", cl, 2285488, new IntRange(92, 95));
+  }
+
 }
