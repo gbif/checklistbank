@@ -437,4 +437,19 @@ public class NubMatchingServiceImplIT {
     assertMatch("Yoldia frater", cl, 2285488, new IntRange(92, 95));
   }
 
+
+  /**
+   * Names that ideally would fuzzy match, but do not currently
+   */
+  @Test
+  public void testIberusGualtieranus() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4406508, new IntRange(70, 100));
+
+    cl.setFamily("Helicidae");
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258,  new IntRange(85, 98));
+  }
+
+
+
 }
