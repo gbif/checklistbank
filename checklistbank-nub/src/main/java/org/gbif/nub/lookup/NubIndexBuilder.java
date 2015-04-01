@@ -39,6 +39,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
     this.offset = 0;
     this.max = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
     this.window = 20000;
+    LOG.info("Retrieved biggest nub usage key={}. Building the index from {} batches with {} usages each", max, max/window, window);
     // use sth like the following for local debugging: (puma concolor id)
     //this.window = 100;
     //this.offset = 2435099-window;
