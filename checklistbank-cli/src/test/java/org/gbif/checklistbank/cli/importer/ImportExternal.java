@@ -5,6 +5,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerService;
+import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -59,6 +60,8 @@ public class ImportExternal {
     iCfg.clb.user ="postgres";
     iCfg.clb.password="%BBJu2MgstXJ";
     iCfg.clb.password="pogo";
+    iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    iCfg.solr.serverType= SolrServerType.HTTP;
   }
 
   private void download(String url) throws IOException {
@@ -95,10 +98,14 @@ public class ImportExternal {
 
   public static void main(String[] args) throws Exception{
     ImportExternal imp = new ImportExternal();
-    //imp.index("http://ipt.speciesfile.org:8080/archive.do?r=coleorrhyncha", UUID.fromString(""));
+
     imp.index("/Users/markus/Desktop/repo",
-      "https://dl.dropboxusercontent.com/u/457027/CatalogueOfAfrotropicalBeesMARKUS.zip",
-      UUID.fromString("da38f103-4410-43d1-b716-ea6b1b92bbac"));
+      "http://www.gbif.es/FreshwaterInvasives/data/download/dwcarchive.zip",
+      UUID.fromString("36ad3207-1190-47ad-868e-b09d6c0aeec2"));
+
+    imp.index("/Users/markus/Desktop/repo",
+      "http://ipt-mrbif.bebif.be/archive.do?r=reptiles",
+      UUID.fromString("ed84efa3-71f0-42fb-8c8a-f3864d8be04e"));
 
   }
 }

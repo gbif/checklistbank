@@ -107,8 +107,13 @@ public class Importer extends NeoRunnable implements Runnable {
           }
 
         } catch (Throwable e) {
-          Object taxID = n.getProperty(TaxonProperties.TAXON_ID, "???");
-          LOG.error("Failed to sync taxonID '{}' from dataset {}", taxID, datasetKey, e.getMessage());
+          String id;
+          if (n.hasProperty(TaxonProperties.TAXON_ID)) {
+            id = String.format("taxonID '%s'", n.getProperty(TaxonProperties.TAXON_ID));
+          } else {
+            id = String.format("nodeID %s", n.getId());
+          }
+          LOG.error("Failed to sync {} from dataset {}", id, datasetKey, e.getMessage());
           LOG.error("Aborting sync of dataset {}", datasetKey);
           throw e;
         }
@@ -152,7 +157,7 @@ public class Importer extends NeoRunnable implements Runnable {
         new Function<Relationship, Integer>() {
           @Override
           public Integer apply(Relationship rel) {
-            return rel != null ? clbKey((int)rel.getEndNode().getId()) : null;
+            return rel != null ? clbKey((int)rel.getStartNode().getId()) : null;
           }
         });
   }
@@ -173,7 +178,7 @@ public class Importer extends NeoRunnable implements Runnable {
   }
 
   /**
-   * Maps a neo node id of a foreing key to an already created clb postgres id.
+   * Maps a neo node id of a foreign key to an already created clb postgres id.
    * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
    * mapper that it should use the newly generated sequence value.
    * @param nodeId the node id casted from long that represents the currently processed name usage record

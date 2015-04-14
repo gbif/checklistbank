@@ -17,3 +17,4 @@ solr:
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev
+
