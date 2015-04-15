@@ -109,13 +109,13 @@ public class NormalizerTest extends NeoTest {
       }
 
       assertNotNull(
-        IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
+        IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
+      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
+      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
 
-      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, "x1001")));
-      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
-      assertNull(IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "xCrepis bakeri")));
+      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "x1001")));
+      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
+      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "xCrepis bakeri")));
     }
   }
 

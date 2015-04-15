@@ -105,19 +105,6 @@
         <artifactId>lucene-core</artifactId>
         <version>${lucene.version}</version>
       </dependency>
-
-      <!--
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-analyzers-common</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.0.9</version>
-      </dependency>
-    -->
     </dependencies>
   </dependencyManagement>
 
@@ -341,43 +328,6 @@
         <rabbit.password>crawler</rabbit.password>
         <neo.repository>/tmp/neo</neo.repository>
       </properties>
-    </profile>
-
-    <profile>
-      <id>dev</id>
-      <properties>
-        <rabbit.host>mq.gbif.org</rabbit.host>
-        <rabbit.vhost>/dev</rabbit.vhost>
-        <rabbit.username>crawler</rabbit.username>
-        <rabbit.password>crawler</rabbit.password>
-        <neo.repository>/tmp/neo</neo.repository>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>deploy-dev</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>wagon-maven-plugin</artifactId>
-            <version>1.0-beta-5</version>
-            <configuration>
-              <fromFile>${project.build.directory}/${project.artifactId}.jar</fromFile>
-              <url>scp://crap@crawler.gbif-dev.org/home/crap/lib</url>
-            </configuration>
-            <executions>
-              <execution>
-                <id>deploy-crawler</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>upload-single</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 

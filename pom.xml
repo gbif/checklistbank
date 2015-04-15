@@ -279,6 +279,13 @@
         <groupId>org.gbif</groupId>
         <artifactId>dwca-reader</artifactId>
         <version>${dwca-reader.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- digester via cglib brings in an old asm version, conflicting with kryo -->
+            <artifactId>asm</artifactId>
+            <groupId>asm</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.gbif.common</groupId>
