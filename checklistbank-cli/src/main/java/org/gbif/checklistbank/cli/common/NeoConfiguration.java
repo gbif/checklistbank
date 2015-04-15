@@ -43,11 +43,7 @@ public class NeoConfiguration {
 
   @Min(0)
   @Parameter(names = "--neo-mapped-memory")
-  public int mappedMemory = 64;
-
-  @Min(64)
-  @Parameter(names = "--neo-mapped-memory-page-size")
-  public int mappedMemoryPageSize = 8192;
+  public int mappedMemory = 256;
 
   public File neoDir(UUID datasetKey) {
     return new File(neoRepository, datasetKey.toString());
@@ -65,11 +61,9 @@ public class NeoConfiguration {
     GraphDatabaseBuilder builder = factory.newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
       .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
       .setConfig(GraphDatabaseSettings.cache_type, cacheType)
-      .setConfig(GraphDatabaseSettings.mapped_memory_page_size, mb(mappedMemoryPageSize))
-      .setConfig(GraphDatabaseSettings.all_stores_total_mapped_memory_size, mb(mappedMemory));
+      .setConfig(GraphDatabaseSettings.pagecache_memory, mb(mappedMemory));
     if (debug) {
       builder
-        .setConfig(GraphDatabaseSettings.log_mapped_memory_stats, "true")
         .setConfig(GraphDatabaseSettings.dump_configuration, "true");
     }
     GraphDatabaseService db = builder.newGraphDatabase();

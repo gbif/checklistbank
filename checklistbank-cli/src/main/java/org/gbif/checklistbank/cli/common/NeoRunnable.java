@@ -4,7 +4,6 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.normalizer.NormalizerService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
@@ -15,16 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
-import com.yammer.metrics.Gauge;
 import com.yammer.metrics.MetricRegistry;
-import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.kernel.impl.util.StringLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,22 +34,18 @@ public abstract class NeoRunnable implements Runnable {
   private final NeoConfiguration neoCfg;
   protected final UUID datasetKey;
   protected final int batchSize;
-  private final Gauge memory;
   protected GraphDatabaseService db;
   protected NeoMapper mapper = NeoMapper.instance();
-  protected ExecutionEngine engine;
   private TraversalDescription parentsTraversal;
 
   public NeoRunnable(UUID datasetKey, NeoConfiguration cfg, MetricRegistry registry) {
     batchSize = cfg.batchSize;
     this.datasetKey = datasetKey;
-    this.memory = registry.getGauges().get(NormalizerService.HEAP_GAUGE);
     this.neoCfg = cfg;
   }
 
   protected GraphDatabaseService setupDb() {
     db = neoCfg.newEmbeddedDb(datasetKey);
-    engine = new ExecutionEngine(db, StringLogger.SYSTEM);
     parentsTraversal = db.traversalDescription()
       .relationships(RelType.PARENT_OF, Direction.INCOMING)
       .depthFirst()
@@ -63,10 +55,6 @@ public abstract class NeoRunnable implements Runnable {
 
   protected void tearDownDb() {
     db.shutdown();
-  }
-
-  protected void logMemory() {
-    LOG.debug("Heap usage: {}", memory.getValue());
   }
 
   /**

@@ -208,6 +208,14 @@ public class NormalizerTest extends NeoTest {
   @Test
   public void testSynonymsWIthMissingAccepted() throws Exception {
     NormalizerStats stats = normalize(3);
+    System.out.println(stats);
+    assertEquals(9, stats.getCount());
+    assertEquals(8, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(1, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(5, stats.getDepth());
+    assertEquals(1, stats.getRoots());
+    assertEquals(4, stats.getSynonyms());
+
     try (Transaction tx = beginTx()) {
 
       //Coleoptera

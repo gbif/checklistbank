@@ -76,7 +76,7 @@
     <jersey.version>1.18.3</jersey.version>
     <jsoup.version>1.8.1</jsoup.version>
     <junit.version>4.11</junit.version>
-    <kryo.version>3.0.0</kryo.version>
+    <kryo.version>3.0.1</kryo.version>
     <liquibase.version>3.0.7</liquibase.version>
     <logback.version>1.1.2</logback.version>
     <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
@@ -433,6 +433,15 @@
           <exclusion>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-xml</artifactId>
+          </exclusion>
+          <!-- kryo uses a newer 5.x asm version -->
+          <exclusion>
+            <artifactId>asm</artifactId>
+            <groupId>org.ow2.asm</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>asm-commons</artifactId>
+            <groupId>org.ow2.asm</groupId>
           </exclusion>
         </exclusions>
       </dependency>

@@ -17,9 +17,9 @@ import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -32,13 +32,12 @@ import com.google.common.collect.ImmutableSet;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.lang3.ObjectUtils;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.parboiled.common.ImmutableList;
 import org.slf4j.Logger;
@@ -149,8 +148,8 @@ public class Normalizer extends NeoRunnable {
         applyDenormedClassification(n);
         counter++;
         denormedMeter.mark();
+        tx.success();
       }
-      tx.success();
     } finally {
       tx.close();
     }
@@ -220,12 +219,11 @@ public class Normalizer extends NeoRunnable {
   private void cleanupRelations() {
     LOG.debug("Cleanup relations ...");
     // cut synonym cycles
-    try (Transaction tx = db.beginTx()) {
-      try {
-        while (true) {
-          ExecutionResult result =
-            engine.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF]->(x)-[:SYNONYM_OF*]->(s) RETURN sr LIMIT 1");
-          Relationship sr = (Relationship) IteratorUtil.first(result.columnAs("sr"));
+    while (true) {
+      try (Transaction tx = db.beginTx()) {
+        Result result = db.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF]->(x)-[:SYNONYM_OF*]->(s) RETURN sr LIMIT 1");
+        if (result.hasNext()) {
+          Relationship sr = (Relationship) result.next().get("sr");
 
           Node syn = sr.getStartNode();
           mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
@@ -235,43 +233,51 @@ public class Normalizer extends NeoRunnable {
 
           Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true);
           mapper.addRemark(acc, "Synonym cycle cut for taxonID " + taxonID);
-          createSynonymRel(syn, acc, true);
+          createSynonymRel(syn, acc);
           sr.delete();
+          tx.success();
+
+        } else {
+          break;
         }
-      } catch (NoSuchElementException e) {
-        // all cycles removed
-        tx.success();
       }
     }
 
     // relink synonym chain to single accepted
-    try (Transaction tx = db.beginTx()) {
-      boolean more = true;
-      while (more) {
-        more = false;
-        ExecutionResult result = engine.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF*]->(x)-[:SYNONYM_OF]->(t:TAXON) " +
+    int chainedSynonyms = 0;
+    while (true) {
+      try (Transaction tx = db.beginTx()) {
+        Result result = db.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF*]->(x)-[:SYNONYM_OF]->(t:TAXON) " +
                                                 "WHERE NOT (t)-[:SYNONYM_OF]->() " +
                                                 "RETURN sr, t LIMIT 1");
-        for (Map<String, Object> row : result) {
-          more = true;
+        if (result.hasNext()) {
+          Map<String, Object> row = result.next();
           Node acc = (Node) row.get("t");
           for (Relationship sr : (Collection<Relationship>) row.get("sr")) {
             Node syn = sr.getStartNode();
             mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
-            createSynonymRel(syn, acc, true);
+            createSynonymRel(syn, acc);
             sr.delete();
+            chainedSynonyms++;
           }
+          tx.success();
+
+        } else {
+          break;
         }
       }
-      tx.success();
     }
 
-    LOG.info("Relations cleaned up, {} cycles detected", cycles.size());
+    LOG.info("Relations cleaned up, {} cycles detected, {} chained synonyms relinked", cycles.size(), chainedSynonyms);
   }
 
-  private void createSynonymRel(Node synonym, Node accepted, boolean moveParentRel) {
+  /**
+   * Creates a synonym relationship between the given synonym and the accepted node, updating labels accordingly
+   * and also moving potentially existing parent_of relations.
+   */
+  private void createSynonymRel(Node synonym, Node accepted) {
     synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
-    if (moveParentRel && synonym.hasRelationship(RelType.PARENT_OF)) {
+    if (synonym.hasRelationship(RelType.PARENT_OF)) {
       try {
         Relationship rel = synonym.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
         if (rel != null) {
@@ -343,22 +349,27 @@ public class Normalizer extends NeoRunnable {
         if (acceptedIds.size() > 1) {
           final int primaryId = (int) n.getId();
           // duplicate this node for each accepted id!
-          LOG.debug("pro parte synonym with multiple acceptedNameUsageIDs: {}", acceptedIds);
+          LOG.info("pro parte synonym found with multiple acceptedNameUsageIDs: {}", acceptedIds);
+
           // now create new nodes and also update their acceptedId so the relations get processed fine later on
-          boolean first = true;
-          for (String accId : acceptedIds) {
-            Node p;
-            if (first) {
-              p = n;
-              first = false;
-            } else {
-              p = createTaxon(n, Origin.PROPARTE);
-            }
-            updateProParteSynonym(p, accId, primaryId);
+          Iterator<String> accIter = acceptedIds.iterator();
+          updateProParteSynonym(n, accIter.next(), primaryId);
+
+          // now create new nodes, update their acceptedId and immediately process the relations
+          while (accIter.hasNext()) {
+            Node p = createTaxon(n, Origin.PROPARTE);
+            updateProParteSynonym(p, accIter.next(), primaryId);
+            setupRelation(p);
           }
         }
       }
     }
+  }
+
+  private Transaction renewTx (Transaction tx) {
+    tx.success();
+    tx.close();
+    return db.beginTx();
   }
 
   private void updateProParteSynonym(Node n, String acceptedId, int primarySynonymId) {
@@ -376,33 +387,22 @@ public class Normalizer extends NeoRunnable {
 
     Transaction tx = db.beginTx();
     try {
-      //This iterates over ALL NODES, even the ones creating within this loop!
+      // This iterates over ALL NODES, even the ones created within this loop which trigger a transaction commit!
       // iteration is by node id starting from node id 1 to highest.
       // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
       for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
-        if (counter % batchSize == 0) {
-          tx.success();
-          tx.close();
-          LOG.debug("Relations processed for taxa: {}", counter);
-          //logMemory();
-          tx = db.beginTx();
-        }
-
-        final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
-        final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
-        final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
-        final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
-        duplicateProParteSynonyms(n, taxonID);
-        boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
-        setupParentRel(n, isSynonym, taxonID, sciname, canonical);
-        setupBasionymRel(n, taxonID, sciname, canonical);
+        setupRelation(n);
 
         counter++;
         relationMeter.mark();
+        if (counter % batchSize == 0) {
+          tx = renewTx(tx);
+          LOG.debug("Relations processed for taxa: {}", counter);
+        }
       }
-      tx.success();
 
     } finally {
+      tx.success();
       tx.close();
     }
 
@@ -415,10 +415,22 @@ public class Normalizer extends NeoRunnable {
     LOG.info("Relation setup completed, {} nodes processed. Setup rate: {}", counter, relationMeter.getMeanRate());
   }
 
+  private void setupRelation(Node n) {
+    final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
+    final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
+    final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
+    final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
+    duplicateProParteSynonyms(n, taxonID);
+    boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
+    setupParentRel(n, isSynonym, taxonID, sciname, canonical);
+    setupBasionymRel(n, taxonID, sciname, canonical);
+  }
+
   /**
    * Creates synonym_of relationship.
    * Assumes pro parte synonyms are dealt with before and the remaining accepted identifier refers to a single taxon only.
    * See #duplicateProParteSynonyms()
+   *
    * @param taxonID taxonID of the synonym
    * @param sciname scientificName of the synonym
    * @param canonical canonical name of the synonym
@@ -437,6 +449,7 @@ public class Normalizer extends NeoRunnable {
           // is the accepted name also mapped?
           String name = ObjectUtils.defaultIfNull(NeoMapper.value(n, DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
           accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id, "Placeholder for the missing accepted taxonID for synonym " + sciname);
+          setupRelation(accepted);
         }
       }
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
@@ -448,6 +461,7 @@ public class Normalizer extends NeoRunnable {
           if (accepted == null) {
             LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
             accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
+            setupRelation(accepted);
           }
         }
       }
@@ -457,6 +471,7 @@ public class Normalizer extends NeoRunnable {
     if (status.isSynonym() && accepted == null) {
       mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_MISSING);
       accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null, "Placeholder for the missing accepted taxon for synonym " + sciname);
+      setupRelation(accepted);
     }
 
     if (accepted != null && !accepted.equals(n)) {
@@ -475,7 +490,8 @@ public class Normalizer extends NeoRunnable {
    * Sets up the parent relations using the parentNameUsage(ID) term values.
    * The denormed, flat classification is used in a next step later.
    */
-  private void setupParentRel(Node n, boolean isSynonym, @Nullable String taxonID, String sciname, String canonical) {
+  private void setupParentRel(Node n, boolean isSynonym, @Nullable String taxonID, String sciname,
+    String canonical) {
     Node parent = null;
     if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsageID)) {
       final String id = NeoMapper.value(n, DwcTerm.parentNameUsageID);
