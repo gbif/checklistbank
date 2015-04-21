@@ -36,17 +36,17 @@
 
     <!-- dependency versions -->
     <dwc-api.version>1.11</dwc-api.version>
-    <gbif-api.version>0.19</gbif-api.version>
+    <gbif-api.version>0.20</gbif-api.version>
     <gbif-cli.version>0.9</gbif-cli.version>
     <gbif-common.version>0.17</gbif-common.version>
-    <gbif-common-mybatis.version>0.15-SNAPSHOT</gbif-common-mybatis.version>
+    <gbif-common-mybatis.version>0.15</gbif-common-mybatis.version>
     <gbif-common-search.version>0.21</gbif-common-search.version>
     <gbif-common-service.version>0.12</gbif-common-service.version>
     <gbif-common-ws.version>0.21</gbif-common-ws.version>
     <gbif-httputils.version>0.6</gbif-httputils.version>
     <gbif-microservice.version>0.2</gbif-microservice.version>
     <gbif-postal-service.version>0.14</gbif-postal-service.version>
-    <registry-client.version>2.27-SNAPSHOT</registry-client.version>
+    <registry-client.version>2.27</registry-client.version>
     <name-parser.version>2.6</name-parser.version>
     <gbif-parser.version>0.11</gbif-parser.version>
     <dwca-reader.version>1.21</dwca-reader.version>
