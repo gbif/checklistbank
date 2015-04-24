@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.neo;
 
 /**
  * Very simple POJO tying a name to a long identifier.

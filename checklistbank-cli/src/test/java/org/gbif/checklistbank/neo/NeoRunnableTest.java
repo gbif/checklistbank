@@ -1,11 +1,10 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.neo;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.RelType;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;

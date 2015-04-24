@@ -8,8 +8,6 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.IdName;
-import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
 import org.gbif.dwc.terms.DcTerm;

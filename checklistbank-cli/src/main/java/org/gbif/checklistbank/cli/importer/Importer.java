@@ -7,7 +7,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.NeoRunnable;
+import org.gbif.checklistbank.neo.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;

@@ -44,8 +44,7 @@ Similar to rank the taxonomic status of the backbone record (accepted, synonym o
 
 
 # Backbone Building
-Code that regenerates a new backbone dataset ...
-
+Code that generates a new backbone dataset based on other source checklists.
 
 
 ## Source datasets
@@ -53,10 +52,11 @@ Code that regenerates a new backbone dataset ...
  - small expert curated patch datasets are possible as source as long as they are registered with GBIF. They should have a very high backbonePriority above 1000 to ensure that their information comes first.
  - there are no means to partially add a dataset or ignore certain groups. Could be considered in a second round of improvements
 
-
-## Filtering taxa
-- ignore strain and cultivar names
-- only consider major ranks:
+### Filter source records
+ - by default all names of a source dataset are processed
+ - ignore strain and cultivar names
+ - ignore ranks above family if source dataset is not the Catalog of Life
+ - only consider major ranks:
 	- kingdom
 	- phylum
 	- class
@@ -67,13 +67,32 @@ Code that regenerates a new backbone dataset ...
 	- subspecies
 	- variety
 	- form
+- ignore secondary source records if they are conflicting with the taxonomic status of the primary source for the name. i.e. additional information about a name which is accepted in our backbone can only be derived from source datasets which also treat that name as an accepted taxon.
+
 
 ## Overlaying information
+ - we merge information about the same name from various sources. Especially updating null values. For example the authorship for a name can be found in a secondary source. Vernacular names and other associated information is also a regular case.
+
  - every backbone taxon keeps explicitly all core (name, status, author, etc) and associated information (vernacular names, name based typification, descriptions, distribution, bibliography, multimedia)
+
  - the clb identifier of the primary source taxon (the source clb record with the highest priority) is stored with each backbone taxon to allow to trace back why the backbone has this name
- - merge information from different datasets if they relate to the same name. Merging requires a matching taxonomic status, i.e. additional information about a name which is accepted in our backbone can only be derived from source datasets which also treat that name as an accepted taxon.
+
  - use embedded species match to group spelling variations and distinguish homonyms or consider to write a simpler lookup method based on neo4js native lucene indexing
 
+### Multimedia
+ - filter by license?
+
+### Distributions
+ - ignore invalid area distributions
+	 - check location makes sense is not a concatenation???
+
+### Descriptions
+
+### Species profiles
+ - check habitats
+ 
+
+ 
 ## Higher taxa
  - only trust CoL for ranks above family
  - create new families from non CoL sources if we have species for it
@@ -86,7 +105,9 @@ Code that regenerates a new backbone dataset ...
 
 ## Post build operations
  - verify name string matches expected rank, e.g. no binomial should have a family rank
+
  - group name recombinations based on the original name. In case many records with the same epithet but different genus exist within the same family, only the latest recombination should be accepted, the other declared synonyms. As this can lead to false groupings require that the authorship exists and suggests it is the same for all recombinations. A group of recombined names can only have a single accepted name. 
+
  - keep stable nub ids by matching new backbone to current live one
 
 ## Implementation details
@@ -95,4 +116,4 @@ Code that regenerates a new backbone dataset ...
 
 
 # Backbone Exports
-Code that regenerates a new backbone dataset ...
+Code that exports the GBIF backbone checklist as a DwC archive.

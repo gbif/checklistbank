@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
@@ -85,6 +86,12 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
         LOG.error("Unable to delete neo database {}", db.getAbsoluteFile());
       }
     }
+  }
+
+  @Override
+  @VisibleForTesting
+  protected void startUp() throws Exception {
+    super.startUp();
   }
 
   @Override

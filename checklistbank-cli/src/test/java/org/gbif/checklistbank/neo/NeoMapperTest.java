@@ -15,7 +15,6 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.common.RankedName;
 import org.gbif.checklistbank.cli.normalizer.NeoTest;
 
 import java.net.URI;
