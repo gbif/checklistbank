@@ -89,7 +89,9 @@ We use neo4j to assemble the entire backbone before it is actually written to th
  - verify name string matches expected rank, e.g. no binomial should have a family rank. Ignore otherwise!
 
 ### Overlaying information
- - we merge information about the same name from various sources. Especially updating null values. For example the authorship for a name can be found in a secondary source.
+ - we merge information about the same canonical name from various sources. Especially updating null values. For example the authorship for a name can be found in a secondary source.
+	 - needs to disambiguate homonyms by comparing classification as nub lookup does
+	 - we will miss spelling variations as we do not do fuzzy matching (needs to go into curated patch checklist)
 
  - every backbone taxon keeps explicitly all core (name, status, author, etc) and associated information (vernacular names, name based typification, descriptions, distribution, bibliography, multimedia)
 
