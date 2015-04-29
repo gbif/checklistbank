@@ -13,7 +13,6 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
     return new Iterable<Path>() {
       @Override
       public Iterator<Path> iterator() {
-        List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
+        List<Node> roots = IteratorUtil.asList(db.findNodes(Labels.ROOT));
         return new TaxonomicIterator(roots, db.traversalDescription()
                                       .depthFirst()
                                       .expand(new TaxonomicOrderExpander())

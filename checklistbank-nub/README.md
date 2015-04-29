@@ -2,12 +2,12 @@
 Code dealing with using and building the GBIF backbone:
 http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c
 
-# Backbone Matching
+# 1. Backbone Matching
 The species matching service at GBIF allows to lookup a matching taxon from the GBIF backbone given a scientific name and some optional verbatim classification. 
 See [species match service](http://www.gbif.org/developer/species#searching) in our developer docs for usage details.
 
 
-## Matching confidence
+## 1.2 Matching confidence
 The detailed matching is done against a set of up to 50 potential matching candidates, which are selected based on a native lucene fuzzy query for the scientific name, after going through the [ScientificNameAnalyzer](https://github.com/gbif/checklistbank/blob/master/checklistbank-nub/src/main/java/org/gbif/nub/lookup/ScientificNameAnalyzer.java) which normalizes accents and diacritics. It also does a fair amount of character transpositions also found in [Tony Reese's TaxonMatch algorithm](http://www.cmar.csiro.au/datacentre/taxamatch.htm), see the [ScientificNameSoundAlikeFilter](https://github.com/gbif/checklistbank/blob/master/checklistbank-nub/src/main/java/org/gbif/nub/lookup/ScientificNameSoundAlikeFilter.java).
 
 For each match candidate an overall matching confidence is calculated based on several individual scores which are given in the order of importance:
@@ -43,19 +43,37 @@ Similar to rank the taxonomic status of the backbone record (accepted, synonym o
 
 
 
-# Backbone Building
-Code that generates a new backbone dataset based on other source checklists.
+# 2. Backbone Building
+All code that is involved in generating a new backbone dataset up to updating occurrences and metrics for a modified backbone. There are 4 main steps:
 
+ 1. building a local new backone in neo4j
+ 2. syncing neo4j backbone to postgres & solr
+ 3. update species match service
+ 4. update occurrences & metrics
+ 
+ 
+## 2.1 Building a new backbone in Neo4J
+We use neo4j to assemble the entire backbone before it is actually written to the ChecklistBank postgres database. This fits into the indexing architecture and allows to mostly reuse the existing postgres & solr syncing routines from clb indexing.
 
-## Source datasets
+### Source datasets
  - select the ordered list of nub sources based on the existance & integer value of a checklist registry machine tag "clb:backbonePriority=80"
- - small expert curated patch datasets are possible as source as long as they are registered with GBIF. They should have a very high backbonePriority above 1000 to ensure that their information comes first.
- - there are no means to partially add a dataset or ignore certain groups. Could be considered in a second round of improvements
 
-### Filter source records
- - by default all names of a source dataset are processed
- - ignore strain and cultivar names
- - ignore ranks above family if source dataset is not the Catalog of Life
+ - small expert curated patch datasets are possible as source as long as they are registered with GBIF. They should have a very high backbonePriority above 1000 to ensure that their information comes first.
+
+ - backbone source can have certain flags all managed as machine tags in the registry:
+	 -   ignoreRanksAbove: ignore usages with a rank higher than given. Defaults to FAMILY
+	 -   ignoreCore: ignore core taxon data and only use extensions
+	 -   ignoreMedia/Description/Vernacular etc: ignores specific kind of extension data for all usages in that source
+
+#### Source usage records
+ - page through a dataset, read an entire record as NameUsageContainer with mybatis
+	 - only add extensions as needed by source
+	 - parallel indexing (syncing) of the very dataset would break paging. An issue?
+		 - stop indexing?
+		 - read all ids in one go first?
+ - all names of a source dataset are processed, but:
+	 - ignore strain and cultivar names
+	 - rank filter as configured by source. Defaults to ignoring ranks above family if source is not the Catalog of Life
  - only consider major ranks:
 	- kingdom
 	- phylum
@@ -67,11 +85,13 @@ Code that generates a new backbone dataset based on other source checklists.
 	- subspecies
 	- variety
 	- form
-- ignore secondary source records if they are conflicting with the taxonomic status of the primary source for the name. i.e. additional information about a name which is accepted in our backbone can only be derived from source datasets which also treat that name as an accepted taxon.
+ - ignore secondary source records if they are conflicting with the taxonomic status of the primary source for the name. i.e. additional information about a name which is accepted in our backbone can only be derived from source datasets which also treat that name as an accepted taxon.
+ - verify name string matches expected rank, e.g. no binomial should have a family rank. Ignore otherwise!
 
-
-## Overlaying information
- - we merge information about the same name from various sources. Especially updating null values. For example the authorship for a name can be found in a secondary source. Vernacular names and other associated information is also a regular case.
+### Overlaying information
+ - we merge information about the same canonical name from various sources. Especially updating null values. For example the authorship for a name can be found in a secondary source.
+	 - needs to disambiguate homonyms by comparing classification as nub lookup does
+	 - we will miss spelling variations as we do not do fuzzy matching (needs to go into curated patch checklist)
 
  - every backbone taxon keeps explicitly all core (name, status, author, etc) and associated information (vernacular names, name based typification, descriptions, distribution, bibliography, multimedia)
 
@@ -79,41 +99,100 @@ Code that generates a new backbone dataset based on other source checklists.
 
  - use embedded species match to group spelling variations and distinguish homonyms or consider to write a simpler lookup method based on neo4js native lucene indexing
 
-### Multimedia
+ - extension data is usually aggregated from all sources and then deduplicated at the very end in the post processing
+
+#### Identifier extension
+ - ignore this extension completely and all identifiers
+ - only keep primary source usage key as source identifier
+
+#### Description extension
+- use all languages & all entries?
+
+#### Distribution extension
+ - only use area distributions with Country or locationID given
+	 - check locationID makes sense and is not a concatenation (how, string length???)
+
+#### Multimedia extension
+ - deduplicate on image url ?
  - filter by license?
 
-### Distributions
- - ignore invalid area distributions
-	 - check location makes sense is not a concatenation???
+#### Bibliography extension
+ - deduplicate on full bibliographic reference string (hardly possible)
 
-### Descriptions
-
-### Species profiles
- - check habitats
+#### Species profiles extension
+ - merge all habitat and extinction flags into 1 record with concatenated source string? 
+ - or keep multiple records with a different sourceTaxonKey?
+ - ignore the following?
+	 - habitat (string)
+	 - livingPeriod
+	 - lifeForm
  
+#### Type species & genera
+ - copy typification records for higher rank, i.e. the type species and type genus
+ - deduplicate typification records based on typifiedName
 
- 
-## Higher taxa
- - only trust CoL for ranks above family
- - create new families from non CoL sources if we have species for it
- - do not force that all higher ranks must be given, e.g. the order might be missing. Do NOT create placeholder names (incertae sedis) in those cases
+#### Vernacular names
+ - deduplicate vernacular names based on lang & name (case & accent insensitive)
 
-## Implicit taxa
+
+### Implicit taxa
  - create missing genera/species for accepted species/subspecies
  - create autonyms (just for plants?)
  - create "incertae sedis" placeholder taxa for missing accepted names for synonyms
-
-## Post build operations
- - verify name string matches expected rank, e.g. no binomial should have a family rank
-
- - group name recombinations based on the original name. In case many records with the same epithet but different genus exist within the same family, only the latest recombination should be accepted, the other declared synonyms. As this can lead to false groupings require that the authorship exists and suggests it is the same for all recombinations. A group of recombined names can only have a single accepted name. 
-
- - keep stable nub ids by matching new backbone to current live one
-
-## Implementation details
-- use neo4j to assemble the entire backbone before it is written to ChecklistBank
-- allows to reuse the existing postgres & solr syncing routines from clb indexing
+ - do not force that all higher ranks must be given, e.g. the order might be missing. Do NOT create placeholder names (incertae sedis) in those cases
 
 
-# Backbone Exports
+### Original name groups
+group name recombinations based on the original name. In case many records with the same epithet but different genus exist within the same family, only the latest recombination should be accepted, the other declared synonyms. As this can lead to false groupings require that the authorship exists and suggests it is the same for all recombinations. A group of recombined names can only have a single accepted name. 
+
+### Deduplicate extension data
+Extension data is aggregated from all sources and only deduplicated at the very end in the post processing (see above).
+
+
+### NameUsageMetrics & backbone usageKey identifier
+Finally every usage needs metrics (numSpecies, numSynonyms, etc) calculated and a matching nub id looked up. Reuse UsageMetricsAndNubMatchHandler from Normalizer to iterate over all backbone neo nodes. Keep stable nub ids by matching new backbone to current live one, slightly adjust handler for stricter species matching:
+ - use straight matching only, canonical name is constant
+ - authors & classification can change!
+ - species match disambiguates homonyms with classification
+ - make sure matched ids are unique, e.g. when a new pro parte synonym is created we are likely to match those 2 usages against the same old id
+
+
+## 2.2. Checklistbank syncing
+Once a new neo4j backbone is built we need to sync it against the ChecklistBank postgres database and also update solr.
+
+ - sync with regular sync code, usage by usage
+	 - all old nub usages linked from occurrence still exist during syncing
+	 - reuse usage keys from nub lookup in neo
+ - drop dedicated nub id range, not needed anymore:
+	 - select queries all the same (nub & source) as all extension data is present in the backbone
+	 - implications to code outside of clb???
+
+### Deletions
+Instead of deleting records at the end we should archive them (id, scientific name, deleted date & json?)
+
+ - resolve them via get detail in WS? 
+ - mark them as deleted in our WS by adding deleted timestamp?
+ - include foreign key properties, e.g. parentKey, familyKey ?
+
+
+## 2.3. Update species match service
+ - rebuild species match index, stop old service, swap index and restart service
+	 - or create 2nd service not exposed in varnish and then swap ports in vcl?
+ - create new cli listening to ChecklistSyncedMessage with nub datasetKey
+	 - how to best start/stop services from cli?
+
+ 
+## 2.4. Occurrence updates & metrics
+When the GBIF backbone has changed this has implications for occurrence records, derived metrics and maps. 
+ - initially rematch all occurrences
+	 - distinct classifications first, then match them
+ - figuring out a filter to select change candidates is difficult
+	 - rematch occurrences with deleted nub usages
+	 - rematch occurrences within a genus (family?) that has newly added usages
+	 - how to track changed classifications but same usageKey?
+ - reinterpret occurrences that have a changed taxonKey
+	 - avoid redundant species match by keeping the new taxonKey in the message?
+
+
+# 3 Backbone Exports
 Code that exports the GBIF backbone checklist as a DwC archive.

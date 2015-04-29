@@ -292,7 +292,7 @@ public class NeoMapper {
   public NameUsageContainer read(Node n) {
     if (n != null) {
       NameUsageContainer u = read(n, new NameUsageContainer());
-      // map node id to key, its not fixed across tests but stable within one
+      // map node id to key, its not fixed across db instances but stable within one
       u.setKey((int) n.getId());
       IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
       if (in != null) {
