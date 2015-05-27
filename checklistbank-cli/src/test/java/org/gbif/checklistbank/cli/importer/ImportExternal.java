@@ -61,6 +61,7 @@ public class ImportExternal {
     iCfg.clb.password="%BBJu2MgstXJ";
     iCfg.clb.password="pogo";
     iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    iCfg.solr.serverHome=null;
     iCfg.solr.serverType= SolrServerType.HTTP;
   }
 
@@ -100,12 +101,16 @@ public class ImportExternal {
     ImportExternal imp = new ImportExternal();
 
     imp.index("/Users/markus/Desktop/repo",
-      "http://www.gbif.es/FreshwaterInvasives/data/download/dwcarchive.zip",
-      UUID.fromString("36ad3207-1190-47ad-868e-b09d6c0aeec2"));
+      "http://ipt.jbrj.gov.br/ipt/archive.do?r=lista_especies_flora_brasil",
+      UUID.fromString("aacd816d-662c-49d2-ad1a-97e66e2a2908"));
 
-    imp.index("/Users/markus/Desktop/repo",
-      "http://ipt-mrbif.bebif.be/archive.do?r=reptiles",
-      UUID.fromString("ed84efa3-71f0-42fb-8c8a-f3864d8be04e"));
+//    imp.index("/Users/markus/Desktop/repo",
+//      "http://www.gbif.es/FreshwaterInvasives/data/download/dwcarchive.zip",
+//      UUID.fromString("36ad3207-1190-47ad-868e-b09d6c0aeec2"));
+//
+//    imp.index("/Users/markus/Desktop/repo",
+//      "http://ipt-mrbif.bebif.be/archive.do?r=reptiles",
+//      UUID.fromString("ed84efa3-71f0-42fb-8c8a-f3864d8be04e"));
 
   }
 }

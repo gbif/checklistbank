@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.NeoRunnable;
+import org.gbif.checklistbank.neo.NotUniqueException;
 import org.gbif.checklistbank.neo.RankedName;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
@@ -455,14 +456,22 @@ public class Normalizer extends NeoRunnable {
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
       final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
       if (name != null && !name.equals(sciname)) {
-        accepted = nodeBySciname(name);
-        if (accepted == null && !name.equals(canonical)) {
-          accepted = nodeByCanonical(name);
-          if (accepted == null) {
-            LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-            accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
-            setupRelation(accepted);
+        try {
+          accepted = nodeBySciname(name);
+          if (accepted == null && !name.equals(canonical)) {
+            accepted = nodeByCanonical(name);
+            if (accepted == null) {
+              LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
+            }
           }
+        } catch (NotUniqueException e) {
+          mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
+          LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name,
+            sciname, taxonID);
+        }
+        if (accepted == null) {
+          accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
+          setupRelation(accepted);
         }
       }
     }
@@ -505,12 +514,18 @@ public class Normalizer extends NeoRunnable {
     } else if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsage)) {
       final String name = NeoMapper.value(n, DwcTerm.parentNameUsage);
       if (name != null && !name.equals(sciname)) {
-        parent = nodeBySciname(name);
-        if (parent == null && !name.equals(canonical)) {
-          parent = nodeByCanonical(name);
-        }
-        if (parent == null) {
-          LOG.debug("parentNameUsage {} not existing, materialize it", name);
+        try {
+          parent = nodeBySciname(name);
+          if (parent == null && !name.equals(canonical)) {
+            parent = nodeByCanonical(name);
+          }
+          if (parent == null) {
+            LOG.debug("parentNameUsage {} not existing, materialize it", name);
+            parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true);
+          }
+        } catch (NotUniqueException e) {
+          mapper.addIssue(n, NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
+          LOG.warn("parentNameUsage {} not unique, ignore relationship for name {} and taxonID {}", name, sciname, taxonID);
           parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true);
         }
       }
@@ -536,15 +551,20 @@ public class Normalizer extends NeoRunnable {
         }
       } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
         final String name = NeoMapper.value(n, DwcTerm.originalNameUsage);
-        if (name != null && !name.equals(sciname)) {
-          basionym = nodeBySciname(name);
-          if (basionym == null && !name.equals(canonical)) {
-            basionym = nodeByCanonical(name);
+        try {
+          if (name != null && !name.equals(sciname)) {
+            basionym = nodeBySciname(name);
+            if (basionym == null && !name.equals(canonical)) {
+              basionym = nodeByCanonical(name);
+            }
+            if (basionym == null) {
+              LOG.debug("originalNameUsage {} not existing, materialize it", name);
+              basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL, true);
+            }
           }
-          if (basionym == null) {
-            LOG.debug("originalNameUsage {} not existing, materialize it", name);
-            basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL, true);
-          }
+        } catch (NotUniqueException e) {
+          mapper.addIssue(n, NameUsageIssue.ORIGINAL_NAME_NOT_UNIQUE);
+          LOG.warn("originalNameUsage {} not unique, ignore relationship for taxonID {}", sciname, taxonID);
         }
       }
       if (basionym != null && !basionym.equals(n)) {

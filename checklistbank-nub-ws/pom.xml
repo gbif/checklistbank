@@ -180,7 +180,7 @@
     <!-- TESTS -->
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>dwca-reader</artifactId>
+      <artifactId>dwca-io</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

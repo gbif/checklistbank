@@ -294,24 +294,43 @@ public class NeoMapper {
       NameUsageContainer u = read(n, new NameUsageContainer());
       // map node id to key, its not fixed across tests but stable within one
       u.setKey((int) n.getId());
-      IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
-      if (in != null) {
-        u.setParentKey(in.id);
-        u.setParent(in.name);
+      try {
+        IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
+        if (in != null) {
+          u.setParentKey(in.id);
+          u.setParent(in.name);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
+        addIssue(n, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
       }
-      in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
-      if (in != null) {
-        u.setBasionymKey(in.id);
-        u.setBasionym(in.name);
+
+      try {
+        IdName in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
+        if (in != null) {
+          u.setBasionymKey(in.id);
+          u.setBasionym(in.name);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read basionym relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.ORIGINAL_NAME_NOT_UNIQUE);
       }
-      // there might be several accepted taxa for pro parte synonyms
-      in = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
-      if (in != null) {
-        u.setAcceptedKey(in.id);
-        u.setAccepted(in.name);
-        // update synonym flag based on relations
-        u.setSynonym(true);
+
+      try {
+        // pro parte synonym relations must have been flattened already...
+        IdName in = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
+        if (in != null) {
+          u.setAcceptedKey(in.id);
+          u.setAccepted(in.name);
+          // update synonym flag based on relations
+          u.setSynonym(true);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
       }
+
       return u;
     }
     return null;

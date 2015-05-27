@@ -123,6 +123,18 @@
       <artifactId>gbif-common</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-ws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
     </dependency>
@@ -148,6 +160,10 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-ws-client</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-parsers</artifactId>
     </dependency>
@@ -157,11 +173,15 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>dwca-reader</artifactId>
+      <artifactId>dwca-io</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.common</groupId>
       <artifactId>gbif-cli</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-httputils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.common</groupId>
@@ -189,6 +209,14 @@
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-kernel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-cypher</artifactId>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
@@ -238,6 +266,10 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>

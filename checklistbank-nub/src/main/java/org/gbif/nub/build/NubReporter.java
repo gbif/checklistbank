@@ -1,6 +1,6 @@
 package org.gbif.nub.build;
 
-import org.gbif.file.TabWriter;
+import org.gbif.io.TabWriter;
 
 import java.io.File;
 import java.io.FileNotFoundException;

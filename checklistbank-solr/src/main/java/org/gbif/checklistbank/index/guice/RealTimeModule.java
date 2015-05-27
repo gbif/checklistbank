@@ -26,7 +26,9 @@ public class RealTimeModule extends PrivateModule {
 
   @Override
   protected void configure() {
-    if (cfg.serverType == null || (cfg.serverType == SolrServerType.HTTP && !cfg.serverHome.startsWith("http"))) {
+    if (cfg.serverType == null ||
+        (cfg.serverType == SolrServerType.HTTP && (cfg.serverHome == null || !cfg.serverHome.startsWith("http")))
+      ) {
       bind(NameUsageIndexService.class).to(NameUsageIndexServicePassThru.class).in(Scopes.SINGLETON);
       LOG.info("No solr service configured. Using pass thru mock solr service.");
     } else {
