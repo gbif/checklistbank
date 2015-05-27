@@ -1,4 +1,6 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.source;
+
+import org.gbif.checklistbank.nub.model.SrcUsage;
 
 import java.util.List;
 

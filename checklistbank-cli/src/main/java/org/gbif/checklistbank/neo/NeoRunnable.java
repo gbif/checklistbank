@@ -42,7 +42,7 @@ public abstract class NeoRunnable implements Runnable {
   }
 
   protected GraphDatabaseService setupDb() {
-    db = neoCfg.newEmbeddedDb(datasetKey);
+    db = neoCfg.newEmbeddedDb(datasetKey, true);
     parentsTraversal = db.traversalDescription()
       .relationships(RelType.PARENT_OF, Direction.INCOMING)
       .depthFirst()
@@ -58,7 +58,7 @@ public abstract class NeoRunnable implements Runnable {
    * @return the single matching node with the taxonID or null
    */
   protected Node nodeByTaxonId(String taxonID) {
-    return IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
+    return IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
   }
 
   /**
@@ -66,12 +66,12 @@ public abstract class NeoRunnable implements Runnable {
    */
   protected Node nodeByCanonical(String canonical) {
     return IteratorUtil
-      .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+      .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
   }
 
   protected Collection<Node> nodesByCanonical(String canonical) {
     return IteratorUtil
-      .asCollection(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+      .asCollection(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
   }
 
   /**
@@ -79,7 +79,7 @@ public abstract class NeoRunnable implements Runnable {
    */
   protected Node nodeBySciname(String sciname) {
     return IteratorUtil
-      .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
+      .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
   }
 
   protected Node create(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {

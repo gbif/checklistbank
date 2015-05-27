@@ -5,7 +5,7 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
-import org.gbif.file.CSVReader;
+import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.IOException;

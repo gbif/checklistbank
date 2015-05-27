@@ -157,7 +157,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>dwca-reader</artifactId>
+      <artifactId>dwca-io</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.common</groupId>
@@ -213,6 +213,10 @@
     <dependency>
       <groupId>net.openhft</groupId>
       <artifactId>koloboke-impl-jdk6-7</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryo</artifactId>
     </dependency>
 
 
@@ -288,6 +292,21 @@
     </dependency>
 
     <!-- TEST SCOPE -->
+    <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>

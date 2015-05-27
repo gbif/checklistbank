@@ -5,12 +5,12 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.dwc.record.RecordImpl;
-import org.gbif.dwc.record.StarRecordImpl;
+import org.gbif.dwca.record.RecordImpl;
+import org.gbif.dwca.record.StarRecordImpl;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.text.ArchiveField;
+import org.gbif.dwca.io.ArchiveField;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;

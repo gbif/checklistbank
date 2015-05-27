@@ -2,7 +2,7 @@ package org.gbif.nub.build;
 
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.file.TabWriter;
+import org.gbif.io.TabWriter;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;

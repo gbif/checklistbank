@@ -65,7 +65,7 @@ public abstract class NeoTest {
   }
 
   public void initDb(UUID datasetKey) {
-    db = cfg.newEmbeddedDb(datasetKey);
+    db = cfg.newEmbeddedDb(datasetKey, true);
   }
 
   public Transaction beginTx() {

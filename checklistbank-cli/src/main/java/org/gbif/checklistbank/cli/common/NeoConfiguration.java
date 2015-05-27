@@ -54,11 +54,12 @@ public class NeoConfiguration {
    * Creates a new embedded db in the neoRepository folder.
    *
    * @param datasetKey subfolder for the db
+   * @param clean if true deletes previously existing db
    */
-  public GraphDatabaseService newEmbeddedDb(UUID datasetKey) {
+  public GraphDatabaseService newEmbeddedDb(UUID datasetKey, boolean clean) {
     Preconditions.checkNotNull(datasetKey);
     File storeDir = neoDir(datasetKey);
-    if (storeDir.exists()) {
+    if (clean && storeDir.exists()) {
       // erase previous db
       LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
       FileUtils.deleteQuietly(storeDir);

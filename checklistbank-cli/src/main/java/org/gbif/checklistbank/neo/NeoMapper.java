@@ -17,6 +17,7 @@ import org.gbif.dwc.terms.Term;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.codehaus.jackson.annotate.JsonProperty;
@@ -56,6 +58,8 @@ public class NeoMapper {
   private VerbatimNameUsageMapper verbatimMapper = new VerbatimNameUsageMapperKryo();
   private final TypeFactory tf = TypeFactory.defaultInstance();
   private final JavaType issueType;
+  private final Map<Class<?>, JavaType> listTypes = Maps.newHashMap();
+
   enum FieldType {PRIMITIVE, NATIVE, ENUM, OTHER}
 
   static {
@@ -106,10 +110,17 @@ public class NeoMapper {
   }
 
   public void setProperty(Node n, Term property, Object value) {
+    setProperty(n, propertyName(property), value);
+  }
+
+  /**
+   * Sets a node property and removes it in case the property value is null.
+   */
+  public void setProperty(Node n, String property, Object value) {
     if (value == null) {
-      n.removeProperty(propertyName(property));
+      n.removeProperty(property);
     } else {
-      n.setProperty(propertyName(property), value);
+      n.setProperty(property, value);
     }
   }
 
@@ -215,6 +226,29 @@ public class NeoMapper {
     return (String) n.getProperty(TaxonProperties.CANONICAL_NAME, null);
   }
 
+  public <T> List<T> readList(Node n, String property, Class<T> genericType) {
+    Object val = n.getProperty(property, null);
+    if (val != null) {
+      if (!listTypes.containsKey(genericType)) {
+        listTypes.put(genericType, tf.constructType(ArrayList.class, genericType));
+      }
+      try {
+        return objMapper.readValue((byte[]) val, listTypes.get(genericType));
+      } catch (IOException e) {
+        Throwables.propagate(e);
+      }
+    }
+    return null;
+  }
+
+  public <T> void storeList(Node n, String property, List<T> value) {
+    try {
+      n.setProperty(property, objMapper.writeValueAsBytes(value));
+    } catch (IOException e) {
+      Throwables.propagate(e);
+    }
+  }
+
   public static <T> T readEnum(Node n, String property, Class<T> vocab, T defaultValue) {
     Object val = n.getProperty(property, null);
     if (val != null) {
@@ -239,9 +273,8 @@ public class NeoMapper {
     if (!FIELDS.containsKey(cl)) {
       initModelMap(cl);
     }
-    try {
-      for (FieldData f : FIELDS.get(cl)) {
-
+    for (FieldData f : FIELDS.get(cl)) {
+      try {
         Object val = n.getProperty(f.property, null);
         if (val == null) {
           switch (f.type) {
@@ -276,12 +309,16 @@ public class NeoMapper {
               break;
           }
         }
-      }
-    } catch (IllegalAccessException e) {
-      LOG.error("Failed to read bean", e);
+      } catch (IllegalAccessException e) {
+        LOG.error("Failed to read bean", e);
 
-    } catch (IOException e) {
-      LOG.error("Failed to read bean property", e);
+      } catch (IOException e) {
+        LOG.error("Failed to read property " + f.property, e);
+
+      } catch (RuntimeException e) {
+        LOG.error("Failed to read property " + f.property, e);
+        Throwables.propagate(e);
+      }
     }
     return obj;
   }
@@ -373,6 +410,10 @@ public class NeoMapper {
       }
 
       Class fCl = f.getType();
+      if (Node.class.equals(fCl)) {
+        // we dont want to store nodes in nodes
+        continue;
+      }
       FieldType type = fieldTypeOf(fCl);
       JavaType otherType = null;
 

@@ -49,7 +49,7 @@
     <registry-client.version>2.27</registry-client.version>
     <name-parser.version>2.6</name-parser.version>
     <gbif-parser.version>0.11</gbif-parser.version>
-    <dwca-reader.version>1.21</dwca-reader.version>
+    <dwca-io.version>1.22</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
@@ -278,8 +278,8 @@
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
-        <artifactId>dwca-reader</artifactId>
-        <version>${dwca-reader.version}</version>
+        <artifactId>dwca-io</artifactId>
+        <version>${dwca-io.version}</version>
         <exclusions>
           <exclusion>
             <!-- digester via cglib brings in an old asm version, conflicting with kryo -->

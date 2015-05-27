@@ -49,6 +49,12 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
     }
   }
 
+  private final Properties properties;
+
+  public Properties getProperties() {
+    return properties;
+  }
+
   @Override
   /**
    * Update sequence counters.
@@ -77,6 +83,7 @@ public class DatabaseDrivenChecklistBankTestRule<T> extends DatabaseDrivenTestRu
           DEFAULT_DBUNIT_FILE,
           DB_UNIT_CLB_PROPERTIES);
     this.sequenceCounters = sequenceCounters;
+    this.properties = properties;
   }
 
   /**

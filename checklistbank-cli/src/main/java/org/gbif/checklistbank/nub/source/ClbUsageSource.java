@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
@@ -9,11 +9,15 @@ import org.gbif.api.util.MachineTagUtils;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.nub.NubTags;
+import org.gbif.checklistbank.nub.model.SrcUsage;
 
 import java.util.List;
 import javax.annotation.Nullable;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
 import com.google.inject.Injector;
@@ -23,30 +27,35 @@ import org.slf4j.LoggerFactory;
 public class ClbUsageSource implements UsageSource {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbUsageSource.class);
-  private final NubConfiguration cfg;
   private List<NubSource> sources;
+  private final DatasetService datasetService;
+  private final ClbConfiguration clbCfg;
 
   public ClbUsageSource(NubConfiguration cfg) {
-    this.cfg = cfg;
-    sources = cfg.getSources();
+    this.clbCfg = cfg.clb;
+    LOG.info("Loading backbone sources from registry {}", cfg.registry.wsUrl);
+    Injector regInj = cfg.registry.createRegistryInjector();
+    datasetService = regInj.getInstance(DatasetService.class);
+  }
+
+  public ClbUsageSource(DatasetService datasetService, ClbConfiguration cfg) {
+    this.datasetService = datasetService;
+    clbCfg = cfg;
   }
 
   @Override
   public List<NubSource> listSources() {
-    if (sources.isEmpty()) {
+    if (sources == null) {
       loadSourcesFromRegistry();
     }
     return sources;
   }
 
   private void loadSourcesFromRegistry() {
-    LOG.info("Loading backbone sources from registry {}", cfg.registry.wsUrl);
-    Injector regInj = cfg.registry.createRegistryInjector();
-    final DatasetService datasetService = regInj.getInstance(DatasetService.class);
 
     PagingRequest req = new PagingRequest(0, 100);
     PagingResponse<Dataset> resp = null;
-
+    sources = Lists.newArrayList();
     while (resp == null || !resp.isEndOfRecords()) {
       resp = datasetService.listByType(DatasetType.CHECKLIST, req);
       for (Dataset d : resp.getResults()) {
@@ -55,10 +64,15 @@ public class ClbUsageSource implements UsageSource {
           NubSource src = new NubSource();
           src.key = d.getKey();
           src.name = d.getTitle();
-          sources.add(src);
-          MachineTag rank = MachineTagUtils.firstTag(d, NubTags.NAMESPACE, NubTags.RANK_LIMIT.tag);
-          if (rank != null) {
-            src.ignoreRanksAbove = VocabularyUtils.lookupEnum(rank.getValue(), Rank.class);
+          try {
+            src.priority = Integer.valueOf(priority.getValue());
+            sources.add(src);
+            MachineTag rank = MachineTagUtils.firstTag(d, NubTags.NAMESPACE, NubTags.RANK_LIMIT.tag);
+            if (rank != null) {
+              src.ignoreRanksAbove = VocabularyUtils.lookupEnum(rank.getValue(), Rank.class);
+            }
+          } catch (NumberFormatException e) {
+            LOG.warn("Bad backbone priority for dataset {} is not an integer: {}. Ignore", d.getKey(), priority.getValue());
           }
         }
       }
@@ -80,7 +94,7 @@ public class ClbUsageSource implements UsageSource {
   @Override
   public Iterable<SrcUsage> iterateSource(NubSource source) {
     try {
-      return new ClbUsageIteratorNeo(cfg.clb, source);
+      return new ClbUsageIteratorNeo(clbCfg, source);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

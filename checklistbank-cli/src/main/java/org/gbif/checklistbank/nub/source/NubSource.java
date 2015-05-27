@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
 

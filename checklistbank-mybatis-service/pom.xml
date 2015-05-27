@@ -67,7 +67,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>dwca-reader</artifactId>
+      <artifactId>dwca-io</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>

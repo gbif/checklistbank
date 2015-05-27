@@ -184,6 +184,23 @@ public class NeoMapperTest extends NeoTest {
   }
 
   @Test
+  public void readLists() throws Exception {
+    NeoMapper mapper = NeoMapper.instance();
+    initDb(UUID.randomUUID());
+    final String prop = "listProperty";
+    try (Transaction tx = beginTx()) {
+      Node n = db.createNode();
+
+      assertNull(mapper.readList(n, prop, Integer.class));
+
+      List<Integer> ints = Lists.newArrayList(1,2,3);
+      mapper.storeList(n, prop, ints);
+
+      assertEquals(ints, mapper.readList(n, prop, Integer.class));
+    }
+  }
+
+  @Test
   public void readWriteEnum() throws Exception {
     NeoMapper mapper = NeoMapper.instance();
     initDb(UUID.randomUUID());
