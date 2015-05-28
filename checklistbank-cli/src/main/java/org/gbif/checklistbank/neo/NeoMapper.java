@@ -302,8 +302,8 @@ public class NeoMapper {
         }
       } catch (RuntimeException e) {
         LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
-        addIssue(n, NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
-        addIssue(n, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple parent relations");
       }
 
       try {
@@ -314,7 +314,8 @@ public class NeoMapper {
         }
       } catch (RuntimeException e) {
         LOG.error("Unable to read basionym relation for {} with node {}", u.getScientificName(), n.getId());
-        addIssue(n, NameUsageIssue.ORIGINAL_NAME_NOT_UNIQUE);
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple original name relations");
       }
 
       try {
@@ -328,7 +329,8 @@ public class NeoMapper {
         }
       } catch (RuntimeException e) {
         LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId());
-        addIssue(n, NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple accepted name relations");
       }
 
       return u;

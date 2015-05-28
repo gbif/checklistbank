@@ -462,14 +462,14 @@ public class Normalizer extends NeoRunnable {
             accepted = nodeByCanonical(name);
             if (accepted == null) {
               LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
+              accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
+              setupRelation(accepted);
             }
           }
         } catch (NotUniqueException e) {
           mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
           LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name,
             sciname, taxonID);
-        }
-        if (accepted == null) {
           accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
           setupRelation(accepted);
         }
