@@ -43,6 +43,8 @@ public abstract class NeoRunnable implements Runnable {
   }
 
   protected GraphDatabaseService setupDb() {
+    // we need every commit to be immediately visible
+    neoCfg.batchSize = 1;
     db = neoCfg.newEmbeddedDb(datasetKey);
     parentsTraversal = db.traversalDescription()
       .relationships(RelType.PARENT_OF, Direction.INCOMING)

@@ -901,6 +901,34 @@ public class NormalizerTest extends NeoTest {
 
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-2755
+   */
+  @Test
+  public void testFloraBrazilIncertaeSedis() throws Exception {
+    final UUID datasetKey = datasetKey(18);
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+
+    assertEquals(78, stats.getCount());
+    assertEquals(1, stats.getRoots());
+    assertEquals(3, stats.getDepth());
+    assertEquals(25, stats.getSynonyms());
+    assertEquals(52, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(25, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_PARENT));
+
+    initDb(datasetKey);
+    try (Transaction tx = beginTx()) {
+      // Ceramium rubrum C.Agardh
+      NameUsageContainer cr = getUsageByTaxonId("99937");
+      assertNotNull(cr);
+    }
+
+  }
+
+  /**
    * Tests the simple images media extension
    */
   @Test

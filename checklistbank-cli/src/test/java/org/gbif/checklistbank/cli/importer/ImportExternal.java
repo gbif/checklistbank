@@ -35,9 +35,9 @@ public class ImportExternal {
   public void index(String repo, String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init(repo);
-    download(url);
+//    download(url);
     normalize();
-    sync();
+//    sync();
   }
 
   private void init(String repo) throws IOException {

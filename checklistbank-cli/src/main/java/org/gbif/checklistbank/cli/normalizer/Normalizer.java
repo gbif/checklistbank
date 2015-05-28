@@ -6,11 +6,11 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.NeoRunnable;
 import org.gbif.checklistbank.neo.NotUniqueException;
 import org.gbif.checklistbank.neo.RankedName;
-import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
@@ -39,6 +39,7 @@ import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 import org.parboiled.common.ImmutableList;
 import org.slf4j.Logger;
@@ -104,12 +105,14 @@ public class Normalizer extends NeoRunnable {
     // batch import uses its own batchdb
     batchInsertData();
     // insert regular neo db for further processing
-    setupDb();
-    setupRelations();
-    buildMetricsAndMatchBackbone();
-    tearDownDb();
-
-    LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
+    try {
+      setupDb();
+      setupRelations();
+      buildMetricsAndMatchBackbone();
+    } finally {
+      tearDownDb();
+      LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
+    }
     ignored = meta.getIgnored();
   }
 
@@ -205,8 +208,23 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void assignParent(Node parent, Node child) {
-    parent.createRelationshipTo(child, RelType.PARENT_OF);
-    child.removeLabel(Labels.ROOT);
+    // verify child does not yet have a parent rel!
+    if (hasParentRelation(child, "Ignored other parent "+parent.getId()+" >"+mapper.readScientificName(parent)+"<")) {
+      mapper.addIssue(child, NameUsageIssue.RELATIONSHIP_MISSING);
+    } else {
+      parent.createRelationshipTo(child, RelType.PARENT_OF);
+      child.removeLabel(Labels.ROOT);
+    }
+  }
+
+  private boolean hasParentRelation(Node child, @Nullable String note) {
+    Relationship rel = IteratorUtil.single(child.getRelationships(RelType.PARENT_OF, Direction.INCOMING), null);
+    if (rel != null) {
+      Node p = rel.getStartNode();
+      LOG.warn("Child node {} >{}< already has a parent relationship to node {} >{}< {}", child.getId(), mapper.readScientificName(child), p.getId(), mapper.readScientificName(p), Strings.nullToEmpty(note));
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -218,7 +236,7 @@ public class Normalizer extends NeoRunnable {
    * </ul>
    */
   private void cleanupRelations() {
-    LOG.debug("Cleanup relations ...");
+    LOG.info("Cleanup relations ...");
     // cut synonym cycles
     while (true) {
       try (Transaction tx = db.beginTx()) {
@@ -360,7 +378,6 @@ public class Normalizer extends NeoRunnable {
           while (accIter.hasNext()) {
             Node p = createTaxon(n, Origin.PROPARTE);
             updateProParteSynonym(p, accIter.next(), primaryId);
-            setupRelation(p);
           }
         }
       }
@@ -383,7 +400,7 @@ public class Normalizer extends NeoRunnable {
    * Creates implicit nodes and sets up relations between taxa.
    */
   private void setupRelations() {
-    LOG.debug("Start processing relations ...");
+    LOG.info("Start processing explicit relations ...");
     int counter = 0;
 
     Transaction tx = db.beginTx();
@@ -393,12 +410,11 @@ public class Normalizer extends NeoRunnable {
       // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
       for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
         setupRelation(n);
-
         counter++;
         relationMeter.mark();
-        if (counter % batchSize == 0) {
-          tx = renewTx(tx);
-          LOG.debug("Relations processed for taxa: {}", counter);
+        tx = renewTx(tx);
+        if (counter % 10000 == 0) {
+          LOG.debug("Processed relations for {} nodes", counter);
         }
       }
 
@@ -421,6 +437,7 @@ public class Normalizer extends NeoRunnable {
     final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
     final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
     final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
+
     duplicateProParteSynonyms(n, taxonID);
     boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
     setupParentRel(n, isSynonym, taxonID, sciname, canonical);
@@ -450,7 +467,6 @@ public class Normalizer extends NeoRunnable {
           // is the accepted name also mapped?
           String name = ObjectUtils.defaultIfNull(NeoMapper.value(n, DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
           accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id, "Placeholder for the missing accepted taxonID for synonym " + sciname);
-          setupRelation(accepted);
         }
       }
     } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
@@ -463,7 +479,6 @@ public class Normalizer extends NeoRunnable {
             if (accepted == null) {
               LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
               accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
-              setupRelation(accepted);
             }
           }
         } catch (NotUniqueException e) {
@@ -471,7 +486,6 @@ public class Normalizer extends NeoRunnable {
           LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name,
             sciname, taxonID);
           accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
-          setupRelation(accepted);
         }
       }
     }
@@ -480,7 +494,6 @@ public class Normalizer extends NeoRunnable {
     if (status.isSynonym() && accepted == null) {
       mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_MISSING);
       accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null, "Placeholder for the missing accepted taxon for synonym " + sciname);
-      setupRelation(accepted);
     }
 
     if (accepted != null && !accepted.equals(n)) {
@@ -499,8 +512,7 @@ public class Normalizer extends NeoRunnable {
    * Sets up the parent relations using the parentNameUsage(ID) term values.
    * The denormed, flat classification is used in a next step later.
    */
-  private void setupParentRel(Node n, boolean isSynonym, @Nullable String taxonID, String sciname,
-    String canonical) {
+  private void setupParentRel(Node n, boolean isSynonym, @Nullable String taxonID, String sciname, String canonical) {
     Node parent = null;
     if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsageID)) {
       final String id = NeoMapper.value(n, DwcTerm.parentNameUsageID);
@@ -531,7 +543,9 @@ public class Normalizer extends NeoRunnable {
       }
     }
     if (parent != null && !parent.equals(n)) {
-      parent.createRelationshipTo(n, RelType.PARENT_OF);
+      if (!hasParentRelation(n, "Ignored other parent "+parent.getId()+" >"+mapper.readScientificName(parent)+"<")) {
+        parent.createRelationshipTo(n, RelType.PARENT_OF);
+      }
     } else if (!isSynonym) {
       n.addLabel(Labels.ROOT);
     }

@@ -1,0 +1,5575 @@
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1"
+         xmlns:dc="http://purl.org/dc/terms/"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 http://rs.gbif.org/schema/eml-gbif-profile/1.0.2/eml.xsd"
+         packageId="aacd816d-662c-49d2-ad1a-97e66e2a2908/v391" system="http://gbif.org" scope="system"
+         xml:lang="por">
+
+<dataset>
+  <alternateIdentifier>aacd816d-662c-49d2-ad1a-97e66e2a2908</alternateIdentifier>
+  <alternateIdentifier>http://ipt.jbrj.gov.br/ipt/resource.do?r=lista_especies_flora_brasil</alternateIdentifier>
+  <title xml:lang="por">Lista de Espécies da Flora do Brasil</title>
+<creator>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>Dalcin</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Coordenador do Núcleo de Computação Científica</positionName>
+    <address>
+        <deliveryPoint>Rua Pacheco Leão 915 - sala 203</deliveryPoint>
+        <city>Rio de Janeiro</city>
+        <administrativeArea>RJ</administrativeArea>
+        <postalCode>22460-030</postalCode>
+        <country>BR</country>
+    </address>
+    <phone>+552132042116</phone>
+    <electronicMailAddress>edalcin@jbrj.gov.br</electronicMailAddress>
+</creator>
+<metadataProvider>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>Dalcin</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Coordenador do Núcleo de Computação Científica</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <electronicMailAddress>vitor@nccg.jbrj.org</electronicMailAddress>
+</metadataProvider>
+    <associatedParty>
+    <individualName>
+        <givenName>Admir</givenName>
+      <surName>Giachini</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Adriana</givenName>
+      <surName>de Mello Gugliotta</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Adriana</givenName>
+      <surName>Lobão</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Espírito Santo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Adriene</givenName>
+      <surName>Mayra da Silva Soares</surName>
+    </individualName>
+    <organizationName>Museu Paraense Emílio Goeldi</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alain</givenName>
+      <surName>Chautems</surName>
+    </individualName>
+    <organizationName>Conservatoire et Jardin botaniques de la Ville de Genève</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alessandra</givenName>
+      <surName>dos Santos</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alessandro</givenName>
+      <surName>Rapini</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alexa</givenName>
+      <surName>Araujo de Oliveira Paes Coelho</surName>
+    </individualName>
+    <organizationName>Universidade do Estado da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alexandre</givenName>
+      <surName>Quinet</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alexandre</givenName>
+      <surName>Indriunas</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Alexandre</givenName>
+      <surName>Salino</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Allan</givenName>
+      <surName>Carlos Pscheidt</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica - São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Allyne</givenName>
+      <surName>Christina Gomes Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana</givenName>
+      <surName>M.G.A. Tozzi</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana</givenName>
+      <surName>Zanin</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Carolina</givenName>
+      <surName>Mezzonato</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Claudia</givenName>
+      <surName>Araújo</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Flora</givenName>
+      <surName>de Novaes Pereira</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Luiza</givenName>
+      <surName>Andrade Côrtes</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Maria</givenName>
+      <surName>Giulietti</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Odete</givenName>
+      <surName>Santos Vieira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Londrina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Paula</givenName>
+      <surName>Santos-Gonçalves</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Viçosa</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ana Paula</givenName>
+      <surName>Fortuna Perez</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Ouro Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Anderson</givenName>
+      <surName>Ferreira Pinto Machado</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Anderson</givenName>
+      <surName>Alves-Araujo</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Espírito Santo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>André</givenName>
+      <surName>Olmos Simões</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>André</givenName>
+      <surName>Gil</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>André</givenName>
+      <surName>Laurênio de Melo</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco - UAST</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andre Luiz</givenName>
+      <surName>C. M. de A. Santiago</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco - UAST</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>André Luiz</givenName>
+      <surName>Gaglioti</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andre Marcio</givenName>
+      <surName>Araujo Amorim</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Santa Cruz</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andrea</givenName>
+      <surName>Costa</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andrea</givenName>
+      <surName>Tucci</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andrea</givenName>
+      <surName>Onofre Araujo</surName>
+    </individualName>
+    <organizationName>Universidade Federal do ABC</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andréa</givenName>
+      <surName>de Araújo</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Maranhão</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andréa</givenName>
+      <surName>Pozetti Spina</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas, UNICAMP</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andreia</givenName>
+      <surName>Silva Flores</surName>
+    </individualName>
+    <organizationName>Fundação Estadual do Meio Ambiente, Ciência e Tecnologia de Roraima</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Andrew</givenName>
+      <surName>Henderson</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Angela</givenName>
+      <surName>Borges Martins</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Angela</givenName>
+      <surName>M.S.F. Vaz</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro/IBGE</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Angela Lucia</givenName>
+      <surName>Bagnatori Sartori</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Mato Grosso do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Angelo</givenName>
+      <surName>Schneider</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Aníbal</givenName>
+      <surName>Alves de Carvalho Jr.</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Anna Carolina</givenName>
+      <surName>Mendonça Pereira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Antônio</givenName>
+      <surName>Elielson S. Rocha</surName>
+    </individualName>
+    <organizationName>Museu Paraense Emilio Goeldi</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ariane</givenName>
+      <surName>Luna Peixoto</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ariclenes</givenName>
+      <surName>de Almeida Mélo Araújo</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Aristônio</givenName>
+      <surName>Magalhães Teles</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Arline</givenName>
+      <surName>Souza de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Armando</givenName>
+      <surName>Carlos Cervi</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Augusto</givenName>
+      <surName>César Pessôa Santiago</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Aurelio</givenName>
+      <surName>Fajar</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Benjamin</givenName>
+      <surName>M. Torke</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Benoit</givenName>
+      <surName>Loeuille</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bente</givenName>
+      <surName>B. Klitgaard</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Berenice</givenName>
+      <surName>Chiavegatto</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Juiz de Fora</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Beryl</givenName>
+      <surName>Simpson</surName>
+    </individualName>
+    <organizationName>University of Texas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bruno</givenName>
+      <surName>Machado Teles Walter</surName>
+    </individualName>
+    <organizationName>EMBRAPA/CENARGEN</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bruno</givenName>
+      <surName>Amorim</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bruno</givenName>
+      <surName>Tomio Goto</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Norte</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bruno</givenName>
+      <surName>Paixão-Souza</surName>
+    </individualName>
+    <organizationName>Museu Nacional UFRJ</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Bruno</givenName>
+      <surName>Wallnöfer</surName>
+    </individualName>
+    <organizationName>Naturhistorisches Museum</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Caetano</givenName>
+      <surName>Trancoso Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carla</givenName>
+      <surName>Rejane Sousa de Lira</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carla</givenName>
+      <surName>Poleselli Bruniera</surName>
+    </individualName>
+    <organizationName>Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carla Gabriela</givenName>
+      <surName>Vargas Ramos</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carlos</givenName>
+      <surName>Wallace Nascimento Moura</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carlos Alonso</givenName>
+      <surName>Maya Lastra</surName>
+    </individualName>
+    <organizationName>Universidad del Quindío</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>CO</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carlos Eduardo</givenName>
+      <surName>de Mattos Bicudo</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carmen Lidia</givenName>
+      <surName>Amorim Pires-Zottarelli</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carmen Sílvia</givenName>
+      <surName>Zickel</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Caroline</givenName>
+      <surName>Andrino</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Carolyn</givenName>
+      <surName>Proença</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cássia Mônica</givenName>
+      <surName>Sakuragui</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cassiano</givenName>
+      <surName>Aimberê Dorneles Welker</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cecilia</givenName>
+      <surName>Ezcurra</surName>
+    </individualName>
+    <organizationName>Universidad Nacional del Comahue</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cecilia</givenName>
+      <surName>C. Xifreda</surName>
+    </individualName>
+    <organizationName>Universidad Nacional de La Plata</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Charlotte</givenName>
+      <surName>Taylor</surName>
+    </individualName>
+    <organizationName>Missouri Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Christian</givenName>
+      <surName>Linck da Luz</surName>
+    </individualName>
+    <organizationName>ULBRA</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cíntia</givenName>
+      <surName>Kameyama</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cíntia Luiza</givenName>
+      <surName>da Silva Luz</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ciro</givenName>
+      <surName>Zanini Branco</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Paulista</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Clarisse</givenName>
+      <surName>Odebrecht</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Claudenir</givenName>
+      <surName>Simões Caires</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cláudia</givenName>
+      <surName>Petean Bove</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cláudia Elena</givenName>
+      <surName>Carneiro</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Claudine</givenName>
+      <surName>M. Mynssen</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Claudio</givenName>
+      <surName>Nicoletti de Fraga</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cláudio</givenName>
+      <surName>Augusto Mondin</surName>
+    </individualName>
+    <organizationName>Pontifícia Universidade Católica do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Clenia</givenName>
+      <surName>Pessoa</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Viçosa</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cleto</givenName>
+      <surName>Kaveski Peres</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Integração Latino-Americana (UNILA)</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cyl Farney</givenName>
+      <surName>Catarino de Sá</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Cynthia</givenName>
+      <surName>Sothers</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Daniela</givenName>
+      <surName>Zappi</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Daniela</givenName>
+      <surName>Santos Carneiro-Torres</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Sudoeste da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Daniela</givenName>
+      <surName>Sampaio</surName>
+    </individualName>
+    <organizationName>Universidade Presbiteriana Mackenzie</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Daniela</givenName>
+      <surName>Cristina Imig</surName>
+    </individualName>
+    <organizationName>Centro Universitário Uniandrade</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Daniele</givenName>
+      <surName>Monteiro</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Juiz de Fora</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Dartanhã</givenName>
+      <surName>J. Soares</surName>
+    </individualName>
+    <organizationName>EMBRAPA / Algodão</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Debora</givenName>
+      <surName>Medeiros</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Deisy</givenName>
+      <surName>Pereira Saraiva</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Denilson</givenName>
+      <surName>Fernandes Peralta</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Denise</givenName>
+      <surName>Pinheiro da Costa</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Denise</givenName>
+      <surName>Monte Braz</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Diego</givenName>
+      <surName>Knop Henriques</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Dieter</givenName>
+      <surName>Wasshausen</surName>
+    </individualName>
+    <organizationName>Smithsonian Institution</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Diogo</givenName>
+      <surName>Araújo</surName>
+    </individualName>
+    <organizationName>UNESP Rio Claro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Domingos</givenName>
+      <surName>B.O.S. Cardoso</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Douglas</givenName>
+      <surName>C. Daly</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Edlley</givenName>
+      <surName>Max Pessoa</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>Lleras</surName>
+    </individualName>
+    <organizationName>EMBRAPA/SCT</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>Bezerra de Almeida Jr.</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Maranhão</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>da Silva Leal</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eduardo</givenName>
+      <surName>Gomes Gonçalves</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Efigênia</givenName>
+      <surName>de Melo</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eliana</givenName>
+      <surName>Ramos</surName>
+    </individualName>
+    <organizationName>Instituto Agronômico de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eliane</givenName>
+      <surName>de Lima Jacques</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Élide</givenName>
+      <surName>P. Santos</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elisandro</givenName>
+      <surName>Ricardo Drechsler-Santos</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elisete</givenName>
+      <surName>Araújo da Anunciação</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elizabeth</givenName>
+      <surName>Woodgyer</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elnatan</givenName>
+      <surName>Bezerra de Souza</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Vale do Acaraú</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elsa</givenName>
+      <surName>Cabral</surName>
+    </individualName>
+    <organizationName>Instituto de Botánica del Nordeste</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Elsie</givenName>
+      <surName>Franklin Guimarães</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Élvia</givenName>
+      <surName>Rodrigues de Souza</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Emanuel</givenName>
+      <surName>Bruno Neuhaus</surName>
+    </individualName>
+    <organizationName>Universidade do Vale do Rio dos Sinos</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Enide</givenName>
+      <surName>Eskinazi-Leça</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Enrique</givenName>
+      <surName>Forero</surName>
+    </individualName>
+    <organizationName>Universidad Nacional de CO</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>CO</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eric</givenName>
+      <surName>Koiti Okiyama Hattori</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Uberlândia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Erika</givenName>
+      <surName>von Sohsten Medeiros</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Erika</givenName>
+      <surName>Ramos Martins</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eve</givenName>
+      <surName>Lucas</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Evelin</givenName>
+      <surName>Andrade Manoel</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Eveline</givenName>
+      <surName>Aquino</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fabián</givenName>
+      <surName>A. Michelangeli</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fabiana Luiza</givenName>
+      <surName>Ranzato Filardi</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fabiane</givenName>
+      <surName>Nepomuceno Costa</surName>
+    </individualName>
+    <organizationName>Universidade Federal dos Vales do Jequitinhoha e Mucuri</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fábio</givenName>
+      <surName>de Barros</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fabíola</givenName>
+      <surName>Feres</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fátima Otavina</givenName>
+      <surName>de Souza-Buturi</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fatima Regina</givenName>
+      <surName>Gonçalves Salimena</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Juiz de Fora</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Felipe</givenName>
+      <surName>Bastos</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Felipe</givenName>
+      <surName>Fajardo Villela Antolin Barberena</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Felipe</givenName>
+      <surName>Wartchow</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fernanda</givenName>
+      <surName>Karstedt</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fernanda</givenName>
+      <surName>dos Santos Silva</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fernando</givenName>
+      <surName>Bittencourt de Matos</surName>
+    </individualName>
+    <organizationName>Centro de Pesquisas do Cacau</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fernando</givenName>
+      <surName>Régis Di Maio</surName>
+    </individualName>
+    <organizationName>Universidade Estácio de Sá</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fernando</givenName>
+      <surName>Rivadavia</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Fiorella</givenName>
+      <surName>Mazine</surName>
+    </individualName>
+    <organizationName>Universidade Federal de São Carlos</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Flávia</givenName>
+      <surName>C.P. Garcia</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Viçosa</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Flávio</givenName>
+      <surName>Macedo Alves</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Flávio</givenName>
+      <surName>França</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Franklin</givenName>
+      <surName>Vinhos</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gabriela</givenName>
+      <surName>Hoff Silveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Genilson</givenName>
+      <surName>Alves dos Reis e Silva</surName>
+    </individualName>
+    <organizationName>Instituto Federal de Educação Ciência e Tecnologia do Piauí</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Genise</givenName>
+      <surName>V. Somner</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Georgea</givenName>
+      <surName>Santos Nogueira Melo</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gerleni</givenName>
+      <surName>Esteves</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Géssica</givenName>
+      <surName>Anastacia Gomes da Costa</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ghillean</givenName>
+      <surName>T. Prance</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gisela</givenName>
+      <surName>Pelissari</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gisela</givenName>
+      <surName>Sancho</surName>
+    </individualName>
+    <organizationName>Universidad Nacional de La Plata</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gisele</givenName>
+      <surName>Oliveira Silva</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gislayne Cristina</givenName>
+      <surName>Palmeira Borges</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gracineide</givenName>
+      <surName>Almeida</surName>
+    </individualName>
+    <organizationName>Universidade do Estado da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Greta</givenName>
+      <surName>Aline Dettke</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gustavo</givenName>
+      <surName>Martinelli</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gustavo</givenName>
+      <surName>Heiden</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Gwilym</givenName>
+      <surName>P. Lewis</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Haroldo</givenName>
+      <surName>Cavalcante de Lima</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Heimo</givenName>
+      <surName>Rainer</surName>
+    </individualName>
+    <organizationName>University of Vienna</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Herison</givenName>
+      <surName>Medeiros de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Acre</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Hilda</givenName>
+      <surName>M. Longhi-Wagner</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Hiltje</givenName>
+      <surName>Maas-van de Kamer</surName>
+    </individualName>
+    <organizationName>Nationaal Herbarium Nederland</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ina</givenName>
+      <surName>Nogueira</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Inês</givenName>
+      <surName>Cordeiro</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ingrid</givenName>
+      <surName>Koch</surName>
+    </individualName>
+    <organizationName>Universidade Federal de São Carlos</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Itamar</givenName>
+      <surName>Barbosa de Lima</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Iuri</givenName>
+      <surName>Goulart Baseia</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Norte</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Iva</givenName>
+      <surName>Carneiro Leão Barros</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ivania</givenName>
+      <surName>Batista de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ivanilza</givenName>
+      <surName>Moreira de Andrade</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Piauí</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jadergudson</givenName>
+      <surName>Pereira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Santa Cruz</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jadson José</givenName>
+      <surName>Souza de Oliveira</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica - São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jefferson</givenName>
+      <surName>Prado</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jefferson</givenName>
+      <surName>Maciel</surName>
+    </individualName>
+    <organizationName>Jardim Botânico de Recife</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jimi</givenName>
+      <surName>Nakajima</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Uberlândia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Batista</givenName>
+      <surName>Baitello</surName>
+    </individualName>
+    <organizationName>Instituto Florestal de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Bernardo</givenName>
+      <surName>de Azevedo Bringel Jr.</surName>
+    </individualName>
+    <organizationName>Jardim Botânico de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Luiz</givenName>
+      <surName>Mazza Aranha Filho</surName>
+    </individualName>
+    <organizationName>Secretaria Municipal de Meio Ambiente, Mariana-MG, Universidade Federal de Ouro Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Marcelo</givenName>
+      <surName>Alvarenga Braga</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Paulo</givenName>
+      <surName>Santos Condack</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Renato</givenName>
+      <surName>Stehmann</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>João Ricardo</givenName>
+      <surName>Vieira Iganci</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Joel</givenName>
+      <surName>Campos de Paula</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>John</givenName>
+      <surName>Mickel</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jomar</givenName>
+      <surName>Gomes Jardim</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Norte</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jorge Pedro</givenName>
+      <surName>Pereira Carauta</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Josafá</givenName>
+      <surName>Carlos de Siqueira</surName>
+    </individualName>
+    <organizationName>Pontifícia Universidade Católica do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jose</givenName>
+      <surName>F. M. Valls</surName>
+    </individualName>
+    <organizationName>EMBRAPA/CENARGEN</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José</givenName>
+      <surName>Martins Fernandes</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Viçosa</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José</givenName>
+      <surName>Floriano Barêa Pastore</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Eduardo</givenName>
+      <surName>Meireles</surName>
+    </individualName>
+    <organizationName>Duke University</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Eduardo</givenName>
+      <surName>Lahoz da Silva Ribeiro</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Londrina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Fernando</givenName>
+      <surName>A. Baumgratz</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Iranildo</givenName>
+      <surName>Miranda de Melo</surName>
+    </individualName>
+    <organizationName>Universidade Estadual da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Ivanildo</givenName>
+      <surName>de Souza</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Luis</givenName>
+      <surName>Bezerra</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Santa Cruz</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Marcos</givenName>
+      <surName>de Castro Nunes</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Maria</givenName>
+      <surName>Cardiel</surName>
+    </individualName>
+    <organizationName>Universidad Autónoma de Madrid</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>José Rubens</givenName>
+      <surName>Pirani</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jovani</givenName>
+      <surName>Bernardino Pereira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juçara</givenName>
+      <surName>Bordin</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Jucicleide</givenName>
+      <surName>Cabral de Lima</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>Paula-Souza</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo - ESALQ</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>dos Santos Guedes</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>Amaral Oliveira</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>Lovo</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>G. Rando</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>Souza Marques</surName>
+    </individualName>
+    <organizationName>Instituto Agronômico de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Juliana</givenName>
+      <surName>Silva dos Santos</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Julie</givenName>
+      <surName>H. A. Dutilh</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Julio Antonio</givenName>
+      <surName>Lombardi</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Paulista - Rio Claro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Karina</givenName>
+      <surName>Fidanza Rodrigues Bernardo</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Kikyo</givenName>
+      <surName>Yamamoto</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Laise</givenName>
+      <surName>de Holanda Cavalcanti Andrade</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lana</givenName>
+      <surName>da Silva Sylvestre</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lara</givenName>
+      <surName>Regina Parra</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Larissa</givenName>
+      <surName>Cavalheiro da Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Mato Grosso</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Larry</givenName>
+      <surName>Noblick</surName>
+    </individualName>
+    <organizationName>Montgomery Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Laura Cristina</givenName>
+      <surName>Pires Lima</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leandro</givenName>
+      <surName>Assis</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leandro</givenName>
+      <surName>Cabanez Ferreira</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leandro</givenName>
+      <surName>Jorge Telles Cardoso</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leandro</givenName>
+      <surName>Giacomin</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leandro</givenName>
+      <surName>Cardoso Pederneiras</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leila</givenName>
+      <surName>Carvalho da Costa</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leila</givenName>
+      <surName>Macias</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pelotas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leonardo</givenName>
+      <surName>Biral</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Paulista - Rio Claro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leonor</givenName>
+      <surName>Costa Maia</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Leticia</givenName>
+      <surName>Ribes de Lima</surName>
+    </individualName>
+    <organizationName>Universidade Federal de São Carlos</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lídia</givenName>
+      <surName>Araujo Neta</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lidyanne</givenName>
+      <surName>Yuriko Saleme Aona</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Recôncavo da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ligia</givenName>
+      <surName>Queiroz Matias</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Ceará</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lilian</givenName>
+      <surName>Auler Mentz</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lilian</givenName>
+      <surName>Eggers</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lívia</givenName>
+      <surName>Echternacht</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lívia</givenName>
+      <surName>Godinho Temponi</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Oeste do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luana </givenName>
+      <surName>Silva BraUK Calazans</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lucas</givenName>
+      <surName>Almeida Vicente de Barros</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Estado do Rio de Janeiro, UNIRIO</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luci</givenName>
+      <surName>Senna Valle</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lúcia</givenName>
+      <surName>G. Lohmann</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Lúcia</givenName>
+      <surName>Rossi</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luciana</givenName>
+      <surName>Cardoso</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luciana</givenName>
+      <surName>Santos Dias de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luciana</givenName>
+      <surName>H. Yoshino Kamino</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luciano</givenName>
+      <surName>Paganucci de Queiroz</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luis Carlos</givenName>
+      <surName>Bernacci</surName>
+    </individualName>
+    <organizationName>Instituto Agronômico de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luís Fernando</givenName>
+      <surName>Pascholati Gusmão</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luís Fernando</givenName>
+      <surName>Paiva Lima</surName>
+    </individualName>
+    <organizationName>Universidade da Região da Campanha</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luisa</givenName>
+      <surName>Senna</surName>
+    </individualName>
+    <organizationName>Instituto Federal da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luiz José</givenName>
+      <surName>Soares Pinto</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Luiza</givenName>
+      <surName>Sumiko</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maira</givenName>
+      <surName>Cortellini Abrahão</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mara</givenName>
+      <surName>Rejane Ritter</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mara</givenName>
+      <surName>Lisiane Tissot-Squalli</surName>
+    </individualName>
+    <organizationName>Universidade Regional do Noroeste do Estado do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mara</givenName>
+      <surName>Angelina Galvão Magenta</surName>
+    </individualName>
+    <organizationName>Universidade Santa Cecília</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marccus Vinicius</givenName>
+      <surName>da SilvaAlves</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcela</givenName>
+      <surName>Eugenia da Silva Cáceres</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Sergipe</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcelo</givenName>
+      <surName>Reginato</surName>
+    </individualName>
+    <organizationName>City University of New York</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcelo</givenName>
+      <surName>Souza</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcelo</givenName>
+      <surName>Monge</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcelo</givenName>
+      <surName>Trovo</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcelo</givenName>
+      <surName>Dias Machado Vianna Filho</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcia</givenName>
+      <surName>Creed</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Márcia</givenName>
+      <surName>Carla Ribeiro da Silva</surName>
+    </individualName>
+    <organizationName>Instituto Nacional de Pesquisas da Amazônia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Márcia</givenName>
+      <surName>Vignoli-Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Ciências da Saúde de Porto Alegre</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marco</givenName>
+      <surName>Octávio de Oliveira Pellegrini</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcos</givenName>
+      <surName>Silveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Acre</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcos</givenName>
+      <surName>Sobral</surName>
+    </individualName>
+    <organizationName>Universidade Federal de São João del Rei</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcos</givenName>
+      <surName>José da Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcos</givenName>
+      <surName>Honorato da Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcos</givenName>
+      <surName>José da Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marcus</givenName>
+      <surName>Alberto Nadruz Coelho</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Margareth</givenName>
+      <surName>Ferreira de Sales</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria</givenName>
+      <surName>Mulgura</surName>
+    </individualName>
+    <organizationName>Instituto Darwinion</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Alice</givenName>
+      <surName>Neves</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Angélica</givenName>
+      <surName>Kieling-Rúbio</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Beatriz</givenName>
+      <surName>Barbosa de Barros Barreto</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Beatriz</givenName>
+      <surName>Rossi Caruzo</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Candida</givenName>
+      <surName>Henrique Mamede</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Carolina</givenName>
+      <surName>Henriques</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Carolina</givenName>
+      <surName>de Abreu</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria da Glória</givenName>
+      <surName>Gonçalves da Silva Cunha</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria das Graças</givenName>
+      <surName>Lapa Wanderley</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria de Fátima</givenName>
+      <surName>Freitas</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria de Fátima</givenName>
+      <surName>de Oliveira Carvalho</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria de Fátima</givenName>
+      <surName>Agra</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria de Lourdes</givenName>
+      <surName>Abruzzi A de Oliveira</surName>
+    </individualName>
+    <organizationName>Fundação Zoobotânica do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria de Lourdes</givenName>
+      <surName>Soares</surName>
+    </individualName>
+    <organizationName>Instituto Nacional de Pesquisas da Amazônia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria do Carmo</givenName>
+      <surName>Estanislau do Amaral</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria do Céo</givenName>
+      <surName>R. Pessoa</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria do Socorro</givenName>
+      <surName>Pereira</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Campina Grande</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Fernanda</givenName>
+      <surName>Calió</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Iracema</givenName>
+      <surName>Bezerra Loiola</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Ceará</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Leonor</givenName>
+      <surName>D&apos;El Rei Souza</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Luiza</givenName>
+      <surName>Silveira de Carvalho</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>María Mercedes</givenName>
+      <surName>Arbo</surName>
+    </individualName>
+    <organizationName>Instituto de Botánica del Nordeste</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>María Natividad</givenName>
+      <surName>Sánchez de Stapf</surName>
+    </individualName>
+    <organizationName>Smithsonian Tropical Research Institute</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>PA</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Nazaré C.</givenName>
+      <surName>Bastos</surName>
+    </individualName>
+    <organizationName>Museu Goeldi</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Raquel</givenName>
+      <surName>Cota</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Regina</givenName>
+      <surName>Barbosa</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Salete</givenName>
+      <surName>Marchioretto</surName>
+    </individualName>
+    <organizationName>Universidade do Vale do Rio dos Sinos</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Silvia</givenName>
+      <surName>Ferrucci</surName>
+    </individualName>
+    <organizationName>Instituto de Botánica del Nordeste</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maria Teresa</givenName>
+      <surName>Menezes Széchy</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mariana</givenName>
+      <surName>Machado Saavedra</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mariana</givenName>
+      <surName>Cabral de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mariângela</givenName>
+      <surName>Menezes</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro - Museu Nacional</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marianna</givenName>
+      <surName>Rodrigues Santos</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mariê</givenName>
+      <surName>Mello Cabezudo</surName>
+    </individualName>
+    <organizationName>Fundação Zoobotânica do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marilene</givenName>
+      <surName>Felipe Santiago</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marília Cristina</givenName>
+      <surName>Duarte</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marina</givenName>
+      <surName>Capelari</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marina</givenName>
+      <surName>Vaz Stefano</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marli</givenName>
+      <surName>Pires Morim</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marli</givenName>
+      <surName>Bergesh</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marlon</givenName>
+      <surName>Machado</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marta</givenName>
+      <surName>Camargo de Assis</surName>
+    </individualName>
+    <organizationName>EMBRAPA</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Marta</givenName>
+      <surName>Dias Moraes</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Acre</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Massimiliano</givenName>
+      <surName>Dematteis</surName>
+    </individualName>
+    <organizationName>Instituto de Botánica del Nordeste</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Massimo</givenName>
+      <surName>G. Bovini</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maurício</givenName>
+      <surName>Takashi Coutinho Watanabe</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Maximilian</givenName>
+      <surName>Weigend</surName>
+    </individualName>
+    <organizationName>Institut für Biologie - Systematische Botanik und Pflanzengeographie, Freie Universität</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mayara</givenName>
+      <surName>Pastore</surName>
+    </individualName>
+    <organizationName>Instituto de Botanica de Sao Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Melissa</givenName>
+      <surName>Cristina Weis Jaeger</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Michaele</givenName>
+      <surName>Alvim Milward de Azevedo</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Espírito Santo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Michel</givenName>
+      <surName>João Ferreira Barros</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Micheline</givenName>
+      <surName>Carvalho-Silva</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mike</givenName>
+      <surName>Hopkins</surName>
+    </individualName>
+    <organizationName>Instituto Nacional de Pesquisas da Amazônia</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Milton</givenName>
+      <surName>Groppo</surName>
+    </individualName>
+    <organizationName>Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mizué</givenName>
+      <surName>Kirizawa</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Mutue</givenName>
+      <surName>Toyota Fujii</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nadia</givenName>
+      <surName>Roque</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nádia</givenName>
+      <surName>Chukr</surName>
+    </individualName>
+    <organizationName>Parque Municipal Teresa Maia</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nancy</givenName>
+      <surName>Hensold</surName>
+    </individualName>
+    <organizationName>Field Museum</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nara</givenName>
+      <surName>Furtado de Oliveira Mota</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Narcísio</givenName>
+      <surName>Costa Bigio</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Rondônia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nataly</givenName>
+      <surName>O&apos;Leary</surName>
+    </individualName>
+    <organizationName>Instituto Darwinion</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nathália</givenName>
+      <surName>de Paiva Krauss Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nathan</givenName>
+      <surName>P. Smith</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nelson</givenName>
+      <surName>Menolli Junior</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Neusa</givenName>
+      <surName>Taroda Ranga</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Paulista - São José do Rio Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nigel</givenName>
+      <surName>Taylor</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Nilda</givenName>
+      <surName>Marquete</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Norma</givenName>
+      <surName>Catarina Bueno</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Oeste do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Orlando</givenName>
+      <surName>Necchi Junior</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Otávio Luis</givenName>
+      <surName>Marques da Silva</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paul</givenName>
+      <surName>E. Berry</surName>
+    </individualName>
+    <organizationName>University of Michigan</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paul</givenName>
+      <surName>Hiepko</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paul</givenName>
+      <surName>Maas</surName>
+    </individualName>
+    <organizationName>Nationaal Herbarium Nederland</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paula</givenName>
+      <surName>Leitman</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paulo</givenName>
+      <surName>H. Labiak</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paulo</givenName>
+      <surName>Takeo Sano</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paulo</givenName>
+      <surName>G. Windisch</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paulo Eduardo</givenName>
+      <surName>Aguiar Saraiva Camara</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Paulo José</givenName>
+      <surName>F. Guimarães</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro</givenName>
+      <surName>Acevedo Rodríguez</surName>
+    </individualName>
+    <organizationName>Smithsonian Institution</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro</givenName>
+      <surName>Fiaschi</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro</givenName>
+      <surName>L. Viana</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro</givenName>
+      <surName>Bond Schwartsburd</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Viçosa</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro</givenName>
+      <surName>Germano Filho</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Pedro Luís</givenName>
+      <surName>Rodrigues de Moraes</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Peter</givenName>
+      <surName>W. Fritsch</surName>
+    </individualName>
+    <organizationName>California Academy of Sciences</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Polyana</givenName>
+      <surName>Noronha Soares</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Uberlândia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Priscila</givenName>
+      <surName>Sanjuan de Medeiros</surName>
+    </individualName>
+    <organizationName>Museu Paraense Emílio Goeldi</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Priscila</givenName>
+      <surName>P.A. Ferreira</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rafael</givenName>
+      <surName>Trevisan</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rafael</givenName>
+      <surName>Barbosa Pinto</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas (UNICAMP)</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rafael Augusto</givenName>
+      <surName>Xavier Borges</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rafaela</givenName>
+      <surName>Campostrini Forzza</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Raquel</givenName>
+      <surName>Fernandes Monteiro</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Raquel</givenName>
+      <surName>Ludtke</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pelotas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Raul</givenName>
+      <surName>Gutierrez</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Raymond</givenName>
+      <surName>Harley</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Regina</givenName>
+      <surName>Y. Hirai</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Regina</givenName>
+      <surName>T. Shirasuna</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Regina</givenName>
+      <surName>C. V. Martins da Silva</surName>
+    </individualName>
+    <organizationName>Embrapa/CPATU</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Regina Célia</givenName>
+      <surName>de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Regina Helena</givenName>
+      <surName>Potsch Andreata</surName>
+    </individualName>
+    <organizationName>Universidade Santa Úrsula</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renata</givenName>
+      <surName>Moura de Liro</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Bahia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renata</givenName>
+      <surName>Sebastiani</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renata</givenName>
+      <surName>C. Martins</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renata</givenName>
+      <surName>Souza de Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renato</givenName>
+      <surName>Goldenberg</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renato</givenName>
+      <surName>de Mello-Silva</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Renée</givenName>
+      <surName>H. Fortunato</surName>
+    </individualName>
+    <organizationName>Instituto de Recursos Biológicos CIRN-INTA</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Reyjane Patricia</givenName>
+      <surName>Oliveira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ricarda</givenName>
+      <surName>G. Riina</surName>
+    </individualName>
+    <organizationName>Real Jardín Botánico, Madrid</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ricardo</givenName>
+      <surName>Secco</surName>
+    </individualName>
+    <organizationName>Museu Paraense Emilio Goeldi</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ricardo</givenName>
+      <surName>Couto</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ricardo</givenName>
+      <surName>Kriebel</surName>
+    </individualName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rita</givenName>
+      <surName>Baltazar de Lima</surName>
+    </individualName>
+    <organizationName>Universidade Federal da Paraíba</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Roberta</givenName>
+      <surName>Gomes Chacon</surName>
+    </individualName>
+    <organizationName>Jardim Botânico de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Roberto</givenName>
+      <surName>Manuel Salas</surName>
+    </individualName>
+    <organizationName>Instituto de Botánica del Nordeste</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>AR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodolfo</givenName>
+      <surName>Carneiro Sodré</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodrigo</givenName>
+      <surName>Schütz Rodrigues</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Roraima</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodrigo</givenName>
+      <surName>Sampaio Rodrigues</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodrigo</givenName>
+      <surName>Duno De Stefano</surName>
+    </individualName>
+    <organizationName>Centro de Investigación Cinetífica de Yucatán</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodrigo Augusto</givenName>
+      <surName>Camargo</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rodrigo Augusto</givenName>
+      <surName>Santinelo Pereira</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Ronaldo</givenName>
+      <surName>Marquete</surName>
+    </individualName>
+    <organizationName>Instituto Brasileiro de Geografia e Estatística / Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rosa Mara</givenName>
+      <surName>Borges da Silveira</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rosana</givenName>
+      <surName>Romero</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Uberlândia</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rosana</givenName>
+      <surName>Conrado Lopes</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rosângela</givenName>
+      <surName>Simão-Bianchini</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Roseli</givenName>
+      <surName>B. Torres</surName>
+    </individualName>
+    <organizationName>Instituto Agronômico de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Roseli</givenName>
+      <surName>Lopes da Costa Bortoluzzi</surName>
+    </individualName>
+    <organizationName>Universidade do Estado de Santa Catarina - CAV</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rubens</givenName>
+      <surName>Teixeira de Queiroz</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Rubens Luiz</givenName>
+      <surName>Gayoso Coelho</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Salomé</givenName>
+      <surName>Urrea-Valencia</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Catarina</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Samir</givenName>
+      <surName>Khader</surName>
+    </individualName>
+    <organizationName>Universidade Estácio de Sá</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sandra Maria</givenName>
+      <surName>Alves-da-Silva</surName>
+    </individualName>
+    <organizationName>Fundação Zoobotânica do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sarah Maria</givenName>
+      <surName>Athiê Souza</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Scott</givenName>
+      <surName>A. Mori</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sérgio</givenName>
+      <surName>Romaniuc Neto</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sheila</givenName>
+      <surName>R. Profice</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Shirley</givenName>
+      <surName>Graham</surName>
+    </individualName>
+    <organizationName>Missouri Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Silvana</givenName>
+      <surName>C. Ferreira</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Silvana Aparecida</givenName>
+      <surName>Pires de Godoy</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Silvia</givenName>
+      <surName>T. S. Miotto</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Silvia Maria</givenName>
+      <surName>Pita de Beauclair Guimarães</surName>
+    </individualName>
+    <organizationName>Instituto de Botânica</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Simon</givenName>
+      <surName>Mayo</surName>
+    </individualName>
+    <organizationName>Royal Botanic Gardens, Kew</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sonia Maria</givenName>
+      <surName>Barreto Pereira</surName>
+    </individualName>
+    <organizationName>Universidade Federal Rural de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Sonia Marisa</givenName>
+      <surName>Hefler</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Taciana</givenName>
+      <surName>Barbosa Cavalcanti</surName>
+    </individualName>
+    <organizationName>EMBRAPA/CENARGEN</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Tania</givenName>
+      <surName>Luís Rodrigues de Moraes</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Tânia Maria</givenName>
+      <surName>de Moura</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Tarciso</givenName>
+      <surName>S. Filgueiras</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Tatiana</givenName>
+      <surName>Tavares Carrijo</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Tatiana</givenName>
+      <surName>B. Gibertoni</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Teonildes</givenName>
+      <surName>Sacramento Nunes</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Feira de Santana</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Thais</givenName>
+      <surName>Elias Almeida</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Minas Gerais</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Thais</givenName>
+      <surName>Scotti do Canto Dorow</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Santa Maria</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Thaisa</givenName>
+      <surName>Vilar</surName>
+    </individualName>
+    <organizationName>Universidade de Brasília</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Thamis</givenName>
+      <surName>Meurer</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Oeste do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Toby</givenName>
+      <surName>Pennington</surName>
+    </individualName>
+    <organizationName>Royal Botanic Garden Edinburgh</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>GB</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vagner</givenName>
+      <surName>Gularte Cortez</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Valeria</givenName>
+      <surName>Ferreira da Silva</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Pernambuco</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Valéria</givenName>
+      <surName>Cassano</surName>
+    </individualName>
+    <organizationName>Universidade Estadual do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Valquíria</givenName>
+      <surName>Ferreira Dutra</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Espírito Santo</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vera Lúcia</givenName>
+      <surName>Gomes Klein</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Goiás</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vera Regina</givenName>
+      <surName>Werner</surName>
+    </individualName>
+    <organizationName>Fundação Zoobotânica do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Veronica</givenName>
+      <surName>Thode</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Rio Grande do Sul</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Victor</givenName>
+      <surName>Steinmann</surName>
+    </individualName>
+    <organizationName>Instituto de Ecología, A.C.</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>MX</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vidal</givenName>
+      <surName>F. Mansano</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vinícius</givenName>
+      <surName>Castro Souza</surName>
+    </individualName>
+    <organizationName>Universidade de São Paulo - ESALQ</organizationName>
+    <positionName>Editor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>editor</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vinícius</givenName>
+      <surName>Trettel Rodrigues</surName>
+    </individualName>
+    <organizationName>Universidade Braz Cubas</organizationName>
+    <positionName>Autor</positionName>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vinícius Antonio</givenName>
+      <surName>de Oliveira Dittrich</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Juiz de Fora</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vitor</givenName>
+      <surName>Fernandes Oliveira de Miranda</surName>
+    </individualName>
+    <organizationName>Universidade Estadual Paulista - Jaboticabal</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Vivian</givenName>
+      <surName>Almeida Assunção</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Viviane</givenName>
+      <surName>Renata Scalon</surName>
+    </individualName>
+    <organizationName>Universidade Federal de Ouro Preto</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Volker</givenName>
+      <surName>Bittrich</surName>
+    </individualName>
+    <organizationName>Universidade Estadual de Campinas</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>W. Wayt</givenName>
+      <surName>Thomas</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>William</givenName>
+      <surName>Rodrigues</surName>
+    </individualName>
+    <organizationName>Universidade Federal do Paraná</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>BR</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+    <associatedParty>
+    <individualName>
+        <givenName>Xavier</givenName>
+      <surName>Cornejo</surName>
+    </individualName>
+    <organizationName>New York Botanical Garden</organizationName>
+    <positionName>Autor</positionName>
+    <address>
+        <country>US</country>
+    </address>
+    <role>author</role>
+    </associatedParty>
+<pubDate>
+      	2015-05-26
+</pubDate>
+<language>por</language>
+<abstract>
+  <para>Lista de Espécies da Flora do Brasil</para>
+</abstract>
+      <keywordSet>
+            <keyword>Checklist</keyword>
+        <keywordThesaurus>GBIF Dataset Type Vocabulary: http://rs.gbif.org/vocabulary/gbif/dataset_type.xml</keywordThesaurus>
+      </keywordSet>
+      <keywordSet>
+            <keyword>Inventoryregional</keyword>
+        <keywordThesaurus>GBIF Dataset Subtype Vocabulary: http://rs.gbif.org/vocabulary/gbif/dataset_subtype.xml</keywordThesaurus>
+      </keywordSet>
+  <coverage>
+      <geographicCoverage>
+          <geographicDescription>Brazil</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-180</westBoundingCoordinate>
+          <eastBoundingCoordinate>180</eastBoundingCoordinate>
+          <northBoundingCoordinate>90</northBoundingCoordinate>
+          <southBoundingCoordinate>-90</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+  </coverage>
+  <contact>
+    <individualName>
+        <givenName>Rafaela</givenName>
+      <surName>Forzza</surName>
+    </individualName>
+    <organizationName>Jardim Botânico do Rio de Janeiro</organizationName>
+    <positionName>Coordenadora</positionName>
+    <address>
+        <deliveryPoint>Rua Pacheco Leão 915</deliveryPoint>
+        <city>Rio de Janeiro</city>
+        <administrativeArea>RJ</administrativeArea>
+        <postalCode>22460-030</postalCode>
+        <country>BR</country>
+    </address>
+    <phone>+552132042082</phone>
+    <electronicMailAddress>rafaela@jbrj.gov.br</electronicMailAddress>
+    <onlineUrl>http://floradobrasil.jbrj.gov.br</onlineUrl>
+  </contact>
+</dataset>
+  <additionalMetadata>
+    <metadata>
+      <gbif>
+          <dateStamp>2014-04-16T02:42:50.854-03:00</dateStamp>
+          <hierarchyLevel>dataset</hierarchyLevel>
+            <citation identifier="http://floradobrasil.jbrj.gov.br/">Lista de Espécies da Flora do Brasil 2014 in http://floradobrasil.jbrj.gov.br/</citation>
+          <bibliography>
+                <citation identifier="http://reflora.jbrj.gov.br/downloads/vol1.pdf">FORZZA, R. C., BAUMGRATZ, J. F., Bicudo, C.E.M., CARVALHO JUNIOR, A., COSTA, Andréa, COSTA, D. P., HOPKINS, M. J. G., LEITMAN, P., LOHMANN, L. G., MAIA, L. C., MARTINELLI, G., MENEZES, M., Morim, M. P., COELHO, M. N., PEIXOTO, A. L., PIRANI, J. R., PRADO, J., Queiroz, L.P., Souza, V. C., STEHMANN, J., SYLVESTRE, Lana, Walter, B.M.T., ZAPPI, D. Catálogo das Plantas e Fungos do Brasil. Rio de Janeiro : Andrea Jakobsson Estúdio &amp; Jardim Botânico do Rio de Janeiro, 2010, v. 1 e 2. p.1699.</citation>
+                <citation identifier="http://reflora.jbrj.gov.br/downloads/FUNG1.pdf">Forzza, Rafaela C., Baumgratz, José Fernando A., Bicudo, Carlos Eduardo M., Canhos, Dora A. L., Carvalho, Anibal A., Coelho, Marcus A. Nadruz, Costa, Andrea F., Costa, Denise P., Hopkins, Michael G., Leitman, Paula M., Lohmann, Lucia G., Lughadha, Eimear Nic, Maia, Leonor Costa, Martinelli, Gustavo, Menezes, Mariângela, Morim, Marli Pires, Peixoto, Ariane Luna, Pirani, José R., Prado, Jefferson, Queiroz, Luciano P., Souza, Sidnei, Souza, Vinicius Castro, Stehmann, João R., Sylvestre, Lana S., Walter, Bruno M. T., Zappi, Daniela C. New Brazilian Floristic List Highlights Conservation Challenges. Bioscience (Washington. Print). , v.62, p.39 - 45, 2012.</citation>
+          </bibliography>
+          <resourceLogoUrl>http://ipt.jbrj.gov.br/ipt/logo.do?r=lista_especies_flora_brasil</resourceLogoUrl>
+          <dc:replaces>aacd816d-662c-49d2-ad1a-97e66e2a2908/v390.xml</dc:replaces>
+      </gbif>
+    </metadata>
+  </additionalMetadata>
+</eml:eml>
