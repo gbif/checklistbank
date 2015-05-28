@@ -208,15 +208,14 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void assignParent(Node parent, Node child) {
-    // verify child does not yet have a parent rel!
-    if (hasParentRelation(child, "Ignored other parent "+parent.getId()+" >"+mapper.readScientificName(parent)+"<")) {
-      mapper.addIssue(child, NameUsageIssue.RELATIONSHIP_MISSING);
-    } else {
-      parent.createRelationshipTo(child, RelType.PARENT_OF);
-      child.removeLabel(Labels.ROOT);
-    }
+    parent.createRelationshipTo(child, RelType.PARENT_OF);
+    child.removeLabel(Labels.ROOT);
   }
 
+  /**
+   * Method just for debugging issues with duplicate parent relations which throw at import time.
+   */
+  @Deprecated
   private boolean hasParentRelation(Node child, @Nullable String note) {
     Relationship rel = IteratorUtil.single(child.getRelationships(RelType.PARENT_OF, Direction.INCOMING), null);
     if (rel != null) {
@@ -543,9 +542,7 @@ public class Normalizer extends NeoRunnable {
       }
     }
     if (parent != null && !parent.equals(n)) {
-      if (!hasParentRelation(n, "Ignored other parent "+parent.getId()+" >"+mapper.readScientificName(parent)+"<")) {
-        parent.createRelationshipTo(n, RelType.PARENT_OF);
-      }
+      parent.createRelationshipTo(n, RelType.PARENT_OF);
     } else if (!isSynonym) {
       n.addLabel(Labels.ROOT);
     }
