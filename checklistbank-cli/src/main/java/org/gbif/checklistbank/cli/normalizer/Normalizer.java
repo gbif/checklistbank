@@ -213,20 +213,6 @@ public class Normalizer extends NeoRunnable {
   }
 
   /**
-   * Method just for debugging issues with duplicate parent relations which throw at import time.
-   */
-  @Deprecated
-  private boolean hasParentRelation(Node child, @Nullable String note) {
-    Relationship rel = IteratorUtil.single(child.getRelationships(RelType.PARENT_OF, Direction.INCOMING), null);
-    if (rel != null) {
-      Node p = rel.getStartNode();
-      LOG.warn("Child node {} >{}< already has a parent relationship to node {} >{}< {}", child.getId(), mapper.readScientificName(child), p.getId(), mapper.readScientificName(p), Strings.nullToEmpty(note));
-      return true;
-    }
-    return false;
-  }
-
-  /**
    * Sanitizes relations and does the following cleanup:
    * <ul>
    * <li>Relink synonym of synonyms to make sure synonyms always point to a direct accepted taxon.</li>
@@ -286,25 +272,56 @@ public class Normalizer extends NeoRunnable {
       }
     }
 
-    // remove parent relations for synonyms
+
+    // removes parent relations for synonyms
+    // if synonyms are parents of other taxa relinks relationship to the accepted
     // presence of both confuses subsequent imports, see http://dev.gbif.org/issues/browse/POR-2755
-    // TODO: quicker to use a cypher query matching just synonyms with a parent rel?
-    int synCounter = 0;
+    int parentOfRelDeleted = 0;
+    int parentOfRelRelinked = 0;
+    int childOfRelDeleted = 0;
+    int childOfRelRelinkedToAccepted = 0;
     try (Transaction tx = db.beginTx()) {
       for (Node syn : IteratorUtil.asIterable(db.findNodes(Labels.SYNONYM))) {
-        boolean counted = false;
-        for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
-          if (!counted) {
-            synCounter++;
-            counted=true;
+        Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
+
+        // if the synonym is a parent of another taxon - relink parent rel to accepted
+        for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.OUTGOING)) {
+          Node tax = rel.getOtherNode(syn);
+          if (tax.equals(accepted)) {
+            // accepted is also the parent. Delete parent rel in this case
+            rel.delete();
+            parentOfRelDeleted++;
+          } else {
+            rel.delete();
+            accepted.createRelationshipTo(tax, RelType.PARENT_OF);
+            parentOfRelRelinked++;
           }
-          rel.delete();
         }
-      } tx.success();
+        // remove parent rel for synonyms
+        for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
+          // before we delete the relation make sure the accepted does have a parent rel or is ROOT
+          if (accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
+            LOG.info("Delete parent rel of synonym {}", mapper.readScientificName(syn));
+            // delete
+            childOfRelDeleted++;
+            rel.delete();
+          } else {
+            LOG.info("Relink parent rel of synonym {}", mapper.readScientificName(syn));
+            // relink
+            childOfRelRelinkedToAccepted++;
+            rel.getOtherNode(syn).createRelationshipTo(accepted, RelType.PARENT_OF);
+            rel.delete();
+          }
+        }
+      }
+      tx.success();
     }
 
-    LOG.info("Relations cleaned up, {} cycles detected, {} chained synonyms relinked and {} parent relations for synonyms removed",
-      cycles.size(), chainedSynonyms, synCounter);
+    LOG.info("Relations cleaned up, {} synonym cycles detected, {} chained synonyms relinked");
+    LOG.info("Synonym relations cleaned up. "
+      + "{} childOf relations deleted, {} childOf rels relinked to accepted,"
+      + "{} parentOf relations deleted, {} parentOf rels moved from synonym to accepted",
+      cycles.size(), chainedSynonyms, childOfRelDeleted, childOfRelRelinkedToAccepted, parentOfRelDeleted, parentOfRelRelinked);
   }
 
   /**

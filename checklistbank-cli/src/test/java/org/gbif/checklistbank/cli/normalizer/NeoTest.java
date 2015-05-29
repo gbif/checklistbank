@@ -3,18 +3,23 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.crawler.NormalizerStats;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -66,6 +71,64 @@ public abstract class NeoTest {
 
   public void initDb(UUID datasetKey) {
     db = cfg.newEmbeddedDb(datasetKey);
+  }
+
+  protected void initDb(UUID datasetKey, NormalizerStats stats) {
+    initDb(datasetKey);
+    compareStats(stats);
+  }
+
+  protected void compareStats(NormalizerStats stats) {
+    // get proper counts and compare them to the handler generated one
+    // we only compare some bits as not all are populated equally
+    try (Transaction tx = beginTx()) {
+      NormalizerStats statsExpected = getStats();
+      System.out.println("Expected: " + statsExpected);
+      System.out.println("Normalizer: " + stats);
+      assertEquals("roots differ", statsExpected.getRoots(), stats.getRoots());
+      assertEquals("synonyms differ", statsExpected.getSynonyms(), stats.getSynonyms());
+      assertEquals("ranks differ", statsExpected.getCountByRank(), stats.getCountByRank());
+      assertEquals("origins differ", statsExpected.getCountByOrigin(), stats.getCountByOrigin());
+    }
+  }
+
+  public NormalizerStats getStats() {
+    int roots = 0;
+    int depth = -1;
+    int synonyms = 0;
+    int ignored = 0;
+    Map<Origin, Integer> countByOrigin = Maps.newHashMap();
+    Map<Rank, Integer> countByRank = Maps.newHashMap();
+
+    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+      if (n.hasLabel(Labels.ROOT)) {
+        roots++;
+      }
+      if (n.hasLabel(Labels.SYNONYM)) {
+        synonyms++;
+        if (!n.hasRelationship(RelType.SYNONYM_OF)) {
+          throw new IllegalStateException("Node "+n.getId()+" with synonym label but without synonymOf relationship found");
+        }
+      }
+      if (!n.hasLabel(Labels.TAXON)) {
+        ignored++;
+      }
+      Origin o = mapper.readOrigin(n);
+      if (!countByOrigin.containsKey(o)) {
+        countByOrigin.put(o, 1);
+      } else {
+        countByOrigin.put(o, countByOrigin.get(o) + 1);
+      }
+      Rank r = mapper.readRank(n);
+      if (r != null) {
+        if (!countByRank.containsKey(r)) {
+          countByRank.put(r, 1);
+        } else {
+          countByRank.put(r, countByRank.get(r) + 1);
+        }
+      }
+    }
+    return new NormalizerStats(roots, depth, synonyms, ignored, countByOrigin, countByRank, Lists.<String>newArrayList());
   }
 
   public Transaction beginTx() {

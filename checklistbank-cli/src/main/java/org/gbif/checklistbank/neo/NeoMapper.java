@@ -296,9 +296,9 @@ public class NeoMapper {
       u.setKey((int) n.getId());
 
       try {
-        IdName in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
+        RankedName in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
         if (in != null) {
-          u.setBasionymKey(in.id);
+          u.setBasionymKey(in.getId());
           u.setBasionym(in.name);
         }
       } catch (RuntimeException e) {
@@ -307,12 +307,13 @@ public class NeoMapper {
         addRemark(n, "Multiple original name relations");
       }
 
+      RankedName accepted = null;
       try {
         // pro parte synonym relations must have been flattened already...
-        IdName in = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
-        if (in != null) {
-          u.setAcceptedKey(in.id);
-          u.setAccepted(in.name);
+        accepted = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
+        if (accepted != null) {
+          u.setAcceptedKey(accepted.getId());
+          u.setAccepted(accepted.name);
           // update synonym flag based on relations
           u.setSynonym(true);
         }
@@ -323,10 +324,16 @@ public class NeoMapper {
       }
 
       try {
-        IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
-        if (in != null) {
-          u.setParentKey(in.id);
-          u.setParent(in.name);
+        // prefer the parent relationship of the accepted node if it exists
+        RankedName p;
+        if (accepted == null) {
+          p = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
+        } else {
+          p = getRelatedTaxonKey(accepted.node, RelType.PARENT_OF, Direction.INCOMING);
+        }
+        if (p != null) {
+          u.setParentKey(p.getId());
+          u.setParent(p.name);
         }
       } catch (RuntimeException e) {
         LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
@@ -346,13 +353,14 @@ public class NeoMapper {
     return null;
   }
 
-  private IdName getRelatedTaxonKey(Node n, RelType type, Direction dir) {
+  private RankedName getRelatedTaxonKey(Node n, RelType type, Direction dir) {
     Relationship rel = n.getSingleRelationship(type, dir);
     if (rel != null) {
-      IdName in = new IdName();
+      RankedName in = new RankedName();
       Node n2 = rel.getOtherNode(n);
-      in.id = (int)n2.getId();
-      in.name = (String) n2.getProperty(TaxonProperties.CANONICAL_NAME, n2.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
+      in.node = n2;
+      in.name = readScientificName(n2); //(String) n2.getProperty(TaxonProperties.CANONICAL_NAME, n2.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
+      in.rank = readRank(n2);
       return in;
     }
     return null;

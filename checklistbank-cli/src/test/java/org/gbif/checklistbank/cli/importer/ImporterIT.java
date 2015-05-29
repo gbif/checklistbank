@@ -255,8 +255,8 @@ public class ImporterIT extends NeoTest {
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
     assertEquals(1, stats.getRoots());
-    assertEquals(233, stats.getCount());
-    assertEquals(13, stats.getSynonyms());
+    assertEquals(296, stats.getCount());
+    assertEquals(36, stats.getSynonyms());
 
     // 1st import
     runImport(datasetKey);
@@ -307,11 +307,12 @@ public class ImporterIT extends NeoTest {
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
     assertEquals(3, stats.getRoots());
-    assertEquals(127, stats.getCount());
-    assertEquals(50, stats.getSynonyms());
+    assertEquals(151, stats.getCount());
+    assertEquals(62, stats.getSynonyms());
     assertEquals(3, stats.getCountByOrigin(Origin.VERBATIM_PARENT));
-    assertEquals(48, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
-    assertEquals(75, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
+    assertEquals(60, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(87, stats.getCountByOrigin(Origin.SOURCE));
 
     // 1st import
     runImport(datasetKey);
@@ -356,7 +357,9 @@ public class ImporterIT extends NeoTest {
     Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
-    System.out.println(stats);
+
+    initDb(datasetKey, stats);
+    db.shutdown();
     return stats;
   }
 }
