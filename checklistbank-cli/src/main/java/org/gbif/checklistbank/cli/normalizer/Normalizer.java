@@ -284,32 +284,35 @@ public class Normalizer extends NeoRunnable {
       for (Node syn : IteratorUtil.asIterable(db.findNodes(Labels.SYNONYM))) {
         Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
 
-        // if the synonym is a parent of another taxon - relink parent rel to accepted
+        // if the synonym is a parent of another child taxon - relink accepted as parent of child
         for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.OUTGOING)) {
-          Node tax = rel.getOtherNode(syn);
-          if (tax.equals(accepted)) {
+          Node child = rel.getOtherNode(syn);
+          if (child.equals(accepted)) {
             // accepted is also the parent. Delete parent rel in this case
             rel.delete();
             parentOfRelDeleted++;
           } else {
             rel.delete();
-            accepted.createRelationshipTo(tax, RelType.PARENT_OF);
+            accepted.createRelationshipTo(child, RelType.PARENT_OF);
             parentOfRelRelinked++;
+            mapper.addRemark(child, "Parent relation taken from synonym " + mapper.readScientificName(syn));
           }
         }
         // remove parent rel for synonyms
         for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
           // before we delete the relation make sure the accepted does have a parent rel or is ROOT
           if (accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
-            LOG.info("Delete parent rel of synonym {}", mapper.readScientificName(syn));
+            LOG.debug("Delete parent rel of synonym {}", mapper.readScientificName(syn));
             // delete
             childOfRelDeleted++;
             rel.delete();
           } else {
-            LOG.info("Relink parent rel of synonym {}", mapper.readScientificName(syn));
+            Node parent = rel.getOtherNode(syn);
+            LOG.debug("Relink parent rel of synonym {}", mapper.readScientificName(syn));
             // relink
             childOfRelRelinkedToAccepted++;
-            rel.getOtherNode(syn).createRelationshipTo(accepted, RelType.PARENT_OF);
+            parent.createRelationshipTo(accepted, RelType.PARENT_OF);
+            mapper.addRemark(accepted, "Parent relation taken from synonym " + mapper.readScientificName(syn));
             rel.delete();
           }
         }
