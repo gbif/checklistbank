@@ -7,7 +7,9 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.IucnTerm;
 import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.UnknownTerm;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class VerbatimNameUsageMapperTest {
+  final URI qname1 = URI.create("http://it.was/not/me");
 
   /**
    * Very simple performance comparison of the 3 different serlialization mappers.
@@ -38,6 +41,7 @@ public class VerbatimNameUsageMapperTest {
     VerbatimNameUsage v = new VerbatimNameUsage();
     v.setKey(4712681);
     v.setLastCrawled(new Date());
+    v.setCoreField(new UnknownTerm(qname1), "1200");
     for (DwcTerm t : DwcTerm.values()) {
       v.setCoreField(t, RandomStringUtils.random(20));
     }
@@ -72,6 +76,8 @@ public class VerbatimNameUsageMapperTest {
     v.setCoreField(DwcTerm.scientificName, "Abies alba");
     v.setCoreField(DwcTerm.taxonRank, "Gattung");
     v.setCoreField(DwcTerm.taxonID, "dqwd23");
+    v.setCoreField(GbifTerm.depth, "1200");
+    v.setCoreField(new UnknownTerm(qname1), "1200");
 
     List<Map<Term, String>> vernaculars = Lists.newArrayList();
     vernaculars.add(map(DwcTerm.vernacularName, "Tanne", DcTerm.language, "de"));

@@ -906,6 +906,7 @@ public class NormalizerTest extends NeoTest {
   @Test
   public void testFloraBrazilIncertaeSedis() throws Exception {
     final UUID datasetKey = datasetKey(18);
+    cfg.neo.batchSize=5;
     Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();

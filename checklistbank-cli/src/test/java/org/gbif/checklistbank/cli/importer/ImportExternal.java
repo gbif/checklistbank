@@ -37,7 +37,7 @@ public class ImportExternal {
     init(repo);
 //    download(url);
     normalize();
-//    sync();
+    sync();
   }
 
   private void init(String repo) throws IOException {
