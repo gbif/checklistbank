@@ -89,6 +89,7 @@ public class Importer extends NeoRunnable implements Runnable {
         try {
           VerbatimNameUsage verbatim = mapper.readVerbatim(n);
           NameUsageContainer u = buildClbNameUsage(n);
+
           List<Integer> parents = buildClbParents(n);
           NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
@@ -115,7 +116,7 @@ public class Importer extends NeoRunnable implements Runnable {
           } else {
             id = String.format("nodeID %s", n.getId());
           }
-          LOG.error("Failed to sync {} from dataset {}", id, datasetKey, e.getMessage());
+          LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(TaxonProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
           LOG.error("Aborting sync of dataset {}", datasetKey);
           throw e;
         }

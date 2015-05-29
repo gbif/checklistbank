@@ -286,7 +286,25 @@ public class Normalizer extends NeoRunnable {
       }
     }
 
-    LOG.info("Relations cleaned up, {} cycles detected, {} chained synonyms relinked", cycles.size(), chainedSynonyms);
+    // remove parent relations for synonyms
+    // presence of both confuses subsequent imports, see http://dev.gbif.org/issues/browse/POR-2755
+    // TODO: quicker to use a cypher query matching just synonyms with a parent rel?
+    int synCounter = 0;
+    try (Transaction tx = db.beginTx()) {
+      for (Node syn : IteratorUtil.asIterable(db.findNodes(Labels.SYNONYM))) {
+        boolean counted = false;
+        for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
+          if (!counted) {
+            synCounter++;
+            counted=true;
+          }
+          rel.delete();
+        }
+      } tx.success();
+    }
+
+    LOG.info("Relations cleaned up, {} cycles detected, {} chained synonyms relinked and {} parent relations for synonyms removed",
+      cycles.size(), chainedSynonyms, synCounter);
   }
 
   /**

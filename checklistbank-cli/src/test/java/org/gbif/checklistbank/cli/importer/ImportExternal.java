@@ -36,7 +36,7 @@ public class ImportExternal {
     this.datasetKey = datasetKey;
     init(repo);
 //    download(url);
-    normalize();
+//    normalize();
     sync();
   }
 

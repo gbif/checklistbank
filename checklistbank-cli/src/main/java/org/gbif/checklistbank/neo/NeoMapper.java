@@ -294,17 +294,6 @@ public class NeoMapper {
       NameUsageContainer u = read(n, new NameUsageContainer());
       // map node id to key, its not fixed across tests but stable within one
       u.setKey((int) n.getId());
-      try {
-        IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
-        if (in != null) {
-          u.setParentKey(in.id);
-          u.setParent(in.name);
-        }
-      } catch (RuntimeException e) {
-        LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
-        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
-        addRemark(n, "Multiple parent relations");
-      }
 
       try {
         IdName in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
@@ -331,6 +320,18 @@ public class NeoMapper {
         LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId());
         addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
         addRemark(n, "Multiple accepted name relations");
+      }
+
+      try {
+        IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
+        if (in != null) {
+          u.setParentKey(in.id);
+          u.setParent(in.name);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple parent relations");
       }
 
       return u;
