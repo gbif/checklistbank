@@ -271,14 +271,6 @@
       <artifactId>hppc</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.openhft</groupId>
-      <artifactId>koloboke-api-jdk6-7</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.openhft</groupId>
-      <artifactId>koloboke-impl-jdk6-7</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.esotericsoftware</groupId>
       <artifactId>kryo</artifactId>
     </dependency>

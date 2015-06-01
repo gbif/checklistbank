@@ -15,9 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.base.Throwables;
-import net.openhft.koloboke.collect.map.IntIntMap;
-import net.openhft.koloboke.collect.map.hash.HashIntIntMaps;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -136,7 +136,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
     private final GraphDatabaseService db;
     private int counter = 0;
     private Transaction tx;
-    private IntIntMap ids = HashIntIntMaps.newMutableMap();
+    private IntIntMap ids = new IntIntHashMap();
 
     public NeoUsageWriter(GraphDatabaseService db) {
       // the number of columns in our query to consume
