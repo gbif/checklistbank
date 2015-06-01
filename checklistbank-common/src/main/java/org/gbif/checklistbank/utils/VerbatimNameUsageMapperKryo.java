@@ -6,12 +6,16 @@ import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.TermFactory;
+import org.gbif.dwc.terms.UnknownTerm;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.slf4j.Logger;
@@ -38,6 +42,23 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper{
     kryo.register(DcTerm.class);
     kryo.register(GbifTerm.class);
     kryo.register(AcTerm.class);
+    TermSerializer ts = new TermSerializer();
+    kryo.register(UnknownTerm.class, ts);
+    kryo.register(Term.class, ts);
+  }
+
+  class TermSerializer extends Serializer<Term> {
+    private final TermFactory TF = TermFactory.instance();
+
+    @Override
+    public void write(Kryo kryo, Output output, Term term) {
+      output.writeString(term.qualifiedName());
+    }
+
+    @Override
+    public Term read(Kryo kryo, Input input, Class<Term> aClass) {
+      return TF.findTerm(input.readString());
+    }
   }
 
   @Override

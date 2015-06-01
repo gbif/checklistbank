@@ -255,7 +255,7 @@ public class ImporterIT extends NeoTest {
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
     assertEquals(1, stats.getRoots());
-    assertEquals(297, stats.getCount());
+    assertEquals(296, stats.getCount());
     assertEquals(36, stats.getSynonyms());
 
     // 1st import
@@ -294,6 +294,28 @@ public class ImporterIT extends NeoTest {
     runImport(datasetKey);
     // verify
     verify14(datasetKey);
+  }
+
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-2755
+   */
+  @Test
+  public void testMissingGenusFloraBrazil() throws Exception {
+    final UUID datasetKey = NormalizerTest.datasetKey(19);
+
+    // insert neo db
+    NormalizerStats stats = insertNeo(datasetKey);
+    assertEquals(3, stats.getRoots());
+    assertEquals(151, stats.getCount());
+    assertEquals(62, stats.getSynonyms());
+    assertEquals(3, stats.getCountByOrigin(Origin.VERBATIM_PARENT));
+    assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
+    assertEquals(60, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(87, stats.getCountByOrigin(Origin.SOURCE));
+
+    // 1st import
+    runImport(datasetKey);
   }
 
   private void verify14(UUID datasetKey) {
@@ -335,7 +357,9 @@ public class ImporterIT extends NeoTest {
     Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
-    System.out.println(stats);
+
+    initDb(datasetKey, stats);
+    db.shutdown();
     return stats;
   }
 }

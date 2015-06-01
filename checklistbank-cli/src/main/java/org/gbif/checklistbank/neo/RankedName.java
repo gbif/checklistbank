@@ -17,6 +17,10 @@ public class RankedName {
     this.rank = rank;
   }
 
+  public int getId() {
+    return (int) node.getId();
+  }
+
   @Override
   public String toString() {
     return name + '[' + rank + ']';

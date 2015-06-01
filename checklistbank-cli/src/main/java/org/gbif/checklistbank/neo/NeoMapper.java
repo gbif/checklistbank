@@ -331,24 +331,53 @@ public class NeoMapper {
       NameUsageContainer u = read(n, new NameUsageContainer());
       // map node id to key, its not fixed across db instances but stable within one
       u.setKey((int) n.getId());
-      IdName in = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
-      if (in != null) {
-        u.setParentKey(in.id);
-        u.setParent(in.name);
+
+      try {
+        RankedName in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
+        if (in != null) {
+          u.setBasionymKey(in.getId());
+          u.setBasionym(in.name);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read basionym relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple original name relations");
       }
-      in = getRelatedTaxonKey(n, RelType.BASIONYM_OF, Direction.INCOMING);
-      if (in != null) {
-        u.setBasionymKey(in.id);
-        u.setBasionym(in.name);
+
+      RankedName accepted = null;
+      try {
+        // pro parte synonym relations must have been flattened already...
+        accepted = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
+        if (accepted != null) {
+          u.setAcceptedKey(accepted.getId());
+          u.setAccepted(accepted.name);
+          // update synonym flag based on relations
+          u.setSynonym(true);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple accepted name relations");
       }
-      // there might be several accepted taxa for pro parte synonyms
-      in = getRelatedTaxonKey(n, RelType.SYNONYM_OF, Direction.OUTGOING);
-      if (in != null) {
-        u.setAcceptedKey(in.id);
-        u.setAccepted(in.name);
-        // update synonym flag based on relations
-        u.setSynonym(true);
+
+      try {
+        // prefer the parent relationship of the accepted node if it exists
+        RankedName p;
+        if (accepted == null) {
+          p = getRelatedTaxonKey(n, RelType.PARENT_OF, Direction.INCOMING);
+        } else {
+          p = getRelatedTaxonKey(accepted.node, RelType.PARENT_OF, Direction.INCOMING);
+        }
+        if (p != null) {
+          u.setParentKey(p.getId());
+          u.setParent(p.name);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
+        addIssue(n, NameUsageIssue.RELATIONSHIP_MISSING);
+        addRemark(n, "Multiple parent relations");
       }
+
       return u;
     }
     return null;
@@ -361,13 +390,14 @@ public class NeoMapper {
     return null;
   }
 
-  private IdName getRelatedTaxonKey(Node n, RelType type, Direction dir) {
+  private RankedName getRelatedTaxonKey(Node n, RelType type, Direction dir) {
     Relationship rel = n.getSingleRelationship(type, dir);
     if (rel != null) {
-      IdName in = new IdName();
+      RankedName in = new RankedName();
       Node n2 = rel.getOtherNode(n);
-      in.id = (int)n2.getId();
-      in.name = (String) n2.getProperty(TaxonProperties.CANONICAL_NAME, n2.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
+      in.node = n2;
+      in.name = readScientificName(n2); //(String) n2.getProperty(TaxonProperties.CANONICAL_NAME, n2.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
+      in.rank = readRank(n2);
       return in;
     }
     return null;

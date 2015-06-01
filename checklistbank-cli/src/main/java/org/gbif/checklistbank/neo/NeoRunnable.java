@@ -9,7 +9,9 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
+import javax.ws.rs.HEAD;
 
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Direction;
@@ -64,9 +66,13 @@ public abstract class NeoRunnable implements Runnable {
   /**
    * @return the single matching node with the canonical name or null
    */
-  protected Node nodeByCanonical(String canonical) {
-    return IteratorUtil
-      .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+  protected Node nodeByCanonical(String canonical) throws NotUniqueException {
+    try {
+      return IteratorUtil
+        .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+    } catch (NoSuchElementException e) {
+      throw new NotUniqueException("Canonical name not unique: " + canonical, canonical);
+    }
   }
 
   protected Collection<Node> nodesByCanonical(String canonical) {
@@ -77,9 +83,13 @@ public abstract class NeoRunnable implements Runnable {
   /**
    * @return the single matching node with the scientific name or null
    */
-  protected Node nodeBySciname(String sciname) {
-    return IteratorUtil
-      .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
+  protected Node nodeBySciname(String sciname) throws NotUniqueException {
+    try {
+      return IteratorUtil
+        .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
+    } catch (NoSuchElementException e) {
+      throw new NotUniqueException("Scientific name not unique: " + sciname, sciname);
+    }
   }
 
   protected Node create(Origin origin, String sciname, Rank rank, TaxonomicStatus status) {

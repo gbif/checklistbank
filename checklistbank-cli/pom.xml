@@ -87,6 +87,42 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- copies java agent dependency into the target directory -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.github.jbellis</groupId>
+                  <artifactId>jamm</artifactId>
+                  <version>0.3.1</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <destFileName>jamm.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- executes test with java agent options of the JVM -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-javaagent:${project.build.directory}/jamm.jar</argLine>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
@@ -123,6 +159,18 @@
       <artifactId>gbif-common</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-ws</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
     </dependency>
@@ -148,6 +196,10 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-ws-client</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-parsers</artifactId>
     </dependency>
@@ -162,6 +214,10 @@
     <dependency>
       <groupId>org.gbif.common</groupId>
       <artifactId>gbif-cli</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-httputils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.common</groupId>
@@ -189,6 +245,14 @@
     <dependency>
       <groupId>org.neo4j</groupId>
       <artifactId>neo4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-kernel</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-cypher</artifactId>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
@@ -251,6 +315,10 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
@@ -341,6 +409,52 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+    just for testing memory usage of int maps from various libraries
+     We only use one library, HPPC, in the main code.
+    -->
+    <dependency>
+      <!-- jamm java agent to measure memory usage in tests -->
+      <groupId>com.github.jbellis</groupId>
+      <artifactId>jamm</artifactId>
+      <version>0.3.1</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://github.com/goldmansachs/gs-collections -->
+    <dependency>
+      <groupId>com.goldmansachs</groupId>
+      <artifactId>gs-collections</artifactId>
+      <version>6.1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- http://trove.starlight-systems.com/ -->
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>3.0.3</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- http://fastutil.di.unimi.it/ -->
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>7.0.6</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://github.com/OpenHFT/Koloboke -->
+    <dependency>
+      <groupId>net.openhft</groupId>
+      <artifactId>koloboke-api-jdk6-7</artifactId>
+      <version>0.6.7</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.openhft</groupId>
+      <artifactId>koloboke-impl-jdk6-7</artifactId>
+      <version>0.6.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -7,8 +7,8 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.neo.NeoRunnable;
 import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoRunnable;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.carrotsearch.hppc.IntIntOpenHashMap;
-import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.IntIntHashMap;
+import com.carrotsearch.hppc.IntIntMap;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.IntObjectMap;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -47,9 +49,9 @@ public class Importer extends NeoRunnable implements Runnable {
   private final DatasetImportServiceCombined importService;
   private final NameUsageService usageService;
   // neo internal ids to clb usage keys
-  private IntIntOpenHashMap clbKeys = new IntIntOpenHashMap();
+  private IntIntMap clbKeys = new IntIntHashMap();
   // map based around internal neo4j node ids:
-  private IntObjectOpenHashMap<Integer[]> postKeys = new IntObjectOpenHashMap<Integer[]>();
+  private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
   private final int keyTypeSize = KeyType.values().length;
 
@@ -87,6 +89,7 @@ public class Importer extends NeoRunnable implements Runnable {
         try {
           VerbatimNameUsage verbatim = mapper.readVerbatim(n);
           NameUsageContainer u = buildClbNameUsage(n);
+
           List<Integer> parents = buildClbParents(n);
           NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
@@ -113,7 +116,7 @@ public class Importer extends NeoRunnable implements Runnable {
           } else {
             id = String.format("nodeID %s", n.getId());
           }
-          LOG.error("Failed to sync {} from dataset {}", id, datasetKey, e.getMessage());
+          LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(TaxonProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
           LOG.error("Aborting sync of dataset {}", datasetKey);
           throw e;
         }

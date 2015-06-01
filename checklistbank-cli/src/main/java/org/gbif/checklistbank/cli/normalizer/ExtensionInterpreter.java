@@ -179,7 +179,7 @@ public class ExtensionInterpreter {
         t.setScientificName(expandGenus(value(rec, DwcTerm.scientificName), u.getScientificName()));
 
         if (t.getScientificName() == null || t.getScientificName().equalsIgnoreCase(u.getScientificName())) {
-          LOG.debug("Ignore type specimens and type names if the name is the same as the taxon");
+          LOG.debug("Ignore type name for {} as the name is the same as the taxon", u.getScientificName());
           continue;
         }
         t.setTypeDesignatedBy(value(rec, GbifTerm.typeDesignatedBy));

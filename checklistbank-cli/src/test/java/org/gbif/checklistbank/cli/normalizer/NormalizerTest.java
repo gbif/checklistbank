@@ -134,7 +134,7 @@ public class NormalizerTest extends NeoTest {
     assertEquals(1, stats.getRoots());
     assertEquals(4, stats.getSynonyms());
 
-    initDb(datasetKey);
+    initDb(datasetKey, stats);
     try (Transaction tx = beginTx()) {
       NameUsage u1 = getUsageByTaxonId("1006");
       NameUsage u2 = getUsageByName("Leontodon taraxacoides");
@@ -292,7 +292,7 @@ public class NormalizerTest extends NeoTest {
    */
   @Test
   public void testIncertaeSedisSynonyms() throws Exception {
-    NormalizerStats stats = normalize(5);
+    normalize(5);
     try (Transaction tx = beginTx()) {
 
       NameUsage syn = getUsageByTaxonId("por10083");
@@ -396,15 +396,16 @@ public class NormalizerTest extends NeoTest {
                   "Basidiomycota",
                   "Fungi");
 
+      // test a synonym which should use the classification of the accepted name, not the (wrong) denormed of the synonym
       assertUsage("140283",
                   true,
                   "Polystictus substipitatus (Murrill) Sacc. & Trotter",
                   "Coriolus substipitatus Murrill",
                   "Trametes modesta (Kunze ex Fr.) Ryvarden",
                   Rank.SPECIES,
-                  "Polystictus",
-                  "Hymenochaetaceae",
-                  "Hymenochaetales",
+                  "Trametes",
+                  "Polyporaceae",
+                  "Polyporales",
                   "Agaricomycetes",
                   "Basidiomycota",
                   "Fungi");
@@ -814,7 +815,7 @@ public class NormalizerTest extends NeoTest {
     assertEquals(0, stats.getCountByRank(Rank.GENUS));
     assertEquals(10, stats.getCountByRank(Rank.SPECIES));
 
-    initDb(datasetKey);
+    initDb(datasetKey, stats);
     try (Transaction tx = beginTx()) {
       NameUsage u1 = getUsageByTaxonId("Aglais io");
       NameUsage u2 = getUsageByName("Aglais io");
@@ -867,7 +868,7 @@ public class NormalizerTest extends NeoTest {
     assertEquals(1, stats.getRoots());
     assertEquals(48, stats.getSynonyms());
 
-    initDb(datasetKey);
+    initDb(datasetKey, stats);
     try (Transaction tx = beginTx()) {
       // Achillea
       NameUsageContainer a = getUsageByTaxonId("770");
@@ -899,6 +900,40 @@ public class NormalizerTest extends NeoTest {
     }
   }
 
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-2755
+   */
+  @Test
+  public void testFloraBrazilIncertaeSedis() throws Exception {
+    final UUID datasetKey = datasetKey(18);
+    cfg.neo.batchSize=5;
+    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+
+    initDb(datasetKey, stats);
+    try (Transaction tx = beginTx()) {
+
+      assertEquals(76, stats.getCount());
+      assertEquals(1, stats.getRoots());
+      assertEquals(4, stats.getDepth());
+      assertEquals(25, stats.getSynonyms());
+      assertEquals(50, stats.getCountByOrigin(Origin.SOURCE));
+      assertEquals(25, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+      assertEquals(1, stats.getCountByOrigin(Origin.VERBATIM_PARENT));
+      assertEquals(1, stats.getCountByRank(Rank.GENUS));
+      assertEquals(62, stats.getCountByRank(Rank.SPECIES));
+      assertEquals(3, stats.getCountByRank(Rank.SUBSPECIES));
+      assertEquals(9, stats.getCountByRank(Rank.VARIETY));
+
+      // Ceramium rubrum C.Agardh
+      NameUsageContainer cr = getUsageByTaxonId("99937");
+      assertNotNull(cr);
+    }
+
+  }
 
   /**
    * Tests the simple images media extension
@@ -937,8 +972,7 @@ public class NormalizerTest extends NeoTest {
     norm.run();
     NormalizerStats stats = norm.getStats();
 
-    System.out.println(stats);
-    initDb(datasetKey);
+    initDb(datasetKey, stats);
     return stats;
   }
 }

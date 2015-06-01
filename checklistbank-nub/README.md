@@ -83,6 +83,14 @@ We use neo4j to assemble the entire backbone before it is actually written to th
 	 - ignore strain and cultivar names
 	 - rank filter as configured by source. Defaults to ignoring ranks above family if source is not the Catalog of Life
  - Hierarchy from CoL see doi:10.1371/journal.pone.0119248 or http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0119248
+ - page through a dataset, read an entire record as NameUsageContainer with mybatis
+	 - only add extensions as needed by source
+	 - parallel indexing (syncing) of the very dataset would break paging. An issue?
+		 - stop indexing?
+		 - read all ids in one go first?
+ - all names of a source dataset are processed, but:
+	 - ignore strain and cultivar names
+	 - rank filter as configured by source. Defaults to ignoring ranks above family if source is not the Catalog of Life
  - only consider major ranks:
 	- kingdom
 	- phylum
