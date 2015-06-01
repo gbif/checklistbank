@@ -127,6 +127,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
     }
     TraversalDescription parentsTraversal = db.traversalDescription()
       .relationships(RelType.PARENT_OF, Direction.OUTGOING)
+      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
       .depthFirst()
       .evaluator(Evaluators.excludeStartPosition());
     return new SrcUsageIterator(parentsTraversal.traverse(root).nodes());
@@ -162,7 +163,6 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
       }
       u.nomStatus = toNomStatus(row[6]);
       u.scientificName = row[7];
-
       counter++;
       Node n = getOrCreate(u.key);
       mapper.store(n, u, false);
@@ -172,7 +172,11 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
       } else {
         int pid = u.parentKey;
         Node p = getOrCreate(pid);
-        p.createRelationshipTo(n, RelType.PARENT_OF);
+        if (u.status.isSynonym()) {
+          n.createRelationshipTo(p, RelType.SYNONYM_OF);
+        } else {
+          p.createRelationshipTo(n, RelType.PARENT_OF);
+        }
       }
 
       if (counter % 1000 == 0) {

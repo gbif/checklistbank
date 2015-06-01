@@ -62,7 +62,7 @@ See homonyms.txt for all names that exist more than once for a given rank & king
  - accepted homonyms: the same name is accepted in different codes. This is mostly on the generic level and hardly ever on species binomials
  - homonym synonym: a homonym was once used and now is treated as a synonym of another accepted name
 
-Homonym synonyms can exist a lot and on every rank level including bi- and trinomials.
+Homonym synonyms can exist a lot and on every rank level including bi- and trinomials. The GBIF backbone allows any number of synonym homonyms, **but makes sure a single canonical name is only accepted once within a kingdom for a given rank!**
 
 ## 2.1 Building a new backbone in Neo4J
 We use neo4j to assemble the entire backbone before it is actually written to the ChecklistBank postgres database. This fits into the indexing architecture and allows to mostly reuse the existing postgres & solr syncing routines from clb indexing.

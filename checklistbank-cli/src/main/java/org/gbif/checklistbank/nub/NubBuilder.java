@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -90,20 +91,17 @@ public class NubBuilder implements Runnable {
     currSrc = new NubSource();
     currSrc.key = Constants.NUB_DATASET_KEY;
     for (Kingdom k : Kingdom.values()) {
-      try {
-        SrcUsage u = new SrcUsage();
-        u.scientificName = k.scientificName();
-        u.rank = Rank.KINGDOM;
-        u.status = TaxonomicStatus.ACCEPTED;
-        u.parsedName = new ParsedName();
-        u.parsedName.setGenusOrAbove(k.scientificName());
-        NubUsage ku = createNubUsage(u, Origin.SOURCE, null);
+      NubUsage ku = new NubUsage();
+      ku.kingdom_ = k;
+      ku.datasetKey = Constants.NUB_DATASET_KEY;
+      ku.origin = Origin.SOURCE;
+      ku.rank = Rank.KINGDOM;
+      ku.status = TaxonomicStatus.ACCEPTED;
+      ku.parsedName = new ParsedName();
+      ku.parsedName.setGenusOrAbove(k.scientificName());
 
-        kingdoms.put(k, ku);
-
-      } catch (UnparsableException e) {
-        throw new IllegalStateException("Failed to insert root kingdoms", e);
-      }
+      db.addUsage(null, ku);
+      kingdoms.put(k, ku);
     }
 
   }
@@ -168,11 +166,13 @@ public class NubBuilder implements Runnable {
   }
 
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
+    Preconditions.checkNotNull(u.status);
+    Preconditions.checkNotNull(u.rank);
     // try to parse name
     NubUsage nub = null;
     try {
       addParsedNameIfNull(u);
-      nub = db.findNubUsage(u, parents);
+      nub = db.findNubUsage(u, parents.nubKingdom());
       if (u.rank != null && allowedRanks.contains(u.rank)) {
         if (nub == null) {
           // create new nub usage

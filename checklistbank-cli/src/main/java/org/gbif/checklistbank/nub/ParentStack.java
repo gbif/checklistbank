@@ -18,7 +18,7 @@ public class ParentStack {
   private Map<Integer, NubUsage> nubMap = Maps.newHashMap();
   private LinkedList<SrcUsage> parents = Lists.newLinkedList();
   private NubUsage currParent;
-  private Kingdom currKingdom;
+  private Kingdom currKingdom = Kingdom.INCERTAE_SEDIS;
 
   /**
    * Returns the current lowest nub parent node, might be null
@@ -87,11 +87,13 @@ public class ParentStack {
    */
   public void put(NubUsage nub) {
     nubMap.put(parents.getLast().key, nub);
+    currKingdom = nub.kingdom_;
   }
 
   public void clear() {
     nubMap.clear();
     parents.clear();
     currParent = null;
+    currKingdom = Kingdom.INCERTAE_SEDIS;
   }
 }

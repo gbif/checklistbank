@@ -4,12 +4,18 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.nub.model.Equality;
 
 import java.text.Normalizer;
+import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
 public class AuthorComparator {
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
+  private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
+
+  private Map<String, String> KNOWN_AUTHORS;
+
   /**
    * @return ascii only, lower cased string without punctuation. Empty string instead of null
    */
@@ -38,26 +44,65 @@ public class AuthorComparator {
   public Equality equals(ParsedName n1, ParsedName n2) {
     Equality result = Equality.UNKNOWN;
     // compare authors first
-    String a1 = normalize(n1.getAuthorship() == null ? n1.getBracketAuthorship() : n1.getAuthorship());
-    String a2 = normalize(n2.getAuthorship() == null ? n2.getBracketAuthorship() : n2.getAuthorship());
+    String a1 = getAuthor(n1);
+    String a2 = getAuthor(n2);
     if (a1 != null && a2 != null) {
       if (a1.equals(a2)) {
         // we can stop here, authors are equal, thats enough
         return Equality.EQUAL;
       } else {
+        String sharedPrefix = StringUtils.getCommonPrefix(a1, a2);
+        if (sharedPrefix.length() > 2) {
+          return Equality.EQUAL;
+        }
         // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
         result = Equality.DIFFERENT;
       }
     }
 
     // check year
-    String y1 = normalize(n1.getYear() == null ? n1.getBracketYear() : n1.getYear());
-    String y2 = normalize(n2.getYear() == null ? n2.getBracketYear() : n2.getYear());
+    String y1 = getYear(n1);
+    String y2 = getYear(n2);
     if (y1 != null && y2 != null) {
-      //TODO: allow ? and brackets in year comparisons ...
       return y1.equals(y2) ? Equality.EQUAL : Equality.DIFFERENT;
     }
 
     return result;
   }
+
+  private String getAuthor(ParsedName pn) {
+    // TODO: deal with teams, sort them alphabetically???
+    if (pn.isAuthorsParsed()) {
+      return normalize(pn.getAuthorship() == null ? pn.getBracketAuthorship() : pn.getAuthorship());
+    } else {
+      // try to return full sciname minus the epithets
+      String lastEpithet = coalesce(pn.getInfraSpecificEpithet(), pn.getSpecificEpithet(), pn.getGenusOrAbove());
+      int idx = pn.getScientificName().lastIndexOf(lastEpithet);
+      if (idx >= 0) {
+        return normalize(pn.getScientificName().substring(idx + lastEpithet.length()));
+      }
+      return null;
+    }
+  }
+
+  private static <T> T coalesce(T ...items) {
+    for(T i : items) if(i != null) return i;
+    return null;
+  }
+
+  private String getYear(ParsedName pn) {
+    //TODO: allow ? and brackets in year comparisons ...
+    if (pn.isAuthorsParsed()) {
+      return normalize(coalesce(pn.getYear(), pn.getBracketYear()));
+    } else {
+      // try to read first year
+      Matcher m = YEAR.matcher(pn.getScientificName());
+      if (m.find()) {
+        String y = m.group(2);
+        return y;
+      }
+    }
+    return null;
+  }
+
 }

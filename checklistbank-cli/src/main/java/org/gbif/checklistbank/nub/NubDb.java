@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -97,11 +98,11 @@ public class NubDb implements Closeable {
    * Tries to find an already existing nub usage for the given source usage.
    * @return the existing usage or null if it does not exist yet.
    */
-  public NubUsage findNubUsage(SrcUsage u, ParentStack parents) {
+  public NubUsage findNubUsage(SrcUsage u, Kingdom uKingdom) {
     List<NubUsage> checked = Lists.newArrayList();
     for (Node n : IteratorUtil.asIterable(gds.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
       NubUsage rn = node2usage(n);
-      if (sanitizeMatch(u, parents, rn)) {
+      if (matchesNub(u, uKingdom, rn)) {
         checked.add(rn);
       }
     }
@@ -117,7 +118,7 @@ public class NubDb implements Closeable {
     }
   }
 
-  private boolean sanitizeMatch(SrcUsage u, ParentStack parents, NubUsage match) {
+  private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match) {
     if (u.rank != match.rank) {
       return false;
     }
@@ -126,17 +127,16 @@ public class NubDb implements Closeable {
       return true;
     }
     Equality author = authComp.equals(u.parsedName, match.parsedName);
-    Equality kingdom = compareClassification(u, match);
+    Equality kingdom = compareClassification(uKingdom, match);
     return author != Equality.DIFFERENT && kingdom != Equality.DIFFERENT;
   }
 
-  private Equality compareClassification(SrcUsage u, NubUsage match) {
-    //TODO: improve classification comparison to more than just kingdom ???
-//    if (u.kingdom == null || match.kingdom == null) {
-//      return Equality.UNKNOWN;
-//    }
-//    return norm(u.kingdom) == norm(match.kingdom) ? Equality.EQUAL : Equality.DIFFERENT;
-    return Equality.UNKNOWN;
+  //TODO: improve classification comparison to more than just kingdom ???
+  private Equality compareClassification(Kingdom uKingdom, NubUsage match) {
+    if (uKingdom == null || match.kingdom_ == null) {
+      return Equality.UNKNOWN;
+    }
+    return norm(uKingdom) == norm(match.kingdom_) ? Equality.EQUAL : Equality.DIFFERENT;
   }
 
   public long countTaxa() {
@@ -165,6 +165,8 @@ public class NubDb implements Closeable {
     if (n == null) return null;
     NubUsage nub = mapper.read(n ,new NubUsage());
     nub.node = n;
+
+    Preconditions.checkNotNull(nub.kingdom_);
     return nub;
   }
 
@@ -210,12 +212,20 @@ public class NubDb implements Closeable {
       nub.sourceIds.add(src.key);
     }
 
+    return addUsage(parent, nub);
+  }
+
+  /**
+   * @param parent classification parent or accepted name in case the nub usage has a synonym status
+   */
+  public NubUsage addUsage(@Nullable NubUsage parent, NubUsage nub) {
     Node n = gds.createNode(Labels.TAXON);
     nodes++;
     if (parent == null) {
       n.addLabel(Labels.ROOT);
     } else {
-      if (src.status != null && src.status.isSynonym()) {
+      nub.kingdom_ = parent.kingdom_;
+      if (nub.status != null && nub.status.isSynonym()) {
         n.addLabel(Labels.SYNONYM);
         n.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
       } else {
@@ -233,7 +243,7 @@ public class NubDb implements Closeable {
     return nub;
   }
 
-  protected static Integer toInt(String x) {
+    protected static Integer toInt(String x) {
     return x == null ? null : Integer.valueOf(x);
   }
 
