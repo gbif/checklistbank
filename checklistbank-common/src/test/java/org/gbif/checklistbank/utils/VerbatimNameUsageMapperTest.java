@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 
 public class VerbatimNameUsageMapperTest {
   final URI qname1 = URI.create("http://it.was/not/me");
+  final URI qname2 = URI.create("http://ditch.me/null");
 
   /**
    * Very simple performance comparison of the 3 different serlialization mappers.
@@ -78,10 +79,11 @@ public class VerbatimNameUsageMapperTest {
     v.setCoreField(DwcTerm.taxonID, "dqwd23");
     v.setCoreField(GbifTerm.depth, "1200");
     v.setCoreField(new UnknownTerm(qname1), "1200");
+    v.setCoreField(new UnknownTerm(qname2), null);
 
     List<Map<Term, String>> vernaculars = Lists.newArrayList();
     vernaculars.add(map(DwcTerm.vernacularName, "Tanne", DcTerm.language, "de"));
-    vernaculars.add(map(DwcTerm.vernacularName, "Fir", DcTerm.language, "en"));
+    vernaculars.add(map(DwcTerm.vernacularName, "Fir", DcTerm.language, "en", new UnknownTerm(qname2), ""));
     v.getExtensions().put(Extension.VERNACULAR_NAME, vernaculars);
 
     List<Map<Term, String>> infos = Lists.newArrayList();

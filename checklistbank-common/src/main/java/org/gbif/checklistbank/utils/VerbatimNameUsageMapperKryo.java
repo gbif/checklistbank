@@ -50,6 +50,11 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper{
   class TermSerializer extends Serializer<Term> {
     private final TermFactory TF = TermFactory.instance();
 
+    public TermSerializer() {
+      // dont accept null values
+      super(false);
+    }
+
     @Override
     public void write(Kryo kryo, Output output, Term term) {
       output.writeString(term.qualifiedName());
