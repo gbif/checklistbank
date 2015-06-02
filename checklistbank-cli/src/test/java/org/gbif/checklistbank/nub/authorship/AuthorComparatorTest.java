@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.nub.model.Equality;
@@ -46,7 +46,7 @@ public class AuthorComparatorTest {
     assertEquals(Equality.UNKNOWN, comp.equals(p1, p2));
 
     p2.setAuthorship("Linne");
-    assertEquals(Equality.DIFFERENT, comp.equals(p1, p2));
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
 
     p1.setAuthorship("Linné");
     assertEquals(Equality.EQUAL, comp.equals(p1, p2));
@@ -56,11 +56,53 @@ public class AuthorComparatorTest {
     assertEquals(Equality.EQUAL, comp.equals(p1, p2));
 
     p2.setAuthorship("Carl von Linne");
-    assertEquals(Equality.DIFFERENT, comp.equals(p1, p2));
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
 
     p2.setYear("1847");
     assertEquals(Equality.EQUAL, comp.equals(p1, p2));
   }
+
+  @Test
+  public void testEqualsSubstring() throws Exception {
+    AuthorComparator comp = new AuthorComparator();
+
+    ParsedName p1 = new ParsedName();
+    ParsedName p2 = new ParsedName();
+
+    p1.setAuthorship("L.");
+    p2.setAuthorship("Linne");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p2.setAuthorship("Lin.");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p1.setAuthorship("DC.");
+    p2.setAuthorship("De Candolle");
+    assertEquals(Equality.DIFFERENT, comp.equals(p1, p2));
+
+    p2.setAuthorship("DCandolle");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p1.setAuthorship("Miller");
+    p2.setAuthorship("Mill.");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p1.setAuthorship("Hern.");
+    p2.setAuthorship("Hernandez");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p1.setAuthorship("Robertson, T., Miller, P. et Jameson, R. J.");
+    p2.setAuthorship("Miller");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p1.setAuthorship("T. Robertson, P. Miller & R.J. Jameson");
+    p2.setAuthorship("Miller");
+    assertEquals(Equality.EQUAL, comp.equals(p1, p2));
+
+    p2.setAuthorship("Mülles");
+    assertEquals(Equality.DIFFERENT, comp.equals(p1, p2));
+  }
+
 
   @Test
   public void testBlattariaAuthors() throws Exception {
@@ -135,7 +177,7 @@ public class AuthorComparatorTest {
     assertEquals(Equality.DIFFERENT, comp.equals(p1, p2));
 
     p2 = new ParsedName();
-    p2.setAuthorship("Voellington");
+    p2.setAuthorship("Voetington");
 
     assertEquals(Equality.EQUAL, comp.equals(p1, p2));
 

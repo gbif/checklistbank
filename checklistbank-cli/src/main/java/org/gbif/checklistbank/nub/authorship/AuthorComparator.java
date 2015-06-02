@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.nub.model.Equality;
@@ -51,8 +51,11 @@ public class AuthorComparator {
         // we can stop here, authors are equal, thats enough
         return Equality.EQUAL;
       } else {
-        String sharedPrefix = StringUtils.getCommonPrefix(a1, a2);
-        if (sharedPrefix.length() > 2) {
+        String lcs = LongestCommonSubstring.lcs(a1, a2);
+        if (lcs.length() > 3) {
+          return Equality.EQUAL;
+        } else if(a1.equals(lcs) || a2.equals(lcs)) {
+          // the smallest common substring is the same as one of the inputs. Good enough
           return Equality.EQUAL;
         }
         // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult

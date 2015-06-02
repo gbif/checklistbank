@@ -218,6 +218,7 @@ public class NubBuilder implements Runnable {
         autonym.setGenusOrAbove(u.parsedName.getGenusOrAbove());
         autonym.setSpecificEpithet(u.parsedName.getSpecificEpithet());
         autonym.setInfraSpecificEpithet(u.parsedName.getSpecificEpithet());
+        autonym.setScientificName(autonym.canonicalName());
         autonym.setRank(u.rank);
 
         NubUsage auto = db.findNubUsage(autonym.canonicalName(), u.rank);
