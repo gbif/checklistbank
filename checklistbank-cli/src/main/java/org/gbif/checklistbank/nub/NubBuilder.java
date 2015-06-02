@@ -55,7 +55,7 @@ public class NubBuilder implements Runnable {
   private final UsageSource usageSource;
   private final NameParser parser = new NameParser();
   private NubSource currSrc;
-  private ParentStack parents = new ParentStack();
+  private ParentStack parents;
   private int sourceUsageCounter = 0;
   private final NeoMapper mapper = NeoMapper.instance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
@@ -78,6 +78,7 @@ public class NubBuilder implements Runnable {
   @Override
   public void run() {
     addKingdoms();
+    parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
     addDatasets();
     setEmptyGroupsDoubtful();
     groupByOriginalName();
@@ -100,7 +101,7 @@ public class NubBuilder implements Runnable {
       ku.parsedName = new ParsedName();
       ku.parsedName.setGenusOrAbove(k.scientificName());
 
-      db.addUsage(null, ku);
+      db.addRoot(ku);
       kingdoms.put(k, ku);
     }
 
@@ -245,6 +246,23 @@ public class NubBuilder implements Runnable {
   private void updateNub(NubUsage nub, SrcUsage u, NubUsage parent) {
     LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.scientificName);
     nub.sourceIds.add(u.key);
+    nub.origin = Origin.SOURCE;
+    nub.authors.add(u.parsedName.authorshipComplete());
+    if (u.parsedName.isAuthorsParsed() && nub.parsedName.authorshipComplete().isEmpty()) {
+      nub.parsedName.setAuthorship(u.parsedName.getAuthorship());
+      nub.parsedName.setYear(u.parsedName.getYear());
+      nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
+      nub.parsedName.setBracketYear(u.parsedName.getBracketYear());
+      nub.parsedName.setAuthorsParsed(true);
+    }
+    if (nub.publishedIn == null) {
+      nub.publishedIn = u.publishedIn;
+    }
+    if (nub.nomStatus.isEmpty()) {
+      nub.addNomStatus(u.nomStatus);
+    }
+    //TODO: update parent???
+    db.store(nub);
   }
 
   private void groupByOriginalName() {

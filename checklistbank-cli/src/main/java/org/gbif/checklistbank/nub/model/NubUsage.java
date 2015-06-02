@@ -25,7 +25,7 @@ public class NubUsage {
     parsedName=u.parsedName;
     rank=u.rank;
     status=u.status;
-    nomStatus=u.nomStatus;
+    addNomStatus(u.nomStatus);
   }
 
   // properties shared with NameUsage
@@ -36,12 +36,20 @@ public class NubUsage {
   // properties shared with SrcUsage
   public ParsedName parsedName;
   public TaxonomicStatus status;
-  public NomenclaturalStatus[] nomStatus;
+  public Set<NomenclaturalStatus> nomStatus = Sets.newHashSet();
   // extra properties
   public Node node;
   public Kingdom kingdom_; // underscore as property name clashes with NameUsage.kingdom (String) if stored in the same neo node
   public List<Integer> sourceIds = Lists.newArrayList();
   public Set<String> authors = Sets.newHashSet();
+
+  public void addNomStatus(NomenclaturalStatus[] nomStatus) {
+    if (nomStatus != null) {
+      for (NomenclaturalStatus ns : nomStatus) {
+        this.nomStatus.add(ns);
+      }
+    }
+  }
 
   public int getKey() {
     return (int) node.getId();

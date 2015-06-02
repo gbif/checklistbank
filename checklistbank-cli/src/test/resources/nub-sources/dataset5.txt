@@ -1,0 +1,5 @@
+1			KINGDOM	f	ACCEPTED		Fungi
+2	1		FAMILY	f	ACCEPTED		Agaricaceae Yoda
+100	2		SPECIES	f	ACCEPTED		Lepiota seminuda Miller.
+101	2		SUBSPECIES	f	ACCEPTED		Lepiota nuda subsp. elegans DC.
+102	2		VARIETY	f	ACCEPTED		Lepiota nuda var. europaea Döring

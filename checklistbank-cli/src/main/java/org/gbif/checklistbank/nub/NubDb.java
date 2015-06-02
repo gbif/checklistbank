@@ -203,7 +203,7 @@ public class NubDb implements Closeable {
     return pn;
   }
 
-  public NubUsage addUsage(@Nullable NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
+  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
     LOG.debug("Creating {} {} with parent {}", origin, src.scientificName, parent == null ? "none" : parent.parsedName.getScientificName() );
 
     NubUsage nub = new NubUsage(src);
@@ -219,32 +219,44 @@ public class NubDb implements Closeable {
   /**
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
-  public NubUsage addUsage(@Nullable NubUsage parent, NubUsage nub) {
-    Node n = gds.createNode(Labels.TAXON);
+  public NubUsage addUsage(NubUsage parent, NubUsage nub) {
+    Preconditions.checkNotNull(parent);
+    return add(parent, nub);
+  }
+
+  public NubUsage addRoot(NubUsage nub) {
+    return add(null, nub);
+  }
+
+  /**
+   * @param parent classification parent or accepted name in case the nub usage has a synonym status
+   */
+  private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
+    nub.node = gds.createNode(Labels.TAXON);
     nodes++;
     if (parent == null) {
-      n.addLabel(Labels.ROOT);
+      nub.node.addLabel(Labels.ROOT);
     } else {
       nub.kingdom_ = parent.kingdom_;
       if (nub.status != null && nub.status.isSynonym()) {
-        n.addLabel(Labels.SYNONYM);
-        n.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
+        nub.node.addLabel(Labels.SYNONYM);
+        nub.node.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
       } else {
-        parent.node.createRelationshipTo(n, RelType.PARENT_OF);
+        parent.node.createRelationshipTo(nub.node, RelType.PARENT_OF);
       }
     }
+    return store(nub);
+  }
 
+  public NubUsage store(NubUsage nub) {
     //TODO: map more data, basionym, fullname, author, ...
-    mapper.store(n, nub, false);
-    mapper.setProperty(n, TaxonProperties.CANONICAL_NAME, nub.parsedName.canonicalName());
-    nub.node = n;
-
+    mapper.store(nub.node, nub, false);
+    mapper.setProperty(nub.node, TaxonProperties.CANONICAL_NAME, nub.parsedName.canonicalName());
     countAndRenewTx();
-
     return nub;
   }
 
-    protected static Integer toInt(String x) {
+  protected static Integer toInt(String x) {
     return x == null ? null : Integer.valueOf(x);
   }
 

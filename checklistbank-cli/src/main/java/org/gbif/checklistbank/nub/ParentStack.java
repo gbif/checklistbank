@@ -18,13 +18,19 @@ public class ParentStack {
   private Map<Integer, NubUsage> nubMap = Maps.newHashMap();
   private LinkedList<SrcUsage> parents = Lists.newLinkedList();
   private NubUsage currParent;
-  private Kingdom currKingdom = Kingdom.INCERTAE_SEDIS;
+  private Kingdom currKingdom;
+  private final NubUsage unknownKingdom;
+
+  public ParentStack(NubUsage unknownKingdom) {
+    this.unknownKingdom = unknownKingdom;
+    currKingdom = Kingdom.INCERTAE_SEDIS;
+  }
 
   /**
-   * Returns the current lowest nub parent node, might be null
+   * Returns the current lowest nub parent node. If no parent was set the unknown kingdom is returned, never null.
    */
   public NubUsage nubParent() {
-    return currParent;
+    return currParent == null ? unknownKingdom : currParent;
   }
 
   /**

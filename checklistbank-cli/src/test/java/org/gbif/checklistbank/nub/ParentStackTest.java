@@ -13,7 +13,7 @@ public class ParentStackTest {
 
   @Test
   public void testClear() throws Exception {
-    ParentStack parents = new ParentStack();
+    ParentStack parents = new ParentStack(null);
 
     assertEquals(0, parents.size());
     assertNull(parents.nubParent());

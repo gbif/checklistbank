@@ -68,6 +68,30 @@ public class NubBuilderTest {
   }
 
   @Test
+  public void testUnknownKingdom() throws Exception {
+    build(ClasspathUsageSource.source(4));
+
+    NubUsage u = assertNub("Lepiota nuda", Rank.SPECIES, Origin.SOURCE, null);
+
+    NubUsage g = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, u.getKey());
+
+    NubUsage f = assertNub("Popeliaceae", Rank.FAMILY, Origin.SOURCE, g.getKey());
+
+    NubUsage k = assertNub(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, f.getKey());
+  }
+
+  @Test
+  public void testUpdateAuthorship() throws Exception {
+    build(ClasspathUsageSource.source(1, 5));
+
+    assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+    assertNub("Lepiota seminuda", "Miller.", Rank.SPECIES, Origin.SOURCE);
+    assertNub("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
+    assertNub("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
+    assertNub("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+  }
+
+  @Test
   public void testCreateImplicitGenus() throws Exception {
     build(ClasspathUsageSource.source(1));
 
@@ -299,13 +323,22 @@ public class NubBuilderTest {
   }
 
   private NubUsage assertNub(String canonical, Rank rank, Origin origin, Integer parentKey) {
-    NubUsage u = get(canonical);
+    NubUsage u = get(canonical, rank);
     assertEquals(canonical, u.parsedName.canonicalName());
     assertEquals(rank, u.rank);
     assertEquals(origin, u.origin);
     if (parentKey != null) {
       //assertEquals(parentKey, u.getParentKey());
     }
+    return u;
+  }
+
+  private NubUsage assertNub(String canonical, String authorship, Rank rank, Origin origin) {
+    NubUsage u = get(canonical, rank);
+    assertEquals(canonical, u.parsedName.canonicalName());
+    assertEquals(rank, u.rank);
+    assertEquals(origin, u.origin);
+    assertEquals(authorship, u.parsedName.authorshipComplete());
     return u;
   }
 
