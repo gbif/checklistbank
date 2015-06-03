@@ -7,6 +7,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.authorship.AuthorComparator;
 import org.gbif.checklistbank.nub.model.Equality;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -269,5 +270,21 @@ public class NubDb implements Closeable {
     tx.success();
     tx.close();
     gds.shutdown();
+  }
+
+  /**
+   * @param n the node to start the parental hierarchy search from
+   * @param search the node to find in the hierarchy
+   */
+  public boolean existsInClassification(Node n, Node search) {
+    if (n.equals(search)) {
+      return true;
+    }
+    for (Node p : Traversals.PARENTS.traverse(n).nodes()) {
+      if (p.equals(search)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

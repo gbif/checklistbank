@@ -267,10 +267,11 @@ public class NubBuilder implements Runnable {
     }
     NubUsage currNubParent = db.getParent(nub);
     if (parent != null && currNubParent.rank.higherThan(parent.rank) ) {
-      // TODO: insert intermediate rank only if old parent is still in the hierarchy!
-      LOG.debug("Update {} classification with new parent {} {}",
-        nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
-      db.updateParentRel(nub.node, parent.node);
+      if (db.existsInClassification(parent.node, currNubParent.node)) {
+        LOG.debug("Update {} classification with new parent {} {}",
+          nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
+        db.updateParentRel(nub.node, parent.node);
+      }
     }
     db.store(nub);
   }

@@ -86,7 +86,7 @@ public class NubBuilderTest {
     build(ClasspathUsageSource.source(1, 5, 6));
 
     assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
-    assertNub("Lepiota seminuda", "Miller.", Rank.SPECIES, Origin.SOURCE);
+    assertNub("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
     assertNub("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
     assertNub("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
     assertNub("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
@@ -102,6 +102,11 @@ public class NubBuilderTest {
     NubUsage ls = assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, fam.getKey());
 
     assertClassification(ls, "Lepiota", "Agaricaceae", "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
+
+    // this genus should not be updated as its classification in source 7 contradicts the original one
+    NubUsage b = assertNub("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
+    assertClassification(b, "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
+
   }
 
   @Test
