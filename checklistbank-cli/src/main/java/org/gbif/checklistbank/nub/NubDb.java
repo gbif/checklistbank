@@ -1,8 +1,6 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
@@ -21,8 +19,10 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
@@ -72,6 +72,19 @@ public class NubDb implements Closeable {
       usages.add(node2usage(n));
     }
     return usages;
+  }
+
+  /**
+   * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
+   */
+  public NubUsage getParent(NubUsage child) {
+    Node p;
+    if (child.status.isSynonym()) {
+      p = child.node.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getOtherNode(child.node);
+    } else {
+      p = child.node.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child.node);
+    }
+    return node2usage(p);
   }
 
   /**
@@ -166,41 +179,7 @@ public class NubDb implements Closeable {
     if (n == null) return null;
     NubUsage nub = mapper.read(n ,new NubUsage());
     nub.node = n;
-
-    Preconditions.checkNotNull(nub.kingdom_);
     return nub;
-  }
-
-  public void storeParsedName(ParsedName pn, Node n) {
-    mapper.setProperty(n, PN_GENUS, pn.getGenusOrAbove());
-    mapper.setProperty(n, PN_SPECIES, pn.getSpecificEpithet());
-    mapper.setProperty(n, PN_INFRASPECIES, pn.getInfraSpecificEpithet());
-    if (pn.getNotho() != null) {
-      mapper.storeEnum(n, PN_NOTHO, pn.getNotho());
-    }
-    mapper.setProperty(n, PN_AUTHOR, pn.getAuthorship());
-    mapper.setProperty(n, PN_YEAR, pn.getYear());
-    mapper.setProperty(n, PN_BRACKET_AUTHOR, pn.getBracketAuthorship());
-    mapper.setProperty(n, PN_BRACKET_YEAR, pn.getBracketYear());
-    mapper.setProperty(n, PN_SENSU, pn.getSensu());
-  }
-
-  public ParsedName readParsedName(Node n) {
-    ParsedName pn = new ParsedName();
-    // name and rank is shared with NameUsage class
-    pn.setScientificName((String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, null));
-    pn.setRank(NeoMapper.readEnum(n, TaxonProperties.RANK, Rank.class, null));
-    // parsed name specific
-    pn.setGenusOrAbove((String) n.getProperty(PN_GENUS, null));
-    pn.setSpecificEpithet((String) n.getProperty(PN_SPECIES, null));
-    pn.setInfraSpecificEpithet((String) n.getProperty(PN_INFRASPECIES, null));
-    pn.setNotho(NeoMapper.readEnum(n, PN_NOTHO, NamePart.class, null));
-    pn.setAuthorship( (String) n.getProperty(PN_AUTHOR, null));
-    pn.setYear((String) n.getProperty(PN_YEAR, null));
-    pn.setBracketAuthorship( (String) n.getProperty(PN_BRACKET_AUTHOR, null));
-    pn.setBracketYear( (String) n.getProperty(PN_BRACKET_YEAR, null));
-    pn.setSensu( (String) n.getProperty(PN_SENSU, null));
-    return pn;
   }
 
   public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
@@ -246,6 +225,18 @@ public class NubDb implements Closeable {
       }
     }
     return store(nub);
+  }
+
+  /**
+   * Creates a new parent relation from parent to child n and removes any previously existing parent relations of
+   * the child n
+   */
+  public void updateParentRel(Node n, Node parent) {
+    for (Relationship rel : n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
+      rel.delete();
+    }
+    parent.createRelationshipTo(n, RelType.PARENT_OF);
+    countAndRenewTx();
   }
 
   public NubUsage store(NubUsage nub) {

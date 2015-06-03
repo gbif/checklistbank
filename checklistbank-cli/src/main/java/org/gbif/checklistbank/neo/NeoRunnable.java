@@ -5,20 +5,17 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import javax.ws.rs.HEAD;
 
 import com.yammer.metrics.MetricRegistry;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +32,6 @@ public abstract class NeoRunnable implements Runnable {
   protected final int batchSize;
   protected GraphDatabaseService db;
   protected NeoMapper mapper = NeoMapper.instance();
-  private TraversalDescription parentsTraversal;
 
   public NeoRunnable(UUID datasetKey, NeoConfiguration cfg, MetricRegistry registry) {
     batchSize = cfg.batchSize;
@@ -45,10 +41,6 @@ public abstract class NeoRunnable implements Runnable {
 
   protected GraphDatabaseService setupDb() {
     db = neoCfg.newEmbeddedDb(datasetKey, true);
-    parentsTraversal = db.traversalDescription()
-      .relationships(RelType.PARENT_OF, Direction.INCOMING)
-      .depthFirst()
-      .evaluator(Evaluators.excludeStartPosition());
     return db;
   }
 
@@ -110,7 +102,7 @@ public abstract class NeoRunnable implements Runnable {
 
   protected boolean matchesClassification(Node n, List<RankedName> classification) {
     Iterator<RankedName> clIter = classification.listIterator();
-    Iterator<Node> nodeIter = parentsTraversal.traverse(n).nodes().iterator();
+    Iterator<Node> nodeIter = Traversals.PARENTS.traverse(n).nodes().iterator();
 
     while (clIter.hasNext()) {
       if (!nodeIter.hasNext()) {
@@ -129,7 +121,7 @@ public abstract class NeoRunnable implements Runnable {
    * @return the last parent or the node itself if no parent exists
    */
   protected RankedName getHighestParent(Node n) {
-    Node p = IteratorUtil.lastOrNull(parentsTraversal.traverse(n).nodes());
+    Node p = IteratorUtil.lastOrNull(Traversals.PARENTS.traverse(n).nodes());
     if (p != null) {
       return mapper.readRankedName(p);
     }

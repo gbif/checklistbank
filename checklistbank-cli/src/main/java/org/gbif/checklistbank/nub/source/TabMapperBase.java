@@ -50,13 +50,14 @@ public abstract class TabMapperBase extends Writer {
         }
         bufStart = b + 1;
         idx++;
-        if (idx == ROW_SIZE) {
-          idx = 0;
-        }
       }
       if (c == '\n') {
         rowNumber++;
-        addRow(this.row);
+        if (idx > 1) {
+          // ignore empty rows
+          addRow(this.row);
+        }
+        idx = 0;
         row = new String[ROW_SIZE];
       }
       b++;

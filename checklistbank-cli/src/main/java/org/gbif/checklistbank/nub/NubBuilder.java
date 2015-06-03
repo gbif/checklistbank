@@ -45,6 +45,7 @@ public class NubBuilder implements Runnable {
     ranks.add(Rank.SUBSPECIES);
     ranks.add(Rank.VARIETY);
     ranks.add(Rank.FORM);
+    ranks.remove(Rank.KINGDOM); // we only use kingdoms from our enum
     NUB_RANKS = ImmutableSet.copyOf(ranks);
   }
 
@@ -180,7 +181,7 @@ public class NubBuilder implements Runnable {
           nub = createNubUsage(u, origin, parent);
         } else {
           // update nub usage
-          updateNub(nub, u, parent);
+          updateNub(nub, u, origin, parent);
         }
       } else {
         LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
@@ -243,12 +244,15 @@ public class NubBuilder implements Runnable {
     }
   }
 
-  private void updateNub(NubUsage nub, SrcUsage u, NubUsage parent) {
+  private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
     LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.scientificName);
     nub.sourceIds.add(u.key);
-    nub.origin = Origin.SOURCE;
+    if (origin == Origin.SOURCE) {
+      // only override original origin value if we update from a true source
+      nub.origin = Origin.SOURCE;
+    }
     nub.authors.add(u.parsedName.authorshipComplete());
-    if (u.parsedName.isAuthorsParsed() && nub.parsedName.authorshipComplete().isEmpty()) {
+    if (!u.parsedName.authorshipComplete().isEmpty() && nub.parsedName.authorshipComplete().isEmpty()) {
       nub.parsedName.setAuthorship(u.parsedName.getAuthorship());
       nub.parsedName.setYear(u.parsedName.getYear());
       nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
@@ -261,7 +265,13 @@ public class NubBuilder implements Runnable {
     if (nub.nomStatus.isEmpty()) {
       nub.addNomStatus(u.nomStatus);
     }
-    //TODO: update parent???
+    NubUsage currNubParent = db.getParent(nub);
+    if (parent != null && currNubParent.rank.higherThan(parent.rank) ) {
+      // TODO: insert intermediate rank only if old parent is still in the hierarchy!
+      LOG.debug("Update {} classification with new parent {} {}",
+        nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
+      db.updateParentRel(nub.node, parent.node);
+    }
     db.store(nub);
   }
 

@@ -8,6 +8,7 @@ import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
@@ -82,13 +83,25 @@ public class NubBuilderTest {
 
   @Test
   public void testUpdateAuthorship() throws Exception {
-    build(ClasspathUsageSource.source(1, 5));
+    build(ClasspathUsageSource.source(1, 5, 6));
 
     assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
     assertNub("Lepiota seminuda", "Miller.", Rank.SPECIES, Origin.SOURCE);
     assertNub("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
     assertNub("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
     assertNub("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+  }
+
+  @Test
+  public void testUpdateClassification() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(3, 5, 7);
+    src.setSourceRank(3, Rank.KINGDOM);
+    build(src);
+
+    NubUsage fam = assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+    NubUsage ls = assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, fam.getKey());
+
+    assertClassification(ls, "Lepiota", "Agaricaceae", "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
   }
 
   @Test
@@ -322,6 +335,13 @@ public class NubBuilderTest {
     assertEquals(Kingdom.values().length, countRoot());
   }
 
+  private void assertClassification(NubUsage nub, String ... parentNames) {
+    int idx = 0;
+    for (NubUsage n : parents(nub.node)) {
+      assertEquals("Higher classification mismatch for " + nub.parsedName.getScientificName(), parentNames[idx++], n.parsedName.canonicalName());
+    }
+  }
+
   private NubUsage assertNub(String canonical, Rank rank, Origin origin, Integer parentKey) {
     NubUsage u = get(canonical, rank);
     assertEquals(canonical, u.parsedName.canonicalName());
@@ -342,10 +362,18 @@ public class NubBuilderTest {
     return u;
   }
 
+  private List<NubUsage> parents(Node child) {
+    List<NubUsage> usages = Lists.newArrayList();
+    for (Node n : Traversals.PARENTS.traverse(child).nodes()) {
+      usages.add(get(n));
+    }
+    return usages;
+  }
+
   private List<NubUsage> list(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
     for (Node n : IteratorUtil.asIterable(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical))) {
-      usages.add(mapper.read(n, new NubUsage()));
+      usages.add(get(n));
     }
     return usages;
   }

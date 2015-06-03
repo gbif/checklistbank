@@ -17,15 +17,20 @@
 62	16		CLASS	f	ACCEPTED		Cycadopsida
 70	10		CLASS	f	ACCEPTED		Arachnida
 71	10		CLASS	f	ACCEPTED		Insecta
+72	13		CLASS	f	ACCEPTED		Agaricomycetes
 100	71		ORDER	f	ACCEPTED		Coleoptera
 101	71		ORDER	f	ACCEPTED		Diptera
 102	71		ORDER	f	ACCEPTED		Lepidoptera
 102	71		ORDER	f	ACCEPTED		Orthoptera
 110	51		ORDER	f	ACCEPTED		Crocodylia
 111	51		ORDER	f	ACCEPTED		Squamata
+112	72		ORDER	f	ACCEPTED		Polyporales
+113	72		ORDER	f	ACCEPTED		Agaricales Underw.
 1000	60		FAMILY	f	ACCEPTED		Asteraceae
 1001	60		FAMILY	f	ACCEPTED		Fabaceae
 1002	60		FAMILY	f	ACCEPTED		Poaceae
 1003	60		FAMILY	f	ACCEPTED		Scrophulariaceae
 1004	60		FAMILY	f	ACCEPTED		Malvaceae
 1010	102		FAMILY	f	ACCEPTED		Limoniidae
+1020	112		FAMILY	f	ACCEPTED		Polyporaceae Fr. ex Corda
+
