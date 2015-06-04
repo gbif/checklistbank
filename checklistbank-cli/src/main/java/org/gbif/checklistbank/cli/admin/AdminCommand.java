@@ -104,6 +104,7 @@ public class AdminCommand extends BaseCommand {
       switch (cfg.operation) {
         case CRAWL:
           crawl(cfg.key);
+          break;
 
         case NORMALIZE:
           // validation result is a fake valid checklist validation
@@ -191,7 +192,7 @@ public class AdminCommand extends BaseCommand {
           }
           counter++;
           LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-          crawlDataset(key);
+          crawlDataset(d.getKey());
         }
         page.nextPage();
       }
