@@ -62,8 +62,7 @@ public class NoFileDescriptiorLeakTest {
 
       // copy dwca
       File dwca = cfg.archiveDir(dk);
-      CompressionUtil.decompressFile(dwca, zip);
-
+      CompressionUtil.decompressFile(dwca, this.zip);
 
       Normalizer normalizer = NormalizerTest.buildNormalizer(cfg, dk);
       futures.add(ecs.submit(Executors.callable(normalizer)));
