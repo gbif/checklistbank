@@ -104,6 +104,7 @@ public class AdminCommand extends BaseCommand {
       switch (cfg.operation) {
         case CRAWL:
           crawl(cfg.key);
+          break;
 
         case NORMALIZE:
           // validation result is a fake valid checklist validation
@@ -191,7 +192,7 @@ public class AdminCommand extends BaseCommand {
           }
           counter++;
           LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-          crawlDataset(key);
+          crawlDataset(d.getKey());
         }
         page.nextPage();
       }
@@ -234,4 +235,18 @@ public class AdminCommand extends BaseCommand {
     LOG.info("Removed neo files from {}", neoDir);
   }
 
+
+  public static void main(String[] args) throws IOException {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
+
+    cfg.messaging.host = "mq.gbif.org";
+    cfg.messaging.virtualHost = "/prod";
+    cfg.messaging.username = "clb";
+    cfg.messaging.password = "clb";
+
+    // crawl PLAZI checklist
+    cfg.type = DatasetType.CHECKLIST;
+    cmd.crawl(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
+  }
 }

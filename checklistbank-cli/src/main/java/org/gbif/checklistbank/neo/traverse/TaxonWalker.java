@@ -22,8 +22,8 @@ public class TaxonWalker {
 
   private static final Logger LOG = LoggerFactory.getLogger(TaxonWalker.class);
 
-  public static void walkAll(GraphDatabaseService db, StartEndHandler handler) {
-    walkAccepted(db, handler, 10000, null);
+  public static void walkAll(GraphDatabaseService db, StartEndHandler ... handler) {
+    walkAccepted(db, 10000, null, handler);
   }
 
   /**
@@ -33,9 +33,9 @@ public class TaxonWalker {
    */
   public static void walkAccepted(
     GraphDatabaseService db,
-    StartEndHandler handler,
     int batchsize,
-    @Nullable Meter meter
+    @Nullable Meter meter,
+    StartEndHandler ... handler
   ) {
     Path lastPath = null;
     long counter = 0;
@@ -66,16 +66,16 @@ public class TaxonWalker {
           // first close allAccepted old nodes, then open new ones
           // reverse order for closing nodes...
           for (Node n : ImmutableList.copyOf(lIter).reverse()) {
-            handler.end(n);
+            handleEnd(n, handler);
           }
           while (cIter.hasNext()) {
-            handler.start(cIter.next());
+            handleStart(cIter.next(), handler);
           }
 
         } else {
           // only new nodes
           for (Node n : p.nodes()) {
-            handler.start(n);
+            handleStart(n, handler);
           }
         }
         lastPath = p;
@@ -84,7 +84,7 @@ public class TaxonWalker {
       // close all remaining nodes
       if (lastPath != null) {
         for (Node n : ImmutableList.copyOf(lastPath.nodes()).reverse()) {
-          handler.end(n);
+          handleEnd(n, handler);
         }
       }
 
@@ -92,6 +92,18 @@ public class TaxonWalker {
 
     } finally {
       tx.close();
+    }
+  }
+
+  private static void handleStart(Node n, StartEndHandler ... handler) {
+    for (StartEndHandler h : handler) {
+      h.start(n);
+    }
+  }
+
+  private static void handleEnd(Node n, StartEndHandler ... handler) {
+    for (StartEndHandler h : handler) {
+      h.end(n);
     }
   }
 

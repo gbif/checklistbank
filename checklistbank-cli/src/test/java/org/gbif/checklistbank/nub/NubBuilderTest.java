@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.TaxonProperties;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -19,12 +20,15 @@ import java.util.List;
 import com.beust.jcommander.internal.Lists;
 import org.junit.After;
 import org.junit.Test;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -170,6 +174,44 @@ public class NubBuilderTest {
     assertNotNull(get("Animalia", Rank.KINGDOM));
     assertNotNull(get("Coleoptera", Rank.ORDER));
     assertNotNull(get("Poaceae", Rank.FAMILY));
+  }
+
+
+  @Test
+  public void testColAdiantumSynonym() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(8);
+    src.setSourceRank(8, Rank.PHYLUM);
+    build(src);
+
+    List<NubUsage> pedatums = list("Adiantum pedatum");
+    assertEquals(4, pedatums.size());
+    for (NubUsage u : pedatums) {
+      System.out.println(u.parsedName.getScientificName());
+      NubUsage p = parentOrAccepted(u.node);
+      switch (u.parsedName.getScientificName()) {
+        case "Adiantum pedatum":
+          assertFalse(u.status.isSynonym());
+          assertEquals("Adiantum", p.parsedName.canonicalName());
+          break;
+        case "Adiantum pedatum Forst.":
+          assertTrue(u.status.isSynonym());
+          assertFalse(p.status.isSynonym());
+          assertEquals("Adiantum hispidulum Sw.", p.parsedName.getScientificName());
+          break;
+        case "Adiantum pedatum A. Peter":
+          assertTrue(u.status.isSynonym());
+          assertFalse(p.status.isSynonym());
+          assertEquals("Adiantum patens subsp. oatesii (Bak.) Schelpe", p.parsedName.getScientificName());
+          break;
+        case "Adiantum pedatum Raddi":
+          assertTrue(u.status.isSynonym());
+          assertFalse(p.status.isSynonym());
+          assertEquals("Adiantum brasiliense Raddi", p.parsedName.getScientificName());
+          break;
+        default:
+          fail("Unexpected name "+u.parsedName.getScientificName());
+      }
+    }
   }
 
   /**
@@ -373,6 +415,14 @@ public class NubBuilderTest {
       usages.add(get(n));
     }
     return usages;
+  }
+
+  private NubUsage parentOrAccepted(Node child) {
+    Relationship rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+    if (rel == null) {
+      rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
+    }
+    return get( rel.getOtherNode(child) );
   }
 
   private List<NubUsage> list(String canonical) {

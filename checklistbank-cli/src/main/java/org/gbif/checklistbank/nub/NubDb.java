@@ -114,6 +114,7 @@ public class NubDb implements Closeable {
    * @return the existing usage or null if it does not exist yet.
    */
   public NubUsage findNubUsage(SrcUsage u, Kingdom uKingdom) {
+    final boolean synonym = u.status.isSynonym();
     List<NubUsage> checked = Lists.newArrayList();
     for (Node n : IteratorUtil.asIterable(gds.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
       NubUsage rn = node2usage(n);
@@ -143,7 +144,15 @@ public class NubDb implements Closeable {
     }
     Equality author = authComp.equals(u.parsedName, match.parsedName);
     Equality kingdom = compareClassification(uKingdom, match);
-    return author != Equality.DIFFERENT && kingdom != Equality.DIFFERENT;
+    switch (author) {
+      case DIFFERENT:
+        return false;
+      case EQUAL:
+        return kingdom != Equality.DIFFERENT;
+      case UNKNOWN:
+        return kingdom != Equality.DIFFERENT && u.status.isSynonym() == match.status.isSynonym();
+    }
+    return false;
   }
 
   //TODO: improve classification comparison to more than just kingdom ???

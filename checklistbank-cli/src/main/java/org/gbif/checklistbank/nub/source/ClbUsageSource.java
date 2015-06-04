@@ -11,7 +11,7 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.nub.NubTags;
+import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
 import java.util.List;

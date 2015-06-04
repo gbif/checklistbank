@@ -8,7 +8,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.normalizer.UsageMetricsAndNubMatchHandler;
+import org.gbif.checklistbank.cli.normalizer.UsageMetricsHandler;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoMapper;
@@ -83,8 +83,9 @@ public class NubBuilder implements Runnable {
     addDatasets();
     setEmptyGroupsDoubtful();
     groupByOriginalName();
-    addExtensionData();
-    assignUsageKeysAndMetrics();
+    //addExtensionData();
+    assignUsageKeys();
+    builtUsageMetrics();
     db.close();
   }
 
@@ -135,8 +136,12 @@ public class NubBuilder implements Runnable {
   }
 
   private void addDatasets() {
+    LOG.info("Query registry for backbone sources ...");
     List<NubSource> sources = usageSource.listSources();
-    LOG.info("Start adding {} backbone sources", sources.size());
+    LOG.info("Start adding {} backbone sources:", sources.size());
+    for (NubSource source : sources) {
+      LOG.debug("Nub source: {}", source.name);
+    }
     for (NubSource source : sources) {
       addDataset(source);
     }
@@ -158,9 +163,13 @@ public class NubBuilder implements Runnable {
       LOG.debug("process {} {}", u.rank, u.scientificName);
       sourceUsageCounter++;
       parents.add(u);
-      NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-      if (nub != null) {
-        parents.put(nub);
+      try {
+        NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+        if (nub != null) {
+          parents.put(nub);
+        }
+      } catch (RuntimeException e) {
+        LOG.error("Error processing {} for source {}", u.scientificName, source.name);
       }
     }
     db.renewTx();
@@ -245,6 +254,9 @@ public class NubBuilder implements Runnable {
   }
 
   private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
+    if (nub.status.isSynonym() != u.status.isSynonym()) {
+      return;
+    }
     LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.scientificName);
     nub.sourceIds.add(u.key);
     if (origin == Origin.SOURCE) {
@@ -283,21 +295,18 @@ public class NubBuilder implements Runnable {
   /**
    * Assigns a unique usageKey to all nodes by matching a usage to the previous backbone to keep stable identifiers.
    */
-  private void assignUsageKeysAndMetrics() {
-    LOG.info("Walk all accepted taxa, build metrics and match to previous GBIF backbone");
-    UsageMetricsAndNubMatchHandler metricsHandler = new UsageMetricsAndNubMatchHandler(matchingService, db.gds);
-    TaxonWalker.walkAccepted(db.gds, metricsHandler, 10000, null);
+  private void assignUsageKeys() {
+    //TODO: nub matching using the new author based matching...
+    LOG.info("NOT IMPLEMENTED: match to previous GBIF backbone");
+  }
+
+  private void builtUsageMetrics() {
+    LOG.info("Walk all accepted taxa and build usage metrics");
+    UsageMetricsHandler metricsHandler = new UsageMetricsHandler();
+    TaxonWalker.walkAccepted(db.gds, 10000, null, metricsHandler);
     db.renewTx();
     NormalizerStats stats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", stats.getRoots(), stats.getCount(), stats.getSynonyms());
   }
 
-  private void trackSourceIds(Node n, Integer id) {
-    List<Integer> ids = mapper.readList(n, NEO_PROP_SRC_IDS, Integer.class);
-    if (ids == null) {
-      ids = Lists.newArrayList();
-    }
-    ids.add(id);
-    mapper.storeList(n, NEO_PROP_SRC_IDS, ids);
-  }
 }

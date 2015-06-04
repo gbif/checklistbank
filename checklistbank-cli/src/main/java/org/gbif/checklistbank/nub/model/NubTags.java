@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.model;
 
 public enum NubTags {
   PRIORITY("priority"),

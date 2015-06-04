@@ -428,7 +428,7 @@ public class NeoMapper {
     }
   }
 
-  private void initModelMap(Class cl) {
+  private synchronized void initModelMap(Class cl) {
     List<FieldData> fields = Lists.newArrayList();
     FIELDS.put(cl, fields);
 

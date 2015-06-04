@@ -9,7 +9,7 @@ import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
-import org.gbif.checklistbank.nub.NubTags;
+import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 

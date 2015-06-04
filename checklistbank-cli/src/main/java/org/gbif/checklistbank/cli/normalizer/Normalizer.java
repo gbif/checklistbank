@@ -75,7 +75,7 @@ public class Normalizer extends NeoRunnable {
   private final NameUsageMatchingService matchingService;
 
   private final Map<String, UUID> constituents;
-  private final File dwca;
+  private File dwca;
   private final File storeDir;
   private final Meter insertMeter;
   private final Meter relationMeter;
@@ -85,7 +85,8 @@ public class Normalizer extends NeoRunnable {
   private InsertMetadata meta;
   private int ignored;
   private List<String> cycles = Lists.newArrayList();
-  private UsageMetricsAndNubMatchHandler metricsHandler;
+  private UsageMetricsHandler metricsHandler;
+  private NubMatchHandler matchHandler;
 
   public Normalizer(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
     Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
@@ -98,6 +99,14 @@ public class Normalizer extends NeoRunnable {
     storeDir = cfg.neo.neoDir(datasetKey);
     dwca = cfg.archiveDir(datasetKey);
     this.matchingService = matchingService;
+  }
+
+  /**
+   * We use this in tests to voerride the dwca file to read in from...
+   */
+  @VisibleForTesting
+  protected void setDwcaToRead(File dwca) {
+    this.dwca = dwca;
   }
 
   public void run() throws NormalizationFailedException {
@@ -359,8 +368,9 @@ public class Normalizer extends NeoRunnable {
    */
   private void buildMetricsAndMatchBackbone() {
     LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
-    metricsHandler = new UsageMetricsAndNubMatchHandler(matchingService, db);
-    TaxonWalker.walkAccepted(db, metricsHandler, 10000, metricsMeter);
+    metricsHandler = new UsageMetricsHandler();
+    matchHandler = new NubMatchHandler(matchingService);
+    TaxonWalker.walkAccepted(db, 10000, metricsMeter, metricsHandler, matchHandler);
     LOG.info("Walked all accepted taxa and built metrics");
   }
 
