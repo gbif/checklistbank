@@ -18,6 +18,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,26 +27,34 @@ import org.slf4j.LoggerFactory;
  * Serializing/Deserializing tool specifically for the term maps of a VerbatimNameUsage to be stored in postgres
  * or neo backends as a single binary column.
  */
-public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper{
+public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper {
 
   private static final Logger LOG = LoggerFactory.getLogger(VerbatimNameUsageMapperKryo.class);
-  private final Kryo kryo;
+  // kryo is not thread safe, see https://github.com/EsotericSoftware/kryo#threading
+  private final KryoPool pool;
 
   public VerbatimNameUsageMapperKryo() {
-    kryo = new Kryo();
-    kryo.setRegistrationRequired(false);
-    kryo.register(VerbatimNameUsage.class);
-    kryo.register(Date.class);
-    kryo.register(HashMap.class);
-    kryo.register(ArrayList.class);
-    kryo.register(Extension.class);
-    kryo.register(DwcTerm.class);
-    kryo.register(DcTerm.class);
-    kryo.register(GbifTerm.class);
-    kryo.register(AcTerm.class);
-    TermSerializer ts = new TermSerializer();
-    kryo.register(UnknownTerm.class, ts);
-    kryo.register(Term.class, ts);
+    KryoFactory factory = new KryoFactory() {
+      public Kryo create () {
+        Kryo kryo = new Kryo();
+        kryo.setRegistrationRequired(false);
+        kryo.register(VerbatimNameUsage.class);
+        kryo.register(Date.class);
+        kryo.register(HashMap.class);
+        kryo.register(ArrayList.class);
+        kryo.register(Extension.class);
+        kryo.register(DwcTerm.class);
+        kryo.register(DcTerm.class);
+        kryo.register(GbifTerm.class);
+        kryo.register(AcTerm.class);
+        TermSerializer ts = new TermSerializer();
+        kryo.register(UnknownTerm.class, ts);
+        kryo.register(Term.class, ts);
+        return kryo;
+      }
+    };
+    // Build pool with SoftReferences enabled (optional)
+    pool = new KryoPool.Builder(factory).softReferences().build();
   }
 
   class TermSerializer extends Serializer<Term> {
@@ -70,7 +80,10 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper{
   public VerbatimNameUsage read(byte[] bytes) {
     if (bytes != null) {
       final Input input = new Input(bytes);
-      return kryo.readObject(input, VerbatimNameUsage.class);
+      Kryo kryo = pool.borrow();
+      VerbatimNameUsage v = kryo.readObject(input, VerbatimNameUsage.class);
+      pool.release(kryo);
+      return v;
     }
     return null;
   }
@@ -79,7 +92,9 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper{
   public byte[] write(VerbatimNameUsage verbatim) {
     if (verbatim != null) {
       final Output output = new Output(4096, -1);
+      Kryo kryo = pool.borrow();
       kryo.writeObject(output, verbatim);
+      pool.release(kryo);
       output.flush();
       return output.getBuffer();
     }
