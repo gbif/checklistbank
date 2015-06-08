@@ -35,7 +35,7 @@ public class NoFileDescriptiorLeakTest {
 
   @Test
   public void manyNormalizersInParallel() throws Exception {
-    final int parallelNormalizer = 100;
+    final int parallelNormalizer = 1000;
 
     cfg = new NormalizerConfiguration();
     cfg.neo.neoRepository = Files.createTempDirectory("neotest").toFile();
