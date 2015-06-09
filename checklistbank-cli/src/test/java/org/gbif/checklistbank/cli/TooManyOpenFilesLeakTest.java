@@ -52,7 +52,7 @@ import org.junit.Test;
 import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 
 @Ignore("manual test to discover why we see too many open files in heavy normalizer cli use under linux")
-public class NoFileDescriptiorLeakTest {
+public class TooManyOpenFilesLeakTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
     private final int threads = 10;
 
