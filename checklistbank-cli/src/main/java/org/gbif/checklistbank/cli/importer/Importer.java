@@ -65,7 +65,7 @@ public class Importer extends NeoRunnable implements Runnable {
 
   public void run() {
     LOG.info("Start importing checklist {}", datasetKey);
-    setupDb();
+    setupDb(false);
     syncDataset();
     tearDownDb();
     LOG.info("Importing of {} finished. Neo database shut down.", datasetKey);
@@ -138,17 +138,22 @@ public class Importer extends NeoRunnable implements Runnable {
     }
 
     // remove old usages
-    NameUsage first = usageService.get(firstUsageKey, null);
-    if (first == null) {
-      LOG.error("No records imported or first name usage with id {} not found", firstUsageKey);
-      throw new IllegalStateException("We did not seem to import a single name usage!");
-    }
+    if (firstUsageKey < 0) {
+      LOG.error("No records imported for dataset {}. Keep all existing data!", datasetKey);
+      throw new IllegalStateException("No records imported for dataset " + datasetKey);
 
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(first.getLastInterpreted());
-    // use 2 seconds before first insert/update as the threshold to remove records
-    cal.add(Calendar.SECOND, -2);
-    delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
+    } else {
+      NameUsage first = usageService.get(firstUsageKey, null);
+      if (first == null) {
+        LOG.error("First name usage with id {} not found", firstUsageKey);
+        throw new IllegalStateException("Error importing name usages for dataset " + datasetKey);
+      }
+      Calendar cal = Calendar.getInstance();
+      cal.setTime(first.getLastInterpreted());
+      // use 2 seconds before first insert/update as the threshold to remove records
+      cal.add(Calendar.SECOND, -2);
+      delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
+    }
   }
 
   /**

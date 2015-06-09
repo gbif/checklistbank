@@ -101,21 +101,13 @@ public class Normalizer extends NeoRunnable {
     this.matchingService = matchingService;
   }
 
-  /**
-   * We use this in tests to voerride the dwca file to read in from...
-   */
-  @VisibleForTesting
-  protected void setDwcaToRead(File dwca) {
-    this.dwca = dwca;
-  }
-
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
     // batch import uses its own batchdb
     batchInsertData();
     // insert regular neo db for further processing
     try {
-      setupDb();
+      setupDb(false);
       setupRelations();
       buildMetricsAndMatchBackbone();
     } finally {

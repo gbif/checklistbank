@@ -22,7 +22,7 @@ public class CitationServiceMyBatis implements CitationService {
   }
 
   @Override
-  public Integer createOrGet(String citation) {
+  public synchronized Integer createOrGet(String citation) {
     if (Strings.isNullOrEmpty(citation)) {
       return null;
     }

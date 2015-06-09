@@ -39,8 +39,8 @@ public abstract class NeoRunnable implements Runnable {
     this.neoCfg = cfg;
   }
 
-  protected GraphDatabaseService setupDb() {
-    db = neoCfg.newEmbeddedDb(datasetKey, true);
+  protected GraphDatabaseService setupDb(boolean clean) {
+    db = neoCfg.newEmbeddedDb(datasetKey, clean);
     return db;
   }
 

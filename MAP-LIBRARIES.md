@@ -4,11 +4,12 @@ Measuring the memory footprint of various collection libraries handling int prim
 We decided to use the HPPC library in the production code as it is still very memory efficient ( over 5 times less memory than the regular java HashMap) for large maps, introduces no further dependencies and is a rather small library.
 
 ## Measuring object memory
-We use the com.github.jbellis jamm agent library to implement an instrumentation.
-The surefire plugin is configured to execute the JVM with the jamm.jar as an agent, see build section in pom.xml.
+We used the com.github.jbellis jamm agent library to implement an instrumentation to measure memory usage.
+The surefire plugin was configured to execute the JVM with the jamm.jar as an agent, see [build section in pom.xml](https://github.com/gbif/checklistbank/blob/master/checklistbank-cli/pom.xml#L91).
 
 # Libraries compared
-For comparison we created a map object with each library and stored 100.000, 1.000.000 or 10.000.000 entries of randomly generated primitive ints in the map. 
+For comparison we created a map object with each library and stored 100.000, 1.000.000 or 10.000.000 entries of randomly generated primitive ints in the map.
+See [source code](https://github.com/gbif/checklistbank/blob/master/checklistbank-cli/src/test/java/org/gbif/checklistbank/cli/importer/IntMapMemoryTest.java) for details.
 
 ## Java collections
 From the native java collections we tested the HashMap and TreeMap classes.

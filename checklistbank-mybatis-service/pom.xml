@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>2.15-SNAPSHOT</version>
+    <version>2.18-SNAPSHOT</version>
   </parent>
 
   <artifactId>checklistbank-mybatis-service</artifactId>
@@ -63,7 +63,7 @@
     </dependency>
     <dependency>
       <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP-java6</artifactId>
+      <artifactId>HikariCP</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>

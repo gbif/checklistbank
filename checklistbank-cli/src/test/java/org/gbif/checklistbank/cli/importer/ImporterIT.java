@@ -98,10 +98,6 @@ public class ImporterIT extends NeoTest {
 
     iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
-    iCfg.clb.serverName="127.0.0.1";
-    iCfg.clb.databaseName="clb";
-    iCfg.clb.user="postgres";
-    iCfg.clb.password="pogo";
 
     initGuice(iCfg);
     // truncate tables

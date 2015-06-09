@@ -144,7 +144,7 @@ public abstract class NeoTest {
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
   public NameUsageContainer getUsageByTaxonId(String id) {
-    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, id));
+    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
 
@@ -154,13 +154,13 @@ public abstract class NeoTest {
   }
 
   public NameUsageMetrics getMetricsByTaxonId(String taxonID) {
-    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
+    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
     return mapper.read(n, new NameUsageMetrics());
   }
 
   public List<NameUsageContainer> getUsagesByName(String name) {
     List<NameUsageContainer> usages = Lists.newArrayList();
-    for (Node n : db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name)) {
+    for (Node n : IteratorUtil.asIterable(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
@@ -170,12 +170,12 @@ public abstract class NeoTest {
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
   public NameUsageContainer getUsageByName(String name) {
-    Node n = IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
+    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
     return getUsageByNode(n);
   }
 
   public List<Node> getNodesByName(String name) {
-    return IteratorUtil.asList(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
+    return IteratorUtil.asList(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
   }
 
   public List<NameUsageContainer> getAllUsages() {

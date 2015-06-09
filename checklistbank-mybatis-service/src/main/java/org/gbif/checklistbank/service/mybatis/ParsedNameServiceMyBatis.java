@@ -32,7 +32,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
   }
 
   @Override
-  public ParsedName createOrGet(String scientificName) {
+  public synchronized ParsedName createOrGet(String scientificName) {
     checkArgument(!Strings.isNullOrEmpty(scientificName), "A name string is required");
     ParsedName pn = mapper.getByName(scientificName);
     if (pn == null) {

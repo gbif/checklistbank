@@ -48,7 +48,7 @@ public class NeoRunnableTest {
     File tmp = FileUtils.createTempDir();
     cfg.neoRepository = tmp;
     neo = new NeoRunnableImpl(cfg);
-    neo.setupDb();
+    neo.setupDb(true);
   }
 
   @After
