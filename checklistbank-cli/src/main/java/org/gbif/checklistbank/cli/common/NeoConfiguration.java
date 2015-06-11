@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.base.Preconditions;
+import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -50,13 +51,19 @@ public class NeoConfiguration {
   }
 
   /**
-   * Creates a new emedded db in the neoRepository folder.
+   * Creates a new embedded db in the neoRepository folder.
    *
    * @param datasetKey subfolder for the db
+   * @param clean if true deletes previously existing db
    */
-  public GraphDatabaseService newEmbeddedDb(UUID datasetKey) {
+  public GraphDatabaseService newEmbeddedDb(UUID datasetKey, boolean clean) {
     Preconditions.checkNotNull(datasetKey);
     File storeDir = neoDir(datasetKey);
+    if (clean && storeDir.exists()) {
+      // erase previous db
+      LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
+      FileUtils.deleteQuietly(storeDir);
+    }
     GraphDatabaseFactory factory = new GraphDatabaseFactory();
     GraphDatabaseBuilder builder = factory.newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
       .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")

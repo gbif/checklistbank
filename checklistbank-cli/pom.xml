@@ -15,6 +15,7 @@
   <description>Commandline tools for ChecklistBank dataset imports</description>
 
   <properties>
+    <!-- older lucene version required by neo4j -->
     <lucene.version>3.6.2</lucene.version>
 
     <!-- default configurations for allAccepted GBIF environments -->
@@ -37,13 +38,6 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh</artifactId>
-        <version>2.4</version>
-      </extension>
-    </extensions>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -86,42 +80,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <!-- copies java agent dependency into the target directory -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-dependencies</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>com.github.jbellis</groupId>
-                  <artifactId>jamm</artifactId>
-                  <version>0.3.1</version>
-                  <type>jar</type>
-                  <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>jamm.jar</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- executes test with java agent options of the JVM -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <argLine>-javaagent:${project.build.directory}/jamm.jar</argLine>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -270,6 +228,11 @@
       <groupId>com.carrotsearch</groupId>
       <artifactId>hppc</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryo</artifactId>
+    </dependency>
+
 
     <!-- JACKSON 2.4 -->
     <!--
@@ -348,6 +311,21 @@
 
     <!-- TEST SCOPE -->
     <dependency>
+      <groupId>org.liquibase</groupId>
+      <artifactId>liquibase-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.dbunit</groupId>
+      <artifactId>dbunit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jul-to-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
       <classifier>tests</classifier>
@@ -381,52 +359,6 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <!--
-    just for testing memory usage of int maps from various libraries
-     We only use one library, HPPC, in the main code.
-    -->
-    <dependency>
-      <!-- jamm java agent to measure memory usage in tests -->
-      <groupId>com.github.jbellis</groupId>
-      <artifactId>jamm</artifactId>
-      <version>0.3.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://github.com/goldmansachs/gs-collections -->
-    <dependency>
-      <groupId>com.goldmansachs</groupId>
-      <artifactId>gs-collections</artifactId>
-      <version>6.1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- http://trove.starlight-systems.com/ -->
-    <dependency>
-      <groupId>net.sf.trove4j</groupId>
-      <artifactId>trove4j</artifactId>
-      <version>3.0.3</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- http://fastutil.di.unimi.it/ -->
-    <dependency>
-      <groupId>it.unimi.dsi</groupId>
-      <artifactId>fastutil</artifactId>
-      <version>7.0.6</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://github.com/OpenHFT/Koloboke -->
-    <dependency>
-      <groupId>net.openhft</groupId>
-      <artifactId>koloboke-api-jdk6-7</artifactId>
-      <version>0.6.7</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.openhft</groupId>
-      <artifactId>koloboke-impl-jdk6-7</artifactId>
-      <version>0.6.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

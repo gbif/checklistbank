@@ -94,7 +94,7 @@ public class NormalizerTest extends NeoTest {
 
     Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
-    db = cfg.neo.newEmbeddedDb(datasetKey);
+    db = cfg.neo.newEmbeddedDb(datasetKey, true);
 
     Set<String> taxonIndices = Sets.newHashSet();
     taxonIndices.add(TaxonProperties.TAXON_ID);

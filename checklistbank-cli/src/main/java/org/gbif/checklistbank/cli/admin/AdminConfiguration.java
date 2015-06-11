@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -23,6 +24,11 @@ public class AdminConfiguration {
   @NotNull
   @Valid
   public MessagingConfiguration messaging = new MessagingConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ClbConfiguration clb = new ClbConfiguration();
 
   @ParametersDelegate
   @NotNull

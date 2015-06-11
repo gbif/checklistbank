@@ -51,7 +51,19 @@ All code that is involved in generating a new backbone dataset up to updating oc
  3. update species match service
  4. update occurrences & metrics
  
- 
+## Overview of current backbone
+The current backbone was assembled in 2013 and contains 4.416.347 usages, see http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c/stats
+
+Only 57% of the names can be found in the catalog of life.
+
+### Homonyms
+See homonyms.txt for all names that exist more than once for a given rank & kingdom in our current backbone. There are several reasons for having the same canonical name (name without authorship) in our backbone:
+
+ - accepted homonyms: the same name is accepted in different codes. This is mostly on the generic level and hardly ever on species binomials
+ - homonym synonym: a homonym was once used and now is treated as a synonym of another accepted name
+
+Homonym synonyms can exist a lot and on every rank level including bi- and trinomials. The GBIF backbone allows any number of synonym homonyms, **but makes sure a single canonical name is only accepted once within a kingdom for a given rank!**
+
 ## 2.1 Building a new backbone in Neo4J
 We use neo4j to assemble the entire backbone before it is actually written to the ChecklistBank postgres database. This fits into the indexing architecture and allows to mostly reuse the existing postgres & solr syncing routines from clb indexing.
 
@@ -66,6 +78,11 @@ We use neo4j to assemble the entire backbone before it is actually written to th
 	 -   ignoreMedia/Description/Vernacular etc: ignores specific kind of extension data for all usages in that source
 
 #### Source usage records
+ - read entire dataset taxa into an interm neo4j db and then iterate over all records in taxonomical hierarhcy from root to lowest rank
+ - all names of a source dataset are processed, but:
+	 - ignore strain and cultivar names
+	 - rank filter as configured by source. Defaults to ignoring ranks above family if source is not the Catalog of Life
+ - Hierarchy from CoL see doi:10.1371/journal.pone.0119248 or http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0119248
  - page through a dataset, read an entire record as NameUsageContainer with mybatis
 	 - only add extensions as needed by source
 	 - parallel indexing (syncing) of the very dataset would break paging. An issue?

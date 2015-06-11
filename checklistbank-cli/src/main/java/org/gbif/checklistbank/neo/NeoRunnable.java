@@ -5,6 +5,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -13,11 +14,8 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import com.yammer.metrics.MetricRegistry;
-import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +32,6 @@ public abstract class NeoRunnable implements Runnable {
   protected final int batchSize;
   protected GraphDatabaseService db;
   protected NeoMapper mapper = NeoMapper.instance();
-  private TraversalDescription parentsTraversal;
 
   public NeoRunnable(UUID datasetKey, NeoConfiguration cfg, MetricRegistry registry) {
     batchSize = cfg.batchSize;
@@ -42,24 +39,24 @@ public abstract class NeoRunnable implements Runnable {
     this.neoCfg = cfg;
   }
 
-  protected GraphDatabaseService setupDb() {
-    db = neoCfg.newEmbeddedDb(datasetKey);
-    parentsTraversal = db.traversalDescription()
-      .relationships(RelType.PARENT_OF, Direction.INCOMING)
-      .depthFirst()
-      .evaluator(Evaluators.excludeStartPosition());
+  protected GraphDatabaseService setupDb(boolean clean) {
+    db = neoCfg.newEmbeddedDb(datasetKey, clean);
     return db;
   }
 
   protected void tearDownDb() {
-    db.shutdown();
+    try {
+      db.shutdown();
+    } catch (RuntimeException e) {
+      LOG.error("Failed to shutdown neo4j for {}", datasetKey, e);
+    }
   }
 
   /**
    * @return the single matching node with the taxonID or null
    */
   protected Node nodeByTaxonId(String taxonID) {
-    return IteratorUtil.singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
+    return IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
   }
 
   /**
@@ -68,7 +65,7 @@ public abstract class NeoRunnable implements Runnable {
   protected Node nodeByCanonical(String canonical) throws NotUniqueException {
     try {
       return IteratorUtil
-        .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+        .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
     } catch (NoSuchElementException e) {
       throw new NotUniqueException("Canonical name not unique: " + canonical, canonical);
     }
@@ -76,7 +73,7 @@ public abstract class NeoRunnable implements Runnable {
 
   protected Collection<Node> nodesByCanonical(String canonical) {
     return IteratorUtil
-      .asCollection(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+      .asCollection(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
   }
 
   /**
@@ -85,7 +82,7 @@ public abstract class NeoRunnable implements Runnable {
   protected Node nodeBySciname(String sciname) throws NotUniqueException {
     try {
       return IteratorUtil
-        .singleOrNull(db.findNodesByLabelAndProperty(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
+        .singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, sciname));
     } catch (NoSuchElementException e) {
       throw new NotUniqueException("Scientific name not unique: " + sciname, sciname);
     }
@@ -109,7 +106,7 @@ public abstract class NeoRunnable implements Runnable {
 
   protected boolean matchesClassification(Node n, List<RankedName> classification) {
     Iterator<RankedName> clIter = classification.listIterator();
-    Iterator<Node> nodeIter = parentsTraversal.traverse(n).nodes().iterator();
+    Iterator<Node> nodeIter = Traversals.PARENTS.traverse(n).nodes().iterator();
 
     while (clIter.hasNext()) {
       if (!nodeIter.hasNext()) {
@@ -128,11 +125,14 @@ public abstract class NeoRunnable implements Runnable {
    * @return the last parent or the node itself if no parent exists
    */
   protected RankedName getHighestParent(Node n) {
-    Node p = IteratorUtil.lastOrNull(parentsTraversal.traverse(n).nodes());
+    Node p = IteratorUtil.lastOrNull(Traversals.PARENTS.traverse(n).nodes());
     if (p != null) {
       return mapper.readRankedName(p);
     }
     return mapper.readRankedName(n);
   }
 
+  public UUID getDatasetKey() {
+    return datasetKey;
+  }
 }

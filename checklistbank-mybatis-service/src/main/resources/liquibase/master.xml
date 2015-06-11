@@ -61,5 +61,4 @@
   <changeSet id="19" author="markus">
     <sql>ALTER TABLE raw_usage RENAME COLUMN smile TO data;</sql>
   </changeSet>
-
 </databaseChangeLog>

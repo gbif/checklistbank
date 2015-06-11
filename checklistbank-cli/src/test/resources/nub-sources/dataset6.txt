@@ -1,0 +1,2 @@
+1			KINGDOM	f	ACCEPTED		Fungi
+100	1		SPECIES	f	ACCEPTED		Lepiota seminuda Mill.

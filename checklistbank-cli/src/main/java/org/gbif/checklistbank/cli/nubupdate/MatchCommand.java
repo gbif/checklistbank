@@ -12,7 +12,7 @@ public class MatchCommand extends ServiceCommand {
   private final MatchConfiguration configuration = new MatchConfiguration();
 
   public MatchCommand() {
-    super("nubmatcher");
+    super("nub-matcher");
   }
 
   @Override

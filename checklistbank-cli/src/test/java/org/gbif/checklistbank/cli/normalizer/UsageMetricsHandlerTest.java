@@ -20,7 +20,7 @@ import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
-public class UsageMetricsAndNubMatchHandlerTest extends NeoTest {
+public class UsageMetricsHandlerTest extends NeoTest {
   NeoMapper mapper = NeoMapper.instance();
   final UUID datasetKey = UUID.randomUUID();
 
@@ -52,8 +52,8 @@ public class UsageMetricsAndNubMatchHandlerTest extends NeoTest {
       tx.success();
     }
 
-    UsageMetricsAndNubMatchHandler handler = new UsageMetricsAndNubMatchHandler(new NoneMatchingService(), db);
-    TaxonWalker.walkAccepted(db, handler, 5, null);
+    UsageMetricsHandler handler = new UsageMetricsHandler();
+    TaxonWalker.walkAccepted(db, 5, null, handler);
 
     NormalizerStats stats = handler.getStats(1, Lists.<String>newArrayList());
     System.out.println(stats);

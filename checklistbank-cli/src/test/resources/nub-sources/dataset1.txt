@@ -1,0 +1,9 @@
+0			KINGDOM	f	ACCEPTED		Fungi
+1	0		PHYLUM	f	ACCEPTED		Basidiomycota
+2	1		FAMILY	f	ACCEPTED		Agaricaceae
+10	2		SUBFAMILY	f	ACCEPTED		Agaricaceaes
+100	2		SPECIES	f	ACCEPTED		Lepiota seminuda
+101	2		SUBSPECIES	f	ACCEPTED		Lepiota nuda subsp. elegans
+102	2		VARIETY	f	ACCEPTED		Lepiota nuda var. europaea
+103	2		SUBVARIETY	f	ACCEPTED		Lepiota nuda subvar. maxima
+104	2		BIOVAR	f	ACCEPTED		Francisella tularensis biovar rosensis

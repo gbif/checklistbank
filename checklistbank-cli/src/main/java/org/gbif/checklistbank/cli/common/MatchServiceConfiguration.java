@@ -29,7 +29,7 @@ public class MatchServiceConfiguration {
 
   public NameUsageMatchingService createMatchingService() {
     if (Strings.isNullOrEmpty(matchWsUrl)) {
-      LOG.info("No species match service configured. Skip matching during normalization!");
+      LOG.info("No species match service configured. Skip matching!");
       return new NoneMatchingService();
 
     } else {

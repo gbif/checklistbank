@@ -27,7 +27,7 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
 
-  static final String SYNC_METER = "clb-importer.sync";
+  public static final String SYNC_METER = "clb-importer.sync";
 
   private final ImporterConfiguration cfg;
   private DatasetImportServiceCombined importService;

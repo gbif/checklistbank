@@ -12,6 +12,8 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -129,6 +131,10 @@ public class AdminCommand extends BaseCommand {
           cleanup(cfg.key);
           break;
 
+        case NUB:
+          buildNub();
+          break;
+
         default:
           throw new UnsupportedOperationException();
       }
@@ -136,6 +142,17 @@ public class AdminCommand extends BaseCommand {
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private void buildNub() {
+    NubConfiguration cfg2 = new NubConfiguration();
+    cfg2.clb = cfg.clb;
+    cfg2.messaging = cfg.messaging;
+    cfg2.neo.neoRepository = cfg.neoRepository;
+    cfg2.registry = cfg.registry;
+
+    NubBuilder builder = NubBuilder.create(cfg2);
+    builder.run();
   }
 
   /**
@@ -235,4 +252,18 @@ public class AdminCommand extends BaseCommand {
     LOG.info("Removed neo files from {}", neoDir);
   }
 
+
+  public static void main(String[] args) throws IOException {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
+
+    cfg.messaging.host = "mq.gbif.org";
+    cfg.messaging.virtualHost = "/prod";
+    cfg.messaging.username = "clb";
+    cfg.messaging.password = "clb";
+
+    // crawl PLAZI checklist
+    cfg.type = DatasetType.CHECKLIST;
+    cmd.crawl(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
+  }
 }

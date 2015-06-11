@@ -1,0 +1,36 @@
+1			KINGDOM	f	ACCEPTED		Animalia
+2			KINGDOM	f	ACCEPTED		Plantae
+3			KINGDOM	f	ACCEPTED		Fungi
+4			KINGDOM	f	ACCEPTED		Bacteria
+10	1		PHYLUM	f	ACCEPTED		Arthropoda
+11	1		PHYLUM	f	ACCEPTED		Mollusca
+12	1		PHYLUM	f	ACCEPTED		Chordata
+13	3		PHYLUM	f	ACCEPTED		Basidiomycota
+14	3		PHYLUM	f	ACCEPTED		Ascomycota
+15	2		PHYLUM	f	ACCEPTED		Bryophyta
+16	2		PHYLUM	f	ACCEPTED		Tracheophyta
+50	12		CLASS	f	ACCEPTED		Aves
+51	12		CLASS	f	ACCEPTED		Reptilia
+52	12		CLASS	f	ACCEPTED		Mammalia
+60	16		CLASS	f	ACCEPTED		Magnoliopsida
+61	16		CLASS	f	ACCEPTED		Liliopsida
+62	16		CLASS	f	ACCEPTED		Cycadopsida
+70	10		CLASS	f	ACCEPTED		Arachnida
+71	10		CLASS	f	ACCEPTED		Insecta
+72	13		CLASS	f	ACCEPTED		Agaricomycetes
+100	71		ORDER	f	ACCEPTED		Coleoptera
+101	71		ORDER	f	ACCEPTED		Diptera
+102	71		ORDER	f	ACCEPTED		Lepidoptera
+102	71		ORDER	f	ACCEPTED		Orthoptera
+110	51		ORDER	f	ACCEPTED		Crocodylia
+111	51		ORDER	f	ACCEPTED		Squamata
+112	72		ORDER	f	ACCEPTED		Polyporales
+113	72		ORDER	f	ACCEPTED		Agaricales Underw.
+1000	60		FAMILY	f	ACCEPTED		Asteraceae
+1001	60		FAMILY	f	ACCEPTED		Fabaceae
+1002	60		FAMILY	f	ACCEPTED		Poaceae
+1003	60		FAMILY	f	ACCEPTED		Scrophulariaceae
+1004	60		FAMILY	f	ACCEPTED		Malvaceae
+1010	102		FAMILY	f	ACCEPTED		Limoniidae
+1020	112		FAMILY	f	ACCEPTED		Polyporaceae Fr. ex Corda
+
