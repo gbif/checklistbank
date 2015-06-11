@@ -131,10 +131,6 @@ public class AdminCommand extends BaseCommand {
           cleanup(cfg.key);
           break;
 
-        case NUB:
-          buildNub();
-          break;
-
         default:
           throw new UnsupportedOperationException();
       }
@@ -142,17 +138,6 @@ public class AdminCommand extends BaseCommand {
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private void buildNub() {
-    NubConfiguration cfg2 = new NubConfiguration();
-    cfg2.clb = cfg.clb;
-    cfg2.messaging = cfg.messaging;
-    cfg2.neo.neoRepository = cfg.neoRepository;
-    cfg2.registry = cfg.registry;
-
-    NubBuilder builder = NubBuilder.create(cfg2);
-    builder.run();
   }
 
   /**

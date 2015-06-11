@@ -94,7 +94,7 @@ public class NormalizerTest extends NeoTest {
 
     Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
-    db = cfg.neo.newEmbeddedDb(datasetKey, true);
+    initDb(datasetKey, norm.getStats());
 
     Set<String> taxonIndices = Sets.newHashSet();
     taxonIndices.add(TaxonProperties.TAXON_ID);
@@ -108,8 +108,7 @@ public class NormalizerTest extends NeoTest {
         assertTrue(taxonIndices.remove(idxProps.get(0)));
       }
 
-      assertNotNull(
-        IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
+      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
       assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
       assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
 

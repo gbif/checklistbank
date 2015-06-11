@@ -74,7 +74,7 @@ public abstract class NeoTest {
   }
 
   protected void initDb(UUID datasetKey, NormalizerStats stats) {
-    initDb(datasetKey);
+    db = cfg.newEmbeddedDb(datasetKey, false);
     compareStats(stats);
   }
 

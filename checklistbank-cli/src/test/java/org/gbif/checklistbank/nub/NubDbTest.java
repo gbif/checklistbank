@@ -4,6 +4,7 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
 import org.junit.After;
@@ -43,10 +44,11 @@ public class NubDbTest {
     assertEquals(0l, nub.countTaxa());
 
 
-    SrcUsage u = new SrcUsage();
+    NubUsage u = new NubUsage();
     u.parsedName = new ParsedName();
-    nub.addUsage(null, u, Origin.SOURCE, null);
-    nub.addUsage(null, u, Origin.SOURCE, null);
+    u.origin = Origin.SOURCE;
+    nub.addRoot(u);
+    nub.addRoot(u);
 
     assertEquals(2l, nub.countTaxa());
   }
