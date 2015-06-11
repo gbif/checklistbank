@@ -11,13 +11,17 @@ import org.gbif.checklistbank.cli.importer.ImporterService;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
+import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.NameUsageIndexServicePassThru;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.common.search.inject.SolrConfig;
+import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.file.CompressionUtil;
 
-import java.beans.Statement;
 import java.io.File;
+import java.io.PrintStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,10 +55,10 @@ import org.junit.Test;
 
 import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 
-@Ignore("manual test to discover why we see too many open files in heavy normalizer cli use under linux")
-public class TooManyOpenFilesLeakTest {
+@Ignore("manual long running test to discover why we see too many open files in heavy importer cli use")
+public class MultiThreadingCliTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
-    private final int threads = 10;
+    private final int threads = 8;
 
     private NormalizerConfiguration cfgN;
     private ImporterConfiguration cfgI;
@@ -100,6 +104,7 @@ public class TooManyOpenFilesLeakTest {
 
         cfgI = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
         cfgI.neo = cfgN.neo;
+
         System.out.println("Using postgres instance" + cfgI.clb.serverName + " " + cfgI.clb.databaseName);
 
         URL resourceUrl = getClass().getResource("/plazi.zip");
@@ -108,7 +113,7 @@ public class TooManyOpenFilesLeakTest {
         Files.copy(plazi, zip, StandardCopyOption.REPLACE_EXISTING);
         this.zip = zip.toFile();
         System.out.println("Copied zip resource to tmp file " + zip);
-        this.zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");
+        //this.zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");
 
         Timer timer = new Timer();
         monitor = new OpenFileMonitor();
@@ -153,17 +158,21 @@ public class TooManyOpenFilesLeakTest {
 
     @Test
     public void manyImporterInParallel() throws Exception {
-        final int tasks = 100;
+        final int tasks = 1000;
+
+        PrintStream log = System.err;
 
         // init mybatis layer and solr from cfgN instance
-        Injector inj = Guice.createInjector(cfgI.clb.createServiceModule());
-        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), new NameUsageIndexServicePassThru());
+        cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
+        cfgI.solr.serverType = SolrServerType.HTTP;
+        Injector inj = Guice.createInjector(cfgI.clb.createServiceModule(), new RealTimeModule(cfgI.solr));
+        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
         usageService = inj.getInstance(NameUsageService.class);
 
         Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
         hds = (HikariDataSource) inj.getInstance(dsKey);
         // truncate tables
-        System.out.println("Truncate existing data");
+        log.println("Truncate existing data");
         Connection cn = hds.getConnection();
         java.sql.Statement st = cn.createStatement();
         st.execute("truncate name_usage cascade");
@@ -175,37 +184,43 @@ public class TooManyOpenFilesLeakTest {
         ExecutorCompletionService<UUID> ecs = new ExecutorCompletionService(Executors.<UUID>newFixedThreadPool(threads));
         LinkedList<Future<UUID>> futures = Lists.newLinkedList();
 
-        System.out.println("Start creating normalization tasks");
+        log.println("Start creating normalization tasks");
+        LinkedList<Normalizer> normalizers = Lists.newLinkedList();
         for (int i = 0; i < tasks; i++) {
             UUID dk = UUID.randomUUID();
-
             // copy dwca
             File dwca = cfgN.archiveDir(dk);
             CompressionUtil.decompressFile(dwca, this.zip);
-
-            Normalizer normalizer = NormalizerTest.buildNormalizer(cfgN, dk);
-            futures.add(
-                    ecs.submit(Executors.callable(normalizer, dk))
-            );
+            normalizers.add(NormalizerTest.buildNormalizer(cfgN, dk));
         }
 
+        log.println("Submitted tasks ...");
+
+
+        for (int x=0; x<threads; x++) {
+            Normalizer n = normalizers.removeFirst();
+            futures.add( ecs.submit(Executors.callable(n, n.getDatasetKey())) );
+        }
         while(!futures.isEmpty()) {
             Future<UUID> f = futures.pop();
             UUID dk = f.get();
             if (dk != null) {
-                // this was a normalizer, submit an importer
-                System.out.println("Finished normalizer " + dk + " with open files: " + monitor.getOpenFileDescriptorCount());
-                futures.addFirst(
-                        ecs.submit(Executors.callable(build(dk), null))
-                );
+                // this was a normalizer, submit its importer
+                log.println("Finished normalizer " + dk + " with open files: " + monitor.getOpenFileDescriptorCount());
+                futures.add(ecs.submit(Executors.callable(buildImporter(dk), null)));
             } else {
-                System.out.println("Finished importer with open files: " + monitor.getOpenFileDescriptorCount());
+                log.println("Finished importer with open files: " + monitor.getOpenFileDescriptorCount());
+                // add a new normalizer if we still have some
+                if (!normalizers.isEmpty()) {
+                    Normalizer n = normalizers.removeFirst();
+                    futures.add( ecs.submit(Executors.callable(n, n.getDatasetKey())) );
+                }
             }
         }
-        System.out.println("Finished all tasks. Done");
+        log.println("Finished all tasks. Done");
     }
 
-    public Importer build(UUID datasetKey) throws SQLException {
+    public Importer buildImporter(UUID datasetKey) throws SQLException {
         MetricRegistry registry = new MetricRegistry("normalizer");
         MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
         registry.registerAll(mgs);

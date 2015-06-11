@@ -11,14 +11,14 @@
     </encoder>
   </appender>
 
-  <logger name="org.gbif" level="INFO"/>
   <logger name="org.dbunit" level="WARN"/>
-  <logger name="org.apache.ibatis" level="INFO"/>
-  <logger name="java.sql" level="INFO"/>
-  <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
+  <logger name="org.apache.ibatis" level="WARN"/>
+  <logger name="java.sql" level="WARN"/>
+
+  <logger name="org.gbif.checklistbank.cli.importer" level="WARN"/>
 
 
-  <root level="INFO">
+  <root level="WARN">
     <appender-ref ref="CONSOLE"/>
   </root>
 

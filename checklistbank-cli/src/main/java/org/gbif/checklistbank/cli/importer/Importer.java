@@ -65,10 +65,14 @@ public class Importer extends NeoRunnable implements Runnable {
 
   public void run() {
     LOG.info("Start importing checklist {}", datasetKey);
-    setupDb(false);
-    syncDataset();
-    tearDownDb();
-    LOG.info("Importing of {} finished. Neo database shut down.", datasetKey);
+    try {
+      setupDb(false);
+      syncDataset();
+      LOG.info("Importing of {} succeeded.", datasetKey);
+    } finally {
+      tearDownDb();
+      LOG.info("Neo database {} shut down.", datasetKey);
+    }
   }
 
   /**

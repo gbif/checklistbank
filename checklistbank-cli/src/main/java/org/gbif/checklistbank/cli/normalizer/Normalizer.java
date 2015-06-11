@@ -110,9 +110,10 @@ public class Normalizer extends NeoRunnable {
       setupDb(false);
       setupRelations();
       buildMetricsAndMatchBackbone();
+      LOG.info("Normalization of {} succeeded.", datasetKey);
     } finally {
       tearDownDb();
-      LOG.info("Normalization of {} finished. Database shut down.", datasetKey);
+      LOG.info("Neo database {} shut down.", datasetKey);
     }
     ignored = meta.getIgnored();
   }

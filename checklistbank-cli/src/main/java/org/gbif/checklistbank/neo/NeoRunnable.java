@@ -45,7 +45,11 @@ public abstract class NeoRunnable implements Runnable {
   }
 
   protected void tearDownDb() {
-    db.shutdown();
+    try {
+      db.shutdown();
+    } catch (RuntimeException e) {
+      LOG.error("Failed to shutdown neo4j for {}", datasetKey, e);
+    }
   }
 
   /**
@@ -128,4 +132,7 @@ public abstract class NeoRunnable implements Runnable {
     return mapper.readRankedName(n);
   }
 
+  public UUID getDatasetKey() {
+    return datasetKey;
+  }
 }
