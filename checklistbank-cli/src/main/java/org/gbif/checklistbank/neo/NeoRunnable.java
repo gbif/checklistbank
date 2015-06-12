@@ -46,7 +46,7 @@ public abstract class NeoRunnable implements Runnable {
 
   protected void tearDownDb() {
     try {
-      if (db != null) {
+      if (db != null && db.isAvailable(100)) {
         db.shutdown();
       }
     } catch (RuntimeException e) {

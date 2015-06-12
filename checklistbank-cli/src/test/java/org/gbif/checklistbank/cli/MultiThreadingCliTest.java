@@ -58,7 +58,7 @@ import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 @Ignore("manual long running test to discover why we see too many open files in heavy importer cli use")
 public class MultiThreadingCliTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
-    private final int threads = 8;
+    private final int threads = 5;
 
     private NormalizerConfiguration cfgN;
     private ImporterConfiguration cfgI;
@@ -107,13 +107,7 @@ public class MultiThreadingCliTest {
 
         System.out.println("Using postgres instance" + cfgI.clb.serverName + " " + cfgI.clb.databaseName);
 
-        URL resourceUrl = getClass().getResource("/plazi.zip");
-        Path plazi = Paths.get(resourceUrl.toURI());
-        Path zip = Files.createTempFile("dwca", ".zip");
-        Files.copy(plazi, zip, StandardCopyOption.REPLACE_EXISTING);
-        this.zip = zip.toFile();
-        System.out.println("Copied zip resource to tmp file " + zip);
-        //this.zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");
+        zip = new File(getClass().getResource("/plazi.zip").getFile());
 
         Timer timer = new Timer();
         monitor = new OpenFileMonitor();

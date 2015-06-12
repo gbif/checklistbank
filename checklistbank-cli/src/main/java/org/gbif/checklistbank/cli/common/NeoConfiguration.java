@@ -74,7 +74,7 @@ public class NeoConfiguration {
                     .setConfig(GraphDatabaseSettings.dump_configuration, "true");
         }
         GraphDatabaseService db = builder.newGraphDatabase();
-        registerShutdownHook(db);
+        registerShutdownHook(db, datasetKey);
 
         LOG.info("Starting embedded neo4j database from {}", storeDir.getAbsolutePath());
         return db;
@@ -84,11 +84,14 @@ public class NeoConfiguration {
      * Registers a shutdown hook for the Neo4j instance so that it
      * shuts down nicely when the VM exits (even if you "Ctrl-C" the running application).
      */
-    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+    private static void registerShutdownHook(final GraphDatabaseService graphDb, final UUID datasetKey) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                graphDb.shutdown();
+                if (graphDb != null && graphDb.isAvailable(100)) {
+                    LOG.info("Shutting down neo database {} ...", datasetKey);
+                    //graphDb.shutdown();
+                }
             }
         });
     }

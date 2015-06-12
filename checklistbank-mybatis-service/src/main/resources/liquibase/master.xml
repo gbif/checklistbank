@@ -61,4 +61,10 @@
   <changeSet id="19" author="markus">
     <sql>ALTER TABLE raw_usage RENAME COLUMN smile TO data;</sql>
   </changeSet>
+  <changeSet id="20" author="markus">
+    <sql>
+      ALTER TABLE name ADD CONSTRAINT scientific_name_unique UNIQUE (scientific_name);
+      ALTER TABLE citation ADD CONSTRAINT citation_unique UNIQUE (citation);
+    </sql>
+  </changeSet>
 </databaseChangeLog>

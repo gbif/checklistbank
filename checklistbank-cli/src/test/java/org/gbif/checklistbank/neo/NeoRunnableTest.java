@@ -53,7 +53,7 @@ public class NeoRunnableTest {
 
   @After
   public void cleanup() throws Exception {
-    neo.tearDownDb();
+    //neo.tearDownDb();
     org.apache.commons.io.FileUtils.cleanDirectory(cfg.neoRepository);
     cfg.neoRepository.delete();
   }

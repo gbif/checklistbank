@@ -15,7 +15,7 @@
   <logger name="org.apache.ibatis" level="WARN"/>
   <logger name="java.sql" level="WARN"/>
 
-  <logger name="org.gbif.checklistbank.cli" level="DEBUG"/>
+  <logger name="org.gbif.checklistbank.cli" level="WARN"/>
   <logger name="org.gbif.checklistbank.cli.importer" level="WARN"/>
 
 
