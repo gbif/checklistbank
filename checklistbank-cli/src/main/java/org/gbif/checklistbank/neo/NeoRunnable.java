@@ -46,7 +46,9 @@ public abstract class NeoRunnable implements Runnable {
 
   protected void tearDownDb() {
     try {
-      db.shutdown();
+      if (db != null) {
+        db.shutdown();
+      }
     } catch (RuntimeException e) {
       LOG.error("Failed to shutdown neo4j for {}", datasetKey, e);
     }

@@ -103,10 +103,10 @@ public class Normalizer extends NeoRunnable {
 
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
-    // batch import uses its own batchdb
-    batchInsertData();
-    // insert regular neo db for further processing
     try {
+      // batch import uses its own batchdb
+      batchInsertData();
+      // insert regular neo db for further processing
       setupDb(false);
       setupRelations();
       buildMetricsAndMatchBackbone();

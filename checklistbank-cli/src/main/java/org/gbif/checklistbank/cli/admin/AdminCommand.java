@@ -174,32 +174,62 @@ public class AdminCommand extends BaseCommand {
    * @param key publisher or dataset key
    */
   private void crawl(final UUID key) throws IOException {
-    if (isDataset(key)) {
-      crawlDataset(key);
+    if (key == null) {
+      crawlAll(cfg.type);
 
-    } else if (isOrg(key)) {
-      final PagingRequest page = new PagingRequest(0, 10);
-      PagingResponse<Dataset> resp = null;
-      int counter = 0;
-      while (resp == null || !resp.isEndOfRecords()) {
-        resp = os().publishedDatasets(key, page);
-        for (Dataset d : resp.getResults()) {
-          if (d.getDeleted() != null) {
-            LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
-            continue;
-          }
-          if (cfg.type != null && d.getType() != cfg.type) {
-            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
-            continue;
-          }
-          counter++;
-          LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-          crawlDataset(d.getKey());
-        }
-        page.nextPage();
-      }
     } else {
-      LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+      if (isDataset(key)) {
+        crawlDataset(key);
+
+      } else if (isOrg(key)) {
+        crawlPublisher(key);
+
+      } else {
+        LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+      }
+    }
+  }
+
+  private void crawlAll(DatasetType type) throws IOException {
+    LOG.info("Crawl all {} datasets", type==null ? "" : type);
+    final PagingRequest page = new PagingRequest(0, 10);
+    PagingResponse<Dataset> resp = null;
+    int counter = 0;
+    while (resp == null || !resp.isEndOfRecords()) {
+      resp = ds().listByType(type, page);
+      for (Dataset d : resp.getResults()) {
+        if (d.getDeleted() != null) {
+          LOG.debug("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
+          continue;
+        }
+        counter++;
+        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
+        crawlDataset(d.getKey());
+      }
+      page.nextPage();
+    }
+  }
+
+  private void crawlPublisher(UUID key) throws IOException {
+    final PagingRequest page = new PagingRequest(0, 10);
+    PagingResponse<Dataset> resp = null;
+    int counter = 0;
+    while (resp == null || !resp.isEndOfRecords()) {
+      resp = os().publishedDatasets(key, page);
+      for (Dataset d : resp.getResults()) {
+        if (d.getDeleted() != null) {
+          LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
+          continue;
+        }
+        if (cfg.type != null && d.getType() != cfg.type) {
+          LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+          continue;
+        }
+        counter++;
+        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
+        crawlDataset(d.getKey());
+      }
+      page.nextPage();
     }
   }
 

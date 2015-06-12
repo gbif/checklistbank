@@ -26,11 +26,6 @@ public class AdminConfiguration {
   public MessagingConfiguration messaging = new MessagingConfiguration();
 
   @ParametersDelegate
-  @Valid
-  @NotNull
-  public ClbConfiguration clb = new ClbConfiguration();
-
-  @ParametersDelegate
   @NotNull
   @Valid
   public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
@@ -49,12 +44,12 @@ public class AdminConfiguration {
   public File neoRepository;
 
   @Parameter(names = {"-k", "--key"}, required = false)
-  @NotNull
+  @Nullable
   public UUID key;
 
   @Parameter(names = {"-t", "--type"}, required = false)
-  @Nullable
-  public DatasetType type;
+  @NotNull
+  public DatasetType type = DatasetType.CHECKLIST;
 
   @Parameter(names = {"-op", "--operation"}, required = true)
   @NotNull
