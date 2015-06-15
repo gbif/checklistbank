@@ -361,7 +361,7 @@ public class NeoInserter implements AutoCloseable {
     if (v.hasCoreField(DwcTerm.scientificNameAuthorship)) {
       sb.append(v.getCoreField(DwcTerm.scientificNameAuthorship));
     }
-    if (v.hasCoreField(DwcTerm.namePublishedInYear)) {
+    if (v.hasCoreField(DwcTerm.namePublishedInYear) && !sb.toString().contains(v.getCoreField(DwcTerm.namePublishedInYear))) {
       if (sb.length() > 0) {
         sb.append(", ");
       }
