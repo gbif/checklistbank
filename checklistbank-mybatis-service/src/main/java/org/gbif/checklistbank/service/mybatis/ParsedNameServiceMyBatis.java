@@ -40,7 +40,9 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
   @Override
   public ParsedName createOrGet(String scientificName) {
-    checkArgument(!Strings.isNullOrEmpty(scientificName), "A name string is required");
+    if (Strings.isNullOrEmpty(scientificName)) {
+      return null;
+    }
     try {
       return createOrGetThrowing(scientificName);
     } catch (PersistenceException e) {

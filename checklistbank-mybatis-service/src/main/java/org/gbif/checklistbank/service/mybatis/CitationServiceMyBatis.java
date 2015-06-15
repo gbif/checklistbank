@@ -31,7 +31,9 @@ public class CitationServiceMyBatis implements CitationService {
 
   @Override
   public Integer createOrGet(String citation) {
-    checkArgument(!Strings.isNullOrEmpty(citation), "A name string is required");
+    if (Strings.isNullOrEmpty(citation)) {
+      return null;
+    }
     try {
       return createOrGetThrowing(citation);
     } catch (PersistenceException e) {

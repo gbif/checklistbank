@@ -135,9 +135,6 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   /**
    * This DOES NOT update the solr index or anything else but postgres!
    */
-  @Transactional(
-    exceptionMessage = "Something went wrong syncing dataset {0}, usage {1}"
-  )
   public int syncUsage(NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
                            NameUsageMetrics metrics) {
     Preconditions.checkNotNull(usage);

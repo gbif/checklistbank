@@ -108,6 +108,7 @@ public class MultiThreadingCliTest {
         System.out.println("Using postgres instance" + cfgI.clb.serverName + " " + cfgI.clb.databaseName);
 
         zip = new File(getClass().getResource("/plazi.zip").getFile());
+        zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");
 
         Timer timer = new Timer();
         monitor = new OpenFileMonitor();
@@ -148,13 +149,14 @@ public class MultiThreadingCliTest {
             System.out.println("Finished normalizer " + idx++ + " with open files: " + monitor.getOpenFileDescriptorCount());
         }
         System.out.println("Finished all threads");
+        System.out.println("Open files: " + monitor.getOpenFileDescriptorCount());
     }
 
     @Test
     public void manyImporterInParallel() throws Exception {
         final int tasks = 1000;
 
-        PrintStream log = System.err;
+        PrintStream log = System.out;
 
         // init mybatis layer and solr from cfgN instance
         cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
@@ -212,6 +214,7 @@ public class MultiThreadingCliTest {
             }
         }
         log.println("Finished all tasks. Done");
+        log.println("Open files: " + monitor.getOpenFileDescriptorCount());
     }
 
     public Importer buildImporter(UUID datasetKey) throws SQLException {
