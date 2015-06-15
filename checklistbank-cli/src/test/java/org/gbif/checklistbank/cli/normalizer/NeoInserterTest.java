@@ -119,14 +119,20 @@ public class NeoInserterTest {
 
     v = new VerbatimNameUsage();
     v.setCoreField(DwcTerm.genus, "Abies");
+    v.setCoreField(DwcTerm.infraspecificEpithet, "alpina");
+    assertName(v, Rank.SUBSPECIES, "Abies subsp.", "Abies subsp.", NameType.WELLFORMED);
+
+    v = new VerbatimNameUsage();
+    v.setCoreField(DwcTerm.genus, "Abies");
     v.setCoreField(DwcTerm.specificEpithet, "alba");
     v.setCoreField(DwcTerm.infraspecificEpithet, "alpina");
     assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina", "Abies alba alpina", NameType.WELLFORMED);
 
-    v = new VerbatimNameUsage();
-    v.setCoreField(DwcTerm.genus, "Abies");
-    v.setCoreField(DwcTerm.infraspecificEpithet, "alpina");
-    assertName(v, Rank.SUBSPECIES, "Abies subsp.", "Abies subsp.", NameType.WELLFORMED);
+    v.setCoreField(DwcTerm.scientificNameAuthorship, "Duméril & Bibron");
+    assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron", "Abies alba alpina", NameType.WELLFORMED);
+
+    v.setCoreField(DwcTerm.namePublishedInYear, "1937");
+    assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.WELLFORMED);
   }
 
   @Test(expected = IgnoreNameUsageException.class)

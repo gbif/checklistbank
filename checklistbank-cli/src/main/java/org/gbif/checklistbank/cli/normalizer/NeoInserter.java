@@ -320,7 +320,7 @@ public class NeoInserter implements AutoCloseable {
         if (!Strings.isNullOrEmpty(author) && !sciname.contains(author)
                 && (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship()))) {
           u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
-          pn.setAuthorship(author);
+          pn.setAuthorship(buildAuthorship(v));
         }
       } else {
         String genus = firstClean(v, GbifTerm.genericName, DwcTerm.genus);
@@ -332,7 +332,7 @@ public class NeoInserter implements AutoCloseable {
           pn.setGenusOrAbove(genus);
           pn.setSpecificEpithet(v.getCoreField(DwcTerm.specificEpithet));
           pn.setInfraSpecificEpithet(v.getCoreField(DwcTerm.infraspecificEpithet));
-          pn.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
+          pn.setAuthorship(buildAuthorship(v));
           pn.setRank(rank);
           pn.setType(NameType.WELLFORMED);
           u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
@@ -354,6 +354,20 @@ public class NeoInserter implements AutoCloseable {
     //TODO: verify name parts and rank
     u.setNameType(pn.getType());
     return pn;
+  }
+
+  private static String buildAuthorship(VerbatimNameUsage v){
+    StringBuilder sb = new StringBuilder();
+    if (v.hasCoreField(DwcTerm.scientificNameAuthorship)) {
+      sb.append(v.getCoreField(DwcTerm.scientificNameAuthorship));
+    }
+    if (v.hasCoreField(DwcTerm.namePublishedInYear)) {
+      if (sb.length() > 0) {
+        sb.append(", ");
+      }
+      sb.append(v.getCoreField(DwcTerm.namePublishedInYear));
+    }
+    return sb.toString();
   }
 
   private static String firstClean(VerbatimNameUsage v, Term ... terms) {
