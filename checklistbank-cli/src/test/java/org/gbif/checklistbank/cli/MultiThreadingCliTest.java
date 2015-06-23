@@ -30,6 +30,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -93,6 +94,23 @@ public class MultiThreadingCliTest {
                 Throwables.propagate(e);
             }
             return -1;
+        }
+    }
+
+    /**
+     * A callable that runs given task and returns given result.
+     * Copied from java8 sources.
+     */
+    static final class RunnableAdapter<T> implements Callable<T> {
+        final Runnable task;
+        final T result;
+        RunnableAdapter(Runnable task, T result) {
+            this.task = task;
+            this.result = result;
+        }
+        public T call() {
+            task.run();
+            return result;
         }
     }
 
@@ -203,7 +221,7 @@ public class MultiThreadingCliTest {
             if (dk != null) {
                 // this was a normalizer, submit its importer
                 log.println("Finished normalizer " + dk + " with open files: " + monitor.getOpenFileDescriptorCount());
-                futures.add(ecs.submit(Executors.callable(buildImporter(dk), null)));
+                futures.add(ecs.submit(new RunnableAdapter(buildImporter(dk), null)));
             } else {
                 log.println("Finished importer with open files: " + monitor.getOpenFileDescriptorCount());
                 // add a new normalizer if we still have some
