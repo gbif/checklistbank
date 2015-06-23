@@ -27,7 +27,7 @@
   </scm>
 
   <properties>
-    <jdkLevel>1.7</jdkLevel>
+    <jdkLevel>1.8</jdkLevel>
     <!-- datasource defaults, time in milliseconds -->
     <checklistbank.db.poolSize>8</checklistbank.db.poolSize>
     <!-- This property controls the maximum number of milliseconds that a client will wait for a connection from the pool.
