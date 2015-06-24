@@ -10,7 +10,7 @@ Therefore the entire project needs to be checked out and modules on their own ar
 Checklistbank relies on postgres with and uses the HStore.  The simplest way of enabling this is to add it to the
 postgres template database, which is used whenever postgres creates a new one.  Thus if you run the following (or similar)
 before creating the database, you are all set:
-  $ psql -usage postgres template1 -c 'create extension hstore;'
+  $ psql -u postgres template1 -c 'create extension hstore;'
 
 To run all tests you need a profile in your ~/.m2/settings.xml file with the following properties defined:
 

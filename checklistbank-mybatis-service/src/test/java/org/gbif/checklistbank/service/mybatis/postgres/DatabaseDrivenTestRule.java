@@ -62,7 +62,7 @@ public class DatabaseDrivenTestRule<T> implements TestRule {
    *                              the db
    */
   public DatabaseDrivenTestRule(Module module, String datasourceBindingName, @Nullable Class<T> serviceClass,
-    @Nullable String dbUnitFileName, Map<String, Object> dbUnitProperties) {
+                                @Nullable String dbUnitFileName, Map<String, Object> dbUnitProperties) {
     this.dbUnitFileName = dbUnitFileName;
     this.serviceClass = serviceClass;
     this.module = module;

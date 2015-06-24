@@ -52,6 +52,10 @@
       #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks})
   </insert>
 
+  <delete id="delete" parameterType="map">
+    DELETE FROM name
+    WHERE id=#{key}
+  </delete>
 
   <!--  list parsed names per dataset, incl duplicate names -->
   <select id="list" parameterType="map" resultMap="parsedNameResultMap">

@@ -24,7 +24,6 @@ public class NameUsageMapperIT {
   private static final UUID DATASET_KEY = UUID.randomUUID();
 
   private ParsedNameMapper nameMapper;
-  private CitationMapper citationMapper;
 
   @Rule
   public MybatisMapperTestRule<NameUsageMapper> ddt = new MybatisMapperTestRule(NameUsageMapper.class);
@@ -32,7 +31,6 @@ public class NameUsageMapperIT {
   @Before
   public void setup() {
     nameMapper = ddt.getInjector().getInstance(ParsedNameMapper.class);
-    citationMapper = ddt.getInjector().getInstance(CitationMapper.class);
   }
 
   private int createName(String name){
@@ -40,7 +38,13 @@ public class NameUsageMapperIT {
     pn.setType(NameType.WELLFORMED);
     pn.setScientificName(name);
     return nameMapper.create(pn, name);
+  }
 
+  private void deleteName(String name){
+    ParsedName pn = nameMapper.getByName(name);
+    if (pn != null) {
+      nameMapper.delete(pn.getKey());
+    }
   }
 
   /**
@@ -48,7 +52,9 @@ public class NameUsageMapperIT {
    */
   @Test
   public void testEnums() {
-    int nameKey = createName("Abies alba Mill.");
+    String name = "Abies alba Mill.";
+    deleteName(name);
+    int nameKey = createName(name);
 
     NameUsageWritable u = new NameUsageWritable();
     u.setDatasetKey(DATASET_KEY);
