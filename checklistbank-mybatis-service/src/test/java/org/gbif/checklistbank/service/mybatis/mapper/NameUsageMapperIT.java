@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NameType;
@@ -78,7 +79,7 @@ public class NameUsageMapperIT {
    * Check all enum values have a matching postgres type value.
    */
   @Test
-  public void testListContainerRange() {
-    List<NameUsageContainer> list = ddt.getService().listRange(0, 1000);
+  public void testListUsageRange() {
+    List<NameUsage> list = ddt.getService().listRange(0, 1000);
   }
 }

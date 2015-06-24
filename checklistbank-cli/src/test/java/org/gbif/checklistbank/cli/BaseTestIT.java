@@ -1,14 +1,15 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.cli;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
 
-import java.util.UUID;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -20,10 +21,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Simple test for the base test class to verify the get methods work fine.
  */
-public class NeoTestIT extends NeoTest {
-
-  private NormalizerConfiguration cfg;
-  private NeoMapper mapper = NeoMapper.instance();
+public class BaseTestIT extends BaseTest {
 
   private NameUsage buildUsage(String taxonID, String name, Rank rank, TaxonomicStatus status) {
     return buildUsage(taxonID, name, name, rank, status);
@@ -41,22 +39,16 @@ public class NeoTestIT extends NeoTest {
 
   @Test
   public void testGetUsage() throws Exception {
-    UUID dKey = UUID.randomUUID();
-    initDb(dKey);
+    initDb();
 
     NameUsage f = buildUsage("t1", "Pinaceae", Rank.FAMILY, TaxonomicStatus.ACCEPTED);
     NameUsage sp = buildUsage("t2", "Abies alba", Rank.SPECIES, TaxonomicStatus.ACCEPTED);
     NameUsage syn = buildUsage("t3", "Picea alba", Rank.SPECIES, TaxonomicStatus.SYNONYM);
 
     try (Transaction tx = beginTx()) {
-      Node fn = db.createNode(Labels.TAXON);
-      mapper.store(fn, f, false);
-
-      Node spn = db.createNode(Labels.TAXON);
-      mapper.store(spn, sp, false);
-
-      Node synn = db.createNode(Labels.TAXON);
-      mapper.store(synn, syn, false);
+      Node fn = dao.create(f);
+      Node spn = dao.create(sp);
+      Node synn = dao.create(syn);
 
       fn.createRelationshipTo(spn, RelType.PARENT_OF);
       synn.createRelationshipTo(spn, RelType.SYNONYM_OF);
@@ -82,12 +74,11 @@ public class NeoTestIT extends NeoTest {
 
   @Test
   public void testIndexPerformance() throws Exception {
-    final UUID dKey = UUID.randomUUID();
-    initDb(dKey);
+    initDb();
     try (Transaction tx = beginTx()) {
-      db.schema().indexFor(Labels.TAXON).on(TaxonProperties.TAXON_ID).create();
-      db.schema().indexFor(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
-      db.schema().indexFor(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.TAXON_ID).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
       tx.success();
     }
 
@@ -95,22 +86,24 @@ public class NeoTestIT extends NeoTest {
     System.out.println("Insert "+x+" nodes");
     try (Transaction tx = beginTx()) {
       while (x > 0) {
-        Node n = db.createNode(Labels.TAXON);
-        n.setProperty(TaxonProperties.TAXON_ID, "t"+x);
-        n.setProperty(TaxonProperties.SCIENTIFIC_NAME, species(x)+" Miller");
-        n.setProperty(TaxonProperties.CANONICAL_NAME, species(x));
+        dao.create(species(x));
         x--;
       }
       tx.success();
     }
 
     try (Transaction tx = beginTx()) {
-      assertNotNull(getUsageByName(species(12)));
+      assertNotNull(getUsageByName(species(12).getScientificName()));
       assertNotNull(getUsageByTaxonId("t12"));
     }
   }
 
-  private String species(int x) {
-    return "species "+x;
+  private NameUsage species(int x) {
+    NameUsage u = new NameUsage();
+    final String name = "t"+x;
+    u.setTaxonID(name);
+    u.setCanonicalName(name);
+    u.setScientificName(name+" Miller");
+    return u;
   }
 }

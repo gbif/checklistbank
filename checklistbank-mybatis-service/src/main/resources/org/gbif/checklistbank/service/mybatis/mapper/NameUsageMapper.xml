@@ -96,27 +96,6 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
   </resultMap>
 
-  <!--  A mapping to build a NameUsageContainer without any identifiers or a vernacular name -->
-  <resultMap id="usageContainerResultMap" type="NameUsageContainer" autoMapping="true">
-    <id property="key" column="id"/>
-    <result property="taxonID" column="source_id"/>
-    <result property="nubKey" column="nub_fk"/>
-    <result property="proParteKey" column="pp_synonym_fk"/>
-    <result property="basionymKey" column="basionym_fk"/>
-    <result property="taxonomicStatus" column="status"/>
-    <result property="nomenclaturalStatus" column="nom_status" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
-    <result property="kingdomKey" column="kid"/>
-    <result property="phylumKey" column="pid"/>
-    <result property="classKey" column="cid"/>
-    <result property="clazz" column="class"/>
-    <result property="orderKey" column="oid"/>
-    <result property="familyKey" column="fid"/>
-    <result property="genusKey" column="gid"/>
-    <result property="subgenusKey" column="sgid"/>
-    <result property="speciesKey" column="sid"/>
-    <result property="references" column="references"/>
-    <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
-  </resultMap>
 
   <!--  Get by primary key -->
   <select id="get" parameterType="map" resultMap="usageResultMap">
@@ -152,7 +131,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   </select>
 
   <!--  list a range of name usage container -->
-  <select id="listRange" parameterType="map" resultMap="usageContainerResultMap">
+  <select id="listRange" parameterType="map" resultMap="usageResultMap">
     SELECT
     <include refid="select"/>
     FROM

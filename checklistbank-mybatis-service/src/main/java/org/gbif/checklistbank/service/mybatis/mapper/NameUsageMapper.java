@@ -50,7 +50,7 @@ public interface NameUsageMapper {
 
   List<NameUsage> listSynonyms(@Param("key") int usageKey, @Param("page") Pageable page);
 
-  List<NameUsageContainer> listRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
+  List<NameUsage> listRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
   /**
    * List all related name usages that have a given nubKey.

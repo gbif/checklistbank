@@ -6,6 +6,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
@@ -91,7 +92,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     log.info("Adding usages from id {} to {}", startKey, endKey);
     int docCount = 0;
     // Get all usages
-    List<NameUsageContainer> usages = nameUsageService.listRange(startKey, endKey);
+    List<NameUsage> usages = nameUsageService.listRange(startKey, endKey);
     // get all component maps into memory first
     Map<Integer, List<VernacularName>> vernacularNameMap = vernacularNameService.listRange(startKey, endKey);
 
@@ -102,19 +103,20 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
 
     // now we're ready to build the solr indices quicky!
-    for (NameUsageContainer usage : usages) {
+    for (NameUsage usage : usages) {
       if (usage==null) {
           log.warn("Unexpected numm usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
           continue;
       }
       try {
-        usage.setSpeciesProfiles(speciesProfileMap.get(usage.getKey()));
-        usage.setVernacularNames(vernacularNameMap.get(usage.getKey()));
-        usage.setDescriptions(descriptionMap.get(usage.getKey()));
-        usage.setDistributions(distributionMap.get(usage.getKey()));
+        UsageExtensions ext = new UsageExtensions();
+        ext.speciesProfiles = speciesProfileMap.get(usage.getKey());
+        ext.vernacularNames = vernacularNameMap.get(usage.getKey());
+        ext.descriptions = descriptionMap.get(usage.getKey());
+        ext.distributions = distributionMap.get(usage.getKey());
 
         List<Integer> parents = nameUsageService.listParents(usage.getKey());
-        solr.add(solrDocumentConverter.toObject(usage, parents));
+        solr.add(solrDocumentConverter.toObject(usage, parents, ext));
 
       } catch (Exception e) {
         log.error("Error indexing document for usage {}", usage.getKey(), e);

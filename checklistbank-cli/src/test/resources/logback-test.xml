@@ -15,11 +15,13 @@
   <logger name="org.apache.ibatis" level="WARN"/>
   <logger name="java.sql" level="WARN"/>
 
-  <logger name="org.gbif.checklistbank.cli" level="WARN"/>
+  <logger name="org.gbif.checklistbank.cli" level="INFO"/>
   <logger name="org.gbif.checklistbank.cli.importer" level="WARN"/>
+  <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
+  <logger name="org.gbif.checklistbank.neo" level="DEBUG"/>
 
 
-  <root level="WARN">
+  <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>
 

@@ -8,11 +8,11 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.normalizer.UsageMetricsHandler;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbUsageSource;
@@ -21,6 +21,8 @@ import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
-  private static final String NEO_PROP_SRC_IDS = "sourceIds";
   private static final Set<Rank> NUB_RANKS;
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -50,7 +51,6 @@ public class NubBuilder implements Runnable {
   }
 
   private final Set<Rank> allowedRanks = Sets.newHashSet();
-  private final NubConfiguration cfg;
   private final NubDb db;
   private final NameUsageMatchingService matchingService;
   private final UsageSource usageSource;
@@ -58,22 +58,22 @@ public class NubBuilder implements Runnable {
   private NubSource currSrc;
   private ParentStack parents;
   private int sourceUsageCounter = 0;
-  private final NeoMapper mapper = NeoMapper.instance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
 
-  private NubBuilder(NubConfiguration cfg, UsageSource usageSource) {
-    db = new NubDb(cfg.neo.newEmbeddedDb(Constants.NUB_DATASET_KEY, true), 1000);
-    this.cfg = cfg;
+  private NubBuilder(UsageDao dao, UsageSource usageSource, NameUsageMatchingService matchingService) {
+    db = NubDb.create(dao, 1000);
     this.usageSource = usageSource;
-    matchingService = cfg.matching.createMatchingService();
+    this.matchingService = matchingService;
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
-    return new NubBuilder(cfg, new ClbUsageSource(cfg));
+    UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
+    NameUsageMatchingService matchingService = cfg.matching.createMatchingService();
+    return new NubBuilder(dao, cfg.usageSource(), matchingService);
   }
 
-  public static NubBuilder create(NubConfiguration cfg, UsageSource usageSource) {
-    return new NubBuilder(cfg, usageSource);
+  public static NubBuilder create(UsageDao dao, UsageSource usageSource, NameUsageMatchingService matchingService) {
+    return new NubBuilder(dao, usageSource, matchingService);
   }
 
   @Override
@@ -83,10 +83,11 @@ public class NubBuilder implements Runnable {
     addDatasets();
     setEmptyGroupsDoubtful();
     groupByOriginalName();
-    //addExtensionData();
+    addExtensionData();
     assignUsageKeys();
     builtUsageMetrics();
-    db.close();
+    db.dao.convertNubUsages();
+    LOG.info("New backbone built");
   }
 
   private void addKingdoms() {
@@ -121,12 +122,14 @@ public class NubBuilder implements Runnable {
    *  - stream (jdbc copy) through all extension data in postgres and attach to relevant nub node
    */
   private void addExtensionData() {
-    LOG.info("No extension data copied to backbone");
-    Joiner commaJoin = Joiner.on(", ").skipNulls();
-    for (Node n : IteratorUtil.asIterable(db.gds.findNodes(Labels.TAXON))) {
-      List<Integer> srcIds = mapper.readList(n, NEO_PROP_SRC_IDS, Integer.class);
-      if (srcIds != null) {
-        LOG.debug("Add extension data from source ids {}", commaJoin.join(srcIds));
+    LOG.info("NOT IMPLEMENTED: Copy extension data to backbone");
+    if (false) {
+      Joiner commaJoin = Joiner.on(", ").skipNulls();
+      for (Node n : IteratorUtil.asIterable(db.dao.allTaxa())) {
+        NubUsage nub = db.dao.readNub(n);
+        if (!nub.sourceIds.isEmpty()) {
+          LOG.debug("Add extension data from source ids {}", commaJoin.join(nub.sourceIds));
+        }
       }
     }
   }
@@ -145,6 +148,7 @@ public class NubBuilder implements Runnable {
     for (NubSource source : sources) {
       addDataset(source);
     }
+    db.closeTx();
   }
 
   private void addDataset(NubSource source) {
@@ -302,9 +306,8 @@ public class NubBuilder implements Runnable {
 
   private void builtUsageMetrics() {
     LOG.info("Walk all accepted taxa and build usage metrics");
-    UsageMetricsHandler metricsHandler = new UsageMetricsHandler();
-    TaxonWalker.walkAccepted(db.gds, 10000, null, metricsHandler);
-    db.renewTx();
+    UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
+    TaxonWalker.walkAccepted(db.dao.getNeo(), null, metricsHandler);
     NormalizerStats stats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", stats.getRoots(), stats.getCount(), stats.getSynonyms());
   }

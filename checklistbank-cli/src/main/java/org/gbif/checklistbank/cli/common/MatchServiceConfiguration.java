@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.common;
 
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.checklistbank.cli.normalizer.NoneMatchingService;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 
 import java.util.Properties;

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.service;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
@@ -27,7 +28,7 @@ public interface UsageService {
   /**
    * Lists al1l name usages with a key between start / end.
    */
-  List<NameUsageContainer> listRange(int usageKeyStart, int usageKeyEnd);
+  List<NameUsage> listRange(int usageKeyStart, int usageKeyEnd);
 
   /**
    * Lists  classification as parent keys.

@@ -60,6 +60,7 @@ import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 public class MultiThreadingCliTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
     private final int threads = 5;
+    private final MetricRegistry registry = new MetricRegistry("threading-test");
 
     private NormalizerConfiguration cfgN;
     private ImporterConfiguration cfgI;
@@ -236,11 +237,7 @@ public class MultiThreadingCliTest {
     }
 
     public Importer buildImporter(UUID datasetKey) throws SQLException {
-        MetricRegistry registry = new MetricRegistry("normalizer");
-        MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-        registry.registerAll(mgs);
-        registry.meter(ImporterService.SYNC_METER);
-        return new Importer(cfgI, datasetKey, registry, importService, usageService);
+        return Importer.create(cfgI.neo, datasetKey, registry, importService, usageService);
     }
 
 }

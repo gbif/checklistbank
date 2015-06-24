@@ -8,7 +8,7 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.normalizer.NeoTest;
+import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
@@ -36,7 +36,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -50,30 +49,21 @@ import static org.junit.Assert.assertNull;
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
  */
-public class ImporterIT extends NeoTest {
+public class ImporterIT extends BaseTest {
 
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
-  private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
   private NameUsageService usageService;
   private DatasetImportServiceCombined importService;
   private HikariDataSource hds;
-  public ImporterIT() {
-    super(false);
-  }
 
   /**
    * Uses an internal metrics registry to setup the normalizer
    */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     MetricRegistry registry = new MetricRegistry("normalizer");
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
-
-    registry.meter(ImporterService.SYNC_METER);
-
     initGuice(cfg);
-    return new Importer(cfg, datasetKey, registry, importService, usageService);
+    return Importer.create(cfg.neo, datasetKey, registry, importService, usageService);
   }
 
   private void initGuice(ImporterConfiguration cfg) {
@@ -89,15 +79,8 @@ public class ImporterIT extends NeoTest {
 
   @Before
   public void initDwcaRepo() throws Exception {
-    nCfg = new NormalizerConfiguration();
-    nCfg.neo = super.cfg;
-
-    URL dwcasUrl = getClass().getResource("/dwcas");
-    Path p = Paths.get(dwcasUrl.toURI());
-    nCfg.archiveRepository = p.toFile();
-
     iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
-    iCfg.neo = nCfg.neo;
+    iCfg.neo = cfg.neo;
 
     initGuice(iCfg);
     // truncate tables
@@ -349,13 +332,4 @@ public class ImporterIT extends NeoTest {
     return importer;
   }
 
-  private NormalizerStats insertNeo(UUID datasetKey) {
-    Normalizer norm = NormalizerTest.buildNormalizer(nCfg, datasetKey);
-    norm.run();
-    NormalizerStats stats = norm.getStats();
-
-    initDb(datasetKey, stats);
-    db.shutdown();
-    return stats;
-  }
 }

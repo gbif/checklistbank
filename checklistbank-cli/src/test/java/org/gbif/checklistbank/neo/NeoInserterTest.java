@@ -1,53 +1,42 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.neo;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.dwca.record.RecordImpl;
-import org.gbif.dwca.record.StarRecordImpl;
+import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwca.io.ArchiveField;
-import org.gbif.utils.file.FileUtils;
+import org.gbif.dwca.record.RecordImpl;
+import org.gbif.dwca.record.StarRecordImpl;
 
-import java.io.File;
 import java.net.URI;
 import java.util.List;
 
 import com.beust.jcommander.internal.Lists;
-import com.yammer.metrics.Meter;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class NeoInserterTest {
   NeoInserter ins;
-  File store;
   List<String> values;
   List<ArchiveField> fields;
+  UsageDao dao;
 
   @Before
   public void init() throws Exception {
     values = Lists.newArrayList();
     fields = Lists.newArrayList();
-    store = FileUtils.createTempDir();
-    ins = new NeoInserter(store, 100, Mockito.mock(Meter.class));
-  }
-
-  @After
-  public void cleanup() throws Exception {
-    org.apache.commons.io.FileUtils.cleanDirectory(store);
+    dao = UsageDao.temporaryDao(10);
+    ins = dao.createBatchInserter(100);
   }
 
   private void addColumn(Term term, String value) {
@@ -77,25 +66,32 @@ public class NeoInserterTest {
     ins.insertStarRecord(star);
     ins.close();
 
-    NeoMapper mapper = NeoMapper.instance();
-    GraphDatabaseService db = new GraphDatabaseFactory()
-      .newEmbeddedDatabaseBuilder(store.getAbsolutePath())
-      .newGraphDatabase();
+    try (Transaction tx = dao.beginTx()) {
+      Node n = dao.getNeo().getNodeById(0);
+      assertEquals("1", n.getProperty(NodeProperties.TAXON_ID));
 
-    Transaction tx = db.beginTx();
-    Node n = db.getNodeById(0);
-    NameUsageContainer u = mapper.read(n);
-    assertEquals("1", u.getTaxonID());
-    assertEquals("Abies alba Mill., 1982", u.getScientificName());
-    assertEquals("Mill.", u.getAuthorship());
-    assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u.getPublishedIn());
-    assertEquals("Miller", u.getAccordingTo());
-    assertEquals("bugger off", u.getRemarks());
-    assertEquals(URI.create("http://gbif.org"), u.getReferences());
-    tx.close();
+      VerbatimNameUsage v = dao.readVerbatim(n.getId());
+      assertEquals("1", v.getCoreField(DwcTerm.taxonID));
+      assertEquals("Abies alba Mill., 1982", v.getCoreField(DwcTerm.scientificName));
+      assertEquals("Mill.", v.getCoreField(DwcTerm.scientificNameAuthorship));
+      assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", v.getCoreField(DwcTerm.namePublishedIn));
+      assertEquals("12345678", v.getCoreField(DwcTerm.namePublishedInID));
+      assertEquals("1871", v.getCoreField(DwcTerm.namePublishedInYear));
+      assertEquals("Miller", v.getCoreField(DwcTerm.nameAccordingTo));
+      assertEquals("123456", v.getCoreField(DwcTerm.nameAccordingToID));
+      assertEquals("bugger off", v.getCoreField(DwcTerm.taxonRemarks));
+      assertEquals("http://gbif.org", v.getCoreField(DcTerm.references));
+
+      NameUsage u = dao.readUsage(n, true);
+      assertEquals("1", u.getTaxonID());
+      assertEquals("Abies alba Mill., 1982", u.getScientificName());
+      assertEquals("Mill.", u.getAuthorship());
+      assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u.getPublishedIn());
+      assertEquals("Miller", u.getAccordingTo());
+      assertEquals("bugger off", u.getRemarks());
+      assertEquals(URI.create("http://gbif.org"), u.getReferences());
+    }
   }
-
-
 
   @Test
   public void testSetScientificName() throws Exception {

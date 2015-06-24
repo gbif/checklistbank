@@ -1,14 +1,14 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.cli.common.NoneMatchingService;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
@@ -19,9 +19,10 @@ import java.util.List;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -35,18 +36,20 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class NubBuilderTest {
-  private GraphDatabaseService db;
-  private NeoMapper mapper = NeoMapper.instance();
+  private UsageDao dao;
   private Transaction tx;
 
+  @Before
+  public void init(){
+    dao = UsageDao.temporaryDao(128);
+  }
+
   @After
-  public void shutdown() {
-    if (tx != null) {
+  public void shutdown(){
+    if (tx != null){
       tx.close();
     }
-    if (db != null) {
-      db.shutdown();
-    }
+    dao.closeAndDelete();
   }
 
   @Test
@@ -246,6 +249,44 @@ public class NubBuilderTest {
     assertEquals(4, list("Blattaria").size());
   }
 
+
+  @Test
+  public void testHybrids() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(9);
+    src.setSourceRank(9, Rank.PHYLUM);
+    build(src);
+
+    assertNotNull(get("Plantae", Rank.KINGDOM));
+    assertNub("Adiantum", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+    assertNub("Asplenium", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+
+    assertNub("Adiantum capillus-veneris", "L.", null, Rank.SPECIES, Origin.SOURCE);
+    assertNub("Asplenium adiantum-nigrum", "", null, Rank.SPECIES, Origin.IMPLICIT_NAME);
+    assertNub("Asplenium adiantum-nigrum yuanum", "(Ching) Viane, Rasbach, Reichstein & Schneller", null, Rank.SUBSPECIES, Origin.SOURCE);
+    assertNub("Adiantum moranii", "J. Prado", NamePart.SPECIFIC, Rank.SPECIES, Origin.SOURCE);
+
+    assertNull(get("Asplenium adiantum nigrum × septentrionale", Rank.SPECIES));
+  }
+
+  /**
+   * As found in CoL as of june 2015. 4 times the same moss species name Fontinalis antipyretica with different authors, all accepted.
+   * TODO: This is illegal to the code rules, so just one (or none?) should be accepted
+   */
+  @Test
+  public void testMultipleAcceptedNames() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(10);
+    build(src);
+
+    NubUsage genus = assertNub("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+    int counter = 0;
+    for (NubUsage c : children(genus.node)) {
+      assertEquals(Rank.SPECIES, c.rank);
+      assertEquals("Fontinalis antipyretica", c.parsedName.canonicalName());
+      counter++;
+    }
+    assertEquals(4, counter);
+  }
+
   /**
    * CoL contains the genus Albizia twice within the plant genus as an accepted name (Fabaceae & Asteraceae).
    * http://www.catalogueoflife.org/col/details/species/id/17793647/source/tree
@@ -255,6 +296,7 @@ public class NubBuilderTest {
    * The Asteraceae one as doubtful.
    */
   @Test
+  @Ignore("write test")
   public void testAlbiziaCoL() throws Exception {
 
   }
@@ -280,6 +322,7 @@ public class NubBuilderTest {
    *   Albizia gummifera sensu R.O.Williams (SYN)
    */
   @Test
+  @Ignore("write test")
   public void testSecSynonyms() throws Exception {
 
   }
@@ -292,6 +335,7 @@ public class NubBuilderTest {
    * Geotrupes stercorarius Erichson, 1847    (SYN) for Geotrupes spiniger (Marsham, 1802)
    */
   @Test
+  @Ignore("write test")
   public void testSynonymsWithDifferentAuthors() throws Exception {
 
   }
@@ -311,6 +355,7 @@ public class NubBuilderTest {
    * http://dev.gbif.org/issues/browse/POR-362
    */
   @Test
+  @Ignore("write test")
   public void testInterrankHomonyms() throws Exception {
 
   }
@@ -320,6 +365,7 @@ public class NubBuilderTest {
    * But for the same canonical name can be a synonym various times in a kingdom.
    */
   @Test
+  @Ignore("write test")
   public void testHomonymSpecies() throws Exception {
 
   }
@@ -328,6 +374,7 @@ public class NubBuilderTest {
    * Pro parte synonyms should exist as a single synonym node with multiple synonym relations
    */
   @Test
+  @Ignore("write test")
   public void testProParteSynonym() throws Exception {
 
   }
@@ -345,6 +392,7 @@ public class NubBuilderTest {
    * 3. add publishedIn
    */
   @Test
+  @Ignore("write test")
   public void testMergingInfos() throws Exception {
 
   }
@@ -355,6 +403,7 @@ public class NubBuilderTest {
    * For synonyms use the accepted name from later sources in case the primary one is incertae-sedis.
    */
   @Test
+  @Ignore("write test")
   public void testMergingClassification() throws Exception {
 
   }
@@ -365,19 +414,19 @@ public class NubBuilderTest {
    * (Also true for infraspecific ranks in CoL ?)
    */
   @Test
+  @Ignore("write test")
   public void testSynonymValidity() throws Exception {
 
   }
 
-
-
+  /**
+   * builds a new nub and keeps dao open for further test queries.
+   */
   private void build(UsageSource src) {
-    NubConfiguration cfg = new NubConfiguration();
-    NubBuilder nb = NubBuilder.create(cfg, src);
+    NubBuilder nb = NubBuilder.create(dao, src, new NoneMatchingService());
     nb.run();
-    db = cfg.neo.newEmbeddedDb(Constants.NUB_DATASET_KEY, false);
-    tx = db.beginTx();
 
+    tx = dao.beginTx();
     // assert we have only ever 8 root taxa - the kingdoms
     assertEquals(Kingdom.values().length, countRoot());
   }
@@ -395,7 +444,7 @@ public class NubBuilderTest {
     assertEquals(rank, u.rank);
     assertEquals(origin, u.origin);
     if (parentKey != null) {
-      //assertEquals(parentKey, u.getParentKey());
+      //assertEquals(parentKey, usage.getParentKey());
     }
     return u;
   }
@@ -407,6 +456,24 @@ public class NubBuilderTest {
     assertEquals(origin, u.origin);
     assertEquals(authorship, u.parsedName.authorshipComplete());
     return u;
+  }
+
+  private NubUsage assertNub(String canonical, String authorship, NamePart notho, Rank rank, Origin origin) {
+    NubUsage u = get(canonical, rank);
+    assertEquals(canonical, u.parsedName.canonicalName());
+    assertEquals(notho, u.parsedName.getNotho());
+    assertEquals(rank, u.rank);
+    assertEquals(origin, u.origin);
+    assertEquals(authorship, u.parsedName.authorshipComplete());
+    return u;
+  }
+
+  private List<NubUsage> children(Node parent) {
+    List<NubUsage> usages = Lists.newArrayList();
+    for (Node n : Traversals.CHILDREN.traverse(parent).nodes()) {
+      usages.add(get(n));
+    }
+    return usages;
   }
 
   private List<NubUsage> parents(Node child) {
@@ -427,7 +494,7 @@ public class NubBuilderTest {
 
   private List<NubUsage> list(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       usages.add(get(n));
     }
     return usages;
@@ -451,28 +518,28 @@ public class NubBuilderTest {
   }
 
   private NubUsage get(String canonical) {
-    return get(db.findNode(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical));
+    return get(dao.getNeo().findNode(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
   }
 
   private NubUsage get(int key) {
-    return get(db.getNodeById(key));
+    return get(dao.getNeo().getNodeById(key));
   }
 
   private NubUsage get(Node n) {
     if (n == null) {
       return null;
     }
-    NubUsage nub = mapper.read(n, new NubUsage());
+    NubUsage nub = dao.readNub(n);
     nub.node = n;
     return nub;
   }
 
   private long countTaxa() {
-    return IteratorUtil.count(db.findNodes(Labels.TAXON));
+    return IteratorUtil.count(dao.getNeo().findNodes(Labels.TAXON));
   }
 
   private long countRoot() {
-    return IteratorUtil.count(db.findNodes(Labels.ROOT));
+    return IteratorUtil.count(dao.getNeo().findNodes(Labels.ROOT));
   }
 
 }

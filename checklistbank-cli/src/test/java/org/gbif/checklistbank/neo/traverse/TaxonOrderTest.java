@@ -1,12 +1,12 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.normalizer.NeoTest;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.model.NeoTaxon;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.Test;
@@ -15,10 +15,11 @@ import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
-public class TaxonOrderTest extends NeoTest {
+public class TaxonOrderTest extends BaseTest {
+
   @Test
   public void testCompare() throws Exception {
-    initDb(UUID.randomUUID());
+    initDb();
     try (Transaction tx = beginTx()) {
       TaxonOrder order = new TaxonOrder();
       List<Node> nodes = Lists.newArrayList(
@@ -40,13 +41,11 @@ public class TaxonOrderTest extends NeoTest {
   }
 
   private Node build(Rank rank, String name){
-    Node n = db.createNode();
-    if (rank != null) {
-      mapper.storeEnum(n, TaxonProperties.RANK, rank);
-    }
-    if (name != null) {
-      n.setProperty(TaxonProperties.SCIENTIFIC_NAME, name);
-    }
-    return n;
+    NeoTaxon t = new NeoTaxon();
+    t.node = dao.createTaxon();
+    t.rank = rank;
+    t.canonicalName = name;
+    dao.store(t);
+    return t.node;
   }
 }

@@ -14,14 +14,14 @@ import org.slf4j.LoggerFactory;
  * using the native postgres jdbc copy manager.
  *
  * At creation time the instance connects to an CLB instance and copies all the minimal information needed to build a
- * taxonomic tree into an embedded neo db. No extension data is copied, just core taxonomic information.
+ * taxonomic tree into an embedded, persistent neo db. No extension data is copied, just core taxonomic information.
  */
 public class ClbUsageIteratorNeo extends UsageIteratorNeo {
   private static final Logger LOG = LoggerFactory.getLogger(ClbUsageIteratorNeo.class);
   private final ClbConfiguration clb;
 
   public ClbUsageIteratorNeo(ClbConfiguration clb, NubSource source) throws Exception {
-    super(source);
+    super(source, 0);
     this.clb = clb;
   }
 
@@ -30,11 +30,10 @@ public class ClbUsageIteratorNeo extends UsageIteratorNeo {
     try (Connection c = clb.connect()){
       final CopyManager cm = new CopyManager((BaseConnection) c);
       cm.copyOut("COPY ("
-                 + "SELECT u.id, u.parent_fk, u.basionym_fk, u.rank, u.is_synonym, u.status, u.nom_status, n.scientific_name"
-                 + " FROM name_usage u join name n ON name_fk=n.id" + " WHERE dataset_key = '" + source.key + "')"
+                 + "SELECT usage.id, usage.parent_fk, usage.basionym_fk, usage.rank, usage.is_synonym, usage.status, usage.nom_status, node.scientific_name"
+                 + " FROM name_usage usage join name node ON name_fk=node.id" + " WHERE dataset_key = '" + source.key + "')"
                  + " TO STDOUT WITH NULL ''", writer);
-      LOG.info("Loaded nub source data {} with {} usages into neo4j at {}", source.name, writer.getCounter(),
-        neoDir.getAbsolutePath());
+      LOG.info("Loaded nub source data {} with {} usages into neo4j", source.name, writer.getCounter());
     }
   }
 

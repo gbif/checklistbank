@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.checklistbank.neo.NodeProperties;
 
 import javax.annotation.Nullable;
 
@@ -16,45 +16,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * A utility class to iterate over nodes in taxonomic order and execute any number of StartEndHandler while walking.
  */
 public class TaxonWalker {
 
   private static final Logger LOG = LoggerFactory.getLogger(TaxonWalker.class);
 
+  private static final int reportingSize = 10000;
   public static void walkAll(GraphDatabaseService db, StartEndHandler ... handler) {
-    walkAccepted(db, 10000, null, handler);
+    walkAccepted(db, null, handler);
   }
 
   /**
-   * Walks allAccepted nodes in a transaction that is renewed in a given batchsize
-   *
-   * @param batchsize number of paths that should be walked within a single open transaction
+   * Walks allAccepted nodes in a single transaction
    */
-  public static void walkAccepted(
-    GraphDatabaseService db,
-    int batchsize,
-    @Nullable Meter meter,
-    StartEndHandler ... handler
-  ) {
+  public static void walkAccepted(GraphDatabaseService db, @Nullable Meter meter, StartEndHandler ... handler) {
     Path lastPath = null;
     long counter = 0;
-    Transaction tx = db.beginTx();
-    try {
-      for (Path p : TaxonomicIterator.allAccepted(db)) {
-        if (batchsize > 0 && counter % batchsize == 0) {
-          tx.success();
-          tx.close();
-          LOG.debug("Opening new transaction, record {}", counter);
-          if (meter != null) {
-            LOG.debug("Processing rate = {}", meter.getMeanRate());
-          }
-          tx = db.beginTx();
+    try (Transaction tx = db.beginTx()){
+      for (Path p : TaxonomicPathIterator.allAccepted(db)) {
+        if (counter % reportingSize == 0) {
+          LOG.debug("Processed {}. Rate = {}", counter, meter == null ? "unknown" : meter.getMeanRate());
         }
         if (meter != null) {
           meter.mark();
         }
-        //logPath(p);
         if (lastPath != null) {
           PeekingIterator<Node> lIter = Iterators.peekingIterator(lastPath.nodes().iterator());
           PeekingIterator<Node> cIter = Iterators.peekingIterator(p.nodes().iterator());
@@ -87,11 +73,6 @@ public class TaxonWalker {
           handleEnd(n, handler);
         }
       }
-
-      tx.success();
-
-    } finally {
-      tx.close();
     }
   }
 
@@ -113,7 +94,7 @@ public class TaxonWalker {
       if (sb.length() > 0) {
         sb.append(" -- ");
       }
-      sb.append((String) n.getProperty(DwcTerm.scientificName.simpleName(), "no name"));
+      sb.append((String) n.getProperty(NodeProperties.CANONICAL_NAME, "none"));
     }
     LOG.debug(sb.toString());
   }

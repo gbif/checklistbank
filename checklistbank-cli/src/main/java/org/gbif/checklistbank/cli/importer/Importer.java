@@ -1,19 +1,23 @@
 package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.Metrics;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.neo.model.ClassificationKeys;
+import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoRunnable;
+import org.gbif.checklistbank.neo.ImportDb;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 
-import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +32,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -39,7 +44,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class Importer extends NeoRunnable implements Runnable {
+public class Importer extends ImportDb implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
 
@@ -55,22 +60,29 @@ public class Importer extends NeoRunnable implements Runnable {
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
   private final int keyTypeSize = KeyType.values().length;
 
-  public Importer(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-    DatasetImportServiceCombined importService, NameUsageService usageService) throws SQLException {
-    super(datasetKey, cfg.neo, registry);
+  public Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
+    DatasetImportServiceCombined importService, NameUsageService usageService) {
+    super(datasetKey, dao);
     this.importService = importService;
     this.usageService = usageService;
-    this.syncMeter = registry.getMeters().get(ImporterService.SYNC_METER);
+    this.syncMeter = registry.meter(Metrics.SYNC_METER);
+    registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+  }
+
+  public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+                                DatasetImportServiceCombined importService, NameUsageService usageService) {
+    return new Importer(datasetKey,
+            UsageDao.persistentDao(cfg, datasetKey, registry, false),
+            registry, importService, usageService);
   }
 
   public void run() {
     LOG.info("Start importing checklist {}", datasetKey);
     try {
-      setupDb(false);
       syncDataset();
       LOG.info("Importing of {} succeeded.", datasetKey);
     } finally {
-      tearDownDb();
+      dao.close();
       LOG.info("Neo database {} shut down.", datasetKey);
     }
   }
@@ -86,18 +98,23 @@ public class Importer extends NeoRunnable implements Runnable {
     // in order to avoid clock differences between machines and threads.
     int firstUsageKey = -1;
 
-    try (Transaction tx = db.beginTx()) {
+    try (Transaction tx = dao.getNeo().beginTx()) {
       // returns all nodes, accepted and synonyms
       int counter = 0;
-      for (Node n : TaxonomicNodeIterator.all(db)) {
+      for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
         try {
-          VerbatimNameUsage verbatim = mapper.readVerbatim(n);
-          NameUsageContainer u = buildClbNameUsage(n);
-
-          List<Integer> parents = buildClbParents(n);
-          NameUsageMetrics metrics = mapper.read(n, new NameUsageMetrics());
           final int nodeId = (int) n.getId();
-          final int usageKey = importService.syncUsage(u, parents, verbatim, metrics);
+          VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
+          UsageFacts facts = dao.readFacts(nodeId);
+          if (facts == null){
+            facts = new UsageFacts();
+            facts.metrics = new NameUsageMetrics();
+          }
+          NameUsage u = buildClbNameUsage(n, facts.classification);
+          List<Integer> parents = buildClbParents(n);
+          UsageExtensions ext = dao.readExtensions(nodeId);
+
+          final int usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
@@ -115,12 +132,12 @@ public class Importer extends NeoRunnable implements Runnable {
 
         } catch (Throwable e) {
           String id;
-          if (n.hasProperty(TaxonProperties.TAXON_ID)) {
-            id = String.format("taxonID '%s'", n.getProperty(TaxonProperties.TAXON_ID));
+          if (n.hasProperty(NodeProperties.TAXON_ID)) {
+            id = String.format("taxonID '%s'", n.getProperty(NodeProperties.TAXON_ID));
           } else {
             id = String.format("nodeID %s", n.getId());
           }
-          LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(TaxonProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
+          LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
           LOG.error("Aborting sync of dataset {}", datasetKey);
           throw e;
         }
@@ -222,9 +239,12 @@ public class Importer extends NeoRunnable implements Runnable {
    * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
    */
   @VisibleForTesting
-  protected NameUsageContainer buildClbNameUsage(Node n) {
+  protected NameUsage buildClbNameUsage(Node n, @Nullable ClassificationKeys classification) {
     // this is using neo4j internal node ids as keys:
-    NameUsageContainer u = mapper.read(n);
+    NameUsage u = dao.readUsage(n, true);
+    if (classification != null) {
+      ClassificationUtils.copyLinneanClassificationKeys(classification, u);
+    }
     if (n.hasLabel(Labels.SYNONYM)) {
       u.setSynonym(true);
       u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));

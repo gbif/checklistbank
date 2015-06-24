@@ -4,6 +4,7 @@ import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
@@ -20,11 +21,6 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
 
   private static final Logger LOG = LoggerFactory.getLogger(NormalizerService.class);
 
-  public static final String HEAP_GAUGE = "heap.usage";
-  public static final String INSERT_METER = "taxon.inserts";
-  public static final String RELATION_METER = "taxon.relations";
-  public static final String METRICS_METER = "taxon.metrics";
-  public static final String DENORMED_METER = "taxon.denormed";
 
   private final NormalizerConfiguration cfg;
   private final ZookeeperUtils zkUtils;
@@ -36,10 +32,10 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
 
     MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
     registry.registerAll(mgs);
-    registry.meter(INSERT_METER);
-    registry.meter(RELATION_METER);
-    registry.meter(METRICS_METER);
-    registry.meter(DENORMED_METER);
+    registry.meter(Metrics.INSERT_METER);
+    registry.meter(Metrics.RELATION_METER);
+    registry.meter(Metrics.METRICS_METER);
+    registry.meter(Metrics.DENORMED_METER);
 
     try {
       zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
@@ -62,7 +58,7 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
 
   @Override
   protected void process(DwcaMetasyncFinishedMessage msg) throws Exception {
-    Normalizer normalizer = new Normalizer(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
+    Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
     normalizer.run();
     zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
 

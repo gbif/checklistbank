@@ -1,6 +1,6 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.neo;
 
-import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
@@ -10,16 +10,18 @@ import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.cli.common.Metrics;
+import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.cli.normalizer.ExtensionInterpreter;
+import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
+import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
+import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.TaxStatusParser;
 import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
-import org.gbif.dwca.record.Record;
 import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
@@ -28,6 +30,7 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.TermFactory;
 import org.gbif.dwca.io.Archive;
 import org.gbif.dwca.io.ArchiveFactory;
+import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
@@ -41,10 +44,12 @@ import java.util.regex.Pattern;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
+import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
@@ -62,7 +67,6 @@ public class NeoInserter implements AutoCloseable {
 
   private Archive arch;
   private Map<String, UUID> constituents;
-  private NeoMapper mapper = NeoMapper.instance();
   private NameParser nameParser = new NameParser();
   private RankParser rankParser = RankParser.getInstance();
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
@@ -73,9 +77,13 @@ public class NeoInserter implements AutoCloseable {
   private final int batchSize;
   private final Meter insertMeter;
   private final Map<Term, Extension> extensions;
+  private final UsageDao dao;
 
-  public NeoInserter(File storeDir, int batchSize, Meter insertMeter) {
+  private NeoInserter(UsageDao dao, File storeDir, int batchSize, Meter insertMeter) {
+    Preconditions.checkNotNull(dao, "DAO required");
+    Preconditions.checkNotNull(insertMeter, "meter required");
     LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
+    this.dao = dao;
     initNeoDir(storeDir);
     inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
     this.batchSize = batchSize;
@@ -84,6 +92,12 @@ public class NeoInserter implements AutoCloseable {
     for (Extension e : Extension.values()) {
       extensions.put(TF.findTerm(e.getRowType()), e);
     }
+  }
+
+  public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, MetricRegistry registry) {
+    return new NeoInserter(dao, storeDir, batchSize,
+            registry.meter(Metrics.INSERT_METER)
+    );
   }
 
   public InsertMetadata insert(File dwca, Map<String, UUID> constituents) throws NormalizationFailedException {
@@ -100,9 +114,6 @@ public class NeoInserter implements AutoCloseable {
     }
     LOG.info("Data insert completed, {} nodes created", meta.getRecords());
     LOG.info("Insert rate: {}", insertMeter.getMeanRate());
-
-    close();
-
     return meta;
   }
 
@@ -122,7 +133,7 @@ public class NeoInserter implements AutoCloseable {
       }
       // make sure this is last to override already put taxonID keys
       v.setCoreField(DwcTerm.taxonID, taxonID(core));
-      // read extensions data
+      // readUsage extensions data
       for (Map.Entry<Term, Extension> ext : extensions.entrySet()) {
         if (star.hasExtension(ext.getKey())) {
           v.getExtensions().put(ext.getValue(), Lists.<Map<Term, String>>newArrayList());
@@ -139,19 +150,17 @@ public class NeoInserter implements AutoCloseable {
         }
       }
       // convert into a NameUsage interpreting all enums and other needed types
-      NameUsageContainer u = buildUsage(v);
+      NameUsage u = buildUsage(v);
+      UsageExtensions ext = extensionInterpreter.interpret(u, v);
 
-      // ... and into neo
-      Map<String, Object> props = mapper.propertyMap(core.id(), u, v);
-      // add more neo properties to be used in resolving the relations later:
-      putProp(props, DwcTerm.parentNameUsageID, v);
-      putProp(props, DwcTerm.parentNameUsage, v);
-      putProp(props, DwcTerm.acceptedNameUsageID, v);
-      putProp(props, DwcTerm.acceptedNameUsage, v);
-      putProp(props, DwcTerm.originalNameUsageID, v);
-      putProp(props, DwcTerm.originalNameUsage, v);
+      // and batch insert key neo properties used during normalization
+      Map<String, Object> props = dao.neoProperties(core.id(), u, v);
+      long nodeId = inserter.createNode(props, Labels.TAXON, u.isSynonym() ? Labels.SYNONYM : Labels.TAXON);
+      // store verbatim instance
+      dao.store(nodeId, v);
+      dao.store(nodeId, u, false);
+      dao.store(nodeId, ext);
 
-      inserter.createNode(props, Labels.TAXON);
 
       meta.incRecords();
       meta.incRank(u.getRank());
@@ -214,15 +223,8 @@ public class NeoInserter implements AutoCloseable {
     }
   }
 
-  private void putProp(Map<String, Object> props, Term t, VerbatimNameUsage v) {
-    String val = clean(v.getCoreField(t));
-    if (val != null) {
-      props.put(NeoMapper.propertyName(t), val);
-    }
-  }
-
-  private NameUsageContainer buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
-    NameUsageContainer u = new NameUsageContainer();
+  private NameUsage buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
+    NameUsage u = new NameUsage();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
     u.setOrigin(Origin.SOURCE);
     if (constituents != null && v.hasCoreField(DwcTerm.datasetID)) {
@@ -262,6 +264,7 @@ public class NeoInserter implements AutoCloseable {
       ParseResult<TaxonomicStatus> taxParse = taxStatusParser.parse(tstatus);
       if (taxParse.isSuccessful()) {
         u.setTaxonomicStatus(taxParse.getPayload());
+        u.setSynonym(u.getTaxonomicStatus().isSynonym());
       } else {
         u.addIssue(NameUsageIssue.TAXONOMIC_STATUS_INVALID);
       }
@@ -297,9 +300,6 @@ public class NeoInserter implements AutoCloseable {
       UrlParser.parse(v.getCoreField(DcTerm.source))
     ));
 
-    // INTERPRET EXTENSIONS
-    extensionInterpreter.interpret(u, v);
-
     return u;
   }
 
@@ -309,7 +309,7 @@ public class NeoInserter implements AutoCloseable {
   }
 
   @VisibleForTesting
-  protected ParsedName setScientificName(NameUsageContainer u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
+  protected ParsedName setScientificName(NameUsage u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
     ParsedName pn = new ParsedName();
     final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
     try {
@@ -388,7 +388,7 @@ public class NeoInserter implements AutoCloseable {
     }
   }
 
-  static String clean(String x) {
+  public static String clean(String x) {
     if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
       return null;
     }
@@ -398,11 +398,15 @@ public class NeoInserter implements AutoCloseable {
   @Override
   public void close() {
     // define indices
-    LOG.info("Building lucene indices...");
-    inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(TaxonProperties.TAXON_ID).create();
-    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.SCIENTIFIC_NAME).create();
-    inserter.createDeferredSchemaIndex(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
+    LOG.info("Building lucene index taxonID ...");
+    inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NodeProperties.TAXON_ID).create();
+    LOG.info("Building lucene index scientific name ...");
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
+    LOG.info("Building lucene index canonical name ...");
+    inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
     inserter.shutdown();
-    LOG.info("Neo shutdown, data flushed to disk", meta.getRecords());
+    LOG.info("Neo batch inserter closed, data flushed to disk. Opening regular neo db again ...", meta.getRecords());
+    dao.openNeo();
   }
+
 }

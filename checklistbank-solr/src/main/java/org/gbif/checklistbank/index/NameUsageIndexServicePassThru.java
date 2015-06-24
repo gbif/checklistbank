@@ -1,6 +1,8 @@
 package org.gbif.checklistbank.index;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.checklistbank.model.UsageExtensions;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +29,6 @@ public class NameUsageIndexServicePassThru implements NameUsageIndexService {
   }
 
   @Override
-  public void insertOrUpdate(NameUsageContainer usage, List<Integer> parentKeys) {
+  public void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, UsageExtensions extensions) {
   }
 }

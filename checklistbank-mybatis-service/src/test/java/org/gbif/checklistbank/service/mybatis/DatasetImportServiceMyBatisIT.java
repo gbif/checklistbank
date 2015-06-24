@@ -24,6 +24,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 import org.gbif.dwc.terms.DwcTerm;
@@ -65,18 +66,18 @@ public class DatasetImportServiceMyBatisIT {
     final NameUsageService uService = ddt.getInjector().getInstance(NameUsageService.class);
 
     // first add a classification to please constraints
-    NameUsageContainer k = addHigher(1, null, null, "Plantae", Rank.KINGDOM);
-    NameUsageContainer p = addHigher(2, k.getKey(), k, "Pinophyta", Rank.PHYLUM);
-    NameUsageContainer c = addHigher(3, p.getKey(), p, "Pinopsida", Rank.CLASS);
-    NameUsageContainer o = addHigher(4, c.getKey(), c, "Pinales", Rank.ORDER);
-    NameUsageContainer f = addHigher(5, o.getKey(), o, "Pinaceae", Rank.FAMILY);
-    NameUsageContainer g = addHigher(6, f.getKey(), f, "Abies", Rank.GENUS);
+    NameUsage k = addHigher(1, null, null, "Plantae", Rank.KINGDOM);
+    NameUsage p = addHigher(2, k.getKey(), k, "Pinophyta", Rank.PHYLUM);
+    NameUsage c = addHigher(3, p.getKey(), p, "Pinopsida", Rank.CLASS);
+    NameUsage o = addHigher(4, c.getKey(), c, "Pinales", Rank.ORDER);
+    NameUsage f = addHigher(5, o.getKey(), o, "Pinaceae", Rank.FAMILY);
+    NameUsage g = addHigher(6, f.getKey(), f, "Abies", Rank.GENUS);
 
     // create rather complete usage to sync WITHOUT a KEY
     final String taxonID = "gfzd8";
     String name = "Abies alba Mill.";
 
-    NameUsageContainer u = new NameUsageContainer();
+    NameUsage u = new NameUsage();
     u.setDatasetKey(CHECKLIST_KEY);
     u.setScientificName(name);
     u.setTaxonID(taxonID);
@@ -97,11 +98,12 @@ public class DatasetImportServiceMyBatisIT {
 
     u.setNubKey(p.getKey());
 
-    u.getDescriptions().add(buildDescription());
-    u.getDistributions().add(buildDistribution());
-    u.getIdentifiers().add(buildIdentifier());
-    u.getSpeciesProfiles().add(buildSpeciesProfile());
-    u.getVernacularNames().add(buildVernacularName());
+    UsageExtensions e = new UsageExtensions();
+    e.descriptions.add(buildDescription());
+    e.distributions.add(buildDistribution());
+    e.identifiers.add(buildIdentifier());
+    e.speciesProfiles.add(buildSpeciesProfile());
+    e.vernacularNames.add(buildVernacularName());
 
     NameUsageMetrics m = new NameUsageMetrics();
     m.setNumSpecies(1);
@@ -118,7 +120,7 @@ public class DatasetImportServiceMyBatisIT {
     u.setGenusKey(g.getKey());
     u.setSpeciesKey(u.getKey());
 
-    int k1 = ddt.getService().syncUsage(u, null, m);
+    int k1 = ddt.getService().syncUsage(u, null, m, e);
 
     // verify props
     NameUsage u2 = uService.get(k1, null);
@@ -153,7 +155,7 @@ public class DatasetImportServiceMyBatisIT {
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    int k2 = ddt.getService().syncUsage(u, v, m);
+    int k2 = ddt.getService().syncUsage(u, v, m, e);
     assertEquals(k1, k2);
 
     // verify props
@@ -171,8 +173,8 @@ public class DatasetImportServiceMyBatisIT {
   }
 
 
-  private NameUsageContainer addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) {
-    NameUsageContainer p = new NameUsageContainer();
+  private NameUsage addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) {
+    NameUsage p = new NameUsage();
     p.setDatasetKey(CHECKLIST_KEY);
     p.setKey(key);
     p.setParentKey(parentKey);
@@ -194,7 +196,7 @@ public class DatasetImportServiceMyBatisIT {
     NameUsageMetrics m = new NameUsageMetrics();
     m.setKey(key);
 
-    ddt.getService().syncUsage(p, null, m);
+    ddt.getService().syncUsage(p, null, m, null);
 
     return p;
   }

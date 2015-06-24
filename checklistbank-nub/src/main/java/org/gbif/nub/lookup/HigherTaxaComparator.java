@@ -287,14 +287,14 @@ public class HigherTaxaComparator {
     log.info("Reloading dictionary files from classpath ...");
 
     for (Rank rank : SYNONYM_FILENAMES.keySet()) {
-      InputStream synIn = Resources.newInputStreamSupplier(Resources.getResource(classpathFolder + "/" + SYNONYM_FILENAMES.get(rank))).getInput();
+      InputStream synIn = Resources.asByteSource(Resources.getResource(classpathFolder + "/" + SYNONYM_FILENAMES.get(rank))).openStream();
 
       Map<String, String> synonyms = readSynonymStream(rank, synIn);
       setSynonyms(rank, synonyms);
     }
 
     // read blacklisted names
-    InputStream blackIn = Resources.newInputStreamSupplier(Resources.getResource(classpathFolder + "/" + RsGbifOrg.FILENAME_BLACKLIST)).getInput();
+    InputStream blackIn = Resources.asByteSource(Resources.getResource(classpathFolder + "/" + RsGbifOrg.FILENAME_BLACKLIST)).openStream();
     readBlacklistStream(blackIn);
   }
 

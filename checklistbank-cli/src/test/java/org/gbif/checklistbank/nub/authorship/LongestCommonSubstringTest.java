@@ -8,7 +8,7 @@ public class LongestCommonSubstringTest {
 
   @Test
   public void testLcs() throws Exception {
-    assertEquals("", LongestCommonSubstring.lcs("a", "n"));
+    assertEquals("", LongestCommonSubstring.lcs("a", "node"));
     assertEquals("ma", LongestCommonSubstring.lcs("markus", "mama"));
     assertEquals("mar", LongestCommonSubstring.lcs("markus döring", "carla maria möglich"));
   }

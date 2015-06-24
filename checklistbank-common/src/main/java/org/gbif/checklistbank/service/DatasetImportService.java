@@ -1,15 +1,19 @@
 package org.gbif.checklistbank.service;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.service.checklistbank.NameUsageExtensionService;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.model.UsageExtensions;
 
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * Persistence service dealing with methods needed to import new checklists into checklistbank.
@@ -32,7 +36,7 @@ public interface DatasetImportService {
      *
      * @return the new or existing usage key, same as usage.key
      */
-    int syncUsage(NameUsageContainer usage, VerbatimNameUsage verbatim, NameUsageMetrics metrics);
+    int syncUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, @Nullable NameUsageMetrics metrics, @Nullable UsageExtensions extensions);
 
     void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey);
 

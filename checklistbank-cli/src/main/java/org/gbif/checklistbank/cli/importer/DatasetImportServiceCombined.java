@@ -1,15 +1,18 @@
 package org.gbif.checklistbank.cli.importer;
 
-import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.index.NameUsageIndexService;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 
@@ -27,10 +30,10 @@ public class DatasetImportServiceCombined {
     this.solrService = solrService;
   }
 
-  public int syncUsage(NameUsageContainer usage, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+  public int syncUsage(NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
     Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
-    int key = sqlService.syncUsage(usage, verbatim, metrics);
-    solrService.insertOrUpdate(usage, parents);
+    int key = sqlService.syncUsage(usage, verbatim, metrics, extensions);
+    solrService.insertOrUpdate(usage, parents, extensions);
     return key;
   }
 

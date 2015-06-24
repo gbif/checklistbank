@@ -31,9 +31,6 @@ public class NeoConfiguration {
     @Parameter(names = "--neo-batchsize")
     public int batchSize = 10000;
 
-    @Parameter(names = "--neo-debug")
-    public boolean debug = false;
-
     /**
      * none, soft, weak, strong
      * see http://docs.neo4j.org/chunked/stable/configuration-caches.html
@@ -51,53 +48,9 @@ public class NeoConfiguration {
     }
 
     /**
-     * Creates a new embedded db in the neoRepository folder.
-     *
-     * @param datasetKey subfolder for the db
-     * @param clean      if true deletes previously existing db
+     * @return the KVP dbmap file used for the given dataset
      */
-    public GraphDatabaseService newEmbeddedDb(UUID datasetKey, boolean clean) {
-        Preconditions.checkNotNull(datasetKey);
-        File storeDir = neoDir(datasetKey);
-        if (clean && storeDir.exists()) {
-            // erase previous db
-            LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
-            FileUtils.deleteQuietly(storeDir);
-        }
-        GraphDatabaseFactory factory = new GraphDatabaseFactory();
-        GraphDatabaseBuilder builder = factory.newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
-                .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-                .setConfig(GraphDatabaseSettings.cache_type, cacheType)
-                .setConfig(GraphDatabaseSettings.pagecache_memory, mb(mappedMemory));
-        if (debug) {
-            builder
-                    .setConfig(GraphDatabaseSettings.dump_configuration, "true");
-        }
-        GraphDatabaseService db = builder.newGraphDatabase();
-        registerShutdownHook(db, datasetKey);
-
-        LOG.info("Starting embedded neo4j database from {}", storeDir.getAbsolutePath());
-        return db;
+    public File kvp(UUID datasetKey) {
+        return new File(neoRepository, "kvp" + File.separator + datasetKey.toString());
     }
-
-    /**
-     * Registers a shutdown hook for the Neo4j instance so that it
-     * shuts down nicely when the VM exits (even if you "Ctrl-C" the running application).
-     */
-    private static void registerShutdownHook(final GraphDatabaseService graphDb, final UUID datasetKey) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (graphDb != null && graphDb.isAvailable(100)) {
-                    LOG.info("Shutting down neo database {} ...", datasetKey);
-                    //graphDb.shutdown();
-                }
-            }
-        });
-    }
-
-    private String mb(int memoryInMB) {
-        return memoryInMB + "M";
-    }
-
 }

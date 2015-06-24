@@ -1,0 +1,10 @@
+1			KINGDOM	f	ACCEPTED		Plantae
+2	1		FAMILY	f	ACCEPTED		Pteridaceae
+3	1		FAMILY	f	ACCEPTED		Aspleniaceae
+10	2		SPECIES	f	ACCEPTED		Adiantum x moranii J. Prado
+11	2		SPECIES	f	ACCEPTED		Adiantum x tracyi
+12	2		SPECIES	f	ACCEPTED		Adiantum meishanianum F. S. Hsu ex Y. C. Liu & W. L. Chiou
+13	2		SPECIES	f	ACCEPTED		Adiantum capillus-veneris L.
+14	2		SPECIES	f	ACCEPTED		Adiantum latifolium x petiolatum
+20	3		SUBSPECIES	f	ACCEPTED		Asplenium adiantum-nigrum L. ssp. yuanum (Ching) Viane, Rasbach, Reichstein & Schneller
+21	3		SUBSPECIES	f	ACCEPTED		Asplenium adiantum nigrum × septentrionale Litard.

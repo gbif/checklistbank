@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.importer;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.index.NameUsageIndexService;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +28,6 @@ import org.slf4j.LoggerFactory;
 public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
-
-  public static final String SYNC_METER = "clb-importer.sync";
 
   private final ImporterConfiguration cfg;
   private DatasetImportServiceCombined importService;
@@ -37,7 +37,6 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
   public ImporterService(ImporterConfiguration cfg) {
     super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
-    registry.meter(SYNC_METER);
     try {
       zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
     } catch (IOException e) {
@@ -53,7 +52,7 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
   @Override
   protected void process(ChecklistNormalizedMessage msg) throws Exception {
     try {
-      Importer importer = new Importer(cfg, msg.getDatasetUuid(), registry, importService, usageService);
+      Importer importer = Importer.create(cfg.neo, msg.getDatasetUuid(), registry, importService, usageService);
       importer.run();
       // notify rabbit
       Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);

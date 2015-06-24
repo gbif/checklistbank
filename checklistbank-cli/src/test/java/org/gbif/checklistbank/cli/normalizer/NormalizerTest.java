@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Country;
@@ -10,8 +9,11 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.cli.common.NoneMatchingService;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.NodeProperties;
 
 import java.net.URI;
 import java.net.URL;
@@ -24,7 +26,6 @@ import java.util.UUID;
 import com.beust.jcommander.internal.Maps;
 import com.beust.jcommander.internal.Sets;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,39 +45,16 @@ import static org.junit.Assert.fail;
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
  */
-public class NormalizerTest extends NeoTest {
+public class NormalizerTest extends BaseTest {
 
   private static final String INCERTAE_SEDIS = "Incertae sedis";
-  private NormalizerConfiguration cfg;
-
-  public NormalizerTest() {
-    super(false);
-  }
-
-  @Before
-  public void initDwcaRepo() throws Exception {
-    cfg = new NormalizerConfiguration();
-    cfg.neo = super.cfg;
-
-    URL dwcasUrl = getClass().getResource("/dwcas");
-    Path p = Paths.get(dwcasUrl.toURI());
-    cfg.archiveRepository = p.toFile();
-  }
 
   /**
    * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher for tests.
    */
   public static Normalizer buildNormalizer(NormalizerConfiguration cfg, UUID datasetKey) {
     MetricRegistry registry = new MetricRegistry("normalizer");
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
-
-    registry.meter(NormalizerService.INSERT_METER);
-    registry.meter(NormalizerService.RELATION_METER);
-    registry.meter(NormalizerService.METRICS_METER);
-    registry.meter(NormalizerService.DENORMED_METER);
-
-    return new Normalizer(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
+    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
   }
 
   @Test
@@ -94,27 +72,29 @@ public class NormalizerTest extends NeoTest {
 
     Normalizer norm = buildNormalizer(cfg, datasetKey);
     norm.run();
-    initDb(datasetKey, norm.getStats());
+
+    openDb(datasetKey);
+    compareStats(norm.getStats());
 
     Set<String> taxonIndices = Sets.newHashSet();
-    taxonIndices.add(TaxonProperties.TAXON_ID);
-    taxonIndices.add(TaxonProperties.SCIENTIFIC_NAME);
-    taxonIndices.add(TaxonProperties.CANONICAL_NAME);
+    taxonIndices.add(NodeProperties.TAXON_ID);
+    taxonIndices.add(NodeProperties.SCIENTIFIC_NAME);
+    taxonIndices.add(NodeProperties.CANONICAL_NAME);
     try (Transaction tx = beginTx()) {
-      Schema schema = db.schema();
+      Schema schema = dao.getNeo().schema();
       for (IndexDefinition idf : schema.getIndexes(Labels.TAXON)) {
         List<String> idxProps = IteratorUtil.asList(idf.getPropertyKeys());
         assertTrue(idxProps.size() == 1);
         assertTrue(taxonIndices.remove(idxProps.get(0)));
       }
 
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "1001")));
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
-      assertNotNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "Crepis bakeri")));
+      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "1001")));
+      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
+      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, "Crepis bakeri")));
 
-      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, "x1001")));
-      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
-      assertNull(IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, "xCrepis bakeri")));
+      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "x1001")));
+      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
+      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, "xCrepis bakeri")));
     }
   }
 
@@ -133,10 +113,12 @@ public class NormalizerTest extends NeoTest {
     assertEquals(1, stats.getRoots());
     assertEquals(4, stats.getSynonyms());
 
-    initDb(datasetKey, stats);
+    openDb(datasetKey);
+    compareStats(stats);
+
     try (Transaction tx = beginTx()) {
       NameUsage u1 = getUsageByTaxonId("1006");
-      NameUsage u2 = getUsageByName("Leontodon taraxacoides");
+      NameUsage u2 = getUsageByName("Leontodon taraxacoides (Vill.) Mérat");
       NameUsage u3 = getUsageByKey(u1.getKey());
 
       assertEquals(u1, u2);
@@ -291,7 +273,11 @@ public class NormalizerTest extends NeoTest {
    */
   @Test
   public void testIncertaeSedisSynonyms() throws Exception {
-    normalize(5);
+    NormalizerStats stats = normalize(5);
+    assertEquals(5, stats.getSynonyms());
+    assertEquals(2, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(3, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
+
     try (Transaction tx = beginTx()) {
 
       NameUsage syn = getUsageByTaxonId("por10083");
@@ -380,6 +366,7 @@ public class NormalizerTest extends NeoTest {
   public void testDenormedIndexFungorum() throws Exception {
     NormalizerStats stats = normalize(6);
     assertEquals(1, stats.getRoots());
+    assertEquals(226, stats.getCountByOrigin(Origin.SOURCE));
 
     try (Transaction tx = beginTx()) {
       assertUsage("426221",
@@ -555,9 +542,9 @@ public class NormalizerTest extends NeoTest {
 
       // pro parte synonym
       Set<Integer> accIds = Sets.newHashSet();
-      List<NameUsageContainer> pps = getUsagesByName("Calendula eckerleinii Ohle");
+      List<NameUsage> pps = getUsagesByName("Calendula eckerleinii Ohle");
       assertEquals(3, pps.size());
-      for (NameUsageContainer u : pps) {
+      for (NameUsage u : pps) {
         assertEquals("Calendula eckerleinii Ohle", u.getScientificName());
         assertEquals(Rank.SPECIES, u.getRank());
         assertEquals(TaxonomicStatus.PROPARTE_SYNONYM, u.getTaxonomicStatus());
@@ -734,8 +721,9 @@ public class NormalizerTest extends NeoTest {
   @Test
   public void testDenormedClassificationBDJ() throws Exception {
     NormalizerStats stats = normalize(17);
-    System.out.println(stats);
     assertEquals(1, stats.getRoots());
+    assertEquals(555, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(232, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
   }
 
   private void assertUsage(NameUsage u, Rank rank, String sciName, boolean synonym) {
@@ -814,10 +802,12 @@ public class NormalizerTest extends NeoTest {
     assertEquals(0, stats.getCountByRank(Rank.GENUS));
     assertEquals(10, stats.getCountByRank(Rank.SPECIES));
 
-    initDb(datasetKey, stats);
+    openDb(datasetKey);
+    compareStats(stats);
+
     try (Transaction tx = beginTx()) {
       NameUsage u1 = getUsageByTaxonId("Aglais io");
-      NameUsage u2 = getUsageByName("Aglais io");
+      NameUsage u2 = getUsageByName("Aglais io (Linnaeus, 1758)");
       assertEquals(u1, u2);
 
       assertNull(u1.getAcceptedKey());
@@ -867,34 +857,39 @@ public class NormalizerTest extends NeoTest {
     assertEquals(1, stats.getRoots());
     assertEquals(48, stats.getSynonyms());
 
-    initDb(datasetKey, stats);
+    openDb(datasetKey);
+    compareStats(stats);
+
     try (Transaction tx = beginTx()) {
       // Achillea
-      NameUsageContainer a = getUsageByTaxonId("770");
+      NameUsage a = getUsageByTaxonId("770");
       // Achillea millefolium
-      NameUsageContainer am = getUsageByTaxonId("2768");
+      NameUsage am = getUsageByTaxonId("2768");
       assertEquals(a.getKey(), am.getParentKey());
 
       //media
-      assertThat(a.getMedia()).hasSize(0);
-      assertThat(am.getMedia()).hasSize(2);
-      assertThat(am.getMedia()).extracting("creator").containsOnly("Gary A. Monroe", "J.S. Peterson");
-      assertThat(am.getMedia()).extracting("title").containsOnly("Achillea millefolium L. - common yarrow");
-      assertThat(am.getMedia()).extracting("identifier").containsOnly(
+      UsageExtensions ea = dao.readExtensions(a.getKey().longValue());
+      UsageExtensions eam = dao.readExtensions(am.getKey().longValue());
+
+      assertThat(ea.media).hasSize(0);
+      assertThat(eam.media).hasSize(2);
+      assertThat(eam.media).extracting("creator").containsOnly("Gary A. Monroe", "J.S. Peterson");
+      assertThat(eam.media).extracting("title").containsOnly("Achillea millefolium L. - common yarrow");
+      assertThat(eam.media).extracting("identifier").containsOnly(
         URI.create("http://plants.usda.gov/gallery/large/acmi2_002_lvp.jpg"),
         URI.create("http://plants.usda.gov/gallery/pubs/acmi2_006_php.jpg"));
-      assertThat(am.getMedia()).extracting("references").containsOnly(
+      assertThat(eam.media).extracting("references").containsOnly(
         URI.create("http://plants.usda.gov/java/largeImage?imageID=acmi2_002_avp.jpg"),
         URI.create("http://plants.usda.gov/java/largeImage?imageID=acmi2_006_ahp.tif"));
-      assertThat(am.getMedia()).extracting("type").containsOnly(MediaType.StillImage);
-      assertThat(am.getMedia()).extracting("format").containsOnly("image/jpg", "image/jpeg");
+      assertThat(eam.media).extracting("type").containsOnly(MediaType.StillImage);
+      assertThat(eam.media).extracting("format").containsOnly("image/jpg", "image/jpeg");
 
       //vernaculars
-      assertThat(a.getVernacularNames()).hasSize(0);
-      assertThat(am.getVernacularNames()).hasSize(6);
-      assertThat(am.getVernacularNames()).extracting("language").containsOnly(Language.ENGLISH, Language.FRENCH);
-      assertThat(am.getVernacularNames()).extracting("country").containsOnly(Country.CANADA);
-      assertThat(am.getVernacularNames()).extracting("vernacularName").containsOnly(
+      assertThat(ea.vernacularNames).hasSize(0);
+      assertThat(eam.vernacularNames).hasSize(6);
+      assertThat(eam.vernacularNames).extracting("language").containsOnly(Language.ENGLISH, Language.FRENCH);
+      assertThat(eam.vernacularNames).extracting("country").containsOnly(Country.CANADA);
+      assertThat(eam.vernacularNames).extracting("vernacularName").containsOnly(
         "achillée millefeuille", "herbe à dindes", "herbe à dindons", "common yarrow", "yarrow", "milfoil");
     }
   }
@@ -912,7 +907,9 @@ public class NormalizerTest extends NeoTest {
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
 
-    initDb(datasetKey, stats);
+    openDb(datasetKey);
+    compareStats(stats);
+
     try (Transaction tx = beginTx()) {
 
       assertEquals(76, stats.getCount());
@@ -928,7 +925,7 @@ public class NormalizerTest extends NeoTest {
       assertEquals(9, stats.getCountByRank(Rank.VARIETY));
 
       // Ceramium rubrum C.Agardh
-      NameUsageContainer cr = getUsageByTaxonId("99937");
+      NameUsage cr = getUsageByTaxonId("99937");
       assertNotNull(cr);
     }
 
@@ -971,7 +968,9 @@ public class NormalizerTest extends NeoTest {
     norm.run();
     NormalizerStats stats = norm.getStats();
 
-    initDb(datasetKey, stats);
+    openDb(datasetKey);
+    compareStats(stats);
+
     return stats;
   }
 }

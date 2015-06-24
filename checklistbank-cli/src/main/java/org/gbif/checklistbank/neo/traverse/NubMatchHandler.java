@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -7,9 +7,8 @@ import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.model.NeoTaxon;
 
 import java.util.concurrent.TimeUnit;
 
@@ -27,12 +26,13 @@ public class NubMatchHandler implements StartEndHandler {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchHandler.class);
   // neo node ids for the higher classification links
   private final NameUsage classification = new NameUsage();
-  private final NeoMapper mapper = NeoMapper.instance();
   private final NameUsageMatchingService matchingService;
   private int counter;
   private boolean warnSlowMatching = true;
+  private final UsageDao dao;
 
-  public NubMatchHandler(NameUsageMatchingService matchingService) {
+  public NubMatchHandler(NameUsageMatchingService matchingService, UsageDao dao) {
+    this.dao = dao;
     this.matchingService = Preconditions.checkNotNull(matchingService, "Backbone matching client required");
   }
 
@@ -44,24 +44,23 @@ public class NubMatchHandler implements StartEndHandler {
       warnSlowMatching = true;
       LOG.debug("Metrics & nub matching done for: {}", counter);
     }
-    Rank rank = mapper.readRank(n);
-    if (rank != null && rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, rank, (int)n.getId());
-      ClassificationUtils.setHigherRank(classification, rank, mapper.readCanonicalName(n));
+    NeoTaxon t = dao.read(n);
+    if (t.rank != null && t.rank.isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, t.rank, (int)n.getId());
+      ClassificationUtils.setHigherRank(classification, t.rank, t.canonicalName);
     }
   }
 
   @Override
   public void end(Node n) {
-    Rank rank = mapper.readRank(n);
-    String name = mapper.readScientificName(n);
+    NeoTaxon nt = dao.read(n);
     // nub lookup
-    matchToNub(n, classification, name, rank);
-    processSynonyms(n);
+    matchToNub(n, classification, nt.scientificName, nt.rank);
+    processSynonyms(nt);
     // remove this rank from current classification
-    if (rank != null && rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, rank, null);
-      ClassificationUtils.setHigherRank(classification, rank, null);
+    if (nt.rank != null && nt.rank.isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, nt.rank, null);
+      ClassificationUtils.setHigherRank(classification, nt.rank, null);
     }
   }
 
@@ -113,23 +112,26 @@ public class NubMatchHandler implements StartEndHandler {
     }
 
     // store nub key
-    mapper.setNubKey(n, match.getUsageKey());
+    NameUsage u = dao.readUsage(n, false);
+    u.setNubKey(match.getUsageKey());
     if (match.getUsageKey() == null) {
       LOG.debug("Failed nub match: {}", name);
-      mapper.addIssue(n, NameUsageIssue.BACKBONE_MATCH_NONE);
+      u.addIssue(NameUsageIssue.BACKBONE_MATCH_NONE);
 
     } else if (match.getMatchType() == NameUsageMatch.MatchType.FUZZY) {
-      mapper.addIssue(n, NameUsageIssue.BACKBONE_MATCH_FUZZY);
+      u.addIssue(NameUsageIssue.BACKBONE_MATCH_FUZZY);
     }
+    dao.store(n.getId(), u, false);
   }
 
   /**
    * Process all synonymsTD doing a nub lookup for each of them
    * @return the number of processed synonymsTD
    */
-  private void processSynonyms(Node n) {
-    for (Node syn : Traversals.SYNONYMS.traverse(n).nodes()) {
-      matchToNub(syn, classification, mapper.readScientificName(syn), mapper.readRank(n));
+  private void processSynonyms(NeoTaxon nt) {
+    for (Node syn : Traversals.SYNONYMS.traverse(nt.node).nodes()) {
+      NeoTaxon s = dao.read(syn);
+      matchToNub(syn, classification, s.scientificName, nt.rank);
     }
   }
 

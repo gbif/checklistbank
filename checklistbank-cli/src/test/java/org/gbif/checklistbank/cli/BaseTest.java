@@ -1,33 +1,42 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.cli;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.normalizer.Normalizer;
+import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
+import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
-import org.gbif.utils.file.FileUtils;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.model.NeoTaxon;
 
-import java.io.File;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.Files;
+import com.yammer.metrics.MetricRegistry;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 
+import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -36,46 +45,38 @@ import static org.junit.Assert.fail;
 /**
  * base class to insert neo integration tests.
  */
-public abstract class NeoTest {
+public abstract class BaseTest {
 
-  protected NeoConfiguration cfg;
-  protected GraphDatabaseService db;
-  protected NeoMapper mapper = NeoMapper.instance();
-  protected boolean cleanup;
-
-  public NeoTest() {
-    this.cleanup = true;
-  }
-
-  public NeoTest(boolean cleanup) {
-    this.cleanup = cleanup;
-  }
+  protected NormalizerConfiguration cfg;
+  protected UsageDao dao;
 
   @Before
-  public void initNeoCfg() throws Exception {
-    cfg = new NeoConfiguration();
-    File tmp = FileUtils.createTempDir();
-    cfg.neoRepository = tmp;
+  public void initCfg() throws Exception {
+    cfg = new NormalizerConfiguration();
+    cfg.neo.neoRepository = Files.createTempDir();
+
+    URL dwcasUrl = getClass().getResource("/dwcas");
+    Path p = Paths.get(dwcasUrl.toURI());
+    cfg.archiveRepository = p.toFile();
   }
 
   @After
   public void cleanup() throws Exception {
-    if (db != null) {
-      db.shutdown();
-    }
-    if (cleanup) {
-      org.apache.commons.io.FileUtils.cleanDirectory(cfg.neoRepository);
-      cfg.neoRepository.delete();
+    if (dao != null) {
+      dao.closeAndDelete();
     }
   }
 
-  public void initDb(UUID datasetKey) {
-    db = cfg.newEmbeddedDb(datasetKey, true);
+  public void initDb() {
+    dao = UsageDao.temporaryDao(25);
   }
 
-  protected void initDb(UUID datasetKey, NormalizerStats stats) {
-    db = cfg.newEmbeddedDb(datasetKey, false);
-    compareStats(stats);
+  /**
+   *
+   * @param datasetKey
+   */
+  protected void openDb(UUID datasetKey) {
+    dao = UsageDao.persistentDao(cfg.neo, datasetKey, new MetricRegistry("opendb"), false);
   }
 
   protected void compareStats(NormalizerStats stats) {
@@ -92,6 +93,18 @@ public abstract class NeoTest {
     }
   }
 
+  public NormalizerStats insertNeo(UUID datasetKey) {
+    Normalizer norm = NormalizerTest.buildNormalizer(cfg, datasetKey);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+
+    openDb(datasetKey);
+    compareStats(stats);
+    dao.close();
+
+    return stats;
+  }
+
   public NormalizerStats getStats() {
     int roots = 0;
     int depth = -1;
@@ -100,7 +113,8 @@ public abstract class NeoTest {
     Map<Origin, Integer> countByOrigin = Maps.newHashMap();
     Map<Rank, Integer> countByRank = Maps.newHashMap();
 
-    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+    for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
+      NeoTaxon t = dao.read(n);
       if (n.hasLabel(Labels.ROOT)) {
         roots++;
       }
@@ -113,18 +127,17 @@ public abstract class NeoTest {
       if (!n.hasLabel(Labels.TAXON)) {
         ignored++;
       }
-      Origin o = mapper.readOrigin(n);
-      if (!countByOrigin.containsKey(o)) {
-        countByOrigin.put(o, 1);
+
+      if (!countByOrigin.containsKey(t.origin)) {
+        countByOrigin.put(t.origin, 1);
       } else {
-        countByOrigin.put(o, countByOrigin.get(o) + 1);
+        countByOrigin.put(t.origin, countByOrigin.get(t.origin) + 1);
       }
-      Rank r = mapper.readRank(n);
-      if (r != null) {
-        if (!countByRank.containsKey(r)) {
-          countByRank.put(r, 1);
+      if (t.rank != null) {
+        if (!countByRank.containsKey(t.rank)) {
+          countByRank.put(t.rank, 1);
         } else {
-          countByRank.put(r, countByRank.get(r) + 1);
+          countByRank.put(t.rank, countByRank.get(t.rank) + 1);
         }
       }
     }
@@ -132,67 +145,77 @@ public abstract class NeoTest {
   }
 
   public Transaction beginTx() {
-    return db.beginTx();
+    return dao.getNeo().beginTx();
   }
 
-  public NameUsageContainer getUsageByKey(int key) {
-    Node n = db.getNodeById(key);
+  public NameUsage getUsageByKey(int key) {
+    Node n = dao.getNeo().getNodeById(key);
     return getUsageByNode(n);
   }
 
   /**
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
-  public NameUsageContainer getUsageByTaxonId(String id) {
-    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, id));
+  public NameUsage getUsageByTaxonId(String id) {
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
 
-  public NameUsageMetrics getMetricsByKey(long nodeId) {
-    Node n = db.getNodeById(nodeId);
-    return mapper.read(n, new NameUsageMetrics());
-  }
-
   public NameUsageMetrics getMetricsByTaxonId(String taxonID) {
-    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.TAXON_ID, taxonID));
-    return mapper.read(n, new NameUsageMetrics());
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, taxonID));
+    return dao.readFacts(n.getId()).metrics;
   }
 
-  public List<NameUsageContainer> getUsagesByName(String name) {
-    List<NameUsageContainer> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name))) {
+  public List<NameUsage> getUsagesByName(String name) {
+    List<NameUsage> usages = Lists.newArrayList();
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
   }
 
   /**
-   * gets single usage or null, throws exception if more than 1 usage exist!
+   * Gets single usage by its canonical name. Returns null if none found or throws exception if more than 1 usage with that name exists!
    */
-  public NameUsageContainer getUsageByName(String name) {
-    Node n = IteratorUtil.singleOrNull(db.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, name));
+  public NameUsage getUsageByCanonical(String name) {
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name));
+    return getUsageByNode(n);
+  }
+
+  /**
+   * Gets single usage by its scientific name. Returns null if none found or throws exception if more than 1 usage with that name exists!
+   */
+  public NameUsage getUsageByName(String name) {
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name));
     return getUsageByNode(n);
   }
 
   public List<Node> getNodesByName(String name) {
-    return IteratorUtil.asList(db.findNodes(Labels.TAXON, TaxonProperties.SCIENTIFIC_NAME, name));
+    return IteratorUtil.asList(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name));
   }
 
-  public List<NameUsageContainer> getAllUsages() {
-    List<NameUsageContainer> usages = Lists.newArrayList();
-    for (Node n : GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON)) {
+  public List<NameUsage> getAllUsages() {
+    List<NameUsage> usages = Lists.newArrayList();
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
   }
 
-  private NameUsageContainer getUsageByNode(Node n) {
-    return mapper.read(n);
+  private NameUsage getUsageByNode(Node n) {
+    NameUsage u = null;
+    if (n != null) {
+      u = dao.readUsage(n, true);
+      if (u != null) {
+        u.setKey((int)n.getId());
+      }
+    }
+    return u;
   }
 
   public void showAll() {
     try (Transaction tx = beginTx()) {
-      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.TAXON));
+      show(dao.getNeo().findNodes(Labels.TAXON));
     }
   }
 
@@ -201,7 +224,7 @@ public abstract class NeoTest {
    */
   public void showRoot() {
     try (Transaction tx = beginTx()) {
-      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
+      show(dao.getNeo().findNodes(Labels.ROOT));
     }
   }
 
@@ -210,17 +233,20 @@ public abstract class NeoTest {
    */
   public void showSynonyms() {
     try (Transaction tx = beginTx()) {
-      show(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.SYNONYM));
+      show(dao.getNeo().findNodes(Labels.SYNONYM));
     }
   }
 
-  private void show(Iterable<Node> iterable) {
+  private void show(ResourceIterator<Node> iter) {
     System.out.println("\n\n");
-    for (Node n : iterable) {
+
+    while (iter.hasNext()) {
+      Node n = iter.next();
       NameUsage u = getUsageByNode(n);
-      System.out.println("### " + n.getId() + " " + mapper.readScientificName(n));
+      System.out.println("### " + n.getId() + " " + dao.read(n).scientificName);
       System.out.println(u);
     }
+    iter.close();
   }
 
   public void assertUsage(

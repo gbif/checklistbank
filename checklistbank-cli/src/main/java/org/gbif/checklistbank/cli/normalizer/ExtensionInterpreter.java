@@ -2,7 +2,7 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
@@ -14,6 +14,8 @@ import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.neo.NeoInserter;
 import org.gbif.common.parsers.BooleanParser;
 import org.gbif.common.parsers.CitesAppendixParser;
 import org.gbif.common.parsers.CountryParser;
@@ -36,7 +38,6 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.IucnTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
 import org.gbif.dwc.terms.XmpRightsTerm;
 import org.gbif.dwc.terms.XmpTerm;
 
@@ -68,8 +69,6 @@ public class ExtensionInterpreter {
   private final TypeStatusParser typeStatusParser = TypeStatusParser.getInstance();
   private final MediaTypeParser mediaTypeParser = MediaTypeParser.getInstance();
 
-  private final TermFactory tf = TermFactory.instance();
-
   /**
    * Tries various terms in given order until it finds a non empty value.
    * @param rec
@@ -97,7 +96,7 @@ public class ExtensionInterpreter {
    * @param term
    * @return
    */
-  private Boolean bool(Map<Term, String> rec, NameUsageIssue issue, NameUsageContainer u, Term term) {
+  private Boolean bool(Map<Term, String> rec, NameUsageIssue issue, NameUsage u, Term term) {
     Boolean result = null;
     String val = value(rec, term);
     if (val != null) {
@@ -109,7 +108,7 @@ public class ExtensionInterpreter {
     return result;
   }
 
-  private Integer integer(Map<Term, String> rec, NameUsageIssue issue, NameUsageContainer u, Term term) {
+  private Integer integer(Map<Term, String> rec, NameUsageIssue issue, NameUsage u, Term term) {
     Integer i = null;
     String val = value(rec, term);
     if (val != null) {
@@ -121,8 +120,7 @@ public class ExtensionInterpreter {
     return i;
   }
 
-  private <T extends Enum<T>> T enumify(Map<Term, String> rec, @Nullable NameUsageIssue issue, EnumParser<T> parser,
-    NameUsageContainer u, Term ... terms) {
+  private <T extends Enum<T>> T enumify(Map<Term, String> rec, @Nullable NameUsageIssue issue, EnumParser<T> parser, NameUsage u, Term ... terms) {
     boolean valuesFound = false;
     for (Term t : terms) {
       if (rec.containsKey(t)) {
@@ -143,7 +141,7 @@ public class ExtensionInterpreter {
     return null;
   }
 
-  private void interpretVernacularNames(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretVernacularNames(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.VERNACULAR_NAME)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.VERNACULAR_NAME)) {
         VernacularName vn = new VernacularName();
@@ -163,7 +161,7 @@ public class ExtensionInterpreter {
         vn.setSex(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, sexParser, u, GbifTerm.isPreferredName));
         vn.setSource(value(rec, DcTerm.source));
         // interpret rec
-        u.getVernacularNames().add(vn);
+        e.vernacularNames.add(vn);
       }
     }
   }
@@ -171,7 +169,7 @@ public class ExtensionInterpreter {
   /**
    * We only keep type names and ignore specimens...
    */
-  private void interpretTypes(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretTypes(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.TYPES_AND_SPECIMEN)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.TYPES_AND_SPECIMEN)) {
         TypeSpecimen t = new TypeSpecimen();
@@ -187,7 +185,7 @@ public class ExtensionInterpreter {
         t.setSource(value(rec, DcTerm.source));
         //t.setCitation(value(rec, DcTerm.bibliographicCitation));
         //t.setTypeDesignationType(value(rec, GbifTerm.typeDesignatedType));
-        u.getTypeSpecimens().add(t);
+        e.typeSpecimens.add(t);
       }
     }
   }
@@ -212,7 +210,7 @@ public class ExtensionInterpreter {
     return abbreviatedName;
   }
 
-  private void interpretSpeciesProfiles(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretSpeciesProfiles(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.SPECIES_PROFILE)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.SPECIES_PROFILE)) {
         SpeciesProfile s = new SpeciesProfile();
@@ -229,12 +227,12 @@ public class ExtensionInterpreter {
         s.setLivingPeriod(value(rec, GbifTerm.livingPeriod));
         s.setLifeForm(value(rec, GbifTerm.lifeForm));
         s.setHabitat(value(rec, DwcTerm.habitat));
-        u.getSpeciesProfiles().add(s);
+        e.speciesProfiles.add(s);
       }
     }
   }
 
-  private void interpretReference(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretReference(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.REFERENCE)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.REFERENCE)) {
         Reference r = new Reference();
@@ -249,12 +247,12 @@ public class ExtensionInterpreter {
         // TODO: need to check this mapping!
         r.setDoi(value(rec, DcTerm.identifier));
         r.setLink(value(rec, DcTerm.references));
-        u.getReferenceList().add(r);
+        e.referenceList.add(r);
       }
     }
   }
 
-  private void extractMedia(NameUsageContainer u, VerbatimNameUsage v, Extension ext, boolean requireType) {
+  private void extractMedia(NameUsage u, UsageExtensions e, VerbatimNameUsage v, Extension ext, boolean requireType) {
     if (v.hasExtension(ext)) {
       for (Map<Term, String> rec : v.getExtensions().get(ext)) {
         URI uri = UrlParser.parse(value(rec, AcTerm.accessURI, DcTerm.identifier));
@@ -287,24 +285,24 @@ public class ExtensionInterpreter {
             m.setCreated(DateParseUtils.parse(created).getPayload());
           }
           mediaParser.detectType(m);
-          u.getMedia().add(m);
+          e.media.add(m);
         }
       }
     }
   }
 
-  private void interpretMultimedia(NameUsageContainer u, VerbatimNameUsage v) {
-    extractMedia(u, v, Extension.IMAGE, false);
-    extractMedia(u, v, Extension.MULTIMEDIA, false);
-    extractMedia(u, v, Extension.EOL_MEDIA, true);
-    extractMedia(u, v, Extension.AUDUBON, false);
-    extractMediaCore(u, v);
+  private void interpretMultimedia(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
+    extractMedia(u, e, v, Extension.IMAGE, false);
+    extractMedia(u, e, v, Extension.MULTIMEDIA, false);
+    extractMedia(u, e, v, Extension.EOL_MEDIA, true);
+    extractMedia(u, e, v, Extension.AUDUBON, false);
+    extractMediaCore(u, e, v);
     /**
      * merges media records if the same image URL or link is given several times.
      * Remove any media that has not either a file or webpage uri.
      */
     Map<String, NameUsageMediaObject> media = Maps.newLinkedHashMap();
-    for (NameUsageMediaObject m : u.getMedia()) {
+    for (NameUsageMediaObject m : e.media) {
       // we can get file uris or weblinks. Prefer file URIs as they clearly identify a single image
       URI uri = m.getIdentifier() != null ? m.getIdentifier() : m.getReferences();
       if (uri != null) {
@@ -316,23 +314,23 @@ public class ExtensionInterpreter {
         }
       }
     }
-    u.setMedia(Lists.newArrayList(media.values()));
+    e.media = Lists.newArrayList(media.values());
   }
 
-  private void extractMediaCore(NameUsageContainer u, VerbatimNameUsage v) {
+  private void extractMediaCore(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasCoreField(DwcTerm.associatedMedia)) {
       for (URI uri : UrlParser.parseUriList(v.getCoreField(DwcTerm.associatedMedia))) {
         if (uri != null) {
           NameUsageMediaObject m = new NameUsageMediaObject();
           m.setIdentifier(uri);
           mediaParser.detectType(m);
-          u.getMedia().add(m);
+          e.media.add(m);
         }
       }
     }
   }
 
-  private void interpretIdentifier(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretIdentifier(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.IDENTIFIER)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.IDENTIFIER)) {
         Identifier i = new Identifier();
@@ -344,12 +342,12 @@ public class ExtensionInterpreter {
         }
         i.setTitle(value(rec, DcTerm.title));
         i.setType(IdentifierType.inferFrom(i.getIdentifier()));
-        u.getIdentifiers().add(i);
+        e.identifiers.add(i);
       }
     }
   }
 
-  private void interpretDistribution(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretDistribution(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.DISTRIBUTION)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.DISTRIBUTION)) {
         Distribution d = new Distribution();
@@ -372,12 +370,12 @@ public class ExtensionInterpreter {
         d.setStartDayOfYear(integer(rec, NameUsageIssue.DISTRIBUTION_INVALID, u, DwcTerm.startDayOfYear));
         d.setRemarks(value(rec, DwcTerm.occurrenceRemarks, DwcTerm.taxonRemarks));
         d.setSource(value(rec, DcTerm.source));
-        u.getDistributions().add(d);
+        e.distributions.add(d);
       }
     }
   }
 
-  private void interpretDescription(NameUsageContainer u, VerbatimNameUsage v) {
+  private void interpretDescription(NameUsage u, UsageExtensions e, VerbatimNameUsage v) {
     if (v.hasExtension(Extension.DESCRIPTION)) {
       for (Map<Term, String> rec : v.getExtensions().get(Extension.DESCRIPTION)) {
         Description d = new Description();
@@ -389,7 +387,7 @@ public class ExtensionInterpreter {
         d.setCreator(value(rec, DcTerm.creator, DcTerm.rightsHolder));
         d.setLanguage(enumify(rec, NameUsageIssue.DESCRIPTION_INVALID, languageParser, u, DcTerm.language));
         d.setLicense(value(rec, DcTerm.license, DcTerm.rights));
-        u.getDescriptions().add(d);
+        e.descriptions.add(d);
       }
     }
     // EOL MULTIMEDIA
@@ -413,12 +411,12 @@ public class ExtensionInterpreter {
         d.setCreator(value(rec, DcTerm.creator, DcTerm.rightsHolder, XmpRightsTerm.Owner, DcTerm.publisher));
         d.setLanguage(enumify(rec, NameUsageIssue.DESCRIPTION_INVALID, languageParser, u, DcTerm.language));
         d.setLicense(value(rec, DcTerm.license, DcTerm.rights, XmpRightsTerm.UsageTerms));
-        u.getDescriptions().add(d);
+        e.descriptions.add(d);
       }
     }
     // verify descriptions
     // make sure we have some description
-    Iterator<Description> iter = u.getDescriptions().iterator();
+    Iterator<Description> iter = e.descriptions.iterator();
     while(iter.hasNext()) {
       Description d = iter.next();
       if (StringUtils.isBlank(d.getDescription())) {
@@ -437,14 +435,17 @@ public class ExtensionInterpreter {
            || type.equalsIgnoreCase("Text");
   }
 
-  public void interpret(NameUsageContainer u, VerbatimNameUsage v) {
-    interpretDescription(u,v);
-    interpretDistribution(u, v);
-    interpretIdentifier(u, v);
-    interpretMultimedia(u, v);
-    interpretReference(u, v);
-    interpretSpeciesProfiles(u, v);
-    interpretTypes(u, v);
-    interpretVernacularNames(u, v);
+  public UsageExtensions interpret(NameUsage u, VerbatimNameUsage v) {
+    UsageExtensions ext = new UsageExtensions();
+    interpretDescription(u, ext,v);
+    interpretDistribution(u ,ext, v);
+    interpretIdentifier(u, ext, v);
+    interpretMultimedia(u, ext, v);
+    interpretReference(u, ext, v);
+    interpretSpeciesProfiles(u, ext, v);
+    interpretTypes(u, ext, v);
+    interpretVernacularNames(u, ext, v);
+    return ext;
   }
+
 }

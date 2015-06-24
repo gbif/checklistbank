@@ -50,7 +50,7 @@ public class NubGitExporter {
     LOG.info("Retrieved max backbone usage key {}", max);
     while (start < max) {
       int end = start + PAGE_SIZE - 1;
-      List<NameUsageContainer> usages = usageService.listRange(start, end);
+      List<NameUsage> usages = usageService.listRange(start, end);
       LOG.info("Retrieved {} usages from {}-{}", usages.size(), start, end);
       for (NameUsage u : usages) {
         dumpUsage(u);

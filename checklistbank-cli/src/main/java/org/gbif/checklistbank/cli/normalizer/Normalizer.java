@@ -1,23 +1,32 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.common.Metrics;
+import org.gbif.checklistbank.neo.model.NameUsageNode;
+import org.gbif.checklistbank.neo.model.RankedName;
+import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
-import org.gbif.checklistbank.neo.NeoRunnable;
+import org.gbif.checklistbank.neo.NeoInserter;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.NotUniqueException;
-import org.gbif.checklistbank.neo.RankedName;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,39 +41,26 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
+import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
-import org.parboiled.common.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Reads a good id based dwc archive and produces a neo4j graph from it.
  */
-public class Normalizer extends NeoRunnable {
+public class Normalizer extends ImportDb implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
-  private static final String PRO_PARTE_KEY_FIELD = "proParteKey";
   private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.INFORMAL);
-  private static final List<String> CLASSIFICATION_PROPERTIES = ImmutableList.of(
-    NeoMapper.propertyName(DwcTerm.parentNameUsageID),
-    NeoMapper.propertyName(DwcTerm.parentNameUsage),
-    DwcTerm.kingdom.simpleName(),
-    DwcTerm.phylum.simpleName(),
-    DwcTerm.class_.simpleName(),
-    DwcTerm.order.simpleName(),
-    DwcTerm.family.simpleName(),
-    DwcTerm.genus.simpleName(),
-    DwcTerm.subgenus.simpleName()
-  );
 
   static {
     for (char del : "[|;, ]".toCharArray()) {
@@ -75,30 +71,38 @@ public class Normalizer extends NeoRunnable {
   private final NameUsageMatchingService matchingService;
 
   private final Map<String, UUID> constituents;
-  private File dwca;
-  private final File storeDir;
-  private final Meter insertMeter;
+  private final File dwca;
   private final Meter relationMeter;
   private final Meter denormedMeter;
   private final Meter metricsMeter;
-
+  private final int batchSize;
   private InsertMetadata meta;
   private int ignored;
   private List<String> cycles = Lists.newArrayList();
   private UsageMetricsHandler metricsHandler;
   private NubMatchHandler matchHandler;
+  private int s2c;
 
-  public Normalizer(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-    Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
-    super(datasetKey, cfg.neo, registry);
+  private Normalizer(UUID datasetKey, UsageDao dao, File dwca, int batchSize,
+                    MetricRegistry registry, Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
+    super(datasetKey, dao);
     this.constituents = constituents;
-    this.insertMeter = registry.getMeters().get(NormalizerService.INSERT_METER);
-    this.relationMeter = registry.getMeters().get(NormalizerService.RELATION_METER);
-    this.metricsMeter = registry.getMeters().get(NormalizerService.METRICS_METER);
-    this.denormedMeter = registry.getMeters().get(NormalizerService.DENORMED_METER);
-    storeDir = cfg.neo.neoDir(datasetKey);
-    dwca = cfg.archiveDir(datasetKey);
+    this.relationMeter = registry.meter(Metrics.RELATION_METER);
+    this.metricsMeter = registry.meter(Metrics.METRICS_METER);
+    this.denormedMeter = registry.meter(Metrics.DENORMED_METER);
+    this.dwca = dwca;
     this.matchingService = matchingService;
+    this.batchSize = batchSize;
+    registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+  }
+
+  public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+  Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
+    return new Normalizer(datasetKey,
+            UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
+            cfg.archiveDir(datasetKey),
+            cfg.neo.batchSize,
+            registry, constituents, matchingService);
   }
 
   public void run() throws NormalizationFailedException {
@@ -107,12 +111,11 @@ public class Normalizer extends NeoRunnable {
       // batch import uses its own batchdb
       batchInsertData();
       // insert regular neo db for further processing
-      setupDb(false);
       setupRelations();
       buildMetricsAndMatchBackbone();
       LOG.info("Normalization of {} succeeded.", datasetKey);
     } finally {
-      tearDownDb();
+      dao.close();
       LOG.info("Neo database {} shut down.", datasetKey);
     }
     ignored = meta.getIgnored();
@@ -123,8 +126,10 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void batchInsertData() throws NormalizationFailedException {
-    NeoInserter inserter = new NeoInserter(storeDir, batchSize, insertMeter);
+    NeoInserter inserter = dao.createBatchInserter(batchSize);
     meta = inserter.insert(dwca, constituents);
+    // closing the batch inserter open the neo db again for regular access via the DAO
+    inserter.close();
   }
 
   /**
@@ -142,14 +147,14 @@ public class Normalizer extends NeoRunnable {
     }
 
     int counter = 0;
-    Transaction tx = db.beginTx();
+    Transaction tx = dao.getNeo().beginTx();
     try {
-      for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+      for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
         if (counter % batchSize == 0) {
           tx.success();
           tx.close();
           LOG.info("Higher classifications processed for {} taxa", counter);
-          tx = db.beginTx();
+          tx = dao.getNeo().beginTx();
         }
         applyDenormedClassification(n);
         counter++;
@@ -167,18 +172,18 @@ public class Normalizer extends NeoRunnable {
     if (meta.isParentNameMapped()) {
       // verify if we already have a classification, that it ends with a known rank
       highest = getHighestParent(n);
-      if (highest.node != n && highest.rank == null || UNKNOWN_RANKS.contains(highest.rank)) {
+      if (highest.node != n && (highest.rank == null || UNKNOWN_RANKS.contains(highest.rank))) {
         LOG.debug("Node {} already has a classification which ends in an uncomparable rank.", n.getId());
-        mapper.addIssue(n, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+        addIssueRemark(n, null, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
         return;
       }
     } else {
       // use this node
-      highest = mapper.readRankedName(n);
+      highest = dao.readRankedName(n);
     }
 
     // convert to list excluding all ranks equal and below highest.rank
-    List<RankedName> denormedClassification = mapper.listVerbatimClassification(n, highest.rank);
+    List<RankedName> denormedClassification = toRankedNameList(dao.readUsage(n, false), highest.rank);
     if (!denormedClassification.isEmpty()) {
       // exclude first parent if this taxon is rankless and has the same name
       if ((highest.rank == null || highest.rank.isUncomparable()) && highest.name.equals(denormedClassification.get(0).name)) {
@@ -186,6 +191,24 @@ public class Normalizer extends NeoRunnable {
       }
       updateDenormedClassification(highest.node, denormedClassification);
     }
+  }
+
+  /**
+   * @return list of ranked name instances from lowest rank to highest using the verbatim denormed classification.
+   */
+  private static List<RankedName> toRankedNameList(LinneanClassification lc, @Nullable Rank minRank) {
+    List<RankedName> cl = Lists.newArrayList();
+    for (Rank r : Rank.DWC_RANKS) {
+      String name = lc.getHigherRank(r);
+      if (name != null && (minRank == null || r.higherThan(minRank))) {
+        RankedName rn = new RankedName();
+        rn.name = name;
+        rn.rank = r;
+        cl.add(rn);
+      }
+    }
+    Collections.reverse(cl);
+    return cl;
   }
 
   private void updateDenormedClassification(Node taxon, List<RankedName> denormedClassification) {
@@ -199,7 +222,7 @@ public class Normalizer extends NeoRunnable {
       }
     }
     // insert higher taxon if not found
-    parent.node = createTaxon(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED, true);
+    parent.node = create(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED, true).node;
     // insert parent relationship
     assignParent(parent.node, taxon);
 
@@ -226,20 +249,23 @@ public class Normalizer extends NeoRunnable {
     LOG.info("Cleanup relations ...");
     // cut synonym cycles
     while (true) {
-      try (Transaction tx = db.beginTx()) {
-        Result result = db.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF]->(x)-[:SYNONYM_OF*]->(s) RETURN sr LIMIT 1");
+      try (Transaction tx = dao.getNeo().beginTx()) {
+        Result result = dao.getNeo().execute("MATCH (s:TAXON)-[sr:SYNONYM_OF]->(x)-[:SYNONYM_OF*]->(s) RETURN sr LIMIT 1");
         if (result.hasNext()) {
           Relationship sr = (Relationship) result.next().get("sr");
 
           Node syn = sr.getStartNode();
-          mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
-          mapper.addIssue(syn, NameUsageIssue.PARENT_CYCLE);
-          String taxonID = (String) syn.getProperty(TaxonProperties.TAXON_ID, null);
+
+          NameUsage su = dao.readUsage(syn, false);
+          su.addIssue(NameUsageIssue.CHAINED_SYNOYM);
+          su.addIssue(NameUsageIssue.PARENT_CYCLE);
+          dao.store(syn.getId(), su, false);
+
+          String taxonID = (String) syn.getProperty(NodeProperties.TAXON_ID, null);
           cycles.add(taxonID);
 
-          Node acc = createTaxon(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true);
-          mapper.addRemark(acc, "Synonym cycle cut for taxonID " + taxonID);
-          createSynonymRel(syn, acc);
+          NameUsageNode acc = create(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true, null, "Synonym cycle cut for taxonID " + taxonID);
+          createSynonymRel(syn, acc.node);
           sr.delete();
           tx.success();
 
@@ -252,16 +278,16 @@ public class Normalizer extends NeoRunnable {
     // relink synonym chain to single accepted
     int chainedSynonyms = 0;
     while (true) {
-      try (Transaction tx = db.beginTx()) {
-        Result result = db.execute("MATCH (s:TAXON)-[sr:SYNONYM_OF*]->(x)-[:SYNONYM_OF]->(t:TAXON) " +
-                                                "WHERE NOT (t)-[:SYNONYM_OF]->() " +
-                                                "RETURN sr, t LIMIT 1");
+      try (Transaction tx = dao.getNeo().beginTx()) {
+        Result result = dao.getNeo().execute("MATCH (s:TAXON)-[sr:SYNONYM_OF*]->(x)-[:SYNONYM_OF]->(t:TAXON) " +
+                "WHERE NOT (t)-[:SYNONYM_OF]->() " +
+                "RETURN sr, t LIMIT 1");
         if (result.hasNext()) {
           Map<String, Object> row = result.next();
           Node acc = (Node) row.get("t");
           for (Relationship sr : (Collection<Relationship>) row.get("sr")) {
             Node syn = sr.getStartNode();
-            mapper.addIssue(syn, NameUsageIssue.CHAINED_SYNOYM);
+            addIssueRemark(syn, null, NameUsageIssue.CHAINED_SYNOYM);
             createSynonymRel(syn, acc);
             sr.delete();
             chainedSynonyms++;
@@ -282,8 +308,8 @@ public class Normalizer extends NeoRunnable {
     int parentOfRelRelinked = 0;
     int childOfRelDeleted = 0;
     int childOfRelRelinkedToAccepted = 0;
-    try (Transaction tx = db.beginTx()) {
-      for (Node syn : IteratorUtil.asIterable(db.findNodes(Labels.SYNONYM))) {
+    try (Transaction tx = dao.getNeo().beginTx()) {
+      for (Node syn : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.SYNONYM))) {
         Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
 
         // if the synonym is a parent of another child taxon - relink accepted as parent of child
@@ -297,24 +323,24 @@ public class Normalizer extends NeoRunnable {
             rel.delete();
             accepted.createRelationshipTo(child, RelType.PARENT_OF);
             parentOfRelRelinked++;
-            mapper.addRemark(child, "Parent relation taken from synonym " + mapper.readScientificName(syn));
+            addIssueRemark(child, "Parent relation taken from synonym " + dao.read(syn).scientificName);
           }
         }
         // remove parent rel for synonyms
         for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
           // before we delete the relation make sure the accepted does have a parent rel or is ROOT
           if (accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
-            LOG.debug("Delete parent rel of synonym {}", mapper.readScientificName(syn));
+            LOG.debug("Delete parent rel of synonym {}", dao.read(syn).scientificName);
             // delete
             childOfRelDeleted++;
             rel.delete();
           } else {
             Node parent = rel.getOtherNode(syn);
-            LOG.debug("Relink parent rel of synonym {}", mapper.readScientificName(syn));
+            LOG.debug("Relink parent rel of synonym {}", dao.read(syn).scientificName);
             // relink
             childOfRelRelinkedToAccepted++;
             parent.createRelationshipTo(accepted, RelType.PARENT_OF);
-            mapper.addRemark(accepted, "Parent relation taken from synonym " + mapper.readScientificName(syn));
+            addIssueRemark(accepted, "Parent relation taken from synonym " + dao.read(syn).scientificName);
             rel.delete();
           }
         }
@@ -327,6 +353,20 @@ public class Normalizer extends NeoRunnable {
       + "{} childOf relations deleted, {} childOf rels relinked to accepted,"
       + "{} parentOf relations deleted, {} parentOf rels moved from synonym to accepted",
       cycles.size(), chainedSynonyms, childOfRelDeleted, childOfRelRelinkedToAccepted, parentOfRelDeleted, parentOfRelRelinked);
+  }
+
+  /**
+   * Reads a name usage from the kvp store, adds issues and or remarks and persists it again.
+   * Only use this method if you just have a node a no usage instance yet at hand.
+   */
+  private NameUsageNode addIssueRemark(Node n, @Nullable String remark, NameUsageIssue ... issues) {
+    NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false));
+    nn.addIssue(issues);
+    if (remark != null) {
+      nn.addRemark(remark);
+    }
+    dao.store(nn, false);
+    return nn;
   }
 
   /**
@@ -361,9 +401,9 @@ public class Normalizer extends NeoRunnable {
    */
   private void buildMetricsAndMatchBackbone() {
     LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
-    metricsHandler = new UsageMetricsHandler();
-    matchHandler = new NubMatchHandler(matchingService);
-    TaxonWalker.walkAccepted(db, 10000, metricsMeter, metricsHandler, matchHandler);
+    metricsHandler = new UsageMetricsHandler(dao);
+    matchHandler = new NubMatchHandler(matchingService, dao);
+    TaxonWalker.walkAccepted(dao.getNeo(), metricsMeter, metricsHandler, matchHandler);
     LOG.info("Walked all accepted taxa and built metrics");
   }
 
@@ -384,17 +424,16 @@ public class Normalizer extends NeoRunnable {
     return Lists.newArrayList(val);
   }
 
-
   /**
    * Checks if this node is a pro parte synonym by looking if multiple accepted taxa are referred to.
    * If so, new taxon nodes are created each with a single, unique acceptedNameUsageID property.
    */
-  private void duplicateProParteSynonyms(Node n, String taxonID) {
+  private void duplicateProParteSynonyms(NameUsageNode nn) {
     if (meta.isAcceptedNameMapped()) {
-      if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
+      final String unsplitIds = dao.readAcceptedNameUsageID(nn);
+      if (unsplitIds != null) {
         List<String> acceptedIds = Lists.newArrayList();
-        final String unsplitIds = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
-        if (unsplitIds != null && !unsplitIds.equals(taxonID)) {
+        if (!unsplitIds.equals(nn.usage.getTaxonID())) {
           if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
             acceptedIds = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
           } else {
@@ -406,17 +445,17 @@ public class Normalizer extends NeoRunnable {
           }
         }
         if (acceptedIds.size() > 1) {
-          final int primaryId = (int) n.getId();
+          final int primaryId = (int) nn.node.getId();
           // duplicate this node for each accepted id!
           LOG.info("pro parte synonym found with multiple acceptedNameUsageIDs: {}", acceptedIds);
 
           // now create new nodes and also update their acceptedId so the relations get processed fine later on
           Iterator<String> accIter = acceptedIds.iterator();
-          updateProParteSynonym(n, accIter.next(), primaryId);
+          updateProParteSynonym(nn.node, accIter.next(), primaryId);
 
           // now create new nodes, update their acceptedId and immediately process the relations
           while (accIter.hasNext()) {
-            Node p = createTaxon(n, Origin.PROPARTE);
+            Node p = copyTaxon(nn.node, Origin.PROPARTE);
             updateProParteSynonym(p, accIter.next(), primaryId);
           }
         }
@@ -427,13 +466,16 @@ public class Normalizer extends NeoRunnable {
   private Transaction renewTx (Transaction tx) {
     tx.success();
     tx.close();
-    return db.beginTx();
+    return dao.getNeo().beginTx();
   }
 
   private void updateProParteSynonym(Node n, String acceptedId, int primarySynonymId) {
-    mapper.setProperty(n, DwcTerm.acceptedNameUsageID, acceptedId);
-    mapper.storeEnum(n, DwcTerm.taxonomicStatus, TaxonomicStatus.PROPARTE_SYNONYM);
-    n.setProperty(PRO_PARTE_KEY_FIELD, primarySynonymId);
+    NameUsage u = dao.readUsage(n, false);
+    u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+    u.setProParteKey(primarySynonymId);
+    dao.store(n.getId(), u, false);
+
+    n.setProperty(NodeProperties.ACCEPTED_NAME_USAGE_ID, acceptedId);
   }
 
   /**
@@ -443,12 +485,12 @@ public class Normalizer extends NeoRunnable {
     LOG.info("Start processing explicit relations ...");
     int counter = 0;
 
-    Transaction tx = db.beginTx();
+    Transaction tx = dao.getNeo().beginTx();
     try {
       // This iterates over ALL NODES, even the ones created within this loop which trigger a transaction commit!
       // iteration is by node id starting from node id 1 to highest.
       // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
-      for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+      for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
         setupRelation(n);
         counter++;
         relationMeter.mark();
@@ -473,15 +515,12 @@ public class Normalizer extends NeoRunnable {
   }
 
   private void setupRelation(Node n) {
-    final String taxonID = (String) n.getProperty(TaxonProperties.TAXON_ID, "");
-    final String canonical = (String) n.getProperty(TaxonProperties.CANONICAL_NAME, "");
-    final String sciname = (String) n.getProperty(TaxonProperties.SCIENTIFIC_NAME, "");
-    final Rank rank = mapper.readEnum(n, TaxonProperties.RANK, Rank.class, Rank.UNRANKED);
-
-    duplicateProParteSynonyms(n, taxonID);
-    boolean isSynonym = setupAcceptedRel(n, taxonID, sciname, canonical, rank);
-    setupParentRel(n, isSynonym, taxonID, sciname, canonical);
-    setupBasionymRel(n, taxonID, sciname, canonical);
+    NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false));
+    duplicateProParteSynonyms(nn);
+    setupAcceptedRel(nn);
+    setupParentRel(nn);
+    setupBasionymRel(nn);
+    dao.store(nn, false);
   }
 
   /**
@@ -489,148 +528,136 @@ public class Normalizer extends NeoRunnable {
    * Assumes pro parte synonyms are dealt with before and the remaining accepted identifier refers to a single taxon only.
    * See #duplicateProParteSynonyms()
    *
-   * @param taxonID taxonID of the synonym
-   * @param sciname scientificName of the synonym
-   * @param canonical canonical name of the synonym
-   * @return true if it is a synonym of some type
+   * @param nn the usage to process
    */
-  private boolean setupAcceptedRel(Node n, @Nullable String taxonID, String sciname, @Nullable String canonical, Rank rank) {
-    TaxonomicStatus status = mapper.readEnum(n, TaxonProperties.STATUS, TaxonomicStatus.class, TaxonomicStatus.DOUBTFUL);
+  private void setupAcceptedRel(NameUsageNode nn) {
     Node accepted = null;
-    if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsageID)) {
-      final String id = NeoMapper.value(n, DwcTerm.acceptedNameUsageID);
-      if (id != null && (taxonID == null || !id.equals(taxonID))) {
+    final String id = dao.readAcceptedNameUsageID(nn);
+    if (id != null) {
+      if (nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID())) {
         accepted = nodeByTaxonId(id);
         if (accepted == null) {
-          mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+          nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
           LOG.debug("acceptedNameUsageID {} not existing", id);
           // is the accepted name also mapped?
-          String name = ObjectUtils.defaultIfNull(NeoMapper.value(n, DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
-          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, rank, TaxonomicStatus.DOUBTFUL, n, id, "Placeholder for the missing accepted taxonID for synonym " + sciname);
+          String name = ObjectUtils.firstNonNull(dao.readAcceptedNameUsage(nn), NormalizerConstants.PLACEHOLDER_NAME);
+          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
+                  "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName());
         }
       }
-    } else if (NeoMapper.hasProperty(n, DwcTerm.acceptedNameUsage)) {
-      final String name = NeoMapper.value(n, DwcTerm.acceptedNameUsage);
-      if (name != null && !name.equals(sciname)) {
+    } else {
+      final String name = dao.readAcceptedNameUsage(nn);
+      if (name != null && !name.equals(nn.usage.getScientificName())) {
         try {
           accepted = nodeBySciname(name);
-          if (accepted == null && !name.equals(canonical)) {
+          if (accepted == null && !name.equals(nn.usage.getCanonicalName())) {
             accepted = nodeByCanonical(name);
             if (accepted == null) {
               LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-              accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
+              accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null);
             }
           }
         } catch (NotUniqueException e) {
-          mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
-          LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name,
-            sciname, taxonID);
-          accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, n, null, null);
+          nn.addIssue(NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
+          LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
+          accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null);
         }
       }
     }
 
     // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
-    if (status.isSynonym() && accepted == null) {
-      mapper.addIssue(n, NameUsageIssue.ACCEPTED_NAME_MISSING);
-      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, rank, TaxonomicStatus.DOUBTFUL, n, null, "Placeholder for the missing accepted taxon for synonym " + sciname);
+    if (nn.usage.isSynonym() && accepted == null) {
+      nn.addIssue(NameUsageIssue.ACCEPTED_NAME_MISSING);
+      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, null,
+              "Placeholder for the missing accepted taxon for synonym " + nn.usage.getScientificName());
     }
 
-    if (accepted != null && !accepted.equals(n)) {
+    if (accepted != null && !accepted.equals(nn.node)) {
       // make sure taxonomic status reflects the synonym relation
-      if (!status.isSynonym()) {
-        status = TaxonomicStatus.SYNONYM;
-        mapper.storeEnum(n, TaxonProperties.STATUS, status);
+      if (!nn.usage.isSynonym()) {
+        nn.usage.setSynonym(true);
+        nn.usage.setTaxonomicStatus(TaxonomicStatus.SYNONYM);
       }
-      n.createRelationshipTo(accepted, RelType.SYNONYM_OF);
-      n.addLabel(Labels.SYNONYM);
+      nn.node.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+      nn.node.addLabel(Labels.SYNONYM);
     }
-    return status.isSynonym();
   }
 
   /**
    * Sets up the parent relations using the parentNameUsage(ID) term values.
    * The denormed, flat classification is used in a next step later.
    */
-  private void setupParentRel(Node n, boolean isSynonym, @Nullable String taxonID, String sciname, String canonical) {
+  private void setupParentRel(NameUsageNode nn) {
     Node parent = null;
-    if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsageID)) {
-      final String id = NeoMapper.value(n, DwcTerm.parentNameUsageID);
-      if (id != null && (taxonID == null || !id.equals(taxonID))) {
+    final String id = dao.readParentNameUsageID(nn);
+    if (id != null) {
+      if ((nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID()))) {
         parent = nodeByTaxonId(id);
         if (parent == null) {
-          mapper.addIssue(n, NameUsageIssue.PARENT_NAME_USAGE_ID_INVALID);
+          nn.addIssue(NameUsageIssue.PARENT_NAME_USAGE_ID_INVALID);
           LOG.debug("parentNameUsageID {} not existing", id);
         }
       }
-    } else if (NeoMapper.hasProperty(n, DwcTerm.parentNameUsage)) {
-      final String name = NeoMapper.value(n, DwcTerm.parentNameUsage);
-      if (name != null && !name.equals(sciname)) {
+    } else {
+      final String name = dao.readParentNameUsage(nn);
+      if (name != null && !name.equals(nn.usage.getScientificName())) {
         try {
           parent = nodeBySciname(name);
-          if (parent == null && !name.equals(canonical)) {
+          if (parent == null && !name.equals(nn.usage.getCanonicalName())) {
             parent = nodeByCanonical(name);
           }
           if (parent == null) {
             LOG.debug("parentNameUsage {} not existing, materialize it", name);
-            parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true);
+            parent = create(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true).node;
           }
         } catch (NotUniqueException e) {
-          mapper.addIssue(n, NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
-          LOG.warn("parentNameUsage {} not unique, ignore relationship for name {} and taxonID {}", name, sciname, taxonID);
-          parent = createTaxon(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true);
+          nn.addIssue(NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
+          LOG.warn("parentNameUsage {} not unique, ignore relationship for name {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
+          parent = create(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true).node;
         }
       }
     }
-    if (parent != null && !parent.equals(n)) {
-      parent.createRelationshipTo(n, RelType.PARENT_OF);
-    } else if (!isSynonym) {
-      n.addLabel(Labels.ROOT);
+    if (parent != null && !parent.equals(nn.node)) {
+      parent.createRelationshipTo(nn.node, RelType.PARENT_OF);
+    } else if (!nn.usage.isSynonym()) {
+      nn.node.addLabel(Labels.ROOT);
     }
   }
 
-  private void setupBasionymRel(Node n, String taxonID, String sciname, String canonical) {
+  private void setupBasionymRel(NameUsageNode nn) {
     if (meta.isOriginalNameMapped()) {
       Node basionym = null;
-      if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsageID)) {
-        final String id = NeoMapper.value(n, DwcTerm.originalNameUsageID);
-        if (id != null && !id.equals(taxonID)) {
+      final String id = dao.readOriginalNameUsageID(nn);
+      if (id != null) {
+        if (!id.equals(nn.usage.getTaxonID())) {
           basionym = nodeByTaxonId(id);
           if (basionym == null) {
-            mapper.addIssue(n, NameUsageIssue.ORIGINAL_NAME_USAGE_ID_INVALID);
+            nn.addIssue(NameUsageIssue.ORIGINAL_NAME_USAGE_ID_INVALID);
             LOG.debug("originalNameUsageID {} not existing", id);
           }
         }
-      } else if (NeoMapper.hasProperty(n, DwcTerm.originalNameUsage)) {
-        final String name = NeoMapper.value(n, DwcTerm.originalNameUsage);
-        try {
-          if (name != null && !name.equals(sciname)) {
+      } else {
+        final String name = dao.readOriginalNameUsage(nn);
+        if (name != null && !name.equals(nn.usage.getScientificName())) {
+          try {
             basionym = nodeBySciname(name);
-            if (basionym == null && !name.equals(canonical)) {
+            if (basionym == null && !name.equals(nn.usage.getCanonicalName())) {
               basionym = nodeByCanonical(name);
             }
             if (basionym == null) {
               LOG.debug("originalNameUsage {} not existing, materialize it", name);
-              basionym = createTaxon(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL, true);
+              basionym = create(Origin.VERBATIM_BASIONYM, name, null, TaxonomicStatus.DOUBTFUL, true).node;
             }
+          } catch (NotUniqueException e) {
+            nn.addIssue(NameUsageIssue.ORIGINAL_NAME_NOT_UNIQUE);
+            LOG.warn("originalNameUsage {} not unique, ignore relationship for taxonID {}", nn.usage.getScientificName(), nn.usage.getTaxonID());
           }
-        } catch (NotUniqueException e) {
-          mapper.addIssue(n, NameUsageIssue.ORIGINAL_NAME_NOT_UNIQUE);
-          LOG.warn("originalNameUsage {} not unique, ignore relationship for taxonID {}", sciname, taxonID);
         }
       }
-      if (basionym != null && !basionym.equals(n)) {
-        basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
+      if (basionym != null && !basionym.equals(nn.node)) {
+        basionym.createRelationshipTo(nn.node, RelType.BASIONYM_OF);
       }
     }
-  }
-
-  private Node createTaxon(Origin origin, String sciname, Rank rank, TaxonomicStatus status, boolean isRoot) {
-    Node n = super.create(origin, sciname, rank, status);
-    if (isRoot) {
-      n.addLabel(Labels.ROOT);
-    }
-    return n;
   }
 
   /**
@@ -639,25 +666,26 @@ public class Normalizer extends NeoRunnable {
    * @param sciname
    * @param rank
    * @param status
-   * @param classificationSource
+   * @param source
    * @param taxonID the optional taxonID to apply to the new node
    */
-  private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status,
-    Node classificationSource, @Nullable String taxonID, @Nullable String remarks) {
-    Node n = createTaxon(origin, sciname, rank, status, false);
-    // copy props from source
-    for (String p : CLASSIFICATION_PROPERTIES) {
-      try {
-        n.setProperty(p, classificationSource.getProperty(p));
-      } catch (NotFoundException e) {
-        // ignore
+  private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status, NameUsageNode source, @Nullable String taxonID, @Nullable String remarks) {
+    NameUsage u = new NameUsage();
+    u.setScientificName(sciname);
+    u.setCanonicalName(sciname);
+    u.setRank(rank);
+    u.setOrigin(origin);
+    u.setTaxonomicStatus(status);
+    u.setTaxonID(taxonID);
+    u.setRemarks(remarks);
+    // copy verbatim classification from source
+    ClassificationUtils.copyLinneanClassification(source.usage, u);
+    Node n = create(u, false).node;
+    // copy parent props from source
+    for (String prop : new String[]{NodeProperties.PARENT_NAME_USAGE_ID, NodeProperties.PARENT_NAME_USAGE}) {
+      if (source.node.hasProperty(prop)) {
+        n.setProperty(prop, source.node.getProperty(prop));
       }
-    }
-    if (!Strings.isNullOrEmpty(taxonID)) {
-      n.setProperty(TaxonProperties.TAXON_ID, taxonID);
-    }
-    if (!Strings.isNullOrEmpty(remarks)) {
-      n.setProperty(TaxonProperties.REMARKS, remarks);
     }
     return n;
   }
@@ -665,14 +693,17 @@ public class Normalizer extends NeoRunnable {
   /**
    * Copies an existing taxon node with all its properties and sets the origin value.
    */
-  private Node createTaxon(Node source, Origin origin) {
-    Node n = db.createNode(Labels.TAXON);
+  private Node copyTaxon(Node source, Origin origin) {
+    Node n = dao.createTaxon();
     for (String k : source.getPropertyKeys()) {
-      if (!k.equals(TaxonProperties.TAXON_ID)) {
+      if (!k.equals(NodeProperties.TAXON_ID)) {
         n.setProperty(k, source.getProperty(k));
       }
     }
-    mapper.storeEnum(n, "origin", origin);
+    NameUsage u = dao.readUsage(source, false);
+    u.setTaxonID(null);
+    u.setOrigin(origin);
+    dao.store(n.getId(), u, true);
     return n;
   }
 

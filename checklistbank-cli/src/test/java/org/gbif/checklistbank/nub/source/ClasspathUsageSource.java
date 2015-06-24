@@ -80,7 +80,7 @@ public class ClasspathUsageSource implements UsageSource {
   public class ClasspathUsageIteratorNeo extends UsageIteratorNeo {
 
     public ClasspathUsageIteratorNeo(NubSource source) throws Exception {
-      super(source);
+      super(source, 128);
     }
 
     @Override
@@ -119,11 +119,11 @@ public class ClasspathUsageSource implements UsageSource {
   }
 
   private static Integer keyToIdx(UUID key) {
-    return Integer.valueOf(key.toString().substring(35));
+    return Integer.valueOf(key.toString().substring(34));
   }
 
   private static UUID IdxToKey(Integer id) {
-    return UUID.fromString(String.format("d7dddbf4-2cf0-4f39-9b2a-99b0e2c3aa%s", id));
+    return UUID.fromString(String.format("d7dddbf4-2cf0-4f39-9b2a-99b0e2c3a%02d", id));
   }
 
   private static InputStream openTxtStream(Integer id) {

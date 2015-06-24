@@ -4,6 +4,8 @@ import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
+import org.gbif.checklistbank.nub.source.ClbUsageSource;
+import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import javax.validation.Valid;
@@ -46,4 +48,10 @@ public class NubConfiguration {
   @Valid
   public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
 
+  /**
+   * @return a new usage source for a nub built that uses the configured registry to list tagged checklists
+   */
+  public UsageSource usageSource() {
+    return new ClbUsageSource(this);
+  }
 }

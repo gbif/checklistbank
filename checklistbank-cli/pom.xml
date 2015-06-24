@@ -103,6 +103,12 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>org.mapdb</groupId>
+      <artifactId>mapdb</artifactId>
+      <version>1.0.7</version>
+    </dependency>
+
     <!-- GBIF -->
     <dependency>
       <groupId>org.gbif</groupId>

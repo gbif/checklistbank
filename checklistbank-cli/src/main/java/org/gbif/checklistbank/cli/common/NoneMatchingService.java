@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.cli.common;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;

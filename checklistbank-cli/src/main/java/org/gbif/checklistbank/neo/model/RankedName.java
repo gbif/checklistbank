@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.neo;
+package org.gbif.checklistbank.neo.model;
 
 import org.gbif.api.vocabulary.Rank;
 

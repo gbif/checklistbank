@@ -4,9 +4,11 @@ import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.CloseableIterator;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.utils.file.FileUtils;
 
@@ -18,6 +20,8 @@ import java.util.Iterator;
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.base.Throwables;
+import com.google.common.io.Files;
+import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -53,33 +57,33 @@ import org.slf4j.LoggerFactory;
 public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(UsageIteratorNeo.class);
 
-  protected final GraphDatabaseService db;
   protected final NubSource source;
-  protected final File neoDir;
-  protected final NeoMapper mapper = NeoMapper.instance();
   protected Node root;
   private boolean init = false;
+  private UsageDao dao;
 
-  public UsageIteratorNeo(NubSource source) throws Exception {
+  /**
+   * @param memory in megabytes to be used for a pure in memory storage. Negative or zero values create a persistent dao
+   */
+  public UsageIteratorNeo(NubSource source, int memory) throws Exception {
     this.source = source;
-    neoDir = FileUtils.createTempDir();
-    GraphDatabaseFactory factory = new GraphDatabaseFactory();
-    GraphDatabaseBuilder builder = factory.newEmbeddedDatabaseBuilder(neoDir.getAbsolutePath())
-      .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-      .setConfig(GraphDatabaseSettings.cache_type, "soft")
-      .setConfig(GraphDatabaseSettings.pagecache_memory, "1G");
-    db = builder.newGraphDatabase();
+    if (memory > 0) {
+      dao = UsageDao.temporaryDao(memory);
+    } else {
+      NeoConfiguration cfg = new NeoConfiguration();
+      cfg.neoRepository = Files.createTempDir();
+      dao = UsageDao.persistentDao(cfg, source.key, new MetricRegistry("sourcedb"), true);
+    }
   }
 
   abstract void initNeo(NeoUsageWriter writer) throws Exception;
 
   /**
-   * Cleans up all tmp files
+   * Closes dao and deletes all intermediate persistence files.
    */
   @Override
   public void close() throws IOException {
-    db.shutdown();
-    org.apache.commons.io.FileUtils.deleteQuietly(neoDir);
+    dao.closeAndDelete();
   }
 
   public class SrcUsageIterator implements CloseableIterator<SrcUsage>{
@@ -88,7 +92,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
 
 
     public SrcUsageIterator(ResourceIterable<Node> nodes) {
-      tx = db.beginTx();
+      tx = dao.beginTx();
       this.nodes = nodes.iterator();
     }
 
@@ -99,9 +103,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
 
     @Override
     public SrcUsage next() {
-      SrcUsage u = new SrcUsage();
-      mapper.read(nodes.next(), u);
-      return u;
+      return dao.readSourceUsage(nodes.next());
     }
 
     @Override
@@ -118,33 +120,28 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
   @Override
   public CloseableIterator<SrcUsage> iterator() {
     if (!init) {
-      try (NeoUsageWriter writer = new NeoUsageWriter(db)) {
+      try (NeoUsageWriter writer = new NeoUsageWriter(dao)) {
         LOG.info("Start loading source data from {} into neo", source.name);
         initNeo(writer);
       } catch (Exception e) {
         Throwables.propagate(e);
       }
     }
-    TraversalDescription parentsTraversal = db.traversalDescription()
-      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
-      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
-      .depthFirst()
-      .evaluator(Evaluators.excludeStartPosition());
-    return new SrcUsageIterator(parentsTraversal.traverse(root).nodes());
+    return new SrcUsageIterator(Traversals.DESCENDANTS.traverse(root).nodes());
   }
 
   public class NeoUsageWriter extends TabMapperBase {
-    private final GraphDatabaseService db;
     private int counter = 0;
     private Transaction tx;
     private IntIntMap ids = new IntIntHashMap();
+    private final UsageDao dao;
 
-    public NeoUsageWriter(GraphDatabaseService db) {
+    public NeoUsageWriter(UsageDao dao) {
       // the number of columns in our query to consume
       super(8);
-      this.db = db;
-      tx = db.beginTx();
-      root = db.createNode();
+      this.dao = dao;
+      tx = dao.beginTx();
+      root = dao.getNeo().createNode();
     }
 
     @Override
@@ -165,7 +162,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
       u.scientificName = row[7];
       counter++;
       Node n = getOrCreate(u.key);
-      mapper.store(n, u, false);
+      dao.storeSourceUsage(n, u);
       // root?
       if (u.parentKey == null) {
         root.createRelationshipTo(n, RelType.PARENT_OF);
@@ -186,9 +183,9 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
 
     private Node getOrCreate(int key) {
       if (ids.containsKey(key)) {
-        return db.getNodeById(ids.get(key));
+        return dao.getNeo().getNodeById(ids.get(key));
       } else {
-        Node n = db.createNode(Labels.TAXON);
+        Node n = dao.createTaxon();
         ids.put(key, (int) n.getId());
         return n;
       }
@@ -212,7 +209,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
     private void renewTx() {
       tx.success();
       tx.close();
-      tx = db.beginTx();
+      tx = dao.beginTx();
     }
 
     public int getCounter() {

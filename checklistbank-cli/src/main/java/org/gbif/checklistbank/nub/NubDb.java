@@ -4,9 +4,9 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.authorship.AuthorComparator;
 import org.gbif.checklistbank.nub.model.Equality;
@@ -28,48 +28,48 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NubDb implements Closeable {
+public class NubDb {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubDb.class);
-  public static final String PN_GENUS = "pnGenus";
-  public static final String PN_SPECIES = "pnSpecies";
-  public static final String PN_INFRASPECIES = "pnInfraspecies";
-  public static final String PN_NOTHO = "pnNotho";
-  public static final String PN_RANK = "pnRank";
-  public static final String PN_AUTHOR = "pnAuthor";
-  public static final String PN_YEAR = "pnYear";
-  public static final String PN_BRACKET_AUTHOR = "pnBracketAuthor";
-  public static final String PN_BRACKET_YEAR = "pnBracketYear";
-  public static final String PN_SENSU = "pnSensu";
   private final AuthorComparator authComp = new AuthorComparator();
   private final int batchSize;
-  protected GraphDatabaseService gds;
   private Transaction tx;
-  private NeoMapper mapper = NeoMapper.instance();
-  private TraversalDescription parentsTraversal;
+  protected final UsageDao dao;
   // activity counter to manage transaction commits
   private int counter = 0;
   // number of created nodes
   private int nodes = 0;
 
-  public NubDb(GraphDatabaseService gds, int batchSize) {
+  private NubDb(UsageDao dao, int batchSize, boolean initialize) {
     this.batchSize = batchSize;
-    this.gds = gds;
-    tx = gds.beginTx();
-    // create indices
-    Schema schema = gds.schema();
-    IndexDefinition idx = schema.indexFor(Labels.TAXON).on(TaxonProperties.CANONICAL_NAME).create();
-    renewTx();
+    this.dao = dao;
+    tx = dao.beginTx();
+    // create indices?
+    if (initialize) {
+      Schema schema = dao.getNeo().schema();
+      schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+      renewTx();
+    }
+  }
+
+  public static NubDb create(UsageDao dao, int batchSize) {
+    return new NubDb(dao, batchSize, true);
+  }
+
+  /**
+   * Opens an existing db without creating a new db schema.
+   */
+  public static NubDb open(UsageDao dao, int batchSize) {
+    return new NubDb(dao, batchSize, false);
   }
 
   public List<NubUsage> findNubUsages(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(gds.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       usages.add(node2usage(n));
     }
     return usages;
@@ -93,7 +93,7 @@ public class NubDb implements Closeable {
    */
   public NubUsage findNubUsage(String canonical, Rank rank) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(gds.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       NubUsage rn = node2usage(n);
       if (rank == rn.rank && !rn.status.isSynonym()) {
         usages.add(rn);
@@ -116,7 +116,7 @@ public class NubDb implements Closeable {
   public NubUsage findNubUsage(SrcUsage u, Kingdom uKingdom) {
     final boolean synonym = u.status.isSynonym();
     List<NubUsage> checked = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(gds.findNodes(Labels.TAXON, TaxonProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
       NubUsage rn = node2usage(n);
       if (matchesNub(u, uKingdom, rn)) {
         checked.add(rn);
@@ -164,7 +164,7 @@ public class NubDb implements Closeable {
   }
 
   public long countTaxa() {
-    Result res = gds.execute("start n=node(*) match n return count(n) as cnt");
+    Result res = dao.getNeo().execute("start node=node(*) match node return count(node) as cnt");
     return (long) res.columnAs("cnt").next();
   }
 
@@ -187,7 +187,7 @@ public class NubDb implements Closeable {
 
   private NubUsage node2usage(Node n) {
     if (n == null) return null;
-    NubUsage nub = mapper.read(n ,new NubUsage());
+    NubUsage nub = dao.readNub(n);
     nub.node = n;
     return nub;
   }
@@ -221,7 +221,7 @@ public class NubDb implements Closeable {
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
   private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
-    nub.node = gds.createNode(Labels.TAXON);
+    nub.node = dao.createTaxon();
     nodes++;
     if (parent == null) {
       nub.node.addLabel(Labels.ROOT);
@@ -238,8 +238,8 @@ public class NubDb implements Closeable {
   }
 
   /**
-   * Creates a new parent relation from parent to child n and removes any previously existing parent relations of
-   * the child n
+   * Creates a new parent relation from parent to child node and removes any previously existing parent relations of
+   * the child node
    */
   public void updateParentRel(Node n, Node parent) {
     for (Relationship rel : n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
@@ -250,15 +250,9 @@ public class NubDb implements Closeable {
   }
 
   public NubUsage store(NubUsage nub) {
-    //TODO: map more data, basionym, fullname, author, ...
-    mapper.store(nub.node, nub, false);
-    mapper.setProperty(nub.node, TaxonProperties.CANONICAL_NAME, nub.parsedName.canonicalName());
+    dao.store(nub);
     countAndRenewTx();
     return nub;
-  }
-
-  protected static Integer toInt(String x) {
-    return x == null ? null : Integer.valueOf(x);
   }
 
   private void countAndRenewTx() {
@@ -267,18 +261,19 @@ public class NubDb implements Closeable {
     }
   }
 
-  protected void renewTx() {
+  protected void closeTx() {
     tx.success();
     tx.close();
-    tx = gds.beginTx();
+  }
+
+  protected void openTx() {
+    tx = dao.beginTx();
     counter = 0;
   }
 
-  @Override
-  public void close() {
-    tx.success();
-    tx.close();
-    gds.shutdown();
+  protected void renewTx() {
+    closeTx();
+    openTx();
   }
 
   /**

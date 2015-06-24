@@ -11,6 +11,7 @@ import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.common.parsers.HabitatParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.common.search.util.AnnotationUtils;
@@ -97,7 +98,7 @@ public class NameUsageDocConverter {
    *
    * @return a {@link SolrInputDocument} using the Object parameter.
    */
-  public SolrInputDocument toObject(NameUsageContainer usage, List<Integer> parents) {
+  public SolrInputDocument toObject(NameUsage usage, List<Integer> parents, UsageExtensions extensions) {
     try {
       SolrInputDocument doc = new SolrInputDocument();
       // Uses the pre-initialized field-property map to find the corresponding Solr field of a Java field.
@@ -116,10 +117,10 @@ public class NameUsageDocConverter {
       // higher taxa
       addHigherTaxonKeys(parents, doc);
       // extract info from usage components
-      addVernacularNames(doc, usage);
-      addDescriptions(doc, usage);
-      addDistributionsAndThreatStatus(doc, usage);
-      addSpeciesProfiles(doc, usage);
+      addVernacularNames(doc, extensions);
+      addDescriptions(doc, extensions);
+      addDistributionsAndThreatStatus(doc, extensions);
+      addSpeciesProfiles(doc, extensions);
       // enums
       addIssues(usage, doc);
       addNomenclaturalStatus(usage, doc);
@@ -152,11 +153,11 @@ public class NameUsageDocConverter {
    *
    * @param doc to be modified by adding the description fields
    */
-  private void addDescriptions(SolrInputDocument doc, NameUsageContainer usage) {
-    if (usage.getDescriptions() == null) {
+  private void addDescriptions(SolrInputDocument doc, UsageExtensions ext) {
+    if (ext.descriptions == null) {
       return;
     }
-    for (Description description : usage.getDescriptions()) {
+    for (Description description : ext.descriptions) {
       doc.addField("description", serializeDescription(description));
     }
   }
@@ -166,11 +167,11 @@ public class NameUsageDocConverter {
    *
    * @param doc to be modified by adding the distributions fields
    */
-  private void addDistributionsAndThreatStatus(SolrInputDocument doc, NameUsageContainer usage) {
-    if (usage.getDistributions() == null) {
+  private void addDistributionsAndThreatStatus(SolrInputDocument doc, UsageExtensions ext) {
+    if (ext.distributions == null) {
       return;
     }
-    for (Distribution distribution : usage.getDistributions()) {
+    for (Distribution distribution : ext.distributions) {
       if (distribution.getThreatStatus() != null) {
         doc.addField("threat_status_key", distribution.getThreatStatus().ordinal());
       }
@@ -227,12 +228,15 @@ public class NameUsageDocConverter {
    *
    * @param doc to be modified by adding the species profiles(extinct & marine) fields
    */
-  private void addSpeciesProfiles(SolrInputDocument doc, NameUsageContainer usage) {
-    if (usage.getSpeciesProfiles() == null) {
+  private void addSpeciesProfiles(SolrInputDocument doc, UsageExtensions ext) {
+    if (ext.speciesProfiles == null) {
       return;
     }
 
     // use container logic to build a single value
+    NameUsageContainer usage = new NameUsageContainer();
+    usage.setSpeciesProfiles(ext.speciesProfiles);
+
     doc.addField("extinct", usage.isExtinct());
     // derive habitat values from boolean flags
     addHabitat(doc, usage.isFreshwater(), Habitat.FRESHWATER);
@@ -274,11 +278,11 @@ public class NameUsageDocConverter {
    *
    * @param doc to be modified by adding the vernacular name fields
    */
-  private void addVernacularNames(SolrInputDocument doc, NameUsageContainer usage) {
-    if (usage.getVernacularNames() == null) {
+  private void addVernacularNames(SolrInputDocument doc, UsageExtensions ext) {
+    if (ext.vernacularNames == null) {
       return;
     }
-    for (VernacularName vernacularName : usage.getVernacularNames()) {
+    for (VernacularName vernacularName : ext.vernacularNames) {
       doc.addField("vernacular_name", vernacularName.getVernacularName());
       if (vernacularName.getLanguage() != null) {
         doc.addField("vernacular_lang", vernacularName.getLanguage().getIso2LetterCode());

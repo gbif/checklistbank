@@ -98,7 +98,7 @@ public class AuthorComparator {
     if (pn.isAuthorsParsed()) {
       return normalize(coalesce(pn.getYear(), pn.getBracketYear()));
     } else {
-      // try to read first year
+      // try to readUsage first year
       Matcher m = YEAR.matcher(pn.getScientificName());
       if (m.find()) {
         String y = m.group(2);

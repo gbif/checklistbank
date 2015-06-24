@@ -1,17 +1,15 @@
-package org.gbif.checklistbank.cli.normalizer;
+package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoMapper;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.TaxonProperties;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
-
-import java.util.UUID;
+import org.gbif.checklistbank.neo.model.NeoTaxon;
+import org.gbif.checklistbank.neo.model.UsageFacts;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.Test;
@@ -20,13 +18,11 @@ import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
-public class UsageMetricsHandlerTest extends NeoTest {
-  NeoMapper mapper = NeoMapper.instance();
-  final UUID datasetKey = UUID.randomUUID();
+public class UsageMetricsHandlerTest extends BaseTest {
 
   @Test
   public void testClassificationHandler() {
-    initDb(datasetKey);
+    initDb();
 
     try (Transaction tx = beginTx()) {
       Node n = addNode(Rank.KINGDOM, "Animalia", null);
@@ -52,8 +48,8 @@ public class UsageMetricsHandlerTest extends NeoTest {
       tx.success();
     }
 
-    UsageMetricsHandler handler = new UsageMetricsHandler();
-    TaxonWalker.walkAccepted(db, 5, null, handler);
+    UsageMetricsHandler handler = new UsageMetricsHandler(dao);
+    TaxonWalker.walkAccepted(dao.getNeo(), null, handler);
 
     NormalizerStats stats = handler.getStats(1, Lists.<String>newArrayList());
     System.out.println(stats);
@@ -98,23 +94,22 @@ public class UsageMetricsHandlerTest extends NeoTest {
   }
 
   private void assertUsage(long id, Rank rank, LinneanClassificationKeys expected) {
-    Node n = db.getNodeById(id);
-    NameUsageContainer u = mapper.read(n);
-    System.out.println(u.getScientificName());
-    System.out.println(u);
-    assertEquals(rank, u.getRank());
+    UsageFacts facts = dao.readFacts(id);
     for (Rank r : Rank.LINNEAN_RANKS) {
-      assertEquals(expected.getHigherRankKey(r), u.getHigherRankKey(r));
+      assertEquals(expected.getHigherRankKey(r), facts.classification.getHigherRankKey(r));
     }
   }
 
   private Node addNode(Rank rank, String name, Node parent) {
-    Node n = db.createNode(Labels.TAXON);
-    n.setProperty(TaxonProperties.SCIENTIFIC_NAME, name);
-    mapper.storeEnum(n, TaxonProperties.RANK, rank);
+    NeoTaxon t = new NeoTaxon();
+    t.node = dao.createTaxon();
+    t.scientificName = name;
+    t.rank = rank;
+    dao.store(t);
+
     if (parent != null) {
-      parent.createRelationshipTo(n, RelType.PARENT_OF);
+      parent.createRelationshipTo(t.node, RelType.PARENT_OF);
     }
-    return n;
+    return t.node;
   }
 }

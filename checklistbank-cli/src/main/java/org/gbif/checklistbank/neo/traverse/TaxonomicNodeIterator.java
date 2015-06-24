@@ -14,16 +14,13 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Path iterator that traverses allAccepted nodes in a taxonomic parent-child order starting from the top root nodes to
- * the
- * lowest taxon.
+ * Node iterator that traverses all or just accepted nodes in a taxonomic parent-child order starting from the top root nodes to
+ * the lowest taxon.
  */
 public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
 
@@ -32,24 +29,19 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
   private final List<Node> roots;
   private ResourceIterator<Path> descendants;
   private Iterator<Relationship> synonyms;
-  private TraversalDescription td;
   private final boolean inclSynonyms;
 
-  private TaxonomicNodeIterator(List<Node> roots, TraversalDescription td, boolean synonyms) {
-    this.td = td;
+  private TaxonomicNodeIterator(List<Node> roots, boolean synonyms) {
     Collections.sort(roots, new TaxonOrder());
     this.roots = roots;
     this.inclSynonyms = synonyms;
   }
 
-  public static Iterable<Node> allAccepted(final GraphDatabaseService db) {
+  public static Iterable<Node> accepted(final GraphDatabaseService db) {
     return new Iterable<Node>() {
       @Override
       public Iterator<Node> iterator() {
-        List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
-        return new TaxonomicNodeIterator(roots,
-                                         db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()),
-                                         false);
+        return new TaxonomicNodeIterator(IteratorUtil.asList(db.findNodes(Labels.ROOT)), false);
       }
     };
   }
@@ -61,10 +53,7 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
     return new Iterable<Node>() {
       @Override
       public Iterator<Node> iterator() {
-        List<Node> roots = IteratorUtil.asList(GlobalGraphOperations.at(db).getAllNodesWithLabel(Labels.ROOT));
-        return new TaxonomicNodeIterator(roots,
-                                         db.traversalDescription().depthFirst().expand(new TaxonomicOrderExpander()),
-                                         true);
+        return new TaxonomicNodeIterator(IteratorUtil.asList(db.findNodes(Labels.ROOT)), true);
       }
     };
   }
@@ -77,21 +66,23 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
 
   @Override
   public Node next() {
+    // first iterate over potential synonyms
     if (synonyms != null && synonyms.hasNext()) {
       return synonyms.next().getStartNode();
     }
+    // check if a current descendants iterator exists with more records, create a new one otherwise
     if (descendants == null || !descendants.hasNext()) {
-      // close as quickly as we can
+      // close old one
       if (descendants != null) {
         descendants.close();
       }
       Node root = roots.remove(0);
       LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
-      descendants = td.traverse(root).iterator();
+      descendants = Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
     }
     Path descendant = descendants.next();
     if (inclSynonyms && descendant != null) {
-      //read synonym list
+      //readUsage synonym list
       synonyms = descendant.endNode().getRelationships(RelType.SYNONYM_OF, Direction.INCOMING).iterator();
     }
     return descendant.endNode();

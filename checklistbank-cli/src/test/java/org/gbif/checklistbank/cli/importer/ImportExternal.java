@@ -6,6 +6,8 @@ import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerService;
 import org.gbif.common.search.solr.SolrServerType;
+import org.gbif.dwca.io.Archive;
+import org.gbif.dwca.io.ArchiveFactory;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -35,8 +37,8 @@ public class ImportExternal {
   public void index(String repo, String url, UUID datasetKey) throws IOException, SQLException {
     this.datasetKey = datasetKey;
     init(repo);
-//    download(url);
-//    normalize();
+    download(url);
+    normalize();
     sync();
   }
 
@@ -77,15 +79,7 @@ public class ImportExternal {
 
   private void normalize() {
     MetricRegistry registry = new MetricRegistry("normalizer");
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
-
-    registry.meter(NormalizerService.INSERT_METER);
-    registry.meter(NormalizerService.RELATION_METER);
-    registry.meter(NormalizerService.METRICS_METER);
-    registry.meter(NormalizerService.DENORMED_METER);
-
-    Normalizer norm = new Normalizer(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), nCfg.matching.createMatchingService());
+    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), nCfg.matching.createMatchingService());
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

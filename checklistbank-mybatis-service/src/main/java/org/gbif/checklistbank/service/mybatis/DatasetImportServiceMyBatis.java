@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -19,6 +20,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
@@ -133,21 +135,36 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
 
   @Override
   /**
+   * Syncs the usage to postgres doing an update or insert depending on whether a usage with the given taxonID already existed for that dataset.
+   * If the taxonID existed the previous usageKey is kept and an update of the record is done. If it did not exist yet a new usageKey is generated
+   * and an insert performed.
+   *
+   * All foreign keys pointing to other checklist bank entities, e.g. parentKey, must already point to existing postgres records.
+   * The exception being that values of -1 are replaced with the newly generated usageKey of the newly inserted record.
+   * That means in particular for the classification key (e.g. kingdomKey) that usages must be synced in taxonomic hierarchical order.
+   * Root usages must be inserted first so that child usages can point to parental usages without breaking foreign key constraints in the database.
+   *
    * This DOES NOT update the solr index or anything else but postgres!
    */
-  public int syncUsage(NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim,
-                           NameUsageMetrics metrics) {
+  public int syncUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
     Preconditions.checkNotNull(usage);
     Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
     Preconditions.checkNotNull(metrics);
-    Integer usageKey = nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID());
+    // in case of backbone usages the previously existing usageKey is found in nubKey
+    Integer usageKey;
+    if (usage.getDatasetKey() == Constants.NUB_DATASET_KEY) {
+      usageKey = usage.getNubKey();
+    } else {
+      // find previous usageKey based on dataset specific taxonID, the source identifier
+      usageKey = nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID());
+    }
 
     int key;
     if (usageKey == null) {
-      key = insertNewUsage(usage, verbatim, metrics);
+      key = insertNewUsage(usage, verbatim, metrics, extensions);
       LOG.debug("inserted usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), usage.getDatasetKey());
     } else {
-      key = updateUsage(usageKey, usage, verbatim, metrics);
+      key = updateUsage(usageKey, usage, verbatim, metrics, extensions);
       LOG.debug("updated usage {} with taxonID {} from dataset {}", key, usage.getTaxonID(), usage.getDatasetKey());
     }
     return key;
@@ -158,7 +175,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     nameUsageMapper.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
   }
 
-  private int insertNewUsage(NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+  private int insertNewUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
     final UUID datasetKey = usage.getDatasetKey();
 
     // insert main usage, creating name and citation records before
@@ -171,7 +188,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     updateSelfReferences(usageKey, usage);
 
     // insert extension data
-    insertExtensions(usage);
+    insertExtensions(usageKey, extensions);
 
     // insert usage metrics
     metrics.setKey(usageKey);
@@ -198,55 +215,56 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     }
   }
 
-  private void insertExtensions(NameUsageContainer usage) {
+  private void insertExtensions(final int usageKey, UsageExtensions ext) {
+    if (ext == null) return;
     try {
-      for (Description d : usage.getDescriptions()) {
+      for (Description d : ext.descriptions) {
         Integer sk = citationService.createOrGet(d.getSource());
-        descriptionMapper.insert(usage.getKey(), d, sk);
+        descriptionMapper.insert(usageKey, d, sk);
       }
-      for (Distribution d : usage.getDistributions()) {
-        distributionMapper.insert(usage.getKey(), d, citationService.createOrGet(d.getSource()));
+      for (Distribution d : ext.distributions) {
+        distributionMapper.insert(usageKey, d, citationService.createOrGet(d.getSource()));
       }
-      for (Identifier i : usage.getIdentifiers()) {
+      for (Identifier i : ext.identifiers) {
         if (i.getType() == null) {
           i.setType(IdentifierType.UNKNOWN);
         }
-        identifierMapper.insert(usage.getKey(), i);
+        identifierMapper.insert(usageKey, i);
       }
-      for (NameUsageMediaObject m : usage.getMedia()) {
-        multimediaMapper.insert(usage.getKey(), m, citationService.createOrGet(m.getSource()));
+      for (NameUsageMediaObject m : ext.media) {
+        multimediaMapper.insert(usageKey, m, citationService.createOrGet(m.getSource()));
       }
-      for (Reference r : usage.getReferenceList()) {
+      for (Reference r : ext.referenceList) {
         String citation = r.getCitation();
         if (Strings.isNullOrEmpty(citation)) {
           // try to build from pieces if full citation is not given!!!
           citation = buildCitation(r);
         }
         if (!Strings.isNullOrEmpty(citation)) {
-          referenceMapper.insert(usage.getKey(), citationService.createOrGet(citation), r, citationService.createOrGet(r.getSource()));
+          referenceMapper.insert(usageKey, citationService.createOrGet(citation), r, citationService.createOrGet(r.getSource()));
         }
       }
-      for (SpeciesProfile s : usage.getSpeciesProfiles()) {
-        speciesProfileMapper.insert(usage.getKey(), s, citationService.createOrGet(s.getSource()));
+      for (SpeciesProfile s : ext.speciesProfiles) {
+        speciesProfileMapper.insert(usageKey, s, citationService.createOrGet(s.getSource()));
       }
-      for (TypeSpecimen t : usage.getTypeSpecimens()) {
-        typeSpecimenMapper.insert(usage.getKey(), t, citationService.createOrGet(t.getSource()));
+      for (TypeSpecimen t : ext.typeSpecimens) {
+        typeSpecimenMapper.insert(usageKey, t, citationService.createOrGet(t.getSource()));
       }
-      for (VernacularName v : usage.getVernacularNames()) {
-        vernacularNameMapper.insert(usage.getKey(), v, citationService.createOrGet(v.getSource()));
+      for (VernacularName v : ext.vernacularNames) {
+        vernacularNameMapper.insert(usageKey, v, citationService.createOrGet(v.getSource()));
       }
 
     } catch (Exception e) {
-      LOG.error("Failed to sync extensions for usage {}, {}", usage.getKey(), usage.getScientificName(), e);
-      LOG.info("failed usage {}", usage);
-      LOG.info("failed usage descriptions {}", usage.getDescriptions());
-      LOG.info("failed usage distributions {}", usage.getDistributions());
-      LOG.info("failed usage identifiers {}", usage.getIdentifiers());
-      LOG.info("failed usage media {}", usage.getMedia());
-      LOG.info("failed usage references {}", usage.getReferenceList());
-      LOG.info("failed usage speciesProfiles {}", usage.getSpeciesProfiles());
-      LOG.info("failed usage typeSpecimens {}", usage.getTypeSpecimens());
-      LOG.info("failed usage vernacularNames {}", usage.getVernacularNames());
+      LOG.error("Failed to sync extensions for usage {}", usageKey, e);
+      LOG.info("failed usage {}", ext);
+      LOG.info("failed usage descriptions {}", ext.descriptions);
+      LOG.info("failed usage distributions {}", ext.distributions);
+      LOG.info("failed usage identifiers {}", ext.identifiers);
+      LOG.info("failed usage media {}", ext.media);
+      LOG.info("failed usage references {}", ext.referenceList);
+      LOG.info("failed usage speciesProfiles {}", ext.speciesProfiles);
+      LOG.info("failed usage typeSpecimens {}", ext.typeSpecimens);
+      LOG.info("failed usage vernacularNames {}", ext.vernacularNames);
       Throwables.propagate(e);
     }
   }
@@ -289,7 +307,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
    * @param metrics
    * @return
    */
-  private Integer updateUsage(final int usageKey, NameUsageContainer usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics) {
+  private Integer updateUsage(final int usageKey, NameUsage usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions extensions) {
     final UUID datasetKey = usage.getDatasetKey();
 
     usage.setKey(usageKey);
@@ -310,7 +328,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     typeSpecimenMapper.deleteByUsage(usageKey);
     vernacularNameMapper.deleteByUsage(usageKey);
     // insert new extension data
-    insertExtensions(usage);
+    insertExtensions(usageKey, extensions);
 
     // update usage metrics
     metrics.setKey(usageKey);
@@ -355,7 +373,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
    * Converts a name usage into a writable name usage by looking up or inserting name and citation records
    * and populating the writable instance with these keys.
    */
-  private NameUsageWritable toWritable(UUID datasetKey, NameUsageContainer u) {
+  private NameUsageWritable toWritable(UUID datasetKey, NameUsage u) {
     NameUsageWritable uw = new NameUsageWritable();
 
     uw.setTaxonID(u.getTaxonID());

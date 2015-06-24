@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.checklistbank.neo.NodeProperties;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -11,7 +11,6 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,30 +20,24 @@ import org.slf4j.LoggerFactory;
  * the
  * lowest taxon.
  */
-public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
+public class TaxonomicPathIterator implements AutoCloseable, Iterator<Path> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TaxonomicIterator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TaxonomicPathIterator.class);
 
   private final List<Node> roots;
   private ResourceIterator<Path> descendants;
-  private TraversalDescription td;
 
-  private TaxonomicIterator(List<Node> roots, TraversalDescription td) {
-    this.td = td;
+  private TaxonomicPathIterator(List<Node> roots) {
     Collections.sort(roots, new TaxonOrder());
     this.roots = roots;
+    LOG.debug("Found {} root nodes to iterate over", roots.size());
   }
 
   public static Iterable<Path> allAccepted(final GraphDatabaseService db) {
     return new Iterable<Path>() {
       @Override
       public Iterator<Path> iterator() {
-        List<Node> roots = IteratorUtil.asList(db.findNodes(Labels.ROOT));
-        return new TaxonomicIterator(roots, db.traversalDescription()
-                                      .depthFirst()
-                                      .expand(new TaxonomicOrderExpander())
-                                      .evaluator(new AcceptedOnlyEvaluator())
-        );
+        return new TaxonomicPathIterator(IteratorUtil.asList(db.findNodes(Labels.ROOT)));
       }
     };
   }
@@ -62,8 +55,8 @@ public class TaxonomicIterator implements AutoCloseable, Iterator<Path> {
         descendants.close();
       }
       Node root = roots.remove(0);
-      LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
-      descendants = td.traverse(root).iterator();
+      LOG.debug("Traverse a new root taxon: {}", root.getProperty(NodeProperties.SCIENTIFIC_NAME, null));
+      descendants = Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
     }
     return descendants.next();
   }

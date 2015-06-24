@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * A multithreaded nub index builder reading the backbone from a checkist bank postgres database in batches.
  * It first reads out all usage id ints and partitions those in equal ranges of 20.000
  */
-public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> {
+public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsage>> {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubIndexBuilder.class);
 
@@ -47,7 +47,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
   }
 
   @Override
-  protected Callable<List<NameUsageContainer>> newJob() {
+  protected Callable<List<NameUsage>> newJob() {
     if (offset >= max) {
       // no more jobs!
       return null;
@@ -62,7 +62,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
   /**
    * Consumes the batch results and inserts them into the index.
    */
-  protected void taskResponseHook(List<NameUsageContainer> usages) {
+  protected void taskResponseHook(List<NameUsage> usages) {
     LOG.debug("Add {} usages to index", usages.size());
     if (!usages.isEmpty()) {
       LOG.debug("First usage is: {}", usages.get(0).getScientificName());
@@ -79,7 +79,7 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
   }
 
 
-  public class ReadUsageBatch implements Callable<List<NameUsageContainer>> {
+  public class ReadUsageBatch implements Callable<List<NameUsage>> {
       private final int start;
       private final int end;
       private final UsageService usageService;
@@ -91,9 +91,9 @@ public class NubIndexBuilder extends ThreadPoolRunner<List<NameUsageContainer>> 
       }
 
       @Override
-      public List<NameUsageContainer> call() throws Exception {
+      public List<NameUsage> call() throws Exception {
         LOG.debug("Retrieve usages from CLB in range {}-{}", start, end);
-        List<NameUsageContainer> usages = usageService.listRange(start, end);
+        List<NameUsage> usages = usageService.listRange(start, end);
         LOG.debug("Retrieved {} usages from CLB in range {}-{}", usages.size(), start, end);
         return usages;
       }
