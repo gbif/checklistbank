@@ -12,7 +12,6 @@ import org.gbif.checklistbank.neo.model.RankedName;
 import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.dwc.terms.Term;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +28,7 @@ import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -82,15 +82,23 @@ public class UsageDao {
         this.kvpStore = kvpStore;
         this.kvp = kvp;
         this.registry = registry;
-        facts = kvp.createHashMap("facts").makeOrGet();
-        verbatim = kvp.createHashMap("verbatim").makeOrGet();
-        usages = kvp.createHashMap("usages").makeOrGet();
-        extensions = kvp.createHashMap("extensions").makeOrGet();
-        srcUsages = kvp.createHashMap("srcUsages").makeOrGet();
-        nubUsages = kvp.createHashMap("nubUsages").makeOrGet();
+
+        facts = createKvpMap("facts");
+        verbatim = createKvpMap("verbatim");
+        usages = createKvpMap("usages");
+        extensions = createKvpMap("extensions");
+        srcUsages = createKvpMap("srcUsages");
+        nubUsages = createKvpMap("nubUsages");
 
         kryo = KryoFactory.newKryo();
         openNeo();
+    }
+
+    private Map<Long, byte[]> createKvpMap(String name) {
+        return kvp.createHashMap(name)
+                .keySerializer(Serializer.LONG)
+                .valueSerializer(Serializer.BYTE_ARRAY)
+                .makeOrGet();
     }
 
     /**
@@ -266,8 +274,9 @@ public class UsageDao {
     }
 
     public UsageExtensions readExtensions(long key) {
-        if (extensions.containsKey(key)) {
-            return deserialize(extensions.get(key), UsageExtensions.class);
+        byte[] bytes = extensions.get(key);
+        if (bytes != null) {
+            return deserialize(bytes, UsageExtensions.class);
         }
         return null;
     }
@@ -278,8 +287,9 @@ public class UsageDao {
 
 
     public UsageFacts readFacts(long key) {
-        if (facts.containsKey(key)) {
-            return deserialize(facts.get(key), UsageFacts.class);
+        byte[] bytes = facts.get(key);
+        if (bytes != null) {
+            return deserialize(bytes, UsageFacts.class);
         }
         return null;
     }
@@ -349,10 +359,9 @@ public class UsageDao {
     }
 
     public NubUsage readNub(Node n) {
-        if (nubUsages.containsKey(n.getId())) {
-            NubUsage nub = deserialize(nubUsages.get(n.getId()), NubUsage.class);
-            nub.node = n;
-            return nub;
+        byte[] bytes = nubUsages.get(n.getId());
+        if (bytes != null) {
+            return deserialize(bytes, NubUsage.class);
         }
         return null;
     }
@@ -472,8 +481,9 @@ public class UsageDao {
     }
     
     public VerbatimNameUsage readVerbatim(long key) {
-        if (verbatim.containsKey(key)) {
-            return deserialize(verbatim.get(key), VerbatimNameUsage.class);
+        byte[] bytes = verbatim.get(key);
+        if (bytes != null) {
+            return deserialize(bytes, VerbatimNameUsage.class);
         }
         return null;
     }
@@ -487,8 +497,9 @@ public class UsageDao {
     }
     
     public SrcUsage readSourceUsage(Node n) {
-        if (srcUsages.containsKey(n.getId())) {
-            return deserialize(srcUsages.get(n.getId()), SrcUsage.class);
+        byte[] bytes = srcUsages.get(n.getId());
+        if (bytes != null) {
+            return deserialize(bytes, SrcUsage.class);
         }
         return null;
     }
@@ -513,17 +524,6 @@ public class UsageDao {
 
     public ResourceIterator<Node> allRootTaxa(){
         return getNeo().findNodes(Labels.ROOT);
-    }
-
-    private String readTaxonID(Node n) {
-        return (String) n.getProperty(NodeProperties.TAXON_ID, null);
-    }
-
-    private void putIfNotNull(Map<String, Object> props, Term t, VerbatimNameUsage v) {
-        String val = v.getCoreField(t);
-        if (val != null) {
-            props.put(t.simpleName(), val);
-        }
     }
 
     private void putIfNotNull(Map<String, Object> props, String property, String value) {

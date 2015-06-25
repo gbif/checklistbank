@@ -66,7 +66,7 @@ public class ManualNubBuild {
   }
 
   public static void main(String[] args) {
-    //build(uat());
-    profileMetrics(local());
+    build(uat());
+    //profileMetrics(local());
   }
 }
