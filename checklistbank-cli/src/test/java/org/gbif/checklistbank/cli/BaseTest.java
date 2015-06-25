@@ -5,7 +5,6 @@ import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
@@ -13,7 +12,6 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -26,17 +24,14 @@ import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.neo4j.tooling.GlobalGraphOperations;
 
-import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -114,7 +109,12 @@ public abstract class BaseTest {
     Map<Rank, Integer> countByRank = Maps.newHashMap();
 
     for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
-      NeoTaxon t = dao.read(n);
+      if (!n.hasLabel(Labels.TAXON)) {
+        ignored++;
+        continue;
+      }
+
+      NameUsage u = dao.readUsage(n, false);
       if (n.hasLabel(Labels.ROOT)) {
         roots++;
       }
@@ -123,21 +123,20 @@ public abstract class BaseTest {
         if (!n.hasRelationship(RelType.SYNONYM_OF)) {
           throw new IllegalStateException("Node "+n.getId()+" with synonym label but without synonymOf relationship found");
         }
-      }
-      if (!n.hasLabel(Labels.TAXON)) {
-        ignored++;
+      } else if (u.isSynonym()) {
+        throw new IllegalStateException("Node "+n.getId()+" without synonym label but usage has isSynonym=true");
       }
 
-      if (!countByOrigin.containsKey(t.origin)) {
-        countByOrigin.put(t.origin, 1);
+      if (!countByOrigin.containsKey(u.getOrigin())) {
+        countByOrigin.put(u.getOrigin(), 1);
       } else {
-        countByOrigin.put(t.origin, countByOrigin.get(t.origin) + 1);
+        countByOrigin.put(u.getOrigin(), countByOrigin.get(u.getOrigin()) + 1);
       }
-      if (t.rank != null) {
-        if (!countByRank.containsKey(t.rank)) {
-          countByRank.put(t.rank, 1);
+      if (u.getRank() != null) {
+        if (!countByRank.containsKey(u.getRank())) {
+          countByRank.put(u.getRank(), 1);
         } else {
-          countByRank.put(t.rank, countByRank.get(t.rank) + 1);
+          countByRank.put(u.getRank(), countByRank.get(u.getRank()) + 1);
         }
       }
     }
@@ -145,7 +144,7 @@ public abstract class BaseTest {
   }
 
   public Transaction beginTx() {
-    return dao.getNeo().beginTx();
+    return dao.beginTx();
   }
 
   public NameUsage getUsageByKey(int key) {
@@ -243,7 +242,7 @@ public abstract class BaseTest {
     while (iter.hasNext()) {
       Node n = iter.next();
       NameUsage u = getUsageByNode(n);
-      System.out.println("### " + n.getId() + " " + dao.read(n).scientificName);
+      System.out.println("### " + n.getId() + " " + u.getScientificName());
       System.out.println(u);
     }
     iter.close();

@@ -28,9 +28,10 @@ public class NameUsageNode {
         }
     }
 
-    public NameUsageNode(Node node, NameUsage usage) {
+    public NameUsageNode(Node node, NameUsage usage, boolean modified) {
         this.node = node;
         this.usage = usage;
+        this.modified = modified;
     }
 
     /**
@@ -49,4 +50,5 @@ public class NameUsageNode {
         }
         modified = true;
     }
+
 }

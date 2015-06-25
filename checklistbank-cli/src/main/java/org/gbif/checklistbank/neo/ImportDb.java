@@ -97,9 +97,9 @@ public class ImportDb {
     if (isRoot) {
       n.addLabel(Labels.ROOT);
     }
-    dao.store(n.getId(), u, true);
-
-    return new NameUsageNode(n, u);
+    NameUsageNode nn = new NameUsageNode(n, u, true);
+    dao.store(nn, true);
+    return nn;
   }
 
   protected boolean matchesClassification(Node n, List<RankedName> classification) {

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
@@ -105,6 +106,29 @@ public class Normalizer extends ImportDb implements Runnable {
             registry, constituents, matchingService);
   }
 
+  /**
+   * Simple wrapper class that lazily loads a name usage from the dao if needed.
+   * used for logging just in some cases
+   */
+  private class LazyUsage {
+    private final Node n;
+    private NameUsage u;
+
+    private LazyUsage(Node n) {
+      this.n = n;
+    }
+
+    public NameUsage getUsage() {
+      if (u == null) {
+        u = dao.readUsage(n, false);
+      }
+      return u;
+    }
+
+    public String scientificName() {
+      return getUsage().getScientificName();
+    }
+  }
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
     try {
@@ -311,7 +335,7 @@ public class Normalizer extends ImportDb implements Runnable {
     try (Transaction tx = dao.getNeo().beginTx()) {
       for (Node syn : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.SYNONYM))) {
         Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
-
+        LazyUsage synU = new LazyUsage(syn);
         // if the synonym is a parent of another child taxon - relink accepted as parent of child
         for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.OUTGOING)) {
           Node child = rel.getOtherNode(syn);
@@ -323,24 +347,24 @@ public class Normalizer extends ImportDb implements Runnable {
             rel.delete();
             accepted.createRelationshipTo(child, RelType.PARENT_OF);
             parentOfRelRelinked++;
-            addIssueRemark(child, "Parent relation taken from synonym " + dao.read(syn).scientificName);
+            addIssueRemark(child, "Parent relation taken from synonym " + synU.scientificName());
           }
         }
         // remove parent rel for synonyms
         for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
           // before we delete the relation make sure the accepted does have a parent rel or is ROOT
           if (accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
-            LOG.debug("Delete parent rel of synonym {}", dao.read(syn).scientificName);
+            LOG.debug("Delete parent rel of synonym {}", synU.scientificName());
             // delete
             childOfRelDeleted++;
             rel.delete();
           } else {
             Node parent = rel.getOtherNode(syn);
-            LOG.debug("Relink parent rel of synonym {}", dao.read(syn).scientificName);
+            LOG.debug("Relink parent rel of synonym {}", synU.scientificName());
             // relink
             childOfRelRelinkedToAccepted++;
             parent.createRelationshipTo(accepted, RelType.PARENT_OF);
-            addIssueRemark(accepted, "Parent relation taken from synonym " + dao.read(syn).scientificName);
+            addIssueRemark(accepted, "Parent relation taken from synonym " + synU.scientificName());
             rel.delete();
           }
         }
@@ -360,7 +384,7 @@ public class Normalizer extends ImportDb implements Runnable {
    * Only use this method if you just have a node a no usage instance yet at hand.
    */
   private NameUsageNode addIssueRemark(Node n, @Nullable String remark, NameUsageIssue ... issues) {
-    NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false));
+    NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false), true);
     nn.addIssue(issues);
     if (remark != null) {
       nn.addRemark(remark);
@@ -428,9 +452,9 @@ public class Normalizer extends ImportDb implements Runnable {
    * Checks if this node is a pro parte synonym by looking if multiple accepted taxa are referred to.
    * If so, new taxon nodes are created each with a single, unique acceptedNameUsageID property.
    */
-  private void duplicateProParteSynonyms(NameUsageNode nn) {
-    if (meta.isAcceptedNameMapped()) {
-      final String unsplitIds = dao.readAcceptedNameUsageID(nn);
+  private void duplicateProParteSynonyms(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
+    if (v != null && meta.isAcceptedNameMapped()) {
+      final String unsplitIds = v.getCoreField(DwcTerm.acceptedNameUsageID);
       if (unsplitIds != null) {
         List<String> acceptedIds = Lists.newArrayList();
         if (!unsplitIds.equals(nn.usage.getTaxonID())) {
@@ -447,17 +471,36 @@ public class Normalizer extends ImportDb implements Runnable {
         if (acceptedIds.size() > 1) {
           final int primaryId = (int) nn.node.getId();
           // duplicate this node for each accepted id!
-          LOG.info("pro parte synonym found with multiple acceptedNameUsageIDs: {}", acceptedIds);
+          LOG.debug("{} is pro parte synonym with multiple acceptedNameUsageIDs: {}", nn.usage.getScientificName(), acceptedIds);
 
           // now create new nodes and also update their acceptedId so the relations get processed fine later on
           Iterator<String> accIter = acceptedIds.iterator();
-          updateProParteSynonym(nn.node, accIter.next(), primaryId);
+          // first update original node to just have one accepted id
+          nn.usage.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+          nn.usage.setProParteKey(primaryId);
+          dao.store(nn, true);
+          v.setCoreField(DwcTerm.acceptedNameUsageID, accIter.next());
+          dao.store(primaryId, v);
 
           // now create new nodes, update their acceptedId and immediately process the relations
+          // we reuse the existing usage instance and modify a few properties that we change back to the original value at the end
+          final String taxonID = nn.usage.getTaxonID();
+          final Origin origin = nn.usage.getOrigin();
+          final String acceptedID = v.getCoreField(DwcTerm.acceptedNameUsageID);
+          final Node n = nn.node;
+          nn.usage.setTaxonID(null);
+          nn.usage.setOrigin(Origin.PROPARTE);
           while (accIter.hasNext()) {
-            Node p = copyTaxon(nn.node, Origin.PROPARTE);
-            updateProParteSynonym(p, accIter.next(), primaryId);
+            nn.node = dao.createTaxon();
+            dao.store(nn, true);
+            v.setCoreField(DwcTerm.acceptedNameUsageID, accIter.next());
+            dao.store(nn.node.getId(), v);
           }
+          // revert changes to the instances passed in - they get used in further processing
+          nn.node = n;
+          nn.usage.setTaxonID(taxonID);
+          nn.usage.setOrigin(origin);
+          v.setCoreField(DwcTerm.acceptedNameUsageID, acceptedID);
         }
       }
     }
@@ -467,15 +510,6 @@ public class Normalizer extends ImportDb implements Runnable {
     tx.success();
     tx.close();
     return dao.getNeo().beginTx();
-  }
-
-  private void updateProParteSynonym(Node n, String acceptedId, int primarySynonymId) {
-    NameUsage u = dao.readUsage(n, false);
-    u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
-    u.setProParteKey(primarySynonymId);
-    dao.store(n.getId(), u, false);
-
-    n.setProperty(NodeProperties.ACCEPTED_NAME_USAGE_ID, acceptedId);
   }
 
   /**
@@ -515,52 +549,56 @@ public class Normalizer extends ImportDb implements Runnable {
   }
 
   private void setupRelation(Node n) {
-    NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false));
-    duplicateProParteSynonyms(nn);
-    setupAcceptedRel(nn);
-    setupParentRel(nn);
-    setupBasionymRel(nn);
+    final NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false), true);
+    final VerbatimNameUsage v = dao.readVerbatim(n.getId());
+    duplicateProParteSynonyms(nn, v);
+    setupAcceptedRel(nn, v);
+    setupParentRel(nn, v);
+    setupBasionymRel(nn, v);
     dao.store(nn, false);
   }
 
   /**
-   * Creates synonym_of relationship.
+   * Creates synonym_of relationship based on the verbatim dwc:acceptedNameUsageID and dwc:acceptedNameUsage term values.
    * Assumes pro parte synonyms are dealt with before and the remaining accepted identifier refers to a single taxon only.
    * See #duplicateProParteSynonyms()
    *
    * @param nn the usage to process
+   * @param v
    */
-  private void setupAcceptedRel(NameUsageNode nn) {
+  private void setupAcceptedRel(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
     Node accepted = null;
-    final String id = dao.readAcceptedNameUsageID(nn);
-    if (id != null) {
-      if (nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID())) {
-        accepted = nodeByTaxonId(id);
-        if (accepted == null) {
-          nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
-          LOG.debug("acceptedNameUsageID {} not existing", id);
-          // is the accepted name also mapped?
-          String name = ObjectUtils.firstNonNull(dao.readAcceptedNameUsage(nn), NormalizerConstants.PLACEHOLDER_NAME);
-          accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
-                  "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName());
-        }
-      }
-    } else {
-      final String name = dao.readAcceptedNameUsage(nn);
-      if (name != null && !name.equals(nn.usage.getScientificName())) {
-        try {
-          accepted = nodeBySciname(name);
-          if (accepted == null && !name.equals(nn.usage.getCanonicalName())) {
-            accepted = nodeByCanonical(name);
-            if (accepted == null) {
-              LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
-              accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null);
-            }
+    if (v != null) {
+      final String id = v.getCoreField(DwcTerm.acceptedNameUsageID);
+      if (id != null) {
+        if (nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID())) {
+          accepted = nodeByTaxonId(id);
+          if (accepted == null) {
+            nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+            LOG.debug("acceptedNameUsageID {} not existing", id);
+            // is the accepted name also mapped?
+            String name = ObjectUtils.firstNonNull(v.getCoreField(DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
+            accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
+                    "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
           }
-        } catch (NotUniqueException e) {
-          nn.addIssue(NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
-          LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
-          accepted = createTaxonWithClassificationProps(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null);
+        }
+      } else {
+        final String name = v.getCoreField(DwcTerm.acceptedNameUsage);
+        if (name != null && !name.equals(nn.usage.getScientificName())) {
+          try {
+            accepted = nodeBySciname(name);
+            if (accepted == null && !name.equals(nn.usage.getCanonicalName())) {
+              accepted = nodeByCanonical(name);
+              if (accepted == null) {
+                LOG.debug("acceptedNameUsage {} not existing, materialize it", name);
+                accepted = createTaxonWithClassification(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null, v);
+              }
+            }
+          } catch (NotUniqueException e) {
+            nn.addIssue(NameUsageIssue.ACCEPTED_NAME_NOT_UNIQUE);
+            LOG.warn("acceptedNameUsage {} not unique, duplicate accepted name for synonym {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
+            accepted = createTaxonWithClassification(Origin.VERBATIM_ACCEPTED, name, null, TaxonomicStatus.DOUBTFUL, nn, null, null, v);
+          }
         }
       }
     }
@@ -568,8 +606,8 @@ public class Normalizer extends ImportDb implements Runnable {
     // if status is synonym but we aint got no idea of the accepted insert an incertae sedis record of same rank
     if (nn.usage.isSynonym() && accepted == null) {
       nn.addIssue(NameUsageIssue.ACCEPTED_NAME_MISSING);
-      accepted = createTaxonWithClassificationProps(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, null,
-              "Placeholder for the missing accepted taxon for synonym " + nn.usage.getScientificName());
+      accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, null,
+              "Placeholder for the missing accepted taxon for synonym " + nn.usage.getScientificName(), v);
     }
 
     if (accepted != null && !accepted.equals(nn.node)) {
@@ -587,33 +625,35 @@ public class Normalizer extends ImportDb implements Runnable {
    * Sets up the parent relations using the parentNameUsage(ID) term values.
    * The denormed, flat classification is used in a next step later.
    */
-  private void setupParentRel(NameUsageNode nn) {
+  private void setupParentRel(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
     Node parent = null;
-    final String id = dao.readParentNameUsageID(nn);
-    if (id != null) {
-      if ((nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID()))) {
-        parent = nodeByTaxonId(id);
-        if (parent == null) {
-          nn.addIssue(NameUsageIssue.PARENT_NAME_USAGE_ID_INVALID);
-          LOG.debug("parentNameUsageID {} not existing", id);
-        }
-      }
-    } else {
-      final String name = dao.readParentNameUsage(nn);
-      if (name != null && !name.equals(nn.usage.getScientificName())) {
-        try {
-          parent = nodeBySciname(name);
-          if (parent == null && !name.equals(nn.usage.getCanonicalName())) {
-            parent = nodeByCanonical(name);
-          }
+    if (v != null) {
+      final String id = v.getCoreField(DwcTerm.parentNameUsageID);
+      if (id != null) {
+        if ((nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID()))) {
+          parent = nodeByTaxonId(id);
           if (parent == null) {
-            LOG.debug("parentNameUsage {} not existing, materialize it", name);
+            nn.addIssue(NameUsageIssue.PARENT_NAME_USAGE_ID_INVALID);
+            LOG.debug("parentNameUsageID {} not existing", id);
+          }
+        }
+      } else {
+        final String name = v.getCoreField(DwcTerm.parentNameUsage);
+        if (name != null && !name.equals(nn.usage.getScientificName())) {
+          try {
+            parent = nodeBySciname(name);
+            if (parent == null && !name.equals(nn.usage.getCanonicalName())) {
+              parent = nodeByCanonical(name);
+            }
+            if (parent == null) {
+              LOG.debug("parentNameUsage {} not existing, materialize it", name);
+              parent = create(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true).node;
+            }
+          } catch (NotUniqueException e) {
+            nn.addIssue(NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
+            LOG.warn("parentNameUsage {} not unique, ignore relationship for name {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
             parent = create(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true).node;
           }
-        } catch (NotUniqueException e) {
-          nn.addIssue(NameUsageIssue.PARENT_NAME_NOT_UNIQUE);
-          LOG.warn("parentNameUsage {} not unique, ignore relationship for name {} and taxonID {}", name, nn.usage.getScientificName(), nn.usage.getTaxonID());
-          parent = create(Origin.VERBATIM_PARENT, name, null, TaxonomicStatus.DOUBTFUL, true).node;
         }
       }
     }
@@ -624,10 +664,10 @@ public class Normalizer extends ImportDb implements Runnable {
     }
   }
 
-  private void setupBasionymRel(NameUsageNode nn) {
-    if (meta.isOriginalNameMapped()) {
+  private void setupBasionymRel(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
+    if (meta.isOriginalNameMapped() && v != null) {
       Node basionym = null;
-      final String id = dao.readOriginalNameUsageID(nn);
+      final String id = v.getCoreField(DwcTerm.originalNameUsageID);
       if (id != null) {
         if (!id.equals(nn.usage.getTaxonID())) {
           basionym = nodeByTaxonId(id);
@@ -637,7 +677,7 @@ public class Normalizer extends ImportDb implements Runnable {
           }
         }
       } else {
-        final String name = dao.readOriginalNameUsage(nn);
+        final String name = v.getCoreField(DwcTerm.originalNameUsage);
         if (name != null && !name.equals(nn.usage.getScientificName())) {
           try {
             basionym = nodeBySciname(name);
@@ -661,15 +701,12 @@ public class Normalizer extends ImportDb implements Runnable {
   }
 
   /**
-   *
-   * @param origin
-   * @param sciname
-   * @param rank
-   * @param status
-   * @param source
+   * Creates a new taxon in neo and the name usage kvp using the source usages as a template for the classification properties.
+   * A verbatim usage is created with just the parentNameUsage(ID) values so they can get resolved into proper neo relations later.
    * @param taxonID the optional taxonID to apply to the new node
    */
-  private Node createTaxonWithClassificationProps(Origin origin, String sciname, Rank rank, TaxonomicStatus status, NameUsageNode source, @Nullable String taxonID, @Nullable String remarks) {
+  private Node createTaxonWithClassification(Origin origin, String sciname, Rank rank, TaxonomicStatus status, NameUsageNode source,
+                                             @Nullable String taxonID, @Nullable String remarks, VerbatimNameUsage sourceVerbatim) {
     NameUsage u = new NameUsage();
     u.setScientificName(sciname);
     u.setCanonicalName(sciname);
@@ -682,28 +719,10 @@ public class Normalizer extends ImportDb implements Runnable {
     ClassificationUtils.copyLinneanClassification(source.usage, u);
     Node n = create(u, false).node;
     // copy parent props from source
-    for (String prop : new String[]{NodeProperties.PARENT_NAME_USAGE_ID, NodeProperties.PARENT_NAME_USAGE}) {
-      if (source.node.hasProperty(prop)) {
-        n.setProperty(prop, source.node.getProperty(prop));
-      }
-    }
-    return n;
-  }
-
-  /**
-   * Copies an existing taxon node with all its properties and sets the origin value.
-   */
-  private Node copyTaxon(Node source, Origin origin) {
-    Node n = dao.createTaxon();
-    for (String k : source.getPropertyKeys()) {
-      if (!k.equals(NodeProperties.TAXON_ID)) {
-        n.setProperty(k, source.getProperty(k));
-      }
-    }
-    NameUsage u = dao.readUsage(source, false);
-    u.setTaxonID(null);
-    u.setOrigin(origin);
-    dao.store(n.getId(), u, true);
+    VerbatimNameUsage v = new VerbatimNameUsage();
+    v.setCoreField(DwcTerm.parentNameUsageID, sourceVerbatim.getCoreField(DwcTerm.parentNameUsageID));
+    v.setCoreField(DwcTerm.parentNameUsage, sourceVerbatim.getCoreField(DwcTerm.parentNameUsage));
+    dao.store(n.getId(), v);
     return n;
   }
 

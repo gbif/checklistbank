@@ -1,14 +1,13 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
+import org.gbif.checklistbank.neo.model.NameUsageNode;
 import org.gbif.checklistbank.neo.model.UsageFacts;
 
 import com.beust.jcommander.internal.Lists;
@@ -101,15 +100,17 @@ public class UsageMetricsHandlerTest extends BaseTest {
   }
 
   private Node addNode(Rank rank, String name, Node parent) {
-    NeoTaxon t = new NeoTaxon();
-    t.node = dao.createTaxon();
-    t.scientificName = name;
-    t.rank = rank;
-    dao.store(t);
+    Node n = dao.createTaxon();
+    NameUsage u = new NameUsage();
+    u.setRank(rank);
+    u.setCanonicalName(name);
+    u.setScientificName(name);
+    dao.store(new NameUsageNode(n, u, true), true);
 
     if (parent != null) {
-      parent.createRelationshipTo(t.node, RelType.PARENT_OF);
+      parent.createRelationshipTo(n, RelType.PARENT_OF);
     }
-    return t.node;
+
+    return n;
   }
 }

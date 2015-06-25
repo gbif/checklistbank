@@ -3,30 +3,24 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.kryo.KryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.model.NameUsageNode;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
 import org.gbif.checklistbank.neo.model.RankedName;
 import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Maps;
-import com.beust.jcommander.internal.Sets;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -326,26 +320,12 @@ public class UsageDao {
         return readEnum(n, NodeProperties.RANK, Rank.class, Rank.UNRANKED);
     }
 
-    public NeoTaxon read(Node n) {
-        if (n == null) return null;
-
-        NeoTaxon t = new NeoTaxon();
-        t.node = n;
-        t.taxonID = readTaxonID(n);
-        t.canonicalName  = readCanonicalName(n);
-        t.scientificName = readScientificName(n);
-        t.rank = readRank(n);
-        t.origin = readEnum(n, NodeProperties.ORIGIN, Origin.class, null);
-        return t;
-    }
-
-    public void store(NeoTaxon t) {
-        if (t != null){
-            setProperty(t.node, NodeProperties.TAXON_ID, t.taxonID);
-            setProperty(t.node, NodeProperties.SCIENTIFIC_NAME, t.scientificName);
-            setProperty(t.node, NodeProperties.CANONICAL_NAME, t.canonicalName);
-            storeEnum(t.node, NodeProperties.RANK, t.rank);
-            storeEnum(t.node, NodeProperties.ORIGIN, t.origin);
+    private void updateNeo(Node n, NameUsage u) {
+        if (n != null){
+            setProperty(n, NodeProperties.TAXON_ID, u.getTaxonID());
+            setProperty(n, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
+            setProperty(n, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
+            storeEnum(n, NodeProperties.RANK, u.getRank());
         }
     }
 
@@ -448,12 +428,12 @@ public class UsageDao {
     }
 
     public Node create(NameUsage u) {
+        Node n = createTaxon();;
+        // store usage in kvp store
+        usages.put(n.getId(), serialize(u));
         // update neo with indexed properties
-        NeoTaxon t = buildNeoTaxon(u);
-        t.node = createTaxon();;
-        store(t);
-        usages.put(t.node.getId(), serialize(u));
-        return t.node;
+        updateNeo(n, u);
+        return n;
     }
 
     /**
@@ -466,9 +446,7 @@ public class UsageDao {
         usages.put(key, serialize(u));
         if (updateNeo) {
             // update neo with indexed properties
-            NeoTaxon t = buildNeoTaxon(u);
-            t.node = neo.getNodeById(key);
-            store(t);
+            updateNeo(neo.getNodeById(key), u);
         }
     }
 
@@ -481,21 +459,9 @@ public class UsageDao {
             usages.put(nn.node.getId(), serialize(nn.usage));
             if (updateNeo) {
                 // update neo with indexed properties
-                NeoTaxon t = buildNeoTaxon(nn.usage);
-                t.node = nn.node;
-                store(t);
+                updateNeo(nn.node, nn.usage);
             }
         }
-    }
-
-    private NeoTaxon buildNeoTaxon(NameUsage u) {
-        NeoTaxon t = new NeoTaxon();
-        t.taxonID = u.getTaxonID();
-        t.scientificName = u.getScientificName();
-        t.canonicalName = u.getCanonicalName();
-        t.rank = u.getRank();
-        t.origin = u.getOrigin();
-        return t;
     }
 
     /**
@@ -538,40 +504,7 @@ public class UsageDao {
         putIfNotNull(props, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
         putIfNotNull(props, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
         putIfNotNull(props, NodeProperties.RANK, u.getRank());
-        putIfNotNull(props, NodeProperties.ORIGIN, u.getOrigin());
-        // more neo properties to be used in resolving the relations later:
-        props.put(NodeProperties.TAXON_ID, taxonID);
-        putIfNotNull(props, DwcTerm.parentNameUsageID, v);
-        putIfNotNull(props, DwcTerm.parentNameUsage, v);
-        putIfNotNull(props, DwcTerm.acceptedNameUsageID, v);
-        putIfNotNull(props, DwcTerm.acceptedNameUsage, v);
-        putIfNotNull(props, DwcTerm.originalNameUsageID, v);
-        putIfNotNull(props, DwcTerm.originalNameUsage, v);
         return props;
-    }
-
-    public String readParentNameUsageID(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.PARENT_NAME_USAGE_ID, null);
-    }
-
-    public String readParentNameUsage(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.PARENT_NAME_USAGE, null);
-    }
-
-    public String readOriginalNameUsageID(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.ORIGINAL_NAME_USAGE_ID, null);
-    }
-
-    public String readOriginalNameUsage(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.ORIGINAL_NAME_USAGE, null);
-    }
-
-    public String readAcceptedNameUsageID(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.ACCEPTED_NAME_USAGE_ID, null);
-    }
-
-    public String readAcceptedNameUsage(NameUsageNode n) {
-        return (String) n.node.getProperty(NodeProperties.ACCEPTED_NAME_USAGE, null);
     }
 
     public ResourceIterator<Node> allTaxa(){

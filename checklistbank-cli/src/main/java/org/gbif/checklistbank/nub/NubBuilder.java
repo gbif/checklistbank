@@ -85,8 +85,8 @@ public class NubBuilder implements Runnable {
     groupByOriginalName();
     addExtensionData();
     assignUsageKeys();
-    builtUsageMetrics();
     db.dao.convertNubUsages();
+    builtUsageMetrics();
     LOG.info("New backbone built");
   }
 

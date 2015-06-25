@@ -8,7 +8,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
+import org.gbif.checklistbank.neo.model.NameUsageNode;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,23 +44,24 @@ public class NubMatchHandler implements StartEndHandler {
       warnSlowMatching = true;
       LOG.debug("Metrics & nub matching done for: {}", counter);
     }
-    NeoTaxon t = dao.read(n);
-    if (t.rank != null && t.rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, t.rank, (int)n.getId());
-      ClassificationUtils.setHigherRank(classification, t.rank, t.canonicalName);
+    NameUsage u = dao.readUsage(n, false);
+    if (u.getRank() != null && u.getRank().isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, u.getRank(), (int)n.getId());
+      ClassificationUtils.setHigherRank(classification, u.getRank(), u.getCanonicalName());
     }
   }
 
   @Override
   public void end(Node n) {
-    NeoTaxon nt = dao.read(n);
+    NameUsage u = dao.readUsage(n, false);
     // nub lookup
-    matchToNub(n, classification, nt.scientificName, nt.rank);
-    processSynonyms(nt);
+    NameUsageNode nn = new NameUsageNode(n, u, false);
+    matchToNub(nn, classification, u.getScientificName(), u.getRank());
+    processSynonyms(nn);
     // remove this rank from current classification
-    if (nt.rank != null && nt.rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, nt.rank, null);
-      ClassificationUtils.setHigherRank(classification, nt.rank, null);
+    if (u.getRank() != null && u.getRank().isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, u.getRank(), null);
+      ClassificationUtils.setHigherRank(classification, u.getRank(), null);
     }
   }
 
@@ -69,7 +70,7 @@ public class NubMatchHandler implements StartEndHandler {
    * We continue with retries for up to 12h before we let an IllegalStateException bring down the entire normalization.
    * The resulting usageKey of the match and potential issues (e.g. fuzzy matching) will be stored in the neo node.
    */
-  private void matchToNub(Node n, LinneanClassification usage, String name, Rank rank) {
+  private void matchToNub(NameUsageNode nn, LinneanClassification usage, String name, Rank rank) {
     NameUsageMatch match = null;
     final long started = System.currentTimeMillis();
     boolean first = true;
@@ -112,26 +113,26 @@ public class NubMatchHandler implements StartEndHandler {
     }
 
     // store nub key
-    NameUsage u = dao.readUsage(n, false);
-    u.setNubKey(match.getUsageKey());
+    nn.usage.setNubKey(match.getUsageKey());
+    nn.modified = true;
     if (match.getUsageKey() == null) {
       LOG.debug("Failed nub match: {}", name);
-      u.addIssue(NameUsageIssue.BACKBONE_MATCH_NONE);
+      nn.addIssue(NameUsageIssue.BACKBONE_MATCH_NONE);
 
     } else if (match.getMatchType() == NameUsageMatch.MatchType.FUZZY) {
-      u.addIssue(NameUsageIssue.BACKBONE_MATCH_FUZZY);
+      nn.addIssue(NameUsageIssue.BACKBONE_MATCH_FUZZY);
     }
-    dao.store(n.getId(), u, false);
+    dao.store(nn, false);
   }
 
   /**
    * Process all synonymsTD doing a nub lookup for each of them
    * @return the number of processed synonymsTD
    */
-  private void processSynonyms(NeoTaxon nt) {
-    for (Node syn : Traversals.SYNONYMS.traverse(nt.node).nodes()) {
-      NeoTaxon s = dao.read(syn);
-      matchToNub(syn, classification, s.scientificName, nt.rank);
+  private void processSynonyms(NameUsageNode nn) {
+    for (Node syn : Traversals.SYNONYMS.traverse(nn.node).nodes()) {
+      NameUsage s = dao.readUsage(syn, false);
+      matchToNub(new NameUsageNode(syn, s, false), classification, s.getScientificName(), nn.usage.getRank());
     }
   }
 

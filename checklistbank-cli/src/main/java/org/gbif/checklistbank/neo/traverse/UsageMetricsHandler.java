@@ -1,14 +1,14 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.neo.model.ClassificationKeys;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
-import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.model.ClassificationKeys;
+import org.gbif.checklistbank.neo.model.UsageFacts;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.Map;
 
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
+import com.google.common.base.Preconditions;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Builds higher classification keys (not the verbatim names) and NameUsageMetrics for all accepted usages.
  * Synonym usages do not need a data record as its zero all over.
+ * The handler works on taxonomic neo relations and the NameUsage instances in the kvp store, so make sure they exist!
  */
 public class UsageMetricsHandler implements StartEndHandler {
 
@@ -45,9 +47,10 @@ public class UsageMetricsHandler implements StartEndHandler {
 
   @Override
   public void start(Node n) {
-    NeoTaxon nt = dao.read(n);
+    NameUsage u = dao.readUsage(n, false);
+    Preconditions.checkNotNull(u, "node " + n.getId() + " with missing name usage found");
     // increase counters
-    count(nt);
+    count(u);
     counter++;
     depth++;
     if (depth > maxDepth) {
@@ -56,13 +59,13 @@ public class UsageMetricsHandler implements StartEndHandler {
     if (depth == 1) {
       roots++;
     }
-    if (nt.rank != null && nt.rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, nt.rank, (int)n.getId());
+    if (u.getRank() != null && u.getRank().isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, u.getRank(), (int)n.getId());
     }
     // for linnean ranks increase all parent data
-    if (nt.rank != null && nt.rank.isLinnean() && nt.rank != Rank.KINGDOM) {
+    if (u.getRank() != null && u.getRank().isLinnean() && u.getRank() != Rank.KINGDOM) {
       for (NameUsageMetrics m : parentCounts) {
-        setNumByRank(m, nt.rank, m.getNumByRank(nt.rank) + 1);
+        setNumByRank(m, u.getRank(), m.getNumByRank(u.getRank()) + 1);
       }
     }
     // increase direct parents children counter by one
@@ -79,7 +82,7 @@ public class UsageMetricsHandler implements StartEndHandler {
   @Override
   public void end(Node n) {
     depth--;
-    NeoTaxon nt = dao.read(n);
+    NameUsage u = dao.readUsage(n, false);
     // final data update
     NameUsageMetrics metrics = parentCounts.removeLast();
     metrics.setNumSynonyms(processSynonyms(n));
@@ -92,8 +95,8 @@ public class UsageMetricsHandler implements StartEndHandler {
     dao.store(n.getId(), facts);
 
     // remove this rank from current classification
-    if (nt.rank != null && nt.rank.isLinnean()) {
-      ClassificationUtils.setHigherRankKey(classification, nt.rank, null);
+    if (u.getRank() != null && u.getRank().isLinnean()) {
+      ClassificationUtils.setHigherRankKey(classification, u.getRank(), null);
     }
   }
 
@@ -108,9 +111,9 @@ public class UsageMetricsHandler implements StartEndHandler {
   private int processSynonyms(Node n) {
     int synCounter = 0;
     for (Node syn : Traversals.SYNONYMS.traverse(n).nodes()) {
-      NeoTaxon nt = dao.read(syn);
+      NameUsage u = dao.readUsage(syn, false);
       synCounter++;
-      count(nt);
+      count(u);
     }
     synonyms = synonyms + synCounter;
     return synCounter;
@@ -140,21 +143,19 @@ public class UsageMetricsHandler implements StartEndHandler {
     }
   }
 
-  private void count(NeoTaxon nt) {
-    // please leave outcommented code for debugging
-    //System.out.println("#" + node.getId() + " " + mapper.readEnum(node, "taxonomicStatus", TaxonomicStatus.class, null) + " " + rank + " ["+origin+"] " + mapper.readScientificName(node));
-    if (nt.origin != null) {
-      if (!countByOrigin.containsKey(nt.origin)) {
-        countByOrigin.put(nt.origin, 1);
+  private void count(NameUsage u) {
+    if (u.getOrigin() != null) {
+      if (!countByOrigin.containsKey(u.getOrigin())) {
+        countByOrigin.put(u.getOrigin(), 1);
       } else {
-        countByOrigin.put(nt.origin, countByOrigin.get(nt.origin) + 1);
+        countByOrigin.put(u.getOrigin(), countByOrigin.get(u.getOrigin()) + 1);
       }
     }
-    if (nt.rank != null) {
-      if (!countByRank.containsKey(nt.rank)) {
-        countByRank.put(nt.rank, 1);
+    if (u.getRank() != null) {
+      if (!countByRank.containsKey(u.getRank())) {
+        countByRank.put(u.getRank(), 1);
       } else {
-        countByRank.put(nt.rank, countByRank.get(nt.rank) + 1);
+        countByRank.put(u.getRank(), countByRank.get(u.getRank()) + 1);
       }
     }
   }

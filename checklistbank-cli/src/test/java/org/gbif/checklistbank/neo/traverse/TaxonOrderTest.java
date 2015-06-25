@@ -1,9 +1,9 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
-import org.gbif.checklistbank.neo.NodeProperties;
-import org.gbif.checklistbank.neo.model.NeoTaxon;
+import org.gbif.checklistbank.neo.model.NameUsageNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,11 +41,12 @@ public class TaxonOrderTest extends BaseTest {
   }
 
   private Node build(Rank rank, String name){
-    NeoTaxon t = new NeoTaxon();
-    t.node = dao.createTaxon();
-    t.rank = rank;
-    t.canonicalName = name;
-    dao.store(t);
-    return t.node;
+    Node n = dao.createTaxon();
+    NameUsage u = new NameUsage();
+    u.setRank(rank);
+    u.setCanonicalName(name);
+    u.setScientificName(name);
+    dao.store(new NameUsageNode(n, u, true), true);
+    return n;
   }
 }
