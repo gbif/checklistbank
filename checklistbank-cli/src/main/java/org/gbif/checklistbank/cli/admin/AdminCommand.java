@@ -2,8 +2,8 @@ package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.model.crawler.ChecklistValidationReport;
 import org.gbif.api.model.crawler.DwcaValidationReport;
+import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
@@ -12,8 +12,6 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -113,7 +111,7 @@ public class AdminCommand extends BaseCommand {
           send( new DwcaMetasyncFinishedMessage(cfg.key, DatasetType.CHECKLIST,
                   URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
                   new DwcaValidationReport(cfg.key,
-                    new ChecklistValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+                    new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
                   )
           );
           break;
