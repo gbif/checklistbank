@@ -48,7 +48,7 @@
     <gbif-postal-service.version>0.14</gbif-postal-service.version>
     <registry-client.version>2.30</registry-client.version>
     <name-parser.version>2.7</name-parser.version>
-    <gbif-parser.version>0.14</gbif-parser.version>
+    <gbif-parser.version>0.15-SNAPSHOT</gbif-parser.version>
     <dwca-io.version>1.24</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>

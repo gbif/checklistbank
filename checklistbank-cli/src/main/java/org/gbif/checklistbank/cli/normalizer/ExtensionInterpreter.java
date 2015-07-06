@@ -33,6 +33,7 @@ import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.date.DateParseUtils;
 import org.gbif.dwc.terms.AcTerm;
+import org.gbif.dwc.terms.DcElement;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
@@ -255,10 +256,10 @@ public class ExtensionInterpreter {
   private void extractMedia(NameUsage u, UsageExtensions e, VerbatimNameUsage v, Extension ext, boolean requireType) {
     if (v.hasExtension(ext)) {
       for (Map<Term, String> rec : v.getExtensions().get(ext)) {
-        URI uri = UrlParser.parse(value(rec, AcTerm.accessURI, DcTerm.identifier));
+        URI uri = UrlParser.parse(value(rec, AcTerm.accessURI, DcTerm.identifier, DcElement.identifier));
         URI link = UrlParser.parse(value(rec, AcTerm.furtherInformationURL, DcTerm.references, AcTerm.attributionLinkURL));
         // EOL media extension is also used to publish text descriptions - avoid those
-        MediaType type = enumify(rec, null, mediaTypeParser, u, DcTerm.type);
+        MediaType type = enumify(rec, null, mediaTypeParser, u, DcTerm.type, DcElement.type);
         if (requireType && type == null) {
           continue;
         }
