@@ -35,21 +35,21 @@
     <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
     <!-- dependency versions -->
-    <dwc-api.version>1.11</dwc-api.version>
+    <dwc-api.version>1.13</dwc-api.version>
     <gbif-api.version>0.24-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.10-SNAPSHOT</gbif-cli.version>
-    <gbif-common.version>0.18-SNAPSHOT</gbif-common.version>
-    <gbif-common-mybatis.version>0.16-SNAPSHOT</gbif-common-mybatis.version>
+    <gbif-common.version>0.18</gbif-common.version>
+    <gbif-common-mybatis.version>0.16</gbif-common-mybatis.version>
     <gbif-common-search.version>0.22</gbif-common-search.version>
     <gbif-common-service.version>0.12</gbif-common-service.version>
     <gbif-common-ws.version>0.22</gbif-common-ws.version>
-    <gbif-httputils.version>0.6</gbif-httputils.version>
+    <gbif-httputils.version>0.7</gbif-httputils.version>
     <gbif-microservice.version>0.2</gbif-microservice.version>
     <gbif-postal-service.version>0.14</gbif-postal-service.version>
-    <registry-client.version>2.28</registry-client.version>
-    <name-parser.version>2.6</name-parser.version>
-    <gbif-parser.version>0.13</gbif-parser.version>
-    <dwca-io.version>1.24-SNAPSHOT</dwca-io.version>
+    <registry-client.version>2.30</registry-client.version>
+    <name-parser.version>2.7</name-parser.version>
+    <gbif-parser.version>0.14</gbif-parser.version>
+    <dwca-io.version>1.24</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.BiMap;
 import org.apache.commons.beanutils.BeanUtils;
@@ -98,7 +100,7 @@ public class NameUsageDocConverter {
    *
    * @return a {@link SolrInputDocument} using the Object parameter.
    */
-  public SolrInputDocument toObject(NameUsage usage, List<Integer> parents, UsageExtensions extensions) {
+  public SolrInputDocument toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions) {
     try {
       SolrInputDocument doc = new SolrInputDocument();
       // Uses the pre-initialized field-property map to find the corresponding Solr field of a Java field.
@@ -116,17 +118,19 @@ public class NameUsageDocConverter {
       }
       // higher taxa
       addHigherTaxonKeys(parents, doc);
-      // extract info from usage components
-      addVernacularNames(doc, extensions);
-      addDescriptions(doc, extensions);
-      addDistributionsAndThreatStatus(doc, extensions);
-      addSpeciesProfiles(doc, extensions);
       // enums
       addIssues(usage, doc);
       addNomenclaturalStatus(usage, doc);
       addTaxonomicStatus(usage, doc);
       addRank(usage, doc);
       addNameType(usage, doc);
+      // extract extension infos
+      if (extensions != null) {
+        addVernacularNames(doc, extensions);
+        addDescriptions(doc, extensions);
+        addDistributionsAndThreatStatus(doc, extensions);
+        addSpeciesProfiles(doc, extensions);
+      }
       return doc;
 
     } catch (Exception e) {

@@ -60,8 +60,8 @@ import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
 public class MultiThreadingCliTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
     private final int threads = 5;
-    private final MetricRegistry registry = new MetricRegistry("threading-test");
 
+    private MetricRegistry registry;
     private NormalizerConfiguration cfgN;
     private ImporterConfiguration cfgI;
     private File zip;
@@ -117,6 +117,8 @@ public class MultiThreadingCliTest {
 
     @Before
     public void init() throws Exception {
+        registry = new MetricRegistry("threading-test");
+
         cfgN = new NormalizerConfiguration();
         cfgN.neo.neoRepository = Files.createTempDirectory("neotest").toFile();
         cfgN.archiveRepository = Files.createTempDirectory("neotestdwca").toFile();
@@ -149,7 +151,6 @@ public class MultiThreadingCliTest {
 
         ExecutorCompletionService<Object> ecs = new ExecutorCompletionService(Executors.newFixedThreadPool(threads));
         List<Future<Object>> futures = Lists.newArrayList();
-
         for (int i = 0; i < tasks; i++) {
             UUID dk = UUID.randomUUID();
 
@@ -157,7 +158,7 @@ public class MultiThreadingCliTest {
             File dwca = cfgN.archiveDir(dk);
             CompressionUtil.decompressFile(dwca, this.zip);
 
-            Normalizer normalizer = NormalizerTest.buildNormalizer(cfgN, dk);
+            Normalizer normalizer = NormalizerTest.buildNormalizer(cfgN, registry, dk);
             System.out.println("Submit normalizer " + i++ + " with open files: " + monitor.getOpenFileDescriptorCount());
             futures.add(ecs.submit(Executors.callable(normalizer)));
         }
@@ -206,7 +207,7 @@ public class MultiThreadingCliTest {
             // copy dwca
             File dwca = cfgN.archiveDir(dk);
             CompressionUtil.decompressFile(dwca, this.zip);
-            normalizers.add(NormalizerTest.buildNormalizer(cfgN, dk));
+            normalizers.add(NormalizerTest.buildNormalizer(cfgN, registry, dk));
         }
 
         log.println("Submitted tasks ...");

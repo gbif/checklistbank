@@ -57,6 +57,10 @@ public class NormalizerTest extends BaseTest {
     return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
   }
 
+  public static Normalizer buildNormalizer(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
+    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
+  }
+
   @Test
   public void testSplitByCommonDelimiters() throws Exception {
     assertThat(Normalizer.splitByCommonDelimiters("gx:1234")).containsExactly("gx:1234");

@@ -82,7 +82,6 @@ public class Normalizer extends ImportDb implements Runnable {
   private List<String> cycles = Lists.newArrayList();
   private UsageMetricsHandler metricsHandler;
   private NubMatchHandler matchHandler;
-  private int s2c;
 
   private Normalizer(UUID datasetKey, UsageDao dao, File dwca, int batchSize,
                     MetricRegistry registry, Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
@@ -94,7 +93,9 @@ public class Normalizer extends ImportDb implements Runnable {
     this.dwca = dwca;
     this.matchingService = matchingService;
     this.batchSize = batchSize;
-    registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+    if (!registry.getGauges().containsKey(Metrics.SYNC_FILES)) {
+      registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+    }
   }
 
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,

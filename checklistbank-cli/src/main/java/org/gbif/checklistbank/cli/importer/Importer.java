@@ -66,7 +66,9 @@ public class Importer extends ImportDb implements Runnable {
     this.importService = importService;
     this.usageService = usageService;
     this.syncMeter = registry.meter(Metrics.SYNC_METER);
-    registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+    if (!registry.getGauges().containsKey(Metrics.SYNC_FILES)) {
+      registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
+    }
   }
 
   public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
