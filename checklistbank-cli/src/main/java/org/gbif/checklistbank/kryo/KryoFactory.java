@@ -47,7 +47,6 @@ import org.gbif.dwc.terms.EolReferenceTerm;
 import org.gbif.dwc.terms.GbifInternalTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.IucnTerm;
-import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.UnknownTerm;
 import org.gbif.dwc.terms.XmpRightsTerm;
 import org.gbif.dwc.terms.XmpTerm;
@@ -61,7 +60,6 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.sun.tools.javac.tree.DCTree;
 import org.neo4j.kernel.impl.core.NodeProxy;
 
 /**
