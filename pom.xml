@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>23</version>
+    <version>24-SNAPSHOT</version>
   </parent>
 
 
@@ -129,14 +129,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!--
-          Avoids PowerMock issue with Java7 on OSX
-          "java.lang.VerifyError: Bad <init> method call from inside of a branch"
-          See https://code.google.com/p/powermock/issues/detail?id=504
-          -->
-          <argLine>-XX:-UseSplitVerifier</argLine>
-        </configuration>
       </plugin>
     </plugins>
   </build>
