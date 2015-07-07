@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.gbif</groupId>
     <artifactId>motherpom</artifactId>
-    <version>23-SNAPSHOT</version>
+    <version>23</version>
   </parent>
 
 
@@ -36,8 +36,8 @@
 
     <!-- dependency versions -->
     <dwc-api.version>1.13</dwc-api.version>
-    <gbif-api.version>0.24-SNAPSHOT</gbif-api.version>
-    <gbif-cli.version>0.10-SNAPSHOT</gbif-cli.version>
+    <gbif-api.version>0.24</gbif-api.version>
+    <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.18</gbif-common.version>
     <gbif-common-mybatis.version>0.16</gbif-common-mybatis.version>
     <gbif-common-search.version>0.22</gbif-common-search.version>
@@ -48,7 +48,7 @@
     <gbif-postal-service.version>0.14</gbif-postal-service.version>
     <registry-client.version>2.30</registry-client.version>
     <name-parser.version>2.7</name-parser.version>
-    <gbif-parser.version>0.15-SNAPSHOT</gbif-parser.version>
+    <gbif-parser.version>0.15</gbif-parser.version>
     <dwca-io.version>1.24</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
