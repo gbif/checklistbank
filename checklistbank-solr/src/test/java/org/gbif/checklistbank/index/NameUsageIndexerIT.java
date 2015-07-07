@@ -104,21 +104,15 @@ public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
     usages = rsp.getBeans(NameUsageSolrSearchResult.class);
     usages.isEmpty();
 
-    // nub key
+    // scientific_name
     query = new SolrQuery();
-    query.setQuery("nub_key:1");
+    query.setQuery("scientific_name_str:\"Sciurus nadymensis Serebrennikov, 1928\"");
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     usages = rsp.getBeans(NameUsageSolrSearchResult.class);
     u1 = usages.get(0);
-    assertEquals((Integer) 100000001, u1.getKey());
-
-    query = new SolrQuery();
-    query.setQuery("nub_key:57453456");
-    rsp = solr().query(query);
-    docs = rsp.getResults();
-    assertEquals(0, docs.size());
+    assertEquals((Integer) 100000027, u1.getKey());
 
     query = new SolrQuery();
     query.setQuery("key:100000004");
