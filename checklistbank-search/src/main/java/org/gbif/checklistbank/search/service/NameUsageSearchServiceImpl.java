@@ -51,7 +51,7 @@ public class NameUsageSearchServiceImpl
     new ImmutableMap.Builder<String, SolrQuery.ORDER>()
       .put("score", SolrQuery.ORDER.desc)
       .put("num_descendants", SolrQuery.ORDER.desc)
-      .put("scientific_name", SolrQuery.ORDER.asc).build();
+      .put("scientific_name_str", SolrQuery.ORDER.asc).build();
 
   // Default sort order for suggest results
   private static final Map<String, SolrQuery.ORDER> DEFAULT_SUGGEST_ORDER =

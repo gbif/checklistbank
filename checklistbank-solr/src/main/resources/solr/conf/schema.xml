@@ -162,7 +162,7 @@
     <!-- needed by updatelog for NRT search with soft commits -->
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
     <field name="nub_key" type="int" indexed="true" stored="true"/>
-    <field name="dataset_key" type="string" indexed="true" stored="true"/>
+    <field name="dataset_key" type="string" indexed="true" stored="true" docValues="true"/>
     <field name="parent_key" type="int" indexed="true" stored="true"/>
     <field name="parent" type="sciname" indexed="false" stored="true"/>
     <field name="accepted_key" type="int" indexed="true" stored="true"/>
@@ -171,19 +171,21 @@
     <field name="basionym" type="sciname" indexed="false" stored="true"/>
 
     <field name="scientific_name" type="sciname" indexed="true" stored="true"/>
+    <!-- we use the full name for sorting -->
+    <field name="scientific_name_str" type="string" indexed="true" stored="false" docValues="true"/>
     <field name="canonical_name" type="sciname" indexed="true" stored="true"/>
     <!-- Fields for auto-suggest functionality, as= auto-suggest, as_phrase: field for allowing phrase queries -->
     <field name="canonical_name_as" type="text_auto_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="true"/>
     <field name="canonical_name_as_phrase" type="text_auto_edge" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="true"/>
 
-    <field name="name_type" type="int" indexed="true" stored="true"/>
+    <field name="name_type" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="authorship" type="text" indexed="true" stored="true"/>
 
-    <field name="taxonomic_status_key" type="int" indexed="true" stored="true"/>
-    <field name="nomenclatural_status_key" type="int" indexed="true" stored="true" multiValued="true"/>
-    <field name="threat_status_key" type="int" indexed="true" stored="true" multiValued="true"/>
-    <field name="rank_key" type="int" indexed="true" stored="true"/>
-    <field name="habitat_key" type="int" indexed="true" stored="true" multiValued="true"/>
+    <field name="taxonomic_status_key" type="int" indexed="true" stored="true" docValues="true"/>
+    <field name="nomenclatural_status_key" type="int" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <field name="threat_status_key" type="int" indexed="true" stored="true" multiValued="true" docValues="true"/>
+    <field name="rank_key" type="int" indexed="true" stored="true" docValues="true"/>
+    <field name="habitat_key" type="int" indexed="true" stored="true" multiValued="true" docValues="true"/>
 
     <field name="published_in" type="text" indexed="true" stored="true"/>
     <field name="according_to" type="text" indexed="true" stored="true"/>
@@ -212,7 +214,7 @@
     <field name="species_key" type="int" indexed="true" stored="true"/>
     <field name="species" type="sciname" indexed="false" stored="true"/>
 
-    <field name="num_descendants" type="int" indexed="true" stored="true"/>
+    <field name="num_descendants" type="int" indexed="true" stored="true" docValues="true"/>
 
     <field name="source_id" type="string" indexed="true" stored="true"/>
     <field name="is_synonym" type="boolean" indexed="true" stored="true"/>
@@ -224,8 +226,8 @@
     <field name="vernacular_name_lang" type="sciname" indexed="true" stored="true" multiValued="true"/>
     <field name="vernacular_lang" type="lowercase" indexed="true" stored="false" multiValued="true"/>
 
-    <field name="higher_taxon_key" type="int" indexed="true" stored="false" multiValued="true"/>
-    <field name="issues" type="int" indexed="true" stored="false" multiValued="true"/>
+    <field name="higher_taxon_key" type="int" indexed="true" stored="false" multiValued="true" docValues="true"/>
+    <field name="issues" type="int" indexed="true" stored="false" multiValued="true" docValues="true"/>
   </fields>
   <!-- Field to use to determine and enforce document uniqueness. Unless this
      field is marked with required="false", it will be a required field -->
@@ -239,4 +241,6 @@
 
   <copyField source="canonical_name" dest="canonical_name_as"/>
   <copyField source="canonical_name" dest="canonical_name_as_phrase"/>
+  <copyField source="scientific_name" dest="scientific_name_str"/>
+
 </schema>

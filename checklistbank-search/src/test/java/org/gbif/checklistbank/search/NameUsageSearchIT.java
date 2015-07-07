@@ -69,19 +69,6 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
         return n == null ? null : n.getKey();
       }
     };
-  private final Function<NameUsageSearchResult, String> canonicalNameStringFunction =
-    new Function<NameUsageSearchResult, String>() {
-
-      public String apply(NameUsageSearchResult n) {
-        return n == null ? null : n.getCanonicalName();
-      }
-    };
-  private final Function<VernacularName, String> vernacularNameStringFunction = new Function<VernacularName, String>() {
-
-    public String apply(VernacularName vn) {
-      return vn == null ? null : vn.getVernacularName();
-    }
-  };
 
   @BeforeClass
   public static void setup() throws IOException, SAXException, ParserConfigurationException {
