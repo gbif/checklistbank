@@ -1,0 +1,10 @@
+1			KINGDOM	f	ACCEPTED		Animalia
+10	1		GENUS	f	ACCEPTED		Geotrupes Linnaeus
+100	10		SPECIES	f	ACCEPTED		Geotrupes stercorarius (Linnaeus, 1758)
+101	10		SPECIES	f	ACCEPTED		Geotrupes spiniger (Marsham, 1802)
+102	101		SPECIES	t	SYNONYM		Geotrupes stercorarius Erichson, 1847
+2			KINGDOM	f	ACCEPTED		Plantae
+200	2		SPECIES	f	ACCEPTED		Eragrostis pubescens (R.Br.) Steud.
+201	200		SPECIES	t	SYNONYM		Poa pubescens R.Br.
+202	2		SPECIES	f	ACCEPTED		Poa pratensis L.
+203	202		SPECIES	t	SYNONYM		Poa pubescens Lej.
