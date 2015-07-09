@@ -72,31 +72,31 @@ public class NubBuilderTest {
     build(ClasspathUsageSource.source(1));
 
     // bad ranks, no source usages should be created
-    assertTrue(list("Lepiota nuda maxima").isEmpty());
-    assertTrue(list("Agaricaceaes").isEmpty());
-    assertTrue(list("Francisella tularensis rosensis").isEmpty());
-    assertTrue(list("Francisella tularensis tularensis").isEmpty());
+    assertTrue(listCanonical("Lepiota nuda maxima").isEmpty());
+    assertTrue(listCanonical("Agaricaceaes").isEmpty());
+    assertTrue(listCanonical("Francisella tularensis rosensis").isEmpty());
+    assertTrue(listCanonical("Francisella tularensis tularensis").isEmpty());
   }
 
   @Test
   public void testUnknownKingdom() throws Exception {
     build(ClasspathUsageSource.source(4));
 
-    NubUsage k = assertNub(Kingdom.INCERTAE_SEDIS.scientificName(), null, Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-    NubUsage f = assertNub("Popeliaceae", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
-    NubUsage g = assertNub("Lepiota", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, f);
-    NubUsage u = assertNub("Lepiota nuda", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, g);
+    NubUsage k = assertCanonical(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NubUsage f = assertCanonical("Popeliaceae", Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
+    NubUsage g = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, f);
+    NubUsage u = assertCanonical("Lepiota nuda", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, g);
   }
 
   @Test
   public void testUpdateAuthorship() throws Exception {
     build(ClasspathUsageSource.source(1, 5, 6));
 
-    assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
-    assertNub("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
-    assertNub("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
-    assertNub("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
-    assertNub("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+    assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+    assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
+    assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
+    assertCanonical("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
+    assertCanonical("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
   }
 
   @Test
@@ -105,14 +105,14 @@ public class NubBuilderTest {
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
-    NubUsage fam = assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
-    NubUsage g = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, fam);
-    NubUsage ls = assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, g);
+    NubUsage fam = assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+    NubUsage g = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, fam);
+    NubUsage ls = assertCanonical("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, g);
 
     assertClassification(ls, "Lepiota", "Agaricaceae", "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
 
     // this genus should not be updated as its classification in source 7 contradicts the original one
-    NubUsage b = assertNub("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
+    NubUsage b = assertCanonical("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
     assertClassification(b, "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
   }
 
@@ -120,15 +120,15 @@ public class NubBuilderTest {
   public void testCreateImplicitGenus() throws Exception {
     build(ClasspathUsageSource.source(1));
 
-    NubUsage genus = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, null);
+    NubUsage genus = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, null);
 
-    assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genus);
+    assertCanonical("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genus);
 
-    final NubUsage species = assertNub("Lepiota nuda", Rank.SPECIES, Origin.IMPLICIT_NAME, genus);
+    final NubUsage species = assertCanonical("Lepiota nuda", Rank.SPECIES, Origin.IMPLICIT_NAME, genus);
 
-    assertNub("Lepiota nuda elegans", Rank.SUBSPECIES, Origin.SOURCE, species);
+    assertCanonical("Lepiota nuda elegans", Rank.SUBSPECIES, Origin.SOURCE, species);
 
-    assertNub("Lepiota nuda europaea", Rank.VARIETY, Origin.SOURCE, species);
+    assertCanonical("Lepiota nuda europaea", Rank.VARIETY, Origin.SOURCE, species);
   }
 
   /**
@@ -142,7 +142,7 @@ public class NubBuilderTest {
   public void testCreateImplicitAutonym() throws Exception {
     build(ClasspathUsageSource.source(1));
 
-    List<NubUsage> nudas = list("Lepiota nuda nuda");
+    List<NubUsage> nudas = listCanonical("Lepiota nuda nuda");
     assertEquals(2, nudas.size());
 
     NubUsage var = null;
@@ -162,8 +162,8 @@ public class NubBuilderTest {
     assertEquals(Rank.VARIETY, var.rank);
 
     // bad ranks, no autonym should be created
-    assertTrue(list("Lepiota nuda maxima").isEmpty());
-    assertNull(get("Lepiota nuda nuda", Rank.SUBVARIETY));
+    assertTrue(listCanonical("Lepiota nuda maxima").isEmpty());
+    assertNull(getCanonical("Lepiota nuda nuda", Rank.SUBVARIETY));
   }
 
   @Test
@@ -172,9 +172,9 @@ public class NubBuilderTest {
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
-    assertNotNull(get("Animalia", Rank.KINGDOM));
-    assertNotNull(get("Coleoptera", Rank.ORDER));
-    assertNotNull(get("Poaceae", Rank.FAMILY));
+    assertNotNull(getCanonical("Animalia", Rank.KINGDOM));
+    assertNotNull(getCanonical("Coleoptera", Rank.ORDER));
+    assertNotNull(getCanonical("Poaceae", Rank.FAMILY));
   }
 
 
@@ -184,7 +184,7 @@ public class NubBuilderTest {
     src.setSourceRank(8, Rank.PHYLUM);
     build(src);
 
-    List<NubUsage> pedatums = list("Adiantum pedatum");
+    List<NubUsage> pedatums = listCanonical("Adiantum pedatum");
     assertEquals(4, pedatums.size());
     for (NubUsage u : pedatums) {
       System.out.println(u.parsedName.getScientificName());
@@ -224,15 +224,15 @@ public class NubBuilderTest {
     ClasspathUsageSource src = ClasspathUsageSource.source(11, 12);
     build(src);
 
-    NubUsage oct = assertNub("Octopus", "Cuvier, 1797", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-    NubUsage amph = assertNub("Amphioctopus", "Fischer, 1882", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.SYNONYM, oct);
+    NubUsage oct = assertCanonical("Octopus", "Cuvier, 1797", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NubUsage amph = assertCanonical("Amphioctopus", "Fischer, 1882", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.SYNONYM, oct);
 
-    assertNub("Octopus vulgaris", "Cuvier, 1797", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
-    NubUsage species = assertNub("Octopus fangsiao", "d'Orbigny, 1839", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
-    assertNub("Amphioctopus fangsiao", "(d'Orbigny, 1835)", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
+    assertCanonical("Octopus vulgaris", "Cuvier, 1797", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
+    NubUsage species = assertCanonical("Octopus fangsiao", "d'Orbigny, 1839", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
+    assertCanonical("Amphioctopus fangsiao", "(d'Orbigny, 1835)", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
 
-    species = assertNub("Octopus markus", "(Döring, 1999)", Rank.SPECIES, Origin.AUTO_RECOMBINATION, TaxonomicStatus.DOUBTFUL, oct);
-    assertNub("Amphioctopus markus", "Döring, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
+    species = assertCanonical("Octopus markus", "(Döring, 1999)", null, Rank.SPECIES, Origin.AUTO_RECOMBINATION, TaxonomicStatus.DOUBTFUL, oct);
+    assertCanonical("Amphioctopus markus", "Döring, 1999", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
   }
 
   /**
@@ -260,11 +260,11 @@ public class NubBuilderTest {
     ClasspathUsageSource src = ClasspathUsageSource.source(3,2);
     build(src);
 
-    assertEquals(2, list("Oenanthe").size());
+    assertEquals(2, listCanonical("Oenanthe").size());
 
-    assertEquals(2, list("Trichoneura").size());
+    assertEquals(2, listCanonical("Trichoneura").size());
 
-    assertEquals(4, list("Blattaria").size());
+    assertEquals(4, listCanonical("Blattaria").size());
   }
 
 
@@ -274,16 +274,16 @@ public class NubBuilderTest {
     src.setSourceRank(9, Rank.PHYLUM);
     build(src);
 
-    assertNotNull(get("Plantae", Rank.KINGDOM));
-    assertNub("Adiantum", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
-    assertNub("Asplenium", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+    assertNotNull(getCanonical("Plantae", Rank.KINGDOM));
+    assertCanonical("Adiantum", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+    assertCanonical("Asplenium", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
 
-    assertNub("Adiantum capillus-veneris", "L.", null, Rank.SPECIES, Origin.SOURCE);
-    assertNub("Asplenium adiantum-nigrum", "", null, Rank.SPECIES, Origin.IMPLICIT_NAME);
-    assertNub("Asplenium adiantum-nigrum yuanum", "(Ching) Viane, Rasbach, Reichstein & Schneller", null, Rank.SUBSPECIES, Origin.SOURCE);
-    assertNub("Adiantum moranii", "J. Prado", NamePart.SPECIFIC, Rank.SPECIES, Origin.SOURCE);
+    assertCanonical("Adiantum capillus-veneris", "L.", null, Rank.SPECIES, Origin.SOURCE);
+    assertCanonical("Asplenium adiantum-nigrum", "", null, Rank.SPECIES, Origin.IMPLICIT_NAME);
+    assertCanonical("Asplenium adiantum-nigrum yuanum", "(Ching) Viane, Rasbach, Reichstein & Schneller", null, Rank.SUBSPECIES, Origin.SOURCE);
+    assertCanonical("Adiantum moranii", "J. Prado", NamePart.SPECIFIC, Rank.SPECIES, Origin.SOURCE);
 
-    assertNull(get("Asplenium adiantum nigrum × septentrionale", Rank.SPECIES));
+    assertNull(getCanonical("Asplenium adiantum nigrum × septentrionale", Rank.SPECIES));
   }
 
   /**
@@ -295,7 +295,7 @@ public class NubBuilderTest {
     ClasspathUsageSource src = ClasspathUsageSource.source(10);
     build(src);
 
-    NubUsage genus = assertNub("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
+    NubUsage genus = assertCanonical("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
     int counter = 0;
     for (NubUsage c : children(genus.node)) {
       assertEquals(Rank.SPECIES, c.rank);
@@ -314,9 +314,21 @@ public class NubBuilderTest {
    * The Asteraceae one as doubtful.
    */
   @Test
-  @Ignore("write test")
   public void testAlbiziaCoL() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(13);
+    src.setSourceRank(13, Rank.FAMILY);
+    build(src);
 
+    NubUsage fab = assertCanonical("Fabaceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+    NubUsage genus = assertCanonical("Albizia", "", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, fab);
+    assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
+    assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+
+    genus = assertCanonical("Albi", "", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, fab);
+    assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
+    assertCanonical("Albi adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+    assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
   }
 
   /**
@@ -353,9 +365,24 @@ public class NubBuilderTest {
    * Geotrupes stercorarius Erichson, 1847    (SYN) for Geotrupes spiniger (Marsham, 1802)
    */
   @Test
-  @Ignore("write test")
   public void testSynonymsWithDifferentAuthors() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(14);
+    build(src);
 
+    assertEquals(2, listCanonical("Geotrupes stercorarius").size());
+    NubUsage gen = assertCanonical("Geotrupes", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Geotrupes stercorarius (Linnaeus, 1758)", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+    NubUsage acc = assertCanonical("Geotrupes spiniger", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Geotrupes stercorarius Erichson, 1847", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, acc);
+
+    assertEquals(2, listCanonical("Poa pubescens").size());
+    gen = assertCanonical("Poa", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, null);
+    acc = assertScientific("Poa pratensis L.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+    assertScientific("Poa pubescens Lej.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, acc);
+
+    gen = assertCanonical("Eragrostis", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, null);
+    acc = assertScientific("Eragrostis pubescens (R.Br.) Steud.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+    assertScientific("Poa pubescens R.Br.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, acc);
   }
 
   /**
@@ -456,41 +483,51 @@ public class NubBuilderTest {
     }
   }
 
-  private NubUsage assertNub(String canonical, Rank rank, Origin origin, @Nullable NubUsage parent) {
-    return assertNub(canonical, null, rank, origin, null, parent);
+  private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin) {
+    return assertCanonical(canonical, null, notho, rank, origin, null, null);
   }
 
-  private NubUsage assertNub(String canonical, @Nullable  String authorship, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
-    NubUsage u = get(canonical, rank);
-    assertNotNull("Missing " + rank + " " + canonical, u);
+  private NubUsage assertCanonical(String canonical, Rank rank, Origin origin, @Nullable NubUsage parent) {
+    return assertCanonical(canonical, null, null, rank, origin, null, parent);
+  }
+
+  private NubUsage assertCanonical(String canonical, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
+    return assertCanonical(canonical, null, null, rank, origin, status, parent);
+  }
+
+  private NubUsage assertCanonical(String canonical, String authorship, Rank rank, Origin origin) {
+    return assertCanonical(canonical, authorship, null, rank, origin, null, null);
+  }
+
+  private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
+    NubUsage u = getCanonical(canonical, rank);
+    assertNub(u, canonical, authorship, notho, rank, origin, status, parent);
     assertEquals("wrong canonical name for " + canonical, canonical, u.parsedName.canonicalName());
-    assertEquals("wrong rank for " + canonical, rank, u.rank);
-    assertEquals("wrong origin for " + canonical, origin, u.origin);
+    return u;
+  }
+
+  private NubUsage assertScientific(String sciname, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
+    NubUsage u = getScientific(sciname, rank);
+    assertNub(u, sciname, null, null, rank, origin, status, parent);
+    assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.canonicalNameComplete());
+    return u;
+  }
+
+  private void assertNub(NubUsage u, String name, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
+    assertNotNull("Missing " + rank + " " + name, u);
+    assertEquals("wrong rank for " + name, rank, u.rank);
+    assertEquals("wrong origin for " + name, origin, u.origin);
     if (authorship != null) {
-      assertEquals("wrong authorship for " + canonical, authorship, u.parsedName.authorshipComplete());
+      assertEquals("wrong authorship for " + name, authorship, u.parsedName.authorshipComplete());
     }
+    assertEquals("wrong notho for " + name, notho, u.parsedName.getNotho());
     if (status != null) {
-      assertEquals("wrong status for " + canonical, status, u.status);
+      assertEquals("wrong status for " + name, status, u.status);
     }
     if (parent != null) {
       NubUsage p2 = parentOrAccepted(u.node);
-      assertEquals("wrong parent for " + canonical, p2.node, parent.node);
+      assertEquals("wrong parent for " + name, p2.node, parent.node);
     }
-    return u;
-  }
-
-  private NubUsage assertNub(String canonical, String authorship, Rank rank, Origin origin) {
-    return assertNub(canonical, authorship, rank, origin, null, null);
-  }
-
-  private NubUsage assertNub(String canonical, String authorship, NamePart notho, Rank rank, Origin origin) {
-    NubUsage u = get(canonical, rank);
-    assertEquals(canonical, u.parsedName.canonicalName());
-    assertEquals(notho, u.parsedName.getNotho());
-    assertEquals(rank, u.rank);
-    assertEquals(origin, u.origin);
-    assertEquals(authorship, u.parsedName.authorshipComplete());
-    return u;
   }
 
   private List<NubUsage> children(Node parent) {
@@ -517,7 +554,7 @@ public class NubBuilderTest {
     return get( rel.getOtherNode(child) );
   }
 
-  private List<NubUsage> list(String canonical) {
+  private List<NubUsage> listCanonical(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
     for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       usages.add(get(n));
@@ -525,8 +562,23 @@ public class NubBuilderTest {
     return usages;
   }
 
-  private NubUsage get(String canonical, Rank rank) {
-    List<NubUsage> usages = list(canonical);
+  private List<NubUsage> listScientific(String sciname) {
+    List<NubUsage> usages = Lists.newArrayList();
+    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname))) {
+      usages.add(get(n));
+    }
+    return usages;
+  }
+
+  private NubUsage getScientific(String sciname, Rank rank) {
+    return getOne(listScientific(sciname), rank, sciname);
+  }
+
+  private NubUsage getCanonical(String canonical, Rank rank) {
+    return getOne(listCanonical(canonical), rank, canonical);
+  }
+
+  private NubUsage getOne(List<NubUsage> usages, Rank rank, String name) {
     Iterator<NubUsage> iter = usages.iterator();
     while (iter.hasNext()) {
       NubUsage u = iter.next();
@@ -539,7 +591,7 @@ public class NubBuilderTest {
     } else if (usages.size() == 1) {
       return usages.get(0);
     }
-    throw new IllegalStateException("Too many usages for " + rank + " " + canonical);
+    throw new IllegalStateException("Too many usages for " + rank + " " + name);
   }
 
   private NubUsage get(String canonical) {

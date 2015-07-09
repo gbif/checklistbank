@@ -29,6 +29,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.beust.jcommander.internal.Maps;
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntSet;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -280,6 +282,15 @@ public class NubBuilder implements Runnable {
     }
   }
 
+  private void copyAuthorship(ParsedName from, ParsedName to) {
+    to.setAuthorship(from.getAuthorship());
+    to.setYear(from.getYear());
+    to.setBracketAuthorship(from.getBracketAuthorship());
+    to.setBracketYear(from.getBracketYear());
+    to.setAuthorsParsed(true);
+
+  }
+
   private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
     if (nub.status.isSynonym() != u.status.isSynonym()) {
       return;
@@ -291,12 +302,36 @@ public class NubBuilder implements Runnable {
       nub.origin = Origin.SOURCE;
     }
     nub.authors.add(u.parsedName.authorshipComplete());
-    if (!u.parsedName.authorshipComplete().isEmpty() && nub.parsedName.authorshipComplete().isEmpty()) {
-      nub.parsedName.setAuthorship(u.parsedName.getAuthorship());
-      nub.parsedName.setYear(u.parsedName.getYear());
-      nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
-      nub.parsedName.setBracketYear(u.parsedName.getBracketYear());
-      nub.parsedName.setAuthorsParsed(true);
+
+    NubUsage currNubParent = db.getParent(nub);
+    // prefer accepted version over doubtful if its coming from the same dataset!
+    if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
+      nub.status = u.status;
+      if (!u.parsedName.authorshipComplete().isEmpty()) {
+        copyAuthorship(u.parsedName, nub.parsedName);
+      }
+      if (parent != null && (currNubParent.rank.higherThan(parent.rank) || currNubParent.rank == parent.rank)) {
+        if (db.existsInClassification(currNubParent.node, parent.node)) {
+          // current classification has this parent already in its parents list. No need to change anything
+        } else {
+          // current classification doesnt have that parent, we need to apply it
+          updateParent(nub, parent);
+        }
+      }
+
+    } else {
+      // this might be a more exact kind of synonym status
+      if (nub.status == TaxonomicStatus.SYNONYM && u.status.isSynonym()) {
+        nub.status = u.status;
+      }
+      if (!u.parsedName.authorshipComplete().isEmpty() && nub.parsedName.authorshipComplete().isEmpty()) {
+        copyAuthorship(u.parsedName, nub.parsedName);
+      }
+      if (parent != null && currNubParent.rank.higherThan(parent.rank) ) {
+        if (db.existsInClassification(parent.node, currNubParent.node)) {
+          updateParent(nub, parent);
+        }
+      }
     }
     if (nub.publishedIn == null) {
       nub.publishedIn = u.publishedIn;
@@ -304,15 +339,19 @@ public class NubBuilder implements Runnable {
     if (nub.nomStatus.isEmpty()) {
       nub.addNomStatus(u.nomStatus);
     }
-    NubUsage currNubParent = db.getParent(nub);
-    if (parent != null && currNubParent.rank.higherThan(parent.rank) ) {
-      if (db.existsInClassification(parent.node, currNubParent.node)) {
-        LOG.debug("Update {} classification with new parent {} {}",
-          nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
-        db.updateParentRel(nub.node, parent.node);
-      }
-    }
     db.store(nub);
+  }
+
+  private void updateParent(NubUsage child, NubUsage parent) {
+    LOG.debug("Update {} classification with new parent {} {}",  child.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
+    db.updateParentRel(child.node, parent.node);
+  }
+
+  private boolean fromCurrentSource(NubUsage nub) {
+    if (nub.datasetKey.equals(currSrc.key)) {
+      return true;
+    }
+    return false;
   }
 
   private void groupByOriginalName() {
