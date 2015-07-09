@@ -17,7 +17,7 @@
 
   <logger name="org.gbif.checklistbank.cli" level="INFO"/>
   <logger name="org.gbif.checklistbank.cli.importer" level="WARN"/>
-  <logger name="org.gbif.checklistbank.nub" level="INFO"/>
+  <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
   <logger name="org.gbif.checklistbank.neo" level="INFO"/>
 
 

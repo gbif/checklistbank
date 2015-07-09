@@ -25,6 +25,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.beust.jcommander.internal.Maps;
@@ -33,6 +34,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Node;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -164,7 +166,7 @@ public class NubBuilder implements Runnable {
     parents.clear();
     int start = sourceUsageCounter;
     for (SrcUsage u : usageSource.iterateSource(source)) {
-      LOG.debug("process {} {}", u.rank, u.scientificName);
+      LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
       sourceUsageCounter++;
       parents.add(u);
       try {
@@ -210,6 +212,27 @@ public class NubBuilder implements Runnable {
 
   private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws UnparsableException {
     addParsedNameIfNull(u);
+
+    // first check if parent is a genus synonym
+    // http://dev.gbif.org/issues/browse/POR-2780
+    if (!u.status.isSynonym() && p.rank == Rank.GENUS && p.status.isSynonym()) {
+      // create a new accepted and make this name a synonym
+      NubUsage pacc = db.getParent(p);
+      SrcUsage comb = new SrcUsage();
+      comb.status = TaxonomicStatus.DOUBTFUL;
+      comb.rank = u.rank;
+      comb.parsedName = new ParsedName();
+      comb.parsedName.setGenusOrAbove(pacc.parsedName.getGenusOrAbove());
+      comb.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
+      comb.parsedName.setInfraSpecificEpithet(u.parsedName.getInfraSpecificEpithet());
+      comb.parsedName.setRank(u.rank);
+      comb.parsedName.setBracketAuthorship(ObjectUtils.firstNonNull(u.parsedName.getBracketAuthorship(), u.parsedName.getAuthorship()));
+      comb.parsedName.setBracketYear(ObjectUtils.firstNonNull(u.parsedName.getBracketYear(), u.parsedName.getYear()));
+      LOG.info("Recombining {} into {}", u.parsedName.fullName(), comb.parsedName.fullName());
+      p = processSourceUsage(comb, Origin.AUTO_RECOMBINATION, pacc);
+      u.status = TaxonomicStatus.SYNONYM;
+    }
+
     if (!u.status.isSynonym()) {
       // check if implicit species or genus parents are needed
       if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
@@ -261,7 +284,7 @@ public class NubBuilder implements Runnable {
     if (nub.status.isSynonym() != u.status.isSynonym()) {
       return;
     }
-    LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.scientificName);
+    LOG.debug("Updating {} from source {}", nub.parsedName.fullName(), u.parsedName.fullName());
     nub.sourceIds.add(u.key);
     if (origin == Origin.SOURCE) {
       // only override original origin value if we update from a true source

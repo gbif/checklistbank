@@ -4,6 +4,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NoneMatchingService;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
@@ -16,6 +17,8 @@ import org.gbif.checklistbank.nub.source.UsageSource;
 
 import java.util.Iterator;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.After;
@@ -79,13 +82,10 @@ public class NubBuilderTest {
   public void testUnknownKingdom() throws Exception {
     build(ClasspathUsageSource.source(4));
 
-    NubUsage u = assertNub("Lepiota nuda", Rank.SPECIES, Origin.SOURCE, null);
-
-    NubUsage g = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, u.getKey());
-
-    NubUsage f = assertNub("Popeliaceae", Rank.FAMILY, Origin.SOURCE, g.getKey());
-
-    NubUsage k = assertNub(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, f.getKey());
+    NubUsage k = assertNub(Kingdom.INCERTAE_SEDIS.scientificName(), null, Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NubUsage f = assertNub("Popeliaceae", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
+    NubUsage g = assertNub("Lepiota", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, f);
+    NubUsage u = assertNub("Lepiota nuda", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, g);
   }
 
   @Test
@@ -106,31 +106,29 @@ public class NubBuilderTest {
     build(src);
 
     NubUsage fam = assertNub("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
-    NubUsage ls = assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, fam.getKey());
+    NubUsage g = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, fam);
+    NubUsage ls = assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, g);
 
     assertClassification(ls, "Lepiota", "Agaricaceae", "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
 
     // this genus should not be updated as its classification in source 7 contradicts the original one
     NubUsage b = assertNub("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
     assertClassification(b, "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
-
   }
 
   @Test
   public void testCreateImplicitGenus() throws Exception {
     build(ClasspathUsageSource.source(1));
 
-    NubUsage u = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, null);
-    final int genusKey = u.getKey();
+    NubUsage genus = assertNub("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, null);
 
-    assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genusKey);
+    assertNub("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genus);
 
-    u = assertNub("Lepiota nuda", Rank.SPECIES, Origin.IMPLICIT_NAME, genusKey);
-    final int speciesKey = u.getKey();
+    final NubUsage species = assertNub("Lepiota nuda", Rank.SPECIES, Origin.IMPLICIT_NAME, genus);
 
-    assertNub("Lepiota nuda elegans", Rank.SUBSPECIES, Origin.SOURCE, speciesKey);
+    assertNub("Lepiota nuda elegans", Rank.SUBSPECIES, Origin.SOURCE, species);
 
-    assertNub("Lepiota nuda europaea", Rank.VARIETY, Origin.SOURCE, speciesKey);
+    assertNub("Lepiota nuda europaea", Rank.VARIETY, Origin.SOURCE, species);
   }
 
   /**
@@ -215,6 +213,26 @@ public class NubBuilderTest {
           fail("Unexpected name "+u.parsedName.getScientificName());
       }
     }
+  }
+
+  /**
+   * An accepted species with a genus that the nub already considers as a synonym should not be accepted.
+   * Try to combine the epithet to the accepted genus and if its a new name make it doubtful until we hit another source with that name.
+   */
+  @Test
+  public void testSpeciesInSynonymGenus() throws Exception {
+    ClasspathUsageSource src = ClasspathUsageSource.source(11, 12);
+    build(src);
+
+    NubUsage oct = assertNub("Octopus", "Cuvier, 1797", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NubUsage amph = assertNub("Amphioctopus", "Fischer, 1882", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.SYNONYM, oct);
+
+    assertNub("Octopus vulgaris", "Cuvier, 1797", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
+    NubUsage species = assertNub("Octopus fangsiao", "d'Orbigny, 1839", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
+    assertNub("Amphioctopus fangsiao", "(d'Orbigny, 1835)", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
+
+    species = assertNub("Octopus markus", "(Döring, 1999)", Rank.SPECIES, Origin.AUTO_RECOMBINATION, TaxonomicStatus.DOUBTFUL, oct);
+    assertNub("Amphioctopus markus", "Döring, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
   }
 
   /**
@@ -438,24 +456,31 @@ public class NubBuilderTest {
     }
   }
 
-  private NubUsage assertNub(String canonical, Rank rank, Origin origin, Integer parentKey) {
+  private NubUsage assertNub(String canonical, Rank rank, Origin origin, @Nullable NubUsage parent) {
+    return assertNub(canonical, null, rank, origin, null, parent);
+  }
+
+  private NubUsage assertNub(String canonical, @Nullable  String authorship, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
     NubUsage u = get(canonical, rank);
-    assertEquals(canonical, u.parsedName.canonicalName());
-    assertEquals(rank, u.rank);
-    assertEquals(origin, u.origin);
-    if (parentKey != null) {
-      //assertEquals(parentKey, usage.getParentKey());
+    assertNotNull("Missing " + rank + " " + canonical, u);
+    assertEquals("wrong canonical name for " + canonical, canonical, u.parsedName.canonicalName());
+    assertEquals("wrong rank for " + canonical, rank, u.rank);
+    assertEquals("wrong origin for " + canonical, origin, u.origin);
+    if (authorship != null) {
+      assertEquals("wrong authorship for " + canonical, authorship, u.parsedName.authorshipComplete());
+    }
+    if (status != null) {
+      assertEquals("wrong status for " + canonical, status, u.status);
+    }
+    if (parent != null) {
+      NubUsage p2 = parentOrAccepted(u.node);
+      assertEquals("wrong parent for " + canonical, p2.node, parent.node);
     }
     return u;
   }
 
   private NubUsage assertNub(String canonical, String authorship, Rank rank, Origin origin) {
-    NubUsage u = get(canonical, rank);
-    assertEquals(canonical, u.parsedName.canonicalName());
-    assertEquals(rank, u.rank);
-    assertEquals(origin, u.origin);
-    assertEquals(authorship, u.parsedName.authorshipComplete());
-    return u;
+    return assertNub(canonical, authorship, rank, origin, null, null);
   }
 
   private NubUsage assertNub(String canonical, String authorship, NamePart notho, Rank rank, Origin origin) {

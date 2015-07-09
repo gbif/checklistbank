@@ -193,7 +193,7 @@ public class NubDb {
   }
 
   public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
-    LOG.debug("Creating {} {} with parent {}", origin, src.scientificName, parent == null ? "none" : parent.parsedName.getScientificName() );
+    LOG.debug("Creating {} {} {} with parent {}", origin, src.status, src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName() );
 
     NubUsage nub = new NubUsage(src);
     nub.datasetKey = sourceDatasetKey;

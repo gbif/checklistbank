@@ -118,6 +118,10 @@ We use neo4j to assemble the entire backbone before it is actually written to th
 
  - extension data is usually aggregated from all sources and then deduplicated at the very end in the post processing
 
+#### Species within a synonym genus
+If the backbone already contains a synonym genus and in a subsequent source we encoutner an accepted species within that genus
+try to recombine the species automatically into the currently accepted genus. If that name did not yet exist create a doubtful taxon
+
 #### Identifier extension
  - ignore this extension completely and all identifiers
  - only keep primary source usage key as source identifier
