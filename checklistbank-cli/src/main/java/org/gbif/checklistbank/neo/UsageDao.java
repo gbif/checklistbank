@@ -109,7 +109,9 @@ public class UsageDao {
      */
     public static UsageDao temporaryDao(int mappedMemory) {
         LOG.info("Create new in memory dao");
-        DB kvp = DBMaker.newMemoryDB().transactionDisable().make();
+        DB kvp = DBMaker.newMemoryDirectDB() // outside HEAP memory
+                .transactionDisable()
+                .make();
 
         File storeDir = Files.createTempDir();
         GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, "strong", mappedMemory, false);
@@ -136,7 +138,12 @@ public class UsageDao {
                 }
             }
             FileUtils.forceMkdir(kvpF.getParentFile());
-            DB kvp = DBMaker.newFileDB(kvpF).transactionDisable().make();
+            DB kvp = DBMaker.newFileDB(kvpF)
+                    .asyncWriteEnable()
+                    .transactionDisable()
+                    .closeOnJvmShutdown()
+                    .mmapFileEnableIfSupported()
+                    .make();
             GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, cfg.mappedMemory, eraseExisting);
             return new UsageDao(kvp, storeDir, kvpF, builder, registry);
         } catch (IOException e) {
