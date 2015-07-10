@@ -124,9 +124,11 @@ public class Importer extends ImportDb implements Runnable {
             u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
             u.setProParteKey(SELF_ID);
             usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
+            LOG.debug("First synced pro parte usage {}", usageKey);
+            // now insert the other pro parte records
             u.setProParteKey(usageKey);
             u.setOrigin(Origin.PROPARTE);
-            LOG.debug("First synced pro parte usage {}", usageKey);
+            u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
             for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
               Node accN = rel.getEndNode();
               u.setAcceptedKey(clbForeignKey(-999, (int) accN.getId(), KeyType.ACCEPTED));

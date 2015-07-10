@@ -9,17 +9,12 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
-import org.gbif.checklistbank.cli.normalizer.Normalizer;
-import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -264,7 +259,7 @@ public class ImporterIT extends BaseTest {
     // 1st import
     runImport(datasetKey);
     // verify
-    verify14(datasetKey);
+    verify16(datasetKey);
 
     // wait for 2 seconds, we allow a small time difference in old usage deletions
     Thread.sleep(2000);
@@ -272,7 +267,7 @@ public class ImporterIT extends BaseTest {
     // 2nd import to make sure sync updates also work fine
     runImport(datasetKey);
     // verify
-    verify14(datasetKey);
+    verify16(datasetKey);
   }
 
 
@@ -297,9 +292,9 @@ public class ImporterIT extends BaseTest {
     runImport(datasetKey);
   }
 
-  private void verify14(UUID datasetKey) {
+  private void verify16(UUID datasetKey) {
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
-    assertEquals(16, resp.getResults().size());
+    assertEquals(17, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
       if (Rank.KINGDOM != u.getRank()) {
         if (u.isSynonym()) {
