@@ -255,10 +255,10 @@ public class ImporterIT extends BaseTest {
 
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
-    assertEquals(17, stats.getCount());
-    assertEquals(7, stats.getSynonyms());
+    assertEquals(16, stats.getCount());
+    assertEquals(6, stats.getSynonyms());
     assertEquals(1, stats.getRoots());
-    assertEquals(1, stats.getCountByOrigin(Origin.PROPARTE));
+    assertEquals(0, stats.getCountByOrigin(Origin.PROPARTE));
     assertEquals(16, stats.getCountByOrigin(Origin.SOURCE));
 
     // 1st import
@@ -299,7 +299,7 @@ public class ImporterIT extends BaseTest {
 
   private void verify14(UUID datasetKey) {
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
-    assertEquals(17, resp.getResults().size());
+    assertEquals(16, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
       if (Rank.KINGDOM != u.getRank()) {
         if (u.isSynonym()) {
