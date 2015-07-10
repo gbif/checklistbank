@@ -171,8 +171,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Override
-  public void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey) {
-    nameUsageMapper.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
+  public void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey) {
+    nameUsageMapper.updateForeignKeys(usageKey, parentKey, basionymKey);
   }
 
   private int insertNewUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {

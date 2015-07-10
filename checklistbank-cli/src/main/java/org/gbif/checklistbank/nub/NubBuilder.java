@@ -10,6 +10,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
@@ -37,7 +38,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.ObjectUtils;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,14 +244,14 @@ public class NubBuilder implements Runnable {
         SrcUsage genus = new SrcUsage();
         genus.rank = Rank.GENUS;
         genus.scientificName = u.parsedName.getGenusOrAbove();
-        genus.status = TaxonomicStatus.ACCEPTED;
+        genus.status = u.status;
         p = processSourceUsage(genus, Origin.IMPLICIT_NAME, p);
 
       } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
         SrcUsage spec = new SrcUsage();
         spec.rank = Rank.SPECIES;
         spec.scientificName = u.parsedName.canonicalSpeciesName();
-        spec.status = TaxonomicStatus.ACCEPTED;
+        spec.status = u.status;
         p = processSourceUsage(spec, Origin.IMPLICIT_NAME, p);
       }
 
@@ -319,18 +322,33 @@ public class NubBuilder implements Runnable {
         }
       }
 
+    } else if (nub.status.isSynonym()) {
+      // maybe we have a prop arte synonym from the same dataset?
+      if (fromCurrentSource(nub) && !parent.node.equals(currNubParent.node)) {
+        nub.status = TaxonomicStatus.PROPARTE_SYNONYM;
+        // create new pro parte relation
+        LOG.debug("New accepted name {} found for pro parte synonym {}",  parent.parsedName.getScientificName(), nub.parsedName.getScientificName());
+        db.setSingleRelationship(nub.node, parent.node, RelType.PROPARTE_SYNONYM_OF);
+
+      } else {
+        // this might be a more exact kind of synonym status
+        if (nub.status == TaxonomicStatus.SYNONYM) {
+          nub.status = u.status;
+        }
+        if (nub.parsedName.authorshipComplete().isEmpty() && !u.parsedName.authorshipComplete().isEmpty()) {
+          copyAuthorship(u.parsedName, nub.parsedName);
+        }
+      }
+
     } else {
-      // this might be a more exact kind of synonym status
-      if (nub.status == TaxonomicStatus.SYNONYM && u.status.isSynonym()) {
-        nub.status = u.status;
-      }
-      if (!u.parsedName.authorshipComplete().isEmpty() && nub.parsedName.authorshipComplete().isEmpty()) {
-        copyAuthorship(u.parsedName, nub.parsedName);
-      }
+      // ACCEPTED
       if (parent != null && currNubParent.rank.higherThan(parent.rank) ) {
         if (db.existsInClassification(parent.node, currNubParent.node)) {
           updateParent(nub, parent);
         }
+      }
+      if (nub.parsedName.authorshipComplete().isEmpty() && !u.parsedName.authorshipComplete().isEmpty()) {
+        copyAuthorship(u.parsedName, nub.parsedName);
       }
     }
     if (nub.publishedIn == null) {

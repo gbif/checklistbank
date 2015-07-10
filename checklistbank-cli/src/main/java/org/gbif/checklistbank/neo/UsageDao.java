@@ -34,6 +34,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -524,6 +525,10 @@ public class UsageDao {
 
     public ResourceIterator<Node> allRootTaxa(){
         return getNeo().findNodes(Labels.ROOT);
+    }
+
+    public ResourceIterator<Node> allProParteTaxa(){
+        return getNeo().execute("MATCH (s:SYNONYM)-[:PROPARTE_SYNONYM_OF]->x RETURN s").columnAs("s");
     }
 
     private void putIfNotNull(Map<String, Object> props, String property, String value) {

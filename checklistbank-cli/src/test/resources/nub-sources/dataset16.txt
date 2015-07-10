@@ -1,0 +1,4 @@
+1			KINGDOM	f	ACCEPTED		Plantae
+10	1		FAMILY	f	ACCEPTED		Poaceae
+100	10		SPECIES	f	ACCEPTED		Poa annua L.
+101	100		SPECIES	t	SYNONYM		Poa pubescens Lej.

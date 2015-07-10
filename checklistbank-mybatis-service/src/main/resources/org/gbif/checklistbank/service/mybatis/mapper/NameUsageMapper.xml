@@ -280,7 +280,6 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     UPDATE name_usage
     <set>
       <if test="par != null">parent_fk = #{par},</if>
-      <if test="ppk != null">pp_synonym_fk = #{ppk},</if>
       <if test="bas != null">basionym_fk = #{bas},</if>
     </set>
     WHERE id=#{key}

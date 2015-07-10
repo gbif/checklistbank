@@ -37,7 +37,8 @@ public class NameUsageMapperIT {
     ParsedName pn = new ParsedName();
     pn.setType(NameType.WELLFORMED);
     pn.setScientificName(name);
-    return nameMapper.create(pn, name);
+    nameMapper.create(pn, name);
+    return pn.getKey();
   }
 
   private void deleteName(String name){

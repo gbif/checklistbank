@@ -242,10 +242,14 @@ public class NubDb {
    * the child node
    */
   public void updateParentRel(Node n, Node parent) {
-    for (Relationship rel : n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)) {
+    setSingleRelationship(parent, n, RelType.PARENT_OF);
+  }
+
+  public void setSingleRelationship(Node from, Node to, RelType reltype) {
+    for (Relationship rel : from.getRelationships(reltype, Direction.OUTGOING)) {
       rel.delete();
     }
-    parent.createRelationshipTo(n, RelType.PARENT_OF);
+    from.createRelationshipTo(to, reltype);
     countAndRenewTx();
   }
 

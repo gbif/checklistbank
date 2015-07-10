@@ -523,12 +523,11 @@ public class NormalizerTest extends BaseTest {
     NormalizerStats stats = normalize(8);
     try (Transaction tx = beginTx()) {
       assertEquals(1, stats.getRoots());
-      assertEquals(17, stats.getCount());
-      assertEquals(6, stats.getSynonyms());
-      assertEquals(2, stats.getCountByOrigin(Origin.PROPARTE));
+      assertEquals(15, stats.getCount());
+      assertEquals(4, stats.getSynonyms());
       assertEquals(15, stats.getCountByOrigin(Origin.SOURCE));
       assertEquals(2, stats.getCountByRank(Rank.GENUS));
-      assertEquals(7, stats.getCountByRank(Rank.SPECIES));
+      assertEquals(5, stats.getCountByRank(Rank.SPECIES));
       assertEquals(5, stats.getCountByRank(Rank.SUBSPECIES));
 
       // genus synonym
@@ -547,7 +546,7 @@ public class NormalizerTest extends BaseTest {
       // pro parte synonym
       Set<Integer> accIds = Sets.newHashSet();
       List<NameUsage> pps = getUsagesByName("Calendula eckerleinii Ohle");
-      assertEquals(3, pps.size());
+      assertEquals(1, pps.size());
       for (NameUsage u : pps) {
         assertEquals("Calendula eckerleinii Ohle", u.getScientificName());
         assertEquals(Rank.SPECIES, u.getRank());

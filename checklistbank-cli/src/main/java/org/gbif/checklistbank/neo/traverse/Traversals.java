@@ -43,6 +43,12 @@ public class Traversals {
     .evaluator(Evaluators.toDepth(1))
     .evaluator(Evaluators.excludeStartPosition());
 
+  public static final TraversalDescription PP_SYNONYMS = new MonoDirectionalTraversalDescription()
+          .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
+          .breadthFirst()
+          .evaluator(Evaluators.toDepth(1))
+          .evaluator(Evaluators.excludeStartPosition());
+
   /**
    * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name
    */

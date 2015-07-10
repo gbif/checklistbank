@@ -67,4 +67,14 @@
       ALTER TABLE citation ADD CONSTRAINT citation_unique UNIQUE (citation);
     </sql>
   </changeSet>
+  <changeSet id="21" author="markus">
+    <sql>
+      DROP VIEW kname;
+      ALTER TABLE name_usage ALTER COLUMN origin type text;
+      DROP TYPE origin_type;
+      CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION', 'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM', 'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'AUTO_RECOMBINATION');
+      ALTER TABLE name_usage ALTER COLUMN origin type origin_type USING (origin::origin_type);
+    </sql>
+    <sqlFile path="liquibase/debug_views.sql"/>
+  </changeSet>
 </databaseChangeLog>

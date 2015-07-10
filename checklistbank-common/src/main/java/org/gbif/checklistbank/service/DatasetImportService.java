@@ -38,7 +38,7 @@ public interface DatasetImportService {
      */
     int syncUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, @Nullable NameUsageMetrics metrics, @Nullable UsageExtensions extensions);
 
-    void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey);
+    void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey);
 
     /**
      * Delete all existing nub relations and then batch insert new ones from the passed iterator.

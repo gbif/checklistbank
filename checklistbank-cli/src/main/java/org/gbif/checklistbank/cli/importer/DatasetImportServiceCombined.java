@@ -37,8 +37,8 @@ public class DatasetImportServiceCombined {
     return key;
   }
 
-  public void updateForeignKeys(int usageKey, Integer parentKey, Integer proparteKey, Integer basionymKey) {
-    sqlService.updateForeignKeys(usageKey, parentKey, proparteKey, basionymKey);
+  public void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey) {
+    sqlService.updateForeignKeys(usageKey, parentKey, basionymKey);
     solrService.insertOrUpdate(usageKey);
   }
 

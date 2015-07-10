@@ -5,7 +5,9 @@ import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.model.UsageExtensions;
@@ -42,12 +44,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Importer that reads a neo database and syncs it with a postgres checklistbank db and solr index.
+ * It understands pro parte synonym relations and creates multiple postgres usages for each accepted parent.
  */
 public class Importer extends ImportDb implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
-
+  private final static int SELF_ID = -1;
   private final Meter syncMeter;
   private int syncCounter;
   private int delCounter;
@@ -57,7 +60,7 @@ public class Importer extends ImportDb implements Runnable {
   private IntIntMap clbKeys = new IntIntHashMap();
   // map based around internal neo4j node ids:
   private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
-  private enum KeyType {PARENT, ACCEPTED, BASIONYM, PROPARTE};
+  private enum KeyType {PARENT, ACCEPTED, BASIONYM};
   private final int keyTypeSize = KeyType.values().length;
 
   public Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
@@ -102,7 +105,6 @@ public class Importer extends ImportDb implements Runnable {
 
     try (Transaction tx = dao.getNeo().beginTx()) {
       // returns all nodes, accepted and synonyms
-      int counter = 0;
       for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
         try {
           final int nodeId = (int) n.getId();
@@ -116,20 +118,36 @@ public class Importer extends ImportDb implements Runnable {
           List<Integer> parents = buildClbParents(n);
           UsageExtensions ext = dao.readExtensions(nodeId);
 
-          final int usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
+          // do we have pro parte relations? we need to duplciate the synonym for each additional accepted taxon to fit the postgres db model
+          final int usageKey;
+          if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
+            u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+            u.setProParteKey(SELF_ID);
+            usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
+            u.setProParteKey(usageKey);
+            u.setOrigin(Origin.PROPARTE);
+            LOG.debug("First synced pro parte usage {}", usageKey);
+            for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+              Node accN = rel.getEndNode();
+              u.setAcceptedKey(clbForeignKey(-999, (int) accN.getId(), KeyType.ACCEPTED));
+              importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
+              syncCounter++;
+            }
+          } else {
+            usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
+          }
           // keep map of node ids to clb usage keys
           clbKeys.put(nodeId, usageKey);
           if (firstUsageKey < 0) {
             firstUsageKey = usageKey;
             LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
           }
-          counter++;
           syncMeter.mark();
           syncCounter++;
-          if (counter % 100000 == 0) {
-            LOG.info("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
-          } else if (counter % 100 == 0) {
-            LOG.debug("Synced {} usages from dataset {}, latest usage key={}", counter, datasetKey, usageKey);
+          if (syncCounter % 100000 == 0) {
+            LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+          } else if (syncCounter % 100 == 0) {
+            LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
           }
 
         } catch (Throwable e) {
@@ -154,7 +172,6 @@ public class Importer extends ImportDb implements Runnable {
         Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
         importService.updateForeignKeys(clbKey(c.key),
               clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
-              clbKey(c.value[KeyType.PROPARTE.ordinal()]),
               clbKey(c.value[KeyType.BASIONYM.ordinal()])
         );
       }
@@ -220,7 +237,7 @@ public class Importer extends ImportDb implements Runnable {
       if (clbKeys.containsKey(nodeFk)) {
         return clbKeys.get(nodeFk);
       } else if(nodeId == nodeFk) {
-        return -1;
+        return SELF_ID;
       } else if(type != null) {
         // remember non classification keys for update after all records have been synced once
         if (postKeys.containsKey(nodeId)) {
@@ -250,7 +267,6 @@ public class Importer extends ImportDb implements Runnable {
     if (n.hasLabel(Labels.SYNONYM)) {
       u.setSynonym(true);
       u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
-      u.setProParteKey(clbForeignKey((int) n.getId(), u.getProParteKey(), KeyType.PROPARTE));
     } else {
       u.setSynonym(false);
       u.setParentKey(clbForeignKey((int) n.getId(), u.getParentKey(), KeyType.PARENT));

@@ -453,59 +453,27 @@ public class Normalizer extends ImportDb implements Runnable {
    * Checks if this node is a pro parte synonym by looking if multiple accepted taxa are referred to.
    * If so, new taxon nodes are created each with a single, unique acceptedNameUsageID property.
    */
-  private void duplicateProParteSynonyms(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
-    if (v != null && meta.isAcceptedNameMapped()) {
-      final String unsplitIds = v.getCoreField(DwcTerm.acceptedNameUsageID);
-      if (unsplitIds != null) {
-        List<String> acceptedIds = Lists.newArrayList();
-        if (!unsplitIds.equals(nn.usage.getTaxonID())) {
-          if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
-            acceptedIds = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
+  private List<String> parseAcceptedIDs(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
+    List<String> acceptedIds = Lists.newArrayList();
+    final String unsplitIds = v.getCoreField(DwcTerm.acceptedNameUsageID);
+    if (unsplitIds != null) {
+      if (!unsplitIds.equals(nn.usage.getTaxonID())) {
+        if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
+          acceptedIds = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
+        } else {
+          // lookup by taxon id to see if this is an existing identifier or if we should try to split it
+          Node a = nodeByTaxonId(unsplitIds);
+          if (a != null) {
+            acceptedIds.add(unsplitIds);
           } else {
-            // lookup by taxon id to see if this is an existing identifier or if we should try to split it
-            Node a = nodeByTaxonId(unsplitIds);
-            if (a == null) {
-              acceptedIds = splitByCommonDelimiters(unsplitIds);
-            }
+            acceptedIds = splitByCommonDelimiters(unsplitIds);
           }
-        }
-        if (acceptedIds.size() > 1) {
-          final int primaryId = (int) nn.node.getId();
-          // duplicate this node for each accepted id!
-          LOG.debug("{} is pro parte synonym with multiple acceptedNameUsageIDs: {}", nn.usage.getScientificName(), acceptedIds);
-
-          // now create new nodes and also update their acceptedId so the relations get processed fine later on
-          Iterator<String> accIter = acceptedIds.iterator();
-          // first update original node to just have one accepted id
-          nn.usage.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
-          nn.usage.setProParteKey(primaryId);
-          dao.store(nn, true);
-          v.setCoreField(DwcTerm.acceptedNameUsageID, accIter.next());
-          dao.store(primaryId, v);
-
-          // now create new nodes, update their acceptedId and immediately process the relations
-          // we reuse the existing usage instance and modify a few properties that we change back to the original value at the end
-          final String taxonID = nn.usage.getTaxonID();
-          final Origin origin = nn.usage.getOrigin();
-          final String acceptedID = v.getCoreField(DwcTerm.acceptedNameUsageID);
-          final Node n = nn.node;
-          nn.usage.setTaxonID(null);
-          nn.usage.setOrigin(Origin.PROPARTE);
-          while (accIter.hasNext()) {
-            nn.node = dao.createTaxon();
-            dao.store(nn, true);
-            v.setCoreField(DwcTerm.acceptedNameUsageID, accIter.next());
-            dao.store(nn.node.getId(), v);
-          }
-          // revert changes to the instances passed in - they get used in further processing
-          nn.node = n;
-          nn.usage.setTaxonID(taxonID);
-          nn.usage.setOrigin(origin);
-          v.setCoreField(DwcTerm.acceptedNameUsageID, acceptedID);
         }
       }
     }
+    return acceptedIds;
   }
+
 
   private Transaction renewTx (Transaction tx) {
     tx.success();
@@ -552,7 +520,6 @@ public class Normalizer extends ImportDb implements Runnable {
   private void setupRelation(Node n) {
     final NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false), true);
     final VerbatimNameUsage v = dao.readVerbatim(n.getId());
-    duplicateProParteSynonyms(nn, v);
     setupAcceptedRel(nn, v);
     setupParentRel(nn, v);
     setupBasionymRel(nn, v);
@@ -569,20 +536,32 @@ public class Normalizer extends ImportDb implements Runnable {
    */
   private void setupAcceptedRel(NameUsageNode nn, @Nullable VerbatimNameUsage v) {
     Node accepted = null;
-    if (v != null) {
-      final String id = v.getCoreField(DwcTerm.acceptedNameUsageID);
-      if (id != null) {
-        if (nn.usage.getTaxonID() == null || !id.equals(nn.usage.getTaxonID())) {
-          accepted = nodeByTaxonId(id);
-          if (accepted == null) {
+    if (v != null && meta.isAcceptedNameMapped()) {
+      List<String> acceptedIds = parseAcceptedIDs(nn, v);
+      if (!acceptedIds.isEmpty()) {
+        String id = acceptedIds.get(0);
+        accepted = nodeByTaxonId(id);
+        if (accepted == null) {
+          nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+          LOG.debug("acceptedNameUsageID {} not existing", id);
+          // is the accepted name also mapped?
+          String name = ObjectUtils.firstNonNull(v.getCoreField(DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
+          accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
+                  "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
+        }
+        // create proparte rels if needed
+        Iterator<String> additionalIds = acceptedIds.listIterator(1);
+        while (additionalIds.hasNext()) {
+          final String id2 = additionalIds.next();
+          Node accepted2 = nodeByTaxonId(id2);
+          if (accepted2 == null) {
             nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
-            LOG.debug("acceptedNameUsageID {} not existing", id);
-            // is the accepted name also mapped?
-            String name = ObjectUtils.firstNonNull(v.getCoreField(DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
-            accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
-                    "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
+            LOG.debug("acceptedNameUsageID {} not existing", id2);
+          } else {
+            nn.node.createRelationshipTo(accepted2, RelType.PROPARTE_SYNONYM_OF);
           }
         }
+
       } else {
         final String name = v.getCoreField(DwcTerm.acceptedNameUsage);
         if (name != null && !name.equals(nn.usage.getScientificName())) {
