@@ -11,13 +11,13 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.neo.model.ClassificationKeys;
-import org.gbif.checklistbank.neo.model.UsageFacts;
-import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.ImportDb;
+import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.model.ClassificationKeys;
+import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 
 import java.util.Calendar;

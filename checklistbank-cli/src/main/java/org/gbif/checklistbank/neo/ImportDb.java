@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 import org.neo4j.graphdb.Node;

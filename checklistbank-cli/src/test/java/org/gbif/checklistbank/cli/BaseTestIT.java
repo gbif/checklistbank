@@ -7,10 +7,6 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Writer;
-
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;

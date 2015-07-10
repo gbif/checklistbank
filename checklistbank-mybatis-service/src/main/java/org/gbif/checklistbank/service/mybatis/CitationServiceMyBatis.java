@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
 
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.mybatis.mapper.CitationMapper;
@@ -12,8 +11,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class CitationServiceMyBatis implements CitationService {
   private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);

@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;

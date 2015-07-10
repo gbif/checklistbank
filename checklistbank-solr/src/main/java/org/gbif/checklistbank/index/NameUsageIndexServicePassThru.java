@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.model.UsageExtensions;
 
 import java.util.Collection;

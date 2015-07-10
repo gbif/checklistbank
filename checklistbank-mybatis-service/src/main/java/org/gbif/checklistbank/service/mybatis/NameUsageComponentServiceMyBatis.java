@@ -5,8 +5,8 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageExtensionService;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageComponentMapper;
 import org.gbif.checklistbank.model.UsageRelated;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageComponentMapper;
 
 import java.util.List;
 import java.util.Map;

@@ -1,10 +1,8 @@
 package org.gbif.checklistbank.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.service.checklistbank.NameUsageExtensionService;
 import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.model.UsageExtensions;
 

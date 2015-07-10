@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.checklistbank.model.Usage;

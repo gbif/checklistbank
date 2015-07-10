@@ -9,18 +9,14 @@ import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.mybatis.guice.transactional.Transactional;
-import org.postgresql.util.PSQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class ParsedNameServiceMyBatis implements ParsedNameService {
   private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);

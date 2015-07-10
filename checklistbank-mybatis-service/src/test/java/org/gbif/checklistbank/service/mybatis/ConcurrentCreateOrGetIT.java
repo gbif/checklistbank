@@ -11,13 +11,11 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
@@ -26,7 +24,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 

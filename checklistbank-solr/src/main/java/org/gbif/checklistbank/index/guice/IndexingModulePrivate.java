@@ -1,16 +1,17 @@
 package org.gbif.checklistbank.index.guice;
 
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Scopes;
-import com.google.inject.Singleton;
-import org.apache.solr.client.solrj.SolrServer;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
+
+import com.google.inject.Inject;
+import com.google.inject.Provides;
+import com.google.inject.Scopes;
+import com.google.inject.Singleton;
+import org.apache.solr.client.solrj.SolrServer;
 
 
 /**

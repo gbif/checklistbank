@@ -3,11 +3,11 @@ package org.gbif.checklistbank.cli.common;
 import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.Parameter;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import com.google.common.base.Objects;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.ganglia.GangliaReporter;
 import info.ganglia.gmetric4j.gmetric.GMetric;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

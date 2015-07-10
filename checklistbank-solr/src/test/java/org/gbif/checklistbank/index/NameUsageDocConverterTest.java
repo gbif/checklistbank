@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Habitat;

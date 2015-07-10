@@ -5,15 +5,12 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.CloseableIterator;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.utils.file.FileUtils;
 
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -22,16 +19,9 @@ import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

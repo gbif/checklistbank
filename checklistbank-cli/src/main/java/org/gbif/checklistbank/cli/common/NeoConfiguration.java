@@ -6,12 +6,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.base.Preconditions;
-import org.apache.commons.io.FileUtils;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

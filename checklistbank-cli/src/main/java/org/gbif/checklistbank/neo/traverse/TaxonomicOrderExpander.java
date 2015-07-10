@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.RelType;
 
 import java.util.List;
 import javax.annotation.Nullable;

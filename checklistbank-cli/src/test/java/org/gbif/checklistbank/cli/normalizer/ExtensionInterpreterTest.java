@@ -7,7 +7,6 @@ import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.EolReferenceTerm;
 import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.XmpRightsTerm;
 

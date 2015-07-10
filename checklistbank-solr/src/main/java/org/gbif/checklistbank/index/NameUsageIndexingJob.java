@@ -3,7 +3,6 @@ package org.gbif.checklistbank.index;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.model.UsageExtensions;

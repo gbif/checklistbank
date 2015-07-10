@@ -4,10 +4,7 @@ import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
-import org.gbif.checklistbank.cli.normalizer.NormalizerService;
 import org.gbif.common.search.solr.SolrServerType;
-import org.gbif.dwca.io.Archive;
-import org.gbif.dwca.io.ArchiveFactory;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -21,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.junit.Ignore;
 
 @Ignore("A manual test class")

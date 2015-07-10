@@ -3,17 +3,14 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.checklistbank.cli.common.Metrics;
-import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 
 import java.io.File;
 
-import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

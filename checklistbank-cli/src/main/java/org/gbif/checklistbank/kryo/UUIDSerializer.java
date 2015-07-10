@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.kryo;
 
-import java.net.URI;
 import java.util.UUID;
 
 import com.esotericsoftware.kryo.Kryo;

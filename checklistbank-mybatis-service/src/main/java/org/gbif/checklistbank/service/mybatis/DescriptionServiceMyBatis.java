@@ -3,11 +3,10 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.api.service.checklistbank.DescriptionService;
-import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
 import org.gbif.checklistbank.model.TocEntry;
+import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
 
 import java.util.List;
-
 import javax.annotation.Nullable;
 
 import com.google.inject.Inject;

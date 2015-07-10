@@ -17,12 +17,9 @@ import org.gbif.checklistbank.nub.source.UsageSource;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;

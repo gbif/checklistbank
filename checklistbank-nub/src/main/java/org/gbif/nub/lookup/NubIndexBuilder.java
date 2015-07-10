@@ -2,7 +2,6 @@ package org.gbif.nub.lookup;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.index.ThreadPoolRunner;
 import org.gbif.checklistbank.service.UsageService;
 

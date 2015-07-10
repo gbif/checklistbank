@@ -2,7 +2,6 @@ package org.gbif.nub.export;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
