@@ -65,9 +65,10 @@ import org.neo4j.kernel.impl.core.NodeProxy;
 /**
  * Creates a kryo factory usable for thread safe kryo pools that can deal with clb api classes.
  */
-public class KryoFactory {
+public class ClbKryoFactory implements com.esotericsoftware.kryo.pool.KryoFactory {
 
-    public static Kryo newKryo() {
+    @Override
+    public Kryo create() {
         Kryo kryo = new Kryo();
         kryo.setRegistrationRequired(true);
         kryo.register(NameUsage.class);

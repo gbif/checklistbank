@@ -5,7 +5,8 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.kryo.KryoFactory;
+import org.gbif.checklistbank.kryo.ClbKryoFactory;
+import org.gbif.checklistbank.kryo.MapDbObjectSerializer;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.model.NameUsageNode;
 import org.gbif.checklistbank.neo.model.RankedName;
@@ -20,9 +21,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Maps;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
@@ -43,13 +42,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.
- * It uses neo to store the main relations and core properties often searched on.
- *  - canonical name
- *  - taxonID
- *  - rank
- *  - origin
- *  - issues
- *  - additional remarks
+ * It uses neo to store the main relations and core properties often searched on, see NodeProperties
  *
  * For all the rest it uses a file persistent MapDB hashmap with kryo for quick serialization.
  */
@@ -59,16 +52,16 @@ public class UsageDao {
     private GraphDatabaseService neo;
     private final GraphDatabaseBuilder neoFactory;
     private final DB kvp;
-    private final Map<Long, byte[]> facts;
-    private final Map<Long, byte[]> verbatim;
-    private final Map<Long, byte[]> usages;
-    private final Map<Long, byte[]> extensions;
-    private final Map<Long, byte[]> srcUsages;
-    private final Map<Long, byte[]> nubUsages;
-    private final Kryo kryo;
+    private final Map<Long, UsageFacts> facts;
+    private final Map<Long, VerbatimNameUsage> verbatim;
+    private final Map<Long, NameUsage> usages;
+    private final Map<Long, UsageExtensions> extensions;
+    private final Map<Long, SrcUsage> srcUsages;
+    private final Map<Long, NubUsage> nubUsages;
     private final MetricRegistry registry;
     private final File neoDir;
     private final File kvpStore;
+    private final KryoPool pool;
 
     /**
      * @param kvp
@@ -83,21 +76,23 @@ public class UsageDao {
         this.kvp = kvp;
         this.registry = registry;
 
-        facts = createKvpMap("facts");
-        verbatim = createKvpMap("verbatim");
-        usages = createKvpMap("usages");
-        extensions = createKvpMap("extensions");
-        srcUsages = createKvpMap("srcUsages");
-        nubUsages = createKvpMap("nubUsages");
+        pool = new KryoPool.Builder(new ClbKryoFactory())
+                .softReferences()
+                .build();
+        facts = createKvpMap("facts", UsageFacts.class, 128);
+        verbatim = createKvpMap("verbatim", VerbatimNameUsage.class, 512);
+        usages = createKvpMap("usages", NameUsage.class, 256);
+        extensions = createKvpMap("extensions", UsageExtensions.class, 512);
+        srcUsages = createKvpMap("srcUsages", SrcUsage.class, 256);
+        nubUsages = createKvpMap("nubUsages", NubUsage.class, 256);
 
-        kryo = KryoFactory.newKryo();
         openNeo();
     }
 
-    private Map<Long, byte[]> createKvpMap(String name) {
-        return kvp.createHashMap(name)
+    private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
+        return kvp.hashMapCreate(name)
                 .keySerializer(Serializer.LONG)
-                .valueSerializer(Serializer.BYTE_ARRAY)
+                .valueSerializer(new MapDbObjectSerializer<T>(clazz, pool, bufferSize))
                 .makeOrGet();
     }
 
@@ -108,9 +103,9 @@ public class UsageDao {
      */
     public static UsageDao temporaryDao(int mappedMemory) {
         LOG.info("Create new in memory dao");
-        DB kvp = DBMaker.newMemoryDirectDB() // outside HEAP memory
-                .transactionDisable()
-                .make();
+        DB kvp = DBMaker.memoryDB()
+                    .transactionDisable()
+                    .make();
 
         File storeDir = Files.createTempDir();
         GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, "strong", mappedMemory, false);
@@ -137,12 +132,11 @@ public class UsageDao {
                 }
             }
             FileUtils.forceMkdir(kvpF.getParentFile());
-            DB kvp = DBMaker.newFileDB(kvpF)
-                    .asyncWriteEnable()
-                    .transactionDisable()
-                    .closeOnJvmShutdown()
-                    .mmapFileEnableIfSupported()
-                    .make();
+            LOG.info("Use KVP store {}", kvpF.getAbsolutePath());
+            DB kvp = DBMaker.fileDB(kvpF)
+                        .fileMmapEnableIfSupported()
+                        .transactionDisable()
+                        .make();
             GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, cfg.mappedMemory, eraseExisting);
             return new UsageDao(kvp, storeDir, kvpF, builder, registry);
         } catch (IOException e) {
@@ -165,28 +159,6 @@ public class UsageDao {
                 .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
                 .setConfig(GraphDatabaseSettings.cache_type, cacheType)
                 .setConfig(GraphDatabaseSettings.pagecache_memory, mb(mappedMemory));
-    }
-
-    /**
-     * Registers a close hook for the Neo4j instance so that it
-     * shuts down nicely when the VM exits (even if you "Ctrl-C" the running application).
-     *
-     * If requested this also removes any existing neo db files. Use this option for tests only.
-     * @param cleanup if true also removes all neo db files
-     */
-    private static void registerShutdownHook(final GraphDatabaseService graphDb, final File storeDir, final boolean cleanup) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            
-            public void run() {
-            if (graphDb != null && graphDb.isAvailable(100)) {
-                LOG.info("Shutting down neo database {} ...", storeDir.getAbsolutePath());
-                graphDb.shutdown();
-            }
-            if (cleanup && storeDir.exists()) {
-                FileUtils.deleteQuietly(storeDir);
-            }
-            }
-        });
     }
 
     private static void registerCleanupHook(final File f) {
@@ -264,45 +236,21 @@ public class UsageDao {
         return neo.createNode(Labels.TAXON);
     }
 
-    private byte[] serialize(Object obj) {
-        Output output = new Output(4096, -1);
-        kryo.writeObject(output, obj);
-        output.flush();
-        return output.getBuffer();
-    }
-
-    private <T> T deserialize(byte[] bytes, Class<T> clazz) {
-        if (bytes != null) {
-            final Input input = new Input(bytes);
-            T v = kryo.readObject(input, clazz);
-            return v;
-        }
-        return null;
-    }
-
     public UsageExtensions readExtensions(long key) {
-        byte[] bytes = extensions.get(key);
-        if (bytes != null) {
-            return deserialize(bytes, UsageExtensions.class);
-        }
-        return null;
+        return extensions.get(key);
     }
 
     public void store(long key, UsageExtensions ext) {
-        this.extensions.put(key, serialize(ext));
+        this.extensions.put(key, ext);
     }
 
 
     public UsageFacts readFacts(long key) {
-        byte[] bytes = facts.get(key);
-        if (bytes != null) {
-            return deserialize(bytes, UsageFacts.class);
-        }
-        return null;
+        return facts.get(key);
     }
 
     public void store(long key, UsageFacts obj) {
-        this.facts.put(key, serialize(obj));
+        this.facts.put(key, obj);
     }
 
     /**
@@ -366,11 +314,7 @@ public class UsageDao {
     }
 
     public NubUsage readNub(Node n) {
-        byte[] bytes = nubUsages.get(n.getId());
-        if (bytes != null) {
-            return deserialize(bytes, NubUsage.class);
-        }
-        return null;
+        return nubUsages.get(n.getId());
     }
 
     /**
@@ -379,7 +323,7 @@ public class UsageDao {
      */
     public NameUsage readUsage(Node n, boolean readRelations) {
         if (usages.containsKey(n.getId())) {
-            NameUsage u = deserialize(usages.get(n.getId()), NameUsage.class);
+            NameUsage u = usages.get(n.getId());
             if (n.hasLabel(Labels.SYNONYM)) {
                 u.setSynonym(true);
             }
@@ -446,7 +390,7 @@ public class UsageDao {
     public Node create(NameUsage u) {
         Node n = createTaxon();;
         // store usage in kvp store
-        usages.put(n.getId(), serialize(u));
+        usages.put(n.getId(), u);
         // update neo with indexed properties
         updateNeo(n, u);
         return n;
@@ -459,7 +403,7 @@ public class UsageDao {
      * @param updateNeo if true also update the neo4j properties used to populate NeoTaxon instances and the underlying lucene indices
      */
     public void store(long key, NameUsage u, boolean updateNeo) {
-        usages.put(key, serialize(u));
+        usages.put(key, u);
         if (updateNeo) {
             // update neo with indexed properties
             updateNeo(neo.getNodeById(key), u);
@@ -472,7 +416,7 @@ public class UsageDao {
      */
     public void store(NameUsageNode nn, boolean updateNeo) {
         if (nn.modified) {
-            usages.put(nn.node.getId(), serialize(nn.usage));
+            usages.put(nn.node.getId(), nn.usage);
             if (updateNeo) {
                 // update neo with indexed properties
                 updateNeo(nn.node, nn.usage);
@@ -484,19 +428,15 @@ public class UsageDao {
      * Stores verbatim usage using its key
      */
     public void store(long key, VerbatimNameUsage obj) {
-        verbatim.put(key, serialize(obj));
+        verbatim.put(key, obj);
     }
     
     public VerbatimNameUsage readVerbatim(long key) {
-        byte[] bytes = verbatim.get(key);
-        if (bytes != null) {
-            return deserialize(bytes, VerbatimNameUsage.class);
-        }
-        return null;
+        return verbatim.get(key);
     }
     
     public void store(NubUsage nub) {
-        nubUsages.put(nub.node.getId(), serialize(nub));
+        nubUsages.put(nub.node.getId(), nub);
         // update neo node properties
         setProperty(nub.node, NodeProperties.CANONICAL_NAME, nub.parsedName.canonicalName());
         setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, nub.parsedName.canonicalNameComplete());
@@ -504,15 +444,11 @@ public class UsageDao {
     }
     
     public SrcUsage readSourceUsage(Node n) {
-        byte[] bytes = srcUsages.get(n.getId());
-        if (bytes != null) {
-            return deserialize(bytes, SrcUsage.class);
-        }
-        return null;
+        return srcUsages.get(n.getId());
     }
     
     public void storeSourceUsage(Node n, SrcUsage u) {
-        srcUsages.put(n.getId(), serialize(u));
+        srcUsages.put(n.getId(), u);
     }
 
     public Map<String, Object> neoProperties(String taxonID, NameUsage u, VerbatimNameUsage v) {
@@ -527,14 +463,6 @@ public class UsageDao {
 
     public ResourceIterator<Node> allTaxa(){
         return getNeo().findNodes(Labels.TAXON);
-    }
-
-    public ResourceIterator<Node> allRootTaxa(){
-        return getNeo().findNodes(Labels.ROOT);
-    }
-
-    public ResourceIterator<Node> allProParteTaxa(){
-        return getNeo().execute("MATCH (s:SYNONYM)-[:PROPARTE_SYNONYM_OF]->x RETURN s").columnAs("s");
     }
 
     private void putIfNotNull(Map<String, Object> props, String property, String value) {
@@ -556,9 +484,9 @@ public class UsageDao {
     public int convertNubUsages() {
         LOG.info("Converting all nub usages into name usages ...");
         int counter = 0;
-        for (Map.Entry<Long, byte[]> nub : nubUsages.entrySet()) {
-            NubUsage u = deserialize(nub.getValue(), NubUsage.class);
-            usages.put(nub.getKey(), serialize(convert(nub.getKey().intValue(), u)));
+        for (Map.Entry<Long, NubUsage> nub : nubUsages.entrySet()) {
+            NubUsage u = nub.getValue();
+            usages.put(nub.getKey(), convert(nub.getKey().intValue(), u));
             counter++;
         }
         LOG.info("Converted {} nub usages into name usages", counter);
