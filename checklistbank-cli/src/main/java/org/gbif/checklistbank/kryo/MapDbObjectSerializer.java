@@ -16,12 +16,12 @@ import org.mapdb.Serializer;
  * A mapDB serializer that uses kryo under the hood to quickly serialize objects into the mapdb data output/input.
  * @param <T> the class to serialize
  */
-public class MapDebeObjectSerializer<T> extends Serializer<T> {
+public class MapDbObjectSerializer<T> extends Serializer<T> {
     private final KryoPool pool;
     private final int bufferSize;
     private final Class<T> clazz;
 
-    public MapDebeObjectSerializer(Class<T> clazz) {
+    public MapDbObjectSerializer(Class<T> clazz) {
         this.clazz = clazz;
         this.bufferSize = 256;
         this.pool = new KryoPool.Builder(new ClbKryoFactory())
@@ -29,7 +29,7 @@ public class MapDebeObjectSerializer<T> extends Serializer<T> {
                 .build();
     }
 
-    public MapDebeObjectSerializer(Class<T> clazz, KryoPool pool, int bufferSize) {
+    public MapDbObjectSerializer(Class<T> clazz, KryoPool pool, int bufferSize) {
         this.pool = pool;
         this.clazz = clazz;
         this.bufferSize = bufferSize;

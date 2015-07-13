@@ -6,7 +6,7 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.kryo.ClbKryoFactory;
-import org.gbif.checklistbank.kryo.MapDebeObjectSerializer;
+import org.gbif.checklistbank.kryo.MapDbObjectSerializer;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.model.NameUsageNode;
 import org.gbif.checklistbank.neo.model.RankedName;
@@ -92,7 +92,7 @@ public class UsageDao {
     private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
         return kvp.hashMapCreate(name)
                 .keySerializer(Serializer.LONG)
-                .valueSerializer(new MapDebeObjectSerializer<T>(clazz, pool, bufferSize))
+                .valueSerializer(new MapDbObjectSerializer<T>(clazz, pool, bufferSize))
                 .makeOrGet();
     }
 
