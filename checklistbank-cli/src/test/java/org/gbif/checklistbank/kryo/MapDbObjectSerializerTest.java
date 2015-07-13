@@ -66,7 +66,7 @@ public class MapDbObjectSerializerTest {
     private Map<Long, NameUsage> getMap(DB db) {
         return db.hashMapCreate("usages")
                 .keySerializer(Serializer.LONG)
-                .valueSerializer(new MapDbObjectSerializer<NameUsage>(NameUsage.class))
+                .valueSerializer(new MapDebeObjectSerializer<NameUsage>(NameUsage.class))
                 .makeOrGet();
     }
 
