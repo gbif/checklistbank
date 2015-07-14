@@ -167,7 +167,7 @@ public abstract class BaseTest {
 
   public List<NameUsage> getUsagesByName(String name) {
     List<NameUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
@@ -195,7 +195,7 @@ public abstract class BaseTest {
 
   public List<NameUsage> getAllUsages() {
     List<NameUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON))) {
       usages.add(getUsageByNode(n));
     }
     return usages;

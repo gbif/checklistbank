@@ -66,7 +66,7 @@ public class NubDb {
 
   public List<NubUsage> findNubUsages(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       usages.add(node2usage(n));
     }
     return usages;
@@ -90,7 +90,7 @@ public class NubDb {
    */
   public NubUsage findNubUsage(String canonical, Rank rank) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       NubUsage rn = node2usage(n);
       if (rank == rn.rank && !rn.status.isSynonym()) {
         usages.add(rn);
@@ -113,7 +113,7 @@ public class NubDb {
   public NubUsage findNubUsage(SrcUsage u, Kingdom uKingdom) {
     final boolean synonym = u.status.isSynonym();
     List<NubUsage> checked = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
       NubUsage rn = node2usage(n);
       if (matchesNub(u, uKingdom, rn)) {
         checked.add(rn);

@@ -175,7 +175,7 @@ public class Normalizer extends ImportDb implements Runnable {
     Transaction tx = dao.getNeo().beginTx();
     try {
       for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
-        if (counter % batchSize == 0) {
+        if (counter % batchSize*10 == 0) {
           tx.success();
           tx.close();
           LOG.info("Higher classifications processed for {} taxa", counter);
@@ -334,7 +334,7 @@ public class Normalizer extends ImportDb implements Runnable {
     int childOfRelDeleted = 0;
     int childOfRelRelinkedToAccepted = 0;
     try (Transaction tx = dao.getNeo().beginTx()) {
-      for (Node syn : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.SYNONYM))) {
+      for (Node syn : IteratorUtil.loop(dao.getNeo().findNodes(Labels.SYNONYM))) {
         Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
         LazyUsage synU = new LazyUsage(syn);
         // if the synonym is a parent of another child taxon - relink accepted as parent of child

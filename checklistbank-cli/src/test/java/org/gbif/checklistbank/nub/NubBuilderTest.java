@@ -565,7 +565,7 @@ public class NubBuilderTest {
 
   private List<NubUsage> listCanonical(String canonical) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
       usages.add(get(n));
     }
     return usages;
@@ -573,7 +573,7 @@ public class NubBuilderTest {
 
   private List<NubUsage> listScientific(String sciname) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.asIterable(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname))) {
       usages.add(get(n));
     }
     return usages;

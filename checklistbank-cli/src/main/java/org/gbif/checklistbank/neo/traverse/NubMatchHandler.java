@@ -40,7 +40,7 @@ public class NubMatchHandler implements StartEndHandler {
   public void start(Node n) {
     // increase counters
     counter++;
-    if (counter % 10000 == 0) {
+    if (counter % 1000 == 0) {
       warnSlowMatching = true;
       LOG.debug("Metrics & nub matching done for: {}", counter);
     }

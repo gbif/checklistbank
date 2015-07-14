@@ -123,7 +123,7 @@ public class NubBuilder implements Runnable {
     LOG.info("NOT IMPLEMENTED: Copy extension data to backbone");
     if (false) {
       Joiner commaJoin = Joiner.on(", ").skipNulls();
-      for (Node n : IteratorUtil.asIterable(db.dao.allTaxa())) {
+      for (Node n : IteratorUtil.loop(db.dao.allTaxa())) {
         NubUsage nub = db.dao.readNub(n);
         if (!nub.sourceIds.isEmpty()) {
           LOG.debug("Add extension data from source ids {}", commaJoin.join(nub.sourceIds));

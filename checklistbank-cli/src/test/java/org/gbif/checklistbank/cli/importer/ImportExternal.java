@@ -94,9 +94,13 @@ public class ImportExternal {
 //      "http://ipt.jbrj.gov.br/ipt/archive.do?r=lista_especies_flora_brasil",
 //      UUID.fromString("aacd816d-662c-49d2-ad1a-97e66e2a2908"));
 
+//    imp.index("/Users/markus/Desktop/repo",
+//      "http://ipt.sibcolombia.net/iavh/archive.do?r=le_humedal_faunaflora_2015",
+//      UUID.fromString("9e11f45e-f496-42e5-a1a6-9415907a3717"));
+
     imp.index("/Users/markus/Desktop/repo",
-      "http://ipt.sibcolombia.net/iavh/archive.do?r=le_humedal_faunaflora_2015",
-      UUID.fromString("9e11f45e-f496-42e5-a1a6-9415907a3717"));
+            "http://www.catalogueoflife.org/DCA_Export/zip-fixed/archive-complete.zip",
+            UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
 
 //    imp.index("/Users/markus/Desktop/repo",
 //      "http://www.gbif.es/FreshwaterInvasives/data/download/dwcarchive.zip",

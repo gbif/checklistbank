@@ -24,6 +24,10 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A UsageSource reading usage data from checklistbank .
+ * The list of source datasets is discovered by looking for the registry machine tag nub.gbif.org:priority
+ */
 public class ClbUsageSource implements UsageSource {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbUsageSource.class);
