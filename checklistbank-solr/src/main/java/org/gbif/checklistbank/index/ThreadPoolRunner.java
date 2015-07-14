@@ -110,7 +110,7 @@ public abstract class ThreadPoolRunner<T> {
         }
         job = newJob();
       }
-      LOG.info("{} Jobs submitted succesfully!", localTasksCount);
+      LOG.info("All {} jobs submitted succesfully!", localTasksCount);
       shutdownService(localTasksCount);
     } catch (Exception e) {
       LOG.error("Error when submiting jobs: {}", e);

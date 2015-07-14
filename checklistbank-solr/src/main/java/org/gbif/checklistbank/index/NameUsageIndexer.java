@@ -103,6 +103,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     private StopWatch stopWatch = new StopWatch();
     private final long total;
     private final DecimalFormat twoDForm = new DecimalFormat("#.##");
+    private boolean stop;
 
     CountReporter(long total) {
       this.total = total;
@@ -113,16 +114,24 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       stopWatch.start();
       LOG.info("Started reporting thread with expected {} total records.", total);
       LOG.info("Logging every {} seconds. Use logInterval property to change interval.", logInterval);
-      boolean interrupted = false;
-      while (!interrupted) {
+      stop = false;
+      while (!stop) {
         log();
         try {
           Thread.sleep(logInterval * 1000);
         } catch (InterruptedException e) {
           LOG.info("Reporter thread interrupted, exiting");
-          interrupted = true;
+          stop = true;
         }
       }
+      LOG.info("Reporter thread stopping");
+    }
+
+    /**
+     * Shuts down the reporter thread.
+     */
+    public void shutdown() {
+      stop = true;
     }
 
     /**
@@ -133,8 +142,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       double percCompleted = (double) cnt / (double) total;
       double percRemaining = 1d - percCompleted;
       long timeRemaining = (long) (stopWatch.getTime() * (percRemaining / percCompleted));
-      LOG.info("{} documents ({}%) added in {}",
-        new Object[] {cnt, twoDForm.format(percCompleted * 100), stopWatch.toString()});
+      LOG.info("{} documents ({}%) added in {}", cnt, twoDForm.format(percCompleted * 100), stopWatch.toString());
       LOG.info("Expected remaining time to finish {}", DurationFormatUtils.formatDurationHMS(timeRemaining));
     }
 
@@ -176,6 +184,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     NameUsageIndexer nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
     nameUsageIndexer.run();
     // This statement is used because the Guice container is not stopped inside the threadpool.
+    LOG.info("Indexing done. Time to exit.");
     System.exit(0);
   }
 
@@ -290,8 +299,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     int x = super.run();
 
     LOG.info("Time taken run and finish all jobs: {}", reporterThread.stopWatch.toString());
-    // TODO: Fix deprecation issue
-    reporterThread.stop();
+    reporterThread.shutdown();
 
     return x;
   }
