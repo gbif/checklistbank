@@ -1,10 +1,11 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
+import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
-import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
+import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 
 import java.io.IOException;
 
@@ -33,11 +34,12 @@ public class NubBuildCommand extends BaseCommand {
       publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
       NubBuilder builder = NubBuilder.create(cfg);
       builder.run();
-      LOG.info("Sending BackboneChangedMessage");
-      publisher.send(new BackboneChangedMessage());
+      LOG.info("Sending ChecklistNormalizedMessage for backbone");
+      ChecklistNormalizedMessage msg = new ChecklistNormalizedMessage(Constants.NUB_DATASET_KEY);
+      publisher.send(msg);
 
     } catch (IOException e) {
-      LOG.error("Could not send BackboneChangedMessage", e);
+      LOG.error("Could not send ChecklistNormalizedMessage", e);
       throw new RuntimeException(e);
     } catch (Exception e) {
       throw new RuntimeException(e);

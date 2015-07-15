@@ -4,14 +4,12 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -117,8 +115,7 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case IMPORT:
-          send( new ChecklistNormalizedMessage(cfg.key, new NormalizerStats(1,1,0,0,
-            Maps.<Origin, Integer>newHashMap(), Maps.<Rank, Integer>newHashMap(), Lists.<String>newArrayList())));
+          send( new ChecklistNormalizedMessage(cfg.key) );
           break;
 
         case ANALYZE:
@@ -257,12 +254,7 @@ public class AdminCommand extends BaseCommand {
     }
     LOG.info("Removed dwca files from repository {}", dwcaFile);
 
-    // cleanup neo
-    final File neoDir = new File(cfg.neoRepository, datasetKey.toString());
-    if (neoDir.exists()) {
-      FileUtils.deleteDirectory(neoDir);
-    }
-    LOG.info("Removed neo files from {}", neoDir);
+    DeleteService.deleteStorageFiles(cfg.neo, datasetKey);
   }
 
 

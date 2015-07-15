@@ -77,4 +77,8 @@
     </sql>
     <sqlFile path="liquibase/debug_views.sql"/>
   </changeSet>
+  <changeSet id="22" author="markus">
+    <sql>CREATE INDEX ON name_usage (dataset_key, last_interpreted);</sql>
+  </changeSet>
+
 </databaseChangeLog>

@@ -3,7 +3,6 @@ package org.gbif.checklistbank.index;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.model.UsageExtensions;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,10 +20,6 @@ public class NameUsageIndexServicePassThru implements NameUsageIndexService {
 
   @Override
   public void insertOrUpdate(int usageKey) {
-  }
-
-  @Override
-  public void insertOrUpdate(Collection<Integer> usageKeys) {
   }
 
   @Override

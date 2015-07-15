@@ -62,7 +62,7 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
     normalizer.run();
     zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
 
-    send(new ChecklistNormalizedMessage(msg.getDatasetUuid(), normalizer.getStats()));
+    send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
   }
 
   @Override

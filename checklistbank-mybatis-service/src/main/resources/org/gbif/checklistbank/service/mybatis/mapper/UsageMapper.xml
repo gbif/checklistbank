@@ -40,6 +40,10 @@
     LIMIT 100;
   </select>
 
+  <delete id="delete">
+    DELETE FROM name_usage WHERE id=#{key}
+  </delete>
+
   <delete id="deleteByDataset">
     DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER}
   </delete>

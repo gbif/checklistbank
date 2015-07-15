@@ -3,11 +3,9 @@ package org.gbif.checklistbank.service;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.model.UsageExtensions;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -19,14 +17,6 @@ import javax.annotation.Nullable;
  * This interface is restricted to the mybatis module only!
  */
 public interface DatasetImportService {
-
-    /**
-     * Batch insert usages for the given dataset.
-     *
-     * @param datasetKey
-     * @param usages
-     */
-    void insertUsages(UUID datasetKey, Iterator<Usage> usages);
 
     /**
      * Inserts or updates a complete name usage with all its extension data.
@@ -53,13 +43,10 @@ public interface DatasetImportService {
     int deleteDataset(UUID datasetKey);
 
     /**
-     * Removes all usages and related data from a dataset that was last interpreted before the given date.
-     *
-     * @param datasetKey
-     * @param before     threshold date
-     * @return number of deleted old records
+     * Deletes a single usage and its related extension data
+     * @param key usage key
      */
-    int deleteOldUsages(UUID datasetKey, Date before);
+    void delete(int key);
 
     /**
      * Lists all old name usage ids last interpreted before the given date.

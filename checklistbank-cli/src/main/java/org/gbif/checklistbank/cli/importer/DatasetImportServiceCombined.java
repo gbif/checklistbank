@@ -9,11 +9,12 @@ import org.gbif.checklistbank.service.DatasetImportService;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A thin wrapper that delegates all import methods to both postgres and solr.
@@ -21,46 +22,39 @@ import com.google.common.base.Preconditions;
  * it will block the current thread until the queue is small enough again.
  */
 public class DatasetImportServiceCombined {
-  private final DatasetImportService sqlService;
-  private final NameUsageIndexService solrService;
+    private static final Logger LOG = LoggerFactory.getLogger(DatasetImportServiceCombined.class);
 
-  public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService) {
-    this.sqlService = sqlService;
-    this.solrService = solrService;
-  }
+    private final DatasetImportService sqlService;
+    private final NameUsageIndexService solrService;
 
-  public int syncUsage(NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
-    Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
-    int key = sqlService.syncUsage(usage, verbatim, metrics, extensions);
-    solrService.insertOrUpdate(usage, parents, extensions);
-    return key;
-  }
-
-  public void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey) {
-    sqlService.updateForeignKeys(usageKey, parentKey, basionymKey);
-    solrService.insertOrUpdate(usageKey);
-  }
-
-  public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
-    sqlService.insertNubRelations(datasetKey, relations);
-    solrService.insertOrUpdate(relations.keySet());
- }
-
-  public int deleteDataset(UUID datasetKey) {
-    solrService.delete(datasetKey);
-    return sqlService.deleteDataset(datasetKey);
-  }
-
-  public int deleteOldUsages(UUID datasetKey, Date before) {
-    // iterate over all ids to be deleted and remove them from solr first
-    for (Integer id : sqlService.listOldUsages(datasetKey, before)) {
-      solrService.delete(id);
+    public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService) {
+        this.sqlService = sqlService;
+        this.solrService = solrService;
     }
-    // finally remove them from postgres
-    return sqlService.deleteOldUsages(datasetKey, before);
-  }
 
-  public List<Integer> listOldUsages(UUID datasetKey, Date before) {
-    return sqlService.listOldUsages(datasetKey, before);
-  }
+    public int syncUsage(NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
+        Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
+        int key = sqlService.syncUsage(usage, verbatim, metrics, extensions);
+        solrService.insertOrUpdate(usage, parents, extensions);
+        return key;
+    }
+
+    public void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey) {
+        sqlService.updateForeignKeys(usageKey, parentKey, basionymKey);
+        solrService.insertOrUpdate(usageKey);
+    }
+
+    public int deleteOldUsages(UUID datasetKey, Date before) {
+        LOG.debug("Deleting all usages in dataset {} before {}", datasetKey, before);
+        // iterate over all ids to be deleted and remove them from solr first
+        int counter = 0;
+        for (Integer id : sqlService.listOldUsages(datasetKey, before)) {
+            solrService.delete(id);
+            sqlService.delete(id);
+            counter++;
+        }
+        LOG.info("Deleted all {} usages from dataset {} before {}", counter, datasetKey, before);
+        return counter;
+    }
+
 }

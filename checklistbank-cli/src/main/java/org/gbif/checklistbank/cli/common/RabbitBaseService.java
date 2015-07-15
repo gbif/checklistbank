@@ -143,4 +143,14 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
       throw e;
     }
   }
+
+  protected void send(Message msg) throws IOException {
+    try {
+      LOG.info("Sending {}", msg.getClass().getSimpleName());
+      publisher.send(msg);
+    } catch (IOException e) {
+      LOG.error("Could not send {}", msg.getClass().getSimpleName(), e);
+      throw e;
+    }
+  }
 }

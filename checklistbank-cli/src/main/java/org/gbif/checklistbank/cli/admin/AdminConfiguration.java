@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -34,13 +35,14 @@ public class AdminConfiguration {
   @NotNull
   public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
+  @ParametersDelegate
+  @NotNull
+  @Valid
+  public NeoConfiguration neo;
+
   @Parameter(names = "--archive-repository")
   @NotNull
   public File archiveRepository;
-
-  @NotNull
-  @Parameter(names = "--neo-repo")
-  public File neoRepository;
 
   @Parameter(names = {"-k", "--key"}, required = false)
   @Nullable

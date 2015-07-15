@@ -41,7 +41,6 @@ import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
 import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
 
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,7 +49,6 @@ import javax.annotation.Nullable;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.TransactionIsolationLevel;
@@ -108,28 +106,6 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     this.typeSpecimenMapper = typeSpecimenMapper;
     this.vernacularNameMapper = vernacularNameMapper;
     this.datasetMetricsMapper = datasetMetricsMapper;
-  }
-
-  @Override
-  /**
-   * This DOES NOT update the solr index or anything else but postgres!
-   */
-  public void insertUsages(UUID datasetKey, Iterator<Usage> iter) {
-    final int BATCH_SIZE = 1000;
-
-    int batchCounter = 1;
-    List<Usage> batch = Lists.newArrayList();
-    while (iter.hasNext()) {
-      batch.add(iter.next());
-      if (batch.size() % BATCH_SIZE == 0) {
-        LOG.debug("Insert nub usage batch {}", batchCounter);
-        insertUsageBatch(datasetKey, batch);
-        batchCounter++;
-        batch.clear();
-      }
-    }
-    LOG.debug("Insert last nub usage batch {}", batchCounter);
-    insertUsageBatch(datasetKey, batch);
   }
 
   @Override
@@ -444,9 +420,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
   }
 
   @Override
-  public int deleteOldUsages(UUID datasetKey, Date before) {
-    LOG.info("Deleting all usages in dataset {} before {}", datasetKey, before);
-    return usageMapper.deleteByDatasetAndDate(datasetKey, before);
+  public void delete(int key) {
+    usageMapper.delete(key);
   }
 
   @Override

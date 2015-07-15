@@ -9,9 +9,8 @@ import java.util.UUID;
 import org.apache.ibatis.annotations.Param;
 
 /**
- * The MyBatis mapper interface for NameUsages.
- *
- * @see org.gbif.api.service.checklistbank.NameUsageService
+ * The MyBatis mapper interface for ParsedName instance to persist in the name table.
+ * ParsedName.strain property is being ignored currently and not persisted!
  */
 public interface ParsedNameMapper {
 

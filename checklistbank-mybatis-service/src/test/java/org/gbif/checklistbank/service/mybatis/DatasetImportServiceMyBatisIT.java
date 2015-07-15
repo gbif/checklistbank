@@ -52,15 +52,6 @@ public class DatasetImportServiceMyBatisIT {
   }
 
   @Test
-  public void testDeleteOldUsages() throws Exception {
-    int num = ddt.getService().deleteOldUsages(CHECKLIST_KEY, new Date(10000l));
-    assertEquals(0, num);
-
-    num = ddt.getService().deleteOldUsages(CHECKLIST_KEY, new Date());
-    assertEquals(44, num);
-  }
-
-  @Test
   public void testSyncUsage() throws Exception {
     final NameUsageService uService = ddt.getInjector().getInstance(NameUsageService.class);
 

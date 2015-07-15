@@ -13,6 +13,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
+import org.gbif.checklistbank.nub.model.NubBuildStats;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.NubSource;
@@ -53,12 +54,14 @@ public class NubBuilder implements Runnable {
   private final NameUsageMatchingService matchingService;
   private final UsageSource usageSource;
   private final NameParser parser = new NameParser();
+  private final NubBuildStats buildStats = new NubBuildStats();
+  private NormalizerStats normalizerStats;
   private NubSource currSrc;
   private ParentStack parents;
   private int sourceUsageCounter = 0;
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
 
-  private NubBuilder(UsageDao dao, UsageSource usageSource, NameUsageMatchingService matchingService) {
+    private NubBuilder(UsageDao dao, UsageSource usageSource, NameUsageMatchingService matchingService) {
     db = NubDb.create(dao, 1000);
     this.usageSource = usageSource;
     this.matchingService = matchingService;
@@ -379,8 +382,15 @@ public class NubBuilder implements Runnable {
     LOG.info("Walk all accepted taxa and build usage metrics");
     UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
     TaxonWalker.walkAccepted(db.dao.getNeo(), null, metricsHandler);
-    NormalizerStats stats = metricsHandler.getStats(0, null);
-    LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", stats.getRoots(), stats.getCount(), stats.getSynonyms());
+    normalizerStats = metricsHandler.getStats(0, null);
+    LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }
 
+    public NubBuildStats getBuildStats() {
+        return buildStats;
+    }
+
+    public NormalizerStats getStats() {
+        return normalizerStats;
+    }
 }

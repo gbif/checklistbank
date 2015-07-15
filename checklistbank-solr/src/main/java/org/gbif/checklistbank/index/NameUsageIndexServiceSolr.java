@@ -9,7 +9,6 @@ import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,16 +81,6 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
       ext.speciesProfiles = speciesProfileService.listByUsage(key, page).getResults();
 
       insertOrUpdate(u, usageService.listParents(key), ext);
-    }
-  }
-
-  //TODO: do this asynchroneously?
-  @Override
-  public void insertOrUpdate(Collection<Integer> usageKeys) {
-    for (Integer key : usageKeys) {
-      if (key != null) {
-        insertOrUpdate(key);
-      }
     }
   }
 

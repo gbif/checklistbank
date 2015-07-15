@@ -1,8 +1,11 @@
 package org.gbif.checklistbank.cli.analysis;
 
+import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistAnalyzedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
@@ -40,5 +43,8 @@ public class AnalysisService extends RabbitBaseService<ChecklistSyncedMessage> {
   protected void process(ChecklistSyncedMessage msg) throws IOException {
     analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
     send(new ChecklistAnalyzedMessage(msg.getDatasetUuid()));
+    if (Constants.NUB_DATASET_KEY.equals(msg.getDatasetUuid())) {
+      send(new BackboneChangedMessage());
+    }
   }
 }
