@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.checklistbank.cli.common.Metrics;
+import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;

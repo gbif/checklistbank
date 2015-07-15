@@ -2,12 +2,12 @@ package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;

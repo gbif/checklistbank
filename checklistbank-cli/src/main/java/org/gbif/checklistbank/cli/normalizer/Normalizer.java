@@ -3,7 +3,6 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;

@@ -1,9 +1,10 @@
 package org.gbif.checklistbank.cli.importer;
 
-import org.gbif.api.model.crawler.NormalizerStats;
+
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
+import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;

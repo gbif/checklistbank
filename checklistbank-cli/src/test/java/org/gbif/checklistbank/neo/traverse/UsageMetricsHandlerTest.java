@@ -2,9 +2,9 @@ package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.LinneanClassificationKeys;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.model.NameUsageNode;

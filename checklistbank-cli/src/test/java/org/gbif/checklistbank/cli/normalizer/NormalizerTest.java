@@ -2,7 +2,7 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.crawler.NormalizerStats;
+
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.MediaType;

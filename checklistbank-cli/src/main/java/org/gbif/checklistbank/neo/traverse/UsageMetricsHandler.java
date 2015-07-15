@@ -2,10 +2,10 @@ package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.crawler.NormalizerStats;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.model.ClassificationKeys;
 import org.gbif.checklistbank.neo.model.UsageFacts;
