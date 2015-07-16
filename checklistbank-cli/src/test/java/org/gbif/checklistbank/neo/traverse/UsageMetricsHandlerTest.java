@@ -7,8 +7,8 @@ import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.model.NameUsageNode;
-import org.gbif.checklistbank.neo.model.UsageFacts;
+import org.gbif.checklistbank.cli.model.NameUsageNode;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 
 import com.beust.jcommander.internal.Lists;
 import org.junit.Test;

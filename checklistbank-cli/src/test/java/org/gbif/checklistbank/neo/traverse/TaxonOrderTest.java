@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo.traverse;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
-import org.gbif.checklistbank.neo.model.NameUsageNode;
+import org.gbif.checklistbank.cli.model.NameUsageNode;
 
 import java.util.Collections;
 import java.util.List;

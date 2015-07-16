@@ -55,7 +55,7 @@
     <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
     <bval.version>0.5</bval.version>
-    <commmons-lang.version>3.3.2</commmons-lang.version>
+    <commmons-lang.version>3.4</commmons-lang.version>
     <commons-beanutils.version>1.9.2</commons-beanutils.version>
     <commons-digester.version>2.1</commons-digester.version>
     <commons-io.version>2.4</commons-io.version>

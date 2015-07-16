@@ -16,7 +16,6 @@
   <properties>
     <checklistbank.match.ws.url>http://api.gbif.org/species/match</checklistbank.match.ws.url>
     <registry.ws.url>http://api.gbif.org/</registry.ws.url>
-    <commons-lang.version>2.6</commons-lang.version>
   </properties>
 
   <build>
@@ -43,27 +42,8 @@
       </testResource>
     </testResources>
 
-
     <plugins>
-      <!--
-        To build jar with all dependencies: mvn install assembly:single
-      -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>org.gbif.nub.build.NubGenerator</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
     </plugins>
-
   </build>
 
   <dependencies>
@@ -92,25 +72,12 @@
       <artifactId>jackson-mapper-asl</artifactId>
     </dependency>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>${commons-lang.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-common</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

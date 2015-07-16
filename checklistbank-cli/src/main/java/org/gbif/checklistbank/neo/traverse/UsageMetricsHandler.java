@@ -7,8 +7,8 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.model.ClassificationKeys;
-import org.gbif.checklistbank.neo.model.UsageFacts;
+import org.gbif.checklistbank.cli.model.ClassificationKeys;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -8,7 +8,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.model.NameUsageNode;
+import org.gbif.checklistbank.cli.model.NameUsageNode;
 
 import java.util.concurrent.TimeUnit;
 

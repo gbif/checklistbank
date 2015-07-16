@@ -15,8 +15,8 @@ import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
-import org.gbif.checklistbank.utils.VerbatimNameUsageMapper;
-import org.gbif.checklistbank.utils.VerbatimNameUsageMapperKryo;
+import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperKryo;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class NormalizerStatsTest {
     @Test
     public void testGetCountByRank() throws Exception {
-        org.gbif.api.model.crawler.NormalizerStats stats = new org.gbif.api.model.crawler.NormalizerStats(1, 2, 12, 1,
+        NormalizerStats stats = new NormalizerStats(1, 2, 12, 1,
                 ImmutableMap.of(Origin.DENORMED_CLASSIFICATION, 2, Origin.IMPLICIT_NAME, 10, Origin.SOURCE, 50),
                 ImmutableMap.of(Rank.KINGDOM, 2, Rank.GENUS, 10, Rank.SPECIES, 50),
                 Lists.<String>newArrayList());

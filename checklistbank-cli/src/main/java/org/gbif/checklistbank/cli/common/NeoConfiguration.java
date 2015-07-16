@@ -1,11 +1,17 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.utils.CleanupUtils;
+
 import java.io.File;
 import java.util.UUID;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.io.Files;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,5 +52,20 @@ public class NeoConfiguration {
      */
     public File kvp(UUID datasetKey) {
         return new File(neoRepository, "kvp" + File.separator + datasetKey.toString());
+    }
+
+    /**
+     * Creates a new embedded neo db in the temporary directory and registers a cleanup hook that removes all files whne the JVM shuts down.
+     */
+    public GraphDatabaseService newTmpDb() {
+        File storeDir = Files.createTempDir();
+        CleanupUtils.registerCleanupHook(storeDir);
+        LOG.info("Creating new tmp neo4j db with {}M mapped memory in {}", mappedMemory, storeDir.getAbsolutePath());
+        return new GraphDatabaseFactory()
+                .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
+                .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
+                .setConfig(GraphDatabaseSettings.cache_type, cacheType)
+                .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory+"M")
+                .newGraphDatabase();
     }
 }

@@ -3,13 +3,13 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.authorship.AuthorComparator;
+import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-import org.gbif.checklistbank.nub.authorship.AuthorComparator;
-import org.gbif.checklistbank.nub.model.Equality;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 

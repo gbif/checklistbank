@@ -3,7 +3,7 @@ package org.gbif.checklistbank.neo;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.kryo.MapDbObjectSerializerTest;
+import org.gbif.checklistbank.cli.common.MapDbObjectSerializerTest;
 
 import java.util.UUID;
 

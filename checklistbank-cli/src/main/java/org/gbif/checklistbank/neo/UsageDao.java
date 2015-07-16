@@ -4,15 +4,16 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.CliKryoFactory;
+import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.kryo.ClbKryoFactory;
-import org.gbif.checklistbank.kryo.MapDbObjectSerializer;
+import org.gbif.checklistbank.cli.model.NameUsageNode;
+import org.gbif.checklistbank.cli.model.RankedName;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.neo.model.NameUsageNode;
-import org.gbif.checklistbank.neo.model.RankedName;
-import org.gbif.checklistbank.neo.model.UsageFacts;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class UsageDao {
         this.kvp = kvp;
         this.registry = registry;
 
-        pool = new KryoPool.Builder(new ClbKryoFactory())
+        pool = new KryoPool.Builder(new CliKryoFactory())
                 .softReferences()
                 .build();
         facts = createKvpMap("facts", UsageFacts.class, 128);
@@ -109,7 +110,7 @@ public class UsageDao {
 
         File storeDir = Files.createTempDir();
         GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, "strong", mappedMemory, false);
-        registerCleanupHook(storeDir);
+        CleanupUtils.registerCleanupHook(storeDir);
 
         return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
     }
@@ -158,23 +159,7 @@ public class UsageDao {
                 .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
                 .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
                 .setConfig(GraphDatabaseSettings.cache_type, cacheType)
-                .setConfig(GraphDatabaseSettings.pagecache_memory, mb(mappedMemory));
-    }
-
-    private static void registerCleanupHook(final File f) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-            if (f.exists()) {
-                LOG.debug("Deleting file {}", f.getAbsolutePath());
-                FileUtils.deleteQuietly(f);
-            }
-            }
-        });
-    }
-
-    private static String mb(int memoryInMB) {
-        return memoryInMB + "M";
+                .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory+"M");
     }
 
     public GraphDatabaseService getNeo() {

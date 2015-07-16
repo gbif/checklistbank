@@ -9,6 +9,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.postgres.TabMapperBase;
 
 import java.io.Closeable;
 import java.io.IOException;
