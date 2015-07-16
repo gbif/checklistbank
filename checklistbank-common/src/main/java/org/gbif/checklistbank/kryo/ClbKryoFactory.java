@@ -60,6 +60,13 @@ import com.esotericsoftware.kryo.pool.KryoFactory;
 
 /**
  * Creates a kryo factory usable for thread safe kryo pools that can deal with clb api classes.
+ * We use Kryo for extremely fast byte serialization of objects:
+ * 1) We store in postgres a byte array for the verbatim usage instances.
+ * 2) We use kryo to serialize various information in kvp stores during checklist indexing and nub builds.
+ *
+ * The serialization format of kryo stayes the same over minor version changes, so we do not need to reindex checklists
+ * just because we update the kryo library. Make sure to not update to an incompatible format change, see kryo changes logs:
+ * https://github.com/EsotericSoftware/kryo/blob/master/CHANGES.md
  */
 public class ClbKryoFactory implements KryoFactory {
 

@@ -76,6 +76,10 @@
     <jersey.version>1.18.3</jersey.version>
     <jsoup.version>1.8.1</jsoup.version>
     <junit.version>4.11</junit.version>
+      <!--
+      before changing the KRYO library make sure the old format is still compatible:
+       https://github.com/EsotericSoftware/kryo/blob/master/CHANGES.md
+      -->
     <kryo.version>3.0.2</kryo.version>
     <liquibase.version>3.0.7</liquibase.version>
     <mapdb.version>2.0-beta2</mapdb.version>
