@@ -139,7 +139,7 @@ public class NubDb {
     if (u.rank.isSuprageneric()) {
       return true;
     }
-    Equality author = authComp.equals(u.parsedName, match.parsedName);
+    Equality author = authComp.compare(u.parsedName, match.parsedName);
     Equality kingdom = compareClassification(uKingdom, match);
     switch (author) {
       case DIFFERENT:

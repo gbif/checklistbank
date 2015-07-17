@@ -478,9 +478,14 @@ public class UsageDao {
         return counter;
     }
 
+    public Iterable<NubUsage> nubUsages() {
+        return nubUsages.values();
+    }
+
     private NameUsage convert(int key, NubUsage nub) {
         NameUsage u = new NameUsage();
         u.setKey(key);
+        u.setNubKey(nub.nubKey);
         u.setScientificName(nub.parsedName.canonicalNameComplete());
         u.setCanonicalName(nub.parsedName.canonicalName());
         u.setRank(nub.rank);

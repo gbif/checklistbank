@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
-import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.nub.source.ClbUsageSource;
@@ -37,11 +36,6 @@ public class NubConfiguration {
   @Valid
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
-
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public MatchServiceConfiguration matching = new MatchServiceConfiguration();
 
   @ParametersDelegate
   @NotNull

@@ -54,6 +54,9 @@ public class NeoConfiguration {
         return new File(neoRepository, "kvp" + File.separator + datasetKey.toString());
     }
 
+    public File nubReportDir() {
+        return new File(neoRepository, "nub");
+    }
     /**
      * Creates a new embedded neo db in the temporary directory and registers a cleanup hook that removes all files whne the JVM shuts down.
      */

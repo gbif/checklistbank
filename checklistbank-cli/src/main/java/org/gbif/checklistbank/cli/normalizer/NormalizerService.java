@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
@@ -53,6 +54,10 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
       LOG.info("Rejected dataset {} of type {}", msg.getDatasetUuid(), msg.getDatasetType());
       return true;
     }
+      if (Constants.NUB_DATASET_KEY.equals(msg.getDatasetUuid())) {
+          LOG.warn("Refuse to normalize the GBIF backbone");
+          return true;
+      }
     return false;
   }
 
@@ -61,7 +66,6 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
     Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
     normalizer.run();
     zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
-
     send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
   }
 

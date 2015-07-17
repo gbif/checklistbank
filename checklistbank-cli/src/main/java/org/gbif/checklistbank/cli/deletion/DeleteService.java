@@ -49,18 +49,18 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
     public static void deleteStorageFiles(NeoConfiguration cfg, UUID datasetKey) {
         // delete neo & kvp storage files
         File kvp = cfg.kvp(datasetKey);
-        try {
-            FileUtils.deleteDirectory(kvp);
-        } catch (IOException e) {
+        if (kvp.exists() && !kvp.delete()) {
             LOG.warn("Failed to delete kvo data dir {}", kvp.getAbsoluteFile());
         }
 
         // delete neo storage files
         File neoDir = cfg.neoDir(datasetKey);
-        try {
-            FileUtils.deleteDirectory(neoDir);
-        } catch (IOException e) {
-            LOG.warn("Failed to delete neo data dir {}", neoDir.getAbsoluteFile());
+        if (neoDir.exists()) {
+            try {
+                FileUtils.deleteDirectory(neoDir);
+            } catch (IOException e) {
+                LOG.warn("Failed to delete neo data dir {}", neoDir.getAbsoluteFile());
+            }
         }
         LOG.info("Deleted dataset storage files for {}", datasetKey);
     }

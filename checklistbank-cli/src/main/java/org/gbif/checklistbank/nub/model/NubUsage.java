@@ -29,6 +29,7 @@ public class NubUsage {
   }
 
   // properties shared with NameUsage
+  public int nubKey;
   public String publishedIn;
   public Rank rank;
   public UUID datasetKey;

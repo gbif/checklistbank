@@ -98,6 +98,7 @@ public class ClbKryoFactory implements KryoFactory {
         kryo.register(ArrayList.class);
         kryo.register(UUID.class, new UUIDSerializer());
         kryo.register(URI.class, new URISerializer());
+        ImmutableListSerializer.registerSerializers(kryo);
         // enums
         kryo.register(EnumSet.class, new EnumSetSerializer());
         kryo.register(NameUsageIssue.class);

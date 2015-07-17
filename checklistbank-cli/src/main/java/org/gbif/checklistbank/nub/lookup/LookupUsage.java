@@ -2,7 +2,6 @@ package org.gbif.checklistbank.nub.lookup;
 
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
 
 import java.util.Objects;
 
@@ -11,20 +10,18 @@ import java.util.Objects;
  */
 public class LookupUsage {
     private int key;
-    private Integer parentKey;
     private String canonical;
     private String authorship;
+    private String year;
     private Rank rank;
-    private TaxonomicStatus status;
     private Kingdom kingdom;
     private boolean deleted;
 
     public LookupUsage() {
     }
 
-    public LookupUsage(int key, Integer parentKey, String canonical, String authorship, Rank rank, TaxonomicStatus status, Kingdom kingdom, boolean deleted) {
-        this.parentKey = parentKey;
-        this.status = status;
+    public LookupUsage(int key, String canonical, String authorship, String year, Rank rank, Kingdom kingdom, boolean deleted) {
+        this.year = year;
         this.authorship = authorship;
         this.canonical = canonical;
         this.key = key;
@@ -39,6 +36,14 @@ public class LookupUsage {
 
     public void setAuthorship(String authorship) {
         this.authorship = authorship;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
     }
 
     public String getCanonical() {
@@ -81,17 +86,9 @@ public class LookupUsage {
         this.deleted = deleted;
     }
 
-    public TaxonomicStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaxonomicStatus status) {
-        this.status = status;
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(key, parentKey, rank, kingdom, canonical, authorship, deleted, status);
+        return Objects.hash(key, rank, kingdom, canonical, authorship, year, deleted);
     }
 
     @Override
@@ -104,9 +101,8 @@ public class LookupUsage {
         }
         final LookupUsage other = (LookupUsage) obj;
         return Objects.equals(this.key, other.key)
-                && Objects.equals(this.parentKey, other.parentKey)
                 && Objects.equals(this.rank, other.rank)
-                && Objects.equals(this.status, other.status)
+                && Objects.equals(this.year, other.year)
                 && Objects.equals(this.kingdom, other.kingdom)
                 && Objects.equals(this.canonical, other.canonical)
                 && Objects.equals(this.authorship, other.authorship)
