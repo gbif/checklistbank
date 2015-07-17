@@ -114,15 +114,19 @@ public class IdLookup implements Iterable<LookupUsage> {
     }
 
     private void add(LookupUsage u) {
-        if (usages.containsKey(u.getCanonical())) {
-            // we need to create a new list cause mapdb considers them immutable!
-            usages.put(u.getCanonical(), ImmutableList.<LookupUsage>builder().addAll(usages.get(u.getCanonical())).add(u).build());
+        if (u.getCanonical() == null) {
+            LOG.warn("Ignore previous usage {} without canonical name", u.getKey());
         } else {
-            usages.put(u.getCanonical(), ImmutableList.of(u));
-        }
-        counter++;
-        if (u.isDeleted()) {
-            deleted++;
+            if (usages.containsKey(u.getCanonical())) {
+                // we need to create a new list cause mapdb considers them immutable!
+                usages.put(u.getCanonical(), ImmutableList.<LookupUsage>builder().addAll(usages.get(u.getCanonical())).add(u).build());
+            } else {
+                usages.put(u.getCanonical(), ImmutableList.of(u));
+            }
+            counter++;
+            if (u.isDeleted()) {
+                deleted++;
+            }
         }
     }
 
