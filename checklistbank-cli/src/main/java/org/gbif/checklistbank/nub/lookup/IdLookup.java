@@ -231,6 +231,11 @@ public class IdLookup implements Iterable<LookupUsage> {
         }
 
         @Override
+        public void remove() {
+            throw new UnsupportedOperationException("You cannot remove from an id lookup");
+        }
+
+        @Override
         public LookupUsage next() {
             if (iter == null || !iter.hasNext()) {
                 iter = canonIter.next().iterator();
