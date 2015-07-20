@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.carrotsearch.hppc.IntHashSet;
+import com.carrotsearch.hppc.IntSet;
 import com.google.common.collect.ImmutableList;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -35,6 +37,7 @@ public class IdLookup implements Iterable<LookupUsage> {
     private final AuthorComparator authComp;
     private int counter = 0;
     private int deleted = 0;
+    private IntSet noCanonical = new IntHashSet();
 
     private IdLookup() {
         db = DBMaker.tempFileDB()
@@ -116,6 +119,8 @@ public class IdLookup implements Iterable<LookupUsage> {
     private void add(LookupUsage u) {
         if (u.getCanonical() == null) {
             LOG.warn("Ignore previous usage {} without canonical name", u.getKey());
+            noCanonical.add(u.getKey());
+
         } else {
             if (usages.containsKey(u.getCanonical())) {
                 // we need to create a new list cause mapdb considers them immutable!
@@ -213,7 +218,11 @@ public class IdLookup implements Iterable<LookupUsage> {
      * @return the number of usage keys known which belong to deleted usages.
      */
     public int deletedIds() {
-        return deleted;
+        return deleted + noCanonical.size();
+    }
+
+    public IntSet getNoCanonical() {
+        return noCanonical;
     }
 
     @Override

@@ -17,13 +17,11 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.UsageService;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,13 +63,11 @@ public class NubBuilder implements Runnable {
     private int sourceUsageCounter = 0;
     private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
     private final IdGenerator idGen;
-    private final File reportDir;
 
     private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart, File reportDir) {
         db = NubDb.create(dao, 1000);
         this.usageSource = usageSource;
-        idGen = new IdGenerator(idLookup, newIdStart);
-        this.reportDir = reportDir;
+        idGen = new IdGenerator(idLookup, newIdStart, reportDir);
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
@@ -80,7 +76,7 @@ public class NubBuilder implements Runnable {
             IdLookup idLookup = new IdLookup(cfg.clb);
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
-            Integer newIdStart = inj.getInstance(NameUsageMapper.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
+            Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
             return new NubBuilder(dao, cfg.usageSource(), idLookup, newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir());
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
@@ -102,7 +98,6 @@ public class NubBuilder implements Runnable {
         assignUsageKeys();
         db.dao.convertNubUsages();
         builtUsageMetrics();
-        writeReport();
         LOG.info("New backbone built");
     }
 
@@ -403,34 +398,6 @@ public class NubBuilder implements Runnable {
         TaxonWalker.walkAccepted(db.dao.getNeo(), null, metricsHandler);
         normalizerStats = metricsHandler.getStats(0, null);
         LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
-    }
-
-    private void writeReport() {
-        LOG.info("Write backbone change reports to {}", reportDir);
-        IdGenerator.Metrics metrics = idMetrics();
-        // print reports to file
-        try (
-            FileWriter deleted = new FileWriter(new File(reportDir, "deleted.txt"));
-            FileWriter resurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
-            FileWriter created = new FileWriter(new File(reportDir, "created.txt"))
-        ){
-            int updated = 0;
-            for (NubUsage u : db.dao.nubUsages()) {
-                if (metrics.created.contains(u.getKey())) {
-                    created.write(u.nubKey + '\t' + u.parsedName.fullName() + '\n');
-                } else if (metrics.resurrected.contains(u.getKey())) {
-                    resurrected.write(u.nubKey + '\t' + u.parsedName.fullName() + '\n');
-                } else if (metrics.deleted.contains(u.getKey())) {
-                    deleted.write(u.nubKey + '\t' + u.parsedName.fullName() + '\n');
-                } else {
-                    updated++;
-                }
-            }
-            double changed = updated * 100d / (metrics.created.size() + metrics.resurrected.size() + metrics.deleted.size());
-            LOG.info("Kept and updated {} backbone usages. {}% ids changed", updated, Math.round(changed));
-        } catch (IOException e) {
-            LOG.warn("Failed to write nub reports to {}", reportDir, e);
-        }
     }
 
     public NormalizerStats getStats() {

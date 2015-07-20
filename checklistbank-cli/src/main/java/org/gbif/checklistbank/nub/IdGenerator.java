@@ -5,8 +5,15 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
+import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,37 +21,72 @@ import org.slf4j.LoggerFactory;
  * Nub id generator trying to reuse previously existing ids, even if they had been deleted.
  * It will only ever issue the same id once.
  */
-public class IdGenerator {
+public class IdGenerator implements Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(IdGenerator.class);
     private IdLookup lookup;
     private final int idStart;
     private int nextId;
     private IntSet resurrected = new IntHashSet();
     private IntSet reissued = new IntHashSet();
+    private final File fdeleted;
+    private final FileWriter fresurrected;
+    private final FileWriter fcreated;
+    Joiner nameJoiner = Joiner.on(" ").skipNulls();
 
-    public IdGenerator(IdLookup lookup, int idStart) {
+    public IdGenerator(IdLookup lookup, int idStart, File reportDir) {
         this.lookup = lookup;
         this.idStart = idStart;
         nextId = idStart;
+        fdeleted = new File(reportDir, "deleted.txt");
+        try {
+            fresurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
+            fcreated = new FileWriter(new File(reportDir, "created.txt"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom) {
         LookupUsage u = lookup.match(canonicalName, authorship, year, rank, kingdom);
-        int id;
-        if (u == null) {
-            id = nextId++;
-        } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
-            id = nextId++;
-            LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
-        } else {
-            id = u.getKey();
-            if (u.isDeleted()) {
-                resurrected.add(id);
+        int id = -1;
+        try {
+            if (u == null) {
+                id = nextId++;
+                logName(fcreated, u);
+            } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
+                id = nextId++;
+                LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
+                logName(fcreated, u);
             } else {
-                reissued.add(id);
+                id = u.getKey();
+                if (u.isDeleted()) {
+                    resurrected.add(id);
+                    logName(fresurrected, u);
+                } else {
+                    reissued.add(id);
+                }
             }
+        } catch (IOException e) {
+            LOG.warn("Failed to write idgenerator report log");
         }
         return id;
+    }
+
+    private void logName(Writer writer, LookupUsage u) throws IOException {
+        writer.write(u.getKey() + '\t' + nameJoiner.join(u.getCanonical(), u.getAuthorship(), u.getYear()) + '\n');
+    }
+
+    @Override
+    public void close() throws IOException {
+        fresurrected.close();
+        fcreated.close();
+        try (FileWriter delwriter = new FileWriter(fdeleted)) {
+            for (LookupUsage u : lookup) {
+                if (!u.isDeleted() && !reissued.contains(u.getKey())) {
+                    logName(delwriter, u);
+                }
+            }
+        }
     }
 
     /**
@@ -99,4 +141,5 @@ public class IdGenerator {
         }
         return new Metrics(created, resurrected, deleted);
     }
+
 }
