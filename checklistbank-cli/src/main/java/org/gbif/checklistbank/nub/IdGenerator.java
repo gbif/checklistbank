@@ -11,6 +11,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import javax.annotation.Nullable;
+
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
 import com.google.common.base.Joiner;
@@ -33,17 +35,29 @@ public class IdGenerator implements Closeable {
     private final FileWriter fcreated;
     Joiner nameJoiner = Joiner.on(" ").skipNulls();
 
-    public IdGenerator(IdLookup lookup, int idStart, File reportDir) {
+    /**
+     *
+     * @param lookup
+     * @param idStart
+     * @param reportDir if null no reports will be written
+     */
+    public IdGenerator(IdLookup lookup, int idStart, @Nullable File reportDir) {
         this.lookup = lookup;
         this.idStart = idStart;
         nextId = idStart;
-        fdeleted = new File(reportDir, "deleted.txt");
-        try {
-            fdeleted.getParentFile().mkdirs();
-            fresurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
-            fcreated = new FileWriter(new File(reportDir, "created.txt"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (reportDir == null) {
+            fdeleted = null;
+            fresurrected = null;
+            fcreated = null;
+        } else {
+            fdeleted = new File(reportDir, "deleted.txt");
+            try {
+                fdeleted.getParentFile().mkdirs();
+                fresurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
+                fcreated = new FileWriter(new File(reportDir, "created.txt"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -53,11 +67,11 @@ public class IdGenerator implements Closeable {
         try {
             if (u == null) {
                 id = nextId++;
-                logName(fcreated, u);
+                logName(fcreated, id, canonicalName, authorship, year);
             } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
                 id = nextId++;
                 LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
-                logName(fcreated, u);
+                logName(fcreated, id, canonicalName, authorship, year);
             } else {
                 id = u.getKey();
                 if (u.isDeleted()) {
@@ -74,7 +88,12 @@ public class IdGenerator implements Closeable {
     }
 
     private void logName(Writer writer, LookupUsage u) throws IOException {
-        writer.write(u.getKey() + '\t' + nameJoiner.join(u.getCanonical(), u.getAuthorship(), u.getYear()) + '\n');
+        logName(writer, u.getKey(), u.getCanonical(), u.getAuthorship(), u.getYear());
+    }
+    private void logName(Writer writer, int key, String canonical, String authorship, String year) throws IOException {
+        if (writer != null) {
+            writer.write(key + '\t' + nameJoiner.join(canonical, authorship, year) + '\n');
+        }
     }
 
     @Override

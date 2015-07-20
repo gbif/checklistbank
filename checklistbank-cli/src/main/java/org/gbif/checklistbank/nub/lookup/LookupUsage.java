@@ -20,6 +20,9 @@ public class LookupUsage {
     public LookupUsage() {
     }
 
+    public LookupUsage(int key, String canonical) {
+    }
+
     public LookupUsage(int key, String canonical, String authorship, String year, Rank rank, Kingdom kingdom, boolean deleted) {
         this.year = year;
         this.authorship = authorship;
