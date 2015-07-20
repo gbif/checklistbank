@@ -39,6 +39,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@Ignore("Authorship handling needs to be settled first")
 public class NubBuilderTest {
     private UsageDao dao;
     private Transaction tx;
