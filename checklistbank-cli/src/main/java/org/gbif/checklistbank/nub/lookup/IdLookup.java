@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import com.carrotsearch.hppc.IntHashSet;
-import com.carrotsearch.hppc.IntSet;
 import com.google.common.collect.ImmutableList;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -37,7 +35,6 @@ public class IdLookup implements Iterable<LookupUsage> {
     private final AuthorComparator authComp;
     private int counter = 0;
     private int deleted = 0;
-    private IntSet noCanonical = new IntHashSet();
 
     private IdLookup() {
         db = DBMaker.tempFileDB()
@@ -72,7 +69,7 @@ public class IdLookup implements Iterable<LookupUsage> {
         try (Connection c = clb.connect()){
             final CopyManager cm = new CopyManager((BaseConnection) c);
             cm.copyOut("COPY ("
-                    + "SELECT u.id, n.canonical_name, n.authorship, n.year, u.rank, u.kingdom_fk, false"
+                    + "SELECT u.id, coalesce(n.canonical_name, n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, false"
                     + " FROM name_usage u join name n ON name_fk=n.id"
                     + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "')"
                     + " TO STDOUT WITH NULL ''", writer);
@@ -117,21 +114,15 @@ public class IdLookup implements Iterable<LookupUsage> {
     }
 
     private void add(LookupUsage u) {
-        if (u.getCanonical() == null) {
-            LOG.warn("Ignore previous usage {} without canonical name", u.getKey());
-            noCanonical.add(u.getKey());
-
+        if (usages.containsKey(u.getCanonical())) {
+            // we need to create a new list cause mapdb considers them immutable!
+            usages.put(u.getCanonical(), ImmutableList.<LookupUsage>builder().addAll(usages.get(u.getCanonical())).add(u).build());
         } else {
-            if (usages.containsKey(u.getCanonical())) {
-                // we need to create a new list cause mapdb considers them immutable!
-                usages.put(u.getCanonical(), ImmutableList.<LookupUsage>builder().addAll(usages.get(u.getCanonical())).add(u).build());
-            } else {
-                usages.put(u.getCanonical(), ImmutableList.of(u));
-            }
-            counter++;
-            if (u.isDeleted()) {
-                deleted++;
-            }
+            usages.put(u.getCanonical(), ImmutableList.of(u));
+        }
+        counter++;
+        if (u.isDeleted()) {
+            deleted++;
         }
     }
 
@@ -218,11 +209,7 @@ public class IdLookup implements Iterable<LookupUsage> {
      * @return the number of usage keys known which belong to deleted usages.
      */
     public int deletedIds() {
-        return deleted + noCanonical.size();
-    }
-
-    public IntSet getNoCanonical() {
-        return noCanonical;
+        return deleted;
     }
 
     @Override

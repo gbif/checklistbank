@@ -39,6 +39,7 @@ public class IdGenerator implements Closeable {
         nextId = idStart;
         fdeleted = new File(reportDir, "deleted.txt");
         try {
+            fdeleted.getParentFile().mkdirs();
             fresurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
             fcreated = new FileWriter(new File(reportDir, "created.txt"));
         } catch (IOException e) {
