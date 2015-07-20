@@ -26,6 +26,8 @@ import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
@@ -40,235 +42,270 @@ import org.slf4j.LoggerFactory;
  */
 @MetaInfServices(Command.class)
 public class AdminCommand extends BaseCommand {
-  private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
-  private static final String DWCA_SUFFIX = ".dwca";
+    private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
+    private static final String DWCA_SUFFIX = ".dwca";
 
-  private final AdminConfiguration cfg = new AdminConfiguration();
-  private MessagePublisher publisher;
-  private ZookeeperUtils zkUtils;
-  private DatasetService datasetService;
-  private OrganizationService organizationService;
+    private final AdminConfiguration cfg = new AdminConfiguration();
+    private MessagePublisher publisher;
+    private ZookeeperUtils zkUtils;
+    private DatasetService datasetService;
+    private OrganizationService organizationService;
 
-  public AdminCommand() {
-    super("admin");
-  }
-
-  @Override
-  protected Object getConfigurationObject() {
-    return cfg;
-  }
-
-  private DatasetService ds() {
-    if (datasetService == null) {
-      initRegistry();
+    public AdminCommand() {
+        super("admin");
     }
-    return datasetService;
-  }
 
-  private OrganizationService os() {
-    if (organizationService == null) {
-      initRegistry();
+    @Override
+    protected Object getConfigurationObject() {
+        return cfg;
     }
-    return organizationService;
-  }
 
-  private void initRegistry() {
-    Injector inj = cfg.registry.createRegistryInjector();
-    datasetService  = inj.getInstance(DatasetService.class);
-    organizationService  = inj.getInstance(OrganizationService.class);
-  }
-
-  private ZookeeperUtils zk() {
-    if (zkUtils == null) {
-      try {
-        zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
-      } catch (IOException e) {
-        Throwables.propagate(e);
-      }
-    }
-    return zkUtils;
-  }
-
-  private void send(Message msg) throws IOException {
-    if (publisher == null) {
-      publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
-    }
-    publisher.send(msg);
-  }
-
-  @Override
-  protected void doRun() {
-    try {
-      switch (cfg.operation) {
-        case CRAWL:
-          crawl(cfg.key);
-          break;
-
-        case NORMALIZE:
-          // validation result is a fake valid checklist validation
-          send( new DwcaMetasyncFinishedMessage(cfg.key, DatasetType.CHECKLIST,
-                  URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                  new DwcaValidationReport(cfg.key,
-                    new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-                  )
-          );
-          break;
-
-        case IMPORT:
-          send( new ChecklistNormalizedMessage(cfg.key) );
-          break;
-
-        case ANALYZE:
-          send( new ChecklistSyncedMessage(cfg.key, new Date(), 0, 0) );
-          break;
-
-        case CLEANUP:
-          cleanup(cfg.key);
-          break;
-
-        default:
-          throw new UnsupportedOperationException();
-      }
-
-    } catch (Throwable e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * @param key publisher or dataset key
-   */
-  private void cleanup(final UUID key) throws IOException {
-    if (isDataset(key)) {
-      cleanupCrawl(key);
-
-    } else if (isOrg(key)) {
-      final PagingRequest page = new PagingRequest(0, 25);
-      PagingResponse<Dataset> resp = null;
-      while (resp == null || !resp.isEndOfRecords()) {
-        resp = os().publishedDatasets(key, page);
-        for (Dataset d : resp.getResults()) {
-          if (cfg.type != null && d.getType() != cfg.type) {
-            LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
-            continue;
-          }
-          try {
-            cleanupCrawl(d.getKey());
-          } catch (IOException e) {
-            LOG.warn("Failed to cleanup crawl {}: {}", d.getKey(), e.getMessage());
-          }
+    private DatasetService ds() {
+        if (datasetService == null) {
+            initRegistry();
         }
-        page.nextPage();
-      }
-    } else {
-      LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+        return datasetService;
     }
-  }
 
-  /**
-   * @param key publisher or dataset key
-   */
-  private void crawl(final UUID key) throws IOException {
-    if (key == null) {
-      crawlAll(cfg.type);
-
-    } else {
-      if (isDataset(key)) {
-        crawlDataset(key);
-
-      } else if (isOrg(key)) {
-        crawlPublisher(key);
-
-      } else {
-        LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
-      }
-    }
-  }
-
-  private void crawlAll(DatasetType type) throws IOException {
-    LOG.info("Crawl all {} datasets", type==null ? "" : type);
-    final PagingRequest page = new PagingRequest(0, 10);
-    PagingResponse<Dataset> resp = null;
-    int counter = 0;
-    while (resp == null || !resp.isEndOfRecords()) {
-      resp = ds().listByType(type, page);
-      for (Dataset d : resp.getResults()) {
-        if (d.getDeleted() != null) {
-          LOG.debug("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
-          continue;
+    private OrganizationService os() {
+        if (organizationService == null) {
+            initRegistry();
         }
-        counter++;
-        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-        crawlDataset(d.getKey());
-      }
-      page.nextPage();
+        return organizationService;
     }
-  }
 
-  private void crawlPublisher(UUID key) throws IOException {
-    final PagingRequest page = new PagingRequest(0, 10);
-    PagingResponse<Dataset> resp = null;
-    int counter = 0;
-    while (resp == null || !resp.isEndOfRecords()) {
-      resp = os().publishedDatasets(key, page);
-      for (Dataset d : resp.getResults()) {
-        if (d.getDeleted() != null) {
-          LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
-          continue;
+    private void initRegistry() {
+        Injector inj = cfg.registry.createRegistryInjector();
+        datasetService = inj.getInstance(DatasetService.class);
+        organizationService = inj.getInstance(OrganizationService.class);
+    }
+
+    private ZookeeperUtils zk() {
+        if (zkUtils == null) {
+            try {
+                zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
+            } catch (IOException e) {
+                Throwables.propagate(e);
+            }
         }
-        if (cfg.type != null && d.getType() != cfg.type) {
-          LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
-          continue;
+        return zkUtils;
+    }
+
+    private void send(Message msg) throws IOException {
+        if (publisher == null) {
+            publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
         }
-        counter++;
-        LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
-        crawlDataset(d.getKey());
-      }
-      page.nextPage();
+        publisher.send(msg);
     }
-  }
 
-  private void crawlDataset(UUID key) throws IOException {
-    //cleanupCrawl(key);
-    send( new StartCrawlMessage(key));
-  }
+    @Override
+    protected void doRun() {
+        try {
+            switch (cfg.operation) {
+                case CRAWL:
+                    crawl(cfg.key);
+                    break;
 
-  private boolean isOrg(UUID key) {
-    return os().get(key) != null;
-  }
+                case NORMALIZE:
+                    // validation result is a fake valid checklist validation
+                    send(new DwcaMetasyncFinishedMessage(cfg.key, DatasetType.CHECKLIST,
+                                    URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
+                                    new DwcaValidationReport(cfg.key,
+                                            new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+                            )
+                    );
+                    break;
 
-  private boolean isDataset(UUID key) {
-    return ds().get(key) != null;
-  }
+                case IMPORT:
+                    send(new ChecklistNormalizedMessage(cfg.key));
+                    break;
 
-  private void cleanupCrawl(final UUID datasetKey) throws IOException {
-    zk().delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
-    LOG.info("Removed crawl {} from zookeeper", datasetKey);
+                case ANALYZE:
+                    analyze(cfg.key);
+                    break;
 
-    // cleanup repo files
-    final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
-    FileUtils.deleteQuietly(dwcaFile);
-    File dir = cfg.archiveDir(datasetKey);
-    if (dir.exists() && dir.isDirectory()) {
-      FileUtils.deleteDirectory(dir);
+                case CLEANUP:
+                    cleanup(cfg.key);
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException();
+            }
+
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
-    LOG.info("Removed dwca files from repository {}", dwcaFile);
 
-    DeleteService.deleteStorageFiles(cfg.neo, datasetKey);
-  }
+    /**
+     * @param key publisher or dataset key or null to analyze all
+     */
+    private void analyze(@Nullable final UUID key) throws IOException {
+    }
+
+    private void analyzeDataset(final UUID key) throws IOException {
+        send(new ChecklistSyncedMessage(key, new Date(), 0, 0));
+
+    }
 
 
-  public static void main(String[] args) throws IOException {
-    AdminCommand cmd = new AdminCommand();
-    AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
+    /**
+     * @param key publisher or dataset key
+     */
+    private void cleanup(@Nullable final UUID key) throws IOException {
+        if (key == null && cfg.type != null) {
+            cleanupAll();
+        } else if (isDataset(key)) {
+            cleanupCrawl(key);
 
-    cfg.messaging.host = "mq.gbif.org";
-    cfg.messaging.virtualHost = "/prod";
-    cfg.messaging.username = "clb";
-    cfg.messaging.password = "clb";
+        } else if (isOrg(key)) {
+            cleanupOrg(key);
+        } else {
+            LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+        }
+    }
 
-    // crawl PLAZI checklist
-    cfg.type = DatasetType.CHECKLIST;
-    cmd.crawl(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
-  }
+    private void cleanupAll() {
+        final PagingRequest page = new PagingRequest(0, 25);
+        PagingResponse<Dataset> resp = null;
+        LOG.info("Cleanup ALL {} datasets!", cfg.type);
+        while (resp == null || !resp.isEndOfRecords()) {
+            resp = ds().listByType(cfg.type, page);
+            for (Dataset d : resp.getResults()) {
+                try {
+                    cleanupCrawl(d.getKey());
+                } catch (IOException e) {
+                    LOG.warn("Failed to cleanup crawl {}: {}", d.getKey(), e.getMessage());
+                }
+            }
+            page.nextPage();
+        }
+    }
+
+    /**
+     * @param key publisher or dataset key
+     */
+    private void crawl(final UUID key) throws IOException {
+        if (key == null) {
+            crawlAll(cfg.type);
+
+        } else {
+            if (isDataset(key)) {
+                crawlDataset(key);
+
+            } else if (isOrg(key)) {
+                crawlPublisher(key);
+
+            } else {
+                LOG.warn("Given key is neither a dataset nor a publisher: {}", key);
+            }
+        }
+    }
+
+    private void crawlAll(DatasetType type) throws IOException {
+        LOG.info("Crawl all {} datasets", type == null ? "" : type);
+        final PagingRequest page = new PagingRequest(0, 10);
+        PagingResponse<Dataset> resp = null;
+        int counter = 0;
+        while (resp == null || !resp.isEndOfRecords()) {
+            resp = ds().listByType(type, page);
+            for (Dataset d : resp.getResults()) {
+                if (d.getDeleted() != null) {
+                    LOG.debug("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
+                    continue;
+                }
+                counter++;
+                LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
+                crawlDataset(d.getKey());
+            }
+            page.nextPage();
+        }
+    }
+
+    private void crawlPublisher(UUID key) throws IOException {
+        final PagingRequest page = new PagingRequest(0, 10);
+        PagingResponse<Dataset> resp = null;
+        int counter = 0;
+        while (resp == null || !resp.isEndOfRecords()) {
+            resp = os().publishedDatasets(key, page);
+            for (Dataset d : resp.getResults()) {
+                if (d.getDeleted() != null) {
+                    LOG.info("Ignore deleted dataset {}: {}", d.getKey(), d.getTitle().replaceAll("\n", " "));
+                    continue;
+                }
+                if (cfg.type != null && d.getType() != cfg.type) {
+                    LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+                    continue;
+                }
+                counter++;
+                LOG.info("Crawl {} - {}: {}", counter, d.getKey(), d.getTitle().replaceAll("\n", " "));
+                crawlDataset(d.getKey());
+            }
+            page.nextPage();
+        }
+    }
+
+    private void crawlDataset(UUID key) throws IOException {
+        cleanupCrawl(key);
+        send(new StartCrawlMessage(key));
+    }
+
+    private boolean isOrg(UUID key) {
+        return os().get(key) != null;
+    }
+
+    private boolean isDataset(UUID key) {
+        return ds().get(key) != null;
+    }
+
+    private void cleanupOrg(final UUID orgKey) throws IOException {
+        final PagingRequest page = new PagingRequest(0, 25);
+        PagingResponse<Dataset> resp = null;
+        while (resp == null || !resp.isEndOfRecords()) {
+            resp = os().publishedDatasets(orgKey, page);
+            for (Dataset d : resp.getResults()) {
+                if (cfg.type != null && d.getType() != cfg.type) {
+                    LOG.info("Ignore {} dataset {}: {}", d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+                    continue;
+                }
+                try {
+                    cleanupCrawl(d.getKey());
+                } catch (IOException e) {
+                    LOG.warn("Failed to cleanup crawl {}: {}", d.getKey(), e.getMessage());
+                }
+            }
+            page.nextPage();
+        }
+    }
+
+    private void cleanupCrawl(final UUID datasetKey) throws IOException {
+        zk().delete(ZookeeperUtils.getCrawlInfoPath(datasetKey, null));
+        LOG.info("Removed crawl {} from zookeeper", datasetKey);
+
+        // cleanup repo files
+        final File dwcaFile = new File(cfg.archiveRepository, datasetKey + DWCA_SUFFIX);
+        FileUtils.deleteQuietly(dwcaFile);
+        File dir = cfg.archiveDir(datasetKey);
+        if (dir.exists() && dir.isDirectory()) {
+            FileUtils.deleteDirectory(dir);
+        }
+        LOG.info("Removed dwca files from repository {}", dwcaFile);
+
+        DeleteService.deleteStorageFiles(cfg.neo, datasetKey);
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        AdminCommand cmd = new AdminCommand();
+        AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
+
+        cfg.messaging.host = "mq.gbif.org";
+        cfg.messaging.virtualHost = "/prod";
+        cfg.messaging.username = "clb";
+        cfg.messaging.password = "clb";
+
+        // crawl PLAZI checklist
+        cfg.type = DatasetType.CHECKLIST;
+        cmd.crawl(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
+    }
 }

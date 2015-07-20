@@ -403,6 +403,17 @@ public class NubBuilderTest {
     }
 
     /**
+     * CoL contains canonical synonyms without authorship which are linked to an accepted taxon which has the same canonical name, but includes proper authorship.
+     * Ignore those synonyms as they are meaningless and cluttering.
+     */
+    @Test
+    public void testAvoidCanonicalSynonym() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(17);
+        build(src);
+        assertEquals(1, listCanonical("Fuligo septica").size());
+    }
+
+    /**
      * Pro parte synonyms should exist as a single synonym node with multiple synonym relations
      */
     @Test

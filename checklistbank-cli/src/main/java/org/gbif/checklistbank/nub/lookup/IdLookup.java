@@ -45,8 +45,7 @@ public class IdLookup implements Iterable<LookupUsage> {
                 .keySerializer(Serializer.STRING_ASCII)
                 .valueSerializer(new MapDbObjectSerializer<ArrayList>(ArrayList.class))
                 .make();
-        //TODO: load known author abbreviations
-        authComp = new AuthorComparator();
+        authComp = AuthorComparator.createWithAuthormap();
     }
 
     /**
@@ -179,16 +178,16 @@ public class IdLookup implements Iterable<LookupUsage> {
             // If only one current id is matched use that!
             //TODO: review if this decision is correct!!!
             LookupUsage curr = null;
-            int courrCounter = 0;
+            int currCounter = 0;
             for (LookupUsage u : hits) {
                 if (!u.isDeleted()) {
-                    courrCounter++;
+                    currCounter++;
                     curr = u;
                 }
             }
-            if (courrCounter == 0) {
+            if (currCounter == 0) {
                 LOG.debug("Ambiguous match with {} deleted hits for {} {} {}", hits.size(), kingdom, rank, canonicalName);
-            } else if (courrCounter == 1) {
+            } else if (currCounter == 1) {
                 LOG.debug("{} matches, but only 1 current usage {} for {} {} {}", hits.size(), curr.getKey(), kingdom, rank, canonicalName);
                 return curr;
             } else {

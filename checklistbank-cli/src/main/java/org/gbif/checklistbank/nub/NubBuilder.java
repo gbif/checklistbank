@@ -184,11 +184,15 @@ public class NubBuilder implements Runnable {
                     parents.put(nub);
                 }
             } catch (RuntimeException e) {
-                LOG.error("Error processing {} for source {}", u.scientificName, source.name);
+                LOG.error("Error processing {} for source {}", u.scientificName, source.name, e);
             }
         }
         db.renewTx();
         LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
+    }
+
+    private boolean isSynonymWithAuthorship(SrcUsage u) {
+        return u.status.isSynonym() && (u.parsedName.hasAuthorship());
     }
 
     private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
@@ -200,7 +204,7 @@ public class NubBuilder implements Runnable {
             addParsedNameIfNull(u);
             nub = db.findNubUsage(u, parents.nubKingdom());
             if (u.rank != null && allowedRanks.contains(u.rank)) {
-                if (nub == null) {
+                if (nub == null || (!nub.status.isSynonym() && isSynonymWithAuthorship(u))) {
                     // create new nub usage
                     nub = createNubUsage(u, origin, parent);
                 } else {
@@ -327,7 +331,7 @@ public class NubBuilder implements Runnable {
             }
 
         } else if (nub.status.isSynonym()) {
-            // maybe we have a prop arte synonym from the same dataset?
+            // maybe we have a proparte synonym from the same dataset?
             if (fromCurrentSource(nub) && !parent.node.equals(currNubParent.node)) {
                 nub.status = TaxonomicStatus.PROPARTE_SYNONYM;
                 // create new pro parte relation

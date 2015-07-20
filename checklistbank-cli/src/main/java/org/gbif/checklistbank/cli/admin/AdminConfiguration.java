@@ -48,10 +48,6 @@ public class AdminConfiguration {
     @Nullable
     public UUID key;
 
-    @Parameter(names = {"--crawlAll"}, required = false)
-    @Nullable
-    public boolean crawlAll = false;
-
     @Parameter(names = {"-t", "--type"}, required = false)
     @NotNull
     public DatasetType type = DatasetType.CHECKLIST;

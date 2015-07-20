@@ -2,13 +2,19 @@ package org.gbif.checklistbank.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.utils.file.FileUtils;
 
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility to compare scientific name authorships, i.e. the (recombination) author and the publishing year.
@@ -20,15 +26,47 @@ import org.apache.commons.lang3.StringUtils;
  * If any of the names given has an empty author & year the results will always be Equality.UNKNOWN.
  */
 public class AuthorComparator {
+    private static final Logger LOG = LoggerFactory.getLogger(AuthorComparator.class);
+
     private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
     private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
+    private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
+    private final Map<String, String> authorMap = Maps.newHashMap();
 
-    private Map<String, String> KNOWN_AUTHORS;
+    private AuthorComparator(Map<String, String> authors) {
+        for (Map.Entry<String, String> entry : authors.entrySet()) {
+            String key = normalize(entry.getKey());
+            String val = normalize(entry.getValue());
+            if (key != null && val != null) {
+                authorMap.put(key, val);
+            }
+        }
+        LOG.info("Created author comparator with {} abbreviation entries", authorMap.size());
+    }
+
+    public static AuthorComparator createWithoutAuthormap() {
+        return new AuthorComparator(Maps.<String, String>newHashMap());
+    }
+
+    public static AuthorComparator createWithAuthormap() {
+        try {
+            AuthorComparator ac = new AuthorComparator(
+                    FileUtils.streamToMap(Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME)).openStream())
+            );
+            return ac;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load author map from classpath", e);
+        }
+    }
+
+    public static AuthorComparator createWithAuthormap(Map<String, String> authorMap) {
+        return new AuthorComparator(authorMap);
+    }
 
     /**
      * @return ascii only, lower cased string without punctuation. Empty string instead of null
      */
-    protected static String normalize(String x) {
+    protected String normalize(String x) {
         if (StringUtils.isBlank(x)) {
             return null;
         }
@@ -47,7 +85,11 @@ public class AuthorComparator {
         if (StringUtils.isBlank(x)) {
             return null;
         }
-        return x.toLowerCase();
+        x = x.toLowerCase();
+        if (authorMap.containsKey(x)) {
+            return authorMap.get(x);
+        }
+        return x;
     }
 
     public Equality compare(String author1, String year1, String author2, String year2) {

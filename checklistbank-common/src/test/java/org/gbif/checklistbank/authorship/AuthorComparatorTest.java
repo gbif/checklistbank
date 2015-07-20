@@ -12,26 +12,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class AuthorComparatorTest {
-    AuthorComparator comp = new AuthorComparator();
+    AuthorComparator comp = AuthorComparator.createWithAuthormap();
 
   @Test
   public void testNormalize() throws Exception {
-    assertNull(AuthorComparator.normalize(null));
-    assertNull(AuthorComparator.normalize(" "));
-    assertNull(AuthorComparator.normalize("."));
-    assertNull(AuthorComparator.normalize(" (-) "));
+    assertNull(comp.normalize(null));
+    assertNull(comp.normalize(" "));
+    assertNull(comp.normalize("."));
+    assertNull(comp.normalize(" (-) "));
 
-    assertEquals("doring", AuthorComparator.normalize("Döring"));
-    assertEquals("desireno", AuthorComparator.normalize("Désírèñø"));
+    assertEquals("doring", comp.normalize("Döring"));
+    assertEquals("desireno", comp.normalize("Désírèñø"));
 
-    assertEquals("a j white", AuthorComparator.normalize("A.J. White"));
-    assertEquals("j a white", AuthorComparator.normalize("J A  WHITE"));
-    assertEquals("a j white", AuthorComparator.normalize("A-J-White"));
-    assertEquals("a j white", AuthorComparator.normalize("(A.J. White)"));
+    assertEquals("a j white", comp.normalize("A.J. White"));
+    assertEquals("j a white", comp.normalize("J A  WHITE"));
+    assertEquals("a j white", comp.normalize("A-J-White"));
+    assertEquals("a j white", comp.normalize("(A.J. White)"));
 
-    assertEquals("a j white herbert p j harvey", AuthorComparator.normalize("A. J. White, Herbert  &  P. J. Harvey"));
-    assertEquals("a j white herbert p j harvey", AuthorComparator.normalize("A.J. White, Herbert et P.J. Harvey"));
-    assertEquals("a j white herbert p j harvey", AuthorComparator.normalize("A.J. White, Herbert and P.J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A. J. White, Herbert  &  P. J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
   }
 
   @Test
@@ -115,8 +115,6 @@ public class AuthorComparatorTest {
 
   @Test
   public void testEqualsSubstring() throws Exception {
-    AuthorComparator comp = new AuthorComparator();
-
     ParsedName p1 = new ParsedName();
     ParsedName p2 = new ParsedName();
 
@@ -211,8 +209,6 @@ public class AuthorComparatorTest {
 
   @Test
   public void testAlikeAuthors() throws Exception {
-    AuthorComparator comp = new AuthorComparator();
-
     ParsedName p1 = new ParsedName();
     p1.setAuthorsParsed(true);
     p1.setAuthorship("Voet");
