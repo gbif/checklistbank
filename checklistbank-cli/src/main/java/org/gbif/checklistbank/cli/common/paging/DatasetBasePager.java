@@ -48,6 +48,11 @@ abstract class DatasetBasePager implements Iterable<Dataset> {
             return d;
         }
 
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
         private Dataset nextDataset() {
             // just to be sure we dont get stuck in this while loop forever
             int safeCounter = 0;
