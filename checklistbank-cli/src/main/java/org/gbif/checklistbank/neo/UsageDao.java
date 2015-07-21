@@ -180,8 +180,12 @@ public class UsageDao {
      * Fully closes the dao leaving any potentially existing persistence files untouched.
      */
     public void close() {
-        if (kvp != null && !kvp.isClosed()){
-            kvp.close();
+        try {
+            if (kvp != null && !kvp.isClosed()){
+                kvp.close();
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to close kvp store {}", kvpStore.getAbsolutePath(), e);
         }
         closeNeo();
         LOG.info("Closed dao {}", neoDir.getName());
@@ -205,8 +209,12 @@ public class UsageDao {
     }
 
     private void closeNeo() {
-        if (neo != null && neo.isAvailable(100)) {
-            neo.shutdown();
+        try {
+            if (neo != null && neo.isAvailable(100)) {
+                neo.shutdown();
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to close neo4j {}", neoDir.getAbsolutePath(), e);
         }
     }
 
