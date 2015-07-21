@@ -34,7 +34,6 @@ import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
-import org.gbif.utils.file.ClosableIterator;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,13 +101,7 @@ public class NeoInserter implements AutoCloseable {
 
   public InsertMetadata insert(File dwca, Map<String, UUID> constituents) throws NormalizationFailedException {
     this.constituents = constituents;
-
-    final long startSort = System.currentTimeMillis();
     openArchive(dwca);
-    ClosableIterator<StarRecord> iter = arch.iterator();
-    iter.close();
-    LOG.debug("Opened and sorted archive in {} seconds", (System.currentTimeMillis() - startSort) / 1000);
-
     for (StarRecord star : arch) {
       insertStarRecord(star);
     }
