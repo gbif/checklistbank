@@ -90,6 +90,7 @@ public class AdminCommand extends BaseCommand {
         datasets = DatasetPagerFactory.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService);
         for (Dataset d : datasets) {
             try {
+                LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
                 switch (cfg.operation) {
                     case CLEANUP:
                         zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));

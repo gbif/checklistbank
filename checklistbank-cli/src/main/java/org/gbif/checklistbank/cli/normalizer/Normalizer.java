@@ -10,6 +10,8 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
+import org.gbif.checklistbank.cli.model.NameUsageNode;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoInserter;
@@ -17,8 +19,6 @@ import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.NotUniqueException;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.cli.model.NameUsageNode;
-import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
@@ -41,7 +41,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -92,10 +91,8 @@ public class Normalizer extends ImportDb implements Runnable {
     this.dwca = dwca;
     this.matchingService = matchingService;
     this.batchSize = batchSize;
-    if (!registry.getGauges().containsKey(Metrics.SYNC_FILES)) {
-      registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
-    }
   }
+
 
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
   Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
@@ -138,6 +135,7 @@ public class Normalizer extends ImportDb implements Runnable {
       setupRelations();
       buildMetricsAndMatchBackbone();
       LOG.info("Normalization of {} succeeded.", datasetKey);
+
     } finally {
       dao.close();
       LOG.info("Neo database {} shut down.", datasetKey);

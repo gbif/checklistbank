@@ -16,7 +16,6 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -71,23 +70,29 @@ public class UsageDao {
      * @param registry
      */
     private UsageDao(DB kvp, File neoDir, @Nullable File kvpStore, GraphDatabaseBuilder neoFactory, MetricRegistry registry){
-        this.neoFactory = neoFactory;
-        this.neoDir = neoDir;
-        this.kvpStore = kvpStore;
-        this.kvp = kvp;
-        this.registry = registry;
+        try {
+            this.neoFactory = neoFactory;
+            this.neoDir = neoDir;
+            this.kvpStore = kvpStore;
+            this.kvp = kvp;
+            this.registry = registry;
 
-        pool = new KryoPool.Builder(new CliKryoFactory())
-                .softReferences()
-                .build();
-        facts = createKvpMap("facts", UsageFacts.class, 128);
-        verbatim = createKvpMap("verbatim", VerbatimNameUsage.class, 512);
-        usages = createKvpMap("usages", NameUsage.class, 256);
-        extensions = createKvpMap("extensions", UsageExtensions.class, 512);
-        srcUsages = createKvpMap("srcUsages", SrcUsage.class, 256);
-        nubUsages = createKvpMap("nubUsages", NubUsage.class, 256);
+            pool = new KryoPool.Builder(new CliKryoFactory())
+                    .softReferences()
+                    .build();
+            facts = createKvpMap("facts", UsageFacts.class, 128);
+            verbatim = createKvpMap("verbatim", VerbatimNameUsage.class, 512);
+            usages = createKvpMap("usages", NameUsage.class, 256);
+            extensions = createKvpMap("extensions", UsageExtensions.class, 512);
+            srcUsages = createKvpMap("srcUsages", SrcUsage.class, 256);
+            nubUsages = createKvpMap("nubUsages", NubUsage.class, 256);
 
-        openNeo();
+            openNeo();
+        } catch (Exception e) {
+            LOG.error("Failed to initialize a new DAO", e);
+            close();
+            throw e;
+        }
     }
 
     private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
@@ -120,6 +125,7 @@ public class UsageDao {
      * @param eraseExisting if true erases any previous data files
      */
     public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry, boolean eraseExisting) {
+        DB kvp = null;
         try {
             final File kvpF = cfg.kvp(datasetKey);
             final File storeDir = cfg.neoDir(datasetKey);
@@ -134,13 +140,17 @@ public class UsageDao {
             }
             FileUtils.forceMkdir(kvpF.getParentFile());
             LOG.info("Use KVP store {}", kvpF.getAbsolutePath());
-            DB kvp = DBMaker.fileDB(kvpF)
+            kvp = DBMaker.fileDB(kvpF)
                         .fileMmapEnableIfSupported()
                         .transactionDisable()
                         .make();
             GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, cfg.mappedMemory, eraseExisting);
             return new UsageDao(kvp, storeDir, kvpF, builder, registry);
-        } catch (IOException e) {
+
+        } catch (Exception e) {
+            if (kvp != null && !kvp.isClosed()) {
+                kvp.close();
+            }
             throw new IllegalStateException("Failed to init persistent DAO for " + datasetKey, e);
         }
     }
@@ -170,11 +180,11 @@ public class UsageDao {
      * Fully closes the dao leaving any potentially existing persistence files untouched.
      */
     public void close() {
-        LOG.info("Closing dao ");
-        if (!kvp.isClosed()){
+        if (kvp != null && !kvp.isClosed()){
             kvp.close();
         }
         closeNeo();
+        LOG.info("Closed dao {}", neoDir.getName());
     }
 
     public void closeAndDelete() {

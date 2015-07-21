@@ -14,7 +14,6 @@ import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,6 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
     super("clb-normalizer", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
-    MemoryUsageGaugeSet mgs = new MemoryUsageGaugeSet();
-    registry.registerAll(mgs);
     registry.meter(Metrics.INSERT_METER);
     registry.meter(Metrics.RELATION_METER);
     registry.meter(Metrics.METRICS_METER);

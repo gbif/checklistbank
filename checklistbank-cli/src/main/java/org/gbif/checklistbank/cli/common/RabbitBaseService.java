@@ -20,6 +20,8 @@ import com.google.inject.name.Names;
 import com.yammer.metrics.Counter;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
+import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
+import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,8 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
     this.poolSize = poolSize;
     this.queue = queue;
     registry = new MetricRegistry(queue);
+    registry.registerAll(new MemoryUsageGaugeSet());
+    registry.register(Metrics.OPEN_FILES, new FileDescriptorRatioGauge());
     timer = registry.timer(regName("time"));
     succeeded = registry.counter(regName("succeeded"));
     failed = registry.counter(regName("failed"));

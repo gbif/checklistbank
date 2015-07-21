@@ -10,14 +10,14 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.model.ClassificationKeys;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.cli.model.ClassificationKeys;
-import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 
 import java.util.Calendar;
@@ -34,7 +34,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -69,9 +68,6 @@ public class Importer extends ImportDb implements Runnable {
     this.importService = importService;
     this.usageService = usageService;
     this.syncMeter = registry.meter(Metrics.SYNC_METER);
-    if (!registry.getGauges().containsKey(Metrics.SYNC_FILES)) {
-      registry.register(Metrics.SYNC_FILES, new FileDescriptorRatioGauge());
-    }
   }
 
   public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,

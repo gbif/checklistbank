@@ -6,7 +6,7 @@ package org.gbif.checklistbank.cli.common;
 public class Metrics {
 
     public static final String SYNC_METER = "clb-importer.sync";
-    public static final String SYNC_FILES = "clb-importer.openfiles";
+    public static final String OPEN_FILES = "clb.openfiles";
     public static final String HEAP_GAUGE = "heap.usage";
     public static final String INSERT_METER = "taxon.inserts";
     public static final String RELATION_METER = "taxon.relations";
