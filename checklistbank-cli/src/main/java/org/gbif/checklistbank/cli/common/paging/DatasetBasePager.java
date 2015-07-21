@@ -81,7 +81,7 @@ abstract class DatasetBasePager implements Iterable<Dataset> {
         }
 
         private void loadPage() {
-            LOG.info("Load next dataset page {}-{}", page.getOffset(), page.getOffset()+page.getLimit());
+            LOG.info("Load dataset page {}-{}", page.getOffset(), page.getOffset()+page.getLimit());
             resp = nextPage(page);
             iter = resp.getResults().iterator();
             page.nextPage();
