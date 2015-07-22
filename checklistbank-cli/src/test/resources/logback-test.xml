@@ -22,7 +22,6 @@
   <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
   <logger name="org.gbif.checklistbank.neo" level="INFO"/>
 
-
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
   </root>

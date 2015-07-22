@@ -11,6 +11,8 @@ import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.utils.ResourcesMonitor;
+import org.gbif.checklistbank.utils.RunnableAdapter;
 import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -22,21 +24,15 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
 import javax.sql.DataSource;
 
 import com.beust.jcommander.internal.Lists;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.base.Throwables;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -50,8 +46,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static java.lang.management.ManagementFactory.getPlatformMBeanServer;
-
 @Ignore("manual long running test to discover why we see too many open files in heavy importer cli use")
 public class MultiThreadingCliTest {
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
@@ -61,55 +55,10 @@ public class MultiThreadingCliTest {
     private NormalizerConfiguration cfgN;
     private ImporterConfiguration cfgI;
     private File zip;
-    private OpenFileMonitor monitor;
+    private ResourcesMonitor monitor;
     private DatasetImportServiceCombined importService;
     private NameUsageService usageService;
     private HikariDataSource hds;
-
-    public static class OpenFileMonitor extends TimerTask {
-        private MBeanServer jmx;
-        private ObjectName osMBean;
-
-        public OpenFileMonitor() {
-            try {
-                osMBean = ObjectName.getInstance("java.lang:type=OperatingSystem");
-            } catch (MalformedObjectNameException e) {
-                Throwables.propagate(e);
-            }
-            jmx = getPlatformMBeanServer();
-        }
-
-        @Override
-        public void run() {
-            System.out.println("OPEN FILES: " + getOpenFileDescriptorCount());
-        }
-
-        public long getOpenFileDescriptorCount() {
-            try {
-                return (long) jmx.getAttribute(osMBean, "OpenFileDescriptorCount");
-            } catch (Exception e) {
-                Throwables.propagate(e);
-            }
-            return -1;
-        }
-    }
-
-    /**
-     * A callable that runs given task and returns given result.
-     * Copied from java8 sources.
-     */
-    static final class RunnableAdapter<T> implements Callable<T> {
-        final Runnable task;
-        final T result;
-        RunnableAdapter(Runnable task, T result) {
-            this.task = task;
-            this.result = result;
-        }
-        public T call() {
-            task.run();
-            return result;
-        }
-    }
 
     @Before
     public void init() throws Exception {
@@ -128,7 +77,7 @@ public class MultiThreadingCliTest {
         zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");
 
         Timer timer = new Timer();
-        monitor = new OpenFileMonitor();
+        monitor = new ResourcesMonitor();
         timer.schedule(monitor, 1000);
     }
 
@@ -155,17 +104,21 @@ public class MultiThreadingCliTest {
             CompressionUtil.decompressFile(dwca, this.zip);
 
             Normalizer normalizer = NormalizerTest.buildNormalizer(cfgN, registry, dk);
-            System.out.println("Submit normalizer " + i++ + " with open files: " + monitor.getOpenFileDescriptorCount());
+            System.out.println("Submit normalizer " + i);
             futures.add(ecs.submit(Executors.callable(normalizer)));
         }
 
         int idx = 1;
         for (Future<Object> f : futures) {
             f.get();
-            System.out.println("Finished normalizer " + idx++ + " with open files: " + monitor.getOpenFileDescriptorCount());
+            System.out.println("Finished normalizer " + idx++);
+            monitor.run();
         }
-        System.out.println("Finished all threads");
-        System.out.println("Open files: " + monitor.getOpenFileDescriptorCount());
+        System.out.println("Finished all jobs");
+        monitor.run();
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            System.out.println(t.getState() + " " + t.getName());
+        }
     }
 
     @Test
@@ -230,7 +183,7 @@ public class MultiThreadingCliTest {
             }
         }
         log.println("Finished all tasks. Done");
-        log.println("Open files: " + monitor.getOpenFileDescriptorCount());
+        monitor.run();
     }
 
     public Importer buildImporter(UUID datasetKey) throws SQLException {
