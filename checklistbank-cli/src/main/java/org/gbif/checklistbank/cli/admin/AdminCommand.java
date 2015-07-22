@@ -5,9 +5,10 @@ import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.InstallationService;
+import org.gbif.api.service.registry.NetworkService;
 import org.gbif.api.service.registry.OrganizationService;
+import org.gbif.api.util.iterables.DatasetIterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.common.paging.DatasetPagerFactory;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
@@ -48,6 +49,7 @@ public class AdminCommand extends BaseCommand {
     private DatasetService datasetService;
     private OrganizationService organizationService;
     private InstallationService installationService;
+    private NetworkService networkService;
     private Iterable<Dataset> datasets;
 
     public AdminCommand() {
@@ -64,6 +66,7 @@ public class AdminCommand extends BaseCommand {
         datasetService = inj.getInstance(DatasetService.class);
         organizationService = inj.getInstance(OrganizationService.class);
         installationService = inj.getInstance(InstallationService.class);
+        networkService = inj.getInstance(NetworkService.class);
     }
 
     private ZookeeperUtils zk() {
@@ -87,7 +90,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        datasets = DatasetPagerFactory.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService);
+        datasets = DatasetIterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService);
         for (Dataset d : datasets) {
             try {
                 LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));

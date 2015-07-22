@@ -36,7 +36,7 @@
 
     <!-- dependency versions -->
     <dwc-api.version>1.13</dwc-api.version>
-    <gbif-api.version>0.26-SNAPSHOT</gbif-api.version>
+    <gbif-api.version>0.26</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.18</gbif-common.version>
     <gbif-common-mybatis.version>0.16</gbif-common-mybatis.version>
@@ -82,8 +82,8 @@
       -->
     <kryo.version>3.0.2</kryo.version>
     <liquibase.version>3.0.7</liquibase.version>
-    <mapdb.version>2.0-beta2</mapdb.version>
     <logback.version>1.1.2</logback.version>
+    <mapdb.version>2.0-beta2</mapdb.version>
     <maven-shade-plugin.version>2.4</maven-shade-plugin.version>
     <metainf-services.version>1.5</metainf-services.version>
     <metrics.version>3.0.0-BETA1</metrics.version>
@@ -91,7 +91,6 @@
     <mybatis.version>3.2.8</mybatis.version>
     <mybatis-guice.version>3.6</mybatis-guice.version>
     <neo4j.version>2.2.3</neo4j.version>
-    <openhft.version>0.6.7</openhft.version>
     <postgresql.version>9.2-1003-jdbc4</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
