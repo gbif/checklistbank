@@ -62,7 +62,8 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
             if (cfg.deleteNeo) {
                 DeleteService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
             }
-
+        } catch (EmptyImportException e) {
+            // ignore those
         } finally {
             zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
         }

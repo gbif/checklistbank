@@ -93,8 +93,10 @@ public class Importer extends ImportDb implements Runnable {
    * with Checklist Bank Postgres. As basionym relations can crosslink basically any record we first set the basionym
    * key to null and update just those keys in a second iteration. Most usages will not have a basionymKey, so
    * performance should only be badly impacted in rare cases.
+   *
+   * @throws EmptyImportException if no records at all have been imported
    */
-  private void syncDataset() {
+  private void syncDataset() throws EmptyImportException {
     // we keep the very first usage key to retrieve the exact last modified timestamp from the database
     // in order to avoid clock differences between machines and threads.
     int firstUsageKey = -1;
@@ -177,14 +179,14 @@ public class Importer extends ImportDb implements Runnable {
 
     // remove old usages
     if (firstUsageKey < 0) {
-      LOG.error("No records imported for dataset {}. Keep all existing data!", datasetKey);
-      throw new IllegalStateException("No records imported for dataset " + datasetKey);
+      LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
+      throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
 
     } else {
       NameUsage first = usageService.get(firstUsageKey, null);
       if (first == null) {
-        LOG.error("First name usage with id {} not found", firstUsageKey);
-        throw new IllegalStateException("Error importing name usages for dataset " + datasetKey);
+        LOG.error("First synced name usage with id {} not found", firstUsageKey);
+        throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
       }
       Calendar cal = Calendar.getInstance();
       cal.setTime(first.getLastInterpreted());
