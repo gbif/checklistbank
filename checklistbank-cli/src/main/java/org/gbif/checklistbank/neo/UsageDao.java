@@ -114,7 +114,7 @@ public class UsageDao {
                     .make();
 
         File storeDir = Files.createTempDir();
-        GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, "strong", mappedMemory, false);
+        GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, NeoConfiguration.CacheType.NONE, mappedMemory, false);
         CleanupUtils.registerCleanupHook(storeDir);
 
         return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
@@ -159,7 +159,7 @@ public class UsageDao {
      * Creates a new embedded db in the neoRepository folder.
      * @param eraseExisting  if true deletes previously existing db
      */
-    private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, String cacheType, int mappedMemory, boolean eraseExisting) {
+    private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, NeoConfiguration.CacheType cacheType, int mappedMemory, boolean eraseExisting) {
         if (eraseExisting && storeDir.exists()) {
             // erase previous db
             LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
@@ -168,7 +168,7 @@ public class UsageDao {
         return new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
                 .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-                .setConfig(GraphDatabaseSettings.cache_type, cacheType)
+                .setConfig(GraphDatabaseSettings.cache_type, cacheType.name().toLowerCase())
                 .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory+"M");
     }
 

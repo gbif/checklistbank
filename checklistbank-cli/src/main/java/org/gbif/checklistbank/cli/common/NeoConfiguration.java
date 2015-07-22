@@ -14,7 +14,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  *
  */
@@ -23,6 +22,7 @@ public class NeoConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeoConfiguration.class);
 
+    public enum CacheType {NONE, SOFT, WEAK, STRONG};
     @NotNull
     @Parameter(names = "--neo-repo")
     public File neoRepository;
@@ -37,7 +37,7 @@ public class NeoConfiguration {
      */
     @NotNull
     @Parameter(names = "--neo-cache-type")
-    public String cacheType = "soft";
+    public CacheType cacheType = CacheType.NONE;
 
     @Min(0)
     @Parameter(names = "--neo-mapped-memory")
@@ -67,7 +67,7 @@ public class NeoConfiguration {
         return new GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
                 .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-                .setConfig(GraphDatabaseSettings.cache_type, cacheType)
+                .setConfig(GraphDatabaseSettings.cache_type, cacheType.name().toLowerCase())
                 .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory+"M")
                 .newGraphDatabase();
     }
