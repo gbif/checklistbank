@@ -25,9 +25,12 @@ import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 public abstract class RabbitBaseService<T extends Message> extends AbstractIdleService implements MessageCallback<T> {
   private static final Logger LOG = LoggerFactory.getLogger(RabbitBaseService.class);
+  private static final Marker DOI_SMTP = MarkerFactory.getMarker("SMTP");
 
   private final MessagingConfiguration mCfg;
   private final GangliaConfiguration gCfg;
@@ -40,12 +43,14 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
   protected HikariDataSource hds;
   protected MessagePublisher publisher;
   private MessageListener listener;
+  private final String action;
 
-  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg) {
+  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action) {
     this.mCfg = mCfg;
     this.gCfg = gCfg;
     this.poolSize = poolSize;
     this.queue = queue;
+    this.action = action;
     registry = new MetricRegistry(queue);
     registry.registerAll(new MemoryUsageGaugeSet());
     registry.register(Metrics.OPEN_FILES, new FileDescriptorRatioGauge());
@@ -103,7 +108,8 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
     } catch (Throwable e) {
       final UUID datasetKey = msg instanceof DatasetBasedMessage ? ((DatasetBasedMessage) msg ).getDatasetUuid() : null;
       if (datasetKey != null) {
-        LOG.error("Failed to process dataset {}", datasetKey, e);
+        LOG.error("Failed to {} dataset {}", action, datasetKey, e);
+        LOG.error(DOI_SMTP, "Failed to {} checklist {}", action, datasetKey, e);
         failed(datasetKey);
       } else {
         LOG.error("Failed to process {} message", msg.getClass().getSimpleName(), e);

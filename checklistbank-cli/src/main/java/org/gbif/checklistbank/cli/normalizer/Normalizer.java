@@ -17,6 +17,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoInserter;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.NotUniqueException;
+import org.gbif.checklistbank.neo.NotUniqueRuntimeException;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
@@ -149,12 +150,16 @@ public class Normalizer extends ImportDb implements Runnable {
     }
 
     private void batchInsertData() throws NormalizationFailedException {
-        NeoInserter inserter = dao.createBatchInserter(batchSize);
         try {
-            meta = inserter.insert(dwca, constituents);
-        } finally {
-            // closing the batch inserter open the neo db again for regular access via the DAO
-            inserter.close();
+            NeoInserter inserter = dao.createBatchInserter(batchSize);
+            try {
+                meta = inserter.insert(dwca, constituents);
+            } finally {
+                // closing the batch inserter open the neo db again for regular access via the DAO
+                inserter.close();
+            }
+        } catch (NotUniqueRuntimeException e) {
+            throw new NormalizationFailedException(e.getProperty() + " values not unique: " + e.getKey(), e);
         }
     }
 

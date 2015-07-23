@@ -27,7 +27,7 @@ public class NormalizerService extends RabbitBaseService<DwcaMetasyncFinishedMes
     private NameUsageMatchingService matchingService;
 
     public NormalizerService(NormalizerConfiguration cfg) {
-        super("clb-normalizer", cfg.poolSize, cfg.messaging, cfg.ganglia);
+        super("clb-normalizer", cfg.poolSize, cfg.messaging, cfg.ganglia, "normalize");
         this.cfg = cfg;
 
         registry.meter(Metrics.INSERT_METER);

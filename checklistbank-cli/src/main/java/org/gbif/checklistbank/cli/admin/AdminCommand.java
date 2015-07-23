@@ -116,17 +116,25 @@ public class AdminCommand extends BaseCommand {
                         break;
 
                     case NORMALIZE:
-                        // validation result is a fake valid checklist validation
-                        send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
-                                        URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                                        new DwcaValidationReport(d.getKey(),
-                                                new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-                                )
-                        );
+                        if (!cfg.archiveDir(d.getKey()).exists()) {
+                            LOG.info("Missing dwca file. Cannot normalize dataset {}", title(d));
+                        } else {
+                            // validation result is a fake valid checklist validation
+                            send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
+                                            URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
+                                            new DwcaValidationReport(d.getKey(),
+                                                    new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+                                    )
+                            );
+                        }
                         break;
 
                     case IMPORT:
-                        send(new ChecklistNormalizedMessage(d.getKey()));
+                        if (!cfg.neo.neoDir(d.getKey()).exists()) {
+                            LOG.info("Missing neo4j directory. Cannot import dataset {}", title(d));
+                        } else {
+                            send(new ChecklistNormalizedMessage(d.getKey()));
+                        }
                         break;
 
                     case ANALYZE:
@@ -143,4 +151,8 @@ public class AdminCommand extends BaseCommand {
         }
     }
 
+
+    private String title(Dataset d) {
+        return d.getKey() + ": " + d.getTitle().replaceAll("\n", " ");
+    }
 }

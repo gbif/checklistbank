@@ -32,14 +32,14 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
     private final ZookeeperUtils zkUtils;
 
     public ImporterService(ImporterConfiguration cfg) {
-        super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia);
+        super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import");
         this.cfg = cfg;
         try {
             zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // init mybatis layer and solr from cfg instance
+        // init mybatis layer and solr once from cfg instance
         Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
         initDbPool(inj);
         importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
@@ -62,8 +62,7 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
             if (cfg.deleteNeo) {
                 DeleteService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
             }
-        } catch (EmptyImportException e) {
-            // ignore those
+
         } finally {
             zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
         }

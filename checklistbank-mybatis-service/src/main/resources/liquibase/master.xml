@@ -80,5 +80,14 @@
   <changeSet id="22" author="markus">
     <sql>CREATE INDEX ON name_usage (dataset_key, last_interpreted);</sql>
   </changeSet>
+  <changeSet id="23" author="markus">
+    <sql>
+      ALTER TABLE citation DROP CONSTRAINT citation_unique;
+      DROP INDEX citation_citation_idx;
+      CREATE UNIQUE INDEX ON citation (md5(citation));
 
+      DROP INDEX identifier_identifier_idx;
+      CREATE UNIQUE INDEX ON identifier (identifier);
+    </sql>
+  </changeSet>
 </databaseChangeLog>

@@ -39,7 +39,11 @@ public class ImportDb {
    * @return the single matching node with the taxonID or null
    */
   protected Node nodeByTaxonId(String taxonID) {
-    return IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, taxonID));
+//      try {
+      return IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, taxonID));
+//      } catch (NoSuchElementException e) {
+//          throw new NotUniqueException(taxonID, "TaxonID not unique: " + taxonID);
+//      }
   }
 
   /**
@@ -50,7 +54,7 @@ public class ImportDb {
       return IteratorUtil
         .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
     } catch (NoSuchElementException e) {
-      throw new NotUniqueException("Canonical name not unique: " + canonical, canonical);
+      throw new NotUniqueException(canonical, "Canonical name not unique: " + canonical);
     }
   }
 
@@ -67,7 +71,7 @@ public class ImportDb {
       return IteratorUtil
         .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname));
     } catch (NoSuchElementException e) {
-      throw new NotUniqueException("Scientific name not unique: " + sciname, sciname);
+      throw new NotUniqueException(sciname, "Scientific name not unique: " + sciname);
     }
   }
 

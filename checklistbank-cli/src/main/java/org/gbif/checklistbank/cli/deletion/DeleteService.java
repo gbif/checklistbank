@@ -31,7 +31,7 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
     private final Timer timerSql = registry.timer(regName("sql.time"));
 
     public DeleteService(DeleteConfiguration cfg) {
-        super("clb-deletion", cfg.poolSize, cfg.messaging, cfg.ganglia);
+        super("clb-deletion", cfg.poolSize, cfg.messaging, cfg.ganglia, "delete");
         this.cfg = cfg;
 
         // init mybatis layer and solr from cfg instance

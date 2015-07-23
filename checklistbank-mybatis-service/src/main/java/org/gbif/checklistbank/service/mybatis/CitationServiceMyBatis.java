@@ -36,7 +36,7 @@ public class CitationServiceMyBatis implements CitationService {
     } catch (PersistenceException e) {
       // we have a unique constraint in the database which can throw an exception when we concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
-      LOG.info("Inserting name {} failed, try to re-read", citation);
+      LOG.info("Inserting citation >>>{}<<< failed, try to re-read", citation);
       return createOrGetThrowing(citation);
     }
   }

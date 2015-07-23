@@ -44,7 +44,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     } catch (PersistenceException e) {
       // we have a unique constraint in the database which can throw an exception when we concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
-      LOG.warn("Inserting name {} failed, try to re-read", scientificName);
+      LOG.warn("Inserting name >>>{}<<< failed, try to re-read", scientificName);
       return createOrGetThrowing(scientificName);
     }
   }

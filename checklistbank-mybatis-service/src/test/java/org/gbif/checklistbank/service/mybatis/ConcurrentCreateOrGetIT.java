@@ -27,9 +27,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created by markus on 12/06/15.
- */
 public class ConcurrentCreateOrGetIT {
     private static final String PROPERTY_FILE = "checklistbank.properties";
     private final int threads = 10;

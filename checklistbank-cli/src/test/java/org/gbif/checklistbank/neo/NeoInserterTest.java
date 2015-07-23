@@ -21,8 +21,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.IteratorUtil;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class NeoInserterTest {
@@ -91,6 +93,56 @@ public class NeoInserterTest {
             assertEquals("bugger off", u.getRemarks());
             assertEquals(URI.create("http://gbif.org"), u.getReferences());
         }
+    }
+
+    @Test
+    public void testTaxonIDUnique() throws Exception {
+
+        addColumn(DwcTerm.taxonID, "1");
+        addColumn(DwcTerm.scientificName, "Abies alba Mill., 1982");
+        StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
+        RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+        rec.setRow(values.toArray(new String[]{}));
+        star.newCoreRecord(rec);
+        ins.insertStarRecord(star);
+
+        values = Lists.newArrayList();
+        fields = Lists.newArrayList();
+        addColumn(DwcTerm.taxonID, "2");
+        addColumn(DwcTerm.scientificName, "Picea alba");
+        rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+        rec.setRow(values.toArray(new String[]{}));
+        star.newCoreRecord(rec);
+        ins.insertStarRecord(star);
+
+        ins.close();
+
+        try (Transaction tx = dao.beginTx()) {
+            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "1")));
+        }
+    }
+
+    @Test(expected = NotUniqueRuntimeException.class)
+    public void testTaxonIDNotUnique() throws Exception {
+
+        addColumn(DwcTerm.taxonID, "1");
+        addColumn(DwcTerm.scientificName, "Abies alba Mill., 1982");
+        StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
+        RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+        rec.setRow(values.toArray(new String[]{}));
+        star.newCoreRecord(rec);
+        ins.insertStarRecord(star);
+
+        values = Lists.newArrayList();
+        fields = Lists.newArrayList();
+        addColumn(DwcTerm.taxonID, "1");
+        addColumn(DwcTerm.scientificName, "Picea alba");
+        rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+        rec.setRow(values.toArray(new String[]{}));
+        star.newCoreRecord(rec);
+        ins.insertStarRecord(star);
+
+        ins.close();
     }
 
     @Test

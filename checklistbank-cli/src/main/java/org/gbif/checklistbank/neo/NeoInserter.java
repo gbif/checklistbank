@@ -389,10 +389,11 @@ public class NeoInserter implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws NotUniqueRuntimeException {
         try {
             // define indices
             LOG.info("Building lucene index taxonID ...");
+            //TODO: neo4j batchinserter does not seem to evaluate the unique constraint. Duplicates pass thru (see tests) !!!
             inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NodeProperties.TAXON_ID).create();
             LOG.info("Building lucene index scientific name ...");
             inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();

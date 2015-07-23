@@ -19,6 +19,8 @@
  */
 package org.neo4j.unsafe.batchinsert;
 
+import org.gbif.checklistbank.neo.NotUniqueRuntimeException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.common.base.Throwables;
 import org.neo4j.collection.primitive.PrimitiveLongCollections;
 import org.neo4j.function.primitive.FunctionFromPrimitiveLong;
 import org.neo4j.graphdb.ConstraintViolationException;
@@ -66,6 +69,7 @@ import org.neo4j.kernel.api.index.IndexEntryConflictException;
 import org.neo4j.kernel.api.index.IndexPopulator;
 import org.neo4j.kernel.api.index.InternalIndexState;
 import org.neo4j.kernel.api.index.NodePropertyUpdate;
+import org.neo4j.kernel.api.index.PreexistingIndexEntryConflictException;
 import org.neo4j.kernel.api.index.SchemaIndexProvider;
 import org.neo4j.kernel.api.labelscan.LabelScanStore;
 import org.neo4j.kernel.api.labelscan.NodeLabelUpdate;
@@ -445,7 +449,8 @@ public class BatchInserterImpl implements BatchInserter
                         {
                             try
                             {
-                                populators[i].add( update.getNodeId(), update.getValueAfter() );
+                                populators[i].add(update.getNodeId(), update.getValueAfter());
+
                             }
                             catch ( IndexEntryConflictException conflict )
                             {
@@ -467,8 +472,16 @@ public class BatchInserterImpl implements BatchInserter
                 propertyUpdateVisitor, labelUpdateVisitor );
         storeScan.run();
 
+
         for ( IndexPopulator populator : populators )
         {
+            try {
+                populator.verifyDeferredConstraints(storeView);
+            } catch (PreexistingIndexEntryConflictException e) {
+                throw new NotUniqueRuntimeException("taxonID", e.getPropertyValue());
+            } catch (Exception e) {
+                Throwables.propagate(e);
+            }
             populator.close( true );
         }
         labelUpdateVisitor.close();
