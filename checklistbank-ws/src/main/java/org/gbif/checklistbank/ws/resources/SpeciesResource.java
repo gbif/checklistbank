@@ -20,6 +20,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.model.common.search.SearchRequest;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
@@ -61,6 +62,7 @@ public class SpeciesResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(SpeciesResource.class);
   private static final String DATASET_KEY = "datasetKey";
+  private static final int DEEP_PAGING_OFFSET_LIMIT = 100000;
 
   private final NameUsageService nameUsageService;
   private final VernacularNameService vernacularNameService;
@@ -413,6 +415,10 @@ public class SpeciesResource {
   public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
     @Context NameUsageSearchRequest searchRequest) {
     LOG.debug("Search operation received {} ", searchRequest);
+
+    // POR-2801
+    // protect SOLR against deep paging requests which blow heap
+    checkDeepPaging(searchRequest);
     return searchService.search(searchRequest);
   }
 
@@ -420,7 +426,20 @@ public class SpeciesResource {
   @GET
   public List<NameUsageSuggestResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
     LOG.debug("Suggest operation received {} ", searchSuggestRequest);
+
+    // POR-2801
+    // protect SOLR against deep paging requests which blow heap
+    checkDeepPaging(searchSuggestRequest);
     return searchService.suggest(searchSuggestRequest);
   }
 
+  /**
+   * POR-2801
+   * @throws java.lang.IllegalArgumentException if the offset is considered too high
+   */
+  private static void checkDeepPaging(SearchRequest searchRequest) {
+    if (searchRequest.getOffset() > DEEP_PAGING_OFFSET_LIMIT) {
+      throw new IllegalArgumentException("Offset is limited for this operation to " + DEEP_PAGING_OFFSET_LIMIT);
+    }
+  }
 }
