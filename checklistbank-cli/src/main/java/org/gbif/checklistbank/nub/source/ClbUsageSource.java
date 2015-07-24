@@ -17,6 +17,7 @@ import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -88,28 +89,26 @@ public class ClbUsageSource implements UsageSource {
         return null;
     }
 
-    private NubSource getSource(Dataset d) {
-        Integer priority = getNubPriority(d);
-        if (priority != null) {
-            NubSource src = new NubSource();
-            src.key = d.getKey();
-            src.name = d.getTitle();
-            src.priority = priority;
-            Rank rank = getNubRank(d);
-            if (rank != null) {
-                src.ignoreRanksAbove = rank;
-            }
-            return src;
+    private NubSource buildSource(Dataset d, int priority, Rank rank) {
+        NubSource src = new NubSource();
+        src.key = d.getKey();
+        src.name = d.getTitle();
+        src.created = d.getCreated();
+        src.priority = priority;
+        if (rank != null) {
+            src.ignoreRanksAbove = rank;
         }
-        return null;
+        return src;
     }
 
     private void loadSourcesFromRegistry() {
         sources = Lists.newArrayList();
         Set<UUID> keys = Sets.newHashSet();
         for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
-            NubSource src = getSource(d);
-            if (src != null) {
+            Integer priority = getNubPriority(d);
+            if (priority != null) {
+                Rank rank = getNubRank(d);
+                NubSource src = buildSource(d, priority, rank);
                 keys.add(d.getKey());
                 sources.add(src);
             }
@@ -122,13 +121,7 @@ public class ClbUsageSource implements UsageSource {
                 int counter = 0;
                 for (Dataset d : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
                     if (!keys.contains(d.getKey())) {
-                        NubSource src = new NubSource();
-                        src.key = d.getKey();
-                        src.name = d.getTitle();
-                        src.priority = priority;
-                        if (rank != null) {
-                            src.ignoreRanksAbove = rank;
-                        }
+                        NubSource src = buildSource(d, priority, rank);
                         keys.add(d.getKey());
                         sources.add(src);
                         counter++;
@@ -151,14 +144,16 @@ public class ClbUsageSource implements UsageSource {
                 }
             })
             .compound(Ordering
-                .natural()
-                .onResultOf(new Function<NubSource, UUID>() {
-                    @Nullable
-                    @Override
-                    public UUID apply(NubSource input) {
-                        return input.key;
-                    }
-                })
+                            .natural()
+                            .reverse()  // newest first, e.g. pensoft articles
+                            .nullsLast()
+                            .onResultOf(new Function<NubSource, Date>() {
+                                @Nullable
+                                @Override
+                                public Date apply(NubSource input) {
+                                    return input.created;
+                                }
+                            })
             );
         sources = order.sortedCopy(sources);
     }

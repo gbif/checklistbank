@@ -15,6 +15,7 @@ import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -40,6 +42,7 @@ public class ClbUsageSourceTest {
     @Rule
     public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt =
             new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
+    private UUID oldDKey;
 
     @Before
     public void init() {
@@ -64,13 +67,21 @@ public class ClbUsageSourceTest {
         resp2.setCount(1l);
         resp2.getResults().add(org1);
         when(os.list(any(PagingRequest.class))).thenReturn(resp2);
-        final UUID orgDKey = UUID.randomUUID();
-        Dataset orgD = new Dataset();
-        orgD.setKey(orgDKey);
-        orgD.setTitle("orgD");
+
+        oldDKey = UUID.randomUUID();
+        final Date now = new Date();
         PagingResponse<Dataset> resp3 = new PagingResponse<Dataset>();
-        resp3.setCount(1l);
+        Dataset orgD = new Dataset();
+        orgD.setKey(oldDKey);
+        orgD.setTitle("orgD");
+        orgD.setCreated(new Date(now.getTime()-100000));
+        Dataset orgD2 = new Dataset();
+        orgD2.setKey(UUID.randomUUID());
+        orgD2.setTitle("orgD2");
+        orgD2.setCreated(now);
+        resp3.setCount(2l);
         resp3.getResults().add(orgD);
+        resp3.getResults().add(orgD2);
         when(os.publishedDatasets(eq(org1.getKey()), any(PagingRequest.class))).thenReturn(resp3);
 
         // use default prod API
@@ -88,11 +99,15 @@ public class ClbUsageSourceTest {
     @Test
     public void testListSources() throws Exception {
         List<NubSource> sources = src.listSources();
-        assertEquals(2, sources.size());
+        assertEquals(3, sources.size());
         assertEquals(10, sources.get(0).priority);
         assertEquals(100, sources.get(1).priority);
+        assertEquals(100, sources.get(2).priority);
         assertEquals(Rank.KINGDOM, sources.get(0).ignoreRanksAbove);
         assertEquals(Rank.GENUS, sources.get(1).ignoreRanksAbove);
+        assertEquals(Rank.GENUS, sources.get(2).ignoreRanksAbove);
+        assertEquals(oldDKey, sources.get(2).key);
+        assertNotEquals(oldDKey, sources.get(1).key);
     }
 
     @Test
