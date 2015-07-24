@@ -6,8 +6,9 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.InstallationService;
 import org.gbif.api.service.registry.NetworkService;
+import org.gbif.api.service.registry.NodeService;
 import org.gbif.api.service.registry.OrganizationService;
-import org.gbif.api.util.iterables.DatasetIterables;
+import org.gbif.api.util.iterables.Iterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.cli.BaseCommand;
@@ -50,6 +51,7 @@ public class AdminCommand extends BaseCommand {
     private OrganizationService organizationService;
     private InstallationService installationService;
     private NetworkService networkService;
+    private NodeService nodeService;
     private Iterable<Dataset> datasets;
 
     public AdminCommand() {
@@ -67,6 +69,7 @@ public class AdminCommand extends BaseCommand {
         organizationService = inj.getInstance(OrganizationService.class);
         installationService = inj.getInstance(InstallationService.class);
         networkService = inj.getInstance(NetworkService.class);
+        nodeService = inj.getInstance(NodeService.class);
     }
 
     private ZookeeperUtils zk() {
@@ -90,7 +93,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        datasets = DatasetIterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService);
+        datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
         for (Dataset d : datasets) {
             try {
                 LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
