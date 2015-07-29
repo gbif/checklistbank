@@ -22,8 +22,7 @@ public class SpeciesProfileServiceMyBatisIT {
   private static final Integer USAGE_ID = 100000025;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<SpeciesProfileService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<SpeciesProfileService>(SpeciesProfileService.class);
+  public DatabaseDrivenChecklistBankTestRule<SpeciesProfileService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(SpeciesProfileService.class);
 
   public void verify1(SpeciesProfile sp) {
     assertNull(sp.getSourceTaxonKey());

@@ -31,8 +31,7 @@ public class NameUsageServiceMyBatisIT {
   private final int NOT_FOUND_KEY = -10;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
+  public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
 
   @Test
   public void testGet() {

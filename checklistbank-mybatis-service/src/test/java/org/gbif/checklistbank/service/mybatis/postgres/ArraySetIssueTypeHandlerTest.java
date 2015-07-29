@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.postgres;
 
 import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.sql.Connection;
@@ -25,8 +24,7 @@ public class ArraySetIssueTypeHandlerTest {
   ResultSet rs;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<UsageService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<UsageService>(UsageService.class);
+  public DatabaseDrivenChecklistBankTestRule ddt = DatabaseDrivenChecklistBankTestRule.empty();
 
   private DataSource getDatasource() {
     Key<DataSource> regDatasourceKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));

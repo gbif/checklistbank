@@ -42,8 +42,7 @@ public class DatasetImportServiceMyBatisIT {
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<DatasetImportService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<DatasetImportService>(DatasetImportService.class);
+  public DatabaseDrivenChecklistBankTestRule<DatasetImportService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(DatasetImportService.class);
 
   @Test
   public void testDeleteDataset() throws Exception {

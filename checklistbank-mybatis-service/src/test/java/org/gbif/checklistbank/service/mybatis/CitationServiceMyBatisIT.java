@@ -13,8 +13,7 @@ import static org.junit.Assert.assertNotNull;
 public class CitationServiceMyBatisIT {
 
     @Rule
-    public DatabaseDrivenChecklistBankTestRule<CitationService> ddt =
-            new DatabaseDrivenChecklistBankTestRule<CitationService>(CitationService.class);
+    public DatabaseDrivenChecklistBankTestRule<CitationService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(CitationService.class);
 
     @Test
     public void testLargeCitations() throws Exception {

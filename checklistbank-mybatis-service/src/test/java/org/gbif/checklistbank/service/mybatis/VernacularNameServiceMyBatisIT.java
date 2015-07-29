@@ -20,8 +20,7 @@ import static org.junit.Assert.assertNull;
 public class VernacularNameServiceMyBatisIT {
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<VernacularNameService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<VernacularNameService>(VernacularNameService.class);
+  public DatabaseDrivenChecklistBankTestRule<VernacularNameService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(VernacularNameService.class);
 
   @Test
   public void testListByChecklistUsage() {

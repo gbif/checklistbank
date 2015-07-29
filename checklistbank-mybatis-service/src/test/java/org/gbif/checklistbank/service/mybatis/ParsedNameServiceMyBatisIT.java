@@ -13,8 +13,7 @@ import org.junit.Test;
 public class ParsedNameServiceMyBatisIT {
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<ParsedNameService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<ParsedNameService>(ParsedNameService.class);
+  public DatabaseDrivenChecklistBankTestRule<ParsedNameService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(ParsedNameService.class);
 
   @Test
   public void testCreateOrGet() throws Exception {

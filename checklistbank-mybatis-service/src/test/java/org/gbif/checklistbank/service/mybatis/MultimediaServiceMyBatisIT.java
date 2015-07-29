@@ -23,8 +23,7 @@ public class MultimediaServiceMyBatisIT {
   private final Integer USAGE_ID = 100000025;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<MultimediaService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<MultimediaService>(MultimediaService.class);
+  public DatabaseDrivenChecklistBankTestRule<MultimediaService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(MultimediaService.class);
 
   @Test
   public void testListByChecklistUsage() {

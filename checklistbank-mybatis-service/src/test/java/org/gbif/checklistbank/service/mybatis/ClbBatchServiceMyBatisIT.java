@@ -22,8 +22,7 @@ public class ClbBatchServiceMyBatisIT {
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<UsageService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<UsageService>(UsageService.class);
+  public DatabaseDrivenChecklistBankTestRule<UsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(UsageService.class);
 
    @Test
   public void testListAll() {

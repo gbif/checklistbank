@@ -25,8 +25,7 @@ public class DistributionServiceMyBatisIT {
   private final Integer USAGE_ID = 100000007;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<DistributionService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<DistributionService>(DistributionService.class);
+  public DatabaseDrivenChecklistBankTestRule<DistributionService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(DistributionService.class);
 
   @Test
   public void testListByChecklistUsage() {

@@ -19,8 +19,7 @@ public class ReferenceServiceMyBatisIT {
   private final Integer USAGE_ID = 100000025;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<ReferenceService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<ReferenceService>(ReferenceService.class);
+  public DatabaseDrivenChecklistBankTestRule<ReferenceService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(ReferenceService.class);
 
   private void verify17(Reference ref) {
     assertEquals("Watson, Jeremy (30 December 2007) \"Tufty's saviour to the rescue\". Scotland on Sunday. Edinburgh.",

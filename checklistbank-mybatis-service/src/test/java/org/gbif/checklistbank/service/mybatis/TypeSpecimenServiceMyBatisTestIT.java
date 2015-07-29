@@ -23,8 +23,7 @@ public class TypeSpecimenServiceMyBatisTestIT {
   private final Integer USAGE_ID = 100000006;
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<TypeSpecimenService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<TypeSpecimenService>(TypeSpecimenService.class);
+  public DatabaseDrivenChecklistBankTestRule<TypeSpecimenService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(TypeSpecimenService.class);
 
   public void verify8(TypeSpecimen typeSpecimen) throws ParseException {
     assertNull(typeSpecimen.getSourceTaxonKey());

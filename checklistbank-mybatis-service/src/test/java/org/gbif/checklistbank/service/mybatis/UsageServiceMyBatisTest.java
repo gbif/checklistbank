@@ -13,8 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class UsageServiceMyBatisTest {
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<UsageService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<UsageService>(UsageService.class);
+  public DatabaseDrivenChecklistBankTestRule<UsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(UsageService.class);
 
   @Test
   public void testlistAll() {
