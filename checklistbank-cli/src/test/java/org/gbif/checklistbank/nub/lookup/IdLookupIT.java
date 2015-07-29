@@ -19,8 +19,7 @@ import static org.junit.Assert.assertNull;
 public class IdLookupIT {
 
     @Rule
-    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt =
-            new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
+    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
 
     @Test
     public void testLookup() throws IOException, SQLException {

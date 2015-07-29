@@ -40,8 +40,7 @@ public class ClbUsageSourceTest {
     private OrganizationService os;
 
     @Rule
-    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt =
-            new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
+    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
     private UUID oldDKey;
 
     @Before
