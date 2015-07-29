@@ -31,8 +31,7 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
 
 
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt =
-    new DatabaseDrivenChecklistBankTestRule<NameUsageService>(NameUsageService.class);
+  public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
 
   public ClientMyBatisITBase(Class<T> wsClientClass) {
     super("org.gbif.checklistbank.ws", CONTEXT, ChecklistBankWsModule.class);

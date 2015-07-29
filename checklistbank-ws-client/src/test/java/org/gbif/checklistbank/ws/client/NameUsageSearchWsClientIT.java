@@ -65,7 +65,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     // run liquibase & dbunit
     LOG.info("Run liquibase & dbunit once");
     try {
-      DatabaseDrivenChecklistBankTestRule rule = new DatabaseDrivenChecklistBankTestRule(null);
+      DatabaseDrivenChecklistBankTestRule rule = DatabaseDrivenChecklistBankTestRule.squirrels(null);
       rule.apply(new Statement() {
         public void evaluate() throws Throwable {
           // do nothing
