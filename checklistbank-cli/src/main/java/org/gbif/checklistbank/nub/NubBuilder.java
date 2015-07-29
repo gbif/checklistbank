@@ -63,11 +63,13 @@ public class NubBuilder implements Runnable {
     private int sourceUsageCounter = 0;
     private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
     private final IdGenerator idGen;
+    private final int newIdStart;
 
     private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart, File reportDir) {
         db = NubDb.create(dao, 1000);
         this.usageSource = usageSource;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
+        this.newIdStart = newIdStart;
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
@@ -107,7 +109,7 @@ public class NubBuilder implements Runnable {
         currSrc.key = Constants.NUB_DATASET_KEY;
         for (Kingdom k : Kingdom.values()) {
             NubUsage ku = new NubUsage();
-            ku.nubKey = k.nubUsageID();
+            ku.usageKey = k.nubUsageID();
             ku.kingdom_ = k;
             ku.datasetKey = Constants.NUB_DATASET_KEY;
             ku.origin = Origin.SOURCE;
@@ -133,7 +135,7 @@ public class NubBuilder implements Runnable {
      * - stream (jdbc copy) through all extension data in postgres and attach to relevant nub node
      */
     private void addExtensionData() {
-        LOG.info("NOT IMPLEMENTED: Copy extension data to backbone");
+        LOG.warn("NOT IMPLEMENTED: Copy extension data to backbone");
         if (false) {
             Joiner commaJoin = Joiner.on(", ").skipNulls();
             for (Node n : IteratorUtil.loop(db.dao.allTaxa())) {
@@ -391,7 +393,7 @@ public class NubBuilder implements Runnable {
         LOG.info("Assigning final clb ids to all nub usages...");
         for (NubUsage u : db.dao.nubUsages()) {
             if (u.rank != Rank.KINGDOM) {
-                u.nubKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom_);
+                u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom_);
             }
         }
     }
@@ -410,5 +412,12 @@ public class NubBuilder implements Runnable {
 
     public IdGenerator.Metrics idMetrics() {
         return idGen.metrics();
+    }
+
+    /**
+     * @return the first newly generated id that did not exist in clb before
+     */
+    public int getNewIdStart() {
+        return newIdStart;
     }
 }

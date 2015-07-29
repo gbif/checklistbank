@@ -24,7 +24,7 @@ public interface DatasetImportService {
      *
      * @return the new or existing usage key, same as usage.key
      */
-    int syncUsage(NameUsage usage, @Nullable VerbatimNameUsage verbatim, @Nullable NameUsageMetrics metrics, @Nullable UsageExtensions extensions);
+    int syncUsage(boolean insert, NameUsage usage, @Nullable VerbatimNameUsage verbatim, @Nullable NameUsageMetrics metrics, @Nullable UsageExtensions extensions);
 
     void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey);
 

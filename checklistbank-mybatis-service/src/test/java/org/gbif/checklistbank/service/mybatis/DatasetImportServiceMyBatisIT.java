@@ -110,7 +110,7 @@ public class DatasetImportServiceMyBatisIT {
     u.setGenusKey(g.getKey());
     u.setSpeciesKey(u.getKey());
 
-    int k1 = ddt.getService().syncUsage(u, null, m, e);
+    int k1 = ddt.getService().syncUsage(false, u, null, m, e);
 
     // verify props
     NameUsage u2 = uService.get(k1, null);
@@ -145,7 +145,7 @@ public class DatasetImportServiceMyBatisIT {
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    int k2 = ddt.getService().syncUsage(u, v, m, e);
+    int k2 = ddt.getService().syncUsage(false, u, v, m, e);
     assertEquals(k1, k2);
 
     // verify props
@@ -186,7 +186,7 @@ public class DatasetImportServiceMyBatisIT {
     NameUsageMetrics m = new NameUsageMetrics();
     m.setKey(key);
 
-    ddt.getService().syncUsage(p, null, m, null);
+    ddt.getService().syncUsage(false, p, null, m, null);
 
     return p;
   }

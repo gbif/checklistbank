@@ -32,9 +32,9 @@ public class DatasetImportServiceCombined {
         this.solrService = solrService;
     }
 
-    public int syncUsage(NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
+    public int syncUsage(boolean insert, NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
         Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
-        int key = sqlService.syncUsage(usage, verbatim, metrics, extensions);
+        int key = sqlService.syncUsage(insert, usage, verbatim, metrics, extensions);
         solrService.insertOrUpdate(usage, parents, extensions);
         return key;
     }

@@ -58,7 +58,7 @@ public class ImporterIT extends BaseTest {
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     MetricRegistry registry = new MetricRegistry("normalizer");
     initGuice(cfg);
-    return Importer.create(cfg.neo, datasetKey, registry, importService, usageService);
+    return Importer.create(cfg.neo, datasetKey, registry, importService, usageService, null);
   }
 
   private void initGuice(ImporterConfiguration cfg) {

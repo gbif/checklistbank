@@ -228,7 +228,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   <sql id="writeFields">
     constituent_key, name_fk, rank,
     parent_fk, is_synonym, status,
-    nom_status, issues,
+    nom_status,
+    issues,
     name_published_in_fk, according_to_fk, origin,
     remarks, "references", taxon_id, modified, num_descendants, last_interpreted,
     pp_synonym_fk, basionym_fk,
@@ -243,8 +244,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now()
   </sql>
   <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
-    INSERT INTO name_usage (<include refid="writeFields"/>, dataset_key)
-    VALUES (<include refid="writeValues"/>,
+    INSERT INTO name_usage (<if test="u.key != null">id,</if> <include refid="writeFields"/>, dataset_key)
+    VALUES (<if test="u.key != null">#{u.key},</if> <include refid="writeValues"/>,
     <if test="u.proParteKey == -1">currval('name_usage_id_seq'),</if><if test="u.proParteKey != -1">#{u.proParteKey},</if>
     <if test="u.basionymKey == -1">currval('name_usage_id_seq'),</if><if test="u.basionymKey != -1">#{u.basionymKey},</if>
     <if test="u.kingdomKey == -1">currval('name_usage_id_seq'),</if><if test="u.kingdomKey != -1">#{u.kingdomKey},</if>
@@ -259,7 +260,24 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     )
   </insert>
 
-  <update id="update" parameterType="NameUsageWritable">
+    <insert id="insertWithKey" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
+        INSERT INTO name_usage (id, <include refid="writeFields"/>, dataset_key)
+        VALUES (#{u.key}, <include refid="writeValues"/>,
+        <if test="u.proParteKey == -1">#{u.key},</if><if test="u.proParteKey != -1">#{u.proParteKey},</if>
+        <if test="u.basionymKey == -1">#{u.key},</if><if test="u.basionymKey != -1">#{u.basionymKey},</if>
+        <if test="u.kingdomKey == -1">#{u.key},</if><if test="u.kingdomKey != -1">#{u.kingdomKey},</if>
+        <if test="u.phylumKey == -1">#{u.key},</if><if test="u.phylumKey != -1">#{u.phylumKey},</if>
+        <if test="u.classKey == -1">#{u.key},</if><if test="u.classKey != -1">#{u.classKey},</if>
+        <if test="u.orderKey == -1">#{u.key},</if><if test="u.orderKey != -1">#{u.orderKey},</if>
+        <if test="u.familyKey == -1">#{u.key},</if><if test="u.familyKey != -1">#{u.familyKey},</if>
+        <if test="u.genusKey == -1">#{u.key},</if><if test="u.genusKey != -1">#{u.genusKey},</if>
+        <if test="u.subgenusKey == -1">#{u.key},</if><if test="u.subgenusKey != -1">#{u.subgenusKey},</if>
+        <if test="u.speciesKey == -1">#{u.key},</if><if test="u.speciesKey != -1">#{u.speciesKey},</if>
+        #{u.datasetKey}
+        )
+    </insert>
+
+    <update id="update" parameterType="NameUsageWritable">
     UPDATE name_usage
     SET (<include refid="writeFields"/>)
      =  (<include refid="writeValues"/>,

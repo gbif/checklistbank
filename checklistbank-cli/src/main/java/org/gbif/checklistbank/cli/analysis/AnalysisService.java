@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.cli.analysis;
 
 import org.gbif.api.model.Constants;
-import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
@@ -19,7 +19,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnalysisService extends RabbitBaseService<ChecklistSyncedMessage> {
+public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisService.class);
 

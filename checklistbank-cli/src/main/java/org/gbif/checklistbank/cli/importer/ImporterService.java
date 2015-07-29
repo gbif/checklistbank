@@ -3,12 +3,13 @@ package org.gbif.checklistbank.cli.importer;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.UsageService;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
@@ -22,13 +23,14 @@ import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessage> {
+public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMessage> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
 
     private final ImporterConfiguration cfg;
     private DatasetImportServiceCombined importService;
-    private NameUsageService usageService;
+    private NameUsageService nameUsageService;
+    private UsageService usageService;
     private final ZookeeperUtils zkUtils;
 
     public ImporterService(ImporterConfiguration cfg) {
@@ -43,13 +45,14 @@ public class ImporterService extends RabbitBaseService<ChecklistNormalizedMessag
         Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
         initDbPool(inj);
         importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
-        usageService = inj.getInstance(NameUsageService.class);
+        nameUsageService = inj.getInstance(NameUsageService.class);
+        usageService = inj.getInstance(UsageService.class);
     }
 
     @Override
     protected void process(ChecklistNormalizedMessage msg) throws Exception {
         try {
-            Importer importer = Importer.create(cfg.neo, msg.getDatasetUuid(), registry, importService, usageService);
+            Importer importer = Importer.create(cfg.neo, msg.getDatasetUuid(), registry, importService, nameUsageService, usageService);
             importer.run();
             // notify rabbit
             Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -19,6 +20,7 @@ import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
+import org.gbif.checklistbank.service.UsageService;
 
 import java.util.Calendar;
 import java.util.List;
@@ -48,242 +50,262 @@ import org.slf4j.LoggerFactory;
  */
 public class Importer extends ImportDb implements Runnable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
-  private final static int SELF_ID = -1;
-  private final Meter syncMeter;
-  private int syncCounter;
-  private int delCounter;
-  private final DatasetImportServiceCombined importService;
-  private final NameUsageService usageService;
-  // neo internal ids to clb usage keys
-  private IntIntMap clbKeys = new IntIntHashMap();
-  // map based around internal neo4j node ids:
-  private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
-  private enum KeyType {PARENT, ACCEPTED, BASIONYM};
-  private final int keyTypeSize = KeyType.values().length;
+    private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
+    private final static int SELF_ID = -1;
+    private final Meter syncMeter;
+    private int syncCounter;
+    private int delCounter;
+    private final DatasetImportServiceCombined importService;
+    private final NameUsageService nameUsageService;
+    private final UsageService usageService;
+    // neo internal ids to clb usage keys
+    private IntIntMap clbKeys = new IntIntHashMap();
+    // map based around internal neo4j node ids:
+    private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
+    private int maxExistingNubKey = -1;
 
-  public Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
-    DatasetImportServiceCombined importService, NameUsageService usageService) {
-    super(datasetKey, dao);
-    this.importService = importService;
-    this.usageService = usageService;
-    this.syncMeter = registry.meter(Metrics.SYNC_METER);
-  }
+    private enum KeyType {PARENT, ACCEPTED, BASIONYM}
 
-  public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-                                DatasetImportServiceCombined importService, NameUsageService usageService) {
-    return new Importer(datasetKey,
-            UsageDao.persistentDao(cfg, datasetKey, registry, false),
-            registry, importService, usageService);
-  }
+    ;
+    private final int keyTypeSize = KeyType.values().length;
 
-  public void run() {
-    LOG.info("Start importing checklist {}", datasetKey);
-    try {
-      syncDataset();
-      LOG.info("Importing of {} succeeded.", datasetKey);
-    } finally {
-      dao.close();
-      LOG.info("Neo database {} shut down.", datasetKey);
+    public Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
+                    DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
+        super(datasetKey, dao);
+        this.importService = importService;
+        this.nameUsageService = nameUsageService;
+        this.usageService = usageService;
+        this.syncMeter = registry.meter(Metrics.SYNC_METER);
     }
-  }
 
-  /**
-   * Iterates over all accepted taxa in taxonomical order including all synonyms and syncs the usage individually
-   * with Checklist Bank Postgres. As basionym relations can crosslink basically any record we first set the basionym
-   * key to null and update just those keys in a second iteration. Most usages will not have a basionymKey, so
-   * performance should only be badly impacted in rare cases.
-   *
-   * @throws EmptyImportException if no records at all have been imported
-   */
-  private void syncDataset() throws EmptyImportException {
-    // we keep the very first usage key to retrieve the exact last modified timestamp from the database
-    // in order to avoid clock differences between machines and threads.
-    int firstUsageKey = -1;
+    public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+                                  DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
+        return new Importer(datasetKey,
+                UsageDao.persistentDao(cfg, datasetKey, registry, false),
+                registry, importService, nameUsageService, usageService);
+    }
 
-    try (Transaction tx = dao.getNeo().beginTx()) {
-      // returns all nodes, accepted and synonyms
-      for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
+    public void run() {
+        LOG.info("Start importing checklist {}", datasetKey);
         try {
-          final int nodeId = (int) n.getId();
-          VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
-          UsageFacts facts = dao.readFacts(nodeId);
-          if (facts == null){
-            facts = new UsageFacts();
-            facts.metrics = new NameUsageMetrics();
-          }
-          NameUsage u = buildClbNameUsage(n, facts.classification);
-          List<Integer> parents = buildClbParents(n);
-          UsageExtensions ext = dao.readExtensions(nodeId);
+            syncDataset();
+            LOG.info("Importing of {} succeeded.", datasetKey);
+        } finally {
+            dao.close();
+            LOG.info("Neo database {} shut down.", datasetKey);
+        }
+    }
 
-          // do we have pro parte relations? we need to duplciate the synonym for each additional accepted taxon to fit the postgres db model
-          final int usageKey;
-          if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
-            u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
-            u.setProParteKey(SELF_ID);
-            usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
-            LOG.debug("First synced pro parte usage {}", usageKey);
-            // now insert the other pro parte records
-            u.setProParteKey(usageKey);
-            u.setOrigin(Origin.PROPARTE);
-            u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
-            for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
-              Node accN = rel.getEndNode();
-              u.setAcceptedKey(clbForeignKey(-999, (int) accN.getId(), KeyType.ACCEPTED));
-              importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
-              syncCounter++;
+    /**
+     * Iterates over all accepted taxa in taxonomical order including all synonyms and syncs the usage individually
+     * with Checklist Bank Postgres. As basionym relations can crosslink basically any record we first set the basionym
+     * key to null and update just those keys in a second iteration. Most usages will not have a basionymKey, so
+     * performance should only be badly impacted in rare cases.
+     *
+     * @throws EmptyImportException if no records at all have been imported
+     */
+    private void syncDataset() throws EmptyImportException {
+        if (datasetKey == Constants.NUB_DATASET_KEY) {
+            // remember the current highest nub key so we know if incoming ones are inserts or updates
+            maxExistingNubKey = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
+        }
+        // we keep the very first usage key to retrieve the exact last modified timestamp from the database
+        // in order to avoid clock differences between machines and threads.
+        int firstUsageKey = -1;
+
+        try (Transaction tx = dao.getNeo().beginTx()) {
+            // returns all nodes, accepted and synonyms
+            for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
+                try {
+                    final int nodeId = (int) n.getId();
+                    VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
+                    UsageFacts facts = dao.readFacts(nodeId);
+                    if (facts == null) {
+                        facts = new UsageFacts();
+                        facts.metrics = new NameUsageMetrics();
+                    }
+                    NameUsage u = buildClbNameUsage(n, facts.classification);
+                    List<Integer> parents = buildClbParents(n);
+                    UsageExtensions ext = dao.readExtensions(nodeId);
+
+                    // do we have pro parte relations? we need to duplicate the synonym for each additional accepted taxon to fit the postgres db model
+                    final int usageKey;
+                    if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
+                        u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+                        u.setProParteKey(SELF_ID);
+                        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
+                        LOG.debug("First synced pro parte usage {}", usageKey);
+                        // now insert the other pro parte records
+                        u.setProParteKey(usageKey);
+                        u.setOrigin(Origin.PROPARTE);
+                        u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
+                        for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+                            Node accN = rel.getEndNode();
+                            u.setAcceptedKey(clbForeignKey(-999, (int) accN.getId(), KeyType.ACCEPTED));
+                            syncUsage(u, parents, verbatim, facts.metrics, ext);
+                            syncCounter++;
+                        }
+                    } else {
+                        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
+                    }
+                    // keep map of node ids to clb usage keys
+                    clbKeys.put(nodeId, usageKey);
+                    if (firstUsageKey < 0) {
+                        firstUsageKey = usageKey;
+                        LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
+                    }
+                    syncMeter.mark();
+                    syncCounter++;
+                    if (syncCounter % 100000 == 0) {
+                        LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+                    } else if (syncCounter % 100 == 0) {
+                        LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+                    }
+
+                } catch (Throwable e) {
+                    String id;
+                    if (n.hasProperty(NodeProperties.TAXON_ID)) {
+                        id = String.format("taxonID '%s'", n.getProperty(NodeProperties.TAXON_ID));
+                    } else {
+                        id = String.format("nodeID %s", n.getId());
+                    }
+                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
+                    LOG.error("Aborting sync of dataset {}", datasetKey);
+                    throw e;
+                }
             }
-          } else {
-            usageKey = importService.syncUsage(u, parents, verbatim, facts.metrics, ext);
-          }
-          // keep map of node ids to clb usage keys
-          clbKeys.put(nodeId, usageKey);
-          if (firstUsageKey < 0) {
-            firstUsageKey = usageKey;
-            LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
-          }
-          syncMeter.mark();
-          syncCounter++;
-          if (syncCounter % 100000 == 0) {
-            LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-          } else if (syncCounter % 100 == 0) {
-            LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-          }
-
-        } catch (Throwable e) {
-          String id;
-          if (n.hasProperty(NodeProperties.TAXON_ID)) {
-            id = String.format("taxonID '%s'", n.getProperty(NodeProperties.TAXON_ID));
-          } else {
-            id = String.format("nodeID %s", n.getId());
-          }
-          LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
-          LOG.error("Aborting sync of dataset {}", datasetKey);
-          throw e;
         }
-      }
-    }
 
-    // finally update foreign keys that did not exist during initial inserts
-    if (!postKeys.isEmpty()) {
-      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
-      for (IntObjectCursor<Integer[]> c : postKeys) {
-        // update usage by usage doing all 3 potential updates in one statement
-        Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
-        importService.updateForeignKeys(clbKey(c.key),
-              clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
-              clbKey(c.value[KeyType.BASIONYM.ordinal()])
-        );
-      }
-    }
+        // finally update foreign keys that did not exist during initial inserts
+        if (!postKeys.isEmpty()) {
+            LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
+            for (IntObjectCursor<Integer[]> c : postKeys) {
+                // update usage by usage doing both potential updates in one statement
+                Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
+                importService.updateForeignKeys(clbKey(c.key),
+                        clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
+                        clbKey(c.value[KeyType.BASIONYM.ordinal()])
+                );
+            }
+        }
 
-    // remove old usages
-    if (firstUsageKey < 0) {
-      LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
-      throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
+        // remove old usages
+        if (firstUsageKey < 0) {
+            LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
+            throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
 
-    } else {
-      NameUsage first = usageService.get(firstUsageKey, null);
-      if (first == null) {
-        LOG.error("First synced name usage with id {} not found", firstUsageKey);
-        throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
-      }
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(first.getLastInterpreted());
-      // use 2 seconds before first insert/update as the threshold to remove records
-      cal.add(Calendar.SECOND, -2);
-      delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
-    }
-  }
-
-  /**
-   * @return list of parental node ids
-   */
-  private List<Integer> buildClbParents(Node n) {
-    return com.google.common.collect.Lists
-      .transform(IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
-        new Function<Relationship, Integer>() {
-          @Override
-          public Integer apply(Relationship rel) {
-            return rel != null ? clbKey((int)rel.getStartNode().getId()) : null;
-          }
-        });
-  }
-
-  /**
-   * Maps a neo node id to an already created clb postgres id.
-   * If the mapping does not exist an IllegalStateException is thrown.
-   */
-  private Integer clbKey(Integer nodeId) {
-    if (nodeId == null) {
-      return null;
-    }
-    if (clbKeys.containsKey(nodeId)) {
-      return clbKeys.get(nodeId);
-    } else {
-      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
-    }
-  }
-
-  /**
-   * Maps a neo node id of a foreign key to an already created clb postgres id.
-   * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
-   * mapper that it should use the newly generated sequence value.
-   * @param nodeId the node id casted from long that represents the currently processed name usage record
-   * @param nodeFk the foreign key to the node id we wanna setup the relation to
-   */
-  private Integer clbForeignKey(int nodeId, Integer nodeFk, @Nullable KeyType type) {
-    if (nodeFk != null) {
-      if (clbKeys.containsKey(nodeFk)) {
-        return clbKeys.get(nodeFk);
-      } else if(nodeId == nodeFk) {
-        return SELF_ID;
-      } else if(type != null) {
-        // remember non classification keys for update after all records have been synced once
-        if (postKeys.containsKey(nodeId)) {
-          postKeys.get(nodeId)[type.ordinal()] = nodeFk;
         } else {
-          Integer[] keys = new Integer[keyTypeSize];
-          keys[type.ordinal()] = nodeFk;
-          postKeys.put(nodeId, keys);
+            NameUsage first = nameUsageService.get(firstUsageKey, null);
+            if (first == null) {
+                LOG.error("First synced name usage with id {} not found", firstUsageKey);
+                throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
+            }
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(first.getLastInterpreted());
+            // use 2 seconds before first insert/update as the threshold to remove records
+            cal.add(Calendar.SECOND, -2);
+            delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
         }
-      } else {
-        throw new IllegalStateException("NodeId not in CLB yet: " + nodeFk);
-      }
     }
-    return null;
-  }
 
-  /**
-   * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
-   */
-  @VisibleForTesting
-  protected NameUsage buildClbNameUsage(Node n, @Nullable ClassificationKeys classification) {
-    // this is using neo4j internal node ids as keys:
-    NameUsage u = dao.readUsage(n, true);
-    if (classification != null) {
-      ClassificationUtils.copyLinneanClassificationKeys(classification, u);
+    private int syncUsage(NameUsage u, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions ext) {
+        if (datasetKey == Constants.NUB_DATASET_KEY) {
+            // for nub builts we generate the usageKey in code already. Both for inserts and updates.
+            return importService.syncUsage(u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
+        } else {
+            return importService.syncUsage(false, u, parents, verbatim, metrics, ext);
+        }
     }
-    if (n.hasLabel(Labels.SYNONYM)) {
-      u.setSynonym(true);
-      u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
-    } else {
-      u.setSynonym(false);
-      u.setParentKey(clbForeignKey((int) n.getId(), u.getParentKey(), KeyType.PARENT));
-    }
-    u.setBasionymKey(clbForeignKey((int) n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
-    for (Rank r : Rank.DWC_RANKS) {
-      ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
-    }
-    u.setDatasetKey(datasetKey);
-    return u;
-  }
 
-  public int getSyncCounter() {
-    return syncCounter;
-  }
+    /**
+     * @return list of parental node ids
+     */
+    private List<Integer> buildClbParents(Node n) {
+        return com.google.common.collect.Lists
+                .transform(IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
+                        new Function<Relationship, Integer>() {
+                            @Override
+                            public Integer apply(Relationship rel) {
+                                return rel != null ? clbKey((int) rel.getStartNode().getId()) : null;
+                            }
+                        });
+    }
 
-  public int getDelCounter() {
-    return delCounter;
-  }
+    /**
+     * Maps a neo node id to an already created clb postgres id.
+     * If the mapping does not exist an IllegalStateException is thrown.
+     */
+    private Integer clbKey(Integer nodeId) {
+        if (nodeId == null) {
+            return null;
+        }
+        if (clbKeys.containsKey(nodeId)) {
+            return clbKeys.get(nodeId);
+        } else {
+            throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+        }
+    }
+
+    /**
+     * Maps a neo node id of a foreign key to an already created clb postgres id.
+     * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
+     * mapper that it should use the newly generated sequence value.
+     *
+     * @param nodeId the node id casted from long that represents the currently processed name usage record
+     * @param nodeFk the foreign key to the node id we wanna setup the relation to
+     */
+    private Integer clbForeignKey(int nodeId, Integer nodeFk, @Nullable KeyType type) {
+        if (nodeFk != null) {
+            if (clbKeys.containsKey(nodeFk)) {
+                return clbKeys.get(nodeFk);
+            } else if (nodeId == nodeFk) {
+                return SELF_ID;
+            } else if (type != null) {
+                // remember non classification keys for update after all records have been synced once
+                if (postKeys.containsKey(nodeId)) {
+                    postKeys.get(nodeId)[type.ordinal()] = nodeFk;
+                } else {
+                    Integer[] keys = new Integer[keyTypeSize];
+                    keys[type.ordinal()] = nodeFk;
+                    postKeys.put(nodeId, keys);
+                }
+            } else {
+                throw new IllegalStateException("NodeId not in CLB yet: " + nodeFk);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
+     */
+    @VisibleForTesting
+    protected NameUsage buildClbNameUsage(Node n, @Nullable ClassificationKeys classification) {
+        // this is using neo4j internal node ids as keys:
+        NameUsage u = dao.readUsage(n, true);
+        if (classification != null) {
+            ClassificationUtils.copyLinneanClassificationKeys(classification, u);
+        }
+        if (n.hasLabel(Labels.SYNONYM)) {
+            u.setSynonym(true);
+            u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
+        } else {
+            u.setSynonym(false);
+            u.setParentKey(clbForeignKey((int) n.getId(), u.getParentKey(), KeyType.PARENT));
+        }
+        u.setBasionymKey(clbForeignKey((int) n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
+        for (Rank r : Rank.DWC_RANKS) {
+            ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
+        }
+        u.setDatasetKey(datasetKey);
+        return u;
+    }
+
+    public int getSyncCounter() {
+        return syncCounter;
+    }
+
+    public int getDelCounter() {
+        return delCounter;
+    }
 }

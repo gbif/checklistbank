@@ -31,7 +31,7 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
     private final Timer timerSql = registry.timer(regName("sql.time"));
 
     public DeleteService(DeleteConfiguration cfg) {
-        super("clb-deletion", cfg.poolSize, cfg.messaging, cfg.ganglia, "delete");
+        super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
         this.cfg = cfg;
 
         // init mybatis layer and solr from cfg instance
@@ -65,8 +65,7 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
         LOG.info("Deleted dataset storage files for {}", datasetKey);
     }
 
-    protected void process(RegistryChangeMessage msg) throws RuntimeException {
-        final UUID key = ((Dataset) msg.getOldObject()).getKey();
+    private void delete(UUID key) throws RuntimeException {
         LOG.info("Deleting data for checklist {}", key);
         // solr
         Timer.Context context = timerSolr.time();
@@ -91,18 +90,17 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
     }
 
     @Override
-    public Class<RegistryChangeMessage> getMessageClass() {
-        return RegistryChangeMessage.class;
-    }
-
-    @Override
-    protected boolean ignore(RegistryChangeMessage msg) {
+    public void handleMessage(RegistryChangeMessage msg) {
         if (RegistryChangeMessage.ChangeType.DELETED == msg.getChangeType() && Dataset.class.equals(msg.getObjectClass())) {
             Dataset d = (Dataset) msg.getOldObject();
             if (DatasetType.CHECKLIST == d.getType()) {
-                return false;
+                delete(d.getKey());
             }
         }
-        return true;
+    }
+
+    @Override
+    public Class<RegistryChangeMessage> getMessageClass() {
+        return RegistryChangeMessage.class;
     }
 }

@@ -488,8 +488,7 @@ public class UsageDao {
         LOG.info("Converting all nub usages into name usages ...");
         int counter = 0;
         for (Map.Entry<Long, NubUsage> nub : nubUsages.entrySet()) {
-            NubUsage u = nub.getValue();
-            usages.put(nub.getKey(), convert(nub.getKey().intValue(), u));
+            usages.put(nub.getKey(), convert(nub.getValue()));
             counter++;
         }
         LOG.info("Converted {} nub usages into name usages", counter);
@@ -500,10 +499,9 @@ public class UsageDao {
         return nubUsages.values();
     }
 
-    private NameUsage convert(int key, NubUsage nub) {
+    private NameUsage convert(NubUsage nub) {
         NameUsage u = new NameUsage();
-        u.setKey(key);
-        u.setNubKey(nub.nubKey);
+        u.setKey(nub.usageKey);
         u.setScientificName(nub.parsedName.canonicalNameComplete());
         u.setCanonicalName(nub.parsedName.canonicalName());
         u.setRank(nub.rank);

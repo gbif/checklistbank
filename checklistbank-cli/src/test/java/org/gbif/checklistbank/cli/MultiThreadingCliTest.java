@@ -187,7 +187,7 @@ public class MultiThreadingCliTest {
     }
 
     public Importer buildImporter(UUID datasetKey) throws SQLException {
-        return Importer.create(cfgI.neo, datasetKey, registry, importService, usageService);
+        return Importer.create(cfgI.neo, datasetKey, registry, importService, usageService, null);
     }
 
 }

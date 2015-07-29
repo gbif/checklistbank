@@ -27,7 +27,6 @@ import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +34,12 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.lang3.ObjectUtils;
@@ -61,6 +61,7 @@ public class Normalizer extends ImportDb implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
     private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
     private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.INFORMAL);
+    private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
 
     static {
         for (char del : "[|;, ]".toCharArray()) {
@@ -187,19 +188,19 @@ public class Normalizer extends ImportDb implements Runnable {
                     LOG.info("Higher classifications processed for {} taxa", counter);
                     tx = dao.getNeo().beginTx();
                 }
-                applyDenormedClassification(n);
+                applyClassification(n);
                 counter++;
                 denormedMeter.mark();
-                tx.success();
             }
         } finally {
+            tx.success();
             tx.close();
         }
         LOG.info("Classification processing completed, {} nodes processed", counter);
     }
 
-    private void applyDenormedClassification(Node n) {
-        RankedName highest = null;
+    private void applyClassification(Node n) {
+        RankedName highest;
         if (meta.isParentNameMapped()) {
             // verify if we already have a classification, that it ends with a known rank
             highest = getHighestParent(n);
@@ -212,60 +213,84 @@ public class Normalizer extends ImportDb implements Runnable {
             // use this node
             highest = dao.readRankedName(n);
         }
-
-        // convert to list excluding all ranks equal and below highest.rank
-        List<RankedName> denormedClassification = toRankedNameList(dao.readUsage(n, false), highest.rank);
-        if (!denormedClassification.isEmpty()) {
-            // exclude first parent if this taxon is rankless and has the same name
-            if ((highest.rank == null || highest.rank.isUncomparable()) && highest.name.equals(denormedClassification.get(0).name)) {
-                denormedClassification.remove(0);
-            }
-            updateDenormedClassification(highest.node, denormedClassification);
+        // shortcut: exit if highest is already a kingdom, the denormed classification cannot add to it anymore!
+        if (highest.rank != null && highest.rank == Rank.KINGDOM) {
+            return;
         }
+        LinneanClassification lc = dao.readUsage(n, false);
+        applyClassification(highest, lc);
     }
 
-    /**
-     * @return list of ranked name instances from lowest rank to highest using the verbatim denormed classification.
-     */
-    private static List<RankedName> toRankedNameList(LinneanClassification lc, @Nullable Rank minRank) {
-        List<RankedName> cl = Lists.newArrayList();
-        for (Rank r : Rank.DWC_RANKS) {
-            String name = lc.getHigherRank(r);
-            if (name != null && (minRank == null || r.higherThan(minRank))) {
-                RankedName rn = new RankedName();
-                rn.name = name;
-                rn.rank = r;
-                cl.add(rn);
+    @VisibleForTesting
+    protected static Rank getLowestExistingRank(LinneanClassification lc) {
+        for (Rank r : DWC_RANKS_REVERSE) {
+            if (lc.getHigherRank(r) != null) {
+                return r;
             }
         }
-        Collections.reverse(cl);
-        return cl;
+        return null;
     }
 
-    private void updateDenormedClassification(Node taxon, List<RankedName> denormedClassification) {
-        if (denormedClassification.isEmpty()) return;
-
-        RankedName parent = denormedClassification.remove(0);
-        for (Node n : nodesByCanonical(parent.name)) {
-            if (matchesClassification(n, denormedClassification)) {
-                assignParent(n, taxon);
-                return;
+    private void applyClassification(RankedName taxon, LinneanClassification lc) {
+        Node parent = null;
+        // exclude lowest rank from classification to be applied if this taxon is rankless and has the same name
+        if (taxon.rank == null || taxon.rank.isUncomparable()) {
+            Rank lowest = getLowestExistingRank(lc);
+            if (lowest != null && lc.getHigherRank(lowest).equalsIgnoreCase(taxon.name)) {
+                ClassificationUtils.setHigherRank(lc, lowest, null);
             }
         }
-        // insert higher taxon if not found
-        parent.node = create(Origin.DENORMED_CLASSIFICATION, parent.name, parent.rank, TaxonomicStatus.ACCEPTED, true).node;
-        // insert parent relationship
-        assignParent(parent.node, taxon);
-
-        // link further up recursively?
-        if (!denormedClassification.isEmpty()) {
-            updateDenormedClassification(parent.node, denormedClassification);
+        // ignore same rank from classification if accepted
+        if (!taxon.node.hasLabel(Labels.SYNONYM) && taxon.rank != null) {
+            ClassificationUtils.setHigherRank(lc, taxon.rank, null);
         }
+
+        // from kingdom to genus
+        for (Rank hr : Rank.DWC_RANKS) {
+            if ((taxon.rank == null || !taxon.rank.higherThan(hr)) && lc.getHigherRank(hr) != null) {
+                // test for existing usage with that name & rank
+                boolean found = false;
+                for (Node n : nodesByCanonicalAndRank(lc.getHigherRank(hr), hr)) {
+                    if (parent == null) {
+                        // make sure node does also not have a parent
+                        if (!n.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
+                            // match!
+                            parent = n;
+                            found = true;
+                            break;
+                        }
+                    } else {
+                        // verify the parents are the same
+                        try {
+                            Node p = n.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getStartNode();
+                            if (p.equals(parent)) {
+                                parent = n;
+                                found = true;
+                                break;
+                            }
+                        } catch (Exception e) {
+                            // log?
+                        }
+                    }
+                }
+                if (!found) {
+                    // create new higher taxon if not found
+                    Node lowerParent = create(Origin.DENORMED_CLASSIFICATION, lc.getHigherRank(hr), hr, TaxonomicStatus.ACCEPTED, parent==null).node;
+                    // insert parent relationship?
+                    assignParent(parent, lowerParent);
+                    parent = lowerParent;
+                }
+            }
+        }
+        // finally apply to initial node
+        assignParent(parent, taxon.node);
     }
 
     private void assignParent(Node parent, Node child) {
-        parent.createRelationshipTo(child, RelType.PARENT_OF);
-        child.removeLabel(Labels.ROOT);
+        if (parent != null) {
+            parent.createRelationshipTo(child, RelType.PARENT_OF);
+            child.removeLabel(Labels.ROOT);
+        }
     }
 
     /**
@@ -279,6 +304,7 @@ public class Normalizer extends ImportDb implements Runnable {
     private void cleanupRelations() {
         LOG.info("Cleanup relations ...");
         // cut synonym cycles
+        int counter = 0;
         while (true) {
             try (Transaction tx = dao.getNeo().beginTx()) {
                 Result result = dao.getNeo().execute("MATCH (s:TAXON)-[sr:SYNONYM_OF]->(x)-[:SYNONYM_OF*]->(s) RETURN sr LIMIT 1");
@@ -300,6 +326,9 @@ public class Normalizer extends ImportDb implements Runnable {
                     sr.delete();
                     tx.success();
 
+                    if (counter++ % 100 == 0) {
+                        LOG.debug("Synonym cycles cut so far: {}", counter);
+                    }
                 } else {
                     break;
                 }
@@ -324,6 +353,9 @@ public class Normalizer extends ImportDb implements Runnable {
                         chainedSynonyms++;
                     }
                     tx.success();
+                    if (counter++ % 100 == 0) {
+                        LOG.debug("Synonym chain cut so far: {}", counter);
+                    }
 
                 } else {
                     break;
