@@ -1,0 +1,10 @@
+taxonID;scientificName;scientificNameAuthorship;taxonRank;originalNameUsageID;acceptedNameUsageID;genus;family;order;class;phylum;kingdom
+140359;Arthonia cembrina;Anzi;sp.;140359;377235;Arthonia;Arthoniaceae;Arthoniales;Arthoniomycetes;Ascomycota;Fungi
+140286;Cercospora fici;Heald & F.A. Wolf;sp.;140286;354755;Cercospora;Mycosphaerellaceae;Capnodiales;Dothideomycetes;Ascomycota;Fungi
+354755;Pseudocercospora fici;(Heald & F.A. Wolf) X.J. Liu & Y.L. Guo;sp.;140286;354755;Pseudocercospora;Mycosphaerellaceae;Capnodiales;Dothideomycetes;Ascomycota;Fungi
+141171;Septoria coffeae;Wakef.;sp.;141171;\N;Septoria;Mycosphaerellaceae;Capnodiales;Dothideomycetes;Ascomycota;Fungi
+140354;Sphaerella minuta;Auersw.;sp.;140354;\N;Sphaerella;Mycosphaerellaceae;Capnodiales;Dothideomycetes;Ascomycota;Fungi
+377235;Arthopyrenia punctiformis;(Schrank) A. Massal.;sp.;120573;377235;Arthopyrenia;Arthopyreniaceae;Pleosporales;Dothideomycetes;Ascomycota;Fungi
+140285;Blitridium symphoricarpi;Ellis & Everh.;sp.;140285;\N;Blitridium;Triblidiaceae;Triblidiales;Incertae sedis;Ascomycota;Fungi
+120573;Lichen punctiformis;Schrank;sp.;120573;377235;Lichen;Parmeliaceae;Lecanorales;Lecanoromycetes;Ascomycota;Fungi
+970;Chaetosphaeria;Tul. & C. Tul.;gen.;970;970;Chaetosphaeria;Chaetosphaeriaceae;Chaetosphaeriales;Sordariomycetes;Ascomycota;Fungi
