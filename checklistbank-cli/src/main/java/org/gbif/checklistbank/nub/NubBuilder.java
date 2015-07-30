@@ -199,13 +199,12 @@ public class NubBuilder implements Runnable {
 
     private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
         Preconditions.checkNotNull(u.status);
-        Preconditions.checkNotNull(u.rank);
         // try to parse name
         NubUsage nub = null;
         try {
-            addParsedNameIfNull(u);
-            nub = db.findNubUsage(u, parents.nubKingdom());
             if (u.rank != null && allowedRanks.contains(u.rank)) {
+                addParsedNameIfNull(u);
+                nub = db.findNubUsage(u, parents.nubKingdom());
                 if (nub == null || (!nub.status.isSynonym() && isSynonymWithAuthorship(u))) {
                     // create new nub usage
                     nub = createNubUsage(u, origin, parent);
