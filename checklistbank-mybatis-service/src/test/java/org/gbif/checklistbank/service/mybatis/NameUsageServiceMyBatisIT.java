@@ -322,7 +322,7 @@ public class NameUsageServiceMyBatisIT {
     assertEquals(2, m.getNumSubgenus());
     assertEquals(2, m.getNumSpecies());
     // not set in dbunit file
-    assertEquals(0, m.getNumDescendants());
+    assertEquals(3, m.getNumDescendants());
     assertEquals(0, m.getNumFamily());
 
     assertNull(ddt.getService().getMetrics(NOT_FOUND_KEY));
