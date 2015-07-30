@@ -61,7 +61,11 @@ public class MybatisMapperTestRule<T> extends DatabaseDrivenTestRule<T> {
             for (String table : tables) {
                 try (Statement st = con.createStatement()) {
                     st.execute("TRUNCATE " + table + " CASCADE");
+                }
+                try (Statement st = con.createStatement()) {
                     st.execute("ALTER SEQUENCE " + table + "_id_seq RESTART 1");
+                } catch (SQLException e) {
+                    // ignore
                 }
             }
         } catch (SQLException e) {

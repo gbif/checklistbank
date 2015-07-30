@@ -150,7 +150,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         final UUID datasetKey = u.getDatasetKey();
 
         // insert main usage, creating name and citation records before
-        NameUsageWritable uw = toWritable(datasetKey, u);
+        NameUsageWritable uw = toWritable(datasetKey, u, metrics);
         nameUsageMapper.insert(uw);
         u.setKey(uw.getKey());
 
@@ -281,7 +281,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         // update self references indicated by -1
         updateSelfReferences(u);
         // insert main usage, creating name and citation records before
-        NameUsageWritable uw = toWritable(datasetKey, u);
+        NameUsageWritable uw = toWritable(datasetKey, u, metrics);
         nameUsageMapper.update(uw);
 
         // remove all previous extension records
@@ -337,7 +337,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
      * Converts a name usage into a writable name usage by looking up or inserting name and citation records
      * and populating the writable instance with these keys.
      */
-    private NameUsageWritable toWritable(UUID datasetKey, NameUsage u) {
+    private NameUsageWritable toWritable(UUID datasetKey, NameUsage u, NameUsageMetrics metrics) {
         NameUsageWritable uw = new NameUsageWritable();
 
         uw.setKey(u.getKey());
@@ -357,7 +357,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         uw.setRank(u.getRank());
         uw.setOrigin(u.getOrigin());
         uw.setSynonym(u.isSynonym());
-        uw.setNumDescendants(u.getNumDescendants());
+        uw.setNumDescendants(metrics.getNumDescendants());
         uw.setNomenclaturalStatus(u.getNomenclaturalStatus());
         uw.setTaxonomicStatus(u.getTaxonomicStatus());
         uw.setReferences(u.getReferences());

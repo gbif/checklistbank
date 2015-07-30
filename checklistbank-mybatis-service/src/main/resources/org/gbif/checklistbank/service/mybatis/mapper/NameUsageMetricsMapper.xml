@@ -13,30 +13,31 @@
     <result property="numSubgenus" column="count_sg"/>
     <result property="numSpecies" column="count_s"/>
     <result property="numChildren" column="count_children"/>
-    <result property="numDescendants" column="count_descendants"/>
+    <!-- num_descendants is kept in the name_usage table -->
+    <result property="numDescendants" column="num_descendants"/>
     <result property="numSynonyms" column="count_synonyms"/>
   </resultMap>
 
 
   <!--  Get by primary key -->
   <select id="get" parameterType="map" resultMap="usageMetricsResultMap">
-    SELECT *
-    FROM name_usage_metrics
+    SELECT m.*, u.num_descendants
+    FROM name_usage_metrics m join name_usage u on m.usage_fk=u.id
     WHERE usage_fk=#{key}
   </select>
 
   <insert id="insert" parameterType="NameUsageMetrics" useGeneratedKeys="false" keyProperty="usage_fk">
-    INSERT INTO name_usage_metrics (usage_fk, dataset_key, count_descendants, count_children, count_synonyms,
+    INSERT INTO name_usage_metrics (usage_fk, dataset_key, count_children, count_synonyms,
       count_p, count_c, count_o, count_f, count_g, count_sg, count_s)
-    VALUES  (#{m.key}, #{uuid}, #{m.numDescendants}, #{m.numChildren}, #{m.numSynonyms},
+    VALUES  (#{m.key}, #{uuid}, #{m.numChildren}, #{m.numSynonyms},
       #{m.numPhylum}, #{m.numClass}, #{m.numOrder}, #{m.numFamily}, #{m.numGenus}, #{m.numSubgenus}, #{m.numSpecies})
   </insert>
 
   <update id="update" parameterType="NameUsageMetrics">
     UPDATE name_usage_metrics
-    SET (count_descendants, count_children, count_synonyms,
+    SET (count_children, count_synonyms,
       count_p, count_c, count_o, count_f, count_g, count_sg, count_s)
-    = (#{m.numDescendants}, #{m.numChildren}, #{m.numSynonyms},
+    = (#{m.numChildren}, #{m.numSynonyms},
        #{m.numPhylum}, #{m.numClass}, #{m.numOrder}, #{m.numFamily}, #{m.numGenus}, #{m.numSubgenus}, #{m.numSpecies})
     WHERE usage_fk = #{m.key}
   </update>
