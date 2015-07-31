@@ -251,7 +251,7 @@ public class Importer extends ImportDb implements Runnable {
      * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
      * mapper that it should use the newly generated sequence value.
      *
-     * @param nodeId the node id casted from long that represents the currently processed name usage record
+     * @param nodeId the node id casted from long that represents the currently processed name usage record. negative if none
      * @param nodeFk the foreign key to the node id we wanna setup the relation to
      */
     private Integer clbForeignKey(int nodeId, Integer nodeFk, @Nullable KeyType type) {

@@ -18,7 +18,6 @@ import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
-import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -389,19 +388,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         }
     }
 
-    @Transactional(
-            executorType = ExecutorType.BATCH,
-            isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-            exceptionMessage = "Something went wrong while inserting usage batch for dataset {0}"
-    )
-    private void insertUsageBatch(UUID datasetKey, List<Usage> usages) {
-        for (Usage u : usages) {
-            usageMapper.insert(datasetKey, u);
-        }
-    }
-
     @Override
     public int deleteDataset(UUID datasetKey) {
+        if (Constants.NUB_DATASET_KEY.equals(datasetKey)) {
+            throw new IllegalArgumentException("The GBIF backbone cannot be deleted!");
+        }
         LOG.info("Deleting entire dataset {}", datasetKey);
         int numDeleted = usageMapper.deleteByDataset(datasetKey);
         // we do not remove old dataset metrics, just add a new, empty one as the most recent
@@ -411,7 +402,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
 
     @Override
     public void delete(int key) {
-        usageMapper.delete(key);
+        if (key > Constants.NUB_MAXIMUM_KEY) {
+            usageMapper.delete(key);
+        } else {
+            // we only logically delete nub usages
+            usageMapper.deleteLogically(key);
+        }
     }
 
     @Override

@@ -26,7 +26,6 @@ public class NubBuildCommand extends BaseCommand {
     protected void doRun() {
         NubBuilder builder = NubBuilder.create(cfg);
         builder.run();
-        LOG.info("Sending ChecklistNormalizedMessage for backbone");
     }
 
 }

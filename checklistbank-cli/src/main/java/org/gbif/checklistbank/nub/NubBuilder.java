@@ -91,16 +91,23 @@ public class NubBuilder implements Runnable {
 
     @Override
     public void run() {
-        addKingdoms();
-        parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
-        addDatasets();
-        setEmptyGroupsDoubtful();
-        groupByOriginalName();
-        addExtensionData();
-        assignUsageKeys();
-        db.dao.convertNubUsages();
-        builtUsageMetrics();
-        LOG.info("New backbone built");
+        try {
+            addKingdoms();
+            parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
+            addDatasets();
+            setEmptyGroupsDoubtful();
+            groupByOriginalName();
+            addExtensionData();
+            assignUsageKeys();
+            db.dao.convertNubUsages();
+            builtUsageMetrics();
+            LOG.info("New backbone built");
+        } catch (Exception e) {
+            LOG.error("Backbone built failed", e);
+        } finally {
+            db.dao.close();
+            LOG.info("DAO closed");
+        }
     }
 
     private void addKingdoms() {
