@@ -213,7 +213,7 @@ public class ImporterIT extends BaseTest {
       if (Origin.SOURCE == u.getOrigin()) {
         assertEquals(u.getScientificName(), ids.get(u.getKey()));
       } else {
-        assertFalse("Usage key "+u.getKey()+" existed before", ids.containsKey(u.getKey()));
+        assertFalse("Usage key " + u.getKey() + " existed before", ids.containsKey(u.getKey()));
       }
     }
   }
@@ -270,6 +270,34 @@ public class ImporterIT extends BaseTest {
     verify16(datasetKey);
   }
 
+    /**
+     * Import a dataset that has several proparte links to not previously imported accepted usages.
+     */
+    @Test
+    public void testProParteKeys() throws Exception {
+        final UUID datasetKey = NormalizerTest.datasetKey(16);
+
+        // insert neo db
+        NormalizerStats stats = insertNeo(datasetKey);
+        assertEquals(16, stats.getCount());
+        assertEquals(6, stats.getSynonyms());
+        assertEquals(1, stats.getRoots());
+        assertEquals(0, stats.getCountByOrigin(Origin.PROPARTE));
+        assertEquals(16, stats.getCountByOrigin(Origin.SOURCE));
+
+        // 1st import
+        runImport(datasetKey);
+        // verify
+        verify16(datasetKey);
+
+        // wait for 2 seconds, we allow a small time difference in old usage deletions
+        Thread.sleep(2000);
+
+        // 2nd import to make sure sync updates also work fine
+        runImport(datasetKey);
+        // verify
+        verify16(datasetKey);
+    }
 
   /**
    * http://dev.gbif.org/issues/browse/POR-2755
