@@ -2,8 +2,6 @@ package org.gbif.checklistbank.nub.source;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 
-import java.sql.Connection;
-
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -27,8 +25,8 @@ public class ClbUsageIteratorNeo extends UsageIteratorNeo {
 
   @Override
   void initNeo(NeoUsageWriter writer) throws Exception {
-    try (Connection c = clb.connect()){
-      final CopyManager cm = new CopyManager((BaseConnection) c);
+    try (BaseConnection c = clb.connect()){
+      final CopyManager cm = new CopyManager(c);
       cm.copyOut("COPY ("
                  + "SELECT usage.id, usage.parent_fk, usage.basionym_fk, usage.rank, usage.is_synonym, usage.status, usage.nom_status, node.scientific_name"
                  + " FROM name_usage usage join name node ON name_fk=node.id" + " WHERE dataset_key = '" + source.key + "')"

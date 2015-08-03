@@ -53,7 +53,7 @@ public class DatasetImportServiceCombined {
             sqlService.delete(id);
             counter++;
         }
-        LOG.info("Deleted all {} usages from dataset {} before {}", counter, datasetKey, before);
+        LOG.info("Deleted {} usages from dataset {} before {}", counter, datasetKey, before);
         return counter;
     }
 

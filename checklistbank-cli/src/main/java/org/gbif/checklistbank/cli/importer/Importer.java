@@ -31,6 +31,7 @@ import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
+import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -62,9 +63,11 @@ public class Importer extends ImportDb implements Runnable {
     private IntIntMap clbKeys = new IntIntHashMap();
     // map based around internal neo4j node ids:
     private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
+    // map of existing pro parte synonym clb usage keys to their accepted taxon given as neo node id to be updated at the very end
+    private IntIntMap postProParteKeys = new IntIntHashMap();
     private int maxExistingNubKey = -1;
 
-    private enum KeyType {PARENT, ACCEPTED, BASIONYM}
+    private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
     ;
     private final int keyTypeSize = KeyType.values().length;
@@ -141,8 +144,18 @@ public class Importer extends ImportDb implements Runnable {
                         u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
                         for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
                             Node accN = rel.getEndNode();
-                            u.setAcceptedKey(clbForeignKey(-999, (int) accN.getId(), KeyType.ACCEPTED));
-                            syncUsage(u, parents, verbatim, facts.metrics, ext);
+                            int accNodeId = (int) accN.getId();
+                            boolean existingKey = false;
+                            // not all accepted usages might already exist in postgres, only use the key if they exist
+                            if (clbKeys.containsKey(accNodeId)) {
+                                u.setAcceptedKey(clbKeys.get(accNodeId));
+                                existingKey = true;
+                            }
+                            int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
+                            if (!existingKey) {
+                                // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
+                                postProParteKeys.put(ppid, accNodeId);
+                            }
                             syncCounter++;
                         }
                     } else {
@@ -188,6 +201,14 @@ public class Importer extends ImportDb implements Runnable {
                 );
             }
         }
+        if (!postProParteKeys.isEmpty()) {
+            LOG.info("Updating foreign keys for {} pro parte usages from dataset {}", postProParteKeys.size(), datasetKey);
+            for (IntIntCursor c : postProParteKeys) {
+                // update usage by usage doing both potential updates in one statement
+                importService.updateForeignKeys(c.key, clbKey(c.value), null);
+            }
+        }
+
 
         // remove old usages
         if (firstUsageKey < 0) {
@@ -251,29 +272,34 @@ public class Importer extends ImportDb implements Runnable {
      * If the requested nodeID actually refers to the current node id, then -1 will be returned to indicate to the mybatis
      * mapper that it should use the newly generated sequence value.
      *
-     * @param nodeId the node id casted from long that represents the currently processed name usage record. negative if none
+     * @param nodeId the node id casted from long that represents the currently processed name usage record
      * @param nodeFk the foreign key to the node id we wanna setup the relation to
      */
-    private Integer clbForeignKey(int nodeId, Integer nodeFk, @Nullable KeyType type) {
-        if (nodeFk != null) {
-            if (clbKeys.containsKey(nodeFk)) {
-                return clbKeys.get(nodeFk);
-            } else if (nodeId == nodeFk) {
-                return SELF_ID;
-            } else if (type != null) {
-                // remember non classification keys for update after all records have been synced once
-                if (postKeys.containsKey(nodeId)) {
-                    postKeys.get(nodeId)[type.ordinal()] = nodeFk;
-                } else {
-                    Integer[] keys = new Integer[keyTypeSize];
-                    keys[type.ordinal()] = nodeFk;
-                    postKeys.put(nodeId, keys);
-                }
+    private Integer clbForeignKey(long nodeId, Integer nodeFk, KeyType type) {
+        if (nodeFk == null) return null;
+
+        if (clbKeys.containsKey(nodeFk)) {
+            // already imported the node and we know the clb key
+            return clbKeys.get(nodeFk);
+        } else if (nodeId == (long) nodeFk) {
+            // tell postgres to use the newly generated key of the inserted record
+            return SELF_ID;
+        } else if (KeyType.CLASSIFICATION == type) {
+            // should not happen as we process the usages in a taxonomic hierarchy from top down.
+            // if you see this it looks like the normalizer did a bad job somewhere
+            throw new IllegalStateException("Higher classification NodeId not in CLB yet: " + nodeFk);
+        } else {
+            // remember non classification keys for update after all records have been synced once
+            int nid = (int) nodeId;
+            if (postKeys.containsKey(nid)) {
+                postKeys.get(nid)[type.ordinal()] = nodeFk;
             } else {
-                throw new IllegalStateException("NodeId not in CLB yet: " + nodeFk);
+                Integer[] keys = new Integer[keyTypeSize];
+                keys[type.ordinal()] = nodeFk;
+                postKeys.put(nid, keys);
             }
+            return null;
         }
-        return null;
     }
 
     /**
@@ -288,14 +314,19 @@ public class Importer extends ImportDb implements Runnable {
         }
         if (n.hasLabel(Labels.SYNONYM)) {
             u.setSynonym(true);
-            u.setAcceptedKey(clbForeignKey((int) n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
+            u.setAcceptedKey(clbForeignKey(n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
         } else {
             u.setSynonym(false);
-            u.setParentKey(clbForeignKey((int) n.getId(), u.getParentKey(), KeyType.PARENT));
+            u.setParentKey(clbForeignKey(n.getId(), u.getParentKey(), KeyType.PARENT));
         }
-        u.setBasionymKey(clbForeignKey((int) n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
+        u.setBasionymKey(clbForeignKey(n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
         for (Rank r : Rank.DWC_RANKS) {
-            ClassificationUtils.setHigherRankKey(u, r, clbForeignKey((int) n.getId(), u.getHigherRankKey(r), null));
+            try {
+                ClassificationUtils.setHigherRankKey(u, r, clbForeignKey(n.getId(), u.getHigherRankKey(r), KeyType.CLASSIFICATION));
+            } catch (IllegalStateException e) {
+                LOG.error("{} (nodeID={}) has unprocessed {} reference to nodeId {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), n.getId(), r, u.getHigherRankKey(r));
+                throw e;
+            }
         }
         u.setDatasetKey(datasetKey);
         return u;

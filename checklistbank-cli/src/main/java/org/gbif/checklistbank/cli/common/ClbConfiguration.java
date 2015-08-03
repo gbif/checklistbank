@@ -4,7 +4,6 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
@@ -13,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.Sets;
+import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,9 +73,9 @@ public class ClbConfiguration {
   /**
    * @return a new simple postgres jdbc connection
    */
-  public Connection connect() throws SQLException {
+  public BaseConnection connect() throws SQLException {
     String url = "jdbc:postgresql://" + serverName + "/" + databaseName;
-    return DriverManager.getConnection(url, user, password);
+    return (BaseConnection) DriverManager.getConnection(url, user, password);
   }
 
 }
