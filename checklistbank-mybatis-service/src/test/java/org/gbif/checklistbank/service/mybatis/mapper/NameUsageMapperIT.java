@@ -27,7 +27,7 @@ public class NameUsageMapperIT {
     private ParsedNameMapper nameMapper;
 
     @Rule
-    public MybatisMapperTestRule<NameUsageMapper> ddt = MybatisMapperTestRule.empty(NameUsageMapper.class, "name_usage");
+    public MybatisMapperTestRule<NameUsageMapper> ddt = MybatisMapperTestRule.empty(NameUsageMapper.class);
 
     @Before
     public void setup() {
@@ -110,7 +110,7 @@ public class NameUsageMapperIT {
         u.setNameKey(nameKey);
         u.setRank(Rank.SPECIES);
         ddt.getService().insert(u);
-        assertEquals(1, (int) u.getKey());
+        assertEquals(100000000, (int) u.getKey());
 
         u.setKey(110);
         ddt.getService().insert(u);
@@ -118,6 +118,6 @@ public class NameUsageMapperIT {
 
         u.setKey(null);
         ddt.getService().insert(u);
-        assertEquals(2, (int)u.getKey());
+        assertEquals(100000001, (int)u.getKey());
     }
 }

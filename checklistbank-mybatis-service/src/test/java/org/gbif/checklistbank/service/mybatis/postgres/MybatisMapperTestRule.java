@@ -6,11 +6,8 @@ import org.gbif.utils.file.properties.PropertiesUtil;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
 /**
@@ -19,28 +16,30 @@ import com.google.common.collect.Maps;
  */
 public class MybatisMapperTestRule<T> extends DatabaseDrivenTestRule<T> {
 
-  private static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
-  private static final String PREFIX = "checklistbank.db.";
-  private final List<String> tables;
+    private static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
+    private static final String PREFIX = "checklistbank.db.";
 
-  /**
-   * @param mapperClass   the class for the service we want to wire up and test
-   */
-  private MybatisMapperTestRule(Class<T> mapperClass, String ... tables) {
-    super(new InternalChecklistBankServiceMyBatisModule(buildDefaultProperties()),
-      InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME, mapperClass, null,
-      Maps.<String, Object>newHashMap());
-      this.tables = ImmutableList.copyOf(tables);
-  }
+    /**
+     * @param mapperClass the class for the service we want to wire up and test
+     */
+    private MybatisMapperTestRule(Class<T> mapperClass) {
+        super(new InternalChecklistBankServiceMyBatisModule(buildDefaultProperties()),
+                InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME, mapperClass, null,
+                Maps.<String, Object>newHashMap());
+    }
 
-  public static <T> MybatisMapperTestRule<T> empty(Class<T> mapperClass, String ... tables) {
-      return new MybatisMapperTestRule<T>(mapperClass, tables);
-  }
+    public static MybatisMapperTestRule<?> emptyClb() {
+        return new MybatisMapperTestRule(null);
+    }
+
+    public static <T> MybatisMapperTestRule<T> empty(Class<T> mapperClass) {
+        return new MybatisMapperTestRule<T>(mapperClass);
+    }
 
     private static Properties buildDefaultProperties() {
         try {
             Properties properties = PropertiesUtil.loadProperties(DEFAULT_PROPERTY_FILE);
-            for(String key : properties.stringPropertyNames()) {
+            for (String key : properties.stringPropertyNames()) {
                 if (key.startsWith(PREFIX)) {
                     properties.setProperty(key.substring(PREFIX.length()), properties.getProperty(key));
                     properties.remove(key);
@@ -58,16 +57,7 @@ public class MybatisMapperTestRule<T> extends DatabaseDrivenTestRule<T> {
      */
     protected void runFinally() {
         try (Connection con = dataSource.getConnection()) {
-            for (String table : tables) {
-                try (Statement st = con.createStatement()) {
-                    st.execute("TRUNCATE " + table + " CASCADE");
-                }
-                try (Statement st = con.createStatement()) {
-                    st.execute("ALTER SEQUENCE " + table + "_id_seq RESTART 1");
-                } catch (SQLException e) {
-                    // ignore
-                }
-            }
+            ClbInit.reset(con);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

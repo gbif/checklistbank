@@ -95,4 +95,9 @@
       ALTER TABLE name_usage_metrics DROP COLUMN count_descendants;
     </sql>
   </changeSet>
+  <changeSet id="25" author="markus">
+    <sql>
+      ALTER TABLE name_usage ADD COLUMN deleted timestamp;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

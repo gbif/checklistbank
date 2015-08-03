@@ -76,8 +76,8 @@ public class DatabaseDrivenTestRule<T> implements TestRule {
 
       @Override
       public void evaluate() throws Throwable {
-        before();
         try {
+          before();
           base.evaluate();
         } finally {
           after();

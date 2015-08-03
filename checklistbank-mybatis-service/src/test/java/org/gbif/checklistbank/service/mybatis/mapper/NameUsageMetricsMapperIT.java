@@ -25,7 +25,7 @@ public class NameUsageMetricsMapperIT {
     private NameUsageMapper usageMapper;
 
     @Rule
-    public MybatisMapperTestRule<NameUsageMetricsMapper> ddt = MybatisMapperTestRule.empty(NameUsageMetricsMapper.class, "name", "name_usage", "name_usage_metrics");
+    public MybatisMapperTestRule<NameUsageMetricsMapper> ddt = MybatisMapperTestRule.empty(NameUsageMetricsMapper.class);
 
     @Before
     public void setup() {
