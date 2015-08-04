@@ -26,7 +26,7 @@ fu.id as fid, coalesce(fn.canonical_name,fn.scientific_name) as family,
 gu.id as gid, coalesce(gn.canonical_name,gn.scientific_name) as genus,
 sgu.id as sgid, coalesce(sgn.canonical_name,sgn.scientific_name) as subgenus,
 su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
-u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled, u.remarks, u.issues
+u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled, u.deleted, u.remarks, u.issues
 </sql>
 
   <sql id="from"> name_usage u
@@ -116,14 +116,15 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   <!--  list all usage ids -->
   <select id="list" parameterType="map" resultType="java.lang.Integer">
     SELECT id FROM name_usage
+      WHERE deleted IS NULL
     <if test="uuid != null">
-      WHERE dataset_key=#{uuid,jdbcType=OTHER}
+      AND dataset_key=#{uuid,jdbcType=OTHER}
     </if>
     ORDER BY id
     <include refid="page"/>
   </select>
 
-  <!--  the maximum usage key used in the nub -->
+  <!--  the maximum usage key used in the nub incl deleted usages -->
   <select id="maxUsageKey" parameterType="map" resultType="java.lang.Integer">
     SELECT max(u.id)
     FROM name_usage u
@@ -136,7 +137,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    WHERE u.id between #{start} and #{end}
+    WHERE u.deleted IS NULL AND u.id between #{start} and #{end}
   </select>
 
   <!--  list root usages -->
@@ -145,7 +146,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    WHERE u.parent_fk is null and u.is_synonym=false and u.dataset_key=#{uuid, jdbcType=OTHER}
+    WHERE u.deleted IS NULL AND u.parent_fk is null and u.is_synonym=false and u.dataset_key=#{uuid, jdbcType=OTHER}
     ORDER BY u.rank, n.scientific_name
     <include refid="page"/>
   </select>
@@ -157,7 +158,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
       <include refid="select"/>
       FROM
       <include refid="from"/>
-      WHERE u.parent_fk=#{key} and u.is_synonym=false
+      WHERE u.deleted IS NULL AND u.parent_fk=#{key} and u.is_synonym=false
     )
     SELECT * FROM child_query
     ORDER BY rank, scientific_name
@@ -171,7 +172,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
       <include refid="select"/>
       FROM
       <include refid="from"/>
-      WHERE u.parent_fk=#{key} and u.is_synonym=true
+      WHERE u.deleted IS NULL AND u.parent_fk=#{key} and u.is_synonym=true
     )
     SELECT * FROM child_query
     ORDER BY scientific_name
@@ -200,7 +201,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    WHERE u.taxon_id=#{taxonId}
+    WHERE u.deleted IS NULL AND u.taxon_id=#{taxonId}
     <if test="uuid != null">
       AND u.dataset_key=#{uuid, jdbcType=OTHER}
     </if>
@@ -214,7 +215,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <include refid="select"/>
     FROM
     <include refid="from"/>
-    WHERE lower(n.canonical_name) = lower(#{canonical})
+    WHERE u.deleted IS NULL AND lower(n.canonical_name) = lower(#{canonical})
     <if test="uuids != null">
       and u.dataset_key in
       <foreach item="uuid" index="index" collection="uuids" open="(" separator="," close=")">
@@ -260,27 +261,10 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     )
   </insert>
 
-    <insert id="insertWithKey" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
-        INSERT INTO name_usage (id, <include refid="writeFields"/>, dataset_key)
-        VALUES (#{u.key}, <include refid="writeValues"/>,
-        <if test="u.proParteKey == -1">#{u.key},</if><if test="u.proParteKey != -1">#{u.proParteKey},</if>
-        <if test="u.basionymKey == -1">#{u.key},</if><if test="u.basionymKey != -1">#{u.basionymKey},</if>
-        <if test="u.kingdomKey == -1">#{u.key},</if><if test="u.kingdomKey != -1">#{u.kingdomKey},</if>
-        <if test="u.phylumKey == -1">#{u.key},</if><if test="u.phylumKey != -1">#{u.phylumKey},</if>
-        <if test="u.classKey == -1">#{u.key},</if><if test="u.classKey != -1">#{u.classKey},</if>
-        <if test="u.orderKey == -1">#{u.key},</if><if test="u.orderKey != -1">#{u.orderKey},</if>
-        <if test="u.familyKey == -1">#{u.key},</if><if test="u.familyKey != -1">#{u.familyKey},</if>
-        <if test="u.genusKey == -1">#{u.key},</if><if test="u.genusKey != -1">#{u.genusKey},</if>
-        <if test="u.subgenusKey == -1">#{u.key},</if><if test="u.subgenusKey != -1">#{u.subgenusKey},</if>
-        <if test="u.speciesKey == -1">#{u.key},</if><if test="u.speciesKey != -1">#{u.speciesKey},</if>
-        #{u.datasetKey}
-        )
-    </insert>
-
-    <update id="update" parameterType="NameUsageWritable">
+  <update id="update" parameterType="NameUsageWritable">
     UPDATE name_usage
-    SET (<include refid="writeFields"/>)
-     =  (<include refid="writeValues"/>,
+    SET (deleted, <include refid="writeFields"/>)
+     =  (null, <include refid="writeValues"/>,
     #{u.proParteKey},
     #{u.basionymKey},
     #{u.kingdomKey},

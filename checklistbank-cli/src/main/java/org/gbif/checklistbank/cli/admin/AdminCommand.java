@@ -27,7 +27,10 @@ import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.beust.jcommander.internal.Lists;
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import com.google.inject.Injector;
@@ -93,7 +96,17 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
+        if (cfg.keys != null) {
+            datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
+                @Nullable
+                @Override
+                public Dataset apply(UUID key) {
+                    return datasetService.get(key);
+                }
+            });
+        } else {
+            datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
+        }
         for (Dataset d : datasets) {
             try {
                 LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));

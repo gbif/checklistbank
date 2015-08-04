@@ -62,7 +62,7 @@
     SELECT <include refid="SELECT"/>
     FROM <include refid="FROM"/>
       JOIN name_usage u ON u.name_fk=n.id
-    WHERE u.dataset_key=#{uuid}
+    WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
     ORDER BY u.id
     LIMIT #{page.limit}
     OFFSET #{page.offset}

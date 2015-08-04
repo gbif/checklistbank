@@ -4,6 +4,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -19,6 +20,7 @@ import com.yammer.metrics.Timer;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
 
@@ -66,6 +68,7 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
     }
 
     private void delete(UUID key) throws RuntimeException {
+        MDC.put(RabbitDatasetService.DATASET_MDC, key.toString());
         LOG.info("Deleting data for checklist {}", key);
         // solr
         Timer.Context context = timerSolr.time();
@@ -87,6 +90,7 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
             context.stop();
         }
         deleteStorageFiles(cfg.neo, key);
+        MDC.remove(RabbitDatasetService.DATASET_MDC);
     }
 
     @Override

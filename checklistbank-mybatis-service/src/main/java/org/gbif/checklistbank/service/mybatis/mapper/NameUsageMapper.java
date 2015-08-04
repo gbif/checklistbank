@@ -28,7 +28,7 @@ public interface NameUsageMapper {
   Integer getKey(@Param("uuid") UUID datasetKey, @Param("taxonId") String taxonId);
 
   /**
-   * A simple paging query for all usages in checklistbank.
+   * A simple paging query for all non deleted usages in checklistbank.
    * We only return name usage ids here to avoid extremely heavy operations for the database when the offset gets
    * bigger.
    *
@@ -57,7 +57,7 @@ public interface NameUsageMapper {
   List<NameUsage> listRelated(@Param("key") int nubKey, @Param("uuids") UUID[] datasetKeys);
 
   /**
-   * @return the maximum usage key used in a dataset
+   * @return the maximum usage key used in a dataset incl deleted records
    */
   Integer maxUsageKey(@Param("uuid") UUID datasetKey);
 

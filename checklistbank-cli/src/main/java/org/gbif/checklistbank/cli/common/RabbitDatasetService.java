@@ -13,13 +13,14 @@ import com.yammer.metrics.Timer;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
     private static final Logger LOG = LoggerFactory.getLogger(RabbitDatasetService.class);
     private static final Marker DOI_SMTP = MarkerFactory.getMarker("SMTP");
-
+    public static final String DATASET_MDC = "dataset";
     private final Timer timer;
     private final Counter succeeded;
     private final Counter failed;
@@ -39,6 +40,7 @@ public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extend
     public void handleMessage(T msg) {
         final Timer.Context context = timer.time();
         try {
+            MDC.put(DATASET_MDC, msg.getDatasetUuid().toString());
             if (!ignore(msg)) {
                 if(runningJobs.contains(msg.getDatasetUuid())) {
                     LOG.warn("Dataset {} {} job already running. Ignore message", action, msg.getDatasetUuid());
@@ -56,6 +58,7 @@ public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extend
             failed.inc();
         } finally {
             context.stop();
+            MDC.remove(DATASET_MDC);
         }
     }
 

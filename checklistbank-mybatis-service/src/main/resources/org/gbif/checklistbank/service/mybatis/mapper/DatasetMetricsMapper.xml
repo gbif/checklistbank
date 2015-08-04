@@ -11,6 +11,7 @@
     <result property="colMatchingCount" column="count_col" />
     <result property="nubCoveragePct" column="nubCoverage" />
     <result property="colCoveragePct" column="colCoverage" />
+    <result property="countByConstituent" column="count_by_constituent" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreUUIDCountCountTypeHandler"/>
     <result property="countByKingdom" column="count_by_kingdom" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreKingdomCountCountTypeHandler"/>
     <result property="countByRank" column="count_by_rank" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreRankCountCountTypeHandler"/>
     <result property="countByOrigin" column="count_by_origin" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.HstoreOriginCountCountTypeHandler"/>
@@ -38,7 +39,7 @@
     count_col, count_nub,
     CASE WHEN count_usages=0 THEN 0 ELSE 100 * count_col / count_usages END AS colCoverage,
     CASE WHEN count_usages=0 THEN 0 ELSE 100 * count_nub / count_usages END AS nubCoverage,
-    count_by_kingdom, count_by_rank, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang,
+    count_by_constituent, count_by_kingdom, count_by_rank, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang,
     count_other, downloaded, created
   </sql>
 
@@ -63,15 +64,18 @@
 UPDATE dataset_metrics SET latest=false WHERE dataset_key=#{uuid} AND latest=true;
 
 INSERT INTO dataset_metrics
-  (dataset_key,downloaded,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_kingdom, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang)
+  (dataset_key,downloaded,count_usages,count_synonyms,count_names,count_col,count_nub,  count_by_rank, count_by_constituent, count_by_kingdom, count_by_origin, count_by_issue, count_extensions, count_vernacular_by_lang)
 SELECT #{uuid}, #{downloaded},
-    (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid}),
-    (SELECT count(*) FROM name_usage WHERE dataset_key=#{uuid} AND is_synonym=true),
-    (SELECT count(distinct(name_fk)) FROM name_usage WHERE dataset_key=#{uuid}),
-    (SELECT count(distinct(u.id)) FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id JOIN nub_rel col ON col.nub_fk=rel.nub_fk AND col.dataset_key='7ddf754f-d193-4cc9-b351-99906754a03b' WHERE u.dataset_key=#{uuid}),
-    (SELECT count(distinct(u.id)) FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id WHERE u.dataset_key=#{uuid}),
+    (SELECT count(*) FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid}),
+    (SELECT count(*) FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid} AND is_synonym=true),
+    (SELECT count(distinct(name_fk)) FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid}),
+    (SELECT count(distinct(u.id)) FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id JOIN nub_rel col ON col.nub_fk=rel.nub_fk AND col.dataset_key='7ddf754f-d193-4cc9-b351-99906754a03b' WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}),
+    (SELECT count(distinct(u.id)) FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
-        (SELECT rank AS key, count(*)::text AS cnt FROM name_usage WHERE dataset_key=#{uuid} AND is_synonym=false GROUP BY rank) AS ranks
+        (SELECT rank AS key, count(*)::text AS cnt FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid} AND is_synonym=false GROUP BY rank) AS ranks
+    ),
+    (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
+        (SELECT constituent_key AS key, count(*)::text AS cnt FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid} GROUP BY constituent_key) AS constituents
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
         (SELECT CASE nub.kingdom_fk
@@ -86,15 +90,15 @@ SELECT #{uuid}, #{downloaded},
             WHEN 8 THEN 'VIRUSES'
             ELSE 'INCERTAE_SEDIS' END AS key, count(*) as cnt
         FROM name_usage u JOIN nub_rel rel ON rel.usage_fk=u.id JOIN name_usage nub on nub.id=rel.nub_fk
-          WHERE u.dataset_key=#{uuid} AND u.is_synonym=false
+          WHERE u.deleted IS NULL AND u.dataset_key=#{uuid} AND u.is_synonym=false
           GROUP BY nub.kingdom_fk) AS kingdoms
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
-        (SELECT origin AS key, count(*)::text AS cnt FROM name_usage WHERE dataset_key=#{uuid} GROUP BY origin) AS origins
+        (SELECT origin AS key, count(*)::text AS cnt FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid} GROUP BY origin) AS origins
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
       (SELECT iss AS key, count(*)::text AS cnt FROM (
-        SELECT unnest(issues) iss from name_usage WHERE dataset_key=#{uuid}
+        SELECT unnest(issues) iss from name_usage WHERE deleted IS NULL AND dataset_key=#{uuid}
       ) AS dis GROUP BY key) AS issues
     ),
     (SELECT ('DESCRIPTION => ' || (SELECT count(*)::text FROM description x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
@@ -107,7 +111,7 @@ SELECT #{uuid}, #{downloaded},
         || ('VERNACULAR_NAME => ' || (SELECT count(*)::text FROM vernacular_name x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
-        (SELECT language AS key, count(*)::text AS cnt FROM vernacular_name x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid} GROUP BY language) AS ranks
+        (SELECT language AS key, count(*)::text AS cnt FROM vernacular_name x join name_usage u ON x.usage_fk=u.id WHERE u.deleted IS NULL AND u.dataset_key=#{uuid} GROUP BY language) AS ranks
     )
   </insert>
 </mapper>
