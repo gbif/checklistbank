@@ -19,14 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A thin wrapper that delegates all import methods to both postgres and solr using independent threads to parallelize the updates to both.
+ * A thin wrapper that delegates all import methods to both postgres and solr using a single threaded executor to update solr.
+ * We only use an executor for solr cause the solr syncs depend on the sql one be completed first as postgres issues new keys solr needs to know about.
+ * As solr should be much faster than postgres we only use a single thread here.
  */
 public class DatasetImportServiceCombined {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetImportServiceCombined.class);
 
+    private final DatasetImportService sqlService;
     private final NameUsageIndexService solrService;
     ExecutorService solrExecutor = Executors.newSingleThreadExecutor();
-    private final DatasetImportService sqlService;
 
     public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService) {
         this.sqlService = sqlService;

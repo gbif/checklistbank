@@ -135,6 +135,7 @@
                         <url>jdbc:postgresql://${checklistbank.db.host}/${checklistbank.db.name}</url>
                         <username>${checklistbank.db.username}</username>
                         <password>${checklistbank.db.password}</password>
+                        <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
                     </configuration>
                     <executions>
                         <execution>
