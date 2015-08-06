@@ -22,7 +22,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMessage> {
 
@@ -45,7 +44,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
         // init mybatis layer and solr once from cfg instance
         Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
         initDbPool(inj);
-        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
+        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), cfg.poolSize);
         nameUsageService = inj.getInstance(NameUsageService.class);
         usageService = inj.getInstance(UsageService.class);
     }
@@ -81,6 +80,12 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     @VisibleForTesting
     protected void startUp() throws Exception {
         super.startUp();
+    }
+
+    @Override
+    protected void shutDown() throws Exception {
+        importService.close();
+        super.shutDown();
     }
 
     @Override

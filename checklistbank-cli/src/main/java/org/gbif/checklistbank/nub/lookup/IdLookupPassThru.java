@@ -1,0 +1,43 @@
+package org.gbif.checklistbank.nub.lookup;
+
+import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.Rank;
+
+import java.util.Iterator;
+import javax.annotation.Nullable;
+
+import com.beust.jcommander.internal.Lists;
+
+/**
+ * dev/null implementation of an IdLookup doing nothing.
+ */
+public class IdLookupPassThru implements IdLookup {
+
+    public IdLookupPassThru() {
+    }
+
+    @Override
+    public LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom) {
+        return null;
+    }
+
+    @Override
+    public LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom) {
+        return null;
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+
+    @Override
+    public int deletedIds() {
+        return 0;
+    }
+
+    @Override
+    public Iterator<LookupUsage> iterator() {
+        return Lists.<LookupUsage>newArrayList().iterator();
+    }
+}

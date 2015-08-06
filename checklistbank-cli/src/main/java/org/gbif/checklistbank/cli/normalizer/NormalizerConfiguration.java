@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
-import org.gbif.checklistbank.cli.common.MatchServiceConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -22,46 +22,46 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("PublicField")
 public class NormalizerConfiguration {
-  private static final Logger LOG = LoggerFactory.getLogger(NormalizerConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NormalizerConfiguration.class);
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public GangliaConfiguration ganglia = new GangliaConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public GangliaConfiguration ganglia = new GangliaConfiguration();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public NeoConfiguration neo = new NeoConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public NeoConfiguration neo = new NeoConfiguration();
 
-  @ParametersDelegate
-  @NotNull
-  @Valid
-  public MessagingConfiguration messaging = new MessagingConfiguration();
+    @ParametersDelegate
+    @NotNull
+    @Valid
+    public MessagingConfiguration messaging = new MessagingConfiguration();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public MatchServiceConfiguration matching = new MatchServiceConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public ClbConfiguration clb = new ClbConfiguration();
 
-  @Parameter(names = "--pool-size")
-  @Min(1)
-  public int poolSize = 3;
+    @Parameter(names = "--pool-size")
+    @Min(1)
+    public int poolSize = 3;
 
-  @Parameter(names = "--archive-repository")
-  @NotNull
-  public File archiveRepository;
+    @Parameter(names = "--archive-repository")
+    @NotNull
+    public File archiveRepository;
 
-  /**
-   * Returns the directory with the decompressed archive folder created by the dwca downloader.
-   */
-  public File archiveDir(UUID datasetKey) {
-    return new File(archiveRepository, datasetKey.toString());
-  }
+    /**
+     * Returns the directory with the decompressed archive folder created by the dwca downloader.
+     */
+    public File archiveDir(UUID datasetKey) {
+        return new File(archiveRepository, datasetKey.toString());
+    }
 
 }

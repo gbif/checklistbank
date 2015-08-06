@@ -6,6 +6,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
@@ -67,7 +68,7 @@ public class MatchService extends AbstractIdleService implements MessageCallback
         final Timer.Context context = timer.time();
         try {
             LOG.info("Start rematching all checklists to changed backbone");
-            nubLookup = new IdLookup(cfg.clb);
+            nubLookup = new IdLookupImpl(cfg.clb);
             PagingRequest req = new PagingRequest(0, 100);
             PagingResponse<Dataset> resp = null;
             while (resp == null || !resp.isEndOfRecords()) {

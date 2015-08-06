@@ -37,7 +37,7 @@ public class IdLookupTest {
                 new LookupUsage(11, "Abies alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true),
                 new LookupUsage(12, "Picea alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true)
         );
-        return new IdLookup(usages);
+        return new IdLookupImpl(usages);
     }
 
     @Test

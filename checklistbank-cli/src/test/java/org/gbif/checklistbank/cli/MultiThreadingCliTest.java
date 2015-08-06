@@ -131,7 +131,7 @@ public class MultiThreadingCliTest {
         cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
         cfgI.solr.serverType = SolrServerType.HTTP;
         Injector inj = Guice.createInjector(cfgI.clb.createServiceModule(), new RealTimeModule(cfgI.solr));
-        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
+        importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), 1);
         usageService = inj.getInstance(NameUsageService.class);
 
         Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));

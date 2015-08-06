@@ -5,6 +5,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
+import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
@@ -88,7 +89,7 @@ public class ImportExternal {
 
     private void normalize() {
         MetricRegistry registry = new MetricRegistry("normalizer");
-        Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), nCfg.matching.createMatchingService());
+        Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
         norm.run();
         NormalizerStats stats = norm.getStats();
         System.out.println(stats);

@@ -23,16 +23,18 @@ import org.slf4j.LoggerFactory;
  * We only use an executor for solr cause the solr syncs depend on the sql one be completed first as postgres issues new keys solr needs to know about.
  * As solr should be much faster than postgres we only use a single thread here.
  */
-public class DatasetImportServiceCombined {
+public class DatasetImportServiceCombined implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetImportServiceCombined.class);
 
     private final DatasetImportService sqlService;
     private final NameUsageIndexService solrService;
-    ExecutorService solrExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService solrExecutor;
 
-    public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService) {
+    public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService, int solrThreads) {
         this.sqlService = sqlService;
         this.solrService = solrService;
+        Preconditions.checkArgument(solrThreads > 0, "Number of solr threads needs to exceed 1");
+        solrExecutor = Executors.newFixedThreadPool(solrThreads);
     }
 
     public int syncUsage(boolean insert, NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
@@ -58,6 +60,11 @@ public class DatasetImportServiceCombined {
         }
         LOG.info("Deleted {} usages from dataset {} before {}", counter, datasetKey, before);
         return counter;
+    }
+
+    @Override
+    public void close() throws Exception {
+        solrExecutor.shutdown();
     }
 
     class SolrUpdate implements Runnable {

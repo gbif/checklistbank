@@ -13,6 +13,7 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.NubSource;
@@ -75,7 +76,7 @@ public class NubBuilder implements Runnable {
     public static NubBuilder create(NubConfiguration cfg) {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
         try {
-            IdLookup idLookup = new IdLookup(cfg.clb);
+            IdLookup idLookup = new IdLookupImpl(cfg.clb);
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
             Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;

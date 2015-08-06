@@ -7,7 +7,7 @@ import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class ManualNubBuild {
     LOG.info("Build new nub");
     MetricRegistry registry = new MetricRegistry("nub-build");
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, registry, true);
-    NubBuilder builder = NubBuilder.create(dao, cfg.usageSource(), new IdLookup(Lists.<LookupUsage>newArrayList()), 1000);
+    NubBuilder builder = NubBuilder.create(dao, cfg.usageSource(), new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 1000);
     builder.run();
     dao.close();
     LOG.info("New backbone ready");

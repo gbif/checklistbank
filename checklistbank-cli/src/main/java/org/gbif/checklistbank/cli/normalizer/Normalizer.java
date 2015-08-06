@@ -3,7 +3,6 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
@@ -23,6 +22,7 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
+import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.dwc.terms.DwcTerm;
 
 import java.io.File;
@@ -69,7 +69,7 @@ public class Normalizer extends ImportDb implements Runnable {
         }
     }
 
-    private final NameUsageMatchingService matchingService;
+    private final IdLookup lookup;
 
     private final Map<String, UUID> constituents;
     private final File dwca;
@@ -84,25 +84,25 @@ public class Normalizer extends ImportDb implements Runnable {
     private NubMatchHandler matchHandler;
 
     private Normalizer(UUID datasetKey, UsageDao dao, File dwca, int batchSize,
-                       MetricRegistry registry, Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
+                       MetricRegistry registry, Map<String, UUID> constituents, IdLookup lookup) {
         super(datasetKey, dao);
         this.constituents = constituents;
         this.relationMeter = registry.meter(Metrics.RELATION_METER);
         this.metricsMeter = registry.meter(Metrics.METRICS_METER);
         this.denormedMeter = registry.meter(Metrics.DENORMED_METER);
         this.dwca = dwca;
-        this.matchingService = matchingService;
+        this.lookup = lookup;
         this.batchSize = batchSize;
     }
 
 
     public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-                                    Map<String, UUID> constituents, NameUsageMatchingService matchingService) {
+                                    Map<String, UUID> constituents, IdLookup lookup) {
         return new Normalizer(datasetKey,
                 UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
                 cfg.archiveDir(datasetKey),
                 cfg.neo.batchSize,
-                registry, constituents, matchingService);
+                registry, constituents, lookup);
     }
 
     /**
@@ -465,7 +465,7 @@ public class Normalizer extends ImportDb implements Runnable {
     private void buildMetricsAndMatchBackbone() {
         LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
         metricsHandler = new UsageMetricsHandler(dao);
-        matchHandler = new NubMatchHandler(matchingService, dao);
+        matchHandler = new NubMatchHandler(lookup, dao);
         TaxonWalker.walkAccepted(dao.getNeo(), metricsMeter, metricsHandler, matchHandler);
         LOG.info("Walked all accepted taxa and built metrics");
     }

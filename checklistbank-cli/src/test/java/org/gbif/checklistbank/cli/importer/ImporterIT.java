@@ -78,7 +78,7 @@ public class ImporterIT extends BaseTest {
             Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
             hds = (HikariDataSource) inj.getInstance(dsKey);
             usageService = inj.getInstance(NameUsageService.class);
-            importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class));
+            importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), 1);
         }
     }
 

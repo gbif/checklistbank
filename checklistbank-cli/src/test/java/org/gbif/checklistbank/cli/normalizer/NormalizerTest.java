@@ -2,7 +2,6 @@ package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
-
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
@@ -11,10 +10,10 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.BaseTest;
-import org.gbif.checklistbank.cli.common.NoneMatchingService;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 
 import java.net.URI;
 import java.util.List;
@@ -51,11 +50,11 @@ public class NormalizerTest extends BaseTest {
      */
     public static Normalizer buildNormalizer(NormalizerConfiguration cfg, UUID datasetKey) {
         MetricRegistry registry = new MetricRegistry("normalizer");
-        return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
+        return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
     }
 
     public static Normalizer buildNormalizer(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
-        return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NoneMatchingService());
+        return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
     }
 
     @Test

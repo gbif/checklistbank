@@ -10,7 +10,7 @@ import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
@@ -471,7 +471,7 @@ public class NubBuilderTest {
      * builds a new nub and keeps dao open for further test queries.
      */
     private void build(UsageSource src) {
-        NubBuilder nb = NubBuilder.create(dao, src, new IdLookup(Lists.<LookupUsage>newArrayList()), 10);
+        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);

@@ -3,11 +3,12 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
-import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 
@@ -24,7 +25,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
 
     private final NormalizerConfiguration cfg;
     private final ZookeeperUtils zkUtils;
-    private NameUsageMatchingService matchingService;
+    private final IdLookup lookup;
 
     public NormalizerService(NormalizerConfiguration cfg) {
         super("clb-normalizer", cfg.poolSize, cfg.messaging, cfg.ganglia, "normalize");
@@ -42,7 +43,11 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
         }
 
         // use ws clients for nub matching
-        matchingService = cfg.matching.createMatchingService();
+        try {
+            lookup = new IdLookupImpl(cfg.clb);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -60,7 +65,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
             LOG.warn("Refuse to normalize the GBIF backbone");
             failed(msg.getDatasetUuid());
         } else {
-            Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), matchingService);
+            Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), lookup);
             normalizer.run();
             zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
             send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
