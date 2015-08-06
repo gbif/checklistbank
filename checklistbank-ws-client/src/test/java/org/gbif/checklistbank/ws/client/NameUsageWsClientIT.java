@@ -105,10 +105,10 @@ public class NameUsageWsClientIT extends ClientMyBatisITBase<NameUsageService> {
     assertNotNull(related);
     assertEquals(1, related.size());
 
-    related = ddt.getService().listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));
+    related = wsClient.listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));
     assertEquals(1, related.size());
 
-    related = ddt.getService().listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));
+    related = wsClient.listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));
     assertEquals(0, related.size());
 
   }

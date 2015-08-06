@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
@@ -16,6 +17,7 @@ import javax.annotation.Nullable;
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,7 @@ public class IdGenerator implements Closeable {
      */
     public IdGenerator(IdLookup lookup, int idStart, @Nullable File reportDir) {
         this.lookup = lookup;
+        Preconditions.checkArgument(idStart < Constants.NUB_MAXIMUM_KEY);
         this.idStart = idStart;
         nextId = idStart;
         if (reportDir == null) {
@@ -83,6 +86,10 @@ public class IdGenerator implements Closeable {
             }
         } catch (IOException e) {
             LOG.warn("Failed to write idgenerator report log");
+        }
+        // make sure we dont exceed the maximum nub id limit which we use to identify nub usages elsewhere
+        if (id > Constants.NUB_MAXIMUM_KEY){
+            throw new IllegalStateException("Exceeded maximum nub id limit " + Constants.NUB_MAXIMUM_KEY);
         }
         return id;
     }

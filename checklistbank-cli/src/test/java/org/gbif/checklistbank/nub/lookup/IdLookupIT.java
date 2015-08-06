@@ -1,10 +1,9 @@
 package org.gbif.checklistbank.nub.lookup;
 
-import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -19,13 +18,13 @@ import static org.junit.Assert.assertNull;
 public class IdLookupIT {
 
     @Rule
-    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
+    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
 
     @Test
     public void testLookup() throws IOException, SQLException {
         ClbConfiguration cfg = new ClbConfiguration();
 
-        Properties props = ddt.getProperties();
+        Properties props = dbunit.getProperties();
         cfg.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
         cfg.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
         cfg.user = props.getProperty("checklistbank.db.dataSource.user");

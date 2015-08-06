@@ -68,7 +68,7 @@ public class IdLookup implements Iterable<LookupUsage> {
         try (Connection c = clb.connect()){
             final CopyManager cm = new CopyManager((BaseConnection) c);
             cm.copyOut("COPY ("
-                    + "SELECT u.id, coalesce(n.canonical_name, n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, false"
+                    + "SELECT u.id, coalesce(n.canonical_name, n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
                     + " FROM name_usage u join name n ON name_fk=n.id"
                     + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "')"
                     + " TO STDOUT WITH NULL ''", writer);
@@ -101,7 +101,7 @@ public class IdLookup implements Iterable<LookupUsage> {
                     row[2],
                     row[3],
                     Rank.valueOf(row[4]),
-                    Kingdom.byNubUsageId(Integer.valueOf(row[5])),
+                    Kingdom.byNubUsageId(toInt(row[5])),
                     "t".equals(row[6])
             );
             add(u);

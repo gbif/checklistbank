@@ -9,43 +9,42 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.postgres.MybatisMapperTestRule;
 
 import java.util.List;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class NameUsageMapperIT {
+public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
 
     private static final UUID DATASET_KEY = UUID.randomUUID();
 
-    private ParsedNameMapper nameMapper;
+    private ParsedNameMapper parsedNameMapper;
 
-    @Rule
-    public MybatisMapperTestRule<NameUsageMapper> ddt = MybatisMapperTestRule.empty(NameUsageMapper.class);
+    public NameUsageMapperIT() {
+        super(NameUsageMapper.class);
+    }
 
     @Before
-    public void setup() {
-        nameMapper = ddt.getInjector().getInstance(ParsedNameMapper.class);
+    public void initNameMapper() throws Exception {
+        parsedNameMapper = getInstance(ParsedNameMapper.class);
     }
 
     private int createName(String name) {
         ParsedName pn = new ParsedName();
         pn.setType(NameType.WELLFORMED);
         pn.setScientificName(name);
-        nameMapper.create(pn, name);
+        parsedNameMapper.create(pn, name);
         return pn.getKey();
     }
 
     private void deleteName(String name) {
-        ParsedName pn = nameMapper.getByName(name);
+        ParsedName pn = parsedNameMapper.getByName(name);
         if (pn != null) {
-            nameMapper.delete(pn.getKey());
+            parsedNameMapper.delete(pn.getKey());
         }
     }
 
@@ -64,27 +63,27 @@ public class NameUsageMapperIT {
         for (Rank r : Rank.values()) {
             u.setKey(null);
             u.setRank(r);
-            ddt.getService().insert(u);
+            mapper.insert(u);
         }
         for (Origin o : Origin.values()) {
             u.setKey(null);
             u.setOrigin(o);
-            ddt.getService().insert(u);
+            mapper.insert(u);
         }
         for (TaxonomicStatus s : TaxonomicStatus.values()) {
             u.setKey(null);
             u.setTaxonomicStatus(s);
-            ddt.getService().insert(u);
+            mapper.insert(u);
         }
         for (NomenclaturalStatus s : NomenclaturalStatus.values()) {
             u.setKey(null);
             u.getNomenclaturalStatus().add(s);
-            ddt.getService().insert(u);
+            mapper.insert(u);
         }
         for (NameUsageIssue s : NameUsageIssue.values()) {
             u.setKey(null);
             u.getIssues().add(s);
-            ddt.getService().insert(u);
+            mapper.insert(u);
         }
     }
 
@@ -93,7 +92,7 @@ public class NameUsageMapperIT {
      */
     @Test
     public void testListUsageRange() {
-        List<NameUsage> list = ddt.getService().listRange(0, 1000);
+        List<NameUsage> list = mapper.listRange(0, 1000);
     }
 
     /**
@@ -109,15 +108,15 @@ public class NameUsageMapperIT {
         u.setDatasetKey(DATASET_KEY);
         u.setNameKey(nameKey);
         u.setRank(Rank.SPECIES);
-        ddt.getService().insert(u);
+        mapper.insert(u);
         assertEquals(100000000, (int) u.getKey());
 
         u.setKey(110);
-        ddt.getService().insert(u);
+        mapper.insert(u);
         assertEquals(110, (int)u.getKey());
 
         u.setKey(null);
-        ddt.getService().insert(u);
+        mapper.insert(u);
         assertEquals(100000001, (int)u.getKey());
     }
 }

@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.ws.client;
 
-import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.ws.UrlBindingModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
@@ -29,9 +28,8 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
   protected T wsClient;
   private final Class<T> wsClientClass;
 
-
   @Rule
-  public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
+  public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
 
   public ClientMyBatisITBase(Class<T> wsClientClass) {
     super("org.gbif.checklistbank.ws", CONTEXT, ChecklistBankWsModule.class);

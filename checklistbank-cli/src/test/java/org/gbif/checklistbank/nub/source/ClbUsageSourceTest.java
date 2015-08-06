@@ -5,7 +5,6 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.MachineTag;
 import org.gbif.api.model.registry.Organization;
-import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
@@ -13,7 +12,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.util.Date;
 import java.util.List;
@@ -40,7 +39,8 @@ public class ClbUsageSourceTest {
     private OrganizationService os;
 
     @Rule
-    public DatabaseDrivenChecklistBankTestRule<NameUsageService> ddt = DatabaseDrivenChecklistBankTestRule.squirrels(NameUsageService.class);
+    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+
     private UUID oldDKey;
 
     @Before
@@ -84,7 +84,7 @@ public class ClbUsageSourceTest {
         when(os.publishedDatasets(eq(org1.getKey()), any(PagingRequest.class))).thenReturn(resp3);
 
         // use default prod API
-        Properties props = ddt.getProperties();
+        Properties props = dbunit.getProperties();
         cfg.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
         cfg.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
         cfg.user = props.getProperty("checklistbank.db.dataSource.user");

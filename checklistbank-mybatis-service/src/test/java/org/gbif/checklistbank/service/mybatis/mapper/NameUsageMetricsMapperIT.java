@@ -6,31 +6,30 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.postgres.MybatisMapperTestRule;
 
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class NameUsageMetricsMapperIT {
+public class NameUsageMetricsMapperIT extends MapperITBase<NameUsageMetricsMapper> {
 
     private static final UUID DATASET_KEY = UUID.randomUUID();
 
     private ParsedNameMapper nameMapper;
     private NameUsageMapper usageMapper;
 
-    @Rule
-    public MybatisMapperTestRule<NameUsageMetricsMapper> ddt = MybatisMapperTestRule.empty(NameUsageMetricsMapper.class);
+    public NameUsageMetricsMapperIT() {
+        super(NameUsageMetricsMapper.class);
+    }
 
     @Before
-    public void setup() {
-        nameMapper = ddt.getInjector().getInstance(ParsedNameMapper.class);
-        usageMapper = ddt.getInjector().getInstance(NameUsageMapper.class);
+    public void setupOtherMappers() {
+        nameMapper = getInstance(ParsedNameMapper.class);
+        usageMapper = getInstance(NameUsageMapper.class);
     }
 
     private int createUsage(String name) {
@@ -75,9 +74,9 @@ public class NameUsageMetricsMapperIT {
         m.setNumSubgenus(9);
         m.setNumSynonyms(10);
 
-        ddt.getService().insert(DATASET_KEY, m);
+        mapper.insert(DATASET_KEY, m);
 
-        NameUsageMetrics m2 = ddt.getService().get(usageKey);
+        NameUsageMetrics m2 = mapper.get(usageKey);
         assertNotEquals(m2, m);
 
         // this should be ignored and taken from the name_usage instead on reads

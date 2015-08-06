@@ -37,7 +37,7 @@ public class ConcurrentCreateOrGetIT {
         props = PropertiesUtil.loadProperties(PROPERTY_FILE);
     }
 
-    static class ClbMybatisCallable  {
+    static class ClbMybatisCallable {
         private final Properties props;
         private Injector inj;
         private HikariDataSource hds;
@@ -53,6 +53,7 @@ public class ConcurrentCreateOrGetIT {
             hds = (HikariDataSource) inj.getInstance(dsKey);
 
         }
+
         public Connection getConnection() throws SQLException {
             if (hds == null) {
                 init();
@@ -77,6 +78,7 @@ public class ConcurrentCreateOrGetIT {
 
     static class ParsedNameCallable extends ClbMybatisCallable implements Callable<ParsedName> {
         private final String name;
+
         public ParsedNameCallable(Properties props, String name) {
             super(props);
             this.name = name;
@@ -86,9 +88,9 @@ public class ConcurrentCreateOrGetIT {
         public ParsedName call() throws Exception {
             ParsedNameService pservice = getInj().getInstance(ParsedNameService.class);
             CitationService cservice = getInj().getInstance(CitationService.class);
-            for (int x=0; x<100; x++) {
-                pservice.createOrGet(name + "citation #" +x);
-                cservice.createOrGet(name + "citation #" +x);
+            for (int x = 0; x < 100; x++) {
+                pservice.createOrGet(name + "citation #" + x);
+                cservice.createOrGet(name + "citation #" + x);
             }
             ParsedName pn = pservice.createOrGet(name);
             shutdown();
@@ -122,7 +124,7 @@ public class ConcurrentCreateOrGetIT {
             futures.add(ecs.submit(pnc));
         }
 
-        while(!futures.isEmpty()) {
+        while (!futures.isEmpty()) {
             Future<ParsedName> f = futures.pop();
             ParsedName pn = f.get();
             if (pn != null) {

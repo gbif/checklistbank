@@ -15,7 +15,7 @@ import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.index.IndexingTestModule;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.ws.UrlBindingModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankSearchWsTestModule;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
@@ -65,7 +65,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
     // run liquibase & dbunit
     LOG.info("Run liquibase & dbunit once");
     try {
-      DatabaseDrivenChecklistBankTestRule rule = DatabaseDrivenChecklistBankTestRule.squirrels(null);
+        ClbDbTestRule rule = ClbDbTestRule.squirrels();
       rule.apply(new Statement() {
         public void evaluate() throws Throwable {
           // do nothing

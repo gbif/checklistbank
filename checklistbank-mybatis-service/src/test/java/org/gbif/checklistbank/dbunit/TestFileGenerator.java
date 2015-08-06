@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.dbunit;
 
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +16,7 @@ import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.filter.ITableFilter;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
+import org.junit.Ignore;
 
 /**
  * A simple dbunit export script to generate dbunit xml files for IT tests.
@@ -27,6 +28,7 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
  * which needs to be sorted specifically to not break the relational integrity when reading in.
  * Please manually replace the name_usage entries in the main file with this sorted name_usage dump.
  */
+@Ignore
 public class TestFileGenerator {
 
   public static void main(String[] args) throws Exception {
@@ -35,7 +37,7 @@ public class TestFileGenerator {
     // replace with your local db to be exported
     Connection jdbcConnection = DriverManager.getConnection("jdbc:postgresql://localhost/clb-test", "postgres", "");
     IDatabaseConnection connection = new DatabaseConnection(jdbcConnection);
-    for (Map.Entry<String, Object> prop : DatabaseDrivenChecklistBankTestRule.DB_UNIT_CLB_PROPERTIES.entrySet()) {
+    for (Map.Entry<String, Object> prop : ClbDbTestRule.DB_UNIT_CLB_PROPERTIES.entrySet()) {
       connection.getConfig().setProperty(prop.getKey(), prop.getValue());
     }
 

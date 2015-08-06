@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.service.mybatis.postgres.DatabaseDrivenChecklistBankTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public abstract class NameUsageIndexerBaseIT {
     // run liquibase & dbunit
     LOG.info("Run liquibase & dbunit once");
     try {
-      DatabaseDrivenChecklistBankTestRule rule = DatabaseDrivenChecklistBankTestRule.squirrels(null);
+        ClbDbTestRule rule = ClbDbTestRule.squirrels();
       rule.apply(new Statement() {
         public void evaluate() throws Throwable {
           // do nothing

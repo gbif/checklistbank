@@ -14,7 +14,7 @@ import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.postgres.MybatisMapperTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -60,7 +60,7 @@ public class ImporterIT extends BaseTest {
     private HikariDataSource hds;
 
     @Rule
-    public MybatisMapperTestRule ddt = MybatisMapperTestRule.emptyClb();
+    public ClbDbTestRule dbunit = ClbDbTestRule.empty();
 
     /**
      * Uses an internal metrics registry to setup the normalizer
