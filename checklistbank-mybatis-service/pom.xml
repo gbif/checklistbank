@@ -157,4 +157,12 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>no-liquibase</id>
+            <properties>
+                <liquibase.should.run>false</liquibase.should.run>
+            </properties>
+        </profile>
+    </profiles>
 </project>
