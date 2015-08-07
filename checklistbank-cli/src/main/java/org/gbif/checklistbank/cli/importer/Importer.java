@@ -35,6 +35,7 @@ import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Direction;
@@ -72,7 +73,7 @@ public class Importer extends ImportDb implements Runnable {
     ;
     private final int keyTypeSize = KeyType.values().length;
 
-    public Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
+    private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         super(datasetKey, dao);
         this.importService = importService;
@@ -81,6 +82,9 @@ public class Importer extends ImportDb implements Runnable {
         this.syncMeter = registry.meter(Metrics.SYNC_METER);
     }
 
+    /**
+     * @param usageService only needed if you gonna sync the backbone dataset. Tests can usually just pass in null!
+     */
     public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
@@ -171,7 +175,7 @@ public class Importer extends ImportDb implements Runnable {
                     syncCounter++;
                     if (syncCounter % 100000 == 0) {
                         LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-                    } else if (syncCounter % 100 == 0) {
+                    } else if (syncCounter % 1000 == 0) {
                         LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
                     }
 
@@ -242,14 +246,16 @@ public class Importer extends ImportDb implements Runnable {
      * @return list of parental node ids
      */
     private List<Integer> buildClbParents(Node n) {
-        return com.google.common.collect.Lists
-                .transform(IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
+        // we copy the transformed, short list as it is still backed by some neo transaction
+        return Lists.newArrayList(Lists.transform(
+                        IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
                         new Function<Relationship, Integer>() {
                             @Override
                             public Integer apply(Relationship rel) {
                                 return rel != null ? clbKey((int) rel.getStartNode().getId()) : null;
                             }
-                        });
+                        })
+        );
     }
 
     /**

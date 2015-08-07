@@ -133,7 +133,7 @@ public class NameUsageDocConverter {
       return doc;
 
     } catch (Exception e) {
-      log.error("Error converting usage {} to solr document: {}", usage.getKey(), e.getMessage());
+      log.error("Error converting usage {} to solr document", usage.getKey(), e);
       throw new RuntimeException(e);
     }
   }

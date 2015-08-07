@@ -65,20 +65,20 @@ public class ImporterIT extends BaseTest {
     /**
      * Uses an internal metrics registry to setup the normalizer
      */
-    public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
+    public Importer build(ImporterConfiguration cfg, UUID datasetKey, int solrThreads) throws SQLException {
         MetricRegistry registry = new MetricRegistry("normalizer");
-        initGuice(cfg);
+        initGuice(cfg, solrThreads);
         return Importer.create(cfg.neo, datasetKey, registry, importService, usageService, null);
     }
 
-    private void initGuice(ImporterConfiguration cfg) {
+    private void initGuice(ImporterConfiguration cfg, int solrThreads) {
         if (hds == null) {
             // init mybatis layer and solr from cfg instance
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
             Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
             hds = (HikariDataSource) inj.getInstance(dsKey);
             usageService = inj.getInstance(NameUsageService.class);
-            importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), 1);
+            importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), solrThreads);
         }
     }
 
@@ -87,7 +87,7 @@ public class ImporterIT extends BaseTest {
         iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
         iCfg.neo = cfg.neo;
 
-        initGuice(iCfg);
+        initGuice(iCfg, 1);
         // truncate tables
         try (Connection con = hds.getConnection()) {
             try (Statement st = con.createStatement()) {
@@ -349,7 +349,7 @@ public class ImporterIT extends BaseTest {
     }
 
     private Importer runImport(UUID datasetKey) throws SQLException {
-        Importer importer = build(iCfg, datasetKey);
+        Importer importer = build(iCfg, datasetKey, 2);
         importer.run();
         return importer;
     }

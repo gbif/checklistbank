@@ -61,7 +61,6 @@ public class ImportExternal {
         iCfg.clb.serverName = "localhost";
         iCfg.clb.databaseName = "clb";
         iCfg.clb.user = "postgres";
-        iCfg.clb.password = "%BBJu2MgstXJ";
         iCfg.clb.password = "pogo";
         iCfg.solr.serverType = SolrServerType.HTTP;
         //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
@@ -97,7 +96,7 @@ public class ImportExternal {
 
     private void sync() throws SQLException {
         ImporterIT iit = new ImporterIT();
-        Importer importer = iit.build(iCfg, datasetKey);
+        Importer importer = iit.build(iCfg, datasetKey, 3);
         importer.run();
     }
 
@@ -108,9 +107,9 @@ public class ImportExternal {
 //      "http://ipt.jbrj.gov.br/ipt/archive.do?r=lista_especies_flora_brasil",
 //      UUID.fromString("aacd816d-662c-49d2-ad1a-97e66e2a2908"));
 
-        imp.index("/Users/markus/Desktop/repo",
-                "http://data.canadensys.net/ipt/archive.do?r=vascan",
-                UUID.fromString("3f8a1297-3259-4700-91fc-acc4170b27ce"));
+    imp.index("/Users/markus/Desktop/repo",
+            "http://data.canadensys.net/ipt/archive.do?r=vascan",
+            UUID.fromString("3f8a1297-3259-4700-91fc-acc4170b27ce"));
 
 //    imp.index("/Users/markus/Desktop/repo",
 //            "http://www.catalogueoflife.org/DCA_Export/zip/archive-complete.zip",
