@@ -14,7 +14,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class IdLookupTest {
+public class IdLookupImplTest {
     IdLookup l;
 
     @Before
@@ -41,6 +41,20 @@ public class IdLookupTest {
     }
 
     @Test
+    public void testNorm() throws Exception {
+        assertNull(IdLookupImpl.norm(null));
+        assertNull(IdLookupImpl.norm(""));
+        assertNull(IdLookupImpl.norm("  "));
+        assertEquals("abies", IdLookupImpl.norm("Abies"));
+        assertEquals("abies", IdLookupImpl.norm("ABiES"));
+        assertEquals("abies alba", IdLookupImpl.norm("Abiés  alba"));
+        assertEquals("albino", IdLookupImpl.norm("Albiño"));
+        assertEquals("donatia novae-zelandiae", IdLookupImpl.norm("Donatia novae-zelandiæ"));
+        assertEquals("abies olsen", IdLookupImpl.norm("Abies ölsen"));
+        assertEquals("abies oeftaen", IdLookupImpl.norm("Abies œftæn"));
+    }
+
+    @Test
     public void testLookup() throws IOException, SQLException {
         assertEquals(12, l.size());
         assertEquals(1, l.match("Animalia", Rank.KINGDOM, Kingdom.ANIMALIA).getKey());
@@ -64,6 +78,7 @@ public class IdLookupTest {
         assertEquals(2, l.match("Oenanthe", "V", null, Rank.GENUS, Kingdom.ANIMALIA).getKey());
         assertEquals(2, l.match("Oenanthe", "Vieillot", null, Rank.GENUS, Kingdom.INCERTAE_SEDIS).getKey());
         assertEquals(3, l.match("Oenanthe", null, null, Rank.GENUS, Kingdom.PLANTAE).getKey());
+        assertEquals(3, l.match("Œnanthe", null, null, Rank.GENUS, Kingdom.PLANTAE).getKey());
         assertNull(l.match("Oenanthe", null, null, Rank.GENUS, Kingdom.INCERTAE_SEDIS));
         assertNull(l.match("Oenanthe", "Camelot", null, Rank.GENUS, Kingdom.ANIMALIA));
 

@@ -3,9 +3,10 @@ package org.gbif.checklistbank.cli.importer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.checklistbank.concurrent.NamedThreadFactory;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.DatasetImportServiceMyBatis;
 
 import java.util.Date;
 import java.util.List;
@@ -26,15 +27,17 @@ import org.slf4j.LoggerFactory;
 public class DatasetImportServiceCombined implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetImportServiceCombined.class);
 
-    private final DatasetImportService sqlService;
+    private final DatasetImportServiceMyBatis sqlService;
     private final NameUsageIndexService solrService;
     private final ExecutorService solrExecutor;
 
-    public DatasetImportServiceCombined(DatasetImportService sqlService, NameUsageIndexService solrService, int solrThreads) {
+    public DatasetImportServiceCombined(DatasetImportServiceMyBatis sqlService, NameUsageIndexService solrService, int importerPoolSize) {
         this.sqlService = sqlService;
+        sqlService.useParallelSyncing(importerPoolSize);
         this.solrService = solrService;
-        Preconditions.checkArgument(solrThreads > 0, "Number of solr threads needs to exceed 1");
-        solrExecutor = Executors.newFixedThreadPool(solrThreads);
+        Preconditions.checkArgument(importerPoolSize > 0, "Number of importer threads needs to be at least one");
+        int solrThreads = 1+Math.round(importerPoolSize/3);
+        solrExecutor = Executors.newFixedThreadPool(solrThreads, new NamedThreadFactory("solr-sync"));
     }
 
     public int syncUsage(boolean insert, NameUsage usage, List<Integer> parents, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
@@ -64,6 +67,8 @@ public class DatasetImportServiceCombined implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        LOG.info("Closing DatasetImportServiceCombined");
+        sqlService.close();
         solrExecutor.shutdown();
     }
 

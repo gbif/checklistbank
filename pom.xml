@@ -46,7 +46,7 @@
         <gbif-common-ws.version>0.23</gbif-common-ws.version>
         <gbif-httputils.version>0.7</gbif-httputils.version>
         <gbif-microservice.version>0.3</gbif-microservice.version>
-        <gbif-postal-service.version>0.16</gbif-postal-service.version>
+        <gbif-postal-service.version>0.17-SNAPSHOT</gbif-postal-service.version>
         <registry-client.version>2.30</registry-client.version>
         <name-parser.version>2.7</name-parser.version>
         <gbif-parser.version>0.16-SNAPSHOT</gbif-parser.version>

@@ -2,7 +2,7 @@ package org.gbif.checklistbank.nub;
 
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.nub.lookup.IdLookupTest;
+import org.gbif.checklistbank.nub.lookup.IdLookupImplTest;
 
 import com.google.common.io.Files;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class IdGeneratorTest {
 
     @Test
     public void testIssueId() throws Exception {
-        IdGenerator gen = new IdGenerator(IdLookupTest.newTestLookup(), 1000, Files.createTempDir());
+        IdGenerator gen = new IdGenerator(IdLookupImplTest.newTestLookup(), 1000, Files.createTempDir());
         assertEquals(1000, gen.issue("Dracula", null, null, Rank.GENUS, Kingdom.PLANTAE));
         assertEquals(1, gen.issue("Animalia", null, null, Rank.KINGDOM, Kingdom.ANIMALIA));
         // was issued already!
@@ -23,7 +23,7 @@ public class IdGeneratorTest {
 
     @Test
     public void testMetrics() throws Exception {
-        IdGenerator gen = new IdGenerator(IdLookupTest.newTestLookup(), 1000, Files.createTempDir());
+        IdGenerator gen = new IdGenerator(IdLookupImplTest.newTestLookup(), 1000, Files.createTempDir());
         assertEquals(1000, gen.issue("Dracula", null, null, Rank.GENUS, Kingdom.PLANTAE));
         assertEquals(1, gen.issue("Animalia", null, null, Rank.KINGDOM, Kingdom.ANIMALIA));
         // was issued already!

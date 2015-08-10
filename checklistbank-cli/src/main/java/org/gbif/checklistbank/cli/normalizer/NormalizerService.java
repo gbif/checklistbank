@@ -42,7 +42,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
             throw new RuntimeException(e);
         }
 
-        // use ws clients for nub matching
+        // loads all nub usages directly from clb postgres - this can take a few minutes
         try {
             lookup = new IdLookupImpl(cfg.clb);
         } catch (Exception e) {

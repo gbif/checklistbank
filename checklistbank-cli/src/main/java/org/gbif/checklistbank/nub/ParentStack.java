@@ -93,7 +93,7 @@ public class ParentStack {
    */
   public void put(NubUsage nub) {
     nubMap.put(parents.getLast().key, nub);
-    currKingdom = nub.kingdom_;
+    currKingdom = nub.kingdom;
   }
 
   public void clear() {

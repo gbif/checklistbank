@@ -56,6 +56,7 @@ public class NubBuilder implements Runnable {
 
     private final Set<Rank> allowedRanks = Sets.newHashSet();
     private final NubDb db;
+    private final boolean closeDao;
     private final UsageSource usageSource;
     private final NameParser parser = new NameParser();
     private NormalizerStats normalizerStats;
@@ -66,11 +67,12 @@ public class NubBuilder implements Runnable {
     private final IdGenerator idGen;
     private final int newIdStart;
 
-    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart, File reportDir) {
+    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart, File reportDir, boolean closeDao) {
         db = NubDb.create(dao, 1000);
         this.usageSource = usageSource;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
         this.newIdStart = newIdStart;
+        this.closeDao = closeDao;
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
@@ -80,16 +82,23 @@ public class NubBuilder implements Runnable {
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
             Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
-            return new NubBuilder(dao, cfg.usageSource(), idLookup, newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir());
+            return new NubBuilder(dao, cfg.usageSource(), idLookup, newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
     }
 
+    /**
+     * @param dao the dao to create the nub. Will be left open after run() is called.
+     */
     public static NubBuilder create(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, usageSource, idLookup, newIdStart, null);
+        return new NubBuilder(dao, usageSource, idLookup, newIdStart, null, false);
     }
 
+    /**
+     * Builds a new neo4j based backbone with metrics and stable ids already mapped.
+     * The DAO is kept open if you provided it explicitly, otherwise its being closed.
+     */
     @Override
     public void run() {
         try {
@@ -106,8 +115,10 @@ public class NubBuilder implements Runnable {
         } catch (Exception e) {
             LOG.error("Backbone built failed", e);
         } finally {
-            db.dao.close();
-            LOG.info("DAO closed");
+            if (closeDao) {
+                db.dao.close();
+                LOG.info("DAO closed");
+            }
         }
     }
 
@@ -118,7 +129,7 @@ public class NubBuilder implements Runnable {
         for (Kingdom k : Kingdom.values()) {
             NubUsage ku = new NubUsage();
             ku.usageKey = k.nubUsageID();
-            ku.kingdom_ = k;
+            ku.kingdom = k;
             ku.datasetKey = Constants.NUB_DATASET_KEY;
             ku.origin = Origin.SOURCE;
             ku.rank = Rank.KINGDOM;
@@ -210,9 +221,9 @@ public class NubBuilder implements Runnable {
         // try to parse name
         NubUsage nub = null;
         try {
+            addParsedNameIfNull(u);
+            nub = db.findNubUsage(u, parents.nubKingdom());
             if (u.rank != null && allowedRanks.contains(u.rank)) {
-                addParsedNameIfNull(u);
-                nub = db.findNubUsage(u, parents.nubKingdom());
                 if (nub == null || (!nub.status.isSynonym() && isSynonymWithAuthorship(u))) {
                     // create new nub usage
                     nub = createNubUsage(u, origin, parent);
@@ -400,7 +411,7 @@ public class NubBuilder implements Runnable {
         LOG.info("Assigning final clb ids to all nub usages...");
         for (NubUsage u : db.dao.nubUsages()) {
             if (u.rank != Rank.KINGDOM) {
-                u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom_);
+                u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom);
             }
         }
     }

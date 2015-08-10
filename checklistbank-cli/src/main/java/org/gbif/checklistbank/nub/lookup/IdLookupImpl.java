@@ -10,6 +10,7 @@ import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,7 +20,13 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.ASCIIFoldingFilter;
+import org.apache.lucene.analysis.KeywordTokenizer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
@@ -28,8 +35,15 @@ import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.
+ * There is no fuzzy matching involved, just simple string normalization to avoid whitespace and punctuation variants.
+ *
+ * TODO: normalize
+ */
 public class IdLookupImpl implements IdLookup {
     private static final Logger LOG = LoggerFactory.getLogger(IdLookupImpl.class);
+
     private final DB db;
     private final Map<String, List<LookupUsage>> usages;
     private final AuthorComparator authComp;
@@ -112,12 +126,56 @@ public class IdLookupImpl implements IdLookup {
         }
     }
 
+    @VisibleForTesting
+    protected static String norm(String x) {
+        x = StringUtils.normalizeSpace(x);
+        if (StringUtils.isBlank(x)) {
+            return null;
+        }
+        return foldToAscii(x).toLowerCase();
+    }
+
+    /**
+     * Uses the solr.ASCIIFoldingFilter to convert a string to its ASCII equivalent. See solr documentation for full
+     * details.
+     * </br>
+     * When doing the conversion, this method mirrors GBIF's registry-solr schema configuration for
+     * <fieldType name="text_auto_ngram">. For example, it uses the KeywordTokenizer that treats the entire string as a
+     * single token, regardless of its content. See the solr documentation for more details.
+     * </br>
+     * This method is needed when checking if the query string matches the dataset title. For example, if the query
+     * string is "straÃŸe", it won't match the dataset title "Schulhof Gymnasium HÃ¼rth Bonnstrasse" unless "straÃŸe" gets
+     * converted to its ASCII equivalent "strasse".
+     *
+     * @param x string to fold
+     * @return string converted to ASCII equivalent
+     * @see org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter
+     * @see org.apache.lucene.analysis.core.KeywordTokenizer
+     */
+    private static String foldToAscii(String x) {
+        try {
+            StringReader reader = new StringReader(x);
+            TokenStream stream = new KeywordTokenizer(reader);
+            ASCIIFoldingFilter filter = new ASCIIFoldingFilter(stream);
+            CharTermAttribute termAtt = filter.addAttribute(CharTermAttribute.class);
+            filter.reset();
+            filter.incrementToken();
+            // converted x to ASCII equivalent and return it
+            return termAtt.toString();
+        } catch (IOException e) {
+            // swallow
+            LOG.warn("Failed to fold to ASCII: {}", x);
+            return x;
+        }
+    }
+
     private void add(LookupUsage u) {
-        if (usages.containsKey(u.getCanonical())) {
+        String key = norm(u.getCanonical());
+        if (usages.containsKey(key)) {
             // we need to create a new list cause mapdb considers them immutable!
-            usages.put(u.getCanonical(), ImmutableList.<LookupUsage>builder().addAll(usages.get(u.getCanonical())).add(u).build());
+            usages.put(key, ImmutableList.<LookupUsage>builder().addAll(usages.get(key)).add(u).build());
         } else {
-            usages.put(u.getCanonical(), ImmutableList.of(u));
+            usages.put(key, ImmutableList.of(u));
         }
         counter++;
         if (u.isDeleted()) {
@@ -154,7 +212,7 @@ public class IdLookupImpl implements IdLookup {
 
     @Override
     public LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom) {
-        List<LookupUsage> hits = usages.get(canonicalName);
+        List<LookupUsage> hits = usages.get(norm(canonicalName));
         if (hits == null) return null;
         final boolean compareAuthorship = authorship != null || year != null;
         // filter by rank & kingdom

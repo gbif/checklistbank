@@ -16,6 +16,7 @@ import org.gbif.api.model.common.Identifier;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.concurrent.NamedThreadFactory;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.UsageExtensions;
@@ -43,6 +44,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
@@ -60,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * All PagingResponses will not have the count set as it can be too costly sometimes.
  * Write operations DO NOT update the solr index or anything else than postgres!
  */
-public class DatasetImportServiceMyBatis implements DatasetImportService {
+public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatasetImportServiceMyBatis.class);
 
@@ -81,6 +84,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
     private final TypeSpecimenMapper typeSpecimenMapper;
     private final VernacularNameMapper vernacularNameMapper;
     private final DatasetMetricsMapper datasetMetricsMapper;
+    private ExecutorService exec;
 
     @Inject
     DatasetImportServiceMyBatis(UsageMapper usageMapper, NameUsageMapper nameUsageMapper,
@@ -105,6 +109,23 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         this.typeSpecimenMapper = typeSpecimenMapper;
         this.vernacularNameMapper = vernacularNameMapper;
         this.datasetMetricsMapper = datasetMetricsMapper;
+    }
+
+    /**
+     * Assigns the service a thread pool to use when syncing rich usage records.
+     * The core NameUsage is always handled by the main thread, but extension data sql operations can be executed by this thread pool in parallel
+     * @param poolSize
+     */
+    public void useParallelSyncing(int poolSize) {
+        if (exec != null) {
+            // we already had a thread pool. Warn and shutdown existing one
+            LOG.warn("Setting new thread pool with size {}, but there was an existing thread pool which is being shutdown", poolSize);
+            exec.shutdown();
+        }
+        if (poolSize > 0) {
+            LOG.info("Use {} threads to run import sync statements in parallel", poolSize);
+            exec = Executors.newFixedThreadPool(poolSize, new NamedThreadFactory("import-mybatis"));
+        }
     }
 
     @Override
@@ -158,7 +179,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         updateSelfReferences(u);
 
         // insert extension data
-        insertExtensions(u.getKey(), extensions);
+        syncExtensions(u.getKey(), false, extensions);
 
         // insert usage metrics
         metrics.setKey(u.getKey());
@@ -185,8 +206,31 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         }
     }
 
-    private void insertExtensions(final int usageKey, UsageExtensions ext) {
+    private void syncExtensions(final int usageKey, boolean removeBefore, UsageExtensions extensions) {
+        if (exec == null) {
+            // no threads to sync extension data
+            syncExtensionsInternal(usageKey, removeBefore, extensions);
+        } else {
+            exec.submit(new SyncExtension(usageKey, removeBefore, extensions));
+        }
+    }
+
+    private void syncExtensionsInternal(final int usageKey, boolean removeBefore, UsageExtensions ext) {
+        if (removeBefore) {
+            // remove all previous extension records
+            // remove all previous extension records
+            descriptionMapper.deleteByUsage(usageKey);
+            distributionMapper.deleteByUsage(usageKey);
+            identifierMapper.deleteByUsage(usageKey);
+            multimediaMapper.deleteByUsage(usageKey);
+            referenceMapper.deleteByUsage(usageKey);
+            speciesProfileMapper.deleteByUsage(usageKey);
+            typeSpecimenMapper.deleteByUsage(usageKey);
+            vernacularNameMapper.deleteByUsage(usageKey);
+        }
+
         if (ext == null) return;
+
         try {
             for (Description d : ext.descriptions) {
                 Integer sk = citationService.createOrGet(d.getSource());
@@ -283,17 +327,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         NameUsageWritable uw = toWritable(datasetKey, u, metrics);
         nameUsageMapper.update(uw);
 
-        // remove all previous extension records
-        descriptionMapper.deleteByUsage(u.getKey());
-        distributionMapper.deleteByUsage(u.getKey());
-        identifierMapper.deleteByUsage(u.getKey());
-        multimediaMapper.deleteByUsage(u.getKey());
-        referenceMapper.deleteByUsage(u.getKey());
-        speciesProfileMapper.deleteByUsage(u.getKey());
-        typeSpecimenMapper.deleteByUsage(u.getKey());
-        vernacularNameMapper.deleteByUsage(u.getKey());
-        // insert new extension data
-        insertExtensions(u.getKey(), extensions);
+        // sync extension data
+        syncExtensions(u.getKey(), true, extensions);
 
         // update usage metrics
         metrics.setKey(u.getKey());
@@ -415,4 +450,27 @@ public class DatasetImportServiceMyBatis implements DatasetImportService {
         return usageMapper.listByDatasetAndDate(datasetKey, before);
     }
 
+    @Override
+    public void close() throws Exception {
+        if (exec != null) {
+            exec.shutdown();
+        }
+    }
+
+    class SyncExtension implements Runnable {
+        private final int usageKey;
+        private final boolean delete;
+        private final UsageExtensions extensions;
+
+        public SyncExtension(int usageKey, boolean delete, UsageExtensions extensions) {
+            this.usageKey = usageKey;
+            this.delete = delete;
+            this.extensions = extensions;
+        }
+
+        @Override
+        public void run() {
+            syncExtensionsInternal(usageKey, delete, extensions);
+        }
+    }
 }

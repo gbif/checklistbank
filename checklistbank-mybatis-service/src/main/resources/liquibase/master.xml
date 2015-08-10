@@ -128,4 +128,13 @@
             CREATE INDEX ON name_usage (parent_fk) WHERE deleted IS NULL AND is_synonym=true;
         </sql>
     </changeSet>
+    <changeSet id="28" author="markus">
+        <sql>
+            DROP INDEX name_usage_dataset_key_taxon_id_idx;
+            CREATE INDEX ON name_usage (dataset_key, taxon_id);
+            <!-- add missing foreign key indexes on extension tables -->
+            CREATE INDEX ON media (usage_fk);
+            CREATE INDEX ON typification (usage_fk);
+        </sql>
+    </changeSet>
 </databaseChangeLog>

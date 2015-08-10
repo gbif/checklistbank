@@ -475,6 +475,7 @@ public class NubBuilderTest {
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
+
         tx = dao.beginTx();
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());

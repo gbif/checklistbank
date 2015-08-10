@@ -22,13 +22,11 @@ public class NubUsage {
     public Rank rank;
     public UUID datasetKey;
     public Origin origin;
-    // properties shared with SrcUsage
     public ParsedName parsedName;
     public TaxonomicStatus status;
     public Set<NomenclaturalStatus> nomStatus = Sets.newHashSet();
-    // extra properties
     public Node node;
-    public Kingdom kingdom_; // underscore as property name clashes with NameUsage.kingdom (String) if stored in the same neo node
+    public Kingdom kingdom;
     public List<Integer> sourceIds = Lists.newArrayList();
     public Set<String> authors = Sets.newHashSet();
 

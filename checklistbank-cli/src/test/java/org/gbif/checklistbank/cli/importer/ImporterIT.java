@@ -13,6 +13,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.DatasetImportServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
@@ -64,21 +65,22 @@ public class ImporterIT extends BaseTest {
 
     /**
      * Uses an internal metrics registry to setup the normalizer
+     * @param poolSize poolSize of the importer cli. Used as guidance to configure internal thread pools updating solr and postgres
      */
-    public Importer build(ImporterConfiguration cfg, UUID datasetKey, int solrThreads) throws SQLException {
+    public Importer build(ImporterConfiguration cfg, UUID datasetKey, int poolSize) throws SQLException {
         MetricRegistry registry = new MetricRegistry("normalizer");
-        initGuice(cfg, solrThreads);
+        initGuice(cfg, poolSize);
         return Importer.create(cfg.neo, datasetKey, registry, importService, usageService, null);
     }
 
-    private void initGuice(ImporterConfiguration cfg, int solrThreads) {
+    private void initGuice(ImporterConfiguration cfg, int poolSize) {
         if (hds == null) {
             // init mybatis layer and solr from cfg instance
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
             Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
             hds = (HikariDataSource) inj.getInstance(dsKey);
             usageService = inj.getInstance(NameUsageService.class);
-            importService = new DatasetImportServiceCombined(inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), solrThreads);
+            importService = new DatasetImportServiceCombined((DatasetImportServiceMyBatis) inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), poolSize);
         }
     }
 

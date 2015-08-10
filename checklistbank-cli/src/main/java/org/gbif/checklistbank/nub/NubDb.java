@@ -167,10 +167,10 @@ public class NubDb {
 
     //TODO: improve classification comparison to more than just kingdom ???
     private Equality compareClassification(Kingdom uKingdom, NubUsage match) {
-        if (uKingdom == null || match.kingdom_ == null) {
+        if (uKingdom == null || match.kingdom == null) {
             return Equality.UNKNOWN;
         }
-        return norm(uKingdom) == norm(match.kingdom_) ? Equality.EQUAL : Equality.DIFFERENT;
+        return norm(uKingdom) == norm(match.kingdom) ? Equality.EQUAL : Equality.DIFFERENT;
     }
 
     public long countTaxa() {
@@ -236,7 +236,7 @@ public class NubDb {
         if (parent == null) {
             nub.node.addLabel(Labels.ROOT);
         } else {
-            nub.kingdom_ = parent.kingdom_;
+            nub.kingdom = parent.kingdom;
             if (nub.status != null && nub.status.isSynonym()) {
                 nub.node.addLabel(Labels.SYNONYM);
                 nub.node.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
