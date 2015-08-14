@@ -7,6 +7,8 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 
 import java.io.IOException;
@@ -30,6 +32,8 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
+import org.neo4j.graphdb.Node;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -72,6 +76,16 @@ public class IdLookupImpl implements IdLookup {
         }
     }
 
+    /**
+     * Read old ids from existing, open DAO
+     */
+    public IdLookupImpl(UsageDao dao) {
+        this();
+        for (Node n : IteratorUtil.asIterable(dao.allTaxa())) {
+            NubUsage u = dao.readNub(n);
+            add( new LookupUsage(u.usageKey, u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false) );
+        }
+    }
     /**
      * Loads known usages from checklistbank backbone.
      */

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
@@ -10,11 +11,13 @@ import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
+import org.gbif.nameparser.NameParser;
 
 import java.util.Iterator;
 import java.util.List;
@@ -112,15 +115,42 @@ public class NubBuilderTest {
      * http://dev.gbif.org/issues/browse/POR-2786
      */
     @Test
-    @Ignore("TODO: write test")
     public void testStableIds() throws Exception {
-        build(ClasspathUsageSource.source(1, 5, 6));
+        ClasspathUsageSource src = ClasspathUsageSource.source(3, 2);
+        src.setSourceRank(3, Rank.KINGDOM);
+        build(src);
 
-        assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
-        assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
-        assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
-        assertCanonical("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
-        assertCanonical("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+        int o1 = getScientific("Oenanthe Vieillot, 1816", Rank.GENUS).usageKey;
+        int o2 = getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS).usageKey;
+
+        int t1 = getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).usageKey;
+        int t2 = getScientific("Trichoneura hirtella Napper", Rank.SPECIES).usageKey;
+        int t1p = parentOrAccepted(getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).node).usageKey;
+        int t2p = parentOrAccepted(getScientific("Trichoneura hirtella Napper", Rank.SPECIES).node).usageKey;
+
+        int b1 = getScientific("Blattaria P. Miller, 1754", Rank.GENUS).usageKey;
+        int b2 = getScientific("Blattaria O. Kuntze, 1891", Rank.GENUS).usageKey;
+        int b3 = getScientific("Blattaria Voet, 1806", Rank.GENUS).usageKey;
+        int b4 = getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey;
+
+        // rebuild nub with additional sources!
+        src = ClasspathUsageSource.source(3, 2, 8, 11);
+        src.setSourceRank(3, Rank.KINGDOM);
+        rebuild(src);
+
+        // assert ids havent changed!
+        assertEquals(o1, getScientific("Oenanthe Vieillot, 1816", Rank.GENUS).usageKey);
+        assertEquals(o2, getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS).usageKey);
+
+        assertEquals(t1, getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).usageKey);
+        assertEquals(t2, getScientific("Trichoneura hirtella Napper", Rank.SPECIES).usageKey);
+        assertEquals(t1p, parentOrAccepted(getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).node).usageKey);
+        assertEquals(t2p, parentOrAccepted(getScientific("Trichoneura hirtella Napper", Rank.SPECIES).node).usageKey);
+
+        assertEquals(b1, getScientific("Blattaria P. Miller, 1754", Rank.GENUS).usageKey);
+        assertEquals(b2, getScientific("Blattaria O. Kuntze, 1891", Rank.GENUS).usageKey);
+        assertEquals(b3, getScientific("Blattaria Voet, 1806", Rank.GENUS).usageKey);
+        assertEquals(b4, getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey);
     }
 
     @Test
@@ -139,6 +169,14 @@ public class NubBuilderTest {
         // this genus should not be updated as its classification in source 7 contradicts the original one
         NubUsage b = assertCanonical("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
         assertClassification(b, "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
+    }
+
+    @Test
+    public void testNP() throws Exception {
+        NameParser p = new NameParser();
+        ParsedName n = p.parse("Blattaria Voet, 1806", null);
+        System.out.println(n.canonicalName());
+        System.out.println(n.canonicalNameComplete());
     }
 
     @Test
@@ -267,7 +305,7 @@ public class NubBuilderTest {
      * The genus Blattaria exists 4 times in IRMNG:
      * 1. Blattaria P. Miller, 1754  [Scrophulariaceae]
      * 2. Blattaria O. Kuntze, 1891  [Malvaceae] SYN of Pentapetes Linnaeus 1753
-     * 3. Blattaria Voet, ?, 1806  [Coleoptera]
+     * 3. Blattaria Voet, 1806  [Coleoptera]
      * 4. Blattaria Weyenbergh, 1874  [Orthoptera fossil]
      * Blattaria only exists as synonym species names in CoL.
      * Should there be any accepted genus at all in GBIF?
@@ -532,6 +570,21 @@ public class NubBuilderTest {
         assertEquals(Kingdom.values().length, countRoot());
     }
 
+    private void rebuild(UsageSource src) {
+        IdLookup previousIds = new IdLookupImpl(dao);
+        tx.close();
+        dao.close();
+        // new, empty DAO
+        dao = UsageDao.temporaryDao(100);
+        NubBuilder nb = NubBuilder.create(dao, src, previousIds, 10);
+        nb.run();
+        IdGenerator.Metrics metrics = nb.idMetrics();
+        System.out.println(metrics);
+
+        tx = dao.beginTx();
+        // assert we have only ever 8 root taxa - the kingdoms
+        assertEquals(Kingdom.values().length, countRoot());
+    }
     private void assertClassification(NubUsage nub, String... parentNames) {
         int idx = 0;
         for (NubUsage n : parents(nub.node)) {
