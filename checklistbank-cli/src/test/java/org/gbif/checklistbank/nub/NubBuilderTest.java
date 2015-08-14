@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
@@ -17,7 +16,6 @@ import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
-import org.gbif.nameparser.NameParser;
 
 import java.util.Iterator;
 import java.util.List;
@@ -154,7 +152,6 @@ public class NubBuilderTest {
     }
 
     @Test
-    @Ignore("TODO: NEEDS FIXING")
     public void testUpdateClassification() throws Exception {
         ClasspathUsageSource src = ClasspathUsageSource.source(3, 5, 7);
         src.setSourceRank(3, Rank.KINGDOM);
@@ -169,14 +166,6 @@ public class NubBuilderTest {
         // this genus should not be updated as its classification in source 7 contradicts the original one
         NubUsage b = assertCanonical("Berto", "Miller", Rank.GENUS, Origin.SOURCE);
         assertClassification(b, "Agaricales", "Agaricomycetes", "Basidiomycota", "Fungi");
-    }
-
-    @Test
-    public void testNP() throws Exception {
-        NameParser p = new NameParser();
-        ParsedName n = p.parse("Blattaria Voet, 1806", null);
-        System.out.println(n.canonicalName());
-        System.out.println(n.canonicalNameComplete());
     }
 
     @Test
@@ -368,13 +357,13 @@ public class NubBuilderTest {
      * The Asteraceae one as doubtful.
      */
     @Test
-    @Ignore("TODO: NEEDS FIXING")
     public void testAlbiziaCoL() throws Exception {
         ClasspathUsageSource src = ClasspathUsageSource.source(13);
         src.setSourceRank(13, Rank.FAMILY);
         build(src);
 
         NubUsage fab = assertCanonical("Fabaceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        NubUsage ast = assertCanonical("Asteraceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
         NubUsage genus = assertCanonical("Albizia", "", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, fab);
         assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
@@ -448,9 +437,17 @@ public class NubBuilderTest {
      * http://dev.gbif.org/issues/browse/POR-362
      */
     @Test
-    @Ignore("write test")
     public void testInterrankHomonyms() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(19);
+        src.setSourceRank(19, Rank.PHYLUM);
+        build(src);
 
+        assertEquals(2, listCanonical("Archaea").size());
+        assertEquals(3, listCanonical("Nitrospira").size());
+        assertEquals(2, listCanonical("Lobata").size());
+        // we ignore subphyla
+        assertEquals(1, listCanonical("Vertebrata").size());
+        assertEquals(1, listCanonical("Radiolaria").size());
     }
 
     /**
@@ -470,16 +467,6 @@ public class NubBuilderTest {
 
         assertEquals(1, listCanonical("Hyalonema rotundum").size());
         NubUsage u = assertCanonical("Hyalonema rotundum", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
-    }
-
-    /**
-     * Accepted species names can't be homonyms within a kingdom.
-     * But for the same canonical name can be a synonym various times in a kingdom.
-     */
-    @Test
-    @Ignore("write test")
-    public void testHomonymSpecies() throws Exception {
-
     }
 
     /**

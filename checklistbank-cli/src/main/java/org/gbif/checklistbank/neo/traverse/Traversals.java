@@ -52,6 +52,14 @@ public class Traversals {
             .evaluator(Evaluators.excludeStartPosition());
 
     /**
+     * Finds all nodes connected via a basionym_of relation regardless of the direction.
+     */
+    public static final TraversalDescription BASIONYM_GROUP = new MonoDirectionalTraversalDescription()
+            .relationships(RelType.BASIONYM_OF)
+            .breadthFirst()
+            .evaluator(Evaluators.excludeStartPosition());
+
+    /**
      * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name
      */
     public static final TraversalDescription ACCEPTED_DESCENDANTS = new MonoDirectionalTraversalDescription()

@@ -375,7 +375,7 @@ public class NubBuilder implements Runnable {
                 nub.status = TaxonomicStatus.PROPARTE_SYNONYM;
                 // create new pro parte relation
                 LOG.debug("New accepted name {} found for pro parte synonym {}", parent.parsedName.getScientificName(), nub.parsedName.getScientificName());
-                db.setSingleRelationship(nub.node, parent.node, RelType.PROPARTE_SYNONYM_OF);
+                db.setSingleFromRelationship(nub.node, parent.node, RelType.PROPARTE_SYNONYM_OF);
 
             } else {
                 // this might be a more exact kind of synonym status

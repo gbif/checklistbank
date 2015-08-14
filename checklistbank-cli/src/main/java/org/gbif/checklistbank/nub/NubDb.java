@@ -273,10 +273,22 @@ public class NubDb {
      * the child node
      */
     public void updateParentRel(Node n, Node parent) {
-        setSingleRelationship(parent, n, RelType.PARENT_OF);
+        setSingleToRelationship(parent, n, RelType.PARENT_OF);
     }
 
-    public void setSingleRelationship(Node from, Node to, RelType reltype) {
+    /**
+     * Create a new relationship of given type from to nodes and make sure only a single relation of that kind exists at the "to" node.
+     * If more exist delete them silently.
+     */
+    public void setSingleToRelationship(Node from, Node to, RelType reltype) {
+        for (Relationship rel : to.getRelationships(reltype, Direction.INCOMING)) {
+            rel.delete();
+        }
+        from.createRelationshipTo(to, reltype);
+        countAndRenewTx();
+    }
+
+    public void setSingleFromRelationship(Node from, Node to, RelType reltype) {
         for (Relationship rel : from.getRelationships(reltype, Direction.OUTGOING)) {
             rel.delete();
         }

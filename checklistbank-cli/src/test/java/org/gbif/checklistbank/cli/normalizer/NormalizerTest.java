@@ -1023,14 +1023,14 @@ public class NormalizerTest extends BaseTest {
         try (Transaction tx = beginTx()) {
             NameUsage subgen = getUsageByTaxonId("171415");
             assertEquals(Rank.SUBGENUS, subgen.getRank());
-            assertEquals("Hyalonema (Corynonema)", subgen.getCanonicalName());
-            assertEquals("Hyalonema (Corynonema) Ijima, 1927", subgen.getScientificName());
+            assertEquals("Corynonema", subgen.getCanonicalName());
+            assertEquals("Hyalonema subgen. Corynonema Ijima, 1927", subgen.getScientificName());
 
             NameUsage u = getUsageByTaxonId("171426");
             assertEquals(TaxonomicStatus.ACCEPTED, u.getTaxonomicStatus());
             assertEquals(Rank.SPECIES, u.getRank());
             assertEquals("Hyalonema rotundum", u.getCanonicalName());
-            assertEquals("Hyalonema (Corynonema) rotundum Ijima, 1927", u.getScientificName());
+            assertEquals("Hyalonema rotundum Ijima, 1927", u.getScientificName());
         }
     }
 
