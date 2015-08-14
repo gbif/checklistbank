@@ -124,10 +124,12 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
         // build new description reusing the existing intro and then list the current sources
         StringBuilder description = new StringBuilder();
         // remove existing source list
-        Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\n*The following sources have been used.+$");
+        Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\n*The following sources from the.+$");
         description.append(SOURCE_LIST_PATTERN.matcher(nub.getDescription()).replaceAll(""));
         // append new source list
-        description.append("\n\nThe following sources have been used to assemble the GBIF backbone:\n");
+        description.append("\n\nThe following sources from the " +
+                "<a href='http://www.gbif.org/network/"+Constants.NUB_NETWORK_KEY+"'>GBIF Backbone network</a> " +
+                "have been used to assemble the GBIF backbone:\n");
         description.append("<u>");
         for (Map.Entry<UUID, Integer> src : msg.getMetrics().getCountByConstituent().entrySet()) {
             Dataset d = datasetService.get(src.getKey());
