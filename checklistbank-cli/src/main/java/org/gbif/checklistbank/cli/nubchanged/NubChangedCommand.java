@@ -7,17 +7,17 @@ import com.google.common.util.concurrent.Service;
 import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(Command.class)
-public class MatchCommand extends ServiceCommand {
+public class NubChangedCommand extends ServiceCommand {
 
-  private final MatchConfiguration configuration = new MatchConfiguration();
+  private final NubChangedConfiguration configuration = new NubChangedConfiguration();
 
-  public MatchCommand() {
-    super("nub-matcher");
+  public NubChangedCommand() {
+    super("nub-changed");
   }
 
   @Override
   protected Service getService() {
-    return new MatchService(configuration);
+    return new NubChangedService(configuration);
   }
 
   @Override

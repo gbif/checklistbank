@@ -29,12 +29,12 @@ public class ChecklistMatcher implements Runnable {
   private final NameUsageMatchingService matchingService;
   private final UUID datasetKey;
 
-  public ChecklistMatcher(MatchConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+  public ChecklistMatcher(NubChangedConfiguration cfg, UUID datasetKey, MetricRegistry registry,
     NameUsageService usageService, NameUsageMatchingService matchingService) {
     this.datasetKey = datasetKey;
     this.usageService = usageService;
     this.matchingService = matchingService;
-    this.matchMeter = registry.getMeters().get(MatchService.MATCH_METER);
+    this.matchMeter = registry.getMeters().get(NubChangedService.MATCH_METER);
   }
 
   public void run() {

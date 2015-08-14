@@ -26,8 +26,10 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
@@ -39,15 +41,15 @@ import com.yammer.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MatchService extends AbstractIdleService implements MessageCallback<BackboneChangedMessage> {
+public class NubChangedService extends AbstractIdleService implements MessageCallback<BackboneChangedMessage> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MatchService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NubChangedService.class);
 
     public static final String QUEUE = "clb-matcher";
 
     public static final String MATCH_METER = "taxon.match";
 
-    private final MatchConfiguration cfg;
+    private final NubChangedConfiguration cfg;
     private MessageListener listener;
     private MessagePublisher publisher;
     private IdLookup nubLookup;
@@ -56,7 +58,7 @@ public class MatchService extends AbstractIdleService implements MessageCallback
     private final MetricRegistry registry = new MetricRegistry("matcher");
     private final Timer timer = registry.timer("nub matcher process time");
 
-    public MatchService(MatchConfiguration configuration) {
+    public NubChangedService(NubChangedConfiguration configuration) {
         this.cfg = configuration;
         registry.meter(MATCH_METER);
         Injector regInj = cfg.registry.createRegistryInjector();
@@ -118,6 +120,22 @@ public class MatchService extends AbstractIdleService implements MessageCallback
             new TaxonomicCoverage(k.scientificName(), null, new InterpretedEnum<String, Rank>("Kingdom", Rank.KINGDOM));
         }
         nub.setTaxonomicCoverages(Lists.newArrayList(new TaxonomicCoverages("All life", taxa)));
+
+        // build new description reusing the existing intro and then list the current sources
+        StringBuilder description = new StringBuilder();
+        // remove existing source list
+        Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\n*The following sources have been used.+$");
+        description.append(SOURCE_LIST_PATTERN.matcher(nub.getDescription()).replaceAll(""));
+        // append new source list
+        description.append("\n\nThe following sources have been used to assemble the GBIF backbone:\n");
+        description.append("<u>");
+        for (Map.Entry<UUID, Integer> src : msg.getMetrics().getCountByConstituent().entrySet()) {
+            Dataset d = datasetService.get(src.getKey());
+            description.append("<li>" + src.getValue() + " names from "+ d.getTitle() +"</li>");
+        }
+        description.append("</u>");
+        nub.setDescription(description.toString());
+
         // convert to EML and send to registry
         try {
             StringWriter writer = new StringWriter();

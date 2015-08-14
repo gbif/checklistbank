@@ -15,7 +15,7 @@ import com.beust.jcommander.ParametersDelegate;
  *
  */
 @SuppressWarnings("PublicField")
-public class MatchConfiguration {
+public class NubChangedConfiguration {
 
     @ParametersDelegate
     @Valid
