@@ -135,6 +135,10 @@ public class IdLookupImpl implements IdLookup {
         return foldToAscii(x).toLowerCase();
     }
 
+    public AuthorComparator getAuthorComparator() {
+        return authComp;
+    }
+
     /**
      * Uses the solr.ASCIIFoldingFilter to convert a string to its ASCII equivalent. See solr documentation for full
      * details.

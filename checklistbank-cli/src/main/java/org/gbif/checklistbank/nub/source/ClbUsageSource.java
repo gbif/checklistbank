@@ -10,6 +10,7 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.MachineTagUtils;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.util.iterables.Iterables;
+import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
@@ -95,6 +96,7 @@ public class ClbUsageSource implements UsageSource {
         src.name = d.getTitle();
         src.created = d.getCreated();
         src.priority = priority;
+        src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
         if (rank != null) {
             src.ignoreRanksAbove = rank;
         }

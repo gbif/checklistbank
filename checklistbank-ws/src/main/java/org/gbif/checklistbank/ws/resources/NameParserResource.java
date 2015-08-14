@@ -100,7 +100,7 @@ public class NameParserResource {
       ParsedName pn;
       final String name = iter.next();
       try {
-        pn = parser.parse(name);
+        pn = parser.parse(name, null);
       } catch (UnparsableException e) {
         pn = new ParsedName();
         pn.setType(e.type);

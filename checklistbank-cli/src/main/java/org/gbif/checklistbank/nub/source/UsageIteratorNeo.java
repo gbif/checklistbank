@@ -129,7 +129,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
 
     public NeoUsageWriter(UsageDao dao) {
       // the number of columns in our query to consume
-      super(8);
+      super(7);
       this.dao = dao;
       tx = dao.beginTx();
       root = dao.getNeo().createNode();
@@ -142,15 +142,12 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
       u.parentKey = toInt(row[1]);
       u.originalNameKey = toInt(row[2]);
       u.rank = row[3] == null ? null : Rank.valueOf(row[3]);
-      boolean synonym = "t".equals(row[4]);
-      u.status = row[5] == null ? null : TaxonomicStatus.valueOf(row[5]);
+      u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
       if (u.status == null) {
-        u.status = synonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED;
-      } else if (u.status.isSynonym() && !synonym  ||  !u.status.isSynonym() && synonym) {
-        LOG.warn("Source usage flagged as {} has contradictory status {}", synonym, row[5]);
+        LOG.error("Source usage {} missing required taxonomic status", row[0]);
       }
-      u.nomStatus = toNomStatus(row[6]);
-      u.scientificName = row[7];
+      u.nomStatus = toNomStatus(row[5]);
+      u.scientificName = row[6];
       counter++;
       Node n = getOrCreate(u.key);
       dao.storeSourceUsage(n, u);

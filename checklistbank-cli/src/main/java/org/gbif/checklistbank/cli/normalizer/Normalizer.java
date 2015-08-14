@@ -495,7 +495,9 @@ public class Normalizer extends ImportDb implements Runnable {
         List<String> acceptedIds = Lists.newArrayList();
         final String unsplitIds = v.getCoreField(DwcTerm.acceptedNameUsageID);
         if (unsplitIds != null) {
-            if (!unsplitIds.equals(nn.usage.getTaxonID())) {
+            if (unsplitIds.equals(nn.usage.getTaxonID())) {
+                acceptedIds.add(unsplitIds);
+            } else {
                 if (meta.getMultiValueDelimiters().containsKey(DwcTerm.acceptedNameUsageID)) {
                     acceptedIds = meta.getMultiValueDelimiters().get(DwcTerm.acceptedNameUsageID).splitToList(unsplitIds);
                 } else {
@@ -577,25 +579,28 @@ public class Normalizer extends ImportDb implements Runnable {
             List<String> acceptedIds = parseAcceptedIDs(nn, v);
             if (!acceptedIds.isEmpty()) {
                 String id = acceptedIds.get(0);
-                accepted = nodeByTaxonId(id);
-                if (accepted == null) {
-                    nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
-                    LOG.debug("acceptedNameUsageID {} not existing", id);
-                    // is the accepted name also mapped?
-                    String name = ObjectUtils.firstNonNull(v.getCoreField(DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
-                    accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
-                            "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
-                }
-                // create proparte rels if needed
-                Iterator<String> additionalIds = acceptedIds.listIterator(1);
-                while (additionalIds.hasNext()) {
-                    final String id2 = additionalIds.next();
-                    Node accepted2 = nodeByTaxonId(id2);
-                    if (accepted2 == null) {
+                // make sure it is not an accepted taxon pointing to itself
+                if (!id.equals(nn.usage.getTaxonID())) {
+                    accepted = nodeByTaxonId(id);
+                    if (accepted == null) {
                         nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
-                        LOG.debug("acceptedNameUsageID {} not existing", id2);
-                    } else {
-                        nn.node.createRelationshipTo(accepted2, RelType.PROPARTE_SYNONYM_OF);
+                        LOG.debug("acceptedNameUsageID {} not existing", id);
+                        // is the accepted name also mapped?
+                        String name = ObjectUtils.firstNonNull(v.getCoreField(DwcTerm.acceptedNameUsage), NormalizerConstants.PLACEHOLDER_NAME);
+                        accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
+                                "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
+                    }
+                    // create proparte rels if needed
+                    Iterator<String> additionalIds = acceptedIds.listIterator(1);
+                    while (additionalIds.hasNext()) {
+                        final String id2 = additionalIds.next();
+                        Node accepted2 = nodeByTaxonId(id2);
+                        if (accepted2 == null) {
+                            nn.addIssue(NameUsageIssue.ACCEPTED_NAME_USAGE_ID_INVALID);
+                            LOG.debug("acceptedNameUsageID {} not existing", id2);
+                        } else {
+                            nn.node.createRelationshipTo(accepted2, RelType.PROPARTE_SYNONYM_OF);
+                        }
                     }
                 }
 

@@ -28,8 +28,11 @@ public class ClbUsageIteratorNeo extends UsageIteratorNeo {
     try (BaseConnection c = clb.connect()){
       final CopyManager cm = new CopyManager(c);
       cm.copyOut("COPY ("
-                 + "SELECT usage.id, usage.parent_fk, usage.basionym_fk, usage.rank, usage.is_synonym, usage.status, usage.nom_status, node.scientific_name"
-                 + " FROM name_usage usage join name node ON name_fk=node.id" + " WHERE dataset_key = '" + source.key + "')"
+                 + "SELECT u.id, u.parent_fk, u.basionym_fk, u.rank,"
+                 + " coalesce(u.status, CASE WHEN (u.is_synonym) THEN 'SYNONYM'::taxonomic_status ELSE 'ACCEPTED'::taxonomic_status END),"
+                 + " u.nom_status, n.scientific_name"
+                 + " FROM name_usage u JOIN name n ON u.name_fk=n.id"
+                 + " WHERE u.dataset_key = '" + source.key + "')"
                  + " TO STDOUT WITH NULL ''", writer);
       LOG.info("Loaded nub source data {} with {} usages into neo4j", source.name, writer.getCounter());
     }

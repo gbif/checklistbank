@@ -1,3 +1,3 @@
-1			FAMILY	f	ACCEPTED		Popeliaceae
-100	1		SPECIES	f	ACCEPTED		Lepiota nuda DC.
-101	1		SUBSPECIES	f	ACCEPTED		Lepiota nuda subsp. elegans (DC.) Miller
+1			FAMILY	ACCEPTED		Popeliaceae
+100	1		SPECIES	ACCEPTED		Lepiota nuda DC.
+101	1		SUBSPECIES	ACCEPTED		Lepiota nuda subsp. elegans (DC.) Miller

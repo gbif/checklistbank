@@ -4,6 +4,7 @@ package org.gbif.checklistbank.service.mybatis;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParser;
@@ -35,26 +36,26 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
   }
 
   @Override
-  public ParsedName createOrGet(String scientificName) {
+  public ParsedName createOrGet(String scientificName, Rank rank) {
     if (Strings.isNullOrEmpty(scientificName)) {
       return null;
     }
     try {
-      return createOrGetThrowing(scientificName);
+      return createOrGetThrowing(scientificName, rank);
     } catch (PersistenceException e) {
       // we have a unique constraint in the database which can throw an exception when we concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
       LOG.warn("Inserting name >>>{}<<< failed, try to re-read", scientificName);
-      return createOrGetThrowing(scientificName);
+      return createOrGetThrowing(scientificName, rank);
     }
   }
 
   @Transactional
-  private ParsedName createOrGetThrowing(String scientificName) throws PersistenceException {
+  private ParsedName createOrGetThrowing(String scientificName, Rank rank) throws PersistenceException {
     ParsedName pn = mapper.getByName(scientificName);
     if (pn == null) {
       try {
-        pn = parser.parse(scientificName);
+        pn = parser.parse(scientificName, rank);
       } catch (UnparsableException e) {
         pn = new ParsedName();
         pn.setScientificName(scientificName);

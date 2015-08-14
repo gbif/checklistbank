@@ -3,8 +3,10 @@ package org.gbif.checklistbank.service;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.vocabulary.Rank;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * Persistence service dealing with parsed names.
@@ -22,8 +24,9 @@ public interface ParsedNameService {
   /**
    * Returns the full parsed name for a given scientific name string.
    * Inserts any non existing names into the name_string table.
+   * @param rank optional hint to the parser
    */
-  ParsedName createOrGet(String scientificName);
+  ParsedName createOrGet(String scientificName, @Nullable Rank rank);
 
   /**
    * Page through all names in a dataset.

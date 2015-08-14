@@ -400,7 +400,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         uw.setIssues(u.getIssues());
 
         // lookup or insert name record
-        ParsedName pn = nameService.createOrGet(u.getScientificName());
+        ParsedName pn = nameService.createOrGet(u.getScientificName(), u.getRank());
         uw.setNameKey(pn.getKey());
 
         // lookup or insert citation records

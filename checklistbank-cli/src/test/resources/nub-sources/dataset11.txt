@@ -1,5 +1,5 @@
-1			KINGDOM	f	ACCEPTED		Animalia
-10	1		GENUS	f	ACCEPTED		Octopus Cuvier, 1797
-11	10		GENUS	t	SYNONYM		Amphioctopus Fischer, 1882
-100	10		SPECIES	f	ACCEPTED		Octopus vulgaris Cuvier, 1797
-101	10		SPECIES	f	ACCEPTED		Octopus fangsiao d'Orbigny, 1839
+1			KINGDOM	ACCEPTED		Animalia
+10	1		GENUS	ACCEPTED		Octopus Cuvier, 1797
+11	10		GENUS	SYNONYM		Amphioctopus Fischer, 1882
+100	10		SPECIES	ACCEPTED		Octopus vulgaris Cuvier, 1797
+101	10		SPECIES	ACCEPTED		Octopus fangsiao d'Orbigny, 1839

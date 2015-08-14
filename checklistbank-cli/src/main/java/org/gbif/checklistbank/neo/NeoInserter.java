@@ -307,7 +307,7 @@ public class NeoInserter implements AutoCloseable {
         final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
         try {
             if (sciname != null) {
-                pn = nameParser.parse(sciname);
+                pn = nameParser.parse(sciname, rank);
                 // append author if its not part of the name yet
                 String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
                 if (!Strings.isNullOrEmpty(author) && !sciname.contains(author)

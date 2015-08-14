@@ -89,10 +89,10 @@ public class ConcurrentCreateOrGetIT {
             ParsedNameService pservice = getInj().getInstance(ParsedNameService.class);
             CitationService cservice = getInj().getInstance(CitationService.class);
             for (int x = 0; x < 100; x++) {
-                pservice.createOrGet(name + "citation #" + x);
+                pservice.createOrGet(name + "sciname #" + x, null);
                 cservice.createOrGet(name + "citation #" + x);
             }
-            ParsedName pn = pservice.createOrGet(name);
+            ParsedName pn = pservice.createOrGet(name, null);
             shutdown();
             return pn;
         }

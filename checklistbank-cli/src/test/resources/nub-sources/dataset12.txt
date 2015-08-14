@@ -1,4 +1,4 @@
-1			KINGDOM	f	ACCEPTED		Animalia
-10	1		GENUS	f	ACCEPTED		Amphioctopus Fischer, 1882
-100	10		SPECIES	f	ACCEPTED		Amphioctopus fangsiao (d'Orbigny, 1835)
-101	10		SPECIES	f	ACCEPTED		Amphioctopus markus Döring, 1999
+1			KINGDOM	ACCEPTED		Animalia
+10	1		GENUS	ACCEPTED		Amphioctopus Fischer, 1882
+100	10		SPECIES	ACCEPTED		Amphioctopus fangsiao (d'Orbigny, 1835)
+101	10		SPECIES	ACCEPTED		Amphioctopus markus Döring, 1999

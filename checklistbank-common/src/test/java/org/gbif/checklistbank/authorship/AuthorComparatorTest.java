@@ -75,6 +75,22 @@ public class AuthorComparatorTest {
     }
 
     @Test
+    public void testDiffer() throws Exception {
+        ParsedName p1 = new ParsedName();
+        p1.setAuthorship("Reich.");
+
+        ParsedName p2 = new ParsedName();
+        p2.setAuthorship("");
+        assertEquals(Equality.UNKNOWN, comp.compare(p1, p2));
+
+        p2.setAuthorship("Müller");
+        assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+
+        p2.setAuthorship("Jenkins, Marx & Kluse");
+        assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+    }
+
+    @Test
     public void testEqualsWithBasionym() throws Exception {
         assertAuth("Maxim.", null, Equality.EQUAL, "Max.", null);
         assertAuth("Maxim.", null, "Trautv. ex Maxim.", null, Equality.EQUAL, "Maxim.", null, null, null);

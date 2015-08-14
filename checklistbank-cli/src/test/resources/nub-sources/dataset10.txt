@@ -1,7 +1,7 @@
-1			KINGDOM	f	ACCEPTED		Plantae
-2	1		PHYLUM	f	ACCEPTED		Bryophyta
-3	2		FAMILY	f	ACCEPTED		Fontinalaceae
-10	3		SPECIES	f	ACCEPTED		Fontinalis antipyretica Hedwig, 1801
-11	3		SPECIES	f	ACCEPTED		Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891
-12	3		SPECIES	f	ACCEPTED		Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916
-13	3		SPECIES	f	ACCEPTED		Fontinalis antipyretica (C. Müller) W. H. Welch in Grout, 1934
+1			KINGDOM	ACCEPTED		Plantae
+2	1		PHYLUM	ACCEPTED		Bryophyta
+3	2		FAMILY	ACCEPTED		Fontinalaceae
+10	3		SPECIES	ACCEPTED		Fontinalis antipyretica Hedwig, 1801
+11	3		SPECIES	ACCEPTED		Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891
+12	3		SPECIES	ACCEPTED		Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916
+13	3		SPECIES	ACCEPTED		Fontinalis antipyretica (C. Müller) W. H. Welch in Grout, 1934

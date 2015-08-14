@@ -1,2 +1,2 @@
-1			KINGDOM	f	ACCEPTED		Fungi
-100	1		SPECIES	f	ACCEPTED		Lepiota seminuda Mill.
+1			KINGDOM	ACCEPTED		Fungi
+100	1		SPECIES	ACCEPTED		Lepiota seminuda Mill.

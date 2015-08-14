@@ -114,15 +114,15 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     }
     try {
       // use name parser to make the name a canonical one
-      pn = parser.parse(scientificName);
+      // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
+      pn = parser.parse(scientificName, rank);
       interpretGenus(pn, classification.getGenus());
-      scientificName = pn.buildName(false, false, false, false, false, true, false, false, false, false, false, false);
+      scientificName = pn.buildName(false, false, false, false, false, false, true, false, false, false, false, false, false);
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
       LOG.debug("Unparsable [{}] name [{}]", e.type, scientificName);
     }
-
 
     NameUsageMatch match1 = match(scientificName, rank, classification, true, MIN_CONFIDENCE, verbose);
     if (isMatch(match1) || strict) {

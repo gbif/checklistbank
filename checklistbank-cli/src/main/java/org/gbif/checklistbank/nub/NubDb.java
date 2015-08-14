@@ -13,7 +13,9 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -111,7 +113,7 @@ public class NubDb {
      *
      * @return the existing usage or null if it does not exist yet.
      */
-    public NubUsage findNubUsage(SrcUsage u, Kingdom uKingdom) {
+    public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom) {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
@@ -136,9 +138,19 @@ public class NubDb {
                 }
             }
         } else {
-            LOG.warn("{} homonyms encountered for {}", checked.size(), u.scientificName);
-            //TODO: implmement sth clever dealing with homonyms!!!
-            throw new IllegalStateException("homonym " + u.scientificName);
+            if (!u.status.isSynonym()) {
+                Set<UUID> sources = new HashSet<UUID>();
+                for (NubUsage nu : checked) {
+                    sources.add(nu.datasetKey);
+                }
+                if (sources.contains(currSource) && sources.size()==1) {
+                    LOG.debug("{} homonyms encountered for {}, but only synonyms from the same source", checked.size(), u.scientificName);
+                    return null;
+                }
+            }
+            LOG.warn("{} ambigous homonyms encountered for {}", checked.size(), u.scientificName);
+            //TODO: implmement sth even more clever dealing with homonyms!!!
+            throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.key, u.scientificName);
         }
         return null;
     }
@@ -203,7 +215,7 @@ public class NubDb {
     }
 
     public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
-        LOG.debug("Creating {} {} {} with parent {}", origin, src.status, src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName());
+        LOG.debug("create {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName());
 
         NubUsage nub = new NubUsage(src);
         nub.datasetKey = sourceDatasetKey;
@@ -245,6 +257,15 @@ public class NubDb {
             }
         }
         return store(nub);
+    }
+
+    /**
+     * Removes a nub usage from the db.
+     * Only synonyms are currently supported and it is verified that the usage does not have any further relations.
+     */
+    public void delete(NubUsage nub) {
+        dao.delete(nub);
+        nodes--;
     }
 
     /**

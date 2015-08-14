@@ -1,6 +1,6 @@
-1			KINGDOM	f	ACCEPTED		Plantae
-10	1		FAMILY	f	ACCEPTED		Poaceae
-100	10		SPECIES	f	ACCEPTED		Eragrostis pubescens (R.Br.) Steud.
-101	10		SPECIES	f	ACCEPTED		Poa pratensis L.
-102	100		SPECIES	t	SYNONYM		Poa pubescens Lej.
-103	101		SPECIES	t	SYNONYM		Poa pubescens Lej.
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Poaceae
+100	10		SPECIES	ACCEPTED		Eragrostis pubescens (R.Br.) Steud.
+101	10		SPECIES	ACCEPTED		Poa pratensis L.
+102	100		SPECIES	SYNONYM		Poa pubescens Lej.
+103	101		SPECIES	SYNONYM		Poa pubescens Lej.

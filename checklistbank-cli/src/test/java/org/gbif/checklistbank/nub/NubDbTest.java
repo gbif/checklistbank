@@ -64,7 +64,7 @@ public class NubDbTest {
     private NubUsage buildNub(String sciname, Rank rank, TaxonomicStatus status) {
         NubUsage nu = new NubUsage();
         try {
-            nu.parsedName = parser.parse(sciname);
+            nu.parsedName = parser.parse(sciname, rank);
             nu.rank = rank;
             nu.status = status;
         } catch (UnparsableException e) {

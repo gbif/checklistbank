@@ -44,7 +44,7 @@ public class NubIndexImmutableTest {
       NameUsageMatch n = new NameUsageMatch();
       n.setUsageKey(Integer.valueOf(row[0]));
       n.setScientificName(row[1]);
-      n.setCanonicalName(parser.parseToCanonical(n.getScientificName()));
+      n.setCanonicalName(parser.parseToCanonical(n.getScientificName(), null));
       n.setFamily(row[2]);
       n.setOrder(row[3]);
       n.setClazz(row[4]);

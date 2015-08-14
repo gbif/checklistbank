@@ -14,8 +14,5 @@ public class NubSource {
   public int priority = 0;
   public Rank ignoreRanksAbove = Rank.FAMILY;
   public Date created;
-  public boolean ignoreCore = false;
-  public boolean ignoreMedia = false;
-  public boolean ignoreDescription = false;
-  public boolean ignoreVernacular = false;
+  public boolean nomenclator = false;
 }

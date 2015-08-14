@@ -39,7 +39,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-@Ignore("Authorship handling needs to be settled first")
 public class NubBuilderTest {
     private UsageDao dao;
     private Transaction tx;
@@ -92,6 +91,29 @@ public class NubBuilderTest {
 
     @Test
     public void testUpdateAuthorship() throws Exception {
+        build(ClasspathUsageSource.source(1, 5, 6));
+
+        assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+        assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
+        assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
+        assertCanonical("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
+        assertCanonical("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+    }
+
+    /**
+     * http://dev.gbif.org/issues/browse/POR-398
+     */
+    @Test
+    @Ignore("TODO: write test based on IPNI basionyms")
+    public void testMergeBasionymGroup() throws Exception {
+    }
+
+    /**
+     * http://dev.gbif.org/issues/browse/POR-2786
+     */
+    @Test
+    @Ignore("TODO: write test")
+    public void testStableIds() throws Exception {
         build(ClasspathUsageSource.source(1, 5, 6));
 
         assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
@@ -178,7 +200,6 @@ public class NubBuilderTest {
         assertNotNull(getCanonical("Coleoptera", Rank.ORDER));
         assertNotNull(getCanonical("Poaceae", Rank.FAMILY));
     }
-
 
     @Test
     public void testColAdiantumSynonym() throws Exception {
@@ -353,23 +374,24 @@ public class NubBuilderTest {
     /**
      * The same canonical name with a different author can be used as synonyms multiple times.
      * See http://dev.gbif.org/issues/browse/POR-353
-     * Geotrupes stercorarius (Linnaeus, 1758)  (ACC)
-     * Geotrupes stercorarius Erichson, 1847    (SYN) for Geotrupes spiniger (Marsham, 1802)
      */
     @Test
     public void testSynonymsWithDifferentAuthors() throws Exception {
         ClasspathUsageSource src = ClasspathUsageSource.source(14);
         build(src);
 
-        assertEquals(2, listCanonical("Geotrupes stercorarius").size());
+        // we should only have one accepted Geotrupes stercorarius as one name lacks the combination author!
+        assertEquals(1, listCanonical("Geotrupes stercorarius").size());
+
         NubUsage gen = assertCanonical("Geotrupes", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
         assertScientific("Geotrupes stercorarius (Linnaeus, 1758)", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
-        NubUsage acc = assertCanonical("Geotrupes spiniger", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-        assertScientific("Geotrupes stercorarius Erichson, 1847", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, acc);
+        assertNotExisting("Geotrupes stercorarius Erichson, 1847", Rank.SPECIES);
+
+        assertCanonical("Geotrupes spiniger", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
         assertEquals(2, listCanonical("Poa pubescens").size());
         gen = assertCanonical("Poa", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, null);
-        acc = assertScientific("Poa pratensis L.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        NubUsage acc = assertScientific("Poa pratensis L.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
         assertScientific("Poa pubescens Lej.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, acc);
 
         gen = assertCanonical("Eragrostis", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, null);
@@ -391,6 +413,25 @@ public class NubBuilderTest {
     @Ignore("write test")
     public void testInterrankHomonyms() throws Exception {
 
+    }
+
+    /**
+     * WoRMS contains some synonyms with the same canonical name that include the subgenus or not.
+     * Make sure they all get merged into one synonym in the nub.
+     * See http://www.marinespecies.org/aphia.php?p=taxdetails&id=191705
+     */
+    @Test
+    public void testWormsSubgenusAlternateRepresentations() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(18);
+        build(src);
+
+        NubUsage gen = assertCanonical("Hyalonema", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+        // we dont have subgenera in the nub
+        assertNotExisting("Hyalonema (Corynonema) Ijima, 1927", Rank.SUBGENUS);
+
+        assertEquals(1, listCanonical("Hyalonema rotundum").size());
+        NubUsage u = assertCanonical("Hyalonema rotundum", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
     }
 
     /**
@@ -442,6 +483,16 @@ public class NubBuilderTest {
     @Test
     @Ignore("write test")
     public void testMergingInfos() throws Exception {
+
+    }
+
+    /**
+     * Prefer a nomenclators name and nom status over any other sources!
+     * Prefer a name with authorship over a bare canonical one.
+     */
+    @Test
+    @Ignore("write test")
+    public void testUpdateNameString() throws Exception {
 
     }
 
@@ -516,6 +567,11 @@ public class NubBuilderTest {
         assertNub(u, sciname, null, null, rank, origin, status, parent);
         assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.canonicalNameComplete());
         return u;
+    }
+
+    private void assertNotExisting(String sciname, Rank rank) {
+        NubUsage u = getScientific(sciname, rank);
+        assertNull("name wrongly exists: " + sciname, u);
     }
 
     private void assertNub(NubUsage u, String name, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {

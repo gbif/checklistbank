@@ -1,12 +1,12 @@
-1			KINGDOM	f	ACCEPTED		Plantae
-10	1		FAMILY	f	ACCEPTED		Asteraceae
-11	1		FAMILY	f	ACCEPTED		Fabaceae
-12	1		FAMILY	f	ACCEPTED		Gentianaceae
-20	10		GENUS	f	DOUBTFUL		Albi
-21	11		GENUS	f	ACCEPTED		Albi
-22	12		GENUS	f	DOUBTFUL		Albi
-100	10		SPECIES	f	DOUBTFUL		Albizia tomentosa (Micheli) Standl.
-101	11		SPECIES	f	ACCEPTED		Albizia adianthifolia (Schum.) W.Wight
-200	20		SPECIES	f	DOUBTFUL		Albi tomentosa (Micheli) Standl.
-201	21		SPECIES	f	ACCEPTED		Albi adianthifolia (Schum.) W.Wight
-202	22		SPECIES	f	DOUBTFUL		Albi minki W. Wight
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Asteraceae
+11	1		FAMILY	ACCEPTED		Fabaceae
+12	1		FAMILY	ACCEPTED		Gentianaceae
+20	10		GENUS	DOUBTFUL		Albi
+21	11		GENUS	ACCEPTED		Albi
+22	12		GENUS	DOUBTFUL		Albi
+100	10		SPECIES	DOUBTFUL		Albizia tomentosa (Micheli) Standl.
+101	11		SPECIES	ACCEPTED		Albizia adianthifolia (Schum.) W.Wight
+200	20		SPECIES	DOUBTFUL		Albi tomentosa (Micheli) Standl.
+201	21		SPECIES	ACCEPTED		Albi adianthifolia (Schum.) W.Wight
+202	22		SPECIES	DOUBTFUL		Albi minki W. Wight

@@ -6,8 +6,10 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
@@ -64,12 +66,14 @@ public class NubBuilder implements Runnable {
     private ParentStack parents;
     private int sourceUsageCounter = 0;
     private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
+    private final AuthorComparator authorComparator;
     private final IdGenerator idGen;
     private final int newIdStart;
 
-    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart, File reportDir, boolean closeDao) {
+    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir, boolean closeDao) {
         db = NubDb.create(dao, 1000);
         this.usageSource = usageSource;
+        this.authorComparator = authorComparator;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
         this.newIdStart = newIdStart;
         this.closeDao = closeDao;
@@ -78,11 +82,11 @@ public class NubBuilder implements Runnable {
     public static NubBuilder create(NubConfiguration cfg) {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
         try {
-            IdLookup idLookup = new IdLookupImpl(cfg.clb);
+            IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
             Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
-            return new NubBuilder(dao, cfg.usageSource(), idLookup, newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true);
+            return new NubBuilder(dao, cfg.usageSource(), idLookup, idLookup.getAuthorComparator(), newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -92,7 +96,7 @@ public class NubBuilder implements Runnable {
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
     public static NubBuilder create(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, usageSource, idLookup, newIdStart, null, false);
+        return new NubBuilder(dao, usageSource, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false);
     }
 
     /**
@@ -212,24 +216,34 @@ public class NubBuilder implements Runnable {
         LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
     }
 
-    private boolean isSynonymWithAuthorship(SrcUsage u) {
-        return u.status.isSynonym() && (u.parsedName.hasAuthorship());
-    }
-
     private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
         Preconditions.checkNotNull(u.status);
         // try to parse name
         NubUsage nub = null;
         try {
             addParsedNameIfNull(u);
-            nub = db.findNubUsage(u, parents.nubKingdom());
+            nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
             if (u.rank != null && allowedRanks.contains(u.rank)) {
-                if (nub == null || (!nub.status.isSynonym() && isSynonymWithAuthorship(u))) {
-                    // create new nub usage
+                if (nub == null) {
+                    // create new nub usage if there wasnt any yet
                     nub = createNubUsage(u, origin, parent);
-                } else {
-                    // update nub usage
+
+                } else if (nub.status.isSynonym() == u.status.isSynonym()) {
+                    // update nub usage if status matches
                     updateNub(nub, u, origin, parent);
+
+                } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
+                    // create new nub usage with different status and authorship as before
+                    nub = createNubUsage(u, origin, parent);
+
+                } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
+                    // prefer accepted over synonym if from the same source
+                    LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
+                    db.delete(nub);
+                    nub = createNubUsage(u, origin, parent);
+
+                } else {
+                    LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
                 }
             } else {
                 LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
@@ -238,9 +252,17 @@ public class NubBuilder implements Runnable {
         } catch (UnparsableException e) {
             // exclude virus, hybrid and blacklisted names
             // TODO: review if we want to include them!
-            LOG.warn("Ignore unparsable {} name: {}", e.type, e.name);
+            LOG.info("Ignore unparsable {} name: {}", e.type, e.name);
+
+        } catch (IgnoreSourceUsageException e) {
+            LOG.info("Ignore usage {} {}: {}", e.key, e.name, e.getMessage());
         }
+
         return nub;
+    }
+
+    private boolean authorsDiffer(ParsedName pn1, ParsedName pn2) {
+        return Equality.DIFFERENT == authorComparator.compare(pn1, pn2);
     }
 
     private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws UnparsableException {
@@ -309,7 +331,7 @@ public class NubBuilder implements Runnable {
 
     private void addParsedNameIfNull(SrcUsage u) throws UnparsableException {
         if (u.parsedName == null) {
-            u.parsedName = parser.parse(u.scientificName);
+            u.parsedName = parser.parse(u.scientificName, u.rank);
         }
     }
 
@@ -323,9 +345,6 @@ public class NubBuilder implements Runnable {
     }
 
     private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
-        if (nub.status.isSynonym() != u.status.isSynonym()) {
-            return;
-        }
         LOG.debug("Updating {} from source {}", nub.parsedName.fullName(), u.parsedName.fullName());
         nub.sourceIds.add(u.key);
         if (origin == Origin.SOURCE) {
