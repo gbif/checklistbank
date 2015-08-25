@@ -115,6 +115,7 @@ public class Importer extends ImportDb implements Runnable {
         if (datasetKey == Constants.NUB_DATASET_KEY) {
             // remember the current highest nub key so we know if incoming ones are inserts or updates
             maxExistingNubKey = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
+            LOG.info("Sync GBIF backbone. Current max nub usageKey={}", maxExistingNubKey);
         }
         // we keep the very first usage key to retrieve the exact last modified timestamp from the database
         // in order to avoid clock differences between machines and threads.
@@ -175,7 +176,7 @@ public class Importer extends ImportDb implements Runnable {
                     syncCounter++;
                     if (syncCounter % 100000 == 0) {
                         LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-                    } else if (syncCounter % 1000 == 0) {
+                    } else if (syncCounter % 10000 == 0) {
                         LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
                     }
 

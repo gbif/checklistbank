@@ -80,12 +80,12 @@ public class ClasspathUsageSource implements UsageSource {
   public class ClasspathUsageIteratorNeo extends UsageIteratorNeo {
 
     public ClasspathUsageIteratorNeo(NubSource source) throws Exception {
-      super(source, 128);
+      super(128, source.key, source.name);
     }
 
     @Override
     void initNeo(NeoUsageWriter writer) throws Exception {
-      try (InputStream is = openTxtStream(keyToIdx(source.key))) {
+      try (InputStream is = openTxtStream(keyToIdx(datasetKey))) {
         IOUtils.copy(is, writer);
       }
     }

@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia
+10	1		GENUS	ACCEPTED		Martes Pinel, 1792
+
+100	10	101	SPECIES	ACCEPTED		Martes martes (Linnaeus, 1758)
+101	100		SPECIES	SYNONYM		Mustela martes Linnaeus, 1758
+
+110	10	111	SPECIES	ACCEPTED		Martes markusis (Döring, 2001)
+111	110		SPECIES	SYNONYM		Cellophania markusa Döring, 2001
+

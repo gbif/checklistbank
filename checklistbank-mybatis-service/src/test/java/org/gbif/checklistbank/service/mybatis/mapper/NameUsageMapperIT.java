@@ -11,12 +11,14 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
 
@@ -118,5 +120,35 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
         u.setKey(null);
         mapper.insert(u);
         assertEquals(100000001, (int)u.getKey());
+    }
+
+    /**
+     * Check all enum values have a matching postgres type value.
+     */
+    @Test
+    public void testGetUpdateIssues() {
+        String name = "Abies Mill.";
+        deleteName(name);
+        int nameKey = createName(name);
+
+        NameUsageWritable u = new NameUsageWritable();
+        u.setDatasetKey(DATASET_KEY);
+        u.setNameKey(nameKey);
+        u.setRank(Rank.SPECIES);
+        mapper.insert(u);
+
+        final int key = u.getKey();
+
+        Set<NameUsageIssue> issues = mapper.getIssues(key).getIssues();
+        assertTrue(issues.isEmpty());
+        assertEquals((Integer)key, mapper.getIssues(key).getKey());
+
+        issues.add(NameUsageIssue.BACKBONE_MATCH_NONE);
+        mapper.updateIssues(key, issues);
+        assertEquals(issues, mapper.getIssues(key).getIssues());
+
+        issues.remove(NameUsageIssue.BACKBONE_MATCH_NONE);
+        mapper.updateIssues(key, issues);
+        assertTrue(mapper.getIssues(key).getIssues().isEmpty());
     }
 }

@@ -10,6 +10,7 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
@@ -30,6 +31,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.beust.jcommander.internal.Maps;
+import com.carrotsearch.hppc.IntLongHashMap;
+import com.carrotsearch.hppc.IntLongMap;
+import com.carrotsearch.hppc.LongIntHashMap;
+import com.carrotsearch.hppc.LongIntMap;
+import com.carrotsearch.hppc.cursors.LongIntCursor;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -38,6 +44,7 @@ import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.lang3.ObjectUtils;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -69,6 +76,8 @@ public class NubBuilder implements Runnable {
     private final AuthorComparator authorComparator;
     private final IdGenerator idGen;
     private final int newIdStart;
+    private final IntLongMap src2NubKey = new IntLongHashMap();
+    private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
 
     private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir, boolean closeDao) {
         db = NubDb.create(dao, 1000);
@@ -198,6 +207,8 @@ public class NubBuilder implements Runnable {
             }
         }
         parents.clear();
+        basionymRels.clear();
+        src2NubKey.clear();
         int start = sourceUsageCounter;
         for (SrcUsage u : usageSource.iterateSource(source)) {
             LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
@@ -213,7 +224,35 @@ public class NubBuilder implements Runnable {
             }
         }
         db.renewTx();
+
+        // process explicit basionym relations
+        LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), source.name);
+        for (LongIntCursor c : basionymRels) {
+            Node n = db.getNode(c.key);
+            Node bas = db.getNode(src2NubKey.get(c.value));
+            // find basionym node by sourceKey
+            if (n != null && bas != null) {
+                if (!createBasionymRelationIfNotExisting(bas, n)) {
+                    LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NodeProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
+                }
+            } else {
+                LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
+            }
+        }
+        db.renewTx();
+
         LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
+    }
+
+    /**
+     * @return true if basionym relationship was created
+     */
+    private boolean createBasionymRelationIfNotExisting(Node basionym, Node n) {
+        if (!n.hasRelationship(RelType.BASIONYM_OF, Direction.BOTH)) {
+            basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
+            return true;
+        }
+        return false;
     }
 
     private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
@@ -244,6 +283,17 @@ public class NubBuilder implements Runnable {
 
                 } else {
                     LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
+                }
+
+                if (nub != null) {
+                    // remember all source usage key to nub id mappings per dataset
+                    src2NubKey.put(u.key, nub.node.getId());
+                    if (u.originalNameKey != null) {
+                        // remember basionym relation.
+                        // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
+                        // we will process all basionyms at the end of each source dataset
+                        basionymRels.put(nub.node.getId(), u.originalNameKey);
+                    }
                 }
             } else {
                 LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);

@@ -14,6 +14,7 @@ import org.gbif.checklistbank.postgres.TabMapperBase;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.UUID;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
@@ -46,22 +47,26 @@ import org.slf4j.LoggerFactory;
 public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(UsageIteratorNeo.class);
 
-    protected final NubSource source;
+    protected final UUID datasetKey;
+    protected final String datasetTitle;
     protected Node root;
     private boolean init = false;
     private UsageDao dao;
 
     /**
      * @param memory in megabytes to be used for a pure in memory storage. Negative or zero values create a persistent dao
+     * @param datasetKey
+     * @param datasetTitle
      */
-    public UsageIteratorNeo(NubSource source, int memory) throws Exception {
-        this.source = source;
+    public UsageIteratorNeo(int memory, UUID datasetKey, String datasetTitle) {
+        this.datasetKey = datasetKey;
+        this.datasetTitle = datasetTitle;
         if (memory > 0) {
             dao = UsageDao.temporaryDao(memory);
         } else {
             NeoConfiguration cfg = new NeoConfiguration();
             cfg.neoRepository = Files.createTempDir();
-            dao = UsageDao.persistentDao(cfg, source.key, new MetricRegistry("sourcedb"), true);
+            dao = UsageDao.persistentDao(cfg, datasetKey, new MetricRegistry("sourcedb"), true);
         }
     }
 
@@ -110,7 +115,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
     public CloseableIterator<SrcUsage> iterator() {
         if (!init) {
             try (NeoUsageWriter writer = new NeoUsageWriter(dao)) {
-                LOG.info("Start loading source data from {} into neo", source.name);
+                LOG.info("Start loading source data from {} into neo", datasetTitle);
                 initNeo(writer);
             } catch (Exception e) {
                 Throwables.propagate(e);

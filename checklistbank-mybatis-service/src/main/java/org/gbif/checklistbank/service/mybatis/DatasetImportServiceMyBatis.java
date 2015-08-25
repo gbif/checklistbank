@@ -15,6 +15,7 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.concurrent.NamedThreadFactory;
 import org.gbif.checklistbank.model.NameUsageWritable;
@@ -43,6 +44,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -419,7 +421,20 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
         nubRelMapper.deleteByDataset(datasetKey);
         for (Map.Entry<Integer, Integer> entry : relations.entrySet()) {
-            nubRelMapper.insert(datasetKey, entry.getKey(), entry.getValue());
+            Set<NameUsageIssue> issues = nameUsageMapper.getIssues(entry.getKey()).getIssues();
+            if (entry.getValue() == null) {
+                // no match, add issue if not existing yet
+                if (!issues.contains(NameUsageIssue.BACKBONE_MATCH_NONE)) {
+                    issues.add(NameUsageIssue.BACKBONE_MATCH_NONE);
+                    nameUsageMapper.updateIssues(entry.getKey(), issues);
+                }
+
+            } else {
+                if (issues.remove(NameUsageIssue.BACKBONE_MATCH_NONE) || issues.remove(NameUsageIssue.BACKBONE_MATCH_FUZZY)) {
+                    nameUsageMapper.updateIssues(entry.getKey(), issues);
+                }
+                nubRelMapper.insert(datasetKey, entry.getKey(), entry.getValue());
+            }
         }
     }
 

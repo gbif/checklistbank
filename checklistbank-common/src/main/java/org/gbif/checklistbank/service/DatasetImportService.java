@@ -29,12 +29,15 @@ public interface DatasetImportService {
     void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey);
 
     /**
-     * Delete all existing nub relations and then batch insert new ones from the passed iterator.
+     * Delete all existing nub relations and then batch insert new ones from the passed map.
+     * All dataset usages should be covered by the passed map and impossible nub matches should have a null value.
+     * This will lead to NameUsageIssue.BACKBONE_MATCH_NONE being added to the usages issue set.
      *
      * @param datasetKey the datasource to map to the nub
-     * @param relations  map from source usage id to a nub usage id for all usages in a dataset
+     * @param relations  map from source usage id to a nub usage id for all usages in a dataset. Values can be null to indicate a NameUsageIssue.BACKBONE_MATCH_NONE
      */
     void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations);
+
 
     /**
      * Remove entire dataset from checklistbank

@@ -11,8 +11,14 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.nub.ParentStack;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
+import org.gbif.checklistbank.nub.lookup.LookupUsage;
+import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.nub.source.ClbUsageIteratorNeo;
+import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
@@ -33,8 +39,10 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.Timer;
@@ -53,6 +61,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     private MessageListener listener;
     private MessagePublisher publisher;
     private IdLookup nubLookup;
+    private final DatasetImportService importService;
     private final DatasetService datasetService;
     private final NetworkService networkService;
     private final MetricRegistry registry = new MetricRegistry("matcher");
@@ -61,9 +70,13 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     public NubChangedService(NubChangedConfiguration configuration) {
         this.cfg = configuration;
         registry.meter(MATCH_METER);
+
         Injector regInj = cfg.registry.createRegistryInjector();
         datasetService = regInj.getInstance(DatasetService.class);
         networkService = regInj.getInstance(NetworkService.class);
+
+        Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule());
+        importService = clbInj.getInstance(DatasetImportService.class);
     }
 
     @Override
@@ -98,14 +111,17 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
             LOG.error("Failed to load backbone IdLookup", e);
         }
 
+        int counter = 0;
         for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
             try {
                 updateDataset(d);
+                counter++;
             } catch (Exception e) {
                 LOG.error("Failed to rematch checklist {} {}", d.getKey(), d.getTitle());
             }
         }
         context.stop();
+        LOG.info("Updated all nub relations for all {} checklists", counter);
     }
 
     private void updateBackboneDataset(BackboneChangedMessage msg) {
@@ -171,9 +187,32 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
      * Updates a datasets nub matches.
      * Uses the internal Lookup to generate a complete id map and then does postgres writes in a separate thread ?!
      */
-    private void updateDataset(Dataset d) {
+    private void updateDataset(Dataset d) throws Exception {
         LOG.info("Rematch checklist {} {} to changed backbone", d.getKey(), d.getTitle());
-        // TODO: use idlookup and write to pg...
+        Map<Integer, Integer> relations = Maps.newHashMap();
+        ClbUsageIteratorNeo iter = new ClbUsageIteratorNeo(cfg.clb, d.getKey(), d.getTitle());
+        NubUsage unknown = new NubUsage();
+        unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
+        unknown.kingdom = Kingdom.INCERTAE_SEDIS;
+        // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
+        ParentStack parents = new ParentStack(unknown);
+        for (SrcUsage u : iter) {
+            parents.add(u);
+            LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
+            if (match != null) {
+                // add to relations
+                relations.put(u.key, match.getKey());
+                // store current kingdom in parent stack for further nub lookups of children
+                NubUsage nub = new NubUsage();
+                nub.kingdom = match.getKingdom();
+                parents.put(nub);
+            } else {
+                // also store no matches as nulls so we can flag an issue
+                relations.put(u.key, null);
+            }
+        }
+        LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
+        importService.insertNubRelations(d.getKey(), relations);
     }
 
     @Override

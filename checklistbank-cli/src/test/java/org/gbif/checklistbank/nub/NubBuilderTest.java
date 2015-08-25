@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.Origin;
@@ -107,6 +108,28 @@ public class NubBuilderTest {
     @Test
     @Ignore("TODO: write test based on IPNI basionyms")
     public void testMergeBasionymGroup() throws Exception {
+    }
+
+    /**
+     * Make sure explicit basionym i.e. original name usage relations make it into the backbone.
+     * Dataset 21 contains a conflicting basionym for Martes martes, make sure we use the preferred source dataset 20.
+     */
+    @Test
+    public void testExplicitBasionyms() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(20, 21);
+        build(src);
+
+        assertEquals(1, IteratorUtil.asList(getCanonical("Mustela martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)).size());
+        assertEquals(1, IteratorUtil.asList(getCanonical("Martes martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)).size());
+
+        NameUsage u = getUsage(getCanonical("Martes martes", Rank.SPECIES).node);
+        assertEquals("Mustela martes Linnaeus, 1758", u.getBasionym());
+
+        u = getUsage(getCanonical("Martes markusis", Rank.SPECIES).node);
+        assertEquals("Cellophania markusa Döring, 2001", u.getBasionym());
+
+        u = getUsage(getCanonical("Cellophania markusa", Rank.SPECIES).node);
+        assertNull(u.getBasionym());
     }
 
     /**
@@ -661,6 +684,10 @@ public class NubBuilderTest {
             usages.add(get(n));
         }
         return usages;
+    }
+
+    public NameUsage getUsage(Node n) {
+        return dao.readUsage(n, true);
     }
 
     private List<NubUsage> listScientific(String sciname) {

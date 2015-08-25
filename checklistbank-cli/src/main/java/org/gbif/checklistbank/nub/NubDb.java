@@ -40,8 +40,6 @@ public class NubDb {
     protected final UsageDao dao;
     // activity counter to manage transaction commits
     private int counter = 0;
-    // number of created nodes
-    private int nodes = 0;
 
     private NubDb(UsageDao dao, int batchSize, boolean initialize) {
         this.batchSize = batchSize;
@@ -85,6 +83,20 @@ public class NubDb {
             p = child.node.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child.node);
         }
         return node2usage(p);
+    }
+
+    /**
+     * @return the neo node with the given node id
+     */
+    public Node getNode(long id) {
+        return dao.getNeo().getNodeById(id);
+    }
+
+    /**
+     * @return the nub usage with the given neo node id
+     */
+    public NubUsage get(long id) {
+        return node2usage(getNode(id));
     }
 
     /**
@@ -244,7 +256,6 @@ public class NubDb {
      */
     private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
         nub.node = dao.createTaxon();
-        nodes++;
         if (parent == null) {
             nub.node.addLabel(Labels.ROOT);
         } else {
@@ -265,7 +276,6 @@ public class NubDb {
      */
     public void delete(NubUsage nub) {
         dao.delete(nub);
-        nodes--;
     }
 
     /**
