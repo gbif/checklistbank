@@ -286,8 +286,10 @@ public class NubBuilder implements Runnable {
                 }
 
                 if (nub != null) {
-                    // remember all source usage key to nub id mappings per dataset
-                    src2NubKey.put(u.key, nub.node.getId());
+                    if (u.key != null) {
+                        // remember all original source usage key to nub id mappings per dataset
+                        src2NubKey.put(u.key, nub.node.getId());
+                    }
                     if (u.originalNameKey != null) {
                         // remember basionym relation.
                         // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
