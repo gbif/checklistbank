@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +31,7 @@ public class AuthorComparator {
     private static final Logger LOG = LoggerFactory.getLogger(AuthorComparator.class);
 
     private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EX = Pattern.compile(" ex .+$", Pattern.CASE_INSENSITIVE);
     private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
     private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
     private final Map<String, String> authorMap = Maps.newHashMap();
@@ -75,6 +78,9 @@ public class AuthorComparator {
         // manually normalize characters not dealt with by the java Normalizer
         x = StringUtils.replaceChars(x, "ø", "o");
 
+        // remove ex authors
+        x = EX.matcher(x).replaceAll("");
+
         // use java unicode normalizer to remove accents and punctuation
         x = Normalizer.normalize(x, Normalizer.Form.NFD);
         x = x.replaceAll("[^\\p{ASCII}]", "");
@@ -113,6 +119,30 @@ public class AuthorComparator {
             parseAuthorship(n2);
         }
         return compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
+    }
+
+    /**
+     * Compares two sets of author & year for equality.
+     * This is more strict than the normal compare method and requires both authors and year to match.
+     * Author matching is still done fuzzily
+     * @param author1
+     * @param year1
+     * @param author2
+     * @param year2
+     * @return true if both sets match
+     */
+    public boolean equals(String author1, @Nullable String year1, String author2, @Nullable String year2) {
+        // strictly compare authors first
+        author1 = normalize(author1);
+        author2 = normalize(author2);
+        if (author1 == null || !author1.equals(author2)) {
+            return false;
+        }
+        // now also compare the year
+        if (year1 == null && year2 == null) {
+            return true;
+        }
+        return Equality.EQUAL == compareYear(year1, year2);
     }
 
     /**

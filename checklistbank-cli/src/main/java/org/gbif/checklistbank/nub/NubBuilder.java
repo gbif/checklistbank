@@ -3,10 +3,13 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
+import org.gbif.checklistbank.authorship.BasionymGroup;
+import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.model.Equality;
@@ -14,6 +17,7 @@ import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
@@ -26,6 +30,7 @@ import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +41,7 @@ import com.carrotsearch.hppc.IntLongMap;
 import com.carrotsearch.hppc.LongIntHashMap;
 import com.carrotsearch.hppc.LongIntMap;
 import com.carrotsearch.hppc.cursors.LongIntCursor;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -43,6 +49,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -118,8 +125,9 @@ public class NubBuilder implements Runnable {
             addKingdoms();
             parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
             addDatasets();
-            setEmptyGroupsDoubtful();
+            detectBasionyms();
             groupByOriginalName();
+            setEmptyGroupsDoubtful();
             addExtensionData();
             assignUsageKeys();
             db.dao.convertNubUsages();
@@ -131,6 +139,65 @@ public class NubBuilder implements Runnable {
             if (closeDao) {
                 db.dao.close();
                 LOG.info("DAO closed");
+            }
+        }
+    }
+
+    /**
+     * Goes thru all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
+     */
+    private void detectBasionyms() {
+        final BasionymSorter basSorter = new BasionymSorter(authorComparator);
+        for (Node n : IteratorUtil.loop(db.dao.allFamilies())) {
+            NubUsage fam = db.dao.readNub(n);
+            if (!fam.status.isSynonym()) {
+                Map<String, List<NubUsage>> epithets = Maps.newHashMap();
+                LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
+                // key all names by their epithet
+                for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
+                    NubUsage nub = db.node2usage(c);
+                    // ignore all supra specific names
+                    if (nub.rank.isSpeciesOrBelow()) {
+                        String epithet = nub.parsedName.getInfraSpecificEpithet() == null ?
+                                nub.parsedName.getSpecificEpithet() : nub.parsedName.getInfraSpecificEpithet();
+                        if (!epithets.containsKey(epithet)) {
+                            epithets.put(epithet, Lists.newArrayList(nub));
+                        } else {
+                            epithets.get(epithet).add(nub);
+                        }
+                    }
+                }
+                LOG.debug("{} distinct epithets found in family {}", epithets.size(), fam.parsedName.canonicalNameComplete());
+                // now compare authorships for each epithet group
+                for (Map.Entry<String, List<NubUsage>> epithetGroup : epithets.entrySet()) {
+
+                    Collection<BasionymGroup<NubUsage>> groups = basSorter.groupBasionyms(epithetGroup.getValue(), new Function<NubUsage, ParsedName>() {
+                        @Override
+                        public ParsedName apply(NubUsage nub) {
+                            return nub.parsedName;
+                        }
+                    });
+                    // go thru groups and create basionym relations where needed
+                    for (BasionymGroup<NubUsage> group : groups) {
+                        // we only need to process groups that contain recombinations
+                        if (group.hasRecombinations()) {
+                            // if we have a basionym creating relations is straight forward
+                            if (!group.hasBasionym() && group.getRecombinations().size() > 1) {
+                                // we need to create a placeholder basionym to group the 2 or more recombinations
+                                //TODO: implement
+                                throw new NotImplementedException("Placeholder basionyms not implemented");
+                            }
+                            // create basionym relations
+                            if (group.hasBasionym()) {
+                                for (NubUsage u : group.getRecombinations()) {
+                                    if (createBasionymRelationIfNotExisting(group.getBasionym().node, u.node)) {
+                                        u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -214,6 +281,10 @@ public class NubBuilder implements Runnable {
             LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
             sourceUsageCounter++;
             parents.add(u);
+            // replace accepted taxa with doubtful ones for all nomenclators
+            if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                u.status = TaxonomicStatus.DOUBTFUL;
+            }
             try {
                 NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
                 if (nub != null) {
@@ -472,7 +543,7 @@ public class NubBuilder implements Runnable {
     }
 
     private void groupByOriginalName() {
-        LOG.info("Start grouping by original names");
+        LOG.info("Start grouping by basionyms");
     }
 
     /**

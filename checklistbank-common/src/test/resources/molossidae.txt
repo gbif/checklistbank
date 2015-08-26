@@ -1,0 +1,351 @@
+# abrasus
+Molossops abrasus (Temminck, 1827)
+Cynomops abrasus Temminck, 1827
+Cynomops abrasus subsp. abrasus
+
+# aegyptiaca
+Tadarida aegyptiaca (E. Geoffroy, 1818)
+Tadarida aegyptiaca subsp. aegyptiaca
+
+# aequatorianus
+Cabreramops aequatorianus
+Molossops aequatorianus Cabrera, 1917
+
+# albatus
+Myopterus albatus Thomas, 1915
+Myopterus daubentonii subsp. albatus Thomas, 1915
+
+# aloysiisabaudiae
+Chaerephon aloysiisabaudiae (Festa, 1907)
+Tadarida aloysiisabaudiae (Festa, 1907)
+Chaerophon aloysiisabaudiae
+
+# ansorgei
+Chaerephon ansorgei (Thomas, 1913)
+Tadarida ansorgei (Thomas, 1913)
+Chaerophon ansorgei
+
+# auripendulus
+Eumops auripendulus (Shaw, 1800)
+Eumops auripendulus subsp. auripendulus
+
+# beccarii
+Mormopterus beccarii Peters, 1881
+Mormopterus beccarii subsp. beccarii Peters, 1881
+
+# bemmeleni
+Chaerephon bemmeleni (Jentink, 1879)
+Tadarida bemmeleni (Jentink, 1879)
+Chaerephon bemmeleni subsp. bemmeleni
+Chaerophon bemmeleni
+
+# bivittata
+Chaerephon bivittata (Heuglin, 1861)
+Tadarida bivittata (Heuglin, 1861)
+Chaerophon bivittata
+
+# bonariensis
+Eumops bonariensis (Peters, 1874)
+Eumops bonariensis subsp. bonariensis
+
+# bondae
+Molossus bondae J. A. Allen, 1904
+Molossus currentium subsp. bondae J. A. Allen, 1904
+
+# brachypterus
+Mops brachypterus (Peters, 1852)
+Mops brachypterus subsp. brachypterus
+
+# brasiliensis
+Tadarida brasiliensis (I. Geoffroy, 1824)
+Tadarida brasiliensis subsp. brasiliensis I. Geoffroy, 1824
+
+# bregullae
+Tadarida bregullae (Felten, 1964)
+Chaerephon bregullae Felten, 1964
+
+# centralis
+Promops centralis Thomas, 1915
+Promops centralis subsp. centralis Thomas, 1915
+
+# chapini
+Tadarida chapini (J.A. Allen, 1917)
+Chaerephon chapini J. A. Allen, 1917
+Chaerephon chapini subsp. chapini
+Chaerophon chapini
+
+# condylurus
+Mops condylurus (A. Smith, 1833)
+Mops condylurus subsp. condylurus
+
+# currentium
+Molossus currentium Thomas, 1901
+Molossus currentium subsp. currentium
+
+# daubentonii
+Myopterus daubentonii Desmarest, 1820
+Myopterus daubentonii subsp. daubentonii Desmarest, 1820
+
+# demonstrator
+Mops demonstrator (Thomas, 1903)
+Tadarida demonstrator (Thomas, 1903)
+
+# floridanus
+Eumops floridanus G.M. Allen, 1932
+Eumops glaucinus subsp. floridanus G. M. Allen, 1932
+
+# fulminans
+Tadarida fulminans (Thomas, 1903)
+Tadarida fulminans subsp. fulminans Thomas, 1903
+
+# gallagheri
+Chaerephon gallagheri (Harrison, 1975)
+Chaerophon gallagheri
+Tadarida gallagheri Harrison, 1975
+
+# glaucinus
+Eumops glaucinus (Wagner, 1843)
+Eumops glaucinus subsp. glaucinus Wagner, 1843
+
+# greenhalli
+Molossops greenhalli (Goodwin, 1958)
+Cynomops greenhalli Goodwin, 1958
+
+# haagneri
+Sauromys petrophilis subsp. haagneri
+Sauromys petrophilus subsp. haagneri Roberts, 1917
+
+# helveticus
+Mormopterus (Hydromops) helveticus
+Nyctinomus helveticus
+
+# insularis
+Chaerephon plicatus subsp. insularis Phillips, 1932
+Tadarida plicata subsp. insularis
+
+# jobensis
+Chaerephon jobensis (Miller, 1902)
+Tadarida jobensis (Miller, 1902)
+Chaerephon jobensis subsp. jobensis
+Chaerophon jobensis
+Nyctinomus jobensis Miller, 1902
+
+# johorensis
+Chaerephon johorensis (Dobson, 1873)
+Tadarida johorensis (Dobson, 1873)
+Chaerophon johorensis
+
+# lancasteri
+Chaerephon chapini subsp. lancasteri Hayman, 1938
+Chaerephon lancasteri Hayman, 1938
+
+# laticaudatus
+Nyctinomops laticaudatus (E. Geoffroy, 1805)
+Nyctinomops laticaudatus subsp. laticaudatus
+
+# leonis
+Mops brachypterus subsp. leonis Thomas, 1908
+Mops leonis Thomas, 1908
+
+# leucogaster
+Tadarida leucogaster (Grandidier, 1869)
+Chaerephon leucogaster A. Grandidier, 1870
+
+# leucostigma
+Tadarida leucostigma (G.M. Allen, 1918)
+Mops leucostigma G. M. Allen, 1918
+
+# loriae
+Mormopterus loriae Thomas, 1897
+Mormopterus loriae subsp. loriae
+
+# luzonus
+Chaerephon luzonus (Hill, 1961)
+Chaerephon plicatus subsp. luzonus Hollister, 1913
+
+# major
+Chaerephon major (Trouessart, 1897)
+Tadarida major (Trouessart, 1897)
+Chaerophon major
+Eumops auripendulus subsp. major Eger, 1974
+
+# martiensseni
+Otomops martiensseni (Matschie, 1897)
+Otomops martiensseni subsp. martiensseni Matschie, 1897
+
+# mastersoni
+Tadarida fulminans subsp. mastersoni Roberts, 1946
+Tadarida mastersoni Roberts, 1946
+
+# mattogrossensis
+Molossops mattogrossensis Vieira, 1942
+Neomplatymops mattogrossensis
+
+# midas
+Mops midas (Sundevall, 1843)
+Tadarida midas (Sundevall, 1843)
+Mops midas subsp. midas
+
+# molossus
+Molossus molossus (Pallas, 1766)
+Molossus molossus subsp. molossus
+
+# mops
+Mops mops (Blainville, 1840)
+Tadarida mops de Blainville, 1840
+
+# nasutus
+Promops nasutus (Spix, 1823)
+Promops nasutus subsp. nasutus
+
+# niangarae
+Tadarida niangarae (J.A. Allen, 1917)
+Mops niangarae J. A. Allen, 1917
+
+# nigeriae
+Tadarida nigeriae (Thomas, 1913)
+Chaerephon nigeriae Thomas, 1913
+Chaerephon nigeriae subsp. nigeriae
+Chaerophon nigeriae
+
+# niveiventer
+Tadarida niveiventer (Cabrera & Ruxton, 1926)
+Mops angolensis subsp. niveiventer
+Mops niveiventer Cabrera & Ruxton, 1926
+
+# norfolkensis
+Mormopterus norfolkensis (Gray, 1840)
+Molossus norfolkensis J.E. Gray, 1839
+
+# orientis
+Mops condylurus subsp. orientis G. M. Allen & Loveridge, 1942
+Mops orientis G.M. Allen & Loveridge, 1942
+
+# osborni
+Mops condylurus subsp. osborni J. A. Allen, 1917
+Mops osborni J.A. Allen, 1917
+
+# patagonicus
+Eumops patagonicus Thomas, 1924
+Eumops patagonicus subsp. patagonicus
+
+# perotis
+Eumops perotis (Schinz, 1821)
+Eumops perotis subsp. perotis
+
+# petersoni
+Mops petersoni (El Rayah, 1981)
+Tadarida petersoni El-Rayah, 1981
+
+# petrophilus
+Mormopterus petrophilus (Roberts, 1917)
+Sauromys petrophilus Roberts, 1917
+Sauromys petrophilus subsp. petrophilus
+
+# planiceps
+Mormopterus planiceps (Peters, 1866)
+Nyctinomus planiceps Peters, 1866
+
+# planirostris
+Molossops planirostris (Peters, 1866)
+Cynomops planirostris Peters, 1865 "1866"
+
+# plicata
+Chaerephon plicata (Buchanan, 1800)
+Tadarida plicata (Buchanan, 1800)
+Chaerophon plicata
+
+# plicatus
+Chaerephon plicatus Buchannan, 1800
+Chaerephon plicatus subsp. plicatus
+Vespertilio plicatus Buchannan, 1800
+
+# pumila
+Chaerephon pumila (Cretzschmar, 1830)
+Tadarida pumila (Cretzschmar, 1826)
+Chaerophon pumila
+
+# russata
+Tadarida russata (J.A. Allen, 1917)
+Chaerephon russata J. A. Allen, 1917
+Chaerophon russata
+
+# sarasinorum
+Mops sarasinorum (A. Meyer, 1899)
+Tadarida sarasinorum (Meyer, 1899)
+Mops sarasinorum subsp. sarasinorum
+
+# setiger
+Mormopterus setiger Peters, 1878
+Platymops setiger Peters, 1878
+Platymops setiger subsp. setiger
+
+# shortridgei
+Chaerephon shortridgei Thomas, 1926
+Tadarida shortridgei Thomas, 1926
+
+# sinaloae
+Molossus sinaloae J. A. Allen, 1906
+Molossus sinaloae subsp. sinaloae J. A. Allen, 1906
+
+# solomonis
+Chaerephon solomonis Troughton, 1931
+Tadarida solomonis Troughton, 1931
+
+# spillmani
+Chaerephon nigeriae subsp. spillmani Monard, 1933
+Tadarida nigeriae subsp. spillmani
+
+# spurrelli
+Mops spurrelli (Dollman, 1911)
+Tadarida spurrelli (Dollman, 1911)
+Xiphonycteris spurrelli Dollman, 1911
+
+# stehlini
+Mormopterus (Hydromops) stehlini
+Nyctinomus stehlini
+
+# temminckii
+Molossops temminckii (Burmeister, 1854)
+Molossops temminckii subsp. temminckii
+
+# teniotis
+Tadarida teniotis (Rafinesque, 1814)
+Tadarida teniotis subsp. teniotis
+
+# thersites
+Mops thersites (Thomas, 1903)
+Tadarida thersites (Thomas, 1903)
+
+# tomensis
+Chaerephon tomensis Juste & Ibañez, 1993
+Chaerophon tomensis
+Tadarida tomensis Juste & Ibáñez, 1993
+
+# torquatus
+Cheiromeles torquatus Horsfield, 1824
+Cheiromeles torquatus subsp. torquatus
+
+# trevori
+Tadarida trevori (J.A. Allen, 1917)
+Mops trevori J. A. Allen, 1917
+
+# umbratus
+Sauromys petrophilis subsp. umbratus
+Sauromys petrophilus subsp. umbratus Shortridge & Carter, 1938
+
+# underwoodi
+Eumops underwoodi Goodwin, 1940
+Eumops underwoodi subsp. underwoodi Goodwin, 1940
+
+# ventralis
+Tadarida ventralis (Heuglin, 1861)
+Tadarida ventralis subsp. ventralis
+
+# wonderi
+Mops condylurus subsp. wonderi Sanbron, 1936
+Mops wonderi Sanbron, 1936
+
+# wroughtoni
+Otomops wroughtoni (Thomas, 1913)
+Nyctinomus wroughtoni Thomas, 1913

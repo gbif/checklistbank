@@ -26,6 +26,7 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
@@ -484,6 +485,10 @@ public class UsageDao {
 
     public ResourceIterator<Node> allTaxa(){
         return getNeo().findNodes(Labels.TAXON);
+    }
+
+    public ResourceIterator<Node> allFamilies(){
+        throw new NotImplementedException("tbd");
     }
 
     private void putIfNotNull(Map<String, Object> props, String property, String value) {

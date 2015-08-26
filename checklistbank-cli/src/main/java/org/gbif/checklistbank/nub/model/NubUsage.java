@@ -2,11 +2,13 @@ package org.gbif.checklistbank.nub.model;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +31,7 @@ public class NubUsage {
     public Kingdom kingdom;
     public List<Integer> sourceIds = Lists.newArrayList();
     public Set<String> authors = Sets.newHashSet();
+    public Set<NameUsageIssue> issues = EnumSet.noneOf(NameUsageIssue.class);
 
     public NubUsage() {
     }
@@ -49,7 +52,4 @@ public class NubUsage {
         }
     }
 
-//    public int getKey() {
-//        return (int) node.getId();
-//    }
 }

@@ -93,13 +93,6 @@ public class NubDb {
     }
 
     /**
-     * @return the nub usage with the given neo node id
-     */
-    public NubUsage get(long id) {
-        return node2usage(getNode(id));
-    }
-
-    /**
      * Returns the matching accepted nub usage for that canonical name at the given rank.
      */
     public NubUsage findNubUsage(String canonical, Rank rank) {
@@ -219,7 +212,7 @@ public class NubDb {
         }
     }
 
-    private NubUsage node2usage(Node n) {
+    public NubUsage node2usage(Node n) {
         if (n == null) return null;
         NubUsage nub = dao.readNub(n);
         nub.node = n;
