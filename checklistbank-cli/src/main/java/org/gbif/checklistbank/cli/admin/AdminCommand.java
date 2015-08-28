@@ -105,12 +105,14 @@ public class AdminCommand extends BaseCommand {
                     return datasetService.get(key);
                 }
             });
-        } else {
+        } else if (cfg.operation != AdminOperation.REPARSE) {
             datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
         }
         for (Dataset d : datasets)
             try {
-                LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+                if (cfg.operation != AdminOperation.REPARSE) {
+                    LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+                }
                 switch (cfg.operation) {
                     case CLEANUP:
                         zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
