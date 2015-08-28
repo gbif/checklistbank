@@ -13,6 +13,7 @@ import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -34,6 +35,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntLongHashMap;
@@ -45,11 +48,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -59,6 +63,7 @@ import org.slf4j.LoggerFactory;
 
 public class NubBuilder implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
+    private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
     private static final Set<Rank> NUB_RANKS;
 
     static {
@@ -85,6 +90,7 @@ public class NubBuilder implements Runnable {
     private final int newIdStart;
     private final IntLongMap src2NubKey = new IntLongHashMap();
     private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
+    private final Map<UUID, Integer> priorities = Maps.newHashMap();
 
     private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir, boolean closeDao) {
         db = NubDb.create(dao, 1000);
@@ -125,22 +131,30 @@ public class NubBuilder implements Runnable {
             addKingdoms();
             parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
             addDatasets();
-            detectBasionyms();
-            groupByOriginalName();
+            groupByBasionym();
+            verifyAcceptedSpecies();
             setEmptyGroupsDoubtful();
             addExtensionData();
             assignUsageKeys();
             db.dao.convertNubUsages();
             builtUsageMetrics();
             LOG.info("New backbone built");
-        } catch (Exception e) {
-            LOG.error("Backbone built failed", e);
         } finally {
             if (closeDao) {
                 db.dao.close();
                 LOG.info("DAO closed");
             }
         }
+    }
+
+    /**
+     * Goes through all accepted species and infraspecies and makes sure the name matches the genus, species classification.
+     * For example an accepted species Picea alba with a parent genus of Abies is taxonomic nonsense.
+     * Badly classified names are assigned the doubtful status and an issue is flagged
+     */
+    private void verifyAcceptedSpecies() {
+
+
     }
 
     /**
@@ -182,15 +196,18 @@ public class NubBuilder implements Runnable {
                         // we only need to process groups that contain recombinations
                         if (group.hasRecombinations()) {
                             // if we have a basionym creating relations is straight forward
-                            if (!group.hasBasionym() && group.getRecombinations().size() > 1) {
+                            Node basionym = null;
+                            if (group.hasBasionym()) {
+                                basionym = group.getBasionym().node;
+
+                            } else if (group.getRecombinations().size() > 1) {
                                 // we need to create a placeholder basionym to group the 2 or more recombinations
-                                //TODO: implement
-                                throw new NotImplementedException("Placeholder basionyms not implemented");
+                                basionym = db.createPlaceholderNode();
                             }
                             // create basionym relations
-                            if (group.hasBasionym()) {
+                            if (basionym != null) {
                                 for (NubUsage u : group.getRecombinations()) {
-                                    if (createBasionymRelationIfNotExisting(group.getBasionym().node, u.node)) {
+                                    if (createBasionymRelationIfNotExisting(basionym, u.node)) {
                                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
                                     }
                                 }
@@ -266,6 +283,7 @@ public class NubBuilder implements Runnable {
     private void addDataset(NubSource source) {
         LOG.info("Adding source {}", source.name);
         currSrc = source;
+        priorities.put(source.key, source.priority);
         // prepare set of allowed ranks for this source
         allowedRanks.clear();
         for (Rank r : Rank.values()) {
@@ -321,6 +339,7 @@ public class NubBuilder implements Runnable {
     private boolean createBasionymRelationIfNotExisting(Node basionym, Node n) {
         if (!n.hasRelationship(RelType.BASIONYM_OF, Direction.BOTH)) {
             basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
+            basionym.addLabel(Labels.BASIONYM);
             return true;
         }
         return false;
@@ -542,8 +561,78 @@ public class NubBuilder implements Runnable {
         return false;
     }
 
-    private void groupByOriginalName() {
+    private void groupByBasionym() {
         LOG.info("Start grouping by basionyms");
+        try {
+            db.openTx();
+            detectBasionyms();
+            // assert we only have one accepted taxon for each group!
+            for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+                List<NubUsage> group = db.listBasionymGroup(bas);
+                List<NubUsage> accepted = Lists.newArrayList();
+                for (NubUsage u : group) {
+                    if (!u.status.isSynonym()) {
+                        accepted.add(u);
+                    }
+                }
+                if (accepted.size() > 1) {
+                    LOG.info("Multiple accepted taxa in same basionym group: {}", names(accepted));
+                    // sort accepted taxa by source dataset priority, placing doubtful names last
+                    accepted = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
+                        @Nullable
+                        @Override
+                        public Integer apply(@Nullable NubUsage u) {
+                            Integer score = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
+                            return score + priorities.get(u.datasetKey);
+                        }
+                    }).sortedCopy(accepted);
+                    // we keep the first accepted with the highest priority and make all others synoynms
+                    NubUsage acc = accepted.remove(0);
+                    for (NubUsage u : accepted) {
+                        //u.status = TaxonomicStatus.DOUBTFUL;
+                        convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM);
+                    }
+                }
+            }
+            // finally remove placeholder neo nodes.
+            db.removePlaceholderNodes();
+        } finally {
+            db.closeTx();
+        }
+    }
+
+    /**
+     * @param u the accepted usage to convert
+     * @param acc the accepted taxon the converted synonym should point to
+     * @deprecated converting an accepted name to a synonym has all sorts of side effect we so far do not control. See http://dev.gbif.org/issues/browse/POR-398
+     */
+    @Deprecated
+    private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status) {
+        LOG.info("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
+        // change status
+        u.status = status;
+        // change parent relation of all children
+        //TODO: this is more complex than it seems.
+        // Relinked children might cause them to be in a different genus which requires a recombination
+        db.assignParentToChildren(u.node, acc);
+        // add synonymOf relation
+        u.node.addLabel(Labels.SYNONYM);
+        u.node.removeLabel(Labels.ROOT);
+        u.node.createRelationshipTo(acc.node, RelType.SYNONYM_OF);
+        // flag issue
+        u.issues.add(NameUsageIssue.STATUS_DERIVED);
+        // usage was changed, update it in kvp store
+        db.store(u);
+    }
+
+    private String names(Collection<NubUsage> usages) {
+        return SEMICOLON_JOIN.join(Iterables.transform(usages, new Function<NubUsage, String>() {
+            @Nullable
+            @Override
+            public String apply(NubUsage u) {
+                return u.parsedName.fullName();
+            }
+        }));
     }
 
     /**

@@ -89,8 +89,8 @@
         <metainf-services.version>1.5</metainf-services.version>
         <metrics.version>3.0.0-BETA1</metrics.version>
         <mockito.version>1.9.5</mockito.version>
-        <mybatis.version>3.2.8</mybatis.version>
-        <mybatis-guice.version>3.6</mybatis-guice.version>
+        <mybatis.version>3.3.0</mybatis.version>
+        <mybatis-guice.version>3.7</mybatis-guice.version>
         <neo4j.version>2.2.3</neo4j.version>
         <postgresql.version>9.2-1003-jdbc4</postgresql.version>
         <powermock-mockito.version>1.5.4</powermock-mockito.version>

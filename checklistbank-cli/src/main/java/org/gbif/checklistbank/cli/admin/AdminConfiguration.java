@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
@@ -34,6 +35,11 @@ public class AdminConfiguration {
     @NotNull
     @Valid
     public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public ClbConfiguration clb = new ClbConfiguration();
 
     @ParametersDelegate
     @Valid

@@ -2,71 +2,96 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper">
 
-  <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
+    <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
     n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
     n.notho_type, n.rank_marker, n.nom_status, n.sensu, n.remarks,
     n.authors_parsed, n.authorship, n.year, n.bracket_authorship, n.bracket_year
   </sql>
 
-  <sql id="FROM">
+    <sql id="writeFields">scientific_name, canonical_name, type,
+      genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
+      notho_type, rank_marker, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
+      nom_status, sensu, remarks
+    </sql>
+
+    <sql id="writeValues">#{pn.scientificName}, #{canonicalName}, #{pn.type}::name_type,
+        #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
+        #{pn.notho}::name_part, #{pn.rankMarker}, #{pn.authorsParsed},
+        #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
+        #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks}
+    </sql>
+
+    <sql id="FROM">
     name n
   </sql>
 
-  <!--  A mapping to ParsedName, mostly auto mapped -->
-  <resultMap id="parsedNameResultMap" type="ParsedName" autoMapping="true">
-    <id property="key" column="id"/>
-    <result property="notho" column="notho_type"/>
-    <result property="rankMarker" column="rank_marker"/>
-  </resultMap>
+    <!--  A mapping to ParsedName, mostly auto mapped -->
+    <resultMap id="parsedNameResultMap" type="ParsedName" autoMapping="true">
+        <id property="key" column="id"/>
+        <result property="notho" column="notho_type"/>
+        <result property="rankMarker" column="rank_marker"/>
+    </resultMap>
 
 
-  <!--  Get ParsedName by primary key -->
-  <select id="get" parameterType="map" resultMap="parsedNameResultMap">
-    SELECT <include refid="SELECT"/>
-    FROM <include refid="FROM"/>
-    WHERE n.id=#{key}
-  </select>
+    <!--  Get ParsedName by primary key -->
+    <select id="get" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        WHERE n.id=#{key}
+    </select>
 
-  <select id="getByUsageKey" parameterType="map" resultMap="parsedNameResultMap">
-    SELECT <include refid="SELECT"/>
-    FROM <include refid="FROM"/>
+    <select id="getByUsageKey" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        JOIN name_usage u ON u.name_fk=n.id
+        WHERE u.id=#{key}
+    </select>
+
+    <select id="getByName" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        WHERE n.scientific_name=#{name}
+    </select>
+
+    <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
+        INSERT INTO name (<include refid="writeFields"/>)
+        VALUES (<include refid="writeValues"/>)
+    </insert>
+
+    <update id="update" parameterType="ParsedName" keyProperty="pn.key">
+        UPDATE name
+        SET (<include refid="writeFields"/>) = (<include refid="writeValues"/>)
+        WHERE id=#{pn.key}
+    </update>
+
+    <delete id="delete" parameterType="map">
+      DELETE FROM name
+      WHERE id=#{key}
+    </delete>
+
+    <!--  list parsed names per dataset, incl duplicate names -->
+    <select id="list" parameterType="map" resultMap="parsedNameResultMap">
+      SELECT
+        <include refid="SELECT"/>
+      FROM
+        <include refid="FROM"/>
       JOIN name_usage u ON u.name_fk=n.id
-    WHERE u.id=#{key}
-  </select>
+      WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
+      ORDER BY u.id
+        LIMIT #{page.limit}
+        OFFSET #{page.offset}
+    </select>
 
-  <select id="getByName" parameterType="map" resultMap="parsedNameResultMap">
-    SELECT <include refid="SELECT"/>
-    FROM <include refid="FROM"/>
-    WHERE n.scientific_name=#{name}
-  </select>
-
-  <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
-    INSERT INTO name (scientific_name, canonical_name, type,
-      genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
-      notho_type, rank_marker, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
-      nom_status, sensu, remarks)
-    VALUES (#{pn.scientificName}, #{canonicalName}, #{pn.type}::name_type,
-      #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
-      #{pn.notho}::name_part, #{pn.rankMarker}, #{pn.authorsParsed},
-      #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
-      #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks})
-  </insert>
-
-  <delete id="delete" parameterType="map">
-    DELETE FROM name
-    WHERE id=#{key}
-  </delete>
-
-  <!--  list parsed names per dataset, incl duplicate names -->
-  <select id="list" parameterType="map" resultMap="parsedNameResultMap">
-    SELECT <include refid="SELECT"/>
-    FROM <include refid="FROM"/>
-      JOIN name_usage u ON u.name_fk=n.id
-    WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
-    ORDER BY u.id
-    LIMIT #{page.limit}
-    OFFSET #{page.offset}
-  </select>
-
-
+    <select id="processNames" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+    </select>
 </mapper>

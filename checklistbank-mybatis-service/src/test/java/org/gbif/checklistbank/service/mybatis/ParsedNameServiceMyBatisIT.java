@@ -8,6 +8,8 @@ import org.gbif.checklistbank.service.ParsedNameService;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameService> {
 
     public ParsedNameServiceMyBatisIT() {
@@ -17,27 +19,33 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     @Test
     public void testCreateOrGet() throws Exception {
         ParsedName pn = service.createOrGet("Abies alba Mill.", null);
-        Assert.assertEquals("Abies alba Mill.", pn.getScientificName());
-        Assert.assertEquals("Abies alba", pn.canonicalName());
-        Assert.assertEquals("Abies", pn.getGenusOrAbove());
-        Assert.assertEquals("alba", pn.getSpecificEpithet());
-        Assert.assertEquals("Mill.", pn.getAuthorship());
+        assertEquals("Abies alba Mill.", pn.getScientificName());
+        assertEquals("Abies alba", pn.canonicalName());
+        assertEquals("Abies", pn.getGenusOrAbove());
+        assertEquals("alba", pn.getSpecificEpithet());
+        assertEquals("Mill.", pn.getAuthorship());
 
         pn = service.createOrGet("Abies sp.", null);
-        Assert.assertEquals("Abies sp.", pn.getScientificName());
-        Assert.assertEquals("Abies spec.", pn.canonicalName());
-        Assert.assertEquals("Abies", pn.getGenusOrAbove());
-        Assert.assertEquals("sp.", pn.getRankMarker());
-        Assert.assertEquals(Rank.SPECIES, pn.getRank());
+        assertEquals("Abies sp.", pn.getScientificName());
+        assertEquals("Abies spec.", pn.canonicalName());
+        assertEquals("Abies", pn.getGenusOrAbove());
+        assertEquals("sp.", pn.getRankMarker());
+        assertEquals(Rank.SPECIES, pn.getRank());
         Assert.assertNull(pn.getSpecificEpithet());
 
         pn = service.createOrGet("×Abies Mill.", null);
-        Assert.assertEquals("×Abies Mill.", pn.getScientificName());
-        Assert.assertEquals("Abies", pn.canonicalName());
-        Assert.assertEquals("Abies", pn.getGenusOrAbove());
+        assertEquals("×Abies Mill.", pn.getScientificName());
+        assertEquals("Abies", pn.canonicalName());
+        assertEquals("Abies", pn.getGenusOrAbove());
         Assert.assertNull(pn.getRankMarker());
         Assert.assertNull(pn.getRank());
         Assert.assertNull(pn.getSpecificEpithet());
-        Assert.assertEquals(NamePart.GENERIC, pn.getNotho());
+        assertEquals(NamePart.GENERIC, pn.getNotho());
     }
+
+    @Test
+    public void testReparse() throws Exception {
+        assertEquals(1150, service.reparseAll());
+    }
+
 }

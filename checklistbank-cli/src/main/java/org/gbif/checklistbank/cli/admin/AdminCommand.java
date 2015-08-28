@@ -11,6 +11,7 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
+import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -26,13 +27,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.MetaInfServices;
@@ -107,7 +108,7 @@ public class AdminCommand extends BaseCommand {
         } else {
             datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
         }
-        for (Dataset d : datasets) {
+        for (Dataset d : datasets)
             try {
                 LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
                 switch (cfg.operation) {
@@ -157,6 +158,8 @@ public class AdminCommand extends BaseCommand {
                         send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
                         break;
 
+                    case REPARSE:
+                        reparseNames();
                     default:
                         throw new UnsupportedOperationException();
                 }
@@ -164,7 +167,17 @@ public class AdminCommand extends BaseCommand {
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
-        }
+    }
+
+    /**
+     * Reparses all names
+     */
+    private void reparseNames() {
+        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+        ParsedNameService parsedNameService = inj.getInstance(ParsedNameService.class);
+        LOG.info("Start reparsing all names. This will take a while ...");
+        int num = parsedNameService.reparseAll();
+        LOG.info("{} names reparsed", num);
     }
 
 

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.authorship.AuthorComparator;
@@ -219,6 +220,10 @@ public class NubDb {
         return nub;
     }
 
+    public Node createPlaceholderNode() {
+        return dao.getNeo().createNode(Labels.PLACEHOLDER);
+    }
+
     public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
         LOG.debug("create {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName());
 
@@ -260,6 +265,9 @@ public class NubDb {
                 parent.node.createRelationshipTo(nub.node, RelType.PARENT_OF);
             }
         }
+        if (Rank.FAMILY == nub.rank) {
+            nub.node.addLabel(Labels.FAMILY);
+        }
         return store(nub);
     }
 
@@ -284,19 +292,44 @@ public class NubDb {
      * If more exist delete them silently.
      */
     public void setSingleToRelationship(Node from, Node to, RelType reltype) {
-        for (Relationship rel : to.getRelationships(reltype, Direction.INCOMING)) {
-            rel.delete();
-        }
+        deleteRelations(to, reltype, Direction.INCOMING);
         from.createRelationshipTo(to, reltype);
         countAndRenewTx();
     }
 
     public void setSingleFromRelationship(Node from, Node to, RelType reltype) {
-        for (Relationship rel : from.getRelationships(reltype, Direction.OUTGOING)) {
-            rel.delete();
-        }
+        deleteRelations(from, reltype, Direction.OUTGOING);
         from.createRelationshipTo(to, reltype);
         countAndRenewTx();
+    }
+
+    public boolean deleteRelations(Node n, RelType type, Direction direction) {
+        boolean deleted = false;
+        for (Relationship rel : n.getRelationships(type, direction)) {
+            rel.delete();
+            deleted = true;
+        }
+        return deleted;
+    }
+
+    /**
+     * Iterates over all direct children of a node, deletes that parentOf relation and creates a new parentOf relation to the given new parent node instead.
+     * @param n the node with child nodes
+     * @param parent the new parent to be linked
+     */
+    public void assignParentToChildren(Node n, NubUsage parent) {
+        for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
+            Node child = rel.getOtherNode(n);
+            rel.delete();
+            parent.node.createRelationshipTo(child, RelType.PARENT_OF);
+            // read nub usage to add an issue to the child
+            NubUsage cu = node2usage(child);
+            cu.issues.add(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+            if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
+                cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
+            }
+            store(cu);
+        }
     }
 
     public NubUsage store(NubUsage nub) {
@@ -340,5 +373,30 @@ public class NubDb {
             }
         }
         return false;
+    }
+
+    /**
+     * Removes all nodes with Label PLACEHOLDER and all directly attached relations.
+     */
+    public void removePlaceholderNodes() {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.PLACEHOLDER))) {
+            for (Relationship rel : n.getRelationships()) {
+                rel.delete();
+            }
+            n.delete();
+        }
+    }
+
+    public List<NubUsage> listBasionymGroup(Node bas) {
+        List<NubUsage> group = Lists.newArrayList();
+        for (Node n : IteratorUtil.loop(Traversals.BASIONYM_GROUP.traverse(bas).nodes().iterator())) {
+            NubUsage nub = node2usage(n);
+            // nub can be null in case of placeholder neo nodes that do no have a real NubUsage in the kvp store
+            // ignore those!
+            if (nub != null) {
+                group.add(nub);
+            }
+        }
+        return group;
     }
 }
