@@ -219,6 +219,11 @@ public class BasionymSorterTest {
             return curr;
         }
 
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
         private List<ParsedName> readNextGroup() {
             List<ParsedName> names = Lists.newArrayList();
             try {
