@@ -29,7 +29,8 @@ import java.util.Date;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
@@ -97,6 +98,25 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
+        if (Sets.newHashSet(AdminOperation.REPARSE).contains(cfg.operation)) {
+            runSineDatasets();
+        } else {
+            runDatasetComamnds();
+        }
+    }
+
+    private void runSineDatasets() {
+        switch (cfg.operation) {
+            case REPARSE:
+                reparseNames();
+                break;
+
+            default:
+                throw new UnsupportedOperationException();
+        }
+    }
+
+    private void runDatasetComamnds() {
         if (cfg.keys != null) {
             datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
                 @Nullable
@@ -105,14 +125,13 @@ public class AdminCommand extends BaseCommand {
                     return datasetService.get(key);
                 }
             });
-        } else if (cfg.operation != AdminOperation.REPARSE) {
+        } else {
             datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
         }
-        for (Dataset d : datasets)
+
+        for (Dataset d : datasets) {
+            LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
             try {
-                if (cfg.operation != AdminOperation.REPARSE) {
-                    LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
-                }
                 switch (cfg.operation) {
                     case CLEANUP:
                         zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
@@ -160,8 +179,6 @@ public class AdminCommand extends BaseCommand {
                         send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
                         break;
 
-                    case REPARSE:
-                        reparseNames();
                     default:
                         throw new UnsupportedOperationException();
                 }
@@ -169,6 +186,7 @@ public class AdminCommand extends BaseCommand {
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
+        }
     }
 
     /**
