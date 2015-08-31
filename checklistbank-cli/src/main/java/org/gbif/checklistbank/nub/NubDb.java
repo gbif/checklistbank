@@ -154,7 +154,7 @@ public class NubDb {
                     return null;
                 }
             }
-            LOG.warn("{} ambigous homonyms encountered for {}", checked.size(), u.scientificName);
+            LOG.info("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
             //TODO: implmement sth even more clever dealing with homonyms!!!
             throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.key, u.scientificName);
         }

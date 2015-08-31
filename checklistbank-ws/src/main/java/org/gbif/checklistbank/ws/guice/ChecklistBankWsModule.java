@@ -29,7 +29,6 @@ public class ChecklistBankWsModule extends GbifServletListener {
     List<Module> modules = Lists.newArrayList();
     modules.add(new ChecklistBankServiceMyBatisModule(properties));
     modules.add(new SearchModule(properties, true));
-    modules.add(new NameParserModule());
     return modules;
   }
 

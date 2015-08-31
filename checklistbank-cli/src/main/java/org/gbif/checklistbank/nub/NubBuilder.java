@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -473,7 +474,18 @@ public class NubBuilder implements Runnable {
 
     private void addParsedNameIfNull(SrcUsage u) throws UnparsableException {
         if (u.parsedName == null) {
-            u.parsedName = parser.parse(u.scientificName, u.rank);
+            try {
+                u.parsedName = parser.parse(u.scientificName, u.rank);
+            } catch (UnparsableException e) {
+                // allow virus names in the nub
+                if (NameType.VIRUS == e.type) {
+                    u.parsedName = new ParsedName();
+                    u.parsedName.setScientificName(u.scientificName);
+                    u.parsedName.setType(NameType.VIRUS);
+                } else {
+                    throw new IgnoreSourceUsageException(e.getMessage(), u.key, u.scientificName);
+                }
+            }
         }
     }
 
