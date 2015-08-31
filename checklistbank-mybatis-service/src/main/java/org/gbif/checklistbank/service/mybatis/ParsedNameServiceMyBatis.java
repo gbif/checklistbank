@@ -17,7 +17,6 @@ import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +25,11 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);
     private ParsedNameMapper mapper;
     private NameParser parser;
-    private SqlSessionFactory sqlSessionFactory;
 
     @Inject
-    ParsedNameServiceMyBatis(ParsedNameMapper mapper, NameParser parser, SqlSessionFactory sqlSessionFactory) {
+    ParsedNameServiceMyBatis(ParsedNameMapper mapper, NameParser parser) {
         this.mapper = mapper;
         this.parser = parser;
-        this.sqlSessionFactory = sqlSessionFactory;
     }
 
     @Override

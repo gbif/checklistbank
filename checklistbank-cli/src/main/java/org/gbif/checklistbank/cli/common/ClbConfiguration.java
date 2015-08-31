@@ -26,6 +26,7 @@ public class ClbConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
   private static final String PROPERTY_PREFIX = "checklistbank.db.";
   private static final Set<String> DATASOURCE_SET = Sets.newHashSet("serverName","databaseName","user","password");
+  private static final Set<String> IGNORE = Sets.newHashSet("parserTimeout");
 
   @NotNull
   @Parameter(names = "--clb-host")
@@ -49,13 +50,21 @@ public class ClbConfiguration {
   @Parameter(names = "--clb-connectionTimeout")
   public int connectionTimeout = 5000;
 
+  @Parameter(names = "--parser-timeout")
+  public int parserTimeout = 1000;
+
+
   public ChecklistBankServiceMyBatisModule createServiceModule() {
     Properties props = new Properties();
     props.put(PROPERTY_PREFIX + "dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+    props.put(ChecklistBankServiceMyBatisModule.PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
+
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers())) {
         try {
-          if (DATASOURCE_SET.contains(field.getName())) {
+          if (IGNORE.contains(field.getName())) {
+            // ignore
+          } else if (DATASOURCE_SET.contains(field.getName())) {
             props.put(PROPERTY_PREFIX + "dataSource." + field.getName(), String.valueOf(field.get(this)));
           } else {
             props.put(PROPERTY_PREFIX + field.getName(), String.valueOf(field.get(this)));

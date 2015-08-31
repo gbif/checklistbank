@@ -27,7 +27,7 @@ public class MapperITBase<T> {
 
     @Before
     public void init() throws Exception {
-        Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(dbunit.getProperties()));
+        Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(dbunit.getProperties()), 500);
         injector = Guice.createInjector(module);
         mapper = injector.getInstance(mapperClass);
     }
