@@ -447,16 +447,16 @@ public class UsageDao {
     public void store(NubUsage nub) {
         nubUsages.put(nub.node.getId(), nub);
         // update neo node properties
-        setProperty(nub.node, NodeProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName));
-        setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, nub.parsedName.canonicalNameComplete());
+        setProperty(nub.node, NodeProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
+        setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
         storeEnum(nub.node, NodeProperties.RANK, nub.rank);
     }
 
     /**
      * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
      */
-    public static String canonicalOrScientificName(ParsedName pn) {
-        String name = pn.canonicalName();
+    public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
+        String name = withAuthors ? pn.canonicalNameComplete() : pn.canonicalName();
         if (Strings.isBlank(name)) {
             // this should only ever happen for virus names, log otherwise
             if (pn.isParsableType()) {

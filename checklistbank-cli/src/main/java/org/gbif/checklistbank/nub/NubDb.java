@@ -122,7 +122,7 @@ public class NubDb {
     public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom) {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
-        final String name = dao.canonicalOrScientificName(u.parsedName);
+        final String name = dao.canonicalOrScientificName(u.parsedName, false);
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name))) {
             NubUsage rn = dao.readNub(n);
             if (matchesNub(u, uKingdom, rn)) {
@@ -215,7 +215,7 @@ public class NubDb {
     }
 
     public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
-        LOG.debug("create {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName());
+        LOG.debug("create {} {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.getScientificName(), src.rank, parent == null ? "none" : parent.parsedName.getScientificName());
 
         NubUsage nub = new NubUsage(src);
         nub.datasetKey = sourceDatasetKey;

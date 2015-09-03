@@ -60,6 +60,7 @@ import com.google.inject.Injector;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -382,15 +383,14 @@ public class NubBuilder implements Runnable {
         try {
             addParsedNameIfNull(u);
             nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
-            if (u.rank != null && allowedRanks.contains(u.rank)) {
-                // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
-                if (nub == null && u.rank.higherThan(Rank.PHYLUM)) {
-                    ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
-                    if (kResult.isSuccessful()) {
-                        nub = kingdoms.get(kResult.getPayload());
-                    }
+            // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
+            if (nub == null && u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
+                ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
+                if (kResult.isSuccessful()) {
+                    nub = kingdoms.get(kResult.getPayload());
                 }
-
+            }
+            if (u.rank != null && allowedRanks.contains(u.rank)) {
                 if (nub == null) {
                     // create new nub usage if there wasnt any yet
                     nub = createNubUsage(u, origin, parent);
@@ -429,11 +429,6 @@ public class NubBuilder implements Runnable {
                 LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
             }
 
-        } catch (UnparsableException e) {
-            // exclude hybrids and blacklisted names
-            // TODO: review if we want to include them!
-            LOG.info("Ignore unparsable {} name: {}", e.type, e.name);
-
         } catch (IgnoreSourceUsageException e) {
             LOG.info("Ignore usage {} {}: {}", e.key, e.name, e.getMessage());
         }
@@ -445,7 +440,7 @@ public class NubBuilder implements Runnable {
         return Equality.DIFFERENT == authorComparator.compare(pn1, pn2);
     }
 
-    private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws UnparsableException {
+    private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
         // first check if parent is a genus synonym
@@ -509,7 +504,7 @@ public class NubBuilder implements Runnable {
         return db.addUsage(p, u, origin, currSrc.key);
     }
 
-    private void addParsedNameIfNull(SrcUsage u) throws UnparsableException {
+    private void addParsedNameIfNull(SrcUsage u) throws IgnoreSourceUsageException {
         if (u.parsedName == null) {
             try {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
@@ -536,13 +531,16 @@ public class NubBuilder implements Runnable {
     }
 
     private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
-        LOG.debug("Updating {} from source {}", nub.parsedName.fullName(), u.parsedName.fullName());
+        LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
         nub.sourceIds.add(u.key);
         if (origin == Origin.SOURCE) {
             // only override original origin value if we update from a true source
             nub.origin = Origin.SOURCE;
         }
-        nub.authors.add(u.parsedName.authorshipComplete());
+        String authors = u.parsedName.authorshipComplete();
+        if (!Strings.isBlank(authors)) {
+            nub.authors.add(authors);
+        }
 
         NubUsage currNubParent = db.getParent(nub);
         // prefer accepted version over doubtful if its coming from the same dataset!

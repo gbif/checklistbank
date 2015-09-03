@@ -151,10 +151,16 @@
             UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='SCINAME';
             UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='WELLFORMED';
             UPDATE name SET "type"='NO_NAME' WHERE "type"='BLACKLISTED';
+            CREATE TYPE name_type AS ENUM ('SCINAME', 'WELLFORMED', 'DOUBTFUL', 'BLACKLISTED', 'VIRUS', 'HYBRID', 'INFORMAL', 'CULTIVAR', 'CANDIDATUS');
             CREATE TYPE name_type AS ENUM ('SCIENTIFIC', 'VIRUS', 'HYBRID', 'INFORMAL', 'CULTIVAR', 'CANDIDATUS', 'DOUBTFUL', 'PLACEHOLDER', 'NO_NAME');
             ALTER TABLE name ALTER COLUMN "type" type name_type USING ("type"::name_type);
         </sql>
         <sqlFile path="liquibase/debug_views.sql"/>
+    </changeSet>
+    <changeSet id="30" author="markus">
+        <sql>
+            CREATE INDEX ON name_usage (basionym_fk) WHERE deleted IS NULL;
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

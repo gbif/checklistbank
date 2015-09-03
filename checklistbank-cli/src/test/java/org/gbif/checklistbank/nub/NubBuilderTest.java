@@ -572,7 +572,6 @@ public class NubBuilderTest {
      * Virus names are not parsable, do extra test to verify behavior
      */
     @Test
-    @Ignore
     public void testVirusNames() throws Exception {
         ClasspathUsageSource src = ClasspathUsageSource.source(22, 23);
         src.setSourceRank(22, Rank.ORDER);
@@ -644,14 +643,14 @@ public class NubBuilderTest {
     private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
         NubUsage u = getCanonical(canonical, rank);
         assertNub(u, canonical, authorship, notho, rank, origin, status, parent);
-        assertEquals("wrong canonical name for " + canonical, canonical, u.parsedName.canonicalName());
+        assertEquals("wrong canonical name for " + canonical, canonical, UsageDao.canonicalOrScientificName(u.parsedName, false));
         return u;
     }
 
     private NubUsage assertScientific(String sciname, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
         NubUsage u = getScientific(sciname, rank);
         assertNub(u, sciname, null, null, rank, origin, status, parent);
-        assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.canonicalNameComplete());
+        assertEquals("wrong scientific name for " + sciname, sciname, UsageDao.canonicalOrScientificName(u.parsedName, true));
         return u;
     }
 

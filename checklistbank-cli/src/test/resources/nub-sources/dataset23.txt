@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Virus
+1			KINGDOM	ACCEPTED		Viruses
 10	1		ORDER	ACCEPTED		Herpesvirales
 
 100	10		FAMILY	ACCEPTED		Alloherpesviridae
