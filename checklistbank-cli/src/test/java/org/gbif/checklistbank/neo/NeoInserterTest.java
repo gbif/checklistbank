@@ -150,11 +150,11 @@ public class NeoInserterTest {
 
         VerbatimNameUsage v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.scientificName, "Abies alba Mill., 1982");
-        assertName(v, Rank.SPECIES, "Abies alba Mill., 1982", "Abies alba", NameType.WELLFORMED);
+        assertName(v, Rank.SPECIES, "Abies alba Mill., 1982", "Abies alba", NameType.SCIENTIFIC);
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.scientificName, "Abies alba");
-        assertName(v, Rank.SPECIES, "Abies alba", "Abies alba", NameType.WELLFORMED);
+        assertName(v, Rank.SPECIES, "Abies alba", "Abies alba", NameType.SCIENTIFIC);
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.scientificName, "? alba");
@@ -163,33 +163,33 @@ public class NeoInserterTest {
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.genus, "Abies");
         v.setCoreField(DwcTerm.specificEpithet, "alba");
-        assertName(v, Rank.SPECIES, "Abies alba", "Abies alba", NameType.WELLFORMED);
+        assertName(v, Rank.SPECIES, "Abies alba", "Abies alba", NameType.SCIENTIFIC);
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.genus, "Abies");
         v.setCoreField(DwcTerm.infraspecificEpithet, "alpina");
-        assertName(v, Rank.SUBSPECIES, "Abies subsp.", "Abies subsp.", NameType.WELLFORMED);
+        assertName(v, Rank.SUBSPECIES, "Abies subsp.", "Abies subsp.", NameType.SCIENTIFIC);
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.genus, "Abies");
         v.setCoreField(DwcTerm.specificEpithet, "alba");
         v.setCoreField(DwcTerm.infraspecificEpithet, "alpina");
-        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina", "Abies alba alpina", NameType.WELLFORMED);
+        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina", "Abies alba alpina", NameType.SCIENTIFIC);
 
         v.setCoreField(DwcTerm.scientificNameAuthorship, "Duméril & Bibron");
-        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron", "Abies alba alpina", NameType.WELLFORMED);
+        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron", "Abies alba alpina", NameType.SCIENTIFIC);
 
         v.setCoreField(DwcTerm.namePublishedInYear, "1937");
-        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.WELLFORMED);
+        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.SCIENTIFIC);
 
         v.setCoreField(DwcTerm.scientificNameAuthorship, "Duméril & Bibron 1937");
-        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron 1937", "Abies alba alpina", NameType.WELLFORMED);
+        assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron 1937", "Abies alba alpina", NameType.SCIENTIFIC);
     }
 
     @Test(expected = IgnoreNameUsageException.class)
     public void testSetScientificNameExc() throws Exception {
         VerbatimNameUsage v = new VerbatimNameUsage();
-        assertName(v, Rank.SPECIES, null, null, NameType.BLACKLISTED);
+        assertName(v, Rank.SPECIES, null, null, NameType.NO_NAME);
     }
 
     private NameUsageContainer assertName(VerbatimNameUsage v, Rank rank, String sciname, String canonical, NameType ntype)

@@ -49,6 +49,8 @@ public interface NameUsageMapper {
 
     List<NameUsage> listSynonyms(@Param("key") int usageKey, @Param("page") Pageable page);
 
+    List<NameUsage> listCombinations(@Param("key") int basionymKey);
+
     List<NameUsage> listRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
     /**

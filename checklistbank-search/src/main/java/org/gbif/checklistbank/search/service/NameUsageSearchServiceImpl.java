@@ -67,7 +67,8 @@ public class NameUsageSearchServiceImpl
   static {
     // Suggest default filters for suggest service: names of type INFORMAL and BLACKLISTED are excluded by default.
     SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.INFORMAL.name());
-    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.BLACKLISTED.name());
+    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.PLACEHOLDER.name());
+    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.NO_NAME.name());
   }
 
   /**

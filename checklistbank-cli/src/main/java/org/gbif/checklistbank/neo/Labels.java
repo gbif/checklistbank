@@ -10,6 +10,7 @@ public enum Labels implements Label {
     SYNONYM,
     BASIONYM,
     FAMILY,
-    ROOT,
-    PLACEHOLDER
+    GENUS,
+    SPECIES,
+    ROOT
 }

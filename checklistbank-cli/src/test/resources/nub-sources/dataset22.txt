@@ -1,0 +1,12 @@
+1			KINGDOM	ACCEPTED		Virus
+10	1		ORDER	ACCEPTED		Herpesvirales
+
+100	10		FAMILY	ACCEPTED		Alloherpesviridae
+1000	100		GENUS	ACCEPTED		Batrachovirus
+10000	1000		SPECIES	ACCEPTED		Ranid herpesvirus 1
+10001	1000		SPECIES	ACCEPTED		Ranid herpesvirus 2
+
+200	10		FAMILY	ACCEPTED		Herpesviridae
+2000	200		GENUS	ACCEPTED		Varicellovirus
+20000	2000		SPECIES	ACCEPTED		Bovine herpesvirus 1
+20001	2000		SPECIES	ACCEPTED		Bovine herpesvirus 5

@@ -9,15 +9,13 @@ import com.google.common.collect.Lists;
 
 public class BasionymGroup<T> {
     private static final Joiner joiner = Joiner.on("; ").skipNulls();
+    private String epithet;
+    private String authorship;
+    private String year;
     private T basionym;
     private List<T> recombinations = Lists.newArrayList();
 
     public BasionymGroup() {
-    }
-
-    public BasionymGroup(T basionym, List<T> recombinations) {
-        this.basionym = basionym;
-        this.recombinations = recombinations;
     }
 
     public T getBasionym() {
@@ -40,6 +38,24 @@ public class BasionymGroup<T> {
         return !recombinations.isEmpty();
     }
 
+    public String getAuthorship() {
+        return authorship;
+    }
+
+    public String getEpithet() {
+        return epithet;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setName(String epithet, String authorship, String year) {
+        this.epithet = epithet;
+        this.authorship = authorship;
+        this.year = year;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(basionym, recombinations);
@@ -60,8 +76,7 @@ public class BasionymGroup<T> {
 
     @Override
     public String toString() {
-        return "BasionymGroup{" +
-                basionym +
-                ": " + joiner.join(recombinations) + '}';
+        return "BasionymGroup{" + epithet + ' ' + authorship + ' ' + year + " | " +
+                basionym + ": " + joiner.join(recombinations) + '}';
     }
 }

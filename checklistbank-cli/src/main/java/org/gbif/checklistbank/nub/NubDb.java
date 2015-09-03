@@ -68,7 +68,7 @@ public class NubDb {
     public List<NubUsage> findNubUsages(String canonical) {
         List<NubUsage> usages = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
-            usages.add(node2usage(n));
+            usages.add(dao.readNub(n));
         }
         return usages;
     }
@@ -83,7 +83,7 @@ public class NubDb {
         } else {
             p = child.node.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child.node);
         }
-        return node2usage(p);
+        return dao.readNub(p);
     }
 
     /**
@@ -99,7 +99,7 @@ public class NubDb {
     public NubUsage findNubUsage(String canonical, Rank rank) {
         List<NubUsage> usages = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
-            NubUsage rn = node2usage(n);
+            NubUsage rn = dao.readNub(n);
             if (rank == rn.rank && !rn.status.isSynonym()) {
                 usages.add(rn);
             }
@@ -122,8 +122,9 @@ public class NubDb {
     public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom) {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, u.parsedName.canonicalName()))) {
-            NubUsage rn = node2usage(n);
+        final String name = dao.canonicalOrScientificName(u.parsedName);
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name))) {
+            NubUsage rn = dao.readNub(n);
             if (matchesNub(u, uKingdom, rn)) {
                 checked.add(rn);
                 if (!rn.parsedName.hasAuthorship()) {
@@ -213,17 +214,6 @@ public class NubDb {
         }
     }
 
-    public NubUsage node2usage(Node n) {
-        if (n == null) return null;
-        NubUsage nub = dao.readNub(n);
-        nub.node = n;
-        return nub;
-    }
-
-    public Node createPlaceholderNode() {
-        return dao.getNeo().createNode(Labels.PLACEHOLDER);
-    }
-
     public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
         LOG.debug("create {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.fullName(), parent == null ? "none" : parent.parsedName.fullName());
 
@@ -253,7 +243,10 @@ public class NubDb {
      * @param parent classification parent or accepted name in case the nub usage has a synonym status
      */
     private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
-        nub.node = dao.createTaxon();
+        if (nub.node == null) {
+            // create new neo node if none exists yet (should be the regular case)
+            nub.node = dao.createTaxon();
+        }
         if (parent == null) {
             nub.node.addLabel(Labels.ROOT);
         } else {
@@ -265,8 +258,17 @@ public class NubDb {
                 parent.node.createRelationshipTo(nub.node, RelType.PARENT_OF);
             }
         }
-        if (Rank.FAMILY == nub.rank) {
-            nub.node.addLabel(Labels.FAMILY);
+        // add rank specific labels so we can easily find them later
+        switch (nub.rank) {
+            case FAMILY:
+                nub.node.addLabel(Labels.FAMILY);
+                break;
+            case GENUS:
+                nub.node.addLabel(Labels.GENUS);
+                break;
+            case SPECIES:
+                nub.node.addLabel(Labels.SPECIES);
+                break;
         }
         return store(nub);
     }
@@ -303,6 +305,14 @@ public class NubDb {
         countAndRenewTx();
     }
 
+    public void createSynonymRelation(Node synonym, Node accepted) {
+        deleteRelations(synonym, RelType.PARENT_OF, Direction.INCOMING);
+        synonym.addLabel(Labels.SYNONYM);
+        synonym.removeLabel(Labels.ROOT);
+        synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+        countAndRenewTx();
+    }
+
     public boolean deleteRelations(Node n, RelType type, Direction direction) {
         boolean deleted = false;
         for (Relationship rel : n.getRelationships(type, direction)) {
@@ -323,7 +333,7 @@ public class NubDb {
             rel.delete();
             parent.node.createRelationshipTo(child, RelType.PARENT_OF);
             // read nub usage to add an issue to the child
-            NubUsage cu = node2usage(child);
+            NubUsage cu = dao.readNub(child);
             cu.issues.add(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
             if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
                 cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
@@ -375,22 +385,10 @@ public class NubDb {
         return false;
     }
 
-    /**
-     * Removes all nodes with Label PLACEHOLDER and all directly attached relations.
-     */
-    public void removePlaceholderNodes() {
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.PLACEHOLDER))) {
-            for (Relationship rel : n.getRelationships()) {
-                rel.delete();
-            }
-            n.delete();
-        }
-    }
-
     public List<NubUsage> listBasionymGroup(Node bas) {
         List<NubUsage> group = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(Traversals.BASIONYM_GROUP.traverse(bas).nodes().iterator())) {
-            NubUsage nub = node2usage(n);
+            NubUsage nub = dao.readNub(n);
             // nub can be null in case of placeholder neo nodes that do no have a real NubUsage in the kvp store
             // ignore those!
             if (nub != null) {

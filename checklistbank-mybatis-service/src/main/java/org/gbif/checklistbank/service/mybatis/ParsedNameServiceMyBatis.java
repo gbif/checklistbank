@@ -77,8 +77,8 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     public int reparseAll() {
         ReparseHandler handler = new ReparseHandler();
         mapper.processNames(handler);
-        LOG.info("Reparsed all {} names, {} changed, {} failed: hybrids={}, virus={}, blacklisted={}",
-                handler.counter, handler.changed, handler.failed, handler.hybrids, handler.virus, handler.blacklisted);
+        LOG.info("Reparsed all {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
+                handler.counter, handler.changed, handler.failed, handler.hybrids, handler.virus, handler.placeholder, handler.noname);
         return handler.counter;
     }
 
@@ -88,7 +88,8 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
         int failed = 0;
         int hybrids = 0;
         int virus = 0;
-        int blacklisted = 0;
+        int placeholder = 0;
+        int noname = 0;
 
         @Override
         public void handleResult(ResultContext<? extends ParsedName> context) {
@@ -110,13 +111,16 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
                     case VIRUS:
                         virus++;
                         break;
-                    case BLACKLISTED:
-                        blacklisted++;
+                    case PLACEHOLDER:
+                        placeholder++;
+                        break;
+                    case NO_NAME:
+                        noname++;
                         break;
                 }
             }
             if (counter % 100000 == 0) {
-                LOG.info("Reparsed {} names, {} changed, {} failed: hybrids={}, virus={}, blacklisted={}", counter, changed, failed, hybrids, virus, blacklisted);
+                LOG.info("Reparsed {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, changed, failed, hybrids, virus, placeholder, noname);
             }
         }
     }

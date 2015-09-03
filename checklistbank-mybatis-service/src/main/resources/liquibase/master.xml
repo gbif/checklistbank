@@ -137,4 +137,24 @@
             CREATE INDEX ON typification (usage_fk);
         </sql>
     </changeSet>
+    <changeSet id="29" author="markus">
+        <sql>
+            DROP VIEW kname;
+
+            ALTER TABLE name_usage ALTER COLUMN origin type text;
+            DROP TYPE origin_type;
+            CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION', 'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM', 'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'BASIONYM_PLACEHOLDER', 'AUTO_RECOMBINATION');
+            ALTER TABLE name_usage ALTER COLUMN origin type origin_type USING (origin::origin_type);
+
+            ALTER TABLE name ALTER COLUMN "type" type text;
+            DROP TYPE name_type;
+            UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='SCINAME';
+            UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='WELLFORMED';
+            UPDATE name SET "type"='NO_NAME' WHERE "type"='BLACKLISTED';
+            CREATE TYPE name_type AS ENUM ('SCIENTIFIC', 'VIRUS', 'HYBRID', 'INFORMAL', 'CULTIVAR', 'CANDIDATUS', 'DOUBTFUL', 'PLACEHOLDER', 'NO_NAME');
+            ALTER TABLE name ALTER COLUMN "type" type name_type USING ("type"::name_type);
+        </sql>
+        <sqlFile path="liquibase/debug_views.sql"/>
+    </changeSet>
+
 </databaseChangeLog>

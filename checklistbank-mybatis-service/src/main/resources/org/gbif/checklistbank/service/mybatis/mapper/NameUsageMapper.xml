@@ -201,6 +201,14 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         </if>
     </select>
 
+    <!--  list combinations -->
+    <select id="listCombinations" parameterType="map" resultMap="usageResultMap">
+        SELECT
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        WHERE u.deleted IS NULL AND u.basionym_fk=#{key} AND u.basionym_fk!=u.id
+    </select>
 
     <!--  list  -->
     <select id="listByTaxonId" parameterType="map" resultMap="usageResultMap">

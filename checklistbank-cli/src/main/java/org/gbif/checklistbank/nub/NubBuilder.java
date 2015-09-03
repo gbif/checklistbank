@@ -28,6 +28,8 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.common.parsers.KingdomParser;
+import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
@@ -85,6 +87,7 @@ public class NubBuilder implements Runnable {
     private NubSource currSrc;
     private ParentStack parents;
     private int sourceUsageCounter = 0;
+    private final KingdomParser kingdomParser = KingdomParser.getInstance();
     private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
     private final AuthorComparator authorComparator;
     private final IdGenerator idGen;
@@ -134,6 +137,7 @@ public class NubBuilder implements Runnable {
             addDatasets();
             groupByBasionym();
             verifyAcceptedSpecies();
+            createAutonyms();
             setEmptyGroupsDoubtful();
             addExtensionData();
             assignUsageKeys();
@@ -146,6 +150,15 @@ public class NubBuilder implements Runnable {
                 LOG.info("DAO closed");
             }
         }
+    }
+
+    /**
+     * Goes through all accepted species checks all their accepted infraspecific descendants,
+     * creating missing autonyms where needed.
+     * An autonym is an infraspecific taxon that has the same species and infraspecific epithet.
+     */
+    private void createAutonyms() {
+
     }
 
     /**
@@ -168,9 +181,9 @@ public class NubBuilder implements Runnable {
             if (!fam.status.isSynonym()) {
                 Map<String, List<NubUsage>> epithets = Maps.newHashMap();
                 LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
-                // key all names by their epithet
+                // key all names by their terminal epithet
                 for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
-                    NubUsage nub = db.node2usage(c);
+                    NubUsage nub = db.dao.readNub(c);
                     // ignore all supra specific names
                     if (nub.rank.isSpeciesOrBelow()) {
                         String epithet = nub.parsedName.getInfraSpecificEpithet() == null ?
@@ -197,18 +210,18 @@ public class NubBuilder implements Runnable {
                         // we only need to process groups that contain recombinations
                         if (group.hasRecombinations()) {
                             // if we have a basionym creating relations is straight forward
-                            Node basionym = null;
+                            NubUsage basionym = null;
                             if (group.hasBasionym()) {
-                                basionym = group.getBasionym().node;
+                                basionym = group.getBasionym();
 
                             } else if (group.getRecombinations().size() > 1) {
                                 // we need to create a placeholder basionym to group the 2 or more recombinations
-                                basionym = db.createPlaceholderNode();
+                                basionym = createBasionymPlaceholder(fam, group);
                             }
                             // create basionym relations
                             if (basionym != null) {
                                 for (NubUsage u : group.getRecombinations()) {
-                                    if (createBasionymRelationIfNotExisting(basionym, u.node)) {
+                                    if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
                                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
                                     }
                                 }
@@ -218,6 +231,22 @@ public class NubBuilder implements Runnable {
                 }
             }
         }
+    }
+
+    private NubUsage createBasionymPlaceholder(NubUsage family, BasionymGroup group) {
+        NubUsage basionym = new NubUsage();
+        basionym.datasetKey = null;
+        basionym.origin = Origin.BASIONYM_PLACEHOLDER;
+        basionym.rank = Rank.SPECIES;
+        basionym.status = TaxonomicStatus.DOUBTFUL;
+        basionym.parsedName = new ParsedName();
+        basionym.parsedName.setGenusOrAbove("?");
+        basionym.parsedName.setSpecificEpithet(group.getEpithet());
+        basionym.parsedName.setAuthorship(group.getAuthorship());
+        basionym.parsedName.setYear(group.getYear());
+        basionym.parsedName.setType(NameType.PLACEHOLDER);
+        LOG.debug("creating basionym placeholder {} in family {}", basionym.parsedName.canonicalNameComplete(), family.parsedName.canonicalName());
+        return db.addUsage(family, basionym);
     }
 
     private void addKingdoms() {
@@ -354,6 +383,14 @@ public class NubBuilder implements Runnable {
             addParsedNameIfNull(u);
             nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
             if (u.rank != null && allowedRanks.contains(u.rank)) {
+                // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
+                if (nub == null && u.rank.higherThan(Rank.PHYLUM)) {
+                    ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
+                    if (kResult.isSuccessful()) {
+                        nub = kingdoms.get(kResult.getPayload());
+                    }
+                }
+
                 if (nub == null) {
                     // create new nub usage if there wasnt any yet
                     nub = createNubUsage(u, origin, parent);
@@ -393,7 +430,7 @@ public class NubBuilder implements Runnable {
             }
 
         } catch (UnparsableException e) {
-            // exclude virus, hybrid and blacklisted names
+            // exclude hybrids and blacklisted names
             // TODO: review if we want to include them!
             LOG.info("Ignore unparsable {} name: {}", e.type, e.name);
 
@@ -478,10 +515,10 @@ public class NubBuilder implements Runnable {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
             } catch (UnparsableException e) {
                 // allow virus names in the nub
-                if (NameType.VIRUS == e.type) {
+                if (e.type.isBackboneType()) {
                     u.parsedName = new ParsedName();
                     u.parsedName.setScientificName(u.scientificName);
-                    u.parsedName.setType(NameType.VIRUS);
+                    u.parsedName.setType(e.type);
                 } else {
                     throw new IgnoreSourceUsageException(e.getMessage(), u.key, u.scientificName);
                 }
@@ -606,8 +643,6 @@ public class NubBuilder implements Runnable {
                     }
                 }
             }
-            // finally remove placeholder neo nodes.
-            db.removePlaceholderNodes();
         } finally {
             db.closeTx();
         }
@@ -628,9 +663,7 @@ public class NubBuilder implements Runnable {
         // Relinked children might cause them to be in a different genus which requires a recombination
         db.assignParentToChildren(u.node, acc);
         // add synonymOf relation
-        u.node.addLabel(Labels.SYNONYM);
-        u.node.removeLabel(Labels.ROOT);
-        u.node.createRelationshipTo(acc.node, RelType.SYNONYM_OF);
+        db.createSynonymRelation(u.node, acc.node);
         // flag issue
         u.issues.add(NameUsageIssue.STATUS_DERIVED);
         // usage was changed, update it in kvp store

@@ -389,14 +389,15 @@ public class NubBuilderTest {
         NubUsage ast = assertCanonical("Asteraceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
         NubUsage genus = assertCanonical("Albizia", "", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, fab);
-        assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
-        assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+        NubUsage adianthifolia = assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
 
         genus = assertCanonical("Albi", "", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, fab);
         assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
+        NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+
         // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful or accepted as sources suggest)
-        assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, genus);
-        assertCanonical("Albi adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, genus);
+        assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, tomentosa);
+        assertCanonical("Albi adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, adianthifolia);
     }
 
     /**
@@ -565,6 +566,27 @@ public class NubBuilderTest {
     @Ignore("write test")
     public void testSynonymValidity() throws Exception {
 
+    }
+
+    /**
+     * Virus names are not parsable, do extra test to verify behavior
+     */
+    @Test
+    @Ignore
+    public void testVirusNames() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(22, 23);
+        src.setSourceRank(22, Rank.ORDER);
+        src.setSourceRank(23, Rank.GENUS);
+        build(src);
+
+        NubUsage u = assertScientific("Ranid herpesvirus 1", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(2, u.sourceIds.size());
+
+        u = assertScientific("Varicellovirus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(2, u.sourceIds.size());
+
+        assertScientific("Cervid herpesvirus 1", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
+        assertScientific("Cervid herpesvirus 2", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
     }
 
     /**

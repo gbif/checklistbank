@@ -29,7 +29,6 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
         super(NameUsageService.class);
     }
 
-
     private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
     private final int NOT_FOUND_KEY = -10;
 
@@ -233,6 +232,15 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
         usages = service.listRelated(1, Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));
         assertEquals(0, usages.size());
+    }
+
+    @Test
+    public void testListCombinations() {
+        List<NameUsage> usages = service.listCombinations(1, Locale.UK);
+        assertEquals(0, usages.size());
+
+        usages = service.listCombinations(100000025, Locale.UK);
+        assertEquals(2, usages.size());
     }
 
     @Test

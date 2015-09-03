@@ -37,7 +37,7 @@ public class NameUsageMetricsMapperIT extends MapperITBase<NameUsageMetricsMappe
         ParsedName pn = nameMapper.getByName(name);
         if (pn == null) {
             pn = new ParsedName();
-            pn.setType(NameType.WELLFORMED);
+            pn.setType(NameType.SCIENTIFIC);
             pn.setScientificName(name);
             nameMapper.create(pn, name);
         }

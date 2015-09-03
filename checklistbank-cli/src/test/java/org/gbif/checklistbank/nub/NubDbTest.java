@@ -31,9 +31,16 @@ public class NubDbTest {
         NubUsage u = new NubUsage();
         u.parsedName = new ParsedName();
         u.origin = Origin.SOURCE;
+        u.rank = Rank.SPECIES;
         nub.addRoot(u);
-        nub.addRoot(u);
+        assertEquals(1l, nub.countTaxa());
 
+        // we add the same nub usage which already has a neo node, nothing changes
+        nub.addRoot(u);
+        assertEquals(1l, nub.countTaxa());
+
+        u.node = null;
+        nub.addRoot(u);
         assertEquals(2l, nub.countTaxa());
     }
 

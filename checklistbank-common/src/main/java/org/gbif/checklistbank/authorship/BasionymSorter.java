@@ -39,11 +39,10 @@ public class BasionymSorter {
         return null;
     }
 
-    private <T> T findBasionym(T recomb, List<T> originals, Function<T, ParsedName> func) {
-        ParsedName pn = func.apply(recomb);
+    private <T> T findBasionym(String authorship, String year, List<T> originals, Function<T, ParsedName> func) {
         for (T obj : originals) {
             ParsedName b = func.apply(obj);
-            if (authorComp.equals(pn.getBracketAuthorship(), pn.getBracketYear(),  b.getAuthorship(), b.getYear())) {
+            if (authorComp.equals(authorship, year,  b.getAuthorship(), b.getYear())) {
                 return obj;
             }
         }
@@ -68,18 +67,21 @@ public class BasionymSorter {
             }
         }
         // now group the recombinations
-        for (T p : recombinations) {
-            BasionymGroup<T> group = findExistingGroup(p, groups, func);
+        for (T recomb : recombinations) {
+            BasionymGroup<T> group = findExistingGroup(recomb, groups, func);
             // create new group if needed
             if (group == null) {
+                ParsedName pn = func.apply(recomb);
                 group = new BasionymGroup<T>();
+                group.setName(pn.getSpecificEpithet(), pn.getBracketAuthorship(), pn.getBracketYear());
                 groups.add(group);
+
             }
-            group.getRecombinations().add(p);
+            group.getRecombinations().add(recomb);
         }
         // finally try to find the basionym for each group in the list of original names
         for (BasionymGroup<T> group : groups) {
-            group.setBasionym(findBasionym(group.getRecombinations().get(0), originals, func));
+            group.setBasionym(findBasionym(group.getAuthorship(), group.getYear(), originals, func));
         }
         return groups;
     }

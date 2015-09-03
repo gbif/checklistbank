@@ -327,7 +327,7 @@ public class NeoInserter implements AutoCloseable {
                     pn.setInfraSpecificEpithet(v.getCoreField(DwcTerm.infraspecificEpithet));
                     pn.setAuthorship(buildAuthorship(v));
                     pn.setRank(rank);
-                    pn.setType(NameType.WELLFORMED);
+                    pn.setType(NameType.SCIENTIFIC);
                     u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
                 }
             }

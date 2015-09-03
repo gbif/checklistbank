@@ -37,7 +37,7 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
 
     private int createName(String name) {
         ParsedName pn = new ParsedName();
-        pn.setType(NameType.WELLFORMED);
+        pn.setType(NameType.SCIENTIFIC);
         pn.setScientificName(name);
         parsedNameMapper.create(pn, name);
         return pn.getKey();

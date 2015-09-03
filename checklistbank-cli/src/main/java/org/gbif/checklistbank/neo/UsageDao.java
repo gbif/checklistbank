@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.neo;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
@@ -38,6 +39,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.helpers.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -318,7 +320,10 @@ public class UsageDao {
     }
 
     public NubUsage readNub(Node n) {
-        return nubUsages.get(n.getId());
+        if (n == null) return null;
+        NubUsage nub = nubUsages.get(n.getId());
+        nub.node = n;
+        return nub;
     }
 
     /**
@@ -442,9 +447,24 @@ public class UsageDao {
     public void store(NubUsage nub) {
         nubUsages.put(nub.node.getId(), nub);
         // update neo node properties
-        setProperty(nub.node, NodeProperties.CANONICAL_NAME, nub.parsedName.canonicalName());
+        setProperty(nub.node, NodeProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName));
         setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, nub.parsedName.canonicalNameComplete());
         storeEnum(nub.node, NodeProperties.RANK, nub.rank);
+    }
+
+    /**
+     * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
+     */
+    public static String canonicalOrScientificName(ParsedName pn) {
+        String name = pn.canonicalName();
+        if (Strings.isBlank(name)) {
+            // this should only ever happen for virus names, log otherwise
+            if (pn.isParsableType()) {
+                LOG.warn("Parsable name found with an empty canonical name string: {}", pn.getScientificName());
+            }
+            return pn.getScientificName();
+        }
+        return name;
     }
 
     /**
@@ -488,6 +508,14 @@ public class UsageDao {
 
     public ResourceIterator<Node> allFamilies(){
         return getNeo().findNodes(Labels.FAMILY);
+    }
+
+    public ResourceIterator<Node> allGenera(){
+        return getNeo().findNodes(Labels.GENUS);
+    }
+
+    public ResourceIterator<Node> allSpecies(){
+        return getNeo().findNodes(Labels.SPECIES);
     }
 
     public ResourceIterator<Node> allBasionyms(){
