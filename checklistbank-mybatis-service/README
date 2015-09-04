@@ -3,37 +3,4 @@ ChecklistBank MyBatis Service
 
 This service _only_ supports PostgreSQL. To run the integration tests you must have a PostgreSQL database available.
 
-The database being used needs the "plpgsql" language enabled. This can be done using one of two ways:
-
-  * Command Line: createlang plpgsql <database>
-  * SQL: CREATE LANGUAGE plpgsql;
-
-The next step is to create a profile in your ~/.m2/settings.xml file. You can name it whatever you want but it must have four properties defined:
-
-  * checklistbank.db.url
-  * checklistbank.db.username
-  * checklistbank.db.password
-
-An example profile could look like this:
-
-  <profile>
-    <id>checklistbank-local-development</id>
-    <properties>
-      <checklistbank.db.url>jdbc:postgresql://localhost/checklistbank</checklistbank.db.url>
-      <checklistbank.db.username>checklistbank</checklistbank.db.username>
-      <checklistbank.db.password>checklistbank</checklistbank.db.password>
-    </properties>
-  </profile>
-
-To run the tests:
-  mvn -Pchecklistbank-local-development clean verify
-
-
-The MyBatis ChecklistBank project exists in parallel with the older ecat-checklistbank project
-that defines its own database initialisation routine which is partly java code based.
-It also contains a different java model with its own sql bindings.
-Changes to the database model therefore need to be done on both projects!
-
-For setting up a new, empty checklistbank database please see README for ecat-checklistbank and how to use its
-CommandLineInterface:
-http://code.google.com/p/gbif-ecat/source/browse/trunk/ecat-checklistbank/README.TXT
+The database being used needs the "plpgsql" language and hstore extension enabled.

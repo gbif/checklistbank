@@ -1,14 +1,12 @@
 ChecklistBank Index Builder
 ---------------------------
 
-This project exists solely to build the Solr search index for datasets from the registry. You can build an executable
-jar using maven that will let you run the project closer to your checklistbank db.  Build the jar as follows:
+This project provides the checklistbank solr index. It is configured to build a shaded, executable jar which will build a full new solr index
+from the postgres database using a configurabale amount of threads.
 
-mvn clean package
+mvn install package will produce a shaded jar in your target dir named checklistbank-solr.jar.
+To build a new index run the jar with a checklistbank.properties file containing the setttings for the clb db and indexing configs like this:
 
-That will produce a shaded jar in your target dir named like checklistbank-solr.jar.
-Copy that to where you'd like to run it and run with (all on one line), pointing to a local checklistbank.properties
-file that contains the setttings for the clb db and indexing configs:
+    java -Xmx4g -jar checklistbank-solr.jar ./checklistbank.properties
 
-cd target
-java -jar checklistbank-solr.jar ./checklistbank.properties
+For required and valid property file settings see [resources/checklistbank.properties](resources/checklistbank.properties)

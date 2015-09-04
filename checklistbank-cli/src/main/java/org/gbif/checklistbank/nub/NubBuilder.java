@@ -138,8 +138,8 @@ public class NubBuilder implements Runnable {
             addDatasets();
             groupByBasionym();
             verifyAcceptedSpecies();
-            createAutonyms();
             setEmptyGroupsDoubtful();
+            createAutonyms();
             addExtensionData();
             assignUsageKeys();
             db.dao.convertNubUsages();
@@ -154,9 +154,12 @@ public class NubBuilder implements Runnable {
     }
 
     /**
+     * TODO: remove autonym generation during dataset inserts and do it here globally.
      * Goes through all accepted species checks all their accepted infraspecific descendants,
      * creating missing autonyms where needed.
      * An autonym is an infraspecific taxon that has the same species and infraspecific epithet.
+     *
+     * We do this last to not create autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
      */
     private void createAutonyms() {
 
@@ -613,36 +616,46 @@ public class NubBuilder implements Runnable {
         try {
             db.openTx();
             detectBasionyms();
-            // assert we only have one accepted taxon for each group!
-            for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
-                List<NubUsage> group = db.listBasionymGroup(bas);
-                List<NubUsage> accepted = Lists.newArrayList();
-                for (NubUsage u : group) {
-                    if (!u.status.isSynonym()) {
-                        accepted.add(u);
-                    }
-                }
-                if (accepted.size() > 1) {
-                    LOG.info("Multiple accepted taxa in same basionym group: {}", names(accepted));
-                    // sort accepted taxa by source dataset priority, placing doubtful names last
-                    accepted = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
-                        @Nullable
-                        @Override
-                        public Integer apply(@Nullable NubUsage u) {
-                            Integer score = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
-                            return score + priorities.get(u.datasetKey);
-                        }
-                    }).sortedCopy(accepted);
-                    // we keep the first accepted with the highest priority and make all others synoynms
-                    NubUsage acc = accepted.remove(0);
-                    for (NubUsage u : accepted) {
-                        //u.status = TaxonomicStatus.DOUBTFUL;
-                        convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM);
-                    }
-                }
-            }
+            consolidateBasionymGroups();
         } finally {
             db.closeTx();
+        }
+    }
+
+    /**
+     * Make sure we only have at most one accepted name for each homotypical basionym group!
+     * An entire group can consist of synonyms without a problem.
+     *
+     * If a previously accepted name needs to be turned into a synonym it will be of type homotypical_synonym.
+     * TODO: Can synonyms of one group point to different accepted names or do we need to verify that ???
+     */
+    private void consolidateBasionymGroups() {
+        for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+            List<NubUsage> group = db.listBasionymGroup(bas);
+            List<NubUsage> accepted = Lists.newArrayList();
+            for (NubUsage u : group) {
+                if (!u.status.isSynonym()) {
+                    accepted.add(u);
+                }
+            }
+            if (accepted.size() > 1) {
+                LOG.info("Multiple accepted taxa in same basionym group: {}", names(accepted));
+                // sort accepted taxa by source dataset priority, placing doubtful names last
+                accepted = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
+                    @Nullable
+                    @Override
+                    public Integer apply(@Nullable NubUsage u) {
+                        Integer score = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
+                        return score + priorities.get(u.datasetKey);
+                    }
+                }).sortedCopy(accepted);
+                // we keep the first accepted with the highest priority and make all others synoynms
+                NubUsage acc = accepted.remove(0);
+                for (NubUsage u : accepted) {
+                    //u.status = TaxonomicStatus.DOUBTFUL;
+                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM);
+                }
+            }
         }
     }
 
@@ -657,8 +670,7 @@ public class NubBuilder implements Runnable {
         // change status
         u.status = status;
         // change parent relation of all children
-        //TODO: this is more complex than it seems.
-        // Relinked children might cause them to be in a different genus which requires a recombination
+        //TODO: Relinked children might cause them to be in a different genus which requires a recombination of the name, see verifyAcceptedSpecies()
         db.assignParentToChildren(u.node, acc);
         // add synonymOf relation
         db.createSynonymRelation(u.node, acc.node);

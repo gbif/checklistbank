@@ -537,8 +537,9 @@ public class NubBuilderTest {
     }
 
     /**
-     * Prefer a nomenclators name and nom status over any other sources!
+     * Prefer a nomenclator name and nom status over any other sources!
      * Prefer a name with authorship over a bare canonical one.
+     * Use a nomenclators taxonID as scientificNameID for the nub usage.
      */
     @Test
     @Ignore("write test")
@@ -557,7 +558,6 @@ public class NubBuilderTest {
 
     }
 
-
     /**
      * Synonyms must point to an accepted taxon at the same rank.
      * (Also true for infraspecific ranks in CoL ?)
@@ -565,6 +565,21 @@ public class NubBuilderTest {
     @Test
     @Ignore("write test")
     public void testSynonymValidity() throws Exception {
+
+    }
+
+    /**
+     * A homotypical synonym from a source which points to a name which is considered a heterotypical synonym in the nub
+     * must be converted into a heterotypical synoym.
+     *
+     * In the synonymy here: http://cichorieae.e-taxonomy.net/portal/cdm_dataportal/taxon/209399b6-0d3c-4f5a-9f0d-b49ebe0f9403/synonymy
+     * the Macrorhynchus humilis group (and all others below) are heterotypical synoyms of Agoseris apargioides, but they have homotypical
+     * synonyms listed under them. The final synonym relationship from Agoseris apargioides var. maritima to Agoseris apargioides is therefore
+     * a heterotypical one, not homotypic!
+     */
+    @Test
+    @Ignore("write test")
+    public void testHomoToHeteroTypicalSynonym() throws Exception {
 
     }
 

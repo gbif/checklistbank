@@ -21,6 +21,7 @@ public class NubUsage {
 
     public int usageKey;
     public String publishedIn;
+    public String scientificNameID;
     public Rank rank;
     public UUID datasetKey;
     public Origin origin;

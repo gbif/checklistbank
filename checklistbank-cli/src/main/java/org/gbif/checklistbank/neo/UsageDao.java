@@ -557,6 +557,8 @@ public class UsageDao {
         NameUsage u = new NameUsage();
         u.setKey(nub.usageKey);
         u.setScientificName(nub.parsedName.canonicalNameComplete());
+        //TODO: add a scientificNameID property to NameUsage
+        u.setTaxonID(nub.scientificNameID);
         u.setCanonicalName(nub.parsedName.canonicalName());
         u.setRank(nub.rank);
         u.setTaxonomicStatus(nub.status);
