@@ -1,11 +1,8 @@
-ChecklistBank
--------------
+# GBIF ChecklistBank
 
-A multi module project containing all ChecklistBank  modules needed, from api to webservice client. Integration tests are part of the respective modules, in particular in the webservice client and the mybatis modules.
+ChecklistBank is the taxonomy store with its associated [webservices](http://www.gbif.org/developer/species) that allows GBIF to index any number of checklist datasets and match them to a global management taxonomy, the [GBIF backbone taxonomy](http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c).
 
-The individual modules refer to each other via relative paths and share common test resources (see below).
-Therefore the entire project needs to be checked out and modules on their own are likely to be broken!
-
+This is a multi module project containing all ChecklistBank modules, from api to persistence layer to the webservice client. Integration tests are part of the respective modules, in particular in the webservice client and the mybatis modules.
 
 ### Maven profile
 To run all tests you need a maven profile with the following properties defined:
@@ -20,7 +17,7 @@ To run all tests you need a maven profile with the following properties defined:
       </properties>
     </profile>
 
-# ChecklistBank Database Schema
+# ChecklistBank database schema
 
 Checklistbank relies on postgres 9 and uses the HStore extension.  The simplest way of enabling this is to add it to the postgres template database, which is used whenever postgres creates a new one.  Thus if you run the following (or similar)
 before creating the database, you are all set:
@@ -31,4 +28,4 @@ You can create a database schema from scratch or update one to the latest versio
 
     mvn -P clb-local liquibase:update
 
-A [diagram of the database schema](schema.pdf) is available for convenience.
+A [diagram of the database schema](docs/schema.pdf) is available for convenience.
