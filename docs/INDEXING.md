@@ -1,22 +1,7 @@
 # Checklist datasets
-Checklist datasets are published as Darwin Core archives with a core rowType of [dwc:Taxon](http://rs.gbif.org/core/dwc_taxon.xml). Every core record has a unique taxonID and represents a "name usage", i.e. a taxon in the wider sense regardless whether it is accepted or a synonym. The scientific name of a taxon may not be unique and taxon concepts can be indicated by using the dwc:taxonAccordingTo term.
+Checklist datasets are published as Darwin Core archives with a core rowType of [dwc:Taxon](http://rs.gbif.org/core/dwc_taxon.xml). Every core record has a unique taxonID and represents a "name usage", i.e. a taxon in the wider sense regardless whether it is accepted or a synonym. The scientific name of a taxon may not be unique and taxon concepts can be indicated by using the dwc:taxonAccordingTo term. See [DWCA-FORMAT.md](DWCA-FORMAT.md) for details about the archive format and supported terms.
 
 In contrast to occurrence records checklist are highly relational in nature. Nearly every record is related to other records in some way. This makes imports very vulnerable and a single bad record can break checklists considerably.
-
-GBIF has published various documents that guide publishers in crafting archives:
-
- - [Publishing Species Checklists, Best Practices](http://www.gbif.org/resources/2548)
- - [GBIF GNA Profile Reference Guide for Darwin Core Archive, Core Terms and Extensions](http://www.gbif.org/resources/2562)
- - [Publishing Species Checklists, Step-by-Step Guide](http://www.gbif.org/resources/2514)
- - [Best practice guide for compiling, maintaining, disseminating national species checklists](http://www.gbif.org/resources/2306)
- - [Best practice guidelines in the development and maintenance of regional marine species checklists](http://www.gbif.org/resources/2357)
-
-Sadly they contradict each other in some areas and there is not a single, complete and up to date document available. Hopefully we can get a full publishing guide into our portal at some stage deprecating these pdf resource.
-
-In addition to GBIF documents the Catalog of Life has invested a lot of energy into developing a stricter format for publishing taxonomies as Darwin Core archives which is very useful:
-
- - [i4Life Darwin Core Archive Profile](http://www.i4life.eu/i4lifewebsite/wp-content/uploads/2012/12/i4Life-DarwinCoreArchiveProfile.pdf)
-
 
 # Messaging flow
 The checklist indexing will share the initial dwc archive crawling with occurrences and only deviate after the metadata sync has been done:
@@ -27,24 +12,33 @@ The checklist indexing will share the initial dwc archive crawling with occurren
 - *DwcaValidator* --> DwcaValidationFinishedMessage
 - *DwcaMetasyncService* --> DwcaMetasyncFinishedMessage
 
-***Note***: The validator needs to be adjusted for checklist validation. Likely new message class properties to separate occurrence & checklist validity (hasValidChecklist & hasValidOccurrences) as we also have occurrences in checklist extensions.
+Checklist specific message chain:
 
-## New checklistbank listeners
-- *ChecklistNormalizer* --> ChecklistNormalizedMessage
-- *ChecklistImporter* --> ChecklistImportedMessage
-- *ChecklistNubMatch* --> ChecklistMatchedMessage
-- *ChecklistMetrics* --> ChecklistAnalyzedMessage
+- *NormalizerService* --> ChecklistNormalizedMessage
+- *ImporterService* --> ChecklistImportedMessage
+- *ChecklistAnalysisService* --> ChecklistAnalyzedMessage
 
-***Note***: Last 2 steps kept separate so we can rematch records to a modified backbone easily every month without reimporting all datasets.
+In addition to that chain there is a deletion service that listens to registry messages:
+
+- *registry-ws* --> RegistryChangeMessages
+- *DeleteService* 
+
+# CLIs and indexing repository
+TBD
 
 # ChecklistNormalizer
 As checklist are very relational with all records being related to each other in some way, it is important to get those relations right. Darwin Core offers various ways of relating taxa (name usages) to each other. This normalizer will prepare the entire checklist data and produce a standard representation that can then easily be imported into the ChecklistBank Postgres database.
 
 In previous checklistbank implementations the write access to the Postgres database has been the major bottleneck and imports only happened sequentially and slow. A major goal for having a normalizer is to keep all load of postgres until we have very clean data that is easy to import. This allows us also to run this step in parallel if we need to.
 
-As the biggest challenge in normalization is the rewiring of taxon relations a graphdatabase like [Neo4j] (http://docs.neo4j.org/chunked/stable/) is the preferred candidate for maintaining the temporary data. As a graphdatabase neo4j also allows to easily iterate over checklist records in a taxonomic hierarchy for example to generate the nested set indices. Neo4j can be used in an embedded mode that spills to disk. 
+As the biggest challenge in normalization is the rewiring of taxon relations we use the [Neo4j graph database] (http://docs.neo4j.org/chunked/stable/) for maintaining the temporary data. As a graph database neo4j also allows to easily iterate over checklist records in a taxonomic hierarchy for example to generate the nested set indices. We use Neo4j in an embedded mode that spills to disk. 
 
 In the future it should be fairly simple to optionally produce valid dwc archives as an alternative output format of this step. This might be very useful for the community as a service to simplify dealing with checklist archives which can be very different from publisher to publisher.
+
+### DAO layer
+ - we only use neo4j for the minimal relations and lookup properties
+ - we use simple KVP stores (file based maps using [MapDB](http://www.mapdb.org/)) to persist all other data serialized with [Kryo](https://github.com/EsotericSoftware/kryo)
+ - the [UsageDao](https://github.com/gbif/checklistbank/blob/master/checklistbank-cli/src/main/java/org/gbif/checklistbank/neo/UsageDao.java) class abstracts the two storage engines
 
 ### Neo checklist graph model
 Neo4j uses a property graph model which allows to attach any number of properties to both graph nodes and relations. The graph created from a checklist will be kept simple with name usages (records) being a node potentially having the following relationships:
@@ -135,36 +129,24 @@ Gerardia | paupercula | var. | borealis  | (Pennell) Deam
 
 
 ### Verbatim data
-CLB stores the full verbatim data of a record as a JSON serlialized StarRecord instance from the dwca-reader. Store the json in a neo node property VERBATIM_JSON.
+CLB stores the full verbatim data of a record in a very efficient byte format serializing a [VerbatimNameUsage](https://github.com/gbif/gbif-api/blob/master/src/main/java/org/gbif/api/model/checklistbank/VerbatimNameUsage.java#L44) instance using the [Kryo library v3](https://github.com/EsotericSoftware/kryo). The binary format stored is never changed across minor version changes, but when kryo needs to be updated to a new major version  make sure the format has not changed.
 
 ### Checklist issues
-To keep track of issues during normalization a new NameUsageIssue enumeration should be created similar to OccurrenceIssue. A neo list property ISSUE should keep track of anything that happened.
+To keep track of issues during normalization the [NameUsageIssue enumeration](https://github.com/gbif/gbif-api/blob/master/src/main/java/org/gbif/api/vocabulary/NameUsageIssue.java) is used similar to OccurrenceIssue. A neo list property ISSUE should keep track of anything that happened.
 
 ### Dataset constituents
-Checklistbank stores the datasetKey and the constituents datasetKey for each record. We need to lookup the constituent keys from the registry by using dwc:datasetName & dwc:datasetNameID from the archive record. Instead of registry lookups we could also consider to pass a consituents map via the DwcaMetasyncFinishedMessage?
+Some checklists are made up of smaller subsets known as constituents to GBIF. Each constituent can have its own EML metadata. Every core record in the archive can have a datasetNameID or datasetName that specifies the constituent.
 
-### Extra validations
-A set of extra validations should be done and any arising issues flagged with data otherwise unchanged:
-
- - classification & rank: verify the records place in the taxonomic classification matches the given rank. Most ranks are ordered and it is wrong to place a family record above a phylum record.
- - scientificName & rank: Verify the given rank of a record is suitable for a given scientific name. For example a species binomial cannot be of rank genus.
+Checklistbank stores the main datasetKey and the constituents datasetKey for each record. We need to lookup the constituent registry key using dwc:datasetName or dwc:datasetNameID from the archive record. In order to do this easily the DwcaMetasyncService passes a map of id->UUID inside the [DwcaMetasyncFinishedMessage](https://github.com/gbif/postal-service/blob/master/src/main/java/org/gbif/common/messaging/api/messages/DwcaMetasyncFinishedMessage.java#L30).
 
 ### Name usage metrics
-Checklistbank has a name_usage_metrics table that keeps track of various counts for any record. It also holds the nested set lft/rgt indices that depend on the taxonomic parent relations in a checklist. The normalizer will generate all counts and nested set indices for each name usage record:
+Checklistbank has a name_usage_metrics table that keeps track of various counts for any record. The normalizer will generate all counts for each name usage record as a [NameUsageMetrics](https://github.com/gbif/gbif-api/blob/master/src/main/java/org/gbif/api/model/checklistbank/NameUsageMetrics.java) instance.
  
-* count_descendants: number of all usages included
-* count_children: number of all accepted taxa being direct children
-* count_synonyms: number of synonyms for this (accepted) taxon
-* count_k: number of distinct accepted kingdoms included
-* count_p: number of distinct accepted phyla included
-* count_c: number of distinct accepted classes included
-* count_o: number of distinct accepted orders included
-* count_f: number of distinct accepted families included
-* count_g: number of distinct accepted genera included
-* count_sg: number of distinct accepted subgenera included
-* count_s: number of distinct accepted species included
-* count_is: number of distinct accepted infraspecific taxa included
- * lft / rgt index: [nested set index](http://en.wikipedia.org/wiki/Nested_set_model#The_technique) - can be generated by iterating in taxonomic order from root taxa depth first to lowest taxa
+### Backbone matching
+ChecklistBank stores a mapping to the GBIF backbone for every record in all checklists. This drives a lot of things, e.g. the [Appears in section of the species pages](http://www.gbif.org/species/7222316#appearsin). Every time the backbone taxonomy changes we need to re-match all checklist records to the new backbone. This match is stored in a dedicated table `nub_rel` in postgres. This allows us to truncate the entire table quickly and reinsert new matches as we go without the need to issue slow update queries on the large, main name_usage table.
+
+The normalizer uses a configurable [backbone matching webservice](http://www.gbif.org/developer/species#searching) to match a name with its classification to the backbone and stores the key and potential issues in the KVP store. As every record in a checklist usually has a different name & classification do not use any caching ws-client like we do for occurrences.
+
 
 ### Generic data cleaning
 *All* value strings should undergo a basic cleaning doing the following:
@@ -198,16 +180,15 @@ Checklistbank is able to store information from 6 optional [GNA extensions](http
 ### description
 ### distribution
 ### alternative identifier
-### images
-CLB still has a db structure aimed at the older simple images extension. It would be good to update to the new multimedia extension and being able to also index the simple images one.
-
+### multimedia
 ### literature
 ### species info
 ### types and specimen
 Currently CLB stores specimen information together with name types for higher taxa coming from a single [Types and Specimen extension](http://rs.gbif.org/extension/gbif/1.0/typesandspecimen.xml). As we do index occurrences in checklist extensions now this is a redundant feature of ChecklistBank and it would make sense to restrict the information in CLB about type names, i.e. species can act as the type for a genus and a genus can be the type for a family. Ideally we refactor the CLB data model to only store typeSpecies and typeGenus and ignore any specimen information.
 
+
 # ChecklistImporter
-The data importer reads the embedded neo4j database, iterates over all records using a taxonomic depth-first traversal starting with the root taxa sorted in alphabetic order. This should allow us to produce a single insert statement for the core name_usage record avoiding slow subsequent update queries. 
+The data importer reads the embedded neo4j database and the KVP store. It iterates over all records using a taxonomic depth-first traversal starting with the root taxa sorted in alphabetic order. This allows us to produce a single insert or update statement for the core name_usage record which has foreign key constraints to higher taxa. 
 
 - keep stable usage ids by loading a sourceID->usageKey map on init if it was indexed before
 - delete all data for the given datasetKey in name_usage, raw_usage and all extension tables
@@ -216,14 +197,12 @@ The data importer reads the embedded neo4j database, iterates over all records u
 - similar all bibliographic citations are normalized and we need to insert/get the citationID from core publishedIn, taxonAccordingTo, bibliographicCitation values
 - for pro parte synonyms with multiple accepted taxa duplicate the core synonym record and insert several identical usage records with pointing to a different accepted parent
 - for synonyms without an accepted parent relationship insert a new `incertae sedis` usage record which then can be used to establish the higher classification parent link.
-- insert verbatim json data into `raw_usage` table
+- insert the serialized verbatim byte data into `raw_usage` table
 
 All extension records are inserted one by one with:
 
 - insert/get citationID from extension vernacular.source, literature.citation, description.source, distribution.source
 
-# ChecklistNubMatch
-ChecklistBank stores a mapping to the GBIF backbone for every record in all checklists. This drives a lot of things, e.g. the [Appears in section of the species pages](http://www.gbif.org/species/7222316#appearsin). Every time the backbone taxonomy changes we need to re-match all checklist records to the new backbone. This match is stored in a dedicated table `nub_rel` in postgres. This allows us to truncate the entire table quickly and reinsert new matches as we go without the need to issue slow update queries on the large, main name_usage table.
 
-# ChecklistMetrics
-At the very end calculate and store dataset metrics used in a [dataset stats page](http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c/stats). Up to now we generate counts stored in the dataset_metrics table via a set of sql statements which should be easy to adapt to the latest db structure.
+# ChecklistAnalysis
+At the very end we calculate and store dataset metrics used in a [dataset stats page](http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c/stats). The counts stored in the dataset_metrics table are generated by a set of sql statements.
