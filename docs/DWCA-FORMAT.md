@@ -17,17 +17,17 @@ In addition to GBIF the Catalog of Life has invested a lot of energy into develo
 # dwc:Taxon = NameUsage
 The core entity of a checklist archive is a record with a rowType of dwc:Taxon. Don't be mislead by the term "taxon". A record of type "Taxon" is a _name usage_, a generalization of a taxon or a name record. It can be anything between a purely nomenclatoral name record or a fully fledged taxon concept.
 
-# taxonID
+## taxonID
 dwc:taxonID is the primary key of a name usage record. It must be unique, but can be a local identifier only. It is the value that other foreign key terms refer to in order to establish relations between name usages. The following "foreign key" terms must reference an existing taxonID value in some record:
 
  - dwc:parentNameUsageID
  - dwc:acceptedNameUsageID
  - dwc:originalNameUsageID
 
-# scientificNameID
+## scientificNameID
 The scientificNameID is used to declare a nomeclators identifier for a given name. It is _not_ used to establish relationships inside the dataset. Ideally dwc:scientificNameID should hold a resolvable, globally unique id, e.g. a DOI, LSID or URL.
 
-# taxonConceptID & taxonAccordingTo
+## taxonConceptID & taxonAccordingTo
 The taxonConceptID can be used to identifiy the exact concept of a name usage. This is mostly useful to assert that different name usages refer to the same concept albeit using a different name. It is best used with a globally unique identifier that can be referred to across various datasets. The taxonConceptID should _not_ be used to establish additional relations inside the dataset.
 
 In order to label different taxon concepts based on the same name an additional reference is usually given (sec. / sensu). dwc:taxonAccordingTo should be used for this:
@@ -36,7 +36,7 @@ In order to label different taxon concepts based on the same name an additional 
     taxonAccordingTo: Frey 1989
 
 
-# scientific names
+## scientific names
 scientific names are accepted in 3 different formats:
 
 ### entire name with authorship is given as dwc:scientificName: 
@@ -57,17 +57,17 @@ scientific names are accepted in 3 different formats:
     verbatimTaxonRank: var.
     taxonRank: variety
 
-# rank
+## rank
 Try to use a controlled rank vocabulary or at least english rank names for dwc:taxonRank. For example the [GBIF rank enumeration](http://gbif.github.io/gbif-api/apidocs/org/gbif/api/vocabulary/Rank.html)
 
-# Verbatim vs ID terms
+## Verbatim vs ID terms
 Terms used to express relations in a dataset often exist in two forms in Darwin Core. One that takes a verbatim scientific name and one that takes an identifier (taxonID) of another record inside the dataset. If possible prefer to use the id based term which is less doubtful. The following term twins are specified in Darwin Core:
 
  - parentNameUsage & parentNameUsageID
  - acceptedNameUsage & acceptedNameUsageID
  - originalNameUsage & originalNameUsageID
 
-# Classification
+## Classification
 The classification can be published in 2 main ways. Prefer the normalized form over the denormalized if possible as it is more precise and offers a flexible hierarchy with any number of ranks.
 
 ### Normalized classification
