@@ -7,6 +7,7 @@ import org.gbif.checklistbank.nub.source.ClbUsageSource;
 import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
+import java.net.URI;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -20,32 +21,36 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("PublicField")
 public class NubConfiguration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NubConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NubConfiguration.class);
 
-  @ParametersDelegate
-  @NotNull
-  @Valid
-  public MessagingConfiguration messaging = new MessagingConfiguration();
+    @ParametersDelegate
+    @NotNull
+    @Valid
+    public MessagingConfiguration messaging = new MessagingConfiguration();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public NeoConfiguration neo = new NeoConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public NeoConfiguration neo = new NeoConfiguration();
 
-  @ParametersDelegate
-  @Valid
-  @NotNull
-  public ClbConfiguration clb = new ClbConfiguration();
+    @ParametersDelegate
+    @Valid
+    @NotNull
+    public ClbConfiguration clb = new ClbConfiguration();
 
-  @ParametersDelegate
-  @NotNull
-  @Valid
-  public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+    @ParametersDelegate
+    @NotNull
+    @Valid
+    public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
 
-  /**
-   * @return a new usage source for a nub built that uses the configured registry to list tagged checklists
-   */
-  public UsageSource usageSource() {
-    return new ClbUsageSource(this);
-  }
+    @NotNull
+    @Valid
+    public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
+
+    /**
+     * @return a new usage source for a nub built that uses the configured registry to list tagged checklists
+     */
+    public UsageSource usageSource() {
+        return new ClbUsageSource(this);
+    }
 }

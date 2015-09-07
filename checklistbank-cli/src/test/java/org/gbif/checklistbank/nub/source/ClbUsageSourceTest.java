@@ -3,17 +3,15 @@ package org.gbif.checklistbank.nub.source;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.model.registry.MachineTag;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
-import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
-import org.gbif.checklistbank.nub.model.NubTags;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -25,7 +23,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
@@ -33,7 +30,8 @@ import static org.mockito.Mockito.when;
 public class ClbUsageSourceTest {
 
     private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
-    private static ClbConfiguration cfg = new ClbConfiguration();
+    private static final UUID ORG_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984");
+    private static NubConfiguration cfg = new NubConfiguration();
     private ClbUsageSource src;
     private DatasetService ds;
     private OrganizationService os;
@@ -49,23 +47,13 @@ public class ClbUsageSourceTest {
         Dataset squirrel = new Dataset();
         squirrel.setKey(CHECKLIST_KEY);
         squirrel.setTitle("Squirrels");
-        squirrel.addMachineTag(new MachineTag(NubTags.NAMESPACE, NubTags.PRIORITY.tag, "10"));
-        squirrel.addMachineTag(new MachineTag(NubTags.NAMESPACE, NubTags.RANK_LIMIT.tag, "KINGDOM"));
-        PagingResponse<Dataset> resp = new PagingResponse<Dataset>();
-        resp.setCount(1l);
-        resp.getResults().add(squirrel);
-        when(ds.listByType(any(DatasetType.class), any(PagingRequest.class))).thenReturn(resp);
+        when(ds.get(eq(CHECKLIST_KEY))).thenReturn(squirrel);
 
         os = Mockito.mock(OrganizationService.class);
         Organization org1 = new Organization();
-        org1.setKey(UUID.randomUUID());
+        org1.setKey(ORG_KEY);
         org1.setTitle("Org1");
-        org1.addMachineTag(new MachineTag(NubTags.NAMESPACE, NubTags.PRIORITY.tag, "100"));
-        org1.addMachineTag(new MachineTag(NubTags.NAMESPACE, NubTags.RANK_LIMIT.tag, "GENUS"));
-        PagingResponse<Organization> resp2 = new PagingResponse<Organization>();
-        resp2.setCount(1l);
-        resp2.getResults().add(org1);
-        when(os.list(any(PagingRequest.class))).thenReturn(resp2);
+        when(os.get(eq(ORG_KEY))).thenReturn(org1);
 
         oldDKey = UUID.randomUUID();
         final Date now = new Date();
@@ -85,10 +73,11 @@ public class ClbUsageSourceTest {
 
         // use default prod API
         Properties props = dbunit.getProperties();
-        cfg.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
-        cfg.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
-        cfg.user = props.getProperty("checklistbank.db.dataSource.user");
-        cfg.password = props.getProperty("checklistbank.db.dataSource.password");
+        cfg.clb.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
+        cfg.clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
+        cfg.clb.user = props.getProperty("checklistbank.db.dataSource.user");
+        cfg.clb.password = props.getProperty("checklistbank.db.dataSource.password");
+        cfg.sourceList = URI.create("nub-test-sources.txt");
         src = new ClbUsageSource(ds, os, cfg);
     }
 
@@ -99,14 +88,13 @@ public class ClbUsageSourceTest {
     public void testListSources() throws Exception {
         List<NubSource> sources = src.listSources();
         assertEquals(3, sources.size());
-        assertEquals(10, sources.get(0).priority);
-        assertEquals(100, sources.get(1).priority);
-        assertEquals(100, sources.get(2).priority);
-        assertEquals(Rank.KINGDOM, sources.get(0).ignoreRanksAbove);
-        assertEquals(Rank.GENUS, sources.get(1).ignoreRanksAbove);
-        assertEquals(Rank.GENUS, sources.get(2).ignoreRanksAbove);
+        assertEquals(1, sources.get(0).priority);
+        assertEquals(2, sources.get(1).priority);
+        assertEquals(2, sources.get(2).priority);
+        assertEquals(Rank.PHYLUM, sources.get(0).ignoreRanksAbove);
+        assertEquals(Rank.FAMILY, sources.get(1).ignoreRanksAbove);
+        assertEquals(Rank.FAMILY, sources.get(2).ignoreRanksAbove);
         assertEquals(oldDKey, sources.get(2).key);
-        assertNotEquals(oldDKey, sources.get(1).key);
     }
 
     @Test

@@ -1,34 +1,31 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.model.registry.MachineTag;
-import org.gbif.api.model.registry.MachineTaggable;
-import org.gbif.api.model.registry.NetworkEntity;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
-import org.gbif.api.util.MachineTagUtils;
-import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.nub.model.NubTags;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.io.CSVReader;
+import org.gbif.utils.file.FileUtils;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
-import com.beust.jcommander.internal.Sets;
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.google.inject.Injector;
+import org.neo4j.helpers.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,52 +39,28 @@ public class ClbUsageSource implements UsageSource {
     private List<NubSource> sources;
     private final DatasetService datasetService;
     private final OrganizationService organizationService;
-    private final ClbConfiguration clbCfg;
+    private final NubConfiguration cfg;
 
     public ClbUsageSource(NubConfiguration cfg) {
-        this.clbCfg = cfg.clb;
+        this.cfg = cfg;
         LOG.info("Loading backbone sources from registry {}", cfg.registry.wsUrl);
         Injector regInj = cfg.registry.createRegistryInjector();
         datasetService = regInj.getInstance(DatasetService.class);
         organizationService = regInj.getInstance(OrganizationService.class);
     }
 
-    public ClbUsageSource(DatasetService datasetService, OrganizationService organizationService, ClbConfiguration cfg) {
+    public ClbUsageSource(DatasetService datasetService, OrganizationService organizationService, NubConfiguration cfg) {
         this.datasetService = datasetService;
         this.organizationService = organizationService;
-        clbCfg = cfg;
+        this.cfg = cfg;
     }
 
     @Override
     public List<NubSource> listSources() {
         if (sources == null) {
-            loadSourcesFromRegistry();
+            loadSources();
         }
         return sources;
-    }
-
-    private <T extends MachineTaggable & NetworkEntity> Integer getNubPriority(T entity) {
-        MachineTag priority = MachineTagUtils.firstTag(entity, NubTags.NAMESPACE, NubTags.PRIORITY.tag);
-        if (priority != null) {
-            try {
-                return Integer.valueOf(priority.getValue());
-            } catch (NumberFormatException e) {
-                LOG.warn("Bad backbone priority for entity {} is not an integer: {}. Ignore", entity.getKey(), priority.getValue());
-            }
-        }
-        return null;
-    }
-
-    private <T extends MachineTaggable & NetworkEntity> Rank getNubRank(T entity) {
-        MachineTag rank = MachineTagUtils.firstTag(entity, NubTags.NAMESPACE, NubTags.RANK_LIMIT.tag);
-        if (rank != null) {
-            try {
-                return VocabularyUtils.lookupEnum(rank.getValue(), Rank.class);
-            } catch (IllegalArgumentException e) {
-                LOG.warn("Bad backbone rank tag for entity {}: {}. Ignore", entity.getKey(), rank.getValue());
-            }
-        }
-        return null;
     }
 
     private NubSource buildSource(Dataset d, int priority, Rank rank) {
@@ -103,38 +76,58 @@ public class ClbUsageSource implements UsageSource {
         return src;
     }
 
-    private void loadSourcesFromRegistry() {
-        sources = Lists.newArrayList();
+    private void loadSources() {
         Set<UUID> keys = Sets.newHashSet();
-        for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
-            Integer priority = getNubPriority(d);
-            if (priority != null) {
-                Rank rank = getNubRank(d);
-                NubSource src = buildSource(d, priority, rank);
-                keys.add(d.getKey());
-                sources.add(src);
+        sources = Lists.newArrayList();
+
+        try {
+            InputStream stream;
+            if (cfg.sourceList.isAbsolute()) {
+                stream = cfg.sourceList.toURL().openStream();
+            } else {
+                stream = FileUtils.classpathStream(cfg.sourceList.toString());
             }
-        }
-        // look for tagged organizations, e.g. Pensoft journals
-        for (Organization org : Iterables.organizations(null, organizationService)) {
-            Integer priority = getNubPriority(org);
-            Rank rank = getNubRank(org);
-            if (priority != null) {
-                int counter = 0;
-                for (Dataset d : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
-                    if (!keys.contains(d.getKey())) {
-                        NubSource src = buildSource(d, priority, rank);
-                        keys.add(d.getKey());
-                        sources.add(src);
-                        counter++;
+            CSVReader reader = new CSVReader(stream, "UTF-8", "\t", null, 0);
+            Integer priority = 0;
+            for (String[] row : reader) {
+                if (row.length < 1) continue;
+                UUID key = UUID.fromString(row[0]);
+                if (keys.contains(key)) continue;
+                keys.add(key);
+                priority++;
+
+                Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
+                Dataset d = datasetService.get(key);
+                if (d != null) {
+                    NubSource src = buildSource(d, priority, rank);
+                    sources.add(src);
+
+                } else {
+                    // try if its an organization
+                    Organization org = organizationService.get(key);
+                    if (org == null) {
+                        LOG.warn("Unknown nub source {}. Ignore", key);
+                    } else {
+                        int counter = 0;
+                        for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
+                            if (!keys.contains(d2.getKey())) {
+                                NubSource src = buildSource(d2, priority, rank);
+                                sources.add(src);
+                                counter++;
+                            }
+                        }
+                        LOG.info("Found {} new nub sources published by organization {} {}", counter, org.getKey(), org.getTitle());
                     }
                 }
-                LOG.info("Found {} new nub sources published by organization {} {}", counter, org.getKey(), org.getTitle());
             }
-        }
-        LOG.info("Found {} tagged backbone sources in the registry", sources.size());
 
-        // sort source according to priority
+        } catch (Exception e) {
+            LOG.error("Cannot read nub sources from {}", cfg.sourceList);
+            throw new RuntimeException(e);
+        }
+        LOG.info("Found {} backbone sources", sources.size());
+
+        // sort source according to priority and date created (for org datasets!)
         Ordering<NubSource> order = Ordering
             .natural()
             //.reverse()
@@ -163,7 +156,7 @@ public class ClbUsageSource implements UsageSource {
     @Override
     public Iterable<SrcUsage> iterateSource(NubSource source) {
         try {
-            return new ClbUsageIteratorNeo(clbCfg, source);
+            return new ClbUsageIteratorNeo(cfg.clb, source);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
