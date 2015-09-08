@@ -1727,11 +1727,11 @@ c28tYTSGhoY=
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[276.000000]]></SourceSidebarWidth>
         <uid><![CDATA[5E8EB31B-8545-4230-BCED-6159358025AF]]></uid>
-        <windowHeight><![CDATA[1131.000000]]></windowHeight>
-        <windowLocationX><![CDATA[5.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[46.000000]]></windowLocationY>
+        <windowHeight><![CDATA[840.000000]]></windowHeight>
+        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[37.000000]]></windowLocationY>
         <windowScrollOrigin><![CDATA[{137, 14}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1860.000000]]></windowWidth>
+        <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <containerName><![CDATA[model controller orginal container]]></containerName>

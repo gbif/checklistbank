@@ -35,6 +35,7 @@ import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
@@ -316,6 +317,7 @@ public class Importer extends ImportDb implements Runnable {
     protected NameUsage buildClbNameUsage(Node n, @Nullable ClassificationKeys classification) {
         // this is using neo4j internal node ids as keys:
         NameUsage u = dao.readUsage(n, true);
+        Preconditions.checkNotNull(u, "Node %s not found in kvp store", n.getId());
         if (classification != null) {
             ClassificationUtils.copyLinneanClassificationKeys(classification, u);
         }

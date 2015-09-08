@@ -299,6 +299,16 @@ public class NubBuilder implements Runnable {
 
     private void setEmptyGroupsDoubtful() {
         LOG.info("flag empty genera as doubtful");
+        for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
+            if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
+                NubUsage nub = db.dao.readNub(gen);
+                if (TaxonomicStatus.ACCEPTED == nub.status) {
+                    nub.status = TaxonomicStatus.DOUBTFUL;
+                    nub.issues.add(NameUsageIssue.LACKING_SPECIES);
+                    db.store(nub);
+                }
+            }
+        }
     }
 
     private void addDatasets() {
@@ -652,30 +662,33 @@ public class NubBuilder implements Runnable {
                 // we keep the first accepted with the highest priority and make all others synoynms
                 NubUsage acc = accepted.remove(0);
                 for (NubUsage u : accepted) {
-                    //u.status = TaxonomicStatus.DOUBTFUL;
-                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM);
+                    // also convert any accepted descendants to synonyms
+                    for (Node dnode : Traversals.ACCEPTED_DESCENDANTS.traverse(u.node).nodes()) {
+                        NubUsage desc = db.dao.readNub(dnode);
+                        convertToSynonym(desc, acc, TaxonomicStatus.SYNONYM);
+                    }
+                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM, NameUsageIssue.BASIONYM_GROUP_MULTI_ACCEPTED);
                 }
             }
         }
     }
 
     /**
+     * Converts an accepted usage and all its children to a synonym
+     * See http://dev.gbif.org/issues/browse/POR-398
      * @param u the accepted usage to convert
      * @param acc the accepted taxon the converted synonym should point to
-     * @deprecated converting an accepted name to a synonym has all sorts of side effect we so far do not control. See http://dev.gbif.org/issues/browse/POR-398
      */
-    @Deprecated
-    private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status) {
+    private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status, NameUsageIssue ... issues) {
         LOG.info("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
         // change status
         u.status = status;
-        // change parent relation of all children
-        //TODO: Relinked children might cause them to be in a different genus which requires a recombination of the name, see verifyAcceptedSpecies()
-        db.assignParentToChildren(u.node, acc);
-        // add synonymOf relation
+        // add synonymOf relation and delete existing parentOf relations
         db.createSynonymRelation(u.node, acc.node);
         // flag issue
-        u.issues.add(NameUsageIssue.STATUS_DERIVED);
+        for (NameUsageIssue issue : issues) {
+            u.issues.add(issue);
+        }
         // usage was changed, update it in kvp store
         db.store(u);
     }
