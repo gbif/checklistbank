@@ -328,16 +328,17 @@ public class NubBuilder implements Runnable {
         LOG.info("Adding source {}", source.name);
         currSrc = source;
         priorities.put(source.key, source.priority);
-        // prepare set of allowed ranks for this source
+        // clear dataset wide caches
+        parents.clear();
+        basionymRels.clear();
+        src2NubKey.clear();
         allowedRanks.clear();
+        // prepare set of allowed ranks for this source
         for (Rank r : Rank.values()) {
             if (NUB_RANKS.contains(r) && r.ordinal() >= source.ignoreRanksAbove.ordinal()) {
                 allowedRanks.add(r);
             }
         }
-        parents.clear();
-        basionymRels.clear();
-        src2NubKey.clear();
         int start = sourceUsageCounter;
         for (SrcUsage u : usageSource.iterateSource(source)) {
             LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
@@ -419,7 +420,7 @@ public class NubBuilder implements Runnable {
                 } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
                     // prefer accepted over synonym if from the same source
                     LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
-                    db.delete(nub);
+                    delete(nub);
                     nub = createNubUsage(u, origin, parent);
 
                 } else {
@@ -447,6 +448,14 @@ public class NubBuilder implements Runnable {
         }
 
         return nub;
+    }
+
+    private void delete(NubUsage nub) {
+        for (int srcId : nub.sourceIds) {
+            src2NubKey.remove(srcId);
+        }
+        basionymRels.remove(nub.node.getId());
+        db.dao.delete(nub);
     }
 
     private boolean authorsDiffer(ParsedName pn1, ParsedName pn2) {

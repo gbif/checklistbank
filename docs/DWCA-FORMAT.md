@@ -39,16 +39,18 @@ In order to label different taxon concepts based on the same name an additional 
 ## scientific names
 scientific names are accepted in 3 different formats:
 
-### entire name with authorship is given as dwc:scientificName: 
+__1 - entire name with authorship__ 
+
+given as dwc:scientificName
 
     scientificName: Abies alba var. alpina Mill.
 
-### canonical & author
+__2 - canonical & author__
 
     scientificName: Abies alba var. alpina
     scientificNameAuthorship: Mill.
 
-### atomized
+__3 - atomized__
 
     genus: Abies
     specificEpithet: alba

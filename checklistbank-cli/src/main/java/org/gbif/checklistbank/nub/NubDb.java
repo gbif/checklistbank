@@ -24,6 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -87,9 +88,9 @@ public class NubDb {
     }
 
     /**
-     * @return the neo node with the given node id
+     * @return the neo node with the given node id or throw NotFoundException if it cannot be found!
      */
-    public Node getNode(long id) {
+    public Node getNode(long id) throws NotFoundException {
         return dao.getNeo().getNodeById(id);
     }
 
@@ -271,14 +272,6 @@ public class NubDb {
                 break;
         }
         return store(nub);
-    }
-
-    /**
-     * Removes a nub usage from the db.
-     * Only synonyms are currently supported and it is verified that the usage does not have any further relations.
-     */
-    public void delete(NubUsage nub) {
-        dao.delete(nub);
     }
 
     /**
