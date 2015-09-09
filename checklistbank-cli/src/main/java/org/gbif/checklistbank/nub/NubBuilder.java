@@ -299,15 +299,20 @@ public class NubBuilder implements Runnable {
 
     private void setEmptyGroupsDoubtful() {
         LOG.info("flag empty genera as doubtful");
-        for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
-            if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
-                NubUsage nub = db.dao.readNub(gen);
-                if (TaxonomicStatus.ACCEPTED == nub.status) {
-                    nub.status = TaxonomicStatus.DOUBTFUL;
-                    nub.issues.add(NameUsageIssue.LACKING_SPECIES);
-                    db.store(nub);
+        try {
+            db.openTx();
+            for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
+                if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
+                    NubUsage nub = db.dao.readNub(gen);
+                    if (TaxonomicStatus.ACCEPTED == nub.status) {
+                        nub.status = TaxonomicStatus.DOUBTFUL;
+                        nub.issues.add(NameUsageIssue.LACKING_SPECIES);
+                        db.store(nub);
+                    }
                 }
             }
+        } finally {
+            db.closeTx();
         }
     }
 
