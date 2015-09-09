@@ -1,4 +1,5 @@
 1			KINGDOM	ACCEPTED		Plantae
+2			KINGDOM	ACCEPTED		Viruses
 
 10	1		FAMILY	ACCEPTED		Asteraceae
 20	10		GENUS	DOUBTFUL		Albi
@@ -13,3 +14,6 @@
 12	1		FAMILY	ACCEPTED		Gentianaceae
 22	12		GENUS	DOUBTFUL		Albi
 202	22		SPECIES	DOUBTFUL		Albi minki W. Wight
+
+1000	1		VARIETY	DOUBTFUL		Navicula var. fasciata
+2000	2		SPECIES	ACCEPTED		Bacillus phage G

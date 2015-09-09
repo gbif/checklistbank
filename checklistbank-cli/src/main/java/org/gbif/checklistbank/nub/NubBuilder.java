@@ -346,20 +346,23 @@ public class NubBuilder implements Runnable {
         }
         int start = sourceUsageCounter;
         for (SrcUsage u : usageSource.iterateSource(source)) {
-            LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
-            sourceUsageCounter++;
-            parents.add(u);
-            // replace accepted taxa with doubtful ones for all nomenclators
-            if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
-                u.status = TaxonomicStatus.DOUBTFUL;
-            }
             try {
-                NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-                if (nub != null) {
-                    parents.put(nub);
+                LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+                sourceUsageCounter++;
+                parents.add(u);
+                // replace accepted taxa with doubtful ones for all nomenclators
+                if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                    u.status = TaxonomicStatus.DOUBTFUL;
                 }
+                    NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+                    if (nub != null) {
+                        parents.put(nub);
+                    }
+            } catch (IgnoreSourceUsageException e) {
+                LOG.error("Ignore usage {} {}", u.key, u.scientificName);
+
             } catch (RuntimeException e) {
-                LOG.error("Error processing {} for source {}", u.scientificName, source.name, e);
+                LOG.error("Error processing {} from source {}", u.scientificName, source.name, e);
             }
         }
         db.renewTx();
@@ -395,63 +398,56 @@ public class NubBuilder implements Runnable {
         return false;
     }
 
-    private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) {
+    private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
         Preconditions.checkNotNull(u.status);
         // try to parse name
-        NubUsage nub = null;
-        try {
-            addParsedNameIfNull(u);
-            nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
-            // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
-            if (nub == null && u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
-                ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
-                if (kResult.isSuccessful()) {
-                    nub = kingdoms.get(kResult.getPayload());
-                }
+        addParsedNameIfNull(u);
+        NubUsage nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
+        // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
+        if (nub == null && u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
+            ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
+            if (kResult.isSuccessful()) {
+                nub = kingdoms.get(kResult.getPayload());
             }
-            if (u.rank != null && allowedRanks.contains(u.rank)) {
-                if (nub == null) {
-                    // create new nub usage if there wasnt any yet
-                    nub = createNubUsage(u, origin, parent);
-
-                } else if (nub.status.isSynonym() == u.status.isSynonym()) {
-                    // update nub usage if status matches
-                    updateNub(nub, u, origin, parent);
-
-                } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
-                    // create new nub usage with different status and authorship as before
-                    nub = createNubUsage(u, origin, parent);
-
-                } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
-                    // prefer accepted over synonym if from the same source
-                    LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
-                    delete(nub);
-                    nub = createNubUsage(u, origin, parent);
-
-                } else {
-                    LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
-                }
-
-                if (nub != null) {
-                    if (u.key != null) {
-                        // remember all original source usage key to nub id mappings per dataset
-                        src2NubKey.put(u.key, nub.node.getId());
-                    }
-                    if (u.originalNameKey != null) {
-                        // remember basionym relation.
-                        // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
-                        // we will process all basionyms at the end of each source dataset
-                        basionymRels.put(nub.node.getId(), u.originalNameKey);
-                    }
-                }
-            } else {
-                LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
-            }
-
-        } catch (IgnoreSourceUsageException e) {
-            LOG.info("Ignore usage {} {}: {}", e.key, e.name, e.getMessage());
         }
+        if (u.rank != null && allowedRanks.contains(u.rank)) {
+            if (nub == null) {
+                // create new nub usage if there wasnt any yet
+                nub = createNubUsage(u, origin, parent);
 
+            } else if (nub.status.isSynonym() == u.status.isSynonym()) {
+                // update nub usage if status matches
+                updateNub(nub, u, origin, parent);
+
+            } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
+                // create new nub usage with different status and authorship as before
+                nub = createNubUsage(u, origin, parent);
+
+            } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
+                // prefer accepted over synonym if from the same source
+                LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
+                delete(nub);
+                nub = createNubUsage(u, origin, parent);
+
+            } else {
+                LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
+            }
+
+            if (nub != null) {
+                if (u.key != null) {
+                    // remember all original source usage key to nub id mappings per dataset
+                    src2NubKey.put(u.key, nub.node.getId());
+                }
+                if (u.originalNameKey != null) {
+                    // remember basionym relation.
+                    // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
+                    // we will process all basionyms at the end of each source dataset
+                    basionymRels.put(nub.node.getId(), u.originalNameKey);
+                }
+            }
+        } else {
+            LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
+        }
         return nub;
     }
 
@@ -537,7 +533,7 @@ public class NubBuilder implements Runnable {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
             } catch (UnparsableException e) {
                 // allow virus names in the nub
-                if (e.type.isBackboneType()) {
+                if (e.type != null && e.type.isBackboneType()) {
                     u.parsedName = new ParsedName();
                     u.parsedName.setScientificName(u.scientificName);
                     u.parsedName.setType(e.type);
