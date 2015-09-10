@@ -64,13 +64,14 @@ The denormalized format provides the major Linnean ranks of the classification a
  - subgenus
 
 Not all taxa of the given classification might explicitly exist in the dataset as a record.
-For example image a checklist of just one record like this:
+For example image a checklist of just two records like this:
 
 taxonID | scientificName | taxonRank | family | order | kingdom
 --- | --- | --- | --- | --- | ---
 t1 | Abies alba Mill. | species | Pinaceae | Pinales | Plantae
+t2 | Picea abies (L.) H. Karst. | species | Pinaceae | Pinales | Plantae
 
-As checklist bank stores the classification in a parent child relationship exclusively, we need to "materialize" implicit higher taxa so we ultimately end up with 4 records like this:
+As checklist bank stores the classification in a parent child relationship exclusively, we need to "materialize" implicit higher taxa so we ultimately end up with 5 records like this:
 
 taxonID | parentID | scientificName | rank | origin
 --- | --- | --- | --- | ---
@@ -78,6 +79,7 @@ t1 | 001 | Abies alba Mill. | species | SOURCE
 001 | 002 | Pinaceae | family | DENORMED_CLASSIFICATION
 002 | 003 | Pinales | order | DENORMED_CLASSIFICATION
 003 |  | Plantae | kingdom | DENORMED_CLASSIFICATION
+t2 | 001 | Picea abies (L.) H. Karst. | species | SOURCE
 
 Note that we have created new synthetic taxonIDs and kept track of *why* a record exists in checklist bank with the help of the [origin enumeration](http://gbif.github.io/gbif-api/apidocs/org/gbif/api/vocabulary/Origin.html).
 

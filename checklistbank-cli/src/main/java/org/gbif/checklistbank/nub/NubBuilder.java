@@ -361,8 +361,13 @@ public class NubBuilder implements Runnable {
             } catch (IgnoreSourceUsageException e) {
                 LOG.error("Ignore usage {} {}", u.key, u.scientificName);
 
+            } catch (StackOverflowError e) {
+                // if this happens its time to fix some code!
+                LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
+                LOG.error("CAUSE: {}", u.parsedName);
+
             } catch (RuntimeException e) {
-                LOG.error("Error processing {} from source {}", u.scientificName, source.name, e);
+                LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
             }
         }
         db.renewTx();
