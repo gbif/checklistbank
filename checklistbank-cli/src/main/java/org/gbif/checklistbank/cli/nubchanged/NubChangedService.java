@@ -190,29 +190,30 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     private void updateDataset(Dataset d) throws Exception {
         LOG.info("Rematch checklist {} {} to changed backbone", d.getKey(), d.getTitle());
         Map<Integer, Integer> relations = Maps.newHashMap();
-        ClbUsageIteratorNeo iter = new ClbUsageIteratorNeo(cfg.clb, d.getKey(), d.getTitle());
-        NubUsage unknown = new NubUsage();
-        unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
-        unknown.kingdom = Kingdom.INCERTAE_SEDIS;
-        // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
-        ParentStack parents = new ParentStack(unknown);
-        for (SrcUsage u : iter) {
-            parents.add(u);
-            LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
-            if (match != null) {
-                // add to relations
-                relations.put(u.key, match.getKey());
-                // store current kingdom in parent stack for further nub lookups of children
-                NubUsage nub = new NubUsage();
-                nub.kingdom = match.getKingdom();
-                parents.put(nub);
-            } else {
-                // also store no matches as nulls so we can flag an issue
-                relations.put(u.key, null);
+        try (ClbUsageIteratorNeo iter = new ClbUsageIteratorNeo(cfg.clb, d.getKey(), d.getTitle())) {
+            NubUsage unknown = new NubUsage();
+            unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
+            unknown.kingdom = Kingdom.INCERTAE_SEDIS;
+            // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
+            ParentStack parents = new ParentStack(unknown);
+            for (SrcUsage u : iter) {
+                parents.add(u);
+                LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
+                if (match != null) {
+                    // add to relations
+                    relations.put(u.key, match.getKey());
+                    // store current kingdom in parent stack for further nub lookups of children
+                    NubUsage nub = new NubUsage();
+                    nub.kingdom = match.getKingdom();
+                    parents.put(nub);
+                } else {
+                    // also store no matches as nulls so we can flag an issue
+                    relations.put(u.key, null);
+                }
             }
+            LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
+            importService.insertNubRelations(d.getKey(), relations);
         }
-        LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
-        importService.insertNubRelations(d.getKey(), relations);
     }
 
     @Override

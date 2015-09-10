@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.utils.file.InputStreamUtils;
 
 import java.io.InputStream;
@@ -92,7 +91,7 @@ public class ClasspathUsageSource implements UsageSource {
   }
 
   @Override
-  public Iterable<SrcUsage> iterateSource(NubSource source) {
+  public SourceIterable iterateSource(NubSource source) {
     try {
       return new ClasspathUsageIteratorNeo(source);
     } catch (Exception e) {

@@ -9,7 +9,6 @@ import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
 
@@ -154,7 +153,7 @@ public class ClbUsageSource implements UsageSource {
     }
 
     @Override
-    public Iterable<SrcUsage> iterateSource(NubSource source) {
+    public SourceIterable iterateSource(NubSource source) {
         try {
             return new ClbUsageIteratorNeo(cfg.clb, source);
         } catch (Exception e) {

@@ -60,7 +60,8 @@ public class Traversals {
             .evaluator(Evaluators.excludeStartPosition());
 
     /**
-     * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name
+     * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.
+     * The traversal includes the initial starting node!
      */
     public static final TraversalDescription ACCEPTED_DESCENDANTS = new MonoDirectionalTraversalDescription()
             .depthFirst()

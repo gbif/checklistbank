@@ -26,6 +26,7 @@ import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.NubSource;
+import org.gbif.checklistbank.nub.source.SourceIterable;
 import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.common.parsers.KingdomParser;
@@ -60,6 +61,7 @@ import com.google.inject.Injector;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -345,30 +347,36 @@ public class NubBuilder implements Runnable {
             }
         }
         int start = sourceUsageCounter;
-        for (SrcUsage u : usageSource.iterateSource(source)) {
-            try {
-                LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
-                sourceUsageCounter++;
-                parents.add(u);
-                // replace accepted taxa with doubtful ones for all nomenclators
-                if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
-                    u.status = TaxonomicStatus.DOUBTFUL;
-                }
-                    NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-                    if (nub != null) {
-                        parents.put(nub);
+        try (SourceIterable iter = usageSource.iterateSource(source)) {
+            for (SrcUsage u : iter) {
+                // catch errors processing individual records too
+                try {
+                    LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+                    sourceUsageCounter++;
+                    parents.add(u);
+                    // replace accepted taxa with doubtful ones for all nomenclators
+                    if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                        u.status = TaxonomicStatus.DOUBTFUL;
                     }
-            } catch (IgnoreSourceUsageException e) {
-                LOG.error("Ignore usage {} {}", u.key, u.scientificName);
+                        NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+                        if (nub != null) {
+                            parents.put(nub);
+                        }
+                } catch (IgnoreSourceUsageException e) {
+                    LOG.error("Ignore usage {} {}", u.key, u.scientificName);
 
-            } catch (StackOverflowError e) {
-                // if this happens its time to fix some code!
-                LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
-                LOG.error("CAUSE: {}", u.parsedName);
+                } catch (StackOverflowError e) {
+                    // if this happens its time to fix some code!
+                    LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
+                    LOG.error("CAUSE: {}", u.parsedName);
 
-            } catch (RuntimeException e) {
-                LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+                } catch (RuntimeException e) {
+                    LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+                }
             }
+
+        } catch (Exception e) {
+            LOG.error("Error processing source {}", source.name, e);
         }
         db.renewTx();
 
@@ -538,7 +546,7 @@ public class NubBuilder implements Runnable {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
             } catch (UnparsableException e) {
                 // allow virus names in the nub
-                if (e.type != null && e.type.isBackboneType()) {
+                if (e.type == NameType.VIRUS) {
                     u.parsedName = new ParsedName();
                     u.parsedName.setScientificName(u.scientificName);
                     u.parsedName.setType(e.type);
@@ -678,7 +686,7 @@ public class NubBuilder implements Runnable {
                 NubUsage acc = accepted.remove(0);
                 for (NubUsage u : accepted) {
                     // also convert any accepted descendants to synonyms
-                    for (Node dnode : Traversals.ACCEPTED_DESCENDANTS.traverse(u.node).nodes()) {
+                    for (Node dnode : Traversals.ACCEPTED_DESCENDANTS.evaluator(Evaluators.excludeStartPosition()).traverse(u.node).nodes()) {
                         NubUsage desc = db.dao.readNub(dnode);
                         convertToSynonym(desc, acc, TaxonomicStatus.SYNONYM);
                     }

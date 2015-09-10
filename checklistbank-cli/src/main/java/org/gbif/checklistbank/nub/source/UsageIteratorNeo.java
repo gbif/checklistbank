@@ -11,7 +11,6 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.UUID;
@@ -44,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * Implement the abstract method to init a neo db using the included NeoUsageWriter class.
  */
-public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable {
+public abstract class UsageIteratorNeo implements SourceIterable {
     private static final Logger LOG = LoggerFactory.getLogger(UsageIteratorNeo.class);
 
     protected final UUID datasetKey;
@@ -106,7 +105,7 @@ public abstract class UsageIteratorNeo implements Iterable<SrcUsage>, Closeable 
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             tx.close();
         }
     }

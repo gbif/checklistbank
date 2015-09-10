@@ -1,7 +1,5 @@
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.checklistbank.nub.model.SrcUsage;
-
 import java.util.List;
 
 public interface UsageSource {
@@ -13,6 +11,6 @@ public interface UsageSource {
    * The iteration is in taxonomic order, starting with the highest root taxa and walks
    * the taxonomic tree in depth order first, including synonyms.
    */
-  Iterable<SrcUsage> iterateSource(NubSource source);
+  SourceIterable iterateSource(NubSource source);
 
 }

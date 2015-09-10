@@ -373,6 +373,22 @@ public class NubBuilderTest {
     }
 
     /**
+     * Avoid seeing a stackoverflow error when trying to create missing genus or autonyms
+     * with incomplete names missing a genus but that can be parsed.
+     */
+    @Test
+    public void testIncompleteNames() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(24);
+        src.setSourceRank(24, Rank.FAMILY);
+        build(src);
+
+        assertTrue(listCanonical("doliolum").isEmpty());
+        assertTrue(listCanonical("Aster doliolum").isEmpty());
+        assertTrue(listCanonical("Cichorium doliolum").isEmpty());
+        assertTrue(listCanonical("Cichorium doliolum doliolum").isEmpty());
+    }
+
+    /**
      * CoL contains the genus Albizia twice within the plants as an accepted name (Fabaceae & Asteraceae).
      * http://www.catalogueoflife.org/col/details/species/id/17793647/source/tree
      * http://www.catalogueoflife.org/col/details/species/id/11468181/source/tree
@@ -395,7 +411,7 @@ public class NubBuilderTest {
         assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
         NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
 
-        // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful or accepted as sources suggest)
+        // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful as sources suggest)
         assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, tomentosa);
         assertCanonical("Albi adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, adianthifolia);
     }
