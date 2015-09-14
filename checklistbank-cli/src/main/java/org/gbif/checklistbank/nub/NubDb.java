@@ -14,6 +14,7 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -215,7 +216,7 @@ public class NubDb {
         }
     }
 
-    public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey) {
+    public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {
         LOG.debug("create {} {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.getScientificName(), src.rank, parent == null ? "none" : parent.parsedName.getScientificName());
 
         NubUsage nub = new NubUsage(src);
@@ -224,7 +225,7 @@ public class NubDb {
         if (src.key != null) {
             nub.sourceIds.add(src.key);
         }
-
+        Collections.addAll(nub.issues, issues);
         return addUsage(parent, nub);
     }
 

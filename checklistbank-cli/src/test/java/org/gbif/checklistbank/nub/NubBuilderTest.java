@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -301,11 +302,13 @@ public class NubBuilderTest {
         NubUsage amph = assertCanonical("Amphioctopus", "Fischer, 1882", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.SYNONYM, oct);
 
         assertCanonical("Octopus vulgaris", "Cuvier, 1797", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
-        NubUsage species = assertCanonical("Octopus fangsiao", "d'Orbigny, 1839", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
-        assertCanonical("Amphioctopus fangsiao", "(d'Orbigny, 1835)", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
+        // not the same year, so basionym grouping not applied
+        assertCanonical("Octopus fangsiao", "d'Orbigny, 1839", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, oct);
+        assertCanonical("Amphioctopus fangsiao", "(d'Orbigny, 1835)", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, oct, NameUsageIssue.NAME_PARENT_MISMATCH);
 
-        species = assertCanonical("Octopus markus", "(Döring, 1999)", null, Rank.SPECIES, Origin.AUTO_RECOMBINATION, TaxonomicStatus.DOUBTFUL, oct);
-        assertCanonical("Amphioctopus markus", "Döring, 1999", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, species);
+        assertNull(getCanonical("Octopus markus", Rank.SPECIES));
+        // accepted species becomes doubtful with issue and parent Octopus
+        assertCanonical("Amphioctopus markus", "Döring, 1999", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, oct, NameUsageIssue.NAME_PARENT_MISMATCH);
     }
 
     /**
@@ -671,10 +674,13 @@ public class NubBuilderTest {
         return assertCanonical(canonical, authorship, null, rank, origin, null, null);
     }
 
-    private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
+    private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent, NameUsageIssue ... issues) {
         NubUsage u = getCanonical(canonical, rank);
         assertNub(u, canonical, authorship, notho, rank, origin, status, parent);
         assertEquals("wrong canonical name for " + canonical, canonical, UsageDao.canonicalOrScientificName(u.parsedName, false));
+        for (NameUsageIssue issue : issues) {
+            assertTrue("missing issue "+issue, u.issues.contains(issue));
+        }
         return u;
     }
 

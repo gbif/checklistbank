@@ -22,7 +22,6 @@ public class NormalizerStatsTest {
         assertEquals(1, stats.getRoots());
         assertEquals(1, stats.getIgnored());
 
-        assertEquals(0, stats.getCountByOrigin(Origin.AUTO_RECOMBINATION));
         assertEquals(50, stats.getCountByOrigin(Origin.SOURCE));
         assertEquals(2, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
         assertEquals(10, stats.getCountByOrigin(Origin.IMPLICIT_NAME));

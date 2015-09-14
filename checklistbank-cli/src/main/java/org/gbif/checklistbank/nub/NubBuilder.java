@@ -58,7 +58,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -140,7 +139,7 @@ public class NubBuilder implements Runnable {
             addDatasets();
             groupByBasionym();
             verifyAcceptedSpecies();
-            setEmptyGroupsDoubtful();
+            flagEmptyGroups();
             createAutonyms();
             addExtensionData();
             assignUsageKeys();
@@ -211,7 +210,7 @@ public class NubBuilder implements Runnable {
                             return nub.parsedName;
                         }
                     });
-                    // go thru groups and create basionym relations where needed
+                    // go through groups and create basionym relations where needed
                     for (BasionymGroup<NubUsage> group : groups) {
                         // we only need to process groups that contain recombinations
                         if (group.hasRecombinations()) {
@@ -299,7 +298,7 @@ public class NubBuilder implements Runnable {
         }
     }
 
-    private void setEmptyGroupsDoubtful() {
+    private void flagEmptyGroups() {
         LOG.info("flag empty genera as doubtful");
         try {
             db.openTx();
@@ -308,7 +307,7 @@ public class NubBuilder implements Runnable {
                     NubUsage nub = db.dao.readNub(gen);
                     if (TaxonomicStatus.ACCEPTED == nub.status) {
                         nub.status = TaxonomicStatus.DOUBTFUL;
-                        nub.issues.add(NameUsageIssue.LACKING_SPECIES);
+                        nub.issues.add(NameUsageIssue.NO_SPECIES);
                         db.store(nub);
                     }
                 }
@@ -479,27 +478,7 @@ public class NubBuilder implements Runnable {
     private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
-        // first check if parent is a genus synonym
-        // http://dev.gbif.org/issues/browse/POR-2780
-        if (!u.status.isSynonym() && p.rank == Rank.GENUS && p.status.isSynonym()) {
-            // create a new accepted and make this name a synonym
-            NubUsage pacc = db.getParent(p);
-            SrcUsage comb = new SrcUsage();
-            comb.status = TaxonomicStatus.DOUBTFUL;
-            comb.rank = u.rank;
-            comb.parsedName = new ParsedName();
-            comb.parsedName.setGenusOrAbove(pacc.parsedName.getGenusOrAbove());
-            comb.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
-            comb.parsedName.setInfraSpecificEpithet(u.parsedName.getInfraSpecificEpithet());
-            comb.parsedName.setRank(u.rank);
-            comb.parsedName.setBracketAuthorship(ObjectUtils.firstNonNull(u.parsedName.getBracketAuthorship(), u.parsedName.getAuthorship()));
-            comb.parsedName.setBracketYear(ObjectUtils.firstNonNull(u.parsedName.getBracketYear(), u.parsedName.getYear()));
-            LOG.info("Recombining {} into {}", u.parsedName.fullName(), comb.parsedName.fullName());
-            p = processSourceUsage(comb, Origin.AUTO_RECOMBINATION, pacc);
-            u.status = TaxonomicStatus.SYNONYM;
-        }
-
-        if (!u.status.isSynonym()) {
+        if (!u.status.isSynonym() && !p.status.isSynonym()) {
             // check if implicit species or genus parents are needed
             if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
                 SrcUsage genus = new SrcUsage();
@@ -537,6 +516,16 @@ public class NubBuilder implements Runnable {
             }
 
         }
+        // use accepted as parent if needed and flag as doubtful
+        // http://dev.gbif.org/issues/browse/POR-2780
+        if (p.status.isSynonym()) {
+            p = db.getParent(p);
+            if (!u.status.isSynonym()) {
+                u.status = TaxonomicStatus.DOUBTFUL;
+                return db.addUsage(p, u, origin, currSrc.key, NameUsageIssue.NAME_PARENT_MISMATCH);
+            }
+        }
+        // add to nub db
         return db.addUsage(p, u, origin, currSrc.key);
     }
 
@@ -690,7 +679,7 @@ public class NubBuilder implements Runnable {
                         NubUsage desc = db.dao.readNub(dnode);
                         convertToSynonym(desc, acc, TaxonomicStatus.SYNONYM);
                     }
-                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM, NameUsageIssue.BASIONYM_GROUP_MULTI_ACCEPTED);
+                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
                 }
             }
         }
