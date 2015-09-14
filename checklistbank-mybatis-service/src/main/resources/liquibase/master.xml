@@ -161,5 +161,10 @@
             CREATE INDEX ON name_usage (basionym_fk) WHERE deleted IS NULL;
         </sql>
     </changeSet>
+    <changeSet id="31" author="markus">
+        <sql>
+            ALTER table name_usage_metrics add foreign key (usage_fk) references name_usage (id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+        </sql>
+    </changeSet>
 
 </databaseChangeLog>
