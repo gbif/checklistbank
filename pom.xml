@@ -37,19 +37,19 @@
 
         <!-- dependency versions -->
         <dwc-api.version>1.13</dwc-api.version>
-        <gbif-api.version>0.28-SNAPSHOT</gbif-api.version>
+        <gbif-api.version>0.28</gbif-api.version>
         <gbif-cli.version>0.10</gbif-cli.version>
         <gbif-common.version>0.18</gbif-common.version>
-        <gbif-common-mybatis.version>0.18-SNAPSHOT</gbif-common-mybatis.version>
+        <gbif-common-mybatis.version>0.18</gbif-common-mybatis.version>
         <gbif-common-search.version>0.22</gbif-common-search.version>
         <gbif-common-service.version>0.13</gbif-common-service.version>
         <gbif-common-ws.version>0.23</gbif-common-ws.version>
         <gbif-httputils.version>0.7</gbif-httputils.version>
         <gbif-microservice.version>0.3</gbif-microservice.version>
-        <gbif-postal-service.version>0.17-SNAPSHOT</gbif-postal-service.version>
+        <gbif-postal-service.version>0.17</gbif-postal-service.version>
         <registry-client.version>2.30</registry-client.version>
-        <name-parser.version>2.8-SNAPSHOT</name-parser.version>
-        <gbif-parser.version>0.16-SNAPSHOT</gbif-parser.version>
+        <name-parser.version>2.8</name-parser.version>
+        <gbif-parser.version>0.16</gbif-parser.version>
         <dwca-io.version>1.24</dwca-io.version>
         <!-- external libs -->
         <assertj.version>1.6.1</assertj.version>
