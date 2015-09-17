@@ -70,12 +70,13 @@ public class NubMatchingModule extends PrivateModule {
     return comp;
   }
 
+  /*
+    Removed due to http://dev.gbif.org/issues/browse/POR-2841
   @Provides
   @Singleton
   public static NameParser provideParser() {
     NameParser parser = new NameParser();
     return parser;
   }
-
-
+  */
 }
