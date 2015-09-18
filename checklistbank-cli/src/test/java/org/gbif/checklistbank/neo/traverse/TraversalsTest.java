@@ -99,7 +99,7 @@ public class TraversalsTest {
             assertTraversalSizes(Traversals.DESCENDANTS,    1, 0, 2, 0, 19, 0);
             assertTraversalSizes(Traversals.SYNONYMS,       1, 0, 1, 0,  0, 0);
             assertTraversalSizes(Traversals.ACCEPTED,       0, 2, 0, 1,  0, 1);
-            assertTraversalSizes(Traversals.BASIONYM_GROUP, 0, 0, 3, 3,  0, 3);
+            assertTraversalSizes(Traversals.BASIONYM_GROUP, 1, 1, 4, 4,  1, 4);
         }
     }
 
