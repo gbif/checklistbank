@@ -56,8 +56,7 @@ public class Traversals {
      */
     public static final TraversalDescription BASIONYM_GROUP = new MonoDirectionalTraversalDescription()
             .relationships(RelType.BASIONYM_OF)
-            .breadthFirst()
-            .evaluator(Evaluators.excludeStartPosition());
+            .breadthFirst();
 
     /**
      * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.

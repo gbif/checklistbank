@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Maps;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
@@ -65,6 +66,7 @@ public class UsageDao {
     private final File neoDir;
     private final File kvpStore;
     private final KryoPool pool;
+    private final Joiner remarkJoiner = Joiner.on("\n").skipNulls();
 
     /**
      * @param kvp
@@ -518,8 +520,16 @@ public class UsageDao {
         return getNeo().findNodes(Labels.SPECIES);
     }
 
+    public ResourceIterator<Node> allInfraSpecies(){
+        return getNeo().findNodes(Labels.INFRASPECIES);
+    }
+
     public ResourceIterator<Node> allBasionyms(){
         return getNeo().findNodes(Labels.BASIONYM);
+    }
+
+    public ResourceIterator<Node> allSynonyms(){
+        return getNeo().findNodes(Labels.SYNONYM);
     }
 
     private void putIfNotNull(Map<String, Object> props, String property, String value) {
@@ -556,19 +566,22 @@ public class UsageDao {
     private NameUsage convert(NubUsage nub) {
         NameUsage u = new NameUsage();
         u.setKey(nub.usageKey);
-        u.setScientificName(nub.parsedName.canonicalNameComplete());
+        u.setConstituentKey(nub.datasetKey);
         //TODO: add a scientificNameID property to NameUsage
-        u.setTaxonID(nub.scientificNameID);
-        u.setCanonicalName(nub.parsedName.canonicalName());
+        //nub.scientificNameID
+        u.setTaxonID("gbif:" + nub.usageKey);
+        u.setScientificName(canonicalOrScientificName(nub.parsedName, true));
+        u.setCanonicalName(canonicalOrScientificName(nub.parsedName, false));
         u.setRank(nub.rank);
         u.setTaxonomicStatus(nub.status);
-        u.setOrigin(nub.origin);
-        u.setConstituentKey(nub.datasetKey);
         u.setNomenclaturalStatus(nub.nomStatus);
         u.setPublishedIn(nub.publishedIn);
+        u.setOrigin(nub.origin);
         if (!nub.sourceIds.isEmpty()) {
             u.setSourceTaxonKey(nub.sourceIds.get(0));
         }
+        u.setRemarks(remarkJoiner.join(nub.remarks));
+        u.setIssues(nub.issues);
         return u;
     }
 

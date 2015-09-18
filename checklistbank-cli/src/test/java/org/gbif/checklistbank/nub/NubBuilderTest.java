@@ -107,8 +107,35 @@ public class NubBuilderTest {
      * http://dev.gbif.org/issues/browse/POR-398
      */
     @Test
-    @Ignore("TODO: write test based on IPNI basionyms")
     public void testMergeBasionymGroup() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(25, 26);
+        build(src);
+
+        NubUsage spec = getCanonical("Picris hieracioides", Rank.SPECIES);
+        NubUsage umbella = assertCanonical("Picris hieracioides umbellata", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, spec);
+        NubUsage hieracio = assertCanonical("Picris hieracioides hieracioides", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, spec);
+
+        NubUsage phu = assertCanonical("Picris hieracioides umbellata", Rank.VARIETY, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
+        NameUsage u = getUsage(phu.node);
+        assertEquals("Leontodon umbellatus Schrank", u.getBasionym());
+
+        assertCanonical("Picris sonchoides", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HETEROTYPIC_SYNONYM, umbella);
+        assertCanonical("Leontodon umbellatus", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
+        assertCanonical("Apargia umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
+        assertCanonical("Picris umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
+        assertCanonical("Picris hieracioides sonchoides", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, umbella);
+    }
+
+    /**
+     * http://dev.gbif.org/issues/browse/POR-284
+     * 4 name pairs each with a diacretic version should result in just 4 distinct nub names.
+     */
+    @Test
+    public void testDiacriticNames() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(27);
+        build(src);
+
+        assertEquals(4, countSpecies());
     }
 
     /**
@@ -324,10 +351,16 @@ public class NubBuilderTest {
      * 4. Blattaria Weyenbergh, 1874  [Orthoptera fossil]
      * Blattaria only exists as synonym species names in CoL.
      * Should there be any accepted genus at all in GBIF?
+     *
+     * Also test what happens if a higher taxon exists twice with a slightly different classification in CoL.
+     * E.g. class Jungermanniopsida
+     *
+     * Suggest to keep the first occurrence
      */
     @Test
-    public void testHomonymGenus() throws Exception {
+    public void testHomonyms() throws Exception {
         ClasspathUsageSource src = ClasspathUsageSource.source(3, 2);
+        src.setSourceRank(3, Rank.KINGDOM);
         build(src);
 
         assertEquals(2, listCanonical("Oenanthe").size());
@@ -335,6 +368,9 @@ public class NubBuilderTest {
         assertEquals(2, listCanonical("Trichoneura").size());
 
         assertEquals(4, listCanonical("Blattaria").size());
+
+        NubUsage march = assertCanonical("Marchantiophyta", null, Rank.PHYLUM, Origin.SOURCE);
+        assertCanonical("Jungermanniopsida", Rank.CLASS, Origin.SOURCE, march);
     }
 
 
@@ -709,7 +745,7 @@ public class NubBuilderTest {
         }
         if (parent != null) {
             NubUsage p2 = parentOrAccepted(u.node);
-            assertEquals("wrong parent for " + name, p2.node, parent.node);
+            assertEquals("wrong parent "+p2.parsedName.canonicalNameComplete()+" for " + name, p2.node, parent.node);
         }
     }
 
@@ -800,6 +836,10 @@ public class NubBuilderTest {
 
     private long countTaxa() {
         return IteratorUtil.count(dao.getNeo().findNodes(Labels.TAXON));
+    }
+
+    private long countSpecies() {
+        return IteratorUtil.count(dao.getNeo().findNodes(Labels.SPECIES));
     }
 
     private long countRoot() {

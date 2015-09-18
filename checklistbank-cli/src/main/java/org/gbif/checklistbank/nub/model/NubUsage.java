@@ -33,6 +33,7 @@ public class NubUsage {
     public List<Integer> sourceIds = Lists.newArrayList();
     public Set<String> authors = Sets.newHashSet();
     public Set<NameUsageIssue> issues = EnumSet.noneOf(NameUsageIssue.class);
+    public List<String> remarks = Lists.newArrayList();
 
     public NubUsage() {
     }
@@ -53,4 +54,7 @@ public class NubUsage {
         }
     }
 
+    public void addRemark(String remark) {
+        remarks.add(remark);
+    }
 }

@@ -60,6 +60,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -86,6 +87,8 @@ public class NubBuilder implements Runnable {
     private final UsageSource usageSource;
     private final NameParser parser = new NameParser();
     private NormalizerStats normalizerStats;
+    private boolean assertionsPassed;
+    private final boolean verifyBackbone;
     private NubSource currSrc;
     private ParentStack parents;
     private int sourceUsageCounter = 0;
@@ -97,14 +100,28 @@ public class NubBuilder implements Runnable {
     private final IntLongMap src2NubKey = new IntLongHashMap();
     private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
     private final Map<UUID, Integer> priorities = Maps.newHashMap();
+    private Integer maxPriority = 0;
 
-    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir, boolean closeDao) {
+    private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
+        @Nullable
+        @Override
+        public Integer apply(@Nullable NubUsage u) {
+            int doubtfulScore = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
+            int statusScore = u.status == null ? 10 : u.status.ordinal();
+            int datasetPriority = priorities.containsKey(u.datasetKey) ? priorities.get(u.datasetKey) : maxPriority+1;
+            return doubtfulScore + statusScore + 10 * datasetPriority;
+        }
+    });
+
+    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
+                       boolean closeDao, boolean verifyBackbone) {
         db = NubDb.create(dao, 1000);
         this.usageSource = usageSource;
         this.authorComparator = authorComparator;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
         this.newIdStart = newIdStart;
         this.closeDao = closeDao;
+        this.verifyBackbone = verifyBackbone;
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
@@ -114,7 +131,7 @@ public class NubBuilder implements Runnable {
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
             Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
-            return new NubBuilder(dao, cfg.usageSource(), idLookup, idLookup.getAuthorComparator(), newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true);
+            return new NubBuilder(dao, cfg.usageSource(), idLookup, idLookup.getAuthorComparator(), newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -124,7 +141,7 @@ public class NubBuilder implements Runnable {
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
     public static NubBuilder create(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, usageSource, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false);
+        return new NubBuilder(dao, usageSource, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false);
     }
 
     /**
@@ -140,11 +157,18 @@ public class NubBuilder implements Runnable {
             groupByBasionym();
             verifyAcceptedSpecies();
             flagEmptyGroups();
+            flagSimilarNames();
             createAutonyms();
+            addPublicationDois();
             addExtensionData();
             assignUsageKeys();
-            db.dao.convertNubUsages();
-            builtUsageMetrics();
+            if (verifyBackbone){
+                verifyBackbone();
+            }
+            if (!verifyBackbone || assertionsPassed){
+                db.dao.convertNubUsages();
+                builtUsageMetrics();
+            }
             LOG.info("New backbone built");
         } finally {
             if (closeDao) {
@@ -155,15 +179,73 @@ public class NubBuilder implements Runnable {
     }
 
     /**
-     * TODO: remove autonym generation during dataset inserts and do it here globally.
-     * Goes through all accepted species checks all their accepted infraspecific descendants,
+     * TODO: Goes through all accepted species and flags suspicous similar names.
+     * Adds a NameUsageIssue.POTENTIAL_DUPLICATE to all similar names.
+     */
+    private void flagSimilarNames() {
+        LOG.info("Start flagging similar names");
+        try {
+            db.openTx();
+        } finally {
+            db.closeTx();
+        }
+    }
+
+    /**
+     * Incorporate Rod Pages IPNI name DOIs from https://github.com/rdmpage/ipni-names
+     */
+    private void addPublicationDois() {
+
+    }
+
+    private void verifyBackbone() {
+        NubAssertions assertions = new NubAssertions(db);
+        this.assertionsPassed = assertions.verify();
+    }
+
+    /**
+     * Goes through all accepted infraspecies and checks if a matching autonym exists,
      * creating missing autonyms where needed.
      * An autonym is an infraspecific taxon that has the same species and infraspecific epithet.
      *
      * We do this last to not create autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
      */
     private void createAutonyms() {
+        LOG.info("Start creating missing autonyms");
+        try {
+            db.openTx();
+            int counter = 0;
+            for (Node n : IteratorUtil.loop(db.dao.allInfraSpecies())) {
+                if (!n.hasLabel(Labels.SYNONYM)) {
+                    NubUsage u = db.dao.readNub(n);
+                    // check for autonyms
+                    if (!u.parsedName.isAutonym()) {
+                        ParsedName pn = new ParsedName();
+                        pn.setGenusOrAbove(u.parsedName.getGenusOrAbove());
+                        pn.setSpecificEpithet(u.parsedName.getSpecificEpithet());
+                        pn.setInfraSpecificEpithet(u.parsedName.getSpecificEpithet());
+                        pn.setScientificName(pn.canonicalName());
+                        pn.setRank(u.rank);
 
+                        NubUsage auto = db.findNubUsage(pn.canonicalName(), u.rank);
+                        if (auto == null) {
+                            NubUsage parent = db.getParent(u);
+
+                            SrcUsage autonym = new SrcUsage();
+                            autonym.rank = u.rank;
+                            autonym.scientificName = pn.canonicalName();
+                            autonym.parsedName = pn;
+                            autonym.status = TaxonomicStatus.ACCEPTED;
+                            createNubUsage(autonym, Origin.AUTONYM, parent);
+                            counter++;
+                        }
+                    }
+                }
+            }
+            LOG.info("Created {} missing autonyms", counter);
+        } finally {
+            db.closeTx();
+        }
     }
 
     /**
@@ -172,7 +254,6 @@ public class NubBuilder implements Runnable {
      * Badly classified names are assigned the doubtful status and an issue is flagged
      */
     private void verifyAcceptedSpecies() {
-
 
     }
 
@@ -185,22 +266,51 @@ public class NubBuilder implements Runnable {
             NubUsage fam = db.dao.readNub(n);
             if (!fam.status.isSynonym()) {
                 Map<String, List<NubUsage>> epithets = Maps.newHashMap();
+                Map<String, Set<String>> epithetBridges = Maps.newHashMap();
                 LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
                 // key all names by their terminal epithet
                 for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
                     NubUsage nub = db.dao.readNub(c);
                     // ignore all supra specific names
                     if (nub.rank.isSpeciesOrBelow()) {
-                        String epithet = nub.parsedName.getInfraSpecificEpithet() == null ?
-                                nub.parsedName.getSpecificEpithet() : nub.parsedName.getInfraSpecificEpithet();
+                        String epithet = nub.parsedName.getTerminalEpithet();
                         if (!epithets.containsKey(epithet)) {
                             epithets.put(epithet, Lists.newArrayList(nub));
                         } else {
                             epithets.get(epithet).add(nub);
                         }
+                        // now check if a basionym relation exists already that reaches out to some other epithet, e.g. due to gender changes
+                        for (Node bg : Traversals.BASIONYM_GROUP.evaluator(Evaluators.excludeStartPosition()).traverse(c).nodes()) {
+                            NubUsage bgu = db.dao.readNub(bg);
+                            String epithet2 = bgu.parsedName.getTerminalEpithet();
+                            if (epithet2 != null && !epithet2.equals(epithet)) {
+                                if (!epithetBridges.containsKey(epithet)) {
+                                    epithetBridges.put(epithet, Sets.newHashSet(epithet2));
+                                } else {
+                                    epithetBridges.get(epithet).add(epithet2);
+                                }
+                            }
+
+                        }
+
                     }
                 }
                 LOG.debug("{} distinct epithets found in family {}", epithets.size(), fam.parsedName.canonicalNameComplete());
+
+                // merge epithet groups based on existing basionym relations, catching some gender changes
+                LOG.debug("{} epithets are connected with explicit basionym relations", epithetBridges.size());
+                for (Map.Entry<String, Set<String>> bridge : epithetBridges.entrySet()) {
+                    if (epithets.containsKey(bridge.getKey())) {
+                        List<NubUsage> usages = epithets.get(bridge.getKey());
+                        for (String epi2 : bridge.getValue()) {
+                            if (epithets.containsKey(epi2)) {
+                                LOG.debug("Merging {} usages of epithet {} into epithet group {}", epithets.get(epi2).size(), epi2, bridge.getKey());
+                                usages.addAll(epithets.remove(epi2));
+                            }
+                        }
+                    }
+                }
+
                 // now compare authorships for each epithet group
                 for (Map.Entry<String, List<NubUsage>> epithetGroup : epithets.entrySet()) {
 
@@ -305,9 +415,11 @@ public class NubBuilder implements Runnable {
             for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
                 if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
                     NubUsage nub = db.dao.readNub(gen);
-                    if (TaxonomicStatus.ACCEPTED == nub.status) {
-                        nub.status = TaxonomicStatus.DOUBTFUL;
+                    if (!nub.status.isSynonym()) {
                         nub.issues.add(NameUsageIssue.NO_SPECIES);
+                        if (TaxonomicStatus.ACCEPTED == nub.status) {
+                            nub.status = TaxonomicStatus.DOUBTFUL;
+                        }
                         db.store(nub);
                     }
                 }
@@ -334,6 +446,7 @@ public class NubBuilder implements Runnable {
         LOG.info("Adding source {}", source.name);
         currSrc = source;
         priorities.put(source.key, source.priority);
+        maxPriority = source.priority;
         // clear dataset wide caches
         parents.clear();
         basionymRels.clear();
@@ -357,10 +470,10 @@ public class NubBuilder implements Runnable {
                     if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
                         u.status = TaxonomicStatus.DOUBTFUL;
                     }
-                        NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-                        if (nub != null) {
-                            parents.put(nub);
-                        }
+                    NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+                    if (nub != null) {
+                        parents.put(nub);
+                    }
                 } catch (IgnoreSourceUsageException e) {
                     LOG.error("Ignore usage {} {}", u.key, u.scientificName);
 
@@ -427,22 +540,28 @@ public class NubBuilder implements Runnable {
                 // create new nub usage if there wasnt any yet
                 nub = createNubUsage(u, origin, parent);
 
-            } else if (nub.status.isSynonym() == u.status.isSynonym()) {
-                // update nub usage if status matches
-                updateNub(nub, u, origin, parent);
-
-            } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
-                // create new nub usage with different status and authorship as before
-                nub = createNubUsage(u, origin, parent);
-
-            } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
-                // prefer accepted over synonym if from the same source
-                LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
-                delete(nub);
-                nub = createNubUsage(u, origin, parent);
-
             } else {
-                LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
+
+                if (nub.status.isSynonym() == u.status.isSynonym()) {
+                    // update nub usage if status matches
+                    updateNub(nub, u, origin, parent);
+
+                } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
+                    // create new nub usage with different status and authorship as before
+                    nub = createNubUsage(u, origin, parent);
+
+                } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
+                    // prefer accepted over synonym if from the same source
+                    LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
+                    delete(nub);
+                    nub = createNubUsage(u, origin, parent);
+
+                } else if (currSrc.nomenclator) {
+                    updateNomenclature(nub, u);
+
+                } else {
+                    LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
+                }
             }
 
             if (nub != null) {
@@ -494,27 +613,6 @@ public class NubBuilder implements Runnable {
                 spec.status = u.status;
                 p = processSourceUsage(spec, Origin.IMPLICIT_NAME, p);
             }
-
-            // check for autonyms
-            if (u.rank.isInfraspecific() && !u.parsedName.isAutonym()) {
-                ParsedName autonym = new ParsedName();
-                autonym.setGenusOrAbove(u.parsedName.getGenusOrAbove());
-                autonym.setSpecificEpithet(u.parsedName.getSpecificEpithet());
-                autonym.setInfraSpecificEpithet(u.parsedName.getSpecificEpithet());
-                autonym.setScientificName(autonym.canonicalName());
-                autonym.setRank(u.rank);
-
-                NubUsage auto = db.findNubUsage(autonym.canonicalName(), u.rank);
-                if (auto == null) {
-                    SrcUsage autoUsage = new SrcUsage();
-                    autoUsage.rank = u.rank;
-                    autoUsage.scientificName = autonym.canonicalName();
-                    autoUsage.parsedName = autonym;
-                    autoUsage.status = TaxonomicStatus.ACCEPTED;
-                    processSourceUsage(autoUsage, Origin.AUTONYM, p);
-                }
-            }
-
         }
         // use accepted as parent if needed and flag as doubtful
         // http://dev.gbif.org/issues/browse/POR-2780
@@ -546,13 +644,32 @@ public class NubBuilder implements Runnable {
         }
     }
 
-    private void copyAuthorship(ParsedName from, ParsedName to) {
-        to.setAuthorship(from.getAuthorship());
-        to.setYear(from.getYear());
-        to.setBracketAuthorship(from.getBracketAuthorship());
-        to.setBracketYear(from.getBracketYear());
-        to.setAuthorsParsed(true);
+    private void updateNomenclature(NubUsage nub, SrcUsage u) {
+        LOG.debug("Updating nomenclature for {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
+        // authorship
+        if (!u.parsedName.authorshipComplete().isEmpty() && (nub.parsedName.authorshipComplete().isEmpty() || currSrc.nomenclator)) {
+            nub.parsedName.setAuthorship(u.parsedName.getAuthorship());
+            nub.parsedName.setYear(u.parsedName.getYear());
+            nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
+            nub.parsedName.setBracketYear(u.parsedName.getBracketYear());
+            nub.parsedName.setAuthorsParsed(true);
+        }
 
+        // publishedIn
+        if (u.publishedIn != null && (nub.publishedIn == null || currSrc.nomenclator)) {
+            nub.publishedIn = u.publishedIn;
+        }
+
+        // nom status
+        if (u.nomStatus != null && u.nomStatus.length > 0 && (nub.nomStatus.isEmpty() || currSrc.nomenclator)) {
+            nub.nomStatus = Sets.newHashSet(u.nomStatus);
+        }
+
+        // remember all author spelling variations we come across for better subsequent comparisons
+        String authors = u.parsedName.authorshipComplete();
+        if (!Strings.isBlank(authors)) {
+            nub.authors.add(authors);
+        }
     }
 
     private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
@@ -562,18 +679,14 @@ public class NubBuilder implements Runnable {
             // only override original origin value if we update from a true source
             nub.origin = Origin.SOURCE;
         }
-        String authors = u.parsedName.authorshipComplete();
-        if (!Strings.isBlank(authors)) {
-            nub.authors.add(authors);
-        }
+
+        // update author, publication and nom status
+        updateNomenclature(nub, u);
 
         NubUsage currNubParent = db.getParent(nub);
         // prefer accepted version over doubtful if its coming from the same dataset!
         if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
             nub.status = u.status;
-            if (!u.parsedName.authorshipComplete().isEmpty()) {
-                copyAuthorship(u.parsedName, nub.parsedName);
-            }
             if (parent != null && (currNubParent.rank.higherThan(parent.rank) || currNubParent.rank == parent.rank)) {
                 if (db.existsInClassification(currNubParent.node, parent.node)) {
                     // current classification has this parent already in its parents list. No need to change anything
@@ -596,9 +709,6 @@ public class NubBuilder implements Runnable {
                 if (nub.status == TaxonomicStatus.SYNONYM) {
                     nub.status = u.status;
                 }
-                if (nub.parsedName.authorshipComplete().isEmpty() && !u.parsedName.authorshipComplete().isEmpty()) {
-                    copyAuthorship(u.parsedName, nub.parsedName);
-                }
             }
 
         } else {
@@ -608,15 +718,6 @@ public class NubBuilder implements Runnable {
                     updateParent(nub, parent);
                 }
             }
-            if (nub.parsedName.authorshipComplete().isEmpty() && !u.parsedName.authorshipComplete().isEmpty()) {
-                copyAuthorship(u.parsedName, nub.parsedName);
-            }
-        }
-        if (nub.publishedIn == null) {
-            nub.publishedIn = u.publishedIn;
-        }
-        if (nub.nomStatus.isEmpty()) {
-            nub.addNomStatus(u.nomStatus);
         }
         db.store(nub);
     }
@@ -646,50 +747,64 @@ public class NubBuilder implements Runnable {
 
     /**
      * Make sure we only have at most one accepted name for each homotypical basionym group!
-     * An entire group can consist of synonyms without a problem.
+     * An entire group can consist of synonyms without a problem, but they must all refer to the same accepted name.
      *
      * If a previously accepted name needs to be turned into a synonym it will be of type homotypical_synonym.
-     * TODO: Can synonyms of one group point to different accepted names or do we need to verify that ???
      */
     private void consolidateBasionymGroups() {
         for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
-            List<NubUsage> group = db.listBasionymGroup(bas);
-            List<NubUsage> accepted = Lists.newArrayList();
-            for (NubUsage u : group) {
-                if (!u.status.isSynonym()) {
-                    accepted.add(u);
-                }
-            }
-            if (accepted.size() > 1) {
-                LOG.info("Multiple accepted taxa in same basionym group: {}", names(accepted));
-                // sort accepted taxa by source dataset priority, placing doubtful names last
-                accepted = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
-                    @Nullable
-                    @Override
-                    public Integer apply(@Nullable NubUsage u) {
-                        Integer score = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
-                        return score + priorities.get(u.datasetKey);
+            // sort all usage by source dataset priority, placing doubtful names last
+            List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
+            if (group.size() > 1) {
+                // we stick to the first combination with the highest priority and make all others
+                // a) synonyms of this if it is accepted
+                // b) synonyms of the primarys accepted name if it was a synonym itself
+                final NubUsage primary = group.remove(0);
+                final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
+                final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
+                LOG.debug("Found basionym group with {} primary usage {} in basionym group: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
+                for (NubUsage u : group) {
+                    if (!hasAccepted(u, accepted)) {
+                        NubUsage previousParent = db.getParent(u);
+                        if (previousParent != null) {
+                            u.addRemark( String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
+                                    u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
+                            );
+                        }
+                        convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+                        // move any accepted children to new accepted parent
+                        db.assignParentToChildren(u.node, accepted);
+                        // move any synonyms to new accepted parent
+                        db.assignAcceptedToSynonyms(u.node, accepted.node);
+                        // persist usage instance changes
+                        db.store(u);
                     }
-                }).sortedCopy(accepted);
-                // we keep the first accepted with the highest priority and make all others synoynms
-                NubUsage acc = accepted.remove(0);
-                for (NubUsage u : accepted) {
-                    // also convert any accepted descendants to synonyms
-                    for (Node dnode : Traversals.ACCEPTED_DESCENDANTS.evaluator(Evaluators.excludeStartPosition()).traverse(u.node).nodes()) {
-                        NubUsage desc = db.dao.readNub(dnode);
-                        convertToSynonym(desc, acc, TaxonomicStatus.SYNONYM);
-                    }
-                    convertToSynonym(u, acc, TaxonomicStatus.HOMOTYPIC_SYNONYM, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
                 }
             }
         }
     }
 
     /**
-     * Converts an accepted usage and all its children to a synonym
+     * @param u
+     * @param acc
+     * @return true of the given usage u has a SYNONYM_OF relation to the given acc usage
+     */
+    private boolean hasAccepted(NubUsage u, NubUsage acc) {
+        try (ResourceIterator<Node> iter = Traversals.ACCEPTED.traverse(u.node).nodes().iterator()) {
+            while (iter.hasNext()) {
+                if (iter.next().equals(acc.node)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Converts an accepted or existing synonym usage to a synonym of a given accepted usage.
      * See http://dev.gbif.org/issues/browse/POR-398
-     * @param u the accepted usage to convert
-     * @param acc the accepted taxon the converted synonym should point to
+     * @param u the usage to become the synonym
+     * @param acc the accepted taxon the new synonym should point to
      */
     private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status, NameUsageIssue ... issues) {
         LOG.info("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
@@ -748,5 +863,12 @@ public class NubBuilder implements Runnable {
      */
     public int getNewIdStart() {
         return newIdStart;
+    }
+
+    /**
+     * @return true if basic backbone assertions have passed sucessfully.
+     */
+    public boolean assertionsPassed() {
+        return assertionsPassed;
     }
 }

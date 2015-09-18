@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -271,6 +272,13 @@ public class NubDb {
             case SPECIES:
                 nub.node.addLabel(Labels.SPECIES);
                 break;
+            case SUBSPECIES:
+            case VARIETY:
+            case SUBVARIETY:
+            case FORM:
+            case SUBFORM:
+                nub.node.addLabel(Labels.INFRASPECIES);
+                break;
         }
         return store(nub);
     }
@@ -321,18 +329,35 @@ public class NubDb {
      * @param n the node with child nodes
      * @param parent the new parent to be linked
      */
-    public void assignParentToChildren(Node n, NubUsage parent) {
+    public void assignParentToChildren(Node n, NubUsage parent, NameUsageIssue ... issues) {
         for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
             Node child = rel.getOtherNode(n);
             rel.delete();
             parent.node.createRelationshipTo(child, RelType.PARENT_OF);
             // read nub usage to add an issue to the child
             NubUsage cu = dao.readNub(child);
-            cu.issues.add(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
+            Collections.addAll(cu.issues, issues);
             if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
                 cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
             }
             store(cu);
+        }
+    }
+
+    /**
+     * Iterates over all direct synonyms of a node, deletes that synonymOf relationship and creates a new synonymOf relation to the given new accepted node instead.
+     * @param n the node with synonym nodes
+     * @param accepted the new accepted to be linked
+     */
+    public void assignAcceptedToSynonyms(Node n, Node accepted) {
+        Set<Node> synonyms = Sets.newHashSet();
+        for (Relationship rel : Traversals.SYNONYMS.traverse(n).relationships()) {
+            Node syn = rel.getOtherNode(n);
+            rel.delete();
+            synonyms.add(syn);
+        }
+        for (Node syn : synonyms) {
+            syn.createRelationshipTo(accepted, RelType.SYNONYM_OF);
         }
     }
 

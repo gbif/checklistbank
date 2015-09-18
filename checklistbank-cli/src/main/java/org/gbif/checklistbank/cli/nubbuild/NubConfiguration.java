@@ -48,10 +48,10 @@ public class NubConfiguration {
     public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
 
     /**
-     * If true an import message is being send once the build is done.
+     * If true an import message is being send once the build is done and basic backbone assertions have passed successfully.
      */
     @Valid
-    public boolean autoImport = true;
+    public boolean autoImport = false;
 
     /**
      * @return a new usage source for a nub built that uses the configured registry to list tagged checklists
