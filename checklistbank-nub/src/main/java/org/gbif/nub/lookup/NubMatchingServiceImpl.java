@@ -117,7 +117,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
       pn = parser.parse(scientificName, rank);
       interpretGenus(pn, classification.getGenus());
-      scientificName = pn.buildName(false, false, false, false, false, false, true, false, false, false, false, false, false);
+      scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
