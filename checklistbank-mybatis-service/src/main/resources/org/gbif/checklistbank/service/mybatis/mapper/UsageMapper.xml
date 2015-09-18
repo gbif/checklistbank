@@ -11,7 +11,7 @@
     WITH RECURSIVE a AS (
       SELECT id, parent_fk
       FROM name_usage
-      WHERE id = #{key}
+      WHERE id = #{key} AND parent_fk != id
     UNION ALL
       SELECT p.id, p.parent_fk
       FROM a JOIN name_usage p ON a.parent_fk = p.id
