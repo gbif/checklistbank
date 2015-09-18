@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Asteraceae
+
+102	10		SPECIES	ACCEPTED		Apargia umbellata (Schrank) Schrank
+103	10		SPECIES	ACCEPTED		Picris umbellata (Schrank) Bluff & Fingerh.
+104	10		SPECIES	ACCEPTED		Picris sonchoides Vest
+105	104		SUBSPECIES	SYNONYM		Picris hieracioides subsp. sonchoides 
