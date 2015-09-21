@@ -29,6 +29,7 @@ import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.SourceIterable;
 import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParser;
@@ -179,15 +180,35 @@ public class NubBuilder implements Runnable {
     }
 
     /**
-     * TODO: Goes through all accepted species and flags suspicous similar names.
+     * Goes through all accepted species and infraspcecies and flags suspicous similar names.
      * Adds a NameUsageIssue.POTENTIAL_DUPLICATE to all similar names.
      */
     private void flagSimilarNames() {
         LOG.info("Start flagging similar names");
         try {
             db.openTx();
+            flagSimilarNames(db.dao.allSpecies());
+            flagSimilarNames(db.dao.allInfraSpecies());
         } finally {
             db.closeTx();
+        }
+    }
+
+    private void flagSimilarNames(ResourceIterator<Node> iter) {
+        Set<String> names = Sets.newHashSet();
+        for (Node n : IteratorUtil.loop(iter)) {
+            if (!n.hasLabel(Labels.SYNONYM)) {
+                NubUsage u = db.dao.readNub(n);
+                String name = SciNameNormalizer.normalize(db.dao.canonicalOrScientificName(u.parsedName, false));
+                if (!Strings.isBlank(name)) {
+                    if (names.contains(name)) {
+                        u.issues.add(NameUsageIssue.ORTHOGRAPHIC_VARIANT);
+                        db.store(u);
+                    } else {
+                        names.add(name);
+                    }
+                }
+            }
         }
     }
 
@@ -631,6 +652,10 @@ public class NubBuilder implements Runnable {
         if (u.parsedName == null) {
             try {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
+                // avoid taxon concept names
+                if (!Strings.isBlank(u.parsedName.getSensu())) {
+                    throw new IgnoreSourceUsageException("Ignore taxon concept names", u.key, u.scientificName);
+                }
             } catch (UnparsableException e) {
                 // allow virus names in the nub
                 if (e.type == NameType.VIRUS) {

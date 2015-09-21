@@ -17,7 +17,8 @@ public class SciNameNormalizer {
     private static final Pattern suffix_iana = Pattern.compile("(?<=[^i])ana$");
     private static final Pattern suffix_cola = Pattern.compile("colus$");
     private static final Pattern i = Pattern.compile("[jyi]+");
-    private static final Pattern empty = Pattern.compile("['-_]");
+    private static final Pattern white = Pattern.compile("\\s{2,}");
+    private static final Pattern empty = Pattern.compile("['_-]");
 
     public static String normalize(String s) {
         if (Strings.isNullOrEmpty(s)) return null;
@@ -30,7 +31,8 @@ public class SciNameNormalizer {
         s = suffix_a.matcher(s).replaceFirst("a");
         s = i.matcher(s).replaceAll("i");
         s = empty.matcher(s).replaceAll("");
+        s = white.matcher(s).replaceAll(" ");
 
-        return s;
+        return s.trim();
     }
 }

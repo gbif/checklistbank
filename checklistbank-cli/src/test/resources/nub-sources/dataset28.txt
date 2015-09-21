@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Asteraceae
+
+100	10		SPECIES	ACCEPTED		Albizia gummifera L.
+101	10		SPECIES	ACCEPTED		Albizia adianthifolia (Schum.) W.Wight
+102	101		SPECIES	SYNONYM		Albizia gummifera sensu Capuron, p.p.
+103	101		SPECIES	SYNONYM		Albizia gummifera sensu R.O.Williams

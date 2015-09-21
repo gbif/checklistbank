@@ -42,7 +42,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class NubBuilderTest {
+public class NubBuilderIT {
     private UsageDao dao;
     private Transaction tx;
 
@@ -473,9 +473,16 @@ public class NubBuilderTest {
      * Albizia gummifera sensu R.O.Williams (SYN)
      */
     @Test
-    @Ignore("write test")
     public void testSecSynonyms() throws Exception {
+        ClasspathUsageSource src = ClasspathUsageSource.source(28);
+        src.setSourceRank(28, Rank.FAMILY);
+        build(src);
 
+        NubUsage ast = assertCanonical("Asteraceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        NubUsage alb = assertCanonical("Albizia", null, null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, ast);
+        NubUsage gummi = assertCanonical("Albizia gummifera", "L.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, alb);
+        NubUsage adia = assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, alb);
+        assertEquals(0, listSynonyms(adia).size());
     }
 
     /**
@@ -577,21 +584,6 @@ public class NubBuilderTest {
     }
 
     /**
-     * Test merging of taxon information from different sources.
-     * Only merge taxonomic infos when taxonomic status is the same
-     * and in case of synonyms the accepted name is the same.
-     * Nomenclatural info (name authorship, publishedIn, nom status?) can be merged from all records.
-     * 1. choose the best name with authorship
-     * 2. add nom status for synonyms
-     * 3. add publishedIn
-     */
-    @Test
-    @Ignore("write test")
-    public void testMergingInfos() throws Exception {
-
-    }
-
-    /**
      * Prefer a nomenclator name and nom status over any other sources!
      * Prefer a name with authorship over a bare canonical one.
      * Use a nomenclators taxonID as scientificNameID for the nub usage.
@@ -610,16 +602,6 @@ public class NubBuilderTest {
     @Test
     @Ignore("write test")
     public void testMergingClassification() throws Exception {
-
-    }
-
-    /**
-     * Synonyms must point to an accepted taxon at the same rank.
-     * (Also true for infraspecific ranks in CoL ?)
-     */
-    @Test
-    @Ignore("write test")
-    public void testSynonymValidity() throws Exception {
 
     }
 
@@ -777,6 +759,15 @@ public class NubBuilderTest {
         List<NubUsage> usages = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
             usages.add(get(n));
+        }
+        return usages;
+    }
+
+    private List<NubUsage> listSynonyms (NubUsage acc) {
+        List<NubUsage> usages = Lists.newArrayList();
+        for (Relationship rel : acc.node.getRelationships(RelType.SYNONYM_OF, Direction.INCOMING)) {
+            Node syn = rel.getOtherNode(acc.node);
+            usages.add(get(syn));
         }
         return usages;
     }
