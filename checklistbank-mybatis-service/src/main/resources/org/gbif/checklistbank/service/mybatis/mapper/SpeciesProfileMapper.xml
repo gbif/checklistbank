@@ -8,7 +8,11 @@
     s.living_period, s.mass_in_gram, s.terrestrial, s.life_form, s.habitat</sql>
 
   <sql id="from">species_info s</sql>
-  <!-- Exclude wikipedias -->
+
+  <!-- Exclude wikipedias.
+    We maintain a special partial index on the nub_rel table with these datasetKeys.
+    If you need to change the IN clause here please make sure to also udpate the partial index !!!
+  -->
   <sql id="fromNub">JOIN nub_rel rel ON rel.usage_fk=s.usage_fk
     AND rel.dataset_key NOT IN ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02')
   </sql>
@@ -47,7 +51,7 @@
     <include refid="from"/>
     <include refid="fromNub"/>
     WHERE rel.nub_fk=#{key}
-    ORDER BY s.id
+    ORDER BY rel.usage_fk
     <include refid="page"/>
   </select>
 

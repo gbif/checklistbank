@@ -166,5 +166,11 @@
             ALTER table name_usage_metrics add foreign key (usage_fk) references name_usage (id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
         </sql>
     </changeSet>
-
+    <changeSet id="32" author="markus">
+        <!-- indices to speed up slow queries from produciton logs -->
+        <sql>
+            CREATE INDEX ON nub_rel (nub_fk, usage_fk)
+            WHERE dataset_key NOT IN ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02');
+        </sql>
+    </changeSet>
 </databaseChangeLog>
