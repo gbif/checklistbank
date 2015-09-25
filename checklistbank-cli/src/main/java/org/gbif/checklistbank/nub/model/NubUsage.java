@@ -57,4 +57,12 @@ public class NubUsage {
     public void addRemark(String remark) {
         remarks.add(remark);
     }
+
+    @Override
+    public String toString() {
+        if (rank != null && parsedName != null && node != null) {
+            return rank + " " + parsedName.getScientificName() + " [" + node.getId() + "]";
+        }
+        return super.toString();
+    }
 }

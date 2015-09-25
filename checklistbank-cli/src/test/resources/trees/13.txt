@@ -1,0 +1,24 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+  Asteraceae
+    Albi
+      Albi tomentosa (Micheli) Standl.
+        *? tomentosa Micheli
+        *Albizia tomentosa (Micheli) Standl.
+    Albizia
+  Fabaceae
+    Albi
+    Albizia
+      Albizia adianthifolia (Schum.) W.Wight
+        *? adianthifolia Schum.
+        *Albi adianthifolia (Schum.) W.Wight
+  Gentianaceae
+    Albi
+      Albi minki W. Wight
+Protozoa
+Viruses
+incertae sedis

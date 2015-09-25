@@ -1,0 +1,30 @@
+Animalia
+  Arthropoda
+    Arachnida
+      Salticidae
+        Micalula Strand, 1932
+          *Mica Petrunkevitch, 1925
+    Malacostraca
+      Porcellionidae
+        Mica Budde-Lund in Voeltzkow, 1908
+    Ostracoda
+      Mica Neckaja, 1952
+  Brachiopoda
+    Rhynchonellata
+      Athyrididae
+      Mica Baranov & Alkhovik, 2001
+  Cnidaria
+    Hydrozoa
+      Pyrostephidae
+        Pyrostephos Moser, 1925
+          *Mica Margulis, 1982
+          Mica micula Margulis, 1982
+          Mica spectata
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

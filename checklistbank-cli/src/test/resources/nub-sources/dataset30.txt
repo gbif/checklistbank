@@ -1,0 +1,16 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Brachiopoda
+3	1		PHYLUM	ACCEPTED		Cnidaria
+4	1		PHYLUM	ACCEPTED		Arthropoda
+5	4		CLASS	ACCEPTED		Arachnida
+6	4		CLASS	ACCEPTED		Malacostraca
+7	4		CLASS	ACCEPTED		Ostracoda
+8	3		CLASS	ACCEPTED		Hydrozoa
+9	2		CLASS	ACCEPTED		Rhynchonellata
+
+10	9		GENUS	ACCEPTED		Mica Baranov & Alkhovik, 2001
+11	8		GENUS	ACCEPTED		Mica Margulis, 1982
+12	7		GENUS	ACCEPTED		Mica Neckaja, 1952
+13	6		GENUS	ACCEPTED		Mica Budde-Lund in Voeltzkow, 1908
+
+20	11		SPECIES	ACCEPTED		Mica micula Margulis, 1982

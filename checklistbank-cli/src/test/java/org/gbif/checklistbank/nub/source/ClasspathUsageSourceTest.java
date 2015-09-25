@@ -20,7 +20,7 @@ public class ClasspathUsageSourceTest {
   public void testListSources() throws Exception {
     ClasspathUsageSource src = ClasspathUsageSource.allSources();
     List<NubSource> sources = src.listSources();
-    assertEquals(28, sources.size());
+    assertEquals(31, sources.size());
     assertEquals(1, sources.get(0).priority);
     assertEquals(Rank.FAMILY, sources.get(0).ignoreRanksAbove);
   }
@@ -38,6 +38,6 @@ public class ClasspathUsageSourceTest {
       System.out.print(u.key + "  ");
       System.out.println(u.scientificName);
     }
-    assertEquals(9, counter);
+    assertEquals(12, counter);
   }
 }

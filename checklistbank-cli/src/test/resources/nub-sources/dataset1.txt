@@ -7,3 +7,7 @@
 102	2		VARIETY	ACCEPTED		Lepiota nuda var. europaea
 103	2		SUBVARIETY	ACCEPTED		Lepiota nuda subvar. maxima
 104	2		BIOVAR	ACCEPTED		Francisella tularensis biovar rosensis
+
+1000			KINGDOM	ACCEPTED		Animalia
+1001	1000		FAMILY	ACCEPTED		Porcellionidae
+1002	1001		SPECIES	ACCEPTED		Lepiota carlanova MD

@@ -35,7 +35,11 @@ public class IdLookupImplTest {
                 new LookupUsage(9, "Abies alba", null, null, Rank.SPECIES, Kingdom.PLANTAE, false),
                 new LookupUsage(10, "Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE, true),
                 new LookupUsage(11, "Abies alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true),
-                new LookupUsage(12, "Picea alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true)
+                new LookupUsage(12, "Picea alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true),
+                new LookupUsage(13, "Picea", null, null, Rank.GENUS, Kingdom.PLANTAE, true),
+                new LookupUsage(14, "Carex cayouettei", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
+                new LookupUsage(15, "Carex comosa × Carex lupulina", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
+                new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.VIRUSES, true)
         );
         return new IdLookupImpl(usages);
     }
@@ -52,11 +56,14 @@ public class IdLookupImplTest {
         assertEquals("donatia novae-zelandiae", IdLookupImpl.norm("Donatia novae-zelandiæ"));
         assertEquals("abies olsen", IdLookupImpl.norm("Abies ölsen"));
         assertEquals("abies oeftaen", IdLookupImpl.norm("Abies œftæn"));
+        assertEquals("carex ×cayouettei", IdLookupImpl.norm("Carex ×cayouettei"));
+        assertEquals("carex comosa × carex lupulina", IdLookupImpl.norm("Carex comosa × Carex lupulina"));
+        assertEquals("aeropyrum coil-shaped virus", IdLookupImpl.norm("Aeropyrum coil-shaped virus"));
     }
 
     @Test
     public void testLookup() throws IOException, SQLException {
-        assertEquals(12, l.size());
+        assertEquals(16, l.size());
         assertEquals(1, l.match("Animalia", Rank.KINGDOM, Kingdom.ANIMALIA).getKey());
 
         assertEquals(7, l.match("Rodentia", Rank.ORDER, Kingdom.ANIMALIA).getKey());
@@ -93,5 +100,13 @@ public class IdLookupImplTest {
         assertEquals(9, l.match("Abies alba", "Miller", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
         assertEquals(9, l.match("Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
         assertEquals(9, l.match("Abies alba", "Döring", "1778", Rank.SPECIES, Kingdom.PLANTAE).getKey());
+
+        // try unparsable names
+        assertEquals(14, l.match("Carex cayouettei", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
+        assertEquals(15, l.match("Carex comosa × Carex lupulina", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
+        assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.VIRUSES).getKey());
+        assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, Rank.SPECIES, Kingdom.VIRUSES).getKey());
+        assertNull(l.match("Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.FUNGI));
+
     }
 }

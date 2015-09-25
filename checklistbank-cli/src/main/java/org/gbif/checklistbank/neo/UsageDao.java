@@ -508,6 +508,10 @@ public class UsageDao {
         return getNeo().findNodes(Labels.TAXON);
     }
 
+    public ResourceIterator<Node> allRootTaxa(){
+        return getNeo().findNodes(Labels.ROOT);
+    }
+
     public ResourceIterator<Node> allFamilies(){
         return getNeo().findNodes(Labels.FAMILY);
     }

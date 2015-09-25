@@ -207,6 +207,8 @@ public class IdLookupImpl implements IdLookup {
     }
 
     private boolean match(Rank r1, Rank r2) {
+        if (r1==Rank.UNRANKED || r2==Rank.UNRANKED) return true;
+
         if (r1 == Rank.INFRASPECIFIC_NAME) {
             return r2.isInfraspecific();
         } else if (r1 == Rank.INFRASUBSPECIFIC_NAME) {

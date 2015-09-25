@@ -1,0 +1,14 @@
+Animalia
+  Hyalonematidae
+    Hyalonema Gray, 1832
+      *Hyalothrix Gray, 1867
+      Hyalonema calix Schulze, 1904
+      Hyalonema rotundum Ijima, 1927
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

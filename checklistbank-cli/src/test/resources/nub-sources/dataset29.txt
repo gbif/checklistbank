@@ -1,0 +1,21 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Brachiopoda
+3	1		PHYLUM	ACCEPTED		Cnidaria
+4	1		PHYLUM	ACCEPTED		Arthropoda
+5	4		CLASS	ACCEPTED		Arachnida
+6	4		CLASS	ACCEPTED		Malacostraca
+7	4		CLASS	ACCEPTED		Ostracoda
+8	3		CLASS	ACCEPTED		Hydrozoa
+9	2		CLASS	ACCEPTED		Rhynchonellata
+
+10	9		FAMILY	ACCEPTED		Athyrididae
+11	6		FAMILY	ACCEPTED		Porcellionidae
+12	5		FAMILY	ACCEPTED		Salticidae
+13	8		FAMILY	ACCEPTED		Pyrostephidae
+
+100	11		GENUS	ACCEPTED		Mica
+101	201		GENUS	SYNONYM		Mica Margulis, 1982
+102	200		GENUS	SYNONYM		Mica Petrunkevitch, 1925
+
+200	12		GENUS	ACCEPTED		Micalula Strand, 1932
+201	13		GENUS	ACCEPTED		Pyrostephos Moser, 1925

@@ -47,8 +47,8 @@
         <gbif-microservice.version>0.3</gbif-microservice.version>
         <gbif-postal-service.version>0.17</gbif-postal-service.version>
         <registry-client.version>2.30</registry-client.version>
-        <name-parser.version>2.8</name-parser.version>
-        <gbif-parser.version>0.16</gbif-parser.version>
+        <name-parser.version>2.9-SNAPSHOT</name-parser.version>
+        <gbif-parser.version>0.17-SNAPSHOT</gbif-parser.version>
         <dwca-io.version>1.24</dwca-io.version>
         <!-- external libs -->
         <assertj.version>1.6.1</assertj.version>
@@ -70,7 +70,7 @@
         <hppc.version>0.7.1</hppc.version>
         <jackson.version>1.9.12</jackson.version>
         <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-        <jackson2.version>2.4.2</jackson2.version>
+        <jackson2.version>2.5.4</jackson2.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.47</jcommander.version>
         <jersey.version>1.18.3</jersey.version>
@@ -375,8 +375,13 @@
                 <version>${jackson2.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-smile</artifactId>
                 <version>${jackson2.version}</version>
             </dependency>
             <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
@@ -384,11 +389,6 @@
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
                 <version>${kryo.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${jackson2.version}</version>
             </dependency>
 
             <!-- Logging -->

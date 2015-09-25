@@ -1,7 +1,9 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -9,8 +11,13 @@ import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
+import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
+
+import java.util.Set;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +28,8 @@ import org.slf4j.LoggerFactory;
 public class NubMatchHandler implements StartEndHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(NubMatchHandler.class);
+    private final NameParser parser = new NameParser(1000);
+    private final Set<NameType> unparsableMatchTypes = Sets.newHashSet(NameType.VIRUS, NameType.HYBRID, NameType.CULTIVAR, NameType.CANDIDATUS);
     // neo node ids for the higher classification links
     private final IdLookup lookup;
     private final UsageDao dao;
@@ -69,17 +78,25 @@ public class NubMatchHandler implements StartEndHandler {
      * The resulting usageKey of the match and potential issues will be stored in the neo node.
      */
     private void matchToNub(NameUsageNode nn) {
-        LookupUsage match = lookup.match(nn.usage.getCanonicalOrScientificName(), nn.usage.getAuthorship(), null, nn.usage.getRank(), currKingdom);
-
+        LookupUsage match = null;
+        try {
+            ParsedName pn = parser.parse(nn.usage.getScientificName(), nn.usage.getRank());
+            match = lookup.match(pn.canonicalName(), pn.getAuthorship(), pn.getYear(), nn.usage.getRank(), currKingdom);
+        } catch (UnparsableException e) {
+            // try with full scientific name for certain name types (we dont want to match informal or no names)
+            if (unparsableMatchTypes.contains(e.type)) {
+                match = lookup.match(nn.usage.getScientificName(), null, null, nn.usage.getRank(), currKingdom);
+            }
+        }
         // store nub key
         if (match != null) {
             nn.usage.setNubKey(match.getKey());
             if (currKingdom == null) {
                 setCurrKingdom(match.getKingdom(), nn.node);
-                LOG.debug("Nub match {} complementing kingdom: {}", nn.usage.getCanonicalOrScientificName(), currKingdom);
+                LOG.debug("Nub match {} complementing kingdom: {}", nn.usage.getScientificName(), currKingdom);
             }
         } else {
-            LOG.debug("Failed nub match: {} {}", nn.usage.getRank(), nn.usage.getCanonicalOrScientificName());
+            LOG.debug("Failed nub match: {} {}", nn.usage.getRank(), nn.usage.getScientificName());
             nn.usage.setNubKey(null);
             nn.addIssue(NameUsageIssue.BACKBONE_MATCH_NONE);
         }

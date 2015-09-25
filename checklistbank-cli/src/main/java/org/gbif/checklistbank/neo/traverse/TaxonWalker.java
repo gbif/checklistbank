@@ -21,11 +21,7 @@ import org.slf4j.LoggerFactory;
 public class TaxonWalker {
 
   private static final Logger LOG = LoggerFactory.getLogger(TaxonWalker.class);
-
   private static final int reportingSize = 10000;
-  public static void walkAll(GraphDatabaseService db, StartEndHandler ... handler) {
-    walkAccepted(db, null, handler);
-  }
 
   /**
    * Walks allAccepted nodes in a single transaction

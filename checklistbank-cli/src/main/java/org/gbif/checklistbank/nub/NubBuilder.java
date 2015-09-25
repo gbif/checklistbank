@@ -548,7 +548,7 @@ public class NubBuilder implements Runnable {
         Preconditions.checkNotNull(u.status);
         // try to parse name
         addParsedNameIfNull(u);
-        NubUsage nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom());
+        NubUsage nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
         // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
         if (nub == null && u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
             ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
@@ -556,6 +556,7 @@ public class NubBuilder implements Runnable {
                 nub = kingdoms.get(kResult.getPayload());
             }
         }
+        // process only usages with desired ranks
         if (u.rank != null && allowedRanks.contains(u.rank)) {
             if (nub == null) {
                 // create new nub usage if there wasnt any yet
@@ -563,11 +564,13 @@ public class NubBuilder implements Runnable {
 
             } else {
 
+                Equality authorEq = authorComparator.compare(nub.parsedName, u.parsedName);
+
                 if (nub.status.isSynonym() == u.status.isSynonym()) {
                     // update nub usage if status matches
                     updateNub(nub, u, origin, parent);
 
-                } else if (authorsDiffer(nub.parsedName, u.parsedName)) {
+                } else if (Equality.DIFFERENT == authorEq) {
                     // create new nub usage with different status and authorship as before
                     nub = createNubUsage(u, origin, parent);
 
@@ -575,6 +578,10 @@ public class NubBuilder implements Runnable {
                     // prefer accepted over synonym if from the same source
                     LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
                     delete(nub);
+                    nub = createNubUsage(u, origin, parent);
+
+                } else if (fromCurrentSource(nub) && u.parsedName.hasAuthorship() && Equality.EQUAL != authorEq) {
+                    // allow new synonyms with non equal authorship to be created
                     nub = createNubUsage(u, origin, parent);
 
                 } else if (currSrc.nomenclator) {
@@ -611,31 +618,30 @@ public class NubBuilder implements Runnable {
         db.dao.delete(nub);
     }
 
-    private boolean authorsDiffer(ParsedName pn1, ParsedName pn2) {
-        return Equality.DIFFERENT == authorComparator.compare(pn1, pn2);
-    }
-
     private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
         if (!u.status.isSynonym() && !p.status.isSynonym()) {
             // check if implicit species or genus parents are needed
-            if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
-                SrcUsage genus = new SrcUsage();
-                genus.rank = Rank.GENUS;
-                genus.scientificName = u.parsedName.getGenusOrAbove();
-                genus.status = u.status;
-                p = processSourceUsage(genus, Origin.IMPLICIT_NAME, p);
+            SrcUsage implicit = new SrcUsage();
+            try {
+                if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
+                    implicit.rank = Rank.GENUS;
+                    implicit.scientificName = u.parsedName.getGenusOrAbove();
+                    implicit.status = u.status;
+                    p = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
 
-            } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
-                SrcUsage spec = new SrcUsage();
-                spec.rank = Rank.SPECIES;
-                spec.scientificName = u.parsedName.canonicalSpeciesName();
-                spec.status = u.status;
-                p = processSourceUsage(spec, Origin.IMPLICIT_NAME, p);
+                } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
+                    implicit.rank = Rank.SPECIES;
+                    implicit.scientificName = u.parsedName.canonicalSpeciesName();
+                    implicit.status = u.status;
+                    p = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+                }
+            } catch (IgnoreSourceUsageException e) {
+                LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName);
             }
         }
-        // use accepted as parent if needed and flag as doubtful
+        // if parent is a synonym use accepted as parent and flag as doubtful
         // http://dev.gbif.org/issues/browse/POR-2780
         if (p.status.isSynonym()) {
             p = db.getParent(p);

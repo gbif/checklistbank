@@ -1,0 +1,55 @@
+Animalia
+  Arthropoda
+    Arachnida
+    Insecta
+      Coleoptera
+        Blattaria Voet, 1806
+      Diptera
+      Orthoptera
+        Limoniidae
+          Trichoneura
+            Trichoneura bontocensis Alexander, 1934
+            Trichoneura formosensis (Alexander, 1923)
+        Blattaria Weyenbergh, 1874
+  Chordata
+    Aves
+      Oenanthe Vieillot, 1816
+    Mammalia
+    Reptilia
+      Crocodylia
+      Squamata
+  Mollusca
+Archaea
+Bacteria
+Chromista
+Fungi
+  Ascomycota
+  Basidiomycota
+    Agaricomycetes
+      Agaricales Underw.
+      Polyporales
+        Polyporaceae Fr. ex Corda
+Plantae
+  Bryophyta
+  Marchantiophyta
+    Jungermanniopsida
+  Tracheophyta
+    Cycadopsida
+    Liliopsida
+    Magnoliopsida
+      Asteraceae
+      Fabaceae
+      Malvaceae
+        Pentapetes Linnaeus, 1753
+          *Blattaria O. Kuntze, 1891
+      Poaceae
+        Trichoneura
+          Trichoneura ciliata (Peter) S.M.Phillips
+            *Trichoneura hirtella Napper
+            *Leptochloa ciliata Peter
+      Scrophulariaceae
+        Blattaria P. Miller, 1754
+  Oenanthe Linnaeus, 1753
+Protozoa
+Viruses
+incertae sedis

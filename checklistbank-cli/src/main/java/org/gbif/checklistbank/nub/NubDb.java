@@ -80,13 +80,18 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public NubUsage getParent(NubUsage child) {
-        Node p;
-        if (child.status.isSynonym()) {
-            p = child.node.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getOtherNode(child.node);
+        return dao.readNub(getParent(child.node));
+    }
+
+    /**
+     * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
+     */
+    public Node getParent(Node child) {
+        if (child.hasLabel(Labels.SYNONYM)) {
+            return child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getOtherNode(child);
         } else {
-            p = child.node.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child.node);
+            return child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child);
         }
-        return dao.readNub(p);
     }
 
     /**
@@ -122,13 +127,13 @@ public class NubDb {
      *
      * @return the existing usage or null if it does not exist yet.
      */
-    public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom) {
+    public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
         final String name = dao.canonicalOrScientificName(u.parsedName, false);
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name))) {
             NubUsage rn = dao.readNub(n);
-            if (matchesNub(u, uKingdom, rn)) {
+            if (matchesNub(u, uKingdom, rn, currNubParent)) {
                 checked.add(rn);
                 if (!rn.parsedName.hasAuthorship()) {
                     canonMatches++;
@@ -159,40 +164,53 @@ public class NubDb {
                 }
             }
             LOG.info("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
-            //TODO: implmement sth even more clever dealing with homonyms!!!
+            for (NubUsage nu : checked) {
+                if (!nu.status.isSynonym()) {
+                    nu.issues.add(NameUsageIssue.HOMONYM);
+                    nu.addRemark("Homonym known in other sources: " + u.scientificName);
+                    return nu;
+                }
+            }
             throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.key, u.scientificName);
         }
         return null;
     }
 
-    private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match) {
+    private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match, NubUsage currNubParent) {
         if (u.rank != match.rank) {
             return false;
         }
-        // no homonmys above genus level!
+        // no homonyms above genus level
         if (u.rank.isSuprageneric()) {
             return true;
         }
         Equality author = authComp.compare(u.parsedName, match.parsedName);
-        Equality kingdom = compareClassification(uKingdom, match);
+        Equality kingdom = compareKingdom(uKingdom, match);
+        if (author == Equality.DIFFERENT || kingdom == Equality.DIFFERENT) return false;
         switch (author) {
-            case DIFFERENT:
-                return false;
             case EQUAL:
-                return kingdom != Equality.DIFFERENT;
+                // really force a no-match in case authors match but the name is classified under a different (normalised) kingdom?
+                return true;
             case UNKNOWN:
-                return kingdom != Equality.DIFFERENT;
-            //&& u.status.isSynonym() == match.status.isSynonym()
+                return u.rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT;
         }
         return false;
     }
 
-    //TODO: improve classification comparison to more than just kingdom ???
-    private Equality compareClassification(Kingdom uKingdom, NubUsage match) {
+    // if authors are missing require the classification to not contradict!
+    private Equality compareKingdom(Kingdom uKingdom, NubUsage match) {
         if (uKingdom == null || match.kingdom == null) {
             return Equality.UNKNOWN;
         }
         return norm(uKingdom) == norm(match.kingdom) ? Equality.EQUAL : Equality.DIFFERENT;
+    }
+
+    // if authors are missing require the classification to not contradict!
+    private Equality compareClassification(NubUsage currNubParent, NubUsage match) {
+        if (currNubParent != null && existsInClassification(match.node, currNubParent.node)) {
+            return Equality.EQUAL;
+        }
+        return Equality.DIFFERENT;
     }
 
     public long countTaxa() {
@@ -395,6 +413,12 @@ public class NubDb {
     public boolean existsInClassification(Node n, Node search) {
         if (n.equals(search)) {
             return true;
+        }
+        if (n.hasLabel(Labels.SYNONYM)) {
+            n = getParent(n);
+            if (n.equals(search)) {
+                return true;
+            }
         }
         for (Node p : Traversals.PARENTS.traverse(n).nodes()) {
             if (p.equals(search)) {
