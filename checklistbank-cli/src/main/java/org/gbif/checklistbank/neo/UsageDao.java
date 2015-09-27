@@ -12,7 +12,6 @@ import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
@@ -470,17 +469,12 @@ public class UsageDao {
     }
 
     /**
-     * Deletes kvp usage and neo node together with accepted and all basionym relations.
-     * It does not touch the parent_of classification relations and will barf if that exists!!!
+     * Deletes kvp usage and neo node together with all its relations.
      */
     public void delete(NubUsage nub) {
         nubUsages.remove(nub.node.getId());
-        // remove accepted, basionym and parent relations
-        for (Relationship rel : Traversals.ACCEPTED.traverse(nub.node).relationships()) {
-            rel.delete();
-        }
-        // remove all basionym relations
-        for (Relationship rel : nub.node.getRelationships(RelType.BASIONYM_OF)) {
+        // remove all relations
+        for (Relationship rel : nub.node.getRelationships()) {
             rel.delete();
         }
         nub.node.delete();

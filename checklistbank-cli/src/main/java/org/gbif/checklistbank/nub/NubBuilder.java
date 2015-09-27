@@ -282,8 +282,14 @@ public class NubBuilder implements Runnable {
      * Goes thru all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
      */
     private void detectBasionyms() {
+        LOG.info("Discover basionyms");
+        int newBasionyms = 0;
+        int newRelations = 0;
         final BasionymSorter basSorter = new BasionymSorter(authorComparator);
-        for (Node n : IteratorUtil.loop(db.dao.allFamilies())) {
+        // read all families into a list to avoid concurrent modifications
+        // resulting in a "lucene.store.AlreadyClosedException: this IndexReader is closed"
+        List<Node> families = IteratorUtil.asList(db.dao.allFamilies());
+        for (Node n : families) {
             NubUsage fam = db.dao.readNub(n);
             if (!fam.status.isSynonym()) {
                 Map<String, List<NubUsage>> epithets = Maps.newHashMap();
@@ -352,12 +358,14 @@ public class NubBuilder implements Runnable {
 
                             } else if (group.getRecombinations().size() > 1) {
                                 // we need to create a placeholder basionym to group the 2 or more recombinations
+                                newBasionyms++;
                                 basionym = createBasionymPlaceholder(fam, group);
                             }
                             // create basionym relations
                             if (basionym != null) {
                                 for (NubUsage u : group.getRecombinations()) {
                                     if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
+                                        newRelations++;
                                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
                                     }
                                 }
@@ -367,6 +375,7 @@ public class NubBuilder implements Runnable {
                 }
             }
         }
+        LOG.info("Discovered {} new basionym relations and created {} basionym placeholders", newRelations, newBasionyms);
     }
 
     private NubUsage createBasionymPlaceholder(NubUsage family, BasionymGroup group) {
@@ -618,6 +627,16 @@ public class NubBuilder implements Runnable {
         db.dao.delete(nub);
     }
 
+    /**
+     * Removes a taxon if it has no accepted children
+     */
+    public void removeTaxonIfEmpty(NubUsage u) {
+        if (!u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF)
+                && !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)) {
+            delete(u);
+        }
+    }
+
     private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
@@ -766,7 +785,7 @@ public class NubBuilder implements Runnable {
     }
 
     private void groupByBasionym() {
-        LOG.info("Start grouping by basionyms");
+        LOG.info("Start basionym consolidation");
         try {
             db.openTx();
             detectBasionyms();
@@ -783,7 +802,10 @@ public class NubBuilder implements Runnable {
      * If a previously accepted name needs to be turned into a synonym it will be of type homotypical_synonym.
      */
     private void consolidateBasionymGroups() {
+        int counter = 0;
+        int counterModified = 0;
         for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+            counter++;
             // sort all usage by source dataset priority, placing doubtful names last
             List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
             if (group.size() > 1) {
@@ -796,23 +818,30 @@ public class NubBuilder implements Runnable {
                 LOG.debug("Found basionym group with {} primary usage {} in basionym group: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
                 for (NubUsage u : group) {
                     if (!hasAccepted(u, accepted)) {
+                        counterModified++;
                         NubUsage previousParent = db.getParent(u);
                         if (previousParent != null) {
                             u.addRemark( String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
                                     u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                             );
                         }
+                        // remember previous parent
+                        NubUsage parent = db.getParent(u);
+                        // convert to synonym, removing old parent relation
                         convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
                         // move any accepted children to new accepted parent
                         db.assignParentToChildren(u.node, accepted);
                         // move any synonyms to new accepted parent
                         db.assignAcceptedToSynonyms(u.node, accepted.node);
+                        // remove parent if it has no children or synonyms
+                        removeTaxonIfEmpty(parent);
                         // persist usage instance changes
                         db.store(u);
                     }
                 }
             }
         }
+        LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
     }
 
     /**

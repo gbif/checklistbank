@@ -470,14 +470,11 @@ public class NubBuilderIT {
         build(src);
 
         NubUsage fab = assertCanonical("Fabaceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-        NubUsage ast = assertCanonical("Asteraceae", "", null, Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-
         NubUsage genus = assertCanonical("Albizia", "", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, fab);
         NubUsage adianthifolia = assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
 
-        genus = assertCanonical("Albi", "", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, fab);
-        assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, genus);
-        NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+        assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
         // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful as sources suggest)
         assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, tomentosa);
