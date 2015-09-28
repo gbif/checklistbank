@@ -21,6 +21,12 @@ public class NubTreeTest {
         StringWriter buffer = new StringWriter();
         tree.print(buffer);
         assertEquals(buffer.toString().trim(), IOUtils.toString(FileUtils.classpathStream("trees/test.txt"), "UTF8").trim());
+
+
+        System.out.println("Tree traversal");
+        for (NubNode n : tree) {
+            System.out.println(n.name);
+        }
     }
 
 }

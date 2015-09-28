@@ -454,6 +454,8 @@ public class NubBuilderIT {
         assertTrue(listCanonical("Aster doliolum").isEmpty());
         assertTrue(listCanonical("Cichorium doliolum").isEmpty());
         assertTrue(listCanonical("Cichorium doliolum doliolum").isEmpty());
+
+        assertTree("24.txt");
     }
 
     /**
@@ -891,26 +893,33 @@ public class NubBuilderIT {
     }
 
     class TreeAsserter implements StartEndHandler {
-        private NubTree tree;
+        private Iterator<NubNode> treeIter;
 
         public TreeAsserter(NubTree tree) {
-            this.tree = tree;
+            this.treeIter = tree.iterator();
         }
 
         @Override
         public void start(Node n) {
-
+            String name = (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+            String expected = treeIter.next().name;
+            assertEquals(expected, name);
+            // check for synonyms
+            for (Node s : Traversals.SYNONYMS.traverse(n).nodes()) {
+                name = (String) s.getProperty(NodeProperties.SCIENTIFIC_NAME);
+                expected = treeIter.next().name;
+                assertEquals(expected, name);
+            }
         }
 
         @Override
         public void end(Node n) {
-
         }
     }
 
     private void assertTree(String filename) throws IOException {
         NubTree expected = NubTree.read("trees/" + filename);
-        assertEquals("Number of roots differ", expected.getRoot().size(), IteratorUtil.count(dao.allRootTaxa()));
+        assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
         TaxonWalker.walkAccepted(dao.getNeo(), null, new TreeAsserter(expected));
     }
 

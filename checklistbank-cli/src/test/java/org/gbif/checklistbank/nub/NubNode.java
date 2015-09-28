@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.beust.jcommander.internal.Lists;
@@ -12,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 public class NubNode {
     public String name;
     public List<NubNode> synonyms = Lists.newArrayList();
-    public List<NubNode> children = Lists.newArrayList();
+    public LinkedList<NubNode> children = Lists.newLinkedList();
 
     public NubNode(String name) {
         this.name = name;

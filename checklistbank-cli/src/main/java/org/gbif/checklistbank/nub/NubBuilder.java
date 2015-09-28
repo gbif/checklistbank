@@ -82,6 +82,9 @@ public class NubBuilder implements Runnable {
         NUB_RANKS = ImmutableSet.copyOf(ranks);
     }
 
+    private final Set<NameType> ignoredNameTypes = Sets.newHashSet(
+            NameType.CANDIDATUS, NameType.CULTIVAR, NameType.INFORMAL, NameType.NO_NAME, NameType.PLACEHOLDER, NameType.NO_NAME
+    );
     private final Set<Rank> allowedRanks = Sets.newHashSet();
     private final NubDb db;
     private final boolean closeDao;
@@ -505,7 +508,7 @@ public class NubBuilder implements Runnable {
                         parents.put(nub);
                     }
                 } catch (IgnoreSourceUsageException e) {
-                    LOG.error("Ignore usage {} {}", u.key, u.scientificName);
+                    LOG.error("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
                 } catch (StackOverflowError e) {
                     // if this happens its time to fix some code!
@@ -677,6 +680,15 @@ public class NubBuilder implements Runnable {
         if (u.parsedName == null) {
             try {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
+                // avoid indet names
+                if (ignoredNameTypes.contains(u.parsedName.getType())) {
+                    throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.key, u.scientificName);
+                }
+                // avoid incomplete names
+                if ((!Strings.isBlank(u.parsedName.getInfraSpecificEpithet()) && Strings.isBlank(u.parsedName.getSpecificEpithet()))
+                  || !Strings.isBlank(u.parsedName.getSpecificEpithet()) && Strings.isBlank(u.parsedName.getGenusOrAbove())) {
+                    throw new IgnoreSourceUsageException("Ignore incomplete name", u.key, u.scientificName);
+                }
                 // avoid taxon concept names
                 if (!Strings.isBlank(u.parsedName.getSensu())) {
                     throw new IgnoreSourceUsageException("Ignore taxon concept names", u.key, u.scientificName);
@@ -688,7 +700,7 @@ public class NubBuilder implements Runnable {
                     u.parsedName.setScientificName(u.scientificName);
                     u.parsedName.setType(e.type);
                 } else {
-                    throw new IgnoreSourceUsageException(e.getMessage(), u.key, u.scientificName);
+                    throw new IgnoreSourceUsageException("Unparsable " + e.type, u.key, u.scientificName);
                 }
             }
         }

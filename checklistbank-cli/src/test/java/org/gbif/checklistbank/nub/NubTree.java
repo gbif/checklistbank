@@ -6,8 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,8 +19,8 @@ import org.apache.commons.lang3.StringUtils;
  * We use this to compare nub build outputs with a very simple text based tree format that is very easy to read.
  * Especially useful for larger tree snippets.
  */
-public class NubTree {
-    private List<NubNode> root = Lists.newArrayList();
+public class NubTree implements Iterable<NubNode> {
+    private NubNode root = new NubNode(null);
 
     public static NubTree read(String classpathFilename) throws IOException {
         return read(FileUtils.classpathStream(classpathFilename));
@@ -66,7 +66,7 @@ public class NubTree {
 
                 } else {
                     NubNode n = new NubNode(line.trim());
-                    tree.getRoot().add(n);
+                    tree.getRoot().children.add(n);
                     parents.clear();
                     parents.add(n);
                 }
@@ -76,17 +76,80 @@ public class NubTree {
         return tree;
     }
 
-    public List<NubNode> getRoot() {
+    public NubNode getRoot() {
         return root;
     }
 
-    public void setRoot(List<NubNode> root) {
-        this.root = root;
+    public void print(Appendable out) throws IOException {
+        for (NubNode n : root.children) {
+            n.print(out, 0, false);
+        }
     }
 
-    public void print(Appendable out) throws IOException {
-        for (NubNode n : root) {
-            n.print(out, 0, false);
+    @Override
+    public Iterator<NubNode> iterator() {
+        return new NNIterator(this);
+    }
+
+    private class NNIter {
+        private int synIdx;
+        private final NubNode node;
+
+        public NNIter(NubNode node) {
+            this.node = node;
+        }
+
+        public boolean moreSynonyms() {
+            return node.synonyms.size() > synIdx;
+        }
+
+        public NNIter nextSynonym() {
+            NubNode n = node.synonyms.get(synIdx);
+            synIdx++;
+            return new NNIter(n);
+        }
+    }
+
+    private class NNIterator implements Iterator<NubNode> {
+        private LinkedList<NNIter> stack = Lists.newLinkedList();
+        private NNIter curr = null;
+
+        NNIterator(NubTree tree) {
+            for (NubNode r : tree.getRoot().children) {
+                this.stack.addFirst(new NNIter(r));
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !stack.isEmpty() || (curr != null && curr.moreSynonyms());
+        }
+
+        @Override
+        public NubNode next() {
+            if (curr == null) {
+                poll();
+                return curr.node;
+
+            } else if (curr.moreSynonyms()) {
+                return curr.nextSynonym().node;
+
+            } else {
+                poll();
+                return curr.node;
+            }
+        }
+
+        private void poll() {
+            curr = stack.removeLast();
+            while (!curr.node.children.isEmpty()) {
+                stack.add(new NNIter(curr.node.children.removeLast()));
+            }
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 }
