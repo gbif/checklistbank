@@ -17,7 +17,7 @@ import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.checklistbank.nub.source.ClbUsageIteratorNeo;
+import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
@@ -190,13 +190,14 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     private void updateDataset(Dataset d) throws Exception {
         LOG.info("Rematch checklist {} {} to changed backbone", d.getKey(), d.getTitle());
         Map<Integer, Integer> relations = Maps.newHashMap();
-        try (ClbUsageIteratorNeo iter = new ClbUsageIteratorNeo(cfg.clb, d.getKey(), d.getTitle())) {
+
+        try (ClbSource src = new ClbSource(cfg.clb, d)){
             NubUsage unknown = new NubUsage();
             unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
             unknown.kingdom = Kingdom.INCERTAE_SEDIS;
             // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
             ParentStack parents = new ParentStack(unknown);
-            for (SrcUsage u : iter) {
+            for (SrcUsage u : src.usages()) {
                 parents.add(u);
                 LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
                 if (match != null) {

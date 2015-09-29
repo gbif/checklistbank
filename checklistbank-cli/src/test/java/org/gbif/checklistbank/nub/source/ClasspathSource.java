@@ -1,7 +1,5 @@
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.utils.file.InputStreamUtils;
 
 import java.io.InputStream;
@@ -27,45 +25,18 @@ import org.apache.commons.io.IOUtils;
  * </ul>
  */
 public class ClasspathSource extends NubSource {
-    private final ClasspathUsageIteratorNeo iter;
 
     public ClasspathSource(Integer id) {
         key = IdxToKey(id);
         name = "Dataset " + id;
         priority = id;
-        try {
-            iter = new ClasspathUsageIteratorNeo(this);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
-    public void init() {
-        iter.init();
-    }
-
-    @Override
-    public CloseableIterable<SrcUsage> usages() {
-        return iter;
-    }
-
-    public class ClasspathUsageIteratorNeo extends UsageIteratorNeo {
-
-        public ClasspathUsageIteratorNeo(ClasspathSource source) throws Exception {
-            super(128, source.key, source.name);
+    void initNeo(NeoUsageWriter writer) throws Exception {
+        try (InputStream is = openTxtStream(priority)) {
+            IOUtils.copy(is, writer);
         }
-
-        @Override
-        void initNeo(NeoUsageWriter writer) throws Exception {
-            try (InputStream is = openTxtStream(keyToIdx(datasetKey))) {
-                IOUtils.copy(is, writer);
-            }
-        }
-    }
-
-    private static Integer keyToIdx(UUID key) {
-        return Integer.valueOf(key.toString().substring(34));
     }
 
     private static UUID IdxToKey(Integer id) {
