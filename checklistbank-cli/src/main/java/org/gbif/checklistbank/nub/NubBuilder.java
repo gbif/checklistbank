@@ -13,6 +13,7 @@ import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
@@ -25,9 +26,9 @@ import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.nub.source.ClbSource;
+import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
-import org.gbif.checklistbank.nub.source.SourceIterable;
-import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.common.parsers.KingdomParser;
@@ -88,7 +89,7 @@ public class NubBuilder implements Runnable {
     private final Set<Rank> allowedRanks = Sets.newHashSet();
     private final NubDb db;
     private final boolean closeDao;
-    private final UsageSource usageSource;
+    private final Iterable<NubSource> sources;
     private final NameParser parser = new NameParser();
     private NormalizerStats normalizerStats;
     private boolean assertionsPassed;
@@ -117,10 +118,10 @@ public class NubBuilder implements Runnable {
         }
     });
 
-    private NubBuilder(UsageDao dao, UsageSource usageSource, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
+    private NubBuilder(UsageDao dao, Iterable<NubSource> sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
                        boolean closeDao, boolean verifyBackbone) {
         db = NubDb.create(dao, 1000);
-        this.usageSource = usageSource;
+        this.sources = sources;
         this.authorComparator = authorComparator;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
         this.newIdStart = newIdStart;
@@ -134,8 +135,8 @@ public class NubBuilder implements Runnable {
             IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
-            Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;;
-            return new NubBuilder(dao, cfg.usageSource(), idLookup, idLookup.getAuthorComparator(), newIdStart == null ? 1000 : newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport);
+            Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;
+            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -144,8 +145,8 @@ public class NubBuilder implements Runnable {
     /**
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
-    public static NubBuilder create(UsageDao dao, UsageSource usageSource, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, usageSource, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false);
+    public static NubBuilder create(UsageDao dao, Iterable<NubSource> sources, IdLookup idLookup, int newIdStart) {
+        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false);
     }
 
     /**
@@ -416,8 +417,7 @@ public class NubBuilder implements Runnable {
 
     private void addKingdoms() {
         LOG.info("Adding kingdom");
-        currSrc = new NubSource();
-        currSrc.key = Constants.NUB_DATASET_KEY;
+        currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
         for (Kingdom k : Kingdom.values()) {
             NubUsage ku = new NubUsage();
             ku.usageKey = k.nubUsageID();
@@ -480,14 +480,9 @@ public class NubBuilder implements Runnable {
     }
 
     private void addDatasets() {
-        LOG.info("Query registry for backbone sources ...");
-        List<NubSource> sources = usageSource.listSources();
-        LOG.info("Start adding {} backbone sources:", sources.size());
-        for (NubSource source : sources) {
-            LOG.debug("Nub source: {}", source.name);
-        }
-        for (NubSource source : sources) {
-            addDataset(source);
+        LOG.info("Start adding backbone sources");
+        for (NubSource src : sources) {
+            addDataset(src);
         }
         db.closeTx();
     }
@@ -509,7 +504,7 @@ public class NubBuilder implements Runnable {
             }
         }
         int start = sourceUsageCounter;
-        try (SourceIterable iter = usageSource.iterateSource(source)) {
+        try (CloseableIterable<SrcUsage> iter = source.usages()) {
             for (SrcUsage u : iter) {
                 // catch errors processing individual records too
                 try {

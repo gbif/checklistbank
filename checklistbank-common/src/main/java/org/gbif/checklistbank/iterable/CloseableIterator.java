@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.iterable;
 
 import java.util.Iterator;
 

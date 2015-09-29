@@ -7,12 +7,12 @@ import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
+import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
+import org.gbif.checklistbank.nub.source.ClbSourceList;
 
 import java.io.File;
+import java.net.URI;
 
-import com.beust.jcommander.internal.Lists;
 import com.yammer.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,12 +33,13 @@ public class ManualNubBuild {
 
   private static NubConfiguration uat() {
     NubConfiguration cfg = new NubConfiguration();
-    cfg.registry.wsUrl = "http://api.gbif-uat.org/v1";
+    cfg.registry.wsUrl = "http://api.gbif.org/v1";
     cfg.neo.neoRepository = new File("/Users/markus/Desktop/repo");
     cfg.clb.serverName="pg1.gbif-uat.org";
-    cfg.clb.databaseName="checklistbank";
+    cfg.clb.databaseName="uat_checklistbank";
     cfg.clb.user ="clb";
     cfg.clb.password="%BBJu2MgstXJ";
+    cfg.sourceList = URI.create("https://dl.dropboxusercontent.com/u/457027/nub-sources.tsv");
     return cfg;
   }
 
@@ -46,7 +47,7 @@ public class ManualNubBuild {
     LOG.info("Build new nub");
     MetricRegistry registry = new MetricRegistry("nub-build");
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, registry, true);
-    NubBuilder builder = NubBuilder.create(dao, cfg.usageSource(), new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 1000);
+    NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000);
     builder.run();
     dao.close();
     LOG.info("New backbone ready");

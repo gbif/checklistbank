@@ -3,8 +3,6 @@ package org.gbif.checklistbank.cli.nubbuild;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
-import org.gbif.checklistbank.nub.source.ClbUsageSource;
-import org.gbif.checklistbank.nub.source.UsageSource;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.net.URI;
@@ -52,11 +50,4 @@ public class NubConfiguration {
      */
     @Valid
     public boolean autoImport = false;
-
-    /**
-     * @return a new usage source for a nub built that uses the configured registry to list tagged checklists
-     */
-    public UsageSource usageSource() {
-        return new ClbUsageSource(this);
-    }
 }

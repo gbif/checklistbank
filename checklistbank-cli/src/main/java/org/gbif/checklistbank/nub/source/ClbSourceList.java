@@ -9,14 +9,20 @@ import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterable;
+import org.gbif.checklistbank.iterable.FutureIterator;
 import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
@@ -29,43 +35,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A UsageSource reading usage data from checklistbank .
- * The list of source datasets is discovered by looking for the registry machine tag nub.gbif.org:priority
+ * A source for nub sources backed by usage data from checklistbank.
+ * The list of source datasets is discovered by reading a configured tab delimited online file.
+ *
+ * The sources are then loaded asynchroneously through a single background thread into temporary neo4j databases.
  */
-public class ClbUsageSource implements UsageSource {
+public class ClbSourceList implements CloseableIterable<NubSource> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClbUsageSource.class);
-    private List<NubSource> sources;
+    private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
+    private List<Future<NubSource>> futures = Lists.newArrayList();
     private final DatasetService datasetService;
     private final OrganizationService organizationService;
     private final NubConfiguration cfg;
+    private final ExecutorService exec;
 
-    public ClbUsageSource(NubConfiguration cfg) {
-        this.cfg = cfg;
-        LOG.info("Loading backbone sources from registry {}", cfg.registry.wsUrl);
+    public static ClbSourceList create(NubConfiguration cfg) {
         Injector regInj = cfg.registry.createRegistryInjector();
-        datasetService = regInj.getInstance(DatasetService.class);
-        organizationService = regInj.getInstance(OrganizationService.class);
+        return new ClbSourceList(regInj.getInstance(DatasetService.class), regInj.getInstance(OrganizationService.class), cfg);
     }
 
-    public ClbUsageSource(DatasetService datasetService, OrganizationService organizationService, NubConfiguration cfg) {
+    public ClbSourceList(DatasetService datasetService, OrganizationService organizationService, NubConfiguration cfg) {
+        exec = Executors.newSingleThreadExecutor();
         this.datasetService = datasetService;
         this.organizationService = organizationService;
         this.cfg = cfg;
-    }
-
-    @Override
-    public List<NubSource> listSources() {
-        if (sources == null) {
-            loadSources();
-        }
-        return sources;
+        loadSources();
     }
 
     private NubSource buildSource(Dataset d, int priority, Rank rank) {
-        NubSource src = new NubSource();
-        src.key = d.getKey();
-        src.name = d.getTitle();
+        NubSource src = new ClbSource(cfg.clb,d.getKey(), d.getTitle());
         src.created = d.getCreated();
         src.priority = priority;
         src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
@@ -77,8 +75,9 @@ public class ClbUsageSource implements UsageSource {
 
     private void loadSources() {
         Set<UUID> keys = Sets.newHashSet();
-        sources = Lists.newArrayList();
+        List<NubSource> sources = Lists.newArrayList();
 
+        LOG.info("Loading backbone sources from {}", cfg.sourceList);
         try {
             InputStream stream;
             if (cfg.sourceList.isAbsolute()) {
@@ -98,8 +97,7 @@ public class ClbUsageSource implements UsageSource {
                 Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
                 Dataset d = datasetService.get(key);
                 if (d != null) {
-                    NubSource src = buildSource(d, priority, rank);
-                    sources.add(src);
+                    sources.add(buildSource(d, priority, rank));
 
                 } else {
                     // try if its an organization
@@ -110,8 +108,7 @@ public class ClbUsageSource implements UsageSource {
                         int counter = 0;
                         for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
                             if (!keys.contains(d2.getKey())) {
-                                NubSource src = buildSource(d2, priority, rank);
-                                sources.add(src);
+                                sources.add(buildSource(d2, priority, rank));
                                 counter++;
                             }
                         }
@@ -150,15 +147,19 @@ public class ClbUsageSource implements UsageSource {
                             })
             );
         sources = order.sortedCopy(sources);
-    }
-
-    @Override
-    public SourceIterable iterateSource(NubSource source) {
-        try {
-            return new ClbUsageIteratorNeo(cfg.clb, source);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        // submit loader jobs
+        for (NubSource src : sources) {
+            futures.add(exec.submit(new LoadSource(src)));
         }
     }
 
+    @Override
+    public Iterator<NubSource> iterator() {
+        return new FutureIterator<NubSource>(futures);
+    }
+
+    @Override
+    public void close() throws Exception {
+        exec.shutdownNow();
+    }
 }

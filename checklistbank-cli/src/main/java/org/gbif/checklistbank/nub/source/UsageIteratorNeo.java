@@ -3,8 +3,9 @@ package org.gbif.checklistbank.nub.source;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.common.CloseableIterator;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
@@ -43,14 +44,14 @@ import org.slf4j.LoggerFactory;
  * </ul>
  * Implement the abstract method to init a neo db using the included NeoUsageWriter class.
  */
-public abstract class UsageIteratorNeo implements SourceIterable {
+public abstract class UsageIteratorNeo implements CloseableIterable<SrcUsage> {
     private static final Logger LOG = LoggerFactory.getLogger(UsageIteratorNeo.class);
 
     protected final UUID datasetKey;
     protected final String datasetTitle;
     protected Node root;
-    private boolean init = false;
     private UsageDao dao;
+    private boolean loaded = false;
 
     /**
      * @param memory in megabytes to be used for a pure in memory storage. Negative or zero values create a persistent dao
@@ -67,6 +68,17 @@ public abstract class UsageIteratorNeo implements SourceIterable {
             cfg.neoRepository = Files.createTempDir();
             dao = UsageDao.persistentDao(cfg, datasetKey, new MetricRegistry("sourcedb"), true);
         }
+    }
+
+    public void init() {
+        // load data into neo4j
+        try (NeoUsageWriter writer = new NeoUsageWriter(dao)) {
+            LOG.info("Start loading source data from {} into neo", datasetTitle);
+            initNeo(writer);
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        loaded = true;
     }
 
     abstract void initNeo(NeoUsageWriter writer) throws Exception;
@@ -112,13 +124,8 @@ public abstract class UsageIteratorNeo implements SourceIterable {
 
     @Override
     public CloseableIterator<SrcUsage> iterator() {
-        if (!init) {
-            try (NeoUsageWriter writer = new NeoUsageWriter(dao)) {
-                LOG.info("Start loading source data from {} into neo", datasetTitle);
-                initNeo(writer);
-            } catch (Exception e) {
-                Throwables.propagate(e);
-            }
+        if (!loaded) {
+            init();
         }
         return new SrcUsageIterator(Traversals.DESCENDANTS.traverse(root).nodes());
     }

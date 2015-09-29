@@ -19,8 +19,8 @@ import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
-import org.gbif.checklistbank.nub.source.ClasspathUsageSource;
-import org.gbif.checklistbank.nub.source.UsageSource;
+import org.gbif.checklistbank.nub.source.ClasspathSourceList;
+import org.gbif.checklistbank.nub.source.NubSource;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -65,7 +65,7 @@ public class NubBuilderIT {
 
     @Test
     public void testKingdoms() throws Exception {
-        build(ClasspathUsageSource.emptySource());
+        build(ClasspathSourceList.emptySource());
         // bad ranks, no source usages should be created
         assertEquals(Kingdom.values().length, countTaxa());
         for (Kingdom k : Kingdom.values()) {
@@ -86,7 +86,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testBackboneRanks() throws Exception {
-        build(ClasspathUsageSource.source(1));
+        build(ClasspathSourceList.source(1));
 
         // bad ranks, no source usages should be created
         assertTrue(listCanonical("Lepiota nuda maxima").isEmpty());
@@ -97,7 +97,7 @@ public class NubBuilderIT {
 
     @Test
     public void testUnknownKingdom() throws Exception {
-        build(ClasspathUsageSource.source(4));
+        build(ClasspathSourceList.source(4));
 
         NubUsage k = assertCanonical(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
         NubUsage f = assertCanonical("Popeliaceae", Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
@@ -107,7 +107,7 @@ public class NubBuilderIT {
 
     @Test
     public void testUpdateAuthorship() throws Exception {
-        build(ClasspathUsageSource.source(1, 5, 6));
+        build(ClasspathSourceList.source(1, 5, 6));
 
         assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
         assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
@@ -121,7 +121,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testMergeBasionymGroup() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(25, 26);
+        ClasspathSourceList src = ClasspathSourceList.source(25, 26);
         build(src);
 
         NubUsage spec = getCanonical("Picris hieracioides", Rank.SPECIES);
@@ -145,7 +145,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testDiacriticNames() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(27);
+        ClasspathSourceList src = ClasspathSourceList.source(27);
         build(src);
 
         assertEquals(4, countSpecies());
@@ -157,7 +157,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testExplicitBasionyms() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(20, 21);
+        ClasspathSourceList src = ClasspathSourceList.source(20, 21);
         build(src);
 
         assertEquals(1, IteratorUtil.asList(getCanonical("Mustela martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)).size());
@@ -178,7 +178,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testStableIds() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(3, 2);
+        ClasspathSourceList src = ClasspathSourceList.source(3, 2);
         src.setSourceRank(3, Rank.KINGDOM);
         build(src);
 
@@ -196,7 +196,7 @@ public class NubBuilderIT {
         int b4 = getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey;
 
         // rebuild nub with additional sources!
-        src = ClasspathUsageSource.source(3, 2, 8, 11);
+        src = ClasspathSourceList.source(3, 2, 8, 11);
         src.setSourceRank(3, Rank.KINGDOM);
         rebuild(src);
 
@@ -217,7 +217,7 @@ public class NubBuilderIT {
 
     @Test
     public void testUpdateClassification() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(3, 5, 7);
+        ClasspathSourceList src = ClasspathSourceList.source(3, 5, 7);
         src.setSourceRank(3, Rank.KINGDOM);
         build(src);
 
@@ -234,7 +234,7 @@ public class NubBuilderIT {
 
     @Test
     public void testCreateImplicitGenus() throws Exception {
-        build(ClasspathUsageSource.source(1));
+        build(ClasspathSourceList.source(1));
 
         NubUsage genusF = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, Kingdom.FUNGI, null);
         assertCanonical("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genusF);
@@ -254,7 +254,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testCreateImplicitAutonym() throws Exception {
-        build(ClasspathUsageSource.source(1));
+        build(ClasspathSourceList.source(1));
 
         List<NubUsage> nudas = listCanonical("Lepiota nuda nuda");
         assertEquals(2, nudas.size());
@@ -282,7 +282,7 @@ public class NubBuilderIT {
 
     @Test
     public void testHigherClassification() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(3);
+        ClasspathSourceList src = ClasspathSourceList.source(3);
         src.setSourceRank(3, Rank.KINGDOM);
         build(src);
 
@@ -293,7 +293,7 @@ public class NubBuilderIT {
 
     @Test
     public void testColAdiantumSynonym() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(8);
+        ClasspathSourceList src = ClasspathSourceList.source(8);
         src.setSourceRank(8, Rank.PHYLUM);
         build(src);
 
@@ -334,7 +334,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testSpeciesInSynonymGenus() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(11, 12);
+        ClasspathSourceList src = ClasspathSourceList.source(11, 12);
         build(src);
 
         NubUsage oct = assertCanonical("Octopus", "Cuvier, 1797", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -371,7 +371,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testHomonyms() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(3, 2);
+        ClasspathSourceList src = ClasspathSourceList.source(3, 2);
         src.setSourceRank(3, Rank.KINGDOM);
         build(src);
 
@@ -389,7 +389,7 @@ public class NubBuilderIT {
 
     @Test
     public void testGenusHomonyms() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(29, 30, 31);
+        ClasspathSourceList src = ClasspathSourceList.source(29, 30, 31);
         src.setSourceRank(29, Rank.PHYLUM);
         build(src);
 
@@ -405,7 +405,7 @@ public class NubBuilderIT {
 
     @Test
     public void testHybrids() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(9);
+        ClasspathSourceList src = ClasspathSourceList.source(9);
         src.setSourceRank(9, Rank.PHYLUM);
         build(src);
 
@@ -427,7 +427,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testMultipleAcceptedNames() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(10);
+        ClasspathSourceList src = ClasspathSourceList.source(10);
         build(src);
 
         NubUsage genus = assertCanonical("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
@@ -446,7 +446,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testIncompleteNames() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(24);
+        ClasspathSourceList src = ClasspathSourceList.source(24);
         src.setSourceRank(24, Rank.FAMILY);
         build(src);
 
@@ -467,7 +467,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testAlbiziaCoL() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(13);
+        ClasspathSourceList src = ClasspathSourceList.source(13);
         src.setSourceRank(13, Rank.FAMILY);
         build(src);
 
@@ -504,7 +504,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testSecSynonyms() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(28);
+        ClasspathSourceList src = ClasspathSourceList.source(28);
         src.setSourceRank(28, Rank.FAMILY);
         build(src);
 
@@ -521,7 +521,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testSynonymsWithDifferentAuthors() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(14);
+        ClasspathSourceList src = ClasspathSourceList.source(14);
         build(src);
 
         // we should only have one accepted Geotrupes stercorarius as one name lacks the combination author!
@@ -555,7 +555,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testInterrankHomonyms() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(19);
+        ClasspathSourceList src = ClasspathSourceList.source(19);
         src.setSourceRank(19, Rank.PHYLUM);
         build(src);
 
@@ -574,7 +574,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testWormsSubgenusAlternateRepresentations() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(18);
+        ClasspathSourceList src = ClasspathSourceList.source(18);
         build(src);
 
         NubUsage gen = assertCanonical("Hyalonema", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -594,7 +594,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testAvoidCanonicalSynonym() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(17);
+        ClasspathSourceList src = ClasspathSourceList.source(17);
         build(src);
         assertEquals(1, listCanonical("Fuligo septica").size());
     }
@@ -604,7 +604,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testProParteSynonym() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(15, 16);
+        ClasspathSourceList src = ClasspathSourceList.source(15, 16);
         build(src);
 
         NubUsage u = assertCanonical("Poa pubescens", "Lej.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.PROPARTE_SYNONYM, null);
@@ -657,7 +657,7 @@ public class NubBuilderIT {
      */
     @Test
     public void testVirusNames() throws Exception {
-        ClasspathUsageSource src = ClasspathUsageSource.source(22, 23);
+        ClasspathSourceList src = ClasspathSourceList.source(22, 23);
         src.setSourceRank(22, Rank.ORDER);
         src.setSourceRank(23, Rank.GENUS);
         build(src);
@@ -675,7 +675,7 @@ public class NubBuilderIT {
     /**
      * builds a new nub and keeps dao open for further test queries.
      */
-    private void build(UsageSource src) {
+    private void build(Iterable<NubSource> src) {
         NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
@@ -688,7 +688,7 @@ public class NubBuilderIT {
         printTree();
     }
 
-    private void rebuild(UsageSource src) {
+    private void rebuild(Iterable<NubSource> src) {
         IdLookup previousIds = new IdLookupImpl(dao);
         tx.close();
         dao.close();
