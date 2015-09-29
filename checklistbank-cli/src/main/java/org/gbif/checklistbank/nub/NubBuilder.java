@@ -282,103 +282,120 @@ public class NubBuilder implements Runnable {
     }
 
     /**
-     * Goes thru all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
+     * Goes through all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
      */
     private void detectBasionyms() {
-        LOG.info("Discover basionyms");
-        int newBasionyms = 0;
-        int newRelations = 0;
-        final BasionymSorter basSorter = new BasionymSorter(authorComparator);
-        // read all families into a list to avoid concurrent modifications
-        // resulting in a "lucene.store.AlreadyClosedException: this IndexReader is closed"
-        List<Node> families = IteratorUtil.asList(db.dao.allFamilies());
-        for (Node n : families) {
-            NubUsage fam = db.dao.readNub(n);
-            if (!fam.status.isSynonym()) {
-                Map<String, List<NubUsage>> epithets = Maps.newHashMap();
-                Map<String, Set<String>> epithetBridges = Maps.newHashMap();
-                LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
-                // key all names by their terminal epithet
-                for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
-                    NubUsage nub = db.dao.readNub(c);
-                    // ignore all supra specific names
-                    if (nub.rank.isSpeciesOrBelow()) {
-                        String epithet = nub.parsedName.getTerminalEpithet();
-                        if (!epithets.containsKey(epithet)) {
-                            epithets.put(epithet, Lists.newArrayList(nub));
-                        } else {
-                            epithets.get(epithet).add(nub);
-                        }
-                        // now check if a basionym relation exists already that reaches out to some other epithet, e.g. due to gender changes
-                        for (Node bg : Traversals.BASIONYM_GROUP.evaluator(Evaluators.excludeStartPosition()).traverse(c).nodes()) {
-                            NubUsage bgu = db.dao.readNub(bg);
-                            String epithet2 = bgu.parsedName.getTerminalEpithet();
-                            if (epithet2 != null && !epithet2.equals(epithet)) {
-                                if (!epithetBridges.containsKey(epithet)) {
-                                    epithetBridges.put(epithet, Sets.newHashSet(epithet2));
+        try {
+            LOG.info("Discover basionyms");
+            int newBasionyms = 0;
+            int newRelations = 0;
+            final BasionymSorter basSorter = new BasionymSorter(authorComparator);
+
+            // read all families into a list to avoid concurrent modifications
+            // resulting in a "lucene.store.AlreadyClosedException: this IndexReader is closed"
+            List<Node> families;
+            try {
+                families = IteratorUtil.asList(db.dao.allFamilies());
+            } catch (Exception e) {
+                LOG.error("Error reading all families", e);
+                families = Lists.newArrayList();
+            }
+
+            for (Node n : families) {
+                try {
+                    NubUsage fam = db.dao.readNub(n);
+                    if (!fam.status.isSynonym()) {
+                        Map<String, List<NubUsage>> epithets = Maps.newHashMap();
+                        Map<String, Set<String>> epithetBridges = Maps.newHashMap();
+                        LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
+                        // key all names by their terminal epithet
+                        for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
+                            NubUsage nub = db.dao.readNub(c);
+                            // ignore all supra specific names
+                            if (nub.rank.isSpeciesOrBelow()) {
+                                String epithet = nub.parsedName.getTerminalEpithet();
+                                if (!epithets.containsKey(epithet)) {
+                                    epithets.put(epithet, Lists.newArrayList(nub));
                                 } else {
-                                    epithetBridges.get(epithet).add(epithet2);
+                                    epithets.get(epithet).add(nub);
+                                }
+                                // now check if a basionym relation exists already that reaches out to some other epithet, e.g. due to gender changes
+                                for (Node bg : Traversals.BASIONYM_GROUP.evaluator(Evaluators.excludeStartPosition()).traverse(c).nodes()) {
+                                    NubUsage bgu = db.dao.readNub(bg);
+                                    String epithet2 = bgu.parsedName.getTerminalEpithet();
+                                    if (epithet2 != null && !epithet2.equals(epithet)) {
+                                        if (!epithetBridges.containsKey(epithet)) {
+                                            epithetBridges.put(epithet, Sets.newHashSet(epithet2));
+                                        } else {
+                                            epithetBridges.get(epithet).add(epithet2);
+                                        }
+                                    }
+
+                                }
+
+                            }
+                        }
+                        LOG.debug("{} distinct epithets found in family {}", epithets.size(), fam.parsedName.canonicalNameComplete());
+
+                        // merge epithet groups based on existing basionym relations, catching some gender changes
+                        LOG.debug("{} epithets are connected with explicit basionym relations", epithetBridges.size());
+                        for (Map.Entry<String, Set<String>> bridge : epithetBridges.entrySet()) {
+                            if (epithets.containsKey(bridge.getKey())) {
+                                List<NubUsage> usages = epithets.get(bridge.getKey());
+                                for (String epi2 : bridge.getValue()) {
+                                    if (epithets.containsKey(epi2)) {
+                                        LOG.debug("Merging {} usages of epithet {} into epithet group {}", epithets.get(epi2).size(), epi2, bridge.getKey());
+                                        usages.addAll(epithets.remove(epi2));
+                                    }
                                 }
                             }
-
                         }
 
-                    }
-                }
-                LOG.debug("{} distinct epithets found in family {}", epithets.size(), fam.parsedName.canonicalNameComplete());
+                        // now compare authorships for each epithet group
+                        for (Map.Entry<String, List<NubUsage>> epithetGroup : epithets.entrySet()) {
 
-                // merge epithet groups based on existing basionym relations, catching some gender changes
-                LOG.debug("{} epithets are connected with explicit basionym relations", epithetBridges.size());
-                for (Map.Entry<String, Set<String>> bridge : epithetBridges.entrySet()) {
-                    if (epithets.containsKey(bridge.getKey())) {
-                        List<NubUsage> usages = epithets.get(bridge.getKey());
-                        for (String epi2 : bridge.getValue()) {
-                            if (epithets.containsKey(epi2)) {
-                                LOG.debug("Merging {} usages of epithet {} into epithet group {}", epithets.get(epi2).size(), epi2, bridge.getKey());
-                                usages.addAll(epithets.remove(epi2));
-                            }
-                        }
-                    }
-                }
+                            Collection<BasionymGroup<NubUsage>> groups = basSorter.groupBasionyms(epithetGroup.getValue(), new Function<NubUsage, ParsedName>() {
+                                @Override
+                                public ParsedName apply(NubUsage nub) {
+                                    return nub.parsedName;
+                                }
+                            });
+                            // go through groups and create basionym relations where needed
+                            for (BasionymGroup<NubUsage> group : groups) {
+                                // we only need to process groups that contain recombinations
+                                if (group.hasRecombinations()) {
+                                    // if we have a basionym creating relations is straight forward
+                                    NubUsage basionym = null;
+                                    if (group.hasBasionym()) {
+                                        basionym = group.getBasionym();
 
-                // now compare authorships for each epithet group
-                for (Map.Entry<String, List<NubUsage>> epithetGroup : epithets.entrySet()) {
-
-                    Collection<BasionymGroup<NubUsage>> groups = basSorter.groupBasionyms(epithetGroup.getValue(), new Function<NubUsage, ParsedName>() {
-                        @Override
-                        public ParsedName apply(NubUsage nub) {
-                            return nub.parsedName;
-                        }
-                    });
-                    // go through groups and create basionym relations where needed
-                    for (BasionymGroup<NubUsage> group : groups) {
-                        // we only need to process groups that contain recombinations
-                        if (group.hasRecombinations()) {
-                            // if we have a basionym creating relations is straight forward
-                            NubUsage basionym = null;
-                            if (group.hasBasionym()) {
-                                basionym = group.getBasionym();
-
-                            } else if (group.getRecombinations().size() > 1) {
-                                // we need to create a placeholder basionym to group the 2 or more recombinations
-                                newBasionyms++;
-                                basionym = createBasionymPlaceholder(fam, group);
-                            }
-                            // create basionym relations
-                            if (basionym != null) {
-                                for (NubUsage u : group.getRecombinations()) {
-                                    if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
-                                        newRelations++;
-                                        u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
+                                    } else if (group.getRecombinations().size() > 1) {
+                                        // we need to create a placeholder basionym to group the 2 or more recombinations
+                                        newBasionyms++;
+                                        basionym = createBasionymPlaceholder(fam, group);
+                                    }
+                                    // create basionym relations
+                                    if (basionym != null) {
+                                        for (NubUsage u : group.getRecombinations()) {
+                                            if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
+                                                newRelations++;
+                                                u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+                } catch (Exception e) {
+                    LOG.error("Error detecting basionyms for family {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), e);
                 }
             }
+            LOG.info("Discovered {} new basionym relations and created {} basionym placeholders", newRelations, newBasionyms);
+
+        } catch (Throwable e) {
+            LOG.error("Error detecting basionyms", e);
         }
-        LOG.info("Discovered {} new basionym relations and created {} basionym placeholders", newRelations, newBasionyms);
     }
 
     private NubUsage createBasionymPlaceholder(NubUsage family, BasionymGroup group) {
@@ -508,7 +525,7 @@ public class NubBuilder implements Runnable {
                         parents.put(nub);
                     }
                 } catch (IgnoreSourceUsageException e) {
-                    LOG.error("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
+                    LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
                 } catch (StackOverflowError e) {
                     // if this happens its time to fix some code!
