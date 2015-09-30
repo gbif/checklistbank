@@ -111,6 +111,7 @@ public class NubBuilder implements Runnable {
     // monitor open files and threads
     private final ResourcesMonitor monitor = new ResourcesMonitor();
     private final boolean debug;
+    private int datasetCounter = 1;
 
     private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
         @Nullable
@@ -510,7 +511,7 @@ public class NubBuilder implements Runnable {
     }
 
     private void addDataset(NubSource source) {
-        LOG.info("Adding source {}", source.name);
+        LOG.info("Adding {}th source {}", datasetCounter++, source.name);
         currSrc = source;
         priorities.put(source.key, source.priority);
         maxPriority = source.priority;
@@ -771,6 +772,7 @@ public class NubBuilder implements Runnable {
 
         // update nomenclature and status only from source usages
         if (u.key != null) {
+            nub.sourceIds.add(u.key);
             // update author, publication and nom status
             updateNomenclature(nub, u);
             // prefer accepted version over doubtful if its coming from the same dataset!
