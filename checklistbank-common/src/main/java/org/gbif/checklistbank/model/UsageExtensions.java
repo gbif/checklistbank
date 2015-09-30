@@ -11,6 +11,7 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.collect.Lists;
 
@@ -24,4 +25,25 @@ public class UsageExtensions {
     public List<NameUsage> synonyms = Lists.newArrayList();
     public List<TypeSpecimen> typeSpecimens = Lists.newArrayList();
     public List<VernacularName> vernacularNames = Lists.newArrayList();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UsageExtensions that = (UsageExtensions) o;
+        return Objects.equals(descriptions, that.descriptions) &&
+                Objects.equals(distributions, that.distributions) &&
+                Objects.equals(identifiers, that.identifiers) &&
+                Objects.equals(media, that.media) &&
+                Objects.equals(referenceList, that.referenceList) &&
+                Objects.equals(speciesProfiles, that.speciesProfiles) &&
+                Objects.equals(synonyms, that.synonyms) &&
+                Objects.equals(typeSpecimens, that.typeSpecimens) &&
+                Objects.equals(vernacularNames, that.vernacularNames);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(descriptions, distributions, identifiers, media, referenceList, speciesProfiles, synonyms, typeSpecimens, vernacularNames);
+    }
 }

@@ -99,7 +99,7 @@ public class Normalizer extends ImportDb implements Runnable {
     public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                     Map<String, UUID> constituents, IdLookup lookup) {
         return new Normalizer(datasetKey,
-                UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
+                UsageDao.persistentDao(cfg.neo, datasetKey, false, registry, true),
                 cfg.archiveDir(datasetKey),
                 cfg.neo.batchSize,
                 registry, constituents, lookup);

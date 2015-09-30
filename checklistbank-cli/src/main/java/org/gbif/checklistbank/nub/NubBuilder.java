@@ -28,6 +28,7 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
+import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
@@ -91,7 +92,7 @@ public class NubBuilder implements Runnable {
     private final Set<Rank> allowedRanks = Sets.newHashSet();
     private final NubDb db;
     private final boolean closeDao;
-    private final Iterable<NubSource> sources;
+    private final NubSourceList sources;
     private final NameParser parser = new NameParser();
     private NormalizerStats normalizerStats;
     private boolean assertionsPassed;
@@ -122,7 +123,7 @@ public class NubBuilder implements Runnable {
         }
     });
 
-    private NubBuilder(UsageDao dao, Iterable<NubSource> sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
+    private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
                        boolean closeDao, boolean verifyBackbone) {
         db = NubDb.create(dao, 1000);
         this.sources = sources;
@@ -134,7 +135,7 @@ public class NubBuilder implements Runnable {
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
-        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
+        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
         try {
             IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
             // load highest nub id from clb:
@@ -149,7 +150,7 @@ public class NubBuilder implements Runnable {
     /**
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
-    public static NubBuilder create(UsageDao dao, Iterable<NubSource> sources, IdLookup idLookup, int newIdStart) {
+    public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
         return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false);
     }
 
@@ -180,6 +181,7 @@ public class NubBuilder implements Runnable {
             }
             LOG.info("New backbone built");
         } finally {
+            sources.close();
             if (closeDao) {
                 db.dao.close();
                 LOG.info("DAO closed");

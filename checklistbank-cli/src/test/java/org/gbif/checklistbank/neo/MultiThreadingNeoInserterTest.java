@@ -39,7 +39,7 @@ public class MultiThreadingNeoInserterTest {
 
         @Override
         public InsertMetadata call() throws Exception {
-            UsageDao dao = UsageDao.persistentDao(cfg.neo, key, registry, true);
+            UsageDao dao = UsageDao.persistentDao(cfg.neo, key, false, registry, true);
             try {
                 NeoInserter ins = dao.createBatchInserter(100);
                 File dwca = cfg.archiveDir(key);

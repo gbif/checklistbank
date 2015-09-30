@@ -20,7 +20,6 @@ import java.util.UUID;
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.io.Files;
-import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -54,7 +53,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
     private static final NeoConfiguration cfg = new NeoConfiguration();
-    private static final MetricRegistry registry = new MetricRegistry("sourcedb");
     static {
         cfg.neoRepository = Files.createTempDir();
         cfg.cacheType = NeoConfiguration.CacheType.NONE;
@@ -77,7 +75,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     public void init() throws Exception {
         // load data into neo4j
         LOG.info("Start loading source data from {} into neo", name);
-        try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, registry, true))) {
+        try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, false, null, true))) {
             initNeo(writer);
         }
     }
@@ -216,7 +214,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     @Override
     public CloseableIterator<SrcUsage> iterator() {
         if (dao == null) {
-            dao = UsageDao.persistentDao(cfg, key, registry, false);
+            dao = UsageDao.persistentDao(cfg, key, true, null, false);
         }
         return new SrcUsageIterator(dao);
     }

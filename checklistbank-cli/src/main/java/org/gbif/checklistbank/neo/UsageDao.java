@@ -5,7 +5,7 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.CliKryoFactory;
+import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
@@ -73,7 +73,7 @@ public class UsageDao {
      * @param neoFactory
      * @param registry
      */
-    private UsageDao(DB kvp, File neoDir, @Nullable File kvpStore, GraphDatabaseBuilder neoFactory, MetricRegistry registry){
+    private UsageDao(DB kvp, File neoDir, @Nullable File kvpStore, GraphDatabaseBuilder neoFactory, @Nullable MetricRegistry registry){
         try {
             this.neoFactory = neoFactory;
             this.neoDir = neoDir;
@@ -118,7 +118,7 @@ public class UsageDao {
                     .make();
 
         File storeDir = Files.createTempDir();
-        GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, NeoConfiguration.CacheType.NONE, mappedMemory, false);
+        GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, NeoConfiguration.CacheType.NONE, false, mappedMemory, false);
         CleanupUtils.registerCleanupHook(storeDir);
 
         return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
@@ -128,7 +128,7 @@ public class UsageDao {
      * A backend that is stored in files inside the configured neo directory.
      * @param eraseExisting if true erases any previous data files
      */
-    public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry, boolean eraseExisting) {
+    public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, boolean readOnly, MetricRegistry registry, boolean eraseExisting) {
         DB kvp = null;
         try {
             final File kvpF = cfg.kvp(datasetKey);
@@ -148,7 +148,7 @@ public class UsageDao {
                         .fileMmapEnableIfSupported()
                         .transactionDisable()
                         .make();
-            GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, cfg.mappedMemory, eraseExisting);
+            GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, readOnly, cfg.mappedMemory, eraseExisting);
             return new UsageDao(kvp, storeDir, kvpF, builder, registry);
 
         } catch (Exception e) {
@@ -163,7 +163,7 @@ public class UsageDao {
      * Creates a new embedded db in the neoRepository folder.
      * @param eraseExisting  if true deletes previously existing db
      */
-    private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, NeoConfiguration.CacheType cacheType, int mappedMemory, boolean eraseExisting) {
+    private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, NeoConfiguration.CacheType cacheType, boolean readOnly, int mappedMemory, boolean eraseExisting) {
         if (eraseExisting && storeDir.exists()) {
             // erase previous db
             LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
@@ -173,6 +173,7 @@ public class UsageDao {
                 .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
                 .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
                 .setConfig(GraphDatabaseSettings.cache_type, cacheType.name().toLowerCase())
+                .setConfig(GraphDatabaseSettings.read_only, Boolean.toString(readOnly))
                 .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory+"M");
     }
 

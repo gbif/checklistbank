@@ -23,7 +23,6 @@ import java.util.UUID;
 import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import com.yammer.metrics.MetricRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.Node;
@@ -71,7 +70,7 @@ public abstract class BaseTest {
    * @param datasetKey
    */
   protected void openDb(UUID datasetKey) {
-    dao = UsageDao.persistentDao(cfg.neo, datasetKey, new MetricRegistry("opendb"), false);
+    dao = UsageDao.persistentDao(cfg.neo, datasetKey, false, null, false);
   }
 
   protected void compareStats(NormalizerStats stats) {

@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import com.beust.jcommander.internal.Lists;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -79,9 +81,8 @@ public class NeoInserter implements AutoCloseable {
     private final Map<Term, Extension> extensions;
     private final UsageDao dao;
 
-    private NeoInserter(UsageDao dao, File storeDir, int batchSize, Meter insertMeter) {
+    private NeoInserter(UsageDao dao, File storeDir, int batchSize, @Nullable Meter insertMeter) {
         Preconditions.checkNotNull(dao, "DAO required");
-        Preconditions.checkNotNull(insertMeter, "meter required");
         LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
         this.dao = dao;
         initNeoDir(storeDir);
@@ -94,10 +95,8 @@ public class NeoInserter implements AutoCloseable {
         }
     }
 
-    public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, MetricRegistry registry) {
-        return new NeoInserter(dao, storeDir, batchSize,
-                registry.meter(Metrics.INSERT_METER)
-        );
+    public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, @Nullable MetricRegistry registry) {
+        return new NeoInserter(dao, storeDir, batchSize, registry == null ? null : registry.meter(Metrics.INSERT_METER));
     }
 
     public InsertMetadata insert(File dwca, Map<String, UUID> constituents) throws NormalizationFailedException {
@@ -107,7 +106,9 @@ public class NeoInserter implements AutoCloseable {
             insertStarRecord(star);
         }
         LOG.info("Data insert completed, {} nodes created", meta.getRecords());
-        LOG.info("Insert rate: {}", insertMeter.getMeanRate());
+        if (insertMeter != null) {
+            LOG.info("Insert rate: {}", insertMeter.getMeanRate());
+        }
         return meta;
     }
 
@@ -158,7 +159,9 @@ public class NeoInserter implements AutoCloseable {
 
             meta.incRecords();
             meta.incRank(u.getRank());
-            insertMeter.mark();
+            if (insertMeter != null) {
+                insertMeter.mark();
+            }
             if (meta.getRecords() % (batchSize * 10) == 0) {
                 LOG.info("Inserts done into neo4j: {}", meta.getRecords());
             }

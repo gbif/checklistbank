@@ -50,4 +50,11 @@ public class NubConfiguration {
      */
     @Valid
     public boolean autoImport = false;
+
+    /**
+     * If true some explicit debugging and logging is enabled, e.g. the neo4j mapped memory stats and number of open files and threads.
+     */
+    @Valid
+    public boolean debug = false;
+
 }

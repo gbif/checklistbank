@@ -40,12 +40,12 @@ public class UsageDaoTest {
         UUID uuid = UUID.randomUUID();
         MetricRegistry reg = new MetricRegistry("daotest");
 
-        dao = UsageDao.persistentDao(cfg, uuid, reg, true);
+        dao = UsageDao.persistentDao(cfg, uuid, false, reg, true);
         testDao();
 
         // close and reopen. Make sure data survived
         dao.close();
-        dao = UsageDao.persistentDao(cfg, uuid, reg, false);
+        dao = UsageDao.persistentDao(cfg, uuid, false, reg, false);
         try (Transaction tx = dao.beginTx()) {
             NameUsage u3 = MapDbObjectSerializerTest.usage(300, Rank.SPECIES);
             Node n3 = dao.create(u3);

@@ -20,7 +20,7 @@ import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
-import org.gbif.checklistbank.nub.source.NubSource;
+import org.gbif.checklistbank.nub.source.NubSourceList;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -675,7 +675,7 @@ public class NubBuilderIT {
     /**
      * builds a new nub and keeps dao open for further test queries.
      */
-    private void build(Iterable<NubSource> src) {
+    private void build(NubSourceList src) {
         NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
@@ -688,7 +688,7 @@ public class NubBuilderIT {
         printTree();
     }
 
-    private void rebuild(Iterable<NubSource> src) {
+    private void rebuild(NubSourceList src) {
         IdLookup previousIds = new IdLookupImpl(dao);
         tx.close();
         dao.close();

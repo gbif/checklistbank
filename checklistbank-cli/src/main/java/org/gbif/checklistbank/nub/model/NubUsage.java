@@ -10,6 +10,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,7 +32,6 @@ public class NubUsage {
     public Set<NomenclaturalStatus> nomStatus = Sets.newHashSet();
     public Node node;
     public Kingdom kingdom;
-    //public List<Integer> sourceIds = Lists.newArrayList();
     public IntArrayList sourceIds = new IntArrayList();
     //public Set<String> authors = Sets.newHashSet();
     public Set<NameUsageIssue> issues = EnumSet.noneOf(NameUsageIssue.class);
@@ -66,5 +66,31 @@ public class NubUsage {
             return rank + " " + parsedName.getScientificName() + " [" + node.getId() + "]";
         }
         return super.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NubUsage nubUsage = (NubUsage) o;
+        return Objects.equals(usageKey, nubUsage.usageKey) &&
+                Objects.equals(publishedIn, nubUsage.publishedIn) &&
+                Objects.equals(scientificNameID, nubUsage.scientificNameID) &&
+                Objects.equals(rank, nubUsage.rank) &&
+                Objects.equals(datasetKey, nubUsage.datasetKey) &&
+                Objects.equals(origin, nubUsage.origin) &&
+                Objects.equals(parsedName, nubUsage.parsedName) &&
+                Objects.equals(status, nubUsage.status) &&
+                Objects.equals(nomStatus, nubUsage.nomStatus) &&
+                Objects.equals(node, nubUsage.node) &&
+                Objects.equals(kingdom, nubUsage.kingdom) &&
+                Objects.equals(sourceIds, nubUsage.sourceIds) &&
+                Objects.equals(issues, nubUsage.issues) &&
+                Objects.equals(remarks, nubUsage.remarks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(usageKey, publishedIn, scientificNameID, rank, datasetKey, origin, parsedName, status, nomStatus, node, kingdom, sourceIds, issues, remarks);
     }
 }

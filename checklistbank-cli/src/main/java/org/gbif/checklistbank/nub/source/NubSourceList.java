@@ -75,7 +75,7 @@ public abstract class NubSourceList implements CloseableIterable<NubSource> {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         exec.shutdownNow();
     }
 }

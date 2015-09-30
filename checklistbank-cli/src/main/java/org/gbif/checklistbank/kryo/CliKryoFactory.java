@@ -1,13 +1,12 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.kryo;
 
-import org.gbif.checklistbank.kryo.ClbKryoFactory;
-import org.gbif.checklistbank.kryo.NullSerializer;
 import org.gbif.checklistbank.cli.model.ClassificationKeys;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
+import com.carrotsearch.hppc.IntArrayList;
 import com.esotericsoftware.kryo.Kryo;
 import org.neo4j.kernel.impl.core.NodeProxy;
 
@@ -24,6 +23,8 @@ public class CliKryoFactory extends ClbKryoFactory {
         kryo.register(UsageFacts.class);
         kryo.register(ClassificationKeys.class);
         kryo.register(SrcUsage.class);
+        kryo.register(IntArrayList.class, new IntArrayListSerializer());
+        kryo.register(int[].class);
         // ignore those classes and set them to null upon read:
         NullSerializer devNull = new NullSerializer();
         kryo.register(NodeProxy.class, devNull);

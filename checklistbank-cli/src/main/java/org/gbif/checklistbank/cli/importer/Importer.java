@@ -89,7 +89,7 @@ public class Importer extends ImportDb implements Runnable {
     public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
-                UsageDao.persistentDao(cfg, datasetKey, registry, false),
+                UsageDao.persistentDao(cfg, datasetKey, true, registry, false),
                 registry, importService, nameUsageService, usageService);
     }
 

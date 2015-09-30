@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.kryo.CliKryoFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;

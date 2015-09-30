@@ -10,7 +10,6 @@ import org.gbif.checklistbank.nub.source.ClbSourceList;
 import java.io.File;
 import java.net.URI;
 
-import com.yammer.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +43,7 @@ public class ManualNubBuild {
 
     private static void build(NubConfiguration cfg) {
         LOG.info("Build new nub");
-        MetricRegistry registry = new MetricRegistry("nub-build");
-        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, registry, true);
+        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
         NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000);
         builder.run();
         dao.close();
