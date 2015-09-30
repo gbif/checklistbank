@@ -41,7 +41,7 @@ public class NeoConfiguration {
 
     @Min(0)
     @Parameter(names = "--neo-mapped-memory")
-    public int mappedMemory = 256;
+    public int mappedMemory = 128;
 
     public File neoDir(UUID datasetKey) {
         return new File(neoRepository, datasetKey.toString());

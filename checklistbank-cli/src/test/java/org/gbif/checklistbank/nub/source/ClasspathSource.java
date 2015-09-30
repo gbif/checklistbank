@@ -25,27 +25,25 @@ import org.apache.commons.io.IOUtils;
  * </ul>
  */
 public class ClasspathSource extends NubSource {
+    public final int id;
 
-    public ClasspathSource(Integer id) {
-        key = IdxToKey(id);
+    public ClasspathSource(int id) {
+        this(id, id);
+    }
+
+    public ClasspathSource(int id, int priority) {
+        this.id = id;
+        this.priority = priority;
+        key = UUID.randomUUID();
         name = "Dataset " + id;
-        priority = id;
     }
 
     @Override
     void initNeo(NeoUsageWriter writer) throws Exception {
-        try (InputStream is = openTxtStream(priority)) {
-            IOUtils.copy(is, writer);
-        }
-    }
-
-    private static UUID IdxToKey(Integer id) {
-        return UUID.fromString(String.format("d7dddbf4-2cf0-4f39-9b2a-99b0e2c3a%02d", id));
-    }
-
-    private static InputStream openTxtStream(Integer id) {
         String file = "nub-sources/dataset" + id + ".txt";
         InputStreamUtils isu = new InputStreamUtils();
-        return isu.classpathStream(file);
+        try (InputStream is = isu.classpathStream(file)) {
+            IOUtils.copy(is, writer);
+        }
     }
 }

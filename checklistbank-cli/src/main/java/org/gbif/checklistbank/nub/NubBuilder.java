@@ -13,7 +13,6 @@ import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
@@ -30,6 +29,7 @@ import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
@@ -49,6 +49,7 @@ import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.IntLongMap;
 import com.carrotsearch.hppc.LongIntHashMap;
 import com.carrotsearch.hppc.LongIntMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.LongIntCursor;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -70,6 +71,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NubBuilder implements Runnable {
+    private static final boolean DEBUG = true;
     private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
     private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
     private static final Set<Rank> NUB_RANKS;
@@ -106,6 +108,8 @@ public class NubBuilder implements Runnable {
     private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
     private final Map<UUID, Integer> priorities = Maps.newHashMap();
     private Integer maxPriority = 0;
+    // monitor open files and threads
+    private final ResourcesMonitor monitor = new ResourcesMonitor();
 
     private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
         @Nullable
@@ -481,8 +485,16 @@ public class NubBuilder implements Runnable {
 
     private void addDatasets() {
         LOG.info("Start adding backbone sources");
+        monitor.run();
         for (NubSource src : sources) {
-            addDataset(src);
+            try {
+                addDataset(src);
+                monitor.run();
+            } catch (Exception e) {
+                LOG.error("Error processing source {}", src.name, e);
+            } finally {
+                src.close();
+            }
         }
         db.closeTx();
     }
@@ -504,37 +516,34 @@ public class NubBuilder implements Runnable {
             }
         }
         int start = sourceUsageCounter;
-        try (CloseableIterable<SrcUsage> iter = source.usages()) {
-            for (SrcUsage u : iter) {
-                // catch errors processing individual records too
-                try {
-                    LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
-                    sourceUsageCounter++;
-                    parents.add(u);
-                    // replace accepted taxa with doubtful ones for all nomenclators
-                    if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
-                        u.status = TaxonomicStatus.DOUBTFUL;
-                    }
-                    NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-                    if (nub != null) {
-                        parents.put(nub);
-                    }
-                } catch (IgnoreSourceUsageException e) {
-                    LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
-                } catch (StackOverflowError e) {
-                    // if this happens its time to fix some code!
-                    LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
-                    LOG.error("CAUSE: {}", u.parsedName);
-
-                } catch (RuntimeException e) {
-                    LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+        for (SrcUsage u : source) {
+            // catch errors processing individual records too
+            try {
+                LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+                sourceUsageCounter++;
+                parents.add(u);
+                // replace accepted taxa with doubtful ones for all nomenclators
+                if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                    u.status = TaxonomicStatus.DOUBTFUL;
                 }
-            }
+                NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+                if (nub != null) {
+                    parents.put(nub);
+                }
+            } catch (IgnoreSourceUsageException e) {
+                LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
-        } catch (Exception e) {
-            LOG.error("Error processing source {}", source.name, e);
+            } catch (StackOverflowError e) {
+                // if this happens its time to fix some code!
+                LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
+                LOG.error("CAUSE: {}", u.parsedName);
+
+            } catch (RuntimeException e) {
+                LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+            }
         }
+
         db.renewTx();
 
         // process explicit basionym relations
@@ -635,8 +644,8 @@ public class NubBuilder implements Runnable {
     }
 
     private void delete(NubUsage nub) {
-        for (int srcId : nub.sourceIds) {
-            src2NubKey.remove(srcId);
+        for (IntCursor sourceId : nub.sourceIds) {
+            src2NubKey.remove(sourceId.value);
         }
         basionymRels.remove(nub.node.getId());
         db.dao.delete(nub);
@@ -739,11 +748,11 @@ public class NubBuilder implements Runnable {
             nub.nomStatus = Sets.newHashSet(u.nomStatus);
         }
 
-        // remember all author spelling variations we come across for better subsequent comparisons
-        String authors = u.parsedName.authorshipComplete();
-        if (!Strings.isBlank(authors)) {
-            nub.authors.add(authors);
-        }
+        // TODO: remember all author spelling variations we come across for better subsequent comparisons
+        //String authors = u.parsedName.authorshipComplete();
+        //if (!Strings.isBlank(authors)) {
+        //    nub.authors.add(authors);
+        //}
     }
 
     private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {

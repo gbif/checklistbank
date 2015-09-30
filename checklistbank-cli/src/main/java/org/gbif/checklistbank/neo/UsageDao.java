@@ -143,7 +143,7 @@ public class UsageDao {
                 }
             }
             FileUtils.forceMkdir(kvpF.getParentFile());
-            LOG.info("Use KVP store {}", kvpF.getAbsolutePath());
+            LOG.debug("Use KVP store {}", kvpF.getAbsolutePath());
             kvp = DBMaker.fileDB(kvpF)
                         .fileMmapEnableIfSupported()
                         .transactionDisable()
@@ -192,7 +192,7 @@ public class UsageDao {
             LOG.error("Failed to close kvp store {}", kvpStore.getAbsolutePath(), e);
         }
         closeNeo();
-        LOG.info("Closed dao {}", neoDir.getName());
+        LOG.debug("Closed dao {}", neoDir.getName());
     }
 
     public void closeAndDelete() {
@@ -208,7 +208,7 @@ public class UsageDao {
     }
 
     void openNeo() {
-        LOG.info("Starting embedded neo4j database from {}", neoDir.getAbsolutePath());
+        LOG.debug("Starting embedded neo4j database from {}", neoDir.getAbsolutePath());
         neo = neoFactory.newGraphDatabase();
     }
 

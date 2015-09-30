@@ -1,16 +1,13 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.checklistbank.iterable.FutureIterator;
 
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.Map;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 
 /**
@@ -30,10 +27,8 @@ import com.google.common.collect.Lists;
  * <li>scientificName</li>
  * </ul>
  */
-public class ClasspathSourceList implements CloseableIterable<NubSource> {
-    List<NubSource> sources = Lists.newArrayList();
-    List<Future<NubSource>> futures = Lists.newArrayList();
-    private final ExecutorService exec;
+public class ClasspathSourceList extends NubSourceList {
+    Map<Integer, NubSource> sourceById = Maps.newHashMap();
 
     /**
      * Creates a classpath based source that uses no resources at all.
@@ -45,42 +40,32 @@ public class ClasspathSourceList implements CloseableIterable<NubSource> {
     /**
      * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
      */
-    public static ClasspathSourceList source(Integer... datasetKeys) {
-        return new ClasspathSourceList(Lists.newArrayList(datasetKeys));
+    public static ClasspathSourceList source(Integer ... datasetKeys) {
+        List<ClasspathSource> sources = Lists.newArrayList();
+        for (Integer id : datasetKeys) {
+            sources.add(new ClasspathSource(id));
+        }
+        return new ClasspathSourceList(sources);
     }
 
     private ClasspathSourceList() {
-        exec = null;
+        super();
     }
 
-    private ClasspathSourceList(List<Integer> datasetKeys) {
-        exec = Executors.newSingleThreadExecutor();
-        for (Integer id : datasetKeys) {
-            ClasspathSource src = new ClasspathSource(id);
-            sources.add(src);
-            futures.add(exec.submit(new LoadSource(src)));
+    public ClasspathSourceList(Collection<ClasspathSource> sources) {
+        super();
+        for (ClasspathSource src : sources) {
+            sourceById.put(src.id, src);
         }
+        submitSources(sources);
     }
 
     /**
      * Sets the higher rank setting of a given nub source which defaults to family if not set explicitly.
      */
     public void setSourceRank(int sourceId, Rank rank) {
-        for (NubSource src : sources) {
-            if (src.priority == sourceId) {
-                src.ignoreRanksAbove = rank;
-                break;
-            }
+        if (sourceById.containsKey(sourceId)) {
+            sourceById.get(sourceId).ignoreRanksAbove = rank;
         }
-    }
-
-    @Override
-    public Iterator<NubSource> iterator() {
-        return new FutureIterator(futures);
-    }
-
-    @Override
-    public void close() throws Exception {
-        exec.shutdownNow();
     }
 }

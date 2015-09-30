@@ -9,26 +9,15 @@ import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.checklistbank.iterable.FutureIterator;
 import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.InputStream;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import javax.annotation.Nullable;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
 import org.neo4j.helpers.Strings;
@@ -41,14 +30,12 @@ import org.slf4j.LoggerFactory;
  *
  * The sources are then loaded asynchroneously through a single background thread into temporary neo4j databases.
  */
-public class ClbSourceList implements CloseableIterable<NubSource> {
+public class ClbSourceList extends NubSourceList {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
-    private List<Future<NubSource>> futures = Lists.newArrayList();
     private final DatasetService datasetService;
     private final OrganizationService organizationService;
     private final NubConfiguration cfg;
-    private final ExecutorService exec;
 
     public static ClbSourceList create(NubConfiguration cfg) {
         Injector regInj = cfg.registry.createRegistryInjector();
@@ -56,15 +43,15 @@ public class ClbSourceList implements CloseableIterable<NubSource> {
     }
 
     public ClbSourceList(DatasetService datasetService, OrganizationService organizationService, NubConfiguration cfg) {
-        exec = Executors.newSingleThreadExecutor();
+        super();
+        this.cfg = cfg;
         this.datasetService = datasetService;
         this.organizationService = organizationService;
-        this.cfg = cfg;
         loadSources();
     }
 
     private NubSource buildSource(Dataset d, int priority, Rank rank) {
-        NubSource src = new ClbSource(cfg.clb,d.getKey(), d.getTitle());
+        NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle());
         src.created = d.getCreated();
         src.priority = priority;
         src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
@@ -75,10 +62,10 @@ public class ClbSourceList implements CloseableIterable<NubSource> {
     }
 
     private void loadSources() {
+        LOG.info("Loading backbone sources from {}", cfg.sourceList);
+
         Set<UUID> keys = Sets.newHashSet();
         List<NubSource> sources = Lists.newArrayList();
-
-        LOG.info("Loading backbone sources from {}", cfg.sourceList);
         try {
             InputStream stream;
             if (cfg.sourceList.isAbsolute()) {
@@ -122,46 +109,7 @@ public class ClbSourceList implements CloseableIterable<NubSource> {
             LOG.error("Cannot read nub sources from {}", cfg.sourceList);
             throw new RuntimeException(e);
         }
-        LOG.info("Found {} backbone sources", sources.size());
-
-        // sort source according to priority and date created (for org datasets!)
-        Ordering<NubSource> order = Ordering
-            .natural()
-            //.reverse()
-            .onResultOf(new Function<NubSource, Integer>() {
-                @Nullable
-                @Override
-                public Integer apply(NubSource input) {
-                    return input.priority;
-                }
-            })
-            .compound(Ordering
-                            .natural()
-                            .reverse()  // newest first, e.g. pensoft articles
-                            .nullsLast()
-                            .onResultOf(new Function<NubSource, Date>() {
-                                @Nullable
-                                @Override
-                                public Date apply(NubSource input) {
-                                    return input.created;
-                                }
-                            })
-            );
-        sources = order.sortedCopy(sources);
-        // submit loader jobs
-        ExecutorCompletionService ecs = new ExecutorCompletionService(exec);
-        for (NubSource src : sources) {
-            futures.add(ecs.submit(new LoadSource(src)));
-        }
+        submitSources(sources);
     }
 
-    @Override
-    public Iterator<NubSource> iterator() {
-        return new FutureIterator<NubSource>(futures);
-    }
-
-    @Override
-    public void close() throws Exception {
-        exec.shutdownNow();
-    }
 }

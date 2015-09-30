@@ -5,9 +5,11 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterable;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 
@@ -20,7 +22,9 @@ import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +50,15 @@ import org.slf4j.LoggerFactory;
  * Implement the abstract initNeo method to supply such a tab delimited stream to the NeoUsageWriter instance.
  */
 
-public abstract class NubSource implements AutoCloseable {
+public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
     private static final NeoConfiguration cfg = new NeoConfiguration();
     private static final MetricRegistry registry = new MetricRegistry("sourcedb");
     static {
         cfg.neoRepository = Files.createTempDir();
+        cfg.cacheType = NeoConfiguration.CacheType.NONE;
+        cfg.mappedMemory = 128;
     }
 
     public UUID key;
@@ -62,14 +68,7 @@ public abstract class NubSource implements AutoCloseable {
     public Date created;
     public boolean nomenclator = false;
 
-    /**
-     * Returns a neo db backed iterable that can be used to iterate over all usages in the source multiple times.
-     * The iteration is in taxonomic order, starting with the highest root taxa and walks
-     * the taxonomic tree in depth order first, including synonyms.
-     */
-    public CloseableIterable<SrcUsage> usages() {
-        return new UsageIteratorNeo(UsageDao.persistentDao(cfg, key, registry, false));
-    }
+    private UsageDao dao;
 
     /**
      * Loads data into the source and does any other initialization needed before usages() can be called.
@@ -77,8 +76,8 @@ public abstract class NubSource implements AutoCloseable {
      */
     public void init() throws Exception {
         // load data into neo4j
+        LOG.info("Start loading source data from {} into neo", name);
         try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, registry, true))) {
-            LOG.info("Start loading source data from {} into neo", name);
             initNeo(writer);
         }
     }
@@ -176,7 +175,60 @@ public abstract class NubSource implements AutoCloseable {
         }
     }
 
-    @Override
-    public void close() throws Exception {
+    public class SrcUsageIterator implements CloseableIterator<SrcUsage> {
+        private final Transaction tx;
+        private final ResourceIterator<Node> nodes;
+        private final Node root;
+
+        public SrcUsageIterator(UsageDao dao) {
+            tx = dao.beginTx();
+            root = IteratorUtil.first(dao.getNeo().findNodes(Labels.ROOT));
+            this.nodes = Traversals.DESCENDANTS.traverse(root).nodes().iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nodes.hasNext();
+        }
+
+        @Override
+        public SrcUsage next() {
+            return dao.readSourceUsage(nodes.next());
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Not implemented");
+        }
+
+        @Override
+        public void close() {
+            nodes.close();
+            tx.close();
+        }
     }
+
+    /**
+     * Returns a neo db backed iterator over all usages.
+     * The iteration is in taxonomic order, starting with the highest root taxa and walks
+     * the taxonomic tree in depth order first, including synonyms.
+     */
+    @Override
+    public CloseableIterator<SrcUsage> iterator() {
+        if (dao == null) {
+            dao = UsageDao.persistentDao(cfg, key, registry, false);
+        }
+        return new SrcUsageIterator(dao);
+    }
+
+    /**
+     * Closes dao and deletes all intermediate persistence files.
+     */
+    @Override
+    public void close() {
+        if (dao != null) {
+            dao.closeAndDelete();
+        }
+    }
+
 }

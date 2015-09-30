@@ -197,7 +197,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
             unknown.kingdom = Kingdom.INCERTAE_SEDIS;
             // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
             ParentStack parents = new ParentStack(unknown);
-            for (SrcUsage u : src.usages()) {
+            for (SrcUsage u : src) {
                 parents.add(u);
                 LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
                 if (match != null) {

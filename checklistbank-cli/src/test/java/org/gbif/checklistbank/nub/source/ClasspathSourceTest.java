@@ -17,7 +17,7 @@ public class ClasspathSourceTest {
         src.init();
 
         int counter = 0;
-        for (SrcUsage u : src.usages()) {
+        for (SrcUsage u : src) {
             counter++;
             System.out.print(u.key + "  ");
             System.out.println(u.scientificName);
