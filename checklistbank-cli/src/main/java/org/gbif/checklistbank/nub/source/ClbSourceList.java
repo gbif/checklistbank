@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -148,8 +149,9 @@ public class ClbSourceList implements CloseableIterable<NubSource> {
             );
         sources = order.sortedCopy(sources);
         // submit loader jobs
+        ExecutorCompletionService ecs = new ExecutorCompletionService(exec);
         for (NubSource src : sources) {
-            futures.add(exec.submit(new LoadSource(src)));
+            futures.add(ecs.submit(new LoadSource(src)));
         }
     }
 

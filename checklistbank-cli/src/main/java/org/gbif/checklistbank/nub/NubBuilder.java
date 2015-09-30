@@ -891,7 +891,7 @@ public class NubBuilder implements Runnable {
      * @param acc the accepted taxon the new synonym should point to
      */
     private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status, NameUsageIssue ... issues) {
-        LOG.info("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
+        LOG.debug("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
         // change status
         u.status = status;
         // add synonymOf relation and delete existing parentOf relations

@@ -17,7 +17,6 @@ import java.util.UUID;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
-import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.neo4j.graphdb.Node;
@@ -50,6 +49,12 @@ import org.slf4j.LoggerFactory;
 public abstract class NubSource implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
+    private static final NeoConfiguration cfg = new NeoConfiguration();
+    private static final MetricRegistry registry = new MetricRegistry("sourcedb");
+    static {
+        cfg.neoRepository = Files.createTempDir();
+    }
+
     public UUID key;
     public String name;
     public int priority = 0;
@@ -57,48 +62,25 @@ public abstract class NubSource implements AutoCloseable {
     public Date created;
     public boolean nomenclator = false;
 
-    private Node root;
-    private NeoConfiguration cfg = new NeoConfiguration();
-    private UsageDao dao;
-
-    public NubSource() {
-        cfg.neoRepository = Files.createTempDir();
-    }
-
     /**
      * Returns a neo db backed iterable that can be used to iterate over all usages in the source multiple times.
      * The iteration is in taxonomic order, starting with the highest root taxa and walks
      * the taxonomic tree in depth order first, including synonyms.
      */
     public CloseableIterable<SrcUsage> usages() {
-        openDao(false);
-        return new UsageIteratorNeo(dao);
+        return new UsageIteratorNeo(UsageDao.persistentDao(cfg, key, registry, false));
     }
 
     /**
      * Loads data into the source and does any other initialization needed before usages() can be called.
      * Make sure to call this method once before the usage iterator is used!
      */
-    public void init() {
+    public void init() throws Exception {
         // load data into neo4j
-        openDao(true);
-        try (NeoUsageWriter writer = new NeoUsageWriter(dao)) {
+        try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, registry, true))) {
             LOG.info("Start loading source data from {} into neo", name);
             initNeo(writer);
-        } catch (Exception e) {
-            Throwables.propagate(e);
-        } finally {
-            // we close the DAO until we need an iterator
-            // otherwise we leave tons of files open
-            dao.close();
         }
-    }
-
-    private void openDao(boolean eraseExisting) {
-        if (dao != null) {
-            dao.close();
-        }
-        dao = UsageDao.persistentDao(cfg, key, new MetricRegistry("sourcedb"), eraseExisting);
     }
 
     abstract void initNeo(NeoUsageWriter writer) throws Exception;
@@ -108,6 +90,7 @@ public abstract class NubSource implements AutoCloseable {
         private Transaction tx;
         private IntIntMap ids = new IntIntHashMap();
         private final UsageDao dao;
+        private Node root;
 
         public NeoUsageWriter(UsageDao dao) {
             // the number of columns in our query to consume
@@ -179,6 +162,7 @@ public abstract class NubSource implements AutoCloseable {
         public void close() throws IOException {
             tx.success();
             tx.close();
+            dao.close();
         }
 
         private void renewTx() {
@@ -194,8 +178,5 @@ public abstract class NubSource implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if (dao != null) {
-            dao.close();
-        }
     }
 }

@@ -13,6 +13,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A neo db backed iterable that can be used to iterate over all usages in the source multiple times.
@@ -20,6 +22,7 @@ import org.neo4j.helpers.collection.IteratorUtil;
  * the taxonomic tree in depth order first, including synonyms.
  */
 public class UsageIteratorNeo implements CloseableIterable<SrcUsage> {
+    private static final Logger LOG = LoggerFactory.getLogger(UsageIteratorNeo.class);
     private UsageDao dao;
 
     public UsageIteratorNeo(UsageDao dao) {

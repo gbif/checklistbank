@@ -50,6 +50,7 @@ import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
+import org.neo4j.kernel.api.index.PreexistingIndexEntryConflictException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
@@ -391,16 +392,30 @@ public class NeoInserter implements AutoCloseable {
     @Override
     public void close() throws NotUniqueRuntimeException {
         try {
-            // define indices
-            LOG.info("Building lucene index taxonID ...");
-            //TODO: neo4j batchinserter does not seem to evaluate the unique constraint. Duplicates pass thru (see tests) !!!
-            inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NodeProperties.TAXON_ID).create();
-            LOG.info("Building lucene index scientific name ...");
-            inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
-            LOG.info("Building lucene index canonical name ...");
-            inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
-        } finally {
-            inserter.shutdown();
+            try {
+                // define indices
+                LOG.info("Building lucene index taxonID ...");
+                //TODO: neo4j batchinserter does not seem to evaluate the unique constraint. Duplicates pass thru (see tests) !!!
+                inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NodeProperties.TAXON_ID).create();
+                LOG.info("Building lucene index scientific name ...");
+                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
+                LOG.info("Building lucene index canonical name ...");
+                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+            } finally {
+                // this is when lucene indices are build and thus throws RuntimeExceptions when unique constraints are broken
+                // we catch these exceptions below
+                inserter.shutdown();
+            }
+        } catch (RuntimeException e) {
+            Throwable t = e.getCause();
+            // check if the cause was a broken unique constraint which can only be taxonID in our case
+            if (t != null && t instanceof PreexistingIndexEntryConflictException) {
+                PreexistingIndexEntryConflictException pe = (PreexistingIndexEntryConflictException) t;
+                LOG.error("TaxonID not unique. Value {} used for both node {} and {}", pe.getPropertyValue(), pe.getExistingNodeId(), pe.getAddedNodeId());
+                throw new NotUniqueRuntimeException("TaxonID", pe.getPropertyValue());
+            } else {
+                throw e;
+            }
         }
         LOG.info("Neo batch inserter closed, data flushed to disk. Opening regular neo db again ...", meta.getRecords());
         dao.openNeo();

@@ -14,10 +14,9 @@ import org.slf4j.LoggerFactory;
  * Implement addRow to consume a single result row.
  *
  */
-public abstract class TabMapperBase extends Writer {
+public abstract class TabMapperBase extends Writer implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(TabMapperBase.class);
 
-  private Integer rowNumber = 0;
   private int ROW_SIZE;
   private int idx;
   private String[] row;
@@ -32,12 +31,12 @@ public abstract class TabMapperBase extends Writer {
 
   @Override
   public void close() throws IOException {
-    // nothing to do
+    // nothing to do, override as needed
   }
 
   @Override
   public void flush() throws IOException {
-    // nothing to do
+      // nothing to do, override as needed
   }
 
   @Override
@@ -60,7 +59,6 @@ public abstract class TabMapperBase extends Writer {
         idx++;
       }
       if (c == '\n') {
-        rowNumber++;
         if (idx > 1) {
           // ignore empty rows
           addRow(this.row);
