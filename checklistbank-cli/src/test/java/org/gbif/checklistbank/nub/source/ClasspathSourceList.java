@@ -42,8 +42,9 @@ public class ClasspathSourceList extends NubSourceList {
      */
     public static ClasspathSourceList source(Integer ... datasetKeys) {
         List<ClasspathSource> sources = Lists.newArrayList();
+        int prio = 1;
         for (Integer id : datasetKeys) {
-            sources.add(new ClasspathSource(id));
+            sources.add(new ClasspathSource(id, prio++));
         }
         return new ClasspathSourceList(sources);
     }

@@ -72,7 +72,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NubBuilder implements Runnable {
-    private static final boolean DEBUG = true;
     private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
     private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
     private static final Set<Rank> NUB_RANKS;
@@ -111,6 +110,7 @@ public class NubBuilder implements Runnable {
     private Integer maxPriority = 0;
     // monitor open files and threads
     private final ResourcesMonitor monitor = new ResourcesMonitor();
+    private final boolean debug;
 
     private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
         @Nullable
@@ -124,7 +124,7 @@ public class NubBuilder implements Runnable {
     });
 
     private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
-                       boolean closeDao, boolean verifyBackbone) {
+                       boolean closeDao, boolean verifyBackbone, boolean debug) {
         db = NubDb.create(dao, 1000);
         this.sources = sources;
         this.authorComparator = authorComparator;
@@ -132,6 +132,7 @@ public class NubBuilder implements Runnable {
         this.newIdStart = newIdStart;
         this.closeDao = closeDao;
         this.verifyBackbone = verifyBackbone;
+        this.debug = debug;
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
@@ -141,7 +142,7 @@ public class NubBuilder implements Runnable {
             // load highest nub id from clb:
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
             Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;
-            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport);
+            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport, cfg.debug);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -151,7 +152,7 @@ public class NubBuilder implements Runnable {
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
     public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false);
+        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, false);
     }
 
     /**
@@ -487,11 +488,15 @@ public class NubBuilder implements Runnable {
 
     private void addDatasets() {
         LOG.info("Start adding backbone sources");
-        monitor.run();
+        if (debug) {
+            monitor.run();
+        }
         for (NubSource src : sources) {
             try {
                 addDataset(src);
-                monitor.run();
+                if (debug) {
+                    monitor.run();
+                }
             } catch (Exception e) {
                 LOG.error("Error processing source {}", src.name, e);
             } finally {
@@ -499,6 +504,9 @@ public class NubBuilder implements Runnable {
             }
         }
         db.closeTx();
+        if (debug) {
+            monitor.run();
+        }
     }
 
     private void addDataset(NubSource source) {
@@ -759,29 +767,29 @@ public class NubBuilder implements Runnable {
 
     private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
         LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
-        nub.sourceIds.add(u.key);
-        if (origin == Origin.SOURCE) {
-            // only override original origin value if we update from a true source
-            nub.origin = Origin.SOURCE;
-        }
-
-        // update author, publication and nom status
-        updateNomenclature(nub, u);
-
         NubUsage currNubParent = db.getParent(nub);
-        // prefer accepted version over doubtful if its coming from the same dataset!
-        if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
-            nub.status = u.status;
-            if (parent != null && (currNubParent.rank.higherThan(parent.rank) || currNubParent.rank == parent.rank)) {
-                if (db.existsInClassification(currNubParent.node, parent.node)) {
-                    // current classification has this parent already in its parents list. No need to change anything
-                } else {
-                    // current classification doesnt have that parent, we need to apply it
-                    updateParent(nub, parent);
+
+        // update nomenclature and status only from source usages
+        if (u.key != null) {
+            // update author, publication and nom status
+            updateNomenclature(nub, u);
+            // prefer accepted version over doubtful if its coming from the same dataset!
+            if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
+                nub.status = u.status;
+                if (parent != null && (currNubParent.rank.higherThan(parent.rank) || currNubParent.rank == parent.rank)) {
+                    if (!db.existsInClassification(currNubParent.node, parent.node)) {
+                        // current classification doesnt have that parent yet, lets apply it
+                        updateParent(nub, parent);
+                    }
                 }
             }
+            if (origin == Origin.SOURCE) {
+                // only override original origin value if we update from a true source
+                nub.origin = Origin.SOURCE;
+            }
+        }
 
-        } else if (nub.status.isSynonym()) {
+        if (nub.status.isSynonym()) {
             // maybe we have a proparte synonym from the same dataset?
             if (fromCurrentSource(nub) && !parent.node.equals(currNubParent.node)) {
                 nub.status = TaxonomicStatus.PROPARTE_SYNONYM;
