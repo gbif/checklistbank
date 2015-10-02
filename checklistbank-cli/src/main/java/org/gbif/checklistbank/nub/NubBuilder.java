@@ -13,7 +13,6 @@ import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.iterable.CloseableBatchIterable;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
@@ -529,7 +528,7 @@ public class NubBuilder implements Runnable {
         int start = sourceUsageCounter;
 
         // do transactions in batches to dont slow down neo too much
-        for (List<SrcUsage> batch : CloseableBatchIterable.batches(source, 1000)) {
+        for (List<SrcUsage> batch : Iterables.partition(source, 1000)) {
             try (Transaction tx = db.beginTx()) {
                 for (SrcUsage u : batch) {
                     // catch errors processing individual records too
