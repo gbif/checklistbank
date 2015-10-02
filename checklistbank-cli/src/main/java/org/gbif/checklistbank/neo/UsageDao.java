@@ -46,6 +46,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.
  * It uses neo to store the main relations and core properties often searched on, see NodeProperties
+ * Pretty much all dao operations require an existing, open neo4j transaction to be managed outside of the dao which
+ * only offers a beginTx() method.
  *
  * For all the rest it uses a file persistent MapDB hashmap with kryo for quick serialization.
  */

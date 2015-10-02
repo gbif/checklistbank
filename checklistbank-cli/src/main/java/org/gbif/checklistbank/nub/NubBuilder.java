@@ -65,6 +65,7 @@ import com.google.inject.Injector;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -126,7 +127,7 @@ public class NubBuilder implements Runnable {
 
     private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
                        boolean closeDao, boolean verifyBackbone, boolean debug) {
-        db = NubDb.create(dao, 1000);
+        db = NubDb.create(dao);
         this.sources = sources;
         this.authorComparator = authorComparator;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
@@ -176,8 +177,11 @@ public class NubBuilder implements Runnable {
             assignUsageKeys();
             if (verifyBackbone){
                 verifyBackbone();
+            } else {
+                assertionsPassed = true;
             }
-            if (!verifyBackbone || assertionsPassed){
+            // only convert usages and build metrics if nub passed assertions
+            if (assertionsPassed){
                 db.dao.convertNubUsages();
                 builtUsageMetrics();
             }
@@ -186,7 +190,9 @@ public class NubBuilder implements Runnable {
             sources.close();
             if (closeDao) {
                 db.dao.close();
-                LOG.info("DAO closed");
+                LOG.info("Backbone dao closed orderly");
+            } else {
+                LOG.warn("Backbone dao not closed!");
             }
         }
     }
@@ -196,13 +202,16 @@ public class NubBuilder implements Runnable {
      * Adds a NameUsageIssue.POTENTIAL_DUPLICATE to all similar names.
      */
     private void flagSimilarNames() {
-        LOG.info("Start flagging similar names");
-        try {
-            db.openTx();
+        LOG.info("Start flagging similar species");
+        try (Transaction tx = db.beginTx()) {
             flagSimilarNames(db.dao.allSpecies());
+            tx.success();
+        }
+
+        LOG.info("Start flagging similar infraspecies");
+        try (Transaction tx = db.beginTx()) {
             flagSimilarNames(db.dao.allInfraSpecies());
-        } finally {
-            db.closeTx();
+            tx.success();
         }
     }
 
@@ -232,8 +241,10 @@ public class NubBuilder implements Runnable {
     }
 
     private void verifyBackbone() {
-        NubAssertions assertions = new NubAssertions(db);
-        this.assertionsPassed = assertions.verify();
+        try (Transaction tx = db.beginTx()) {
+            NubAssertions assertions = new NubAssertions(db);
+            this.assertionsPassed = assertions.verify();
+        }
     }
 
     /**
@@ -245,8 +256,7 @@ public class NubBuilder implements Runnable {
      */
     private void createAutonyms() {
         LOG.info("Start creating missing autonyms");
-        try {
-            db.openTx();
+        try (Transaction tx = db.beginTx()) {
             int counter = 0;
             for (Node n : IteratorUtil.loop(db.dao.allInfraSpecies())) {
                 if (!n.hasLabel(Labels.SYNONYM)) {
@@ -275,9 +285,8 @@ public class NubBuilder implements Runnable {
                     }
                 }
             }
+            tx.success();
             LOG.info("Created {} missing autonyms", counter);
-        } finally {
-            db.closeTx();
         }
     }
 
@@ -300,18 +309,14 @@ public class NubBuilder implements Runnable {
             int newRelations = 0;
             final BasionymSorter basSorter = new BasionymSorter(authorComparator);
 
-            // read all families into a list to avoid concurrent modifications
-            // resulting in a "lucene.store.AlreadyClosedException: this IndexReader is closed"
+            // load all family nodes into list so we can process them seach in a separate transaction later on
             List<Node> families;
-            try {
+            try (Transaction tx = db.beginTx()) {
                 families = IteratorUtil.asList(db.dao.allFamilies());
-            } catch (Exception e) {
-                LOG.error("Error reading all families", e);
-                families = Lists.newArrayList();
             }
 
             for (Node n : families) {
-                try {
+                try (Transaction tx = db.beginTx()) {
                     NubUsage fam = db.dao.readNub(n);
                     if (!fam.status.isSynonym()) {
                         Map<String, List<NubUsage>> epithets = Maps.newHashMap();
@@ -396,6 +401,7 @@ public class NubBuilder implements Runnable {
                             }
                         }
                     }
+                    tx.success();
                 } catch (Exception e) {
                     LOG.error("Error detecting basionyms for family {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), e);
                 }
@@ -424,23 +430,25 @@ public class NubBuilder implements Runnable {
     }
 
     private void addKingdoms() {
-        LOG.info("Adding kingdom");
-        currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
-        for (Kingdom k : Kingdom.values()) {
-            NubUsage ku = new NubUsage();
-            ku.usageKey = k.nubUsageID();
-            ku.kingdom = k;
-            ku.datasetKey = Constants.NUB_DATASET_KEY;
-            ku.origin = Origin.SOURCE;
-            ku.rank = Rank.KINGDOM;
-            ku.status = TaxonomicStatus.ACCEPTED;
-            ku.parsedName = new ParsedName();
-            ku.parsedName.setGenusOrAbove(k.scientificName());
+        try (Transaction tx = db.beginTx()) {
+            LOG.info("Adding kingdom");
+            currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
+            for (Kingdom k : Kingdom.values()) {
+                NubUsage ku = new NubUsage();
+                ku.usageKey = k.nubUsageID();
+                ku.kingdom = k;
+                ku.datasetKey = Constants.NUB_DATASET_KEY;
+                ku.origin = Origin.SOURCE;
+                ku.rank = Rank.KINGDOM;
+                ku.status = TaxonomicStatus.ACCEPTED;
+                ku.parsedName = new ParsedName();
+                ku.parsedName.setGenusOrAbove(k.scientificName());
 
-            db.addRoot(ku);
-            kingdoms.put(k, ku);
+                db.addRoot(ku);
+                kingdoms.put(k, ku);
+            }
+            tx.success();
         }
-
     }
 
 
@@ -468,8 +476,7 @@ public class NubBuilder implements Runnable {
 
     private void flagEmptyGroups() {
         LOG.info("flag empty genera as doubtful");
-        try {
-            db.openTx();
+        try (Transaction tx = db.beginTx()) {
             for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
                 if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
                     NubUsage nub = db.dao.readNub(gen);
@@ -482,8 +489,7 @@ public class NubBuilder implements Runnable {
                     }
                 }
             }
-        } finally {
-            db.closeTx();
+            tx.success();
         }
     }
 
@@ -504,7 +510,6 @@ public class NubBuilder implements Runnable {
                 src.close();
             }
         }
-        db.closeTx();
         if (debug) {
             monitor.run();
         }
@@ -530,7 +535,7 @@ public class NubBuilder implements Runnable {
 
         for (SrcUsage u : source) {
             // catch errors processing individual records too
-            try {
+            try (Transaction tx = db.beginTx()) {
                 LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
                 sourceUsageCounter++;
                 parents.add(u);
@@ -542,6 +547,7 @@ public class NubBuilder implements Runnable {
                 if (nub != null) {
                     parents.put(nub);
                 }
+                tx.success();
             } catch (IgnoreSourceUsageException e) {
                 LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
@@ -555,24 +561,23 @@ public class NubBuilder implements Runnable {
             }
         }
 
-        db.renewTx();
-
         // process explicit basionym relations
-        LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), source.name);
-        for (LongIntCursor c : basionymRels) {
-            Node n = db.getNode(c.key);
-            Node bas = db.getNode(src2NubKey.get(c.value));
-            // find basionym node by sourceKey
-            if (n != null && bas != null) {
-                if (!createBasionymRelationIfNotExisting(bas, n)) {
-                    LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NodeProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
+        try (Transaction tx = db.beginTx()) {
+            LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), source.name);
+            for (LongIntCursor c : basionymRels) {
+                Node n = db.getNode(c.key);
+                Node bas = db.getNode(src2NubKey.get(c.value));
+                // find basionym node by sourceKey
+                if (n != null && bas != null) {
+                    if (!createBasionymRelationIfNotExisting(bas, n)) {
+                        LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NodeProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
+                    }
+                } else {
+                    LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
                 }
-            } else {
-                LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
             }
+            tx.success();
         }
-        db.renewTx();
-
         LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
     }
 
@@ -831,13 +836,8 @@ public class NubBuilder implements Runnable {
 
     private void groupByBasionym() {
         LOG.info("Start basionym consolidation");
-        try {
-            db.openTx();
-            detectBasionyms();
-            consolidateBasionymGroups();
-        } finally {
-            db.closeTx();
-        }
+        detectBasionyms();
+        consolidateBasionymGroups();
     }
 
     /**
@@ -849,44 +849,47 @@ public class NubBuilder implements Runnable {
     private void consolidateBasionymGroups() {
         int counter = 0;
         int counterModified = 0;
-        for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
-            counter++;
-            // sort all usage by source dataset priority, placing doubtful names last
-            List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
-            if (group.size() > 1) {
-                // we stick to the first combination with the highest priority and make all others
-                // a) synonyms of this if it is accepted
-                // b) synonyms of the primarys accepted name if it was a synonym itself
-                final NubUsage primary = group.remove(0);
-                final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
-                final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
-                LOG.debug("Found basionym group with {} primary usage {} in basionym group: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
-                for (NubUsage u : group) {
-                    if (!hasAccepted(u, accepted)) {
-                        counterModified++;
-                        NubUsage previousParent = db.getParent(u);
-                        if (previousParent != null) {
-                            u.addRemark( String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
-                                    u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
-                            );
+        try (Transaction tx = db.beginTx()) {
+            for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+                counter++;
+                // sort all usage by source dataset priority, placing doubtful names last
+                List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
+                if (group.size() > 1) {
+                    // we stick to the first combination with the highest priority and make all others
+                    // a) synonyms of this if it is accepted
+                    // b) synonyms of the primarys accepted name if it was a synonym itself
+                    final NubUsage primary = group.remove(0);
+                    final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
+                    final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
+                    LOG.debug("Found basionym group with {} primary usage {} in basionym group: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
+                    for (NubUsage u : group) {
+                        if (!hasAccepted(u, accepted)) {
+                            counterModified++;
+                            NubUsage previousParent = db.getParent(u);
+                            if (previousParent != null) {
+                                u.addRemark( String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
+                                        u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
+                                );
+                            }
+                            // remember previous parent
+                            NubUsage parent = db.getParent(u);
+                            // convert to synonym, removing old parent relation
+                            convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+                            // move any accepted children to new accepted parent
+                            db.assignParentToChildren(u.node, accepted);
+                            // move any synonyms to new accepted parent
+                            db.assignAcceptedToSynonyms(u.node, accepted.node);
+                            // remove parent if it has no children or synonyms
+                            removeTaxonIfEmpty(parent);
+                            // persist usage instance changes
+                            db.store(u);
                         }
-                        // remember previous parent
-                        NubUsage parent = db.getParent(u);
-                        // convert to synonym, removing old parent relation
-                        convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
-                        // move any accepted children to new accepted parent
-                        db.assignParentToChildren(u.node, accepted);
-                        // move any synonyms to new accepted parent
-                        db.assignAcceptedToSynonyms(u.node, accepted.node);
-                        // remove parent if it has no children or synonyms
-                        removeTaxonIfEmpty(parent);
-                        // persist usage instance changes
-                        db.store(u);
                     }
                 }
             }
+            tx.success();
+            LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
         }
-        LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
     }
 
     /**
@@ -950,6 +953,7 @@ public class NubBuilder implements Runnable {
     private void builtUsageMetrics() {
         LOG.info("Walk all accepted taxa and build usage metrics");
         UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
+        // TaxonWalker deals with transactions
         TaxonWalker.walkAccepted(db.dao.getNeo(), null, metricsHandler);
         normalizerStats = metricsHandler.getStats(0, null);
         LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());

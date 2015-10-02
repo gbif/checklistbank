@@ -24,7 +24,7 @@ public class NubDbTest {
     @Test
     public void testCountTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb nub = NubDb.create(dao, 10);
+        NubDb nub = NubDb.create(dao);
 
         assertEquals(0l, nub.countTaxa());
 
@@ -48,7 +48,7 @@ public class NubDbTest {
     @Ignore("Authorship handling needs to be settled first")
     public void testFindTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb db = NubDb.create(dao, 10);
+        NubDb db = NubDb.create(dao);
 
         final NubUsage animalia = db.addRoot(buildNub("Animalia", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
         final NubUsage plantae = db.addRoot(buildNub("Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));

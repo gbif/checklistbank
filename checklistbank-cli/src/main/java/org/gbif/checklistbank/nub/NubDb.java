@@ -35,37 +35,39 @@ import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Wrapper around the dao that etends the dao with nub build specific common operations.
+ */
 public class NubDb {
 
     private static final Logger LOG = LoggerFactory.getLogger(NubDb.class);
     private final AuthorComparator authComp = AuthorComparator.createWithAuthormap();
-    private final int batchSize;
-    private Transaction tx;
     protected final UsageDao dao;
-    // activity counter to manage transaction commits
-    private int counter = 0;
 
-    private NubDb(UsageDao dao, int batchSize, boolean initialize) {
-        this.batchSize = batchSize;
+    private NubDb(UsageDao dao, boolean initialize) {
         this.dao = dao;
-        tx = dao.beginTx();
         // create indices?
         if (initialize) {
-            Schema schema = dao.getNeo().schema();
-            schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
-            renewTx();
+            try (Transaction tx = dao.beginTx()) {
+                Schema schema = dao.getNeo().schema();
+                schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+            }
         }
     }
 
-    public static NubDb create(UsageDao dao, int batchSize) {
-        return new NubDb(dao, batchSize, true);
+    public static NubDb create(UsageDao dao) {
+        return new NubDb(dao, true);
     }
 
     /**
      * Opens an existing db without creating a new db schema.
      */
-    public static NubDb open(UsageDao dao, int batchSize) {
-        return new NubDb(dao, batchSize, false);
+    public static NubDb open(UsageDao dao) {
+        return new NubDb(dao, false);
+    }
+
+    public Transaction beginTx() {
+        return dao.beginTx();
     }
 
     public List<NubUsage> findNubUsages(String canonical) {
@@ -316,13 +318,11 @@ public class NubDb {
     public void setSingleToRelationship(Node from, Node to, RelType reltype) {
         deleteRelations(to, reltype, Direction.INCOMING);
         from.createRelationshipTo(to, reltype);
-        countAndRenewTx();
     }
 
     public void setSingleFromRelationship(Node from, Node to, RelType reltype) {
         deleteRelations(from, reltype, Direction.OUTGOING);
         from.createRelationshipTo(to, reltype);
-        countAndRenewTx();
     }
 
     public void createSynonymRelation(Node synonym, Node accepted) {
@@ -330,7 +330,6 @@ public class NubDb {
         synonym.addLabel(Labels.SYNONYM);
         synonym.removeLabel(Labels.ROOT);
         synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
-        countAndRenewTx();
     }
 
     public boolean deleteRelations(Node n, RelType type, Direction direction) {
@@ -381,29 +380,7 @@ public class NubDb {
 
     public NubUsage store(NubUsage nub) {
         dao.store(nub);
-        countAndRenewTx();
         return nub;
-    }
-
-    private void countAndRenewTx() {
-        if (counter++ > batchSize) {
-            renewTx();
-        }
-    }
-
-    protected void closeTx() {
-        tx.success();
-        tx.close();
-    }
-
-    protected void openTx() {
-        tx = dao.beginTx();
-        counter = 0;
-    }
-
-    protected void renewTx() {
-        closeTx();
-        openTx();
     }
 
     /**
