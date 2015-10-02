@@ -13,6 +13,7 @@ import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.iterable.CloseableBatchIterable;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
@@ -527,31 +528,36 @@ public class NubBuilder implements Runnable {
         }
         int start = sourceUsageCounter;
 
-        for (SrcUsage u : source) {
-            // catch errors processing individual records too
+        // do transactions in batches to dont slow down neo too much
+        for (List<SrcUsage> batch : CloseableBatchIterable.batches(source, 1000)) {
             try (Transaction tx = db.beginTx()) {
-                LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
-                sourceUsageCounter++;
-                parents.add(u);
-                // replace accepted taxa with doubtful ones for all nomenclators
-                if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
-                    u.status = TaxonomicStatus.DOUBTFUL;
-                }
-                NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-                if (nub != null) {
-                    parents.put(nub);
-                }
-                tx.success();
-            } catch (IgnoreSourceUsageException e) {
-                LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
+                for (SrcUsage u : batch) {
+                    // catch errors processing individual records too
+                    try {
+                        LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+                        sourceUsageCounter++;
+                        parents.add(u);
+                        // replace accepted taxa with doubtful ones for all nomenclators
+                        if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                            u.status = TaxonomicStatus.DOUBTFUL;
+                        }
+                        NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+                        if (nub != null) {
+                            parents.put(nub);
+                        }
+                        tx.success();
+                    } catch (IgnoreSourceUsageException e) {
+                        LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
-            } catch (StackOverflowError e) {
-                // if this happens its time to fix some code!
-                LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
-                LOG.error("CAUSE: {}", u.parsedName);
+                    } catch (StackOverflowError e) {
+                        // if this happens its time to fix some code!
+                        LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
+                        LOG.error("CAUSE: {}", u.parsedName);
 
-            } catch (RuntimeException e) {
-                LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+                    } catch (RuntimeException e) {
+                        LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+                    }
+                }
             }
         }
 
