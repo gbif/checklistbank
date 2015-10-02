@@ -29,7 +29,6 @@ import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
-import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.common.parsers.KingdomParser;
@@ -60,8 +59,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -141,10 +138,7 @@ public class NubBuilder implements Runnable {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
         try {
             IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
-            // load highest nub id from clb:
-            Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
-            Integer newIdStart = inj.getInstance(UsageService.class).maxUsageKey(Constants.NUB_DATASET_KEY) + 1;
-            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), newIdStart, cfg.neo.nubReportDir(), true, cfg.autoImport, cfg.debug);
+            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax()+1, cfg.neo.nubReportDir(), true, cfg.autoImport, cfg.debug);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -943,9 +937,11 @@ public class NubBuilder implements Runnable {
      */
     private void assignUsageKeys() {
         LOG.info("Assigning final clb ids to all nub usages...");
-        for (NubUsage u : db.dao.nubUsages()) {
+        for (Map.Entry<Long, NubUsage> entry : db.dao.nubUsages()) {
+            NubUsage u = entry.getValue();
             if (u.rank != Rank.KINGDOM) {
                 u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom);
+                db.dao.update(entry.getKey(), u);
             }
         }
     }

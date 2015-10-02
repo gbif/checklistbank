@@ -457,6 +457,15 @@ public class UsageDao {
     }
 
     /**
+     * Updates a nub usage that does not have a neo node associated under the given node id.
+     * Use this method with caution as it will not update neo4j and its indices!
+     * Only use it for modified usages that have the properties stored in neo4j remain the same.
+     */
+    public void update(long nodeId, NubUsage nub) {
+        nubUsages.put(nodeId, nub);
+    }
+
+    /**
      * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
      */
     public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
@@ -560,8 +569,8 @@ public class UsageDao {
         return counter;
     }
 
-    public Iterable<NubUsage> nubUsages() {
-        return nubUsages.values();
+    public Iterable<Map.Entry<Long, NubUsage>> nubUsages() {
+        return nubUsages.entrySet();
     }
 
     private NameUsage convert(NubUsage nub) {

@@ -15,7 +15,6 @@ import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreePrinter;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -25,9 +24,11 @@ import org.gbif.checklistbank.nub.source.NubSourceList;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -199,6 +200,8 @@ public class NubBuilderIT {
         src = ClasspathSourceList.source(3, 2, 8, 11);
         src.setSourceRank(3, Rank.KINGDOM);
         rebuild(src);
+
+        assertTree("3 2 8 11.txt");
 
         // assert ids havent changed!
         assertEquals(o1, getScientific("Oenanthe Vieillot, 1816", Rank.GENUS).usageKey);
@@ -682,27 +685,49 @@ public class NubBuilderIT {
         System.out.println(metrics);
 
         tx = dao.beginTx();
+        printTree();
+
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
 
-        printTree();
+        // assert we have unique ids
+        assertUniqueIds();
+    }
+
+    private void assertUniqueIds() {
+        Set<Integer> keys = Sets.newHashSet();
+        for (Node n : IteratorUtil.loop(dao.allTaxa())) {
+            NubUsage u = dao.readNub(n);
+            if (keys.contains(u.usageKey)) {
+                System.err.println(u);
+                fail("Nub keys not unique: " + u.usageKey);
+            } else {
+                keys.add(u.usageKey);
+            }
+        }
     }
 
     private void rebuild(NubSourceList src) {
-        IdLookup previousIds = new IdLookupImpl(dao);
+        IdLookupImpl previousIds = new IdLookupImpl(dao);
         tx.close();
         dao.close();
         // new, empty DAO
         dao = UsageDao.temporaryDao(100);
-        NubBuilder nb = NubBuilder.create(dao, src, previousIds, 10);
+        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1);
         nb.run();
+
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
+        printTree();
+
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
+        // assert we have unique ids
+        assertUniqueIds();
     }
+
     private void assertClassification(NubUsage nub, String... parentNames) {
         int idx = 0;
         for (NubUsage n : parents(nub.node)) {

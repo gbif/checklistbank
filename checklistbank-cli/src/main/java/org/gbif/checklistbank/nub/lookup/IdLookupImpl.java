@@ -51,6 +51,7 @@ public class IdLookupImpl implements IdLookup {
     private final DB db;
     private final Map<String, List<LookupUsage>> usages;
     private final AuthorComparator authComp;
+    private int keyMax = 0;
     private int counter = 0;
     private int deleted = 0;
 
@@ -74,6 +75,7 @@ public class IdLookupImpl implements IdLookup {
         for (LookupUsage u : usages) {
             add(u);
         }
+        LOG.info("Use {} existing nub with max key {} into id lookup", usages.size(), keyMax);
     }
 
     /**
@@ -85,6 +87,7 @@ public class IdLookupImpl implements IdLookup {
             NubUsage u = dao.readNub(n);
             add( new LookupUsage(u.usageKey, u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false) );
         }
+        LOG.info("Use {} existing nub usages with max key {} into id lookup", usages.size(), keyMax);
     }
     /**
      * Loads known usages from checklistbank backbone.
@@ -100,7 +103,7 @@ public class IdLookupImpl implements IdLookup {
                     + " FROM name_usage u join name n ON name_fk=n.id"
                     + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "')"
                     + " TO STDOUT WITH NULL ''", writer);
-            LOG.info("Loaded existing nub with {} usages into id lookup", usages.size());
+            LOG.info("Loaded existing nub with {} usages and max key {} into id lookup", usages.size(), keyMax);
         } finally {
             writer.close();
         }
@@ -147,6 +150,13 @@ public class IdLookupImpl implements IdLookup {
             return null;
         }
         return foldToAscii(x).toLowerCase();
+    }
+
+    /**
+     * @return the largest usage key existing in the backbone
+     */
+    public int getKeyMax() {
+        return keyMax;
     }
 
     public AuthorComparator getAuthorComparator() {
@@ -199,6 +209,7 @@ public class IdLookupImpl implements IdLookup {
         if (u.isDeleted()) {
             deleted++;
         }
+        keyMax = u.getKey() > keyMax ? u.getKey() : keyMax;
     }
 
     @Override

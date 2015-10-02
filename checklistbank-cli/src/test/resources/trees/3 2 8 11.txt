@@ -1,0 +1,82 @@
+Animalia
+  Arthropoda
+    Arachnida
+    Insecta
+      Coleoptera
+        Blattaria Voet, 1806
+      Diptera
+      Orthoptera
+        Limoniidae
+          Trichoneura
+            Trichoneura bontocensis Alexander, 1934
+            Trichoneura formosensis (Alexander, 1923)
+        Blattaria Weyenbergh, 1874
+  Chordata
+    Aves
+      Oenanthe Vieillot, 1816
+    Mammalia
+    Reptilia
+      Crocodylia
+      Squamata
+  Mollusca
+  Octopus Cuvier, 1797
+    *Amphioctopus Fischer, 1882
+    Octopus fangsiao d'Orbigny, 1839
+    Octopus vulgaris Cuvier, 1797
+Archaea
+Bacteria
+Chromista
+Fungi
+  Ascomycota
+  Basidiomycota
+    Agaricomycetes
+      Agaricales Underw.
+      Polyporales
+        Polyporaceae Fr. ex Corda
+Plantae
+  Bryophyta
+  Marchantiophyta
+    Jungermanniopsida
+  Tracheophyta
+    Cycadopsida
+    Liliopsida
+    Magnoliopsida
+      Asteraceae
+      Fabaceae
+      Malvaceae
+        Pentapetes Linnaeus, 1753
+          *Blattaria O. Kuntze, 1891
+      Poaceae
+        Trichoneura
+          Trichoneura ciliata (Peter) S.M.Phillips
+            *Leptochloa ciliata Peter
+            *Trichoneura hirtella Napper
+      Scrophulariaceae
+        Blattaria P. Miller, 1754
+    Blechnaceae
+    Polipodiaceae
+    Pteridaceae
+      Adiantum
+        Adiantum aleuticum (Rupr.) C.A.Paris
+          *Adiantum pedatum var. aleuticum
+        Adiantum brasiliense Raddi
+          *Adiantum pedatum Raddi
+        Adiantum hispidulum Sw.
+          *Adiantum pedatum Forst.
+        Adiantum myriosorum Bak.
+          *Adiantum pedatum var. glaucinum H. Christ
+          *Adiantum pedatum var. protrusum H. Christ
+          *Adiantum pedatum var. myriosorum (Bak.) H. Christ
+        Adiantum patens subsp. oatesii (Bak.) Schelpe
+          *Adiantum pedatum A. Peter
+        Adiantum pedatum
+          Adiantum
+            Adiantum pedatum subsp. calderi Cody
+            Adiantum pedatum subsp. pedatum
+              *Adiantum pedatum var. kamtschaticum Rupr.
+            Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
+              *Adiantum pedatum var. subpumilum W. H. Wagner
+  Oenanthe Linnaeus, 1753
+Protozoa
+Viruses
+incertae sedis

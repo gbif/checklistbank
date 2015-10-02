@@ -70,18 +70,22 @@ public class IdGenerator implements Closeable {
         try {
             if (u == null) {
                 id = nextId++;
+                LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
                 logName(fcreated, id, canonicalName, authorship, year);
             } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
                 id = nextId++;
                 LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
+                LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
                 logName(fcreated, id, canonicalName, authorship, year);
             } else {
                 id = u.getKey();
                 if (u.isDeleted()) {
                     resurrected.add(id);
                     logName(fresurrected, u);
+                    LOG.debug("Resurrected id {} for {} {} {}", id, canonicalName, authorship, year);
                 } else {
                     reissued.add(id);
+                    LOG.debug("Reissued id {} for {} {} {}", id, canonicalName, authorship, year);
                 }
             }
         } catch (IOException e) {
