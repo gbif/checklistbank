@@ -674,7 +674,8 @@ public class NubBuilder implements Runnable {
     private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
-        if (!u.status.isSynonym() && !p.status.isSynonym()) {
+        // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
+        if (p.kingdom != Kingdom.VIRUSES && u.parsedName.getGenusOrAbove() != null && !u.status.isSynonym() && !p.status.isSynonym()) {
             // check if implicit species or genus parents are needed
             SrcUsage implicit = new SrcUsage();
             try {
@@ -691,6 +692,9 @@ public class NubBuilder implements Runnable {
                     p = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
                 }
             } catch (IgnoreSourceUsageException e) {
+                LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
+
+            } catch (Exception e) {
                 LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName);
             }
         }

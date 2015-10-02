@@ -12,3 +12,6 @@
 2000	200		GENUS	ACCEPTED		Varicellovirus
 20000	2000		SPECIES	ACCEPTED		Cervid herpesvirus 1
 20001	2000		SPECIES	ACCEPTED		Cervid herpesvirus 2
+
+50000	10		SPECIES	ACCEPTED		Phaseolus vulgaris Tpv2-6 virus
+50001	10		SPECIES	ACCEPTED		Chickpea stunt disease associated virus

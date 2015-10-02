@@ -673,6 +673,10 @@ public class NubBuilderIT {
 
         assertScientific("Cervid herpesvirus 1", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
         assertScientific("Cervid herpesvirus 2", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
+
+        u = assertScientific("Herpesvirales", Rank.ORDER, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertScientific("Phaseolus vulgaris Tpv2-6 virus", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
+        assertScientific("Chickpea stunt disease associated virus", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, u);
     }
 
     /**
