@@ -13,6 +13,7 @@ import org.gbif.nameparser.UnparsableException;
 import com.google.common.base.Throwables;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,23 +26,27 @@ public class NubDbTest {
     public void testCountTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
         NubDb nub = NubDb.create(dao);
+        try (Transaction tx = dao.beginTx()){
 
-        assertEquals(0l, nub.countTaxa());
+            assertEquals(0l, nub.countTaxa());
 
-        NubUsage u = new NubUsage();
-        u.parsedName = new ParsedName();
-        u.origin = Origin.SOURCE;
-        u.rank = Rank.SPECIES;
-        nub.addRoot(u);
-        assertEquals(1l, nub.countTaxa());
+            NubUsage u = new NubUsage();
+            u.parsedName = new ParsedName();
+            u.origin = Origin.SOURCE;
+            u.rank = Rank.SPECIES;
+            nub.addRoot(u);
+            assertEquals(1l, nub.countTaxa());
 
-        // we add the same nub usage which already has a neo node, nothing changes
-        nub.addRoot(u);
-        assertEquals(1l, nub.countTaxa());
+            // we add the same nub usage which already has a neo node, nothing changes
+            nub.addRoot(u);
+            assertEquals(1l, nub.countTaxa());
 
-        u.node = null;
-        nub.addRoot(u);
-        assertEquals(2l, nub.countTaxa());
+            u.node = null;
+            nub.addRoot(u);
+            assertEquals(2l, nub.countTaxa());
+            tx.success();
+        }
+
     }
 
     @Test
@@ -49,23 +54,26 @@ public class NubDbTest {
     public void testFindTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
         NubDb db = NubDb.create(dao);
+        try (Transaction tx = dao.beginTx()){
 
-        final NubUsage animalia = db.addRoot(buildNub("Animalia", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
-        final NubUsage plantae = db.addRoot(buildNub("Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
-        NubUsage oenanteP = db.addUsage(animalia, buildNub("Oenanthe Vieillot, 1816", Rank.GENUS, TaxonomicStatus.ACCEPTED));
-        NubUsage oenanteA = db.addUsage(plantae, buildNub("Oenanthe Linnaeus, 1753", Rank.GENUS, TaxonomicStatus.ACCEPTED));
-        db.addUsage(oenanteP, buildNub("Oenanthe aquatica Poir.", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
-        db.addUsage(oenanteP, buildNub("Oenanthe aquatica Senser. 1957", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
+            final NubUsage animalia = db.addRoot(buildNub("Animalia", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
+            final NubUsage plantae = db.addRoot(buildNub("Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
+            NubUsage oenanteP = db.addUsage(animalia, buildNub("Oenanthe Vieillot, 1816", Rank.GENUS, TaxonomicStatus.ACCEPTED));
+            NubUsage oenanteA = db.addUsage(plantae, buildNub("Oenanthe Linnaeus, 1753", Rank.GENUS, TaxonomicStatus.ACCEPTED));
+            db.addUsage(oenanteP, buildNub("Oenanthe aquatica Poir.", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
+            db.addUsage(oenanteP, buildNub("Oenanthe aquatica Senser. 1957", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
 
-        db.addUsage(animalia, buildNub("Geotrupes stercorarius (Linnaeus, 1758)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
-        NubUsage acc = db.addUsage(animalia, buildNub("Geotrupes spiniger (Marsham, 1802)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
-        db.addUsage(acc, buildNub("Geotrupes stercorarius Erichson, 1847", Rank.SPECIES, TaxonomicStatus.SYNONYM));
+            db.addUsage(animalia, buildNub("Geotrupes stercorarius (Linnaeus, 1758)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
+            NubUsage acc = db.addUsage(animalia, buildNub("Geotrupes spiniger (Marsham, 1802)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
+            db.addUsage(acc, buildNub("Geotrupes stercorarius Erichson, 1847", Rank.SPECIES, TaxonomicStatus.SYNONYM));
 
-        acc = db.addUsage(oenanteP, buildNub("Oenanthe arida", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
-        db.addUsage(acc, buildNub("Onatus horrida", Rank.SPECIES, TaxonomicStatus.SYNONYM));
-        db.addUsage(acc, buildNub("Onatus horrida alpina", Rank.INFRASPECIFIC_NAME, TaxonomicStatus.SYNONYM));
+            acc = db.addUsage(oenanteP, buildNub("Oenanthe arida", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
+            db.addUsage(acc, buildNub("Onatus horrida", Rank.SPECIES, TaxonomicStatus.SYNONYM));
+            db.addUsage(acc, buildNub("Onatus horrida alpina", Rank.INFRASPECIFIC_NAME, TaxonomicStatus.SYNONYM));
 
-        assertNotNull(db.findNubUsage("Onatus horrida alpina", Rank.SUBSPECIES));
+            assertNotNull(db.findNubUsage("Onatus horrida alpina", Rank.SUBSPECIES));
+            tx.success();
+        }
     }
 
     private NubUsage buildNub(String sciname, Rank rank, TaxonomicStatus status) {
