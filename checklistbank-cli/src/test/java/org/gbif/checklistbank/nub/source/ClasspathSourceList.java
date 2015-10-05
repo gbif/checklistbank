@@ -2,7 +2,6 @@ package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +41,8 @@ public class ClasspathSourceList extends NubSourceList {
      */
     public static ClasspathSourceList source(Integer ... datasetKeys) {
         List<ClasspathSource> sources = Lists.newArrayList();
-        int prio = 1;
         for (Integer id : datasetKeys) {
-            sources.add(new ClasspathSource(id, prio++));
+            sources.add(new ClasspathSource(id));
         }
         return new ClasspathSourceList(sources);
     }
@@ -53,7 +51,7 @@ public class ClasspathSourceList extends NubSourceList {
         super();
     }
 
-    public ClasspathSourceList(Collection<ClasspathSource> sources) {
+    public ClasspathSourceList(List<ClasspathSource> sources) {
         super();
         for (ClasspathSource src : sources) {
             sourceById.put(src.id, src);

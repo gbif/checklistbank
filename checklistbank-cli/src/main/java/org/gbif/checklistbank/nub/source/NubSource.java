@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * <li>parentKey</li>
  * <li>basionymKey</li>
  * <li>rank (enum)</li>
- * <li>isSynonym (boolean)</li>
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
@@ -61,7 +60,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     public UUID key;
     public String name;
-    public int priority = 0;
     public Rank ignoreRanksAbove = Rank.FAMILY;
     public Date created;
     public boolean nomenclator = false;

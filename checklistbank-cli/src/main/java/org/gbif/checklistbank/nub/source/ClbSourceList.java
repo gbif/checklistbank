@@ -50,10 +50,9 @@ public class ClbSourceList extends NubSourceList {
         loadSources();
     }
 
-    private NubSource buildSource(Dataset d, int priority, Rank rank) {
+    private NubSource buildSource(Dataset d, Rank rank) {
         NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle());
         src.created = d.getCreated();
-        src.priority = priority;
         src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
         if (rank != null) {
             src.ignoreRanksAbove = rank;
@@ -74,18 +73,16 @@ public class ClbSourceList extends NubSourceList {
                 stream = FileUtils.classpathStream(cfg.sourceList.toString());
             }
             CSVReader reader = new CSVReader(stream, "UTF-8", "\t", null, 0);
-            Integer priority = 0;
             for (String[] row : reader) {
                 if (row.length < 1) continue;
                 UUID key = UUID.fromString(row[0]);
                 if (keys.contains(key)) continue;
                 keys.add(key);
-                priority++;
 
                 Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
                 Dataset d = datasetService.get(key);
                 if (d != null) {
-                    sources.add(buildSource(d, priority, rank));
+                    sources.add(buildSource(d, rank));
 
                 } else {
                     // try if its an organization
@@ -96,7 +93,7 @@ public class ClbSourceList extends NubSourceList {
                         int counter = 0;
                         for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
                             if (!keys.contains(d2.getKey())) {
-                                sources.add(buildSource(d2, priority, rank));
+                                sources.add(buildSource(d2, rank));
                                 counter++;
                             }
                         }

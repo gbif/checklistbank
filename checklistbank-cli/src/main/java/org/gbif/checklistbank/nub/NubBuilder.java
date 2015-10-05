@@ -515,8 +515,7 @@ public class NubBuilder implements Runnable {
     private void addDataset(NubSource source) {
         LOG.info("Adding {}th source {}", datasetCounter++, source.name);
         currSrc = source;
-        priorities.put(source.key, source.priority);
-        maxPriority = source.priority;
+        priorities.put(source.key, ++maxPriority);
         // clear dataset wide caches
         parents.clear();
         basionymRels.clear();
@@ -533,7 +532,7 @@ public class NubBuilder implements Runnable {
         // do transactions in batches to dont slow down neo too much
         int batchCounter = 1;
         for (List<SrcUsage> batch : Iterables.partition(source, batchSize)) {
-            LOG.debug("process batch {}x{}", batchCounter++, batchSize);
+            LOG.info("process batch {}x{}", batchCounter++, batchSize);
             try (Transaction tx = db.beginTx()) {
                 for (SrcUsage u : batch) {
                     // catch errors processing individual records too
@@ -549,7 +548,6 @@ public class NubBuilder implements Runnable {
                         if (nub != null) {
                             parents.put(nub);
                         }
-                        tx.success();
                     } catch (IgnoreSourceUsageException e) {
                         LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
@@ -562,6 +560,7 @@ public class NubBuilder implements Runnable {
                         LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
                     }
                 }
+                tx.success();
             }
         }
 

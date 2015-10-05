@@ -18,7 +18,6 @@ import org.apache.commons.io.IOUtils;
  * <li>parentKey</li>
  * <li>basionymKey</li>
  * <li>rank (enum)</li>
- * <li>isSynonym (f/t)</li>
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
@@ -28,12 +27,7 @@ public class ClasspathSource extends NubSource {
     public final int id;
 
     public ClasspathSource(int id) {
-        this(id, id);
-    }
-
-    public ClasspathSource(int id, int priority) {
         this.id = id;
-        this.priority = priority;
         key = UUID.randomUUID();
         name = "Dataset " + id;
     }

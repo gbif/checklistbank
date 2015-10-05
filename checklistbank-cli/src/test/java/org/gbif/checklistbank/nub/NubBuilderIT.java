@@ -20,6 +20,7 @@ import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.nub.source.NubSourceList;
+import org.gbif.checklistbank.nub.source.RandomSource;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -592,6 +593,18 @@ public class NubBuilderIT {
         NubUsage u = assertCanonical("Hyalonema rotundum", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
 
         assertTree("18.txt");
+    }
+
+    @Test
+    @Ignore("Manual test for profiling performance issues")
+    public void testPerformance() throws Exception {
+        NubSourceList src = new NubSourceList(Lists.newArrayList(
+                new RandomSource(200000, Kingdom.ANIMALIA),
+                new RandomSource(100, Kingdom.BACTERIA),
+                new RandomSource(100, Kingdom.ARCHAEA),
+                new RandomSource(20000, Kingdom.FUNGI),
+                new RandomSource(50000, Kingdom.PLANTAE)));
+        build(src);
     }
 
     /**

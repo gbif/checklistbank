@@ -88,9 +88,6 @@ public class ClbSourceListTest {
     public void testListSources() throws Exception {
         List<NubSource> sources = Iterables.toList(src);
         assertEquals(3, sources.size());
-        assertEquals(1, sources.get(0).priority);
-        assertEquals(2, sources.get(1).priority);
-        assertEquals(2, sources.get(2).priority);
         assertEquals(Rank.PHYLUM, sources.get(0).ignoreRanksAbove);
         assertEquals(Rank.FAMILY, sources.get(1).ignoreRanksAbove);
         assertEquals(Rank.FAMILY, sources.get(2).ignoreRanksAbove);

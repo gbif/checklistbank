@@ -51,6 +51,7 @@ public class NubDb {
             try (Transaction tx = dao.beginTx()) {
                 Schema schema = dao.getNeo().schema();
                 schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+                tx.success();
             }
         }
     }

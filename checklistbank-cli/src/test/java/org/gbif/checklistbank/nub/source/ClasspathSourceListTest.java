@@ -21,9 +21,7 @@ public class ClasspathSourceListTest {
         src.setSourceRank(23, Rank.KINGDOM);
         List<NubSource> sources = Iterables.toList(src);
         assertEquals(10, sources.size());
-        assertEquals(1, sources.get(0).priority);
         assertEquals(Rank.FAMILY, sources.get(0).ignoreRanksAbove);
-        assertEquals(8, sources.get(7).priority);
         assertEquals(Rank.KINGDOM, sources.get(7).ignoreRanksAbove);
     }
 
@@ -41,7 +39,7 @@ public class ClasspathSourceListTest {
         // try 30 classpath sources 100 times = 3000 sources!
         for (int rep=0; rep<100; rep++) {
             for (int id=1; id<31; id++) {
-                sources.add(new ClasspathSource(id, id*rep));
+                sources.add(new ClasspathSource(id));
             }
         }
         ClasspathSourceList srcList = new ClasspathSourceList(sources);
