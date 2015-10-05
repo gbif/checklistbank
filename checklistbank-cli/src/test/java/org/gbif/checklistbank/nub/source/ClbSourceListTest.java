@@ -58,14 +58,17 @@ public class ClbSourceListTest {
         oldDKey = UUID.randomUUID();
         final Date now = new Date();
         PagingResponse<Dataset> resp3 = new PagingResponse<Dataset>();
+
         Dataset orgD = new Dataset();
         orgD.setKey(oldDKey);
         orgD.setTitle("orgD");
-        orgD.setCreated(new Date(now.getTime()-100000));
+        orgD.setCreated(now);
+
         Dataset orgD2 = new Dataset();
         orgD2.setKey(UUID.randomUUID());
         orgD2.setTitle("orgD2");
-        orgD2.setCreated(now);
+        orgD2.setCreated(new Date(now.getTime()-100000));
+
         resp3.setCount(2l);
         resp3.getResults().add(orgD);
         resp3.getResults().add(orgD2);
@@ -91,7 +94,8 @@ public class ClbSourceListTest {
         assertEquals(Rank.PHYLUM, sources.get(0).ignoreRanksAbove);
         assertEquals(Rank.FAMILY, sources.get(1).ignoreRanksAbove);
         assertEquals(Rank.FAMILY, sources.get(2).ignoreRanksAbove);
-        assertEquals(oldDKey, sources.get(2).key);
+        assertEquals(CHECKLIST_KEY, sources.get(0).key);
+        assertEquals(oldDKey, sources.get(1).key);
     }
 
 }
