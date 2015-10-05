@@ -65,8 +65,8 @@ Plantae
           *Adiantum pedatum Forst.
         Adiantum myriosorum Bak.
           *Adiantum pedatum var. glaucinum H. Christ
-          *Adiantum pedatum var. protrusum H. Christ
           *Adiantum pedatum var. myriosorum (Bak.) H. Christ
+          *Adiantum pedatum var. protrusum H. Christ
         Adiantum patens subsp. oatesii (Bak.) Schelpe
           *Adiantum pedatum A. Peter
         Adiantum pedatum

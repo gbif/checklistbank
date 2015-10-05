@@ -123,7 +123,7 @@ public class Importer extends ImportDb implements Runnable {
         // in order to avoid clock differences between machines and threads.
         int firstUsageKey = -1;
 
-        try (Transaction tx = dao.getNeo().beginTx()) {
+        try (Transaction tx = dao.beginTx()) {
             // returns all nodes, accepted and synonyms
             for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
                 try {

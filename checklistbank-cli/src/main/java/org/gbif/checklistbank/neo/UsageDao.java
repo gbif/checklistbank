@@ -114,7 +114,7 @@ public class UsageDao {
      * @param mappedMemory used for the neo4j db
      */
     public static UsageDao temporaryDao(int mappedMemory) {
-        LOG.info("Create new in memory dao");
+        LOG.debug("Create new in memory dao");
         DB kvp = DBMaker.memoryDB()
                     .transactionDisable()
                     .make();
@@ -140,7 +140,7 @@ public class UsageDao {
                     kvpF.delete();
                 }
                 if (storeDir.exists()) {
-                    LOG.info("Remove existing data store");
+                    LOG.debug("Remove existing data store");
                     FileUtils.deleteQuietly(storeDir);
                 }
             }
@@ -168,7 +168,7 @@ public class UsageDao {
     private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, NeoConfiguration.CacheType cacheType, boolean readOnly, int mappedMemory, boolean eraseExisting) {
         if (eraseExisting && storeDir.exists()) {
             // erase previous db
-            LOG.info("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
+            LOG.debug("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
             FileUtils.deleteQuietly(storeDir);
         }
         return new GraphDatabaseFactory()

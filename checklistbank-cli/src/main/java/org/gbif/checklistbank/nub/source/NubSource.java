@@ -74,7 +74,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
      */
     public void init() throws Exception {
         // load data into neo4j
-        LOG.info("Start loading source data from {} into neo", name);
+        LOG.debug("Start loading source data from {} into neo", name);
         try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, false, null, true))) {
             initNeo(writer);
         }

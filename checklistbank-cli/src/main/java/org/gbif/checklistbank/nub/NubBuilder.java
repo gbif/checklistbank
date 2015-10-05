@@ -110,6 +110,7 @@ public class NubBuilder implements Runnable {
     private final ResourcesMonitor monitor = new ResourcesMonitor();
     private final boolean debug;
     private int datasetCounter = 1;
+    private final int batchSize;
 
     private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
         @Nullable
@@ -123,7 +124,7 @@ public class NubBuilder implements Runnable {
     });
 
     private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
-                       boolean closeDao, boolean verifyBackbone, boolean debug) {
+                       boolean closeDao, boolean verifyBackbone, int batchSize, boolean debug) {
         db = NubDb.create(dao);
         this.sources = sources;
         this.authorComparator = authorComparator;
@@ -132,13 +133,15 @@ public class NubBuilder implements Runnable {
         this.closeDao = closeDao;
         this.verifyBackbone = verifyBackbone;
         this.debug = debug;
+        this.batchSize = batchSize;
     }
 
     public static NubBuilder create(NubConfiguration cfg) {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
         try {
             IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
-            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax()+1, cfg.neo.nubReportDir(), true, cfg.autoImport, cfg.debug);
+            return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax()+1, cfg.neo.nubReportDir(), true,
+                    cfg.autoImport, cfg.neo.batchSize, cfg.debug);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -148,7 +151,7 @@ public class NubBuilder implements Runnable {
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
     public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, false);
+        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000, false);
     }
 
     /**
@@ -528,7 +531,9 @@ public class NubBuilder implements Runnable {
         int start = sourceUsageCounter;
 
         // do transactions in batches to dont slow down neo too much
-        for (List<SrcUsage> batch : Iterables.partition(source, 1000)) {
+        int batchCounter = 1;
+        for (List<SrcUsage> batch : Iterables.partition(source, batchSize)) {
+            LOG.debug("process batch {}x{}", batchCounter++, batchSize);
             try (Transaction tx = db.beginTx()) {
                 for (SrcUsage u : batch) {
                     // catch errors processing individual records too

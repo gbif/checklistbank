@@ -28,6 +28,9 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -930,14 +933,22 @@ public class NubBuilderIT {
 
         @Override
         public void start(Node n) {
-            String name = (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
             String expected = treeIter.next().name;
+            String name = (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
             assertEquals(expected, name);
-            // check for synonyms
-            for (Node s : Traversals.SYNONYMS.traverse(n).nodes()) {
-                name = (String) s.getProperty(NodeProperties.SCIENTIFIC_NAME);
+
+            // check for synonyms and sort by name
+            for (String syn : Ordering.natural().immutableSortedCopy(Iterables.transform(
+                    IteratorUtil.loop(Traversals.SYNONYMS.traverse(n).nodes().iterator()), new Function<Node, String>() {
+                        @Nullable
+                        @Override
+                        public String apply(@Nullable Node n) {
+                            return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+                        }
+                    }
+            ))){
                 expected = treeIter.next().name;
-                assertEquals(expected, name);
+                assertEquals(expected, syn);
             }
         }
 
