@@ -47,9 +47,11 @@ import javax.annotation.Nullable;
 import com.beust.jcommander.internal.Maps;
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.IntLongMap;
+import com.carrotsearch.hppc.LongHashSet;
 import com.carrotsearch.hppc.LongIntHashMap;
 import com.carrotsearch.hppc.LongIntMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.LongCursor;
 import com.carrotsearch.hppc.cursors.LongIntCursor;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -856,15 +858,25 @@ public class NubBuilder implements Runnable {
     private void consolidateBasionymGroups() {
         int counter = 0;
         int counterModified = 0;
+        // first load all basionym node ids into a set so we can process them individually in separate transactions
+        LongHashSet basIds = new LongHashSet();
         try (Transaction tx = db.beginTx()) {
             for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+                basIds.add(bas.getId());
+            }
+            LOG.info("Found {} basionyms to consolidate", basIds.size());
+        }
+        // now consolidate each basionym group in its own transaction
+        for (LongCursor basCursor: basIds) {
+            try (Transaction tx = db.beginTx()) {
+                Node bas = db.dao.getNeo().getNodeById(basCursor.value);
                 counter++;
                 // sort all usage by source dataset priority, placing doubtful names last
                 List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
                 if (group.size() > 1) {
                     // we stick to the first combination with the highest priority and make all others
-                    // a) synonyms of this if it is accepted
-                    // b) synonyms of the primarys accepted name if it was a synonym itself
+                    //  a) synonyms of this if it is accepted
+                    //  b) synonyms of the primarys accepted name if it was a synonym itself
                     final NubUsage primary = group.remove(0);
                     final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
                     final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
@@ -874,27 +886,40 @@ public class NubBuilder implements Runnable {
                             counterModified++;
                             NubUsage previousParent = db.getParent(u);
                             if (previousParent != null) {
-                                u.addRemark( String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
-                                        u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
+                                u.addRemark(String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
+                                                u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                                 );
                             }
-                            // remember previous parent
-                            NubUsage parent = db.getParent(u);
-                            // convert to synonym, removing old parent relation
-                            convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
-                            // move any accepted children to new accepted parent
-                            db.assignParentToChildren(u.node, accepted);
-                            // move any synonyms to new accepted parent
-                            db.assignAcceptedToSynonyms(u.node, accepted.node);
-                            // remove parent if it has no children or synonyms
-                            removeTaxonIfEmpty(parent);
-                            // persist usage instance changes
-                            db.store(u);
+
+                            //TODO: remove this try/catch once we found the error leading to this exception!!!
+                            try {
+                                // convert to synonym, removing old parent relation
+                                // See http://dev.gbif.org/issues/browse/POR-398
+                                LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
+                                // remember previous parent
+                                NubUsage parent = db.getParent(u);
+                                // change status
+                                u.status = synStatus;
+                                // add synonymOf relation and delete existing parentOf relations
+                                db.createSynonymRelation(u.node, accepted.node);
+                                // flag issue
+                                u.issues.add(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+                                // move any accepted children to new accepted parent
+                                db.assignParentToChildren(u.node, accepted);
+                                // move any synonyms to new accepted parent
+                                db.assignAcceptedToSynonyms(u.node, accepted.node);
+                                // remove parent if it has no children or synonyms
+                                removeTaxonIfEmpty(parent);
+                                // persist usage instance changes
+                                db.store(u);
+                            } catch (IllegalStateException e) {
+                                LOG.error("Failed to consolidate {} from basionym group {}", u, primary, e);
+                            }
                         }
                     }
                 }
+                tx.success();
             }
-            tx.success();
             LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
         }
     }
@@ -913,26 +938,6 @@ public class NubBuilder implements Runnable {
             }
         }
         return false;
-    }
-
-    /**
-     * Converts an accepted or existing synonym usage to a synonym of a given accepted usage.
-     * See http://dev.gbif.org/issues/browse/POR-398
-     * @param u the usage to become the synonym
-     * @param acc the accepted taxon the new synonym should point to
-     */
-    private void convertToSynonym(NubUsage u, NubUsage acc, TaxonomicStatus status, NameUsageIssue ... issues) {
-        LOG.debug("Convert {} into a {} of {}", u.parsedName.fullName(), status, acc.parsedName.fullName());
-        // change status
-        u.status = status;
-        // add synonymOf relation and delete existing parentOf relations
-        db.createSynonymRelation(u.node, acc.node);
-        // flag issue
-        for (NameUsageIssue issue : issues) {
-            u.issues.add(issue);
-        }
-        // usage was changed, update it in kvp store
-        db.store(u);
     }
 
     private String names(Collection<NubUsage> usages) {
