@@ -126,9 +126,8 @@ public class NameUsageWsClient extends BaseWsGetClient<NameUsage, Integer> imple
      * @return requested list of related NameUsages or an empty list if none could be found
      */
     @Override
-    public List<NameUsage> listRelated(int usageKey, Locale locale, @Nullable UUID... datasetKey) {
-        return get(list, locale, QueryParamBuilder.create(Constants.DATASET_KEY, datasetKey).build(), null,
-                String.valueOf(usageKey), Constants.RELATED_PATH);
+    public PagingResponse<NameUsage> listRelated(int usageKey, Locale locale, @Nullable Pageable page, @Nullable UUID... datasetKey) {
+        return get(tPage, locale, QueryParamBuilder.create(Constants.DATASET_KEY, datasetKey).build(), page, String.valueOf(usageKey), Constants.RELATED_PATH);
     }
 
     /**

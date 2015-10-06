@@ -56,7 +56,7 @@ public interface NameUsageMapper {
     /**
      * List all related name usages that have a given nubKey.
      */
-    List<NameUsage> listRelated(@Param("key") int nubKey, @Param("uuids") UUID[] datasetKeys);
+    List<NameUsage> listRelated(@Param("key") int nubKey, @Param("uuids") UUID[] datasetKeys, @Param("page") Pageable page);
 
     /**
      * @return the maximum usage key used in a dataset incl deleted records

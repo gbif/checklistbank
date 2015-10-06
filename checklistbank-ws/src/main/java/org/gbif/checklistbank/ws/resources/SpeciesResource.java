@@ -367,10 +367,10 @@ public class SpeciesResource {
      */
     @GET
     @Path("{id}/related")
-    public List<NameUsage> listRelatedByNameUsage(@PathParam("id") int usageKey, @Context Locale locale,
+    public PagingResponse<NameUsage> listRelatedByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page,
                                                   @QueryParam(DATASET_KEY) Set<UUID> datasetKeys) {
         LOG.debug("Request all Related usages for NameUsage [{}] in checklists {}", usageKey, datasetKeys);
-        return nameUsageService.listRelated(usageKey, locale, datasetKeys.toArray(new UUID[datasetKeys.size()]));
+        return nameUsageService.listRelated(usageKey, locale, page, datasetKeys.toArray(new UUID[datasetKeys.size()]));
     }
 
     @GET

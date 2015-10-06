@@ -199,6 +199,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
                 #{uuid, jdbcType=OTHER}
             </foreach>
         </if>
+        ORDER BY u.dataset_key, u.id
+        <include refid="page"/>
     </select>
 
     <!--  list combinations -->

@@ -204,10 +204,12 @@ public class NameUsageServiceMyBatis implements NameUsageService {
     }
 
     @Override
-    public List<NameUsage> listRelated(int nubKey, @Nullable Locale locale, @Nullable UUID... datasetKey) {
-        List<NameUsage> usages = mapper.listRelated(nubKey, datasetKey);
-        addVernacularNames(usages, getLanguage(locale));
-        return usages;
+    public PagingResponse<NameUsage> listRelated(int nubKey, @Nullable Locale locale, @Nullable Pageable page, @Nullable UUID... datasetKey) {
+        if (page == null) {
+            page = new PagingRequest();
+        }
+        List<NameUsage> usages = mapper.listRelated(nubKey, datasetKey, page);
+        return localizedPage(locale, usages, page);
     }
 
     @Override

@@ -220,17 +220,17 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
     @Test
     public void testListRelated() {
-        List<NameUsage> usages = service.listRelated(1, Locale.UK);
+        List<NameUsage> usages = service.listRelated(1, Locale.UK, null).getResults();;
         assertEquals(1, usages.size());
 
-        usages = service.listRelated(1, Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));
+        usages = service.listRelated(1, Locale.UK, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4")).getResults();
         assertEquals(1, usages.size());
 
-        usages = service.listRelated(1, Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"),
-                UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f5"));
+        usages = service.listRelated(1, Locale.UK, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"),
+                UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f5")).getResults();
         assertEquals(1, usages.size());
 
-        usages = service.listRelated(1, Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));
+        usages = service.listRelated(1, Locale.UK, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff")).getResults();
         assertEquals(0, usages.size());
     }
 
@@ -245,7 +245,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
     @Test
     public void testListRelatedNotFound() {
-        assertTrue(service.listRelated(NOT_FOUND_KEY, Locale.UK).isEmpty());
+        assertTrue(service.listRelated(NOT_FOUND_KEY, Locale.UK, null).getResults().isEmpty());
     }
 
     @Test

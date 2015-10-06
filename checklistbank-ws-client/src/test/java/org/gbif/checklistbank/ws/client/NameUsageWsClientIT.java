@@ -101,21 +101,21 @@ public class NameUsageWsClientIT extends ClientMyBatisITBase<NameUsageService> {
 
   @Test
   public void testListRelated() {
-    List<NameUsage> related = wsClient.listRelated(10, Locale.ENGLISH);
+    List<NameUsage> related = wsClient.listRelated(10, Locale.ENGLISH, null).getResults();
     assertNotNull(related);
     assertEquals(1, related.size());
 
-    related = wsClient.listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));
+    related = wsClient.listRelated(1, Locale.ENGLISH, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4")).getResults();
     assertEquals(1, related.size());
 
-    related = wsClient.listRelated(1, Locale.ENGLISH, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff"));
+    related = wsClient.listRelated(1, Locale.ENGLISH, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088ff")).getResults();
     assertEquals(0, related.size());
 
   }
 
   @Test
   public void testListRelatedNotFound() {
-    List<NameUsage> res = wsClient.listRelated(NOT_FOUND_KEY, Locale.ENGLISH);
+    List<NameUsage> res = wsClient.listRelated(NOT_FOUND_KEY, Locale.ENGLISH, null).getResults();
     assertNotNull(res);
     assertTrue(res.isEmpty());
   }
