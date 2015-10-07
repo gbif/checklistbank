@@ -1,0 +1,20 @@
+1			KINGDOM	ACCEPTED		Plantae
+2	1		FAMILY	ACCEPTED		Sapindaceae
+3	1		FAMILY	ACCEPTED		Aceraceae
+
+5	2		GENUS	ACCEPTED		Negundo Moench
+6	3		GENUS	ACCEPTED		Negundo Boehm.
+
+10	2		SPECIES	ACCEPTED		Negundo aceroides Moench
+11	3		SPECIES	ACCEPTED		Negundo aceroides Moench
+12	2		SPECIES	ACCEPTED		Negundo aceroides Torr.
+13	3		VARIETY	ACCEPTED		Negundo aceroides Moench var. violaceum G.Kirchn.
+14	3		SUBSPECIES	ACCEPTED		Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub
+15	3		SUBSPECIES	ACCEPTED		Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub
+16	3		SUBSPECIES	ACCEPTED		Negundo aceroides subsp. violaceus (G.Kirchn.) W.A.Weber
+17	3		VARIETY	ACCEPTED		Negundo aceroides var. violaceum G.Kirchn. in Petz. & G.Kirchn.
+18	3		VARIETY	ACCEPTED		Negundo aceroides var. violaceum G.Kirchn. in Petz. & G.Kirchn.
+19	3		VARIETY	ACCEPTED		Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.
+20	3		VARIETY	ACCEPTED		Negundo aceroides Moench var. californicum (Torr. & A.Gray) Sarg.
+21	3		SUBSPECIES	ACCEPTED		Negundo aceroides subsp. interius (Britton) T.Love & D.Love
+22	3		SUBSPECIES	ACCEPTED		Negundo aceroides subsp. interius (Britton) T.Love & D.Love
