@@ -24,6 +24,7 @@ import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
@@ -31,8 +32,6 @@ import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.common.parsers.KingdomParser;
-import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
@@ -99,8 +98,6 @@ public class NubBuilder implements Runnable {
     private NubSource currSrc;
     private ParentStack parents;
     private int sourceUsageCounter = 0;
-    private final KingdomParser kingdomParser = KingdomParser.getInstance();
-    private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
     private final AuthorComparator authorComparator;
     private final IdGenerator idGen;
     private final int newIdStart;
@@ -164,7 +161,7 @@ public class NubBuilder implements Runnable {
     public void run() {
         try {
             addKingdoms();
-            parents = new ParentStack(kingdoms.get(Kingdom.INCERTAE_SEDIS));
+            parents = new ParentStack(db.getKingdom(Kingdom.INCERTAE_SEDIS));
             addDatasets();
             groupByBasionym();
             verifyAcceptedSpecies();
@@ -416,7 +413,7 @@ public class NubBuilder implements Runnable {
         NubUsage basionym = new NubUsage();
         basionym.datasetKey = null;
         basionym.origin = Origin.BASIONYM_PLACEHOLDER;
-        basionym.rank = Rank.SPECIES;
+        basionym.rank = Rank.UNRANKED;
         basionym.status = TaxonomicStatus.DOUBTFUL;
         basionym.parsedName = new ParsedName();
         basionym.parsedName.setGenusOrAbove("?");
@@ -424,6 +421,7 @@ public class NubBuilder implements Runnable {
         basionym.parsedName.setAuthorship(group.getAuthorship());
         basionym.parsedName.setYear(group.getYear());
         basionym.parsedName.setType(NameType.PLACEHOLDER);
+        basionym.parsedName.setScientificName(basionym.parsedName.fullName());
         LOG.debug("creating basionym placeholder {} in family {}", basionym.parsedName.canonicalNameComplete(), family.parsedName.canonicalName());
         return db.addUsage(family, basionym);
     }
@@ -444,7 +442,6 @@ public class NubBuilder implements Runnable {
                 ku.parsedName.setGenusOrAbove(k.scientificName());
 
                 db.addRoot(ku);
-                kingdoms.put(k, ku);
             }
             tx.success();
         }
@@ -602,66 +599,59 @@ public class NubBuilder implements Runnable {
         Preconditions.checkNotNull(u.status);
         // try to parse name
         addParsedNameIfNull(u);
-        NubUsage nub = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
-        // try harder to match to a kingdom by also using the kingdom parser for a rank above kingdom
-        if (nub == null && u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
-            ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
-            if (kResult.isSuccessful()) {
-                nub = kingdoms.get(kResult.getPayload());
-            }
-        }
-        // process only usages with desired ranks
-        if (u.rank != null && allowedRanks.contains(u.rank)) {
-            if (nub == null) {
-                // create new nub usage if there wasnt any yet
-                nub = createNubUsage(u, origin, parent);
+        // match to existing usages
+        NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
+        // process only usages not to be ignored and with desired ranks
+        if (!match.ignore && u.rank != null && allowedRanks.contains(u.rank)) {
+            if (match.isMatch()) {
+                Equality authorEq = authorComparator.compare(match.usage.parsedName, u.parsedName);
 
-            } else {
-
-                Equality authorEq = authorComparator.compare(nub.parsedName, u.parsedName);
-
-                if (nub.status.isSynonym() == u.status.isSynonym()) {
+                if (match.usage.status.isSynonym() == u.status.isSynonym()) {
                     // update nub usage if status matches
-                    updateNub(nub, u, origin, parent);
+                    updateNub(match.usage, u, origin, parent);
 
                 } else if (Equality.DIFFERENT == authorEq) {
                     // create new nub usage with different status and authorship as before
-                    nub = createNubUsage(u, origin, parent);
+                    match = createNubUsage(u, origin, parent);
 
-                } else if (fromCurrentSource(nub) && !u.status.isSynonym()) {
+                } else if (fromCurrentSource(match.usage) && !u.status.isSynonym()) {
                     // prefer accepted over synonym if from the same source
                     LOG.debug("prefer accepted {} over synonym usage from the same source", u.scientificName);
-                    delete(nub);
-                    nub = createNubUsage(u, origin, parent);
+                    delete(match.usage);
+                    match = createNubUsage(u, origin, parent);
 
-                } else if (fromCurrentSource(nub) && u.parsedName.hasAuthorship() && Equality.EQUAL != authorEq) {
+                } else if (fromCurrentSource(match.usage) && u.parsedName.hasAuthorship() && Equality.EQUAL != authorEq) {
                     // allow new synonyms with non equal authorship to be created
-                    nub = createNubUsage(u, origin, parent);
+                    match = createNubUsage(u, origin, parent);
 
                 } else if (currSrc.nomenclator) {
-                    updateNomenclature(nub, u);
+                    updateNomenclature(match.usage, u);
 
                 } else {
                     LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
                 }
+
+            } else {
+                // create new nub usage if there wasnt any yet
+                match = createNubUsage(u, origin, parent);
             }
 
-            if (nub != null) {
+            if (match.isMatch()) {
                 if (u.key != null) {
                     // remember all original source usage key to nub id mappings per dataset
-                    src2NubKey.put(u.key, nub.node.getId());
+                    src2NubKey.put(u.key, match.usage.node.getId());
                 }
                 if (u.originalNameKey != null) {
                     // remember basionym relation.
                     // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
                     // we will process all basionyms at the end of each source dataset
-                    basionymRels.put(nub.node.getId(), u.originalNameKey);
+                    basionymRels.put(match.usage.node.getId(), u.originalNameKey);
                 }
             }
         } else {
-            LOG.debug("Ignore source usage with undesired rank {}: {}", u.rank, u.scientificName);
+            LOG.debug("Ignore {} source usage: {}", u.rank, u.scientificName);
         }
-        return nub;
+        return match.usage;
     }
 
     private void delete(NubUsage nub) {
@@ -682,7 +672,7 @@ public class NubBuilder implements Runnable {
         }
     }
 
-    private NubUsage createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
+    private NubUsageMatch createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
         addParsedNameIfNull(u);
 
         // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
@@ -706,20 +696,28 @@ public class NubBuilder implements Runnable {
                 LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
 
             } catch (Exception e) {
-                LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName);
+                LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName, e);
             }
         }
         // if parent is a synonym use accepted as parent and flag as doubtful
         // http://dev.gbif.org/issues/browse/POR-2780
         if (p.status.isSynonym()) {
-            p = db.getParent(p);
-            if (!u.status.isSynonym()) {
-                u.status = TaxonomicStatus.DOUBTFUL;
-                return db.addUsage(p, u, origin, currSrc.key, NameUsageIssue.NAME_PARENT_MISMATCH);
+            NubUsage acc = db.getParent(p);
+            if (u.status.isAccepted()) {
+                // make usage a synonym in case the parent species is a synonym
+                if (u.rank.isInfraspecific() && p.rank.isSpeciesOrBelow()) {
+                    u.status = TaxonomicStatus.SYNONYM;
+                    return NubUsageMatch.match(db.addUsage(acc, u, origin, currSrc.key, NameUsageIssue.NAME_PARENT_MISMATCH));
+                } else {
+                    u.status = TaxonomicStatus.DOUBTFUL;
+                    return NubUsageMatch.match(db.addUsage(acc, u, origin, currSrc.key, NameUsageIssue.NAME_PARENT_MISMATCH));
+                }
+            } else {
+                p = acc;
             }
         }
         // add to nub db
-        return db.addUsage(p, u, origin, currSrc.key);
+        return NubUsageMatch.match(db.addUsage(p, u, origin, currSrc.key));
     }
 
     private void addParsedNameIfNull(SrcUsage u) throws IgnoreSourceUsageException {
@@ -728,16 +726,29 @@ public class NubBuilder implements Runnable {
                 u.parsedName = parser.parse(u.scientificName, u.rank);
                 // avoid indet names
                 if (ignoredNameTypes.contains(u.parsedName.getType())) {
-                    throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.key, u.scientificName);
+                    throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);
                 }
                 // avoid incomplete names
                 if ((!Strings.isBlank(u.parsedName.getInfraSpecificEpithet()) && Strings.isBlank(u.parsedName.getSpecificEpithet()))
                   || !Strings.isBlank(u.parsedName.getSpecificEpithet()) && Strings.isBlank(u.parsedName.getGenusOrAbove())) {
-                    throw new IgnoreSourceUsageException("Ignore incomplete name", u.key, u.scientificName);
+                    throw new IgnoreSourceUsageException("Ignore incomplete name", u.scientificName);
                 }
                 // avoid taxon concept names
                 if (!Strings.isBlank(u.parsedName.getSensu())) {
-                    throw new IgnoreSourceUsageException("Ignore taxon concept names", u.key, u.scientificName);
+                    throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
+                }
+                // verify rank
+                Rank pRank = u.parsedName.getRank();
+                if (pRank != null && u.rank != pRank) {
+                    if (u.rank.isUncomparable()) {
+                        LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
+                        u.rank = pRank;
+                    } else if (pRank.isUncomparable()) {
+                        LOG.debug("Rank {} does not match parsed fuzzy rank {}. Ignore {}", u.rank, pRank, u.scientificName);
+                    } else {
+                        LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
+                        throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
+                    }
                 }
             } catch (UnparsableException e) {
                 // allow virus names in the nub
@@ -746,7 +757,7 @@ public class NubBuilder implements Runnable {
                     u.parsedName.setScientificName(u.scientificName);
                     u.parsedName.setType(e.type);
                 } else {
-                    throw new IgnoreSourceUsageException("Unparsable " + e.type, u.key, u.scientificName);
+                    throw new IgnoreSourceUsageException("Unparsable " + e.type, u.scientificName);
                 }
             }
         }
@@ -870,6 +881,10 @@ public class NubBuilder implements Runnable {
         for (LongCursor basCursor: basIds) {
             try (Transaction tx = db.beginTx()) {
                 Node bas = db.dao.getNeo().getNodeById(basCursor.value);
+                if (bas == null) {
+                    LOG.info("Basionym {} was removed. Ignore node id {}", basCursor.value);
+                    continue;
+                }
                 counter++;
                 // sort all usage by source dataset priority, placing doubtful names last
                 List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
@@ -890,29 +905,10 @@ public class NubBuilder implements Runnable {
                                                 u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                                 );
                             }
-
                             //TODO: remove this try/catch once we found the error leading to this exception!!!
                             try {
-                                // convert to synonym, removing old parent relation
-                                // See http://dev.gbif.org/issues/browse/POR-398
-                                LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
-                                // remember previous parent
-                                NubUsage parent = db.getParent(u);
-                                // change status
-                                u.status = synStatus;
-                                // add synonymOf relation and delete existing parentOf relations
-                                db.createSynonymRelation(u.node, accepted.node);
-                                // flag issue
-                                u.issues.add(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
-                                // move any accepted children to new accepted parent
-                                db.assignParentToChildren(u.node, accepted);
-                                // move any synonyms to new accepted parent
-                                db.assignAcceptedToSynonyms(u.node, accepted.node);
-                                // remove parent if it has no children or synonyms
-                                removeTaxonIfEmpty(parent);
-                                // persist usage instance changes
-                                db.store(u);
-                            } catch (IllegalStateException e) {
+                                convertToSynonymOf(u, accepted, synStatus);
+                            } catch (Exception e) {
                                 LOG.error("Failed to consolidate {} from basionym group {}", u, primary, e);
                             }
                         }
@@ -922,6 +918,28 @@ public class NubBuilder implements Runnable {
             }
             LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
         }
+    }
+
+    private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus) {
+        // convert to synonym, removing old parent relation
+        // See http://dev.gbif.org/issues/browse/POR-398
+        LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
+        // remember previous parent
+        NubUsage parent = db.getParent(u);
+        // change status
+        u.status = synStatus;
+        // add synonymOf relation and delete existing parentOf or synonymOf relations
+        db.createSynonymRelation(u.node, accepted.node);
+        // flag issue
+        u.issues.add(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+        // move any accepted children to new accepted parent
+        db.assignParentToChildren(u.node, accepted);
+        // move any synonyms to new accepted parent
+        db.assignAcceptedToSynonyms(u.node, accepted.node);
+        // remove parent if it has no children or synonyms
+        removeTaxonIfEmpty(parent);
+        // persist usage instance changes
+        db.store(u);
     }
 
     /**

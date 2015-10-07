@@ -29,9 +29,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -303,6 +300,8 @@ public class NubBuilderIT {
         ClasspathSourceList src = ClasspathSourceList.source(8);
         src.setSourceRank(8, Rank.PHYLUM);
         build(src);
+
+        assertTree("8.txt");
 
         List<NubUsage> pedatums = listCanonical("Adiantum pedatum");
         assertEquals(4, pedatums.size());
@@ -593,6 +592,21 @@ public class NubBuilderIT {
         NubUsage u = assertCanonical("Hyalonema rotundum", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
 
         assertTree("18.txt");
+    }
+
+    /**
+     * - deal with unspecified infraspecific ranks in CoL
+     * - IPNI names only linked to the familiy with no other hierarchy
+     * - redundant IPNI names
+     */
+    @Test
+    public void testColAndIpni() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(32, 33);
+        src.setSourceRank(32, Rank.PHYLUM);
+        src.setNomenclator(33);
+        build(src);
+
+        assertTree("32 33.txt");
     }
 
     @Test
@@ -951,17 +965,10 @@ public class NubBuilderIT {
             assertEquals(expected, name);
 
             // check for synonyms and sort by name
-            for (String syn : Ordering.natural().immutableSortedCopy(Iterables.transform(
-                    IteratorUtil.loop(Traversals.SYNONYMS.traverse(n).nodes().iterator()), new Function<Node, String>() {
-                        @Nullable
-                        @Override
-                        public String apply(@Nullable Node n) {
-                            return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
-                        }
-                    }
-            ))){
+            for (Node s : TreePrinter.SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
                 expected = treeIter.next().name;
-                assertEquals(expected, syn);
+                name = (String) s.getProperty(NodeProperties.SCIENTIFIC_NAME);
+                assertEquals(expected, name);
             }
         }
 

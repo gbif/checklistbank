@@ -31,11 +31,15 @@ public class AuthorComparatorTest {
         assertEquals("a j white", comp.normalize("A-J-White"));
         assertEquals("a j white", comp.normalize("(A.J. White)"));
 
-        assertEquals("a j white herbert p j harvey", comp.normalize("A. J. White, Herbert  &  P. J. Harvey"));
-        assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
-        assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
+        assertEquals("white herbert harvey", comp.normalize("A. J. White, Herbert  &  P. J. Harvey"));
+        assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
+        assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
 
         assertEquals("bertero", comp.normalize("Bertero ex Colla"));
+
+        assertEquals("g kirchn", comp.normalize("G.Kirchn. in Petzold & G.Kirchn."));
+
+        assertEquals("torr gray", comp.normalize("Torr. & A.Gray"));
     }
 
     @Test

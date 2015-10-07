@@ -12,15 +12,21 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.common.parsers.KingdomParser;
+import org.gbif.common.parsers.core.ParseResult;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import com.beust.jcommander.internal.Maps;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -43,6 +49,8 @@ public class NubDb {
     private static final Logger LOG = LoggerFactory.getLogger(NubDb.class);
     private final AuthorComparator authComp = AuthorComparator.createWithAuthormap();
     protected final UsageDao dao;
+    private final KingdomParser kingdomParser = KingdomParser.getInstance();
+    private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
 
     private NubDb(UsageDao dao, boolean initialize) {
         this.dao = dao;
@@ -83,18 +91,25 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public NubUsage getParent(NubUsage child) {
-        return dao.readNub(getParent(child.node));
+        Node p = getParent(child.node);
+        return p == null ? null : dao.readNub(p);
+    }
+
+    public NubUsage getKingdom(Kingdom kingdom) {
+        return kingdoms.get(kingdom);
     }
 
     /**
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public Node getParent(Node child) {
+        Relationship rel;
         if (child.hasLabel(Labels.SYNONYM)) {
-            return child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getOtherNode(child);
+            rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
         } else {
-            return child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(child);
+            rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
         }
+        return rel == null ? null : rel.getOtherNode(child);
     }
 
     /**
@@ -130,7 +145,7 @@ public class NubDb {
      *
      * @return the existing usage or null if it does not exist yet.
      */
-    public NubUsage findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
+    public NubUsageMatch findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
         final String name = dao.canonicalOrScientificName(u.parsedName, false);
@@ -145,38 +160,68 @@ public class NubDb {
         }
 
         if (checked.size() == 0) {
-            return null;
+            // try harder to match to kingdoms by name alone
+            if (u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
+                ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
+                if (kResult.isSuccessful()) {
+                    return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()));
+                }
+            }
+            return NubUsageMatch.empty();
+
         } else if (checked.size() == 1) {
-            return checked.get(0);
+            return NubUsageMatch.match(checked.get(0));
+
         } else if (checked.size() - canonMatches == 1){
             // prefer the single match with authorship!
             for (NubUsage nu : checked) {
                 if (nu.parsedName.hasAuthorship()) {
-                    return nu;
+                    return NubUsageMatch.match(nu);
                 }
             }
+
         } else {
-            if (!u.status.isSynonym()) {
+            if (u.status.isAccepted()) {
+                // avoid the case when an accepted name without author is being matched against synonym names with authors from the same source
                 Set<UUID> sources = new HashSet<UUID>();
                 for (NubUsage nu : checked) {
                     sources.add(nu.datasetKey);
                 }
-                if (sources.contains(currSource) && sources.size()==1) {
+                if (sources.contains(currSource) && sources.size() == 1) {
                     LOG.debug("{} homonyms encountered for {}, but only synonyms from the same source", checked.size(), u.scientificName);
-                    return null;
+                    return NubUsageMatch.empty();
                 }
             }
-            LOG.info("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
+
+            // all synonyms pointing to the same accepted? then it wont matter much
+            Iterator<NubUsage> iter = checked.iterator();
+            Node parent = getParent(iter.next().node);
+            if (parent != null) {
+                while (iter.hasNext()) {
+                    Node p2 = getParent(iter.next().node);
+                    if (!parent.equals(p2)) {
+                        parent = null;
+                        break;
+                    }
+                }
+                if (parent != null) {
+                    return NubUsageMatch.snap(checked.get(0));
+                }
+            }
+
+            // finally pick the first accepted randomly
+            // TODO: is this is a good idea???
             for (NubUsage nu : checked) {
-                if (!nu.status.isSynonym()) {
+                if (nu.status.isAccepted()) {
                     nu.issues.add(NameUsageIssue.HOMONYM);
                     nu.addRemark("Homonym known in other sources: " + u.scientificName);
-                    return nu;
+                    LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
+                    return NubUsageMatch.snap(nu);
                 }
             }
-            throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.key, u.scientificName);
+            throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);
         }
-        return null;
+        return NubUsageMatch.empty();
     }
 
     private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match, NubUsage currNubParent) {
@@ -328,6 +373,7 @@ public class NubDb {
 
     public void createSynonymRelation(Node synonym, Node accepted) {
         deleteRelations(synonym, RelType.PARENT_OF, Direction.INCOMING);
+        deleteRelations(synonym, RelType.SYNONYM_OF, Direction.OUTGOING);
         synonym.addLabel(Labels.SYNONYM);
         synonym.removeLabel(Labels.ROOT);
         synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
@@ -381,6 +427,9 @@ public class NubDb {
 
     public NubUsage store(NubUsage nub) {
         dao.store(nub);
+        if (nub.rank == Rank.KINGDOM) {
+            kingdoms.put(nub.kingdom, nub);
+        }
         return nub;
     }
 

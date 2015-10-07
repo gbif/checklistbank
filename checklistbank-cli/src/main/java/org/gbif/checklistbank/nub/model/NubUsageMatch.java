@@ -1,22 +1,27 @@
 package org.gbif.checklistbank.nub.model;
 
-import org.gbif.checklistbank.nub.model.NubUsage;
-
-/**
- * Created by markus on 06/10/15.
- */
-class NubUsageMatch {
+public class NubUsageMatch {
     public final NubUsage usage;
-    public final boolean avoidUpdate;
+    public final boolean ignore;
 
-    public NubUsageMatch(NubUsage usage) {
+    private NubUsageMatch(NubUsage usage, boolean ignore) {
         this.usage = usage;
-        this.avoidUpdate = false;
+        this.ignore = ignore;
     }
 
-    public NubUsageMatch(NubUsage usage, boolean avoidUpdate) {
-        this.usage = usage;
-        this.avoidUpdate = avoidUpdate;
+    public static NubUsageMatch match(NubUsage usage) {
+        return new NubUsageMatch(usage, false);
+    }
+
+    /**
+     * Snaps to a usage but flag it to be ignored in immediate processing.
+     */
+    public static NubUsageMatch snap(NubUsage usage) {
+        return new NubUsageMatch(usage, true);
+    }
+
+    public static NubUsageMatch empty() {
+        return new NubUsageMatch(null, false);
     }
 
     public boolean isMatch() {

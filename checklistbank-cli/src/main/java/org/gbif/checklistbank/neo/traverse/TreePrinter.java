@@ -5,7 +5,10 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NodeProperties;
 
 import java.io.PrintStream;
+import javax.annotation.Nullable;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Ordering;
 import org.neo4j.graphdb.Node;
 import org.parboiled.common.StringUtils;
 
@@ -16,6 +19,14 @@ public class TreePrinter implements StartEndHandler {
     final int indentation;
     final private PrintStream out;
     int level = 0;
+
+    public static final Ordering<Node> SYNONYM_ORDER = Ordering.natural().onResultOf(new Function<Node, String>() {
+        @Nullable
+        @Override
+        public String apply(@Nullable Node n) {
+            return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+        }
+    });
 
     public TreePrinter(int indentation, PrintStream out) {
         this.indentation = indentation;
@@ -38,7 +49,8 @@ public class TreePrinter implements StartEndHandler {
     public void start(Node n) {
         print(n);
         level++;
-        for (Node s : Traversals.SYNONYMS.traverse(n).nodes()) {
+        // check for synonyms and sort by name
+        for (Node s : SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
             print(s);
         }
     }

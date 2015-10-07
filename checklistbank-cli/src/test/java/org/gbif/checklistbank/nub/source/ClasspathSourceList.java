@@ -67,4 +67,10 @@ public class ClasspathSourceList extends NubSourceList {
             sourceById.get(sourceId).ignoreRanksAbove = rank;
         }
     }
+
+    public void setNomenclator(int sourceId) {
+        if (sourceById.containsKey(sourceId)) {
+            sourceById.get(sourceId).nomenclator = true;
+        }
+    }
 }

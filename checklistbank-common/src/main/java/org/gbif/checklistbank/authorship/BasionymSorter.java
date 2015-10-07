@@ -73,9 +73,8 @@ public class BasionymSorter {
             if (group == null) {
                 ParsedName pn = func.apply(recomb);
                 group = new BasionymGroup<T>();
-                group.setName(pn.getSpecificEpithet(), pn.getBracketAuthorship(), pn.getBracketYear());
+                group.setName(pn.getTerminalEpithet(), pn.getBracketAuthorship(), pn.getBracketYear());
                 groups.add(group);
-
             }
             group.getRecombinations().add(recomb);
         }

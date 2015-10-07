@@ -31,7 +31,8 @@ public class AuthorComparator {
     private static final Logger LOG = LoggerFactory.getLogger(AuthorComparator.class);
 
     private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
-    private static final Pattern EX = Pattern.compile(" ex .+$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern EX_IN = Pattern.compile(" (ex|in) .+$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INITIALS = Pattern.compile("\\s[a-z]{1,2}\\s", Pattern.CASE_INSENSITIVE);
     private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
     private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
     private final Map<String, String> authorMap = Maps.newHashMap();
@@ -78,8 +79,8 @@ public class AuthorComparator {
         // manually normalize characters not dealt with by the java Normalizer
         x = StringUtils.replaceChars(x, "ø", "o");
 
-        // remove ex authors
-        x = EX.matcher(x).replaceAll("");
+        // remove ex authors or in publications
+        x = EX_IN.matcher(x).replaceAll("");
 
         // use java unicode normalizer to remove accents and punctuation
         x = Normalizer.normalize(x, Normalizer.Form.NFD);
@@ -87,6 +88,13 @@ public class AuthorComparator {
         x = x.replaceAll("\\p{M}", "");
         x = x.replaceAll("\\p{Punct}+", " ");
 
+        // try to remove initials if the remaining string is still large
+        if (x.length() > 10) {
+            String withoutInitials = INITIALS.matcher(x).replaceAll(" ");
+            if (withoutInitials.length() > 10 && withoutInitials.contains(" ")) {
+                x = withoutInitials;
+            }
+        }
         x = StringUtils.normalizeSpace(x);
         if (StringUtils.isBlank(x)) {
             return null;
@@ -100,7 +108,7 @@ public class AuthorComparator {
 
     public Equality compare(String author1, String year1, String author2, String year2) {
         // compare recombination authors first
-        Equality result = compareAuthor(author1, author2);
+        Equality result = compareAuthor(author1, author2, 3);
         if (result != Equality.EQUAL) {
             // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
             Equality yresult = compareYear(year1, year2);
@@ -145,6 +153,19 @@ public class AuthorComparator {
         return Equality.EQUAL == compareYear(year1, year2);
     }
 
+    public boolean equals(String author1, @Nullable String year1, String author2, @Nullable String year2, int minCommonSubstring) {
+        // strictly compare authors first
+        Equality authorEq = compareAuthor(author1, author2, minCommonSubstring);
+        if (authorEq != Equality.EQUAL) {
+            return false;
+        }
+        // now also compare the year
+        if (year1 == null && year2 == null) {
+            return true;
+        }
+        return Equality.EQUAL == compareYear(year1, year2);
+    }
+
     /**
      * Extract authorship from the name itself as best as we can to at least do some common string comparison
      */
@@ -178,7 +199,28 @@ public class AuthorComparator {
         return normalize(y);
     }
 
-    private Equality compareAuthor(String a1, String a2) {
+    private Equality compareAuthor(String a1, String a2, int minCommonSubstring) {
+        a1 = normalize(a1);
+        a2 = normalize(a2);
+        if (a1 != null && a2 != null) {
+            if (a1.equalsIgnoreCase(a2)) {
+                // we can stop here, authors are equal, thats enough
+                return Equality.EQUAL;
+            } else {
+                String lcs = LongestCommonSubstring.lcs(a1, a2);
+                if (lcs.length() > minCommonSubstring) {
+                    return Equality.EQUAL;
+                } else if (a1.equals(lcs) || a2.equals(lcs)) {
+                    // the smallest common substring is the same as one of the inputs. Good enough
+                    return Equality.EQUAL;
+                }
+                return Equality.DIFFERENT;
+            }
+        }
+        return Equality.UNKNOWN;
+    }
+
+    private Equality compareAuthor2(String a1, String a2) {
         a1 = normalize(a1);
         a2 = normalize(a2);
         if (a1 != null && a2 != null) {

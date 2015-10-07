@@ -140,6 +140,80 @@ public class BasionymSorterTest {
     }
 
     @Test
+    public void testGroupPlantBasionyms3() throws Exception {
+        List<ParsedName> names = Lists.newArrayList();
+
+        //names.add( parser.parse("Negundo aceroides subsp. violaceus (G.Kirchn.) W.A.Weber", null) );
+        //names.add( parser.parse("Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber", null) );
+
+        names.add( parser.parse("Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub", null) );
+        names.add( parser.parse("Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub", null) );
+
+        names.add( parser.parse("Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.", null) );
+        names.add( parser.parse("Acer violaceum (Kirchn.) Simonkai", null) );
+        names.add( parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null) );
+
+        Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
+        assertEquals(3, groups.size());
+        for (BasionymGroup<ParsedName> g : groups) {
+            assertFalse(g.getRecombinations().isEmpty());
+            switch (g.getRecombinations().get(0).getBracketAuthorship()) {
+                case "Booth ex G.Kirchn.":
+                    assertEquals(2, g.getRecombinations().size());
+                    assertNull(g.getBasionym());
+                    break;
+                case "G. Kirchn.":
+                    assertEquals(1, g.getRecombinations().size());
+                    assertNotNull(g.getBasionym());
+                    break;
+                case "Kirchn.":
+                    // unfortunately author comparison has to be very strict so we detect this as a separate group
+                    assertEquals(1, g.getRecombinations().size());
+                    assertNull(g.getBasionym());
+                    break;
+                default:
+                    fail("Unknown basionym group " + g.getRecombinations().get(0));
+            }
+        }
+    }
+
+    @Test
+    public void testGroupAuthorTeams() throws Exception {
+        List<ParsedName> names = Lists.newArrayList();
+
+        names.add( parser.parse("Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.", null) );
+        names.add( parser.parse("Acer negundo var. californicum (Torr. & Gray) Sarg.", null) );
+        names.add(parser.parse("Acer californicum Torr et Gray", null));
+
+        Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
+        assertEquals(1, groups.size());
+        BasionymGroup<ParsedName> g = groups.iterator().next();
+        assertEquals(2, g.getRecombinations().size());
+        assertEquals("Acer californicum Torr et Gray", g.getBasionym().getScientificName());
+    }
+
+    /**
+     * Test what happens if a group contains 2 or more basionyms.
+     * TODO: Expect an exception to be thrown???
+     */
+    @Test
+    public void testMultipleBasionyms() throws Exception {
+        List<ParsedName> names = Lists.newArrayList();
+
+        names.add( parser.parse("Negundo violaceum G.Kirchn.", null) );
+        names.add(parser.parse("Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.", null));
+        names.add(parser.parse("Acer violaceum (G Kirchn.) Simonkai", null));
+        names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
+
+        Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
+        assertEquals(1, groups.size());
+        BasionymGroup<ParsedName> g = groups.iterator().next();
+        assertEquals(2, g.getRecombinations().size());
+        assertNotNull(g.getBasionym());
+        assertEquals("Negundo violaceum G.Kirchn.", g.getBasionym().getScientificName());
+    }
+
+    @Test
     public void testGroupAnimalBasionyms() throws Exception {
         List<ParsedName> names = Lists.newArrayList();
 

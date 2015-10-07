@@ -21,7 +21,7 @@
 202	106		SPECIES	SYNONYM		Adiantum pedatum Raddi
 203	107		SPECIES	SYNONYM		Adiantum pedatum subsp. calderi Cody
 204	101		SPECIES	SYNONYM		Adiantum pedatum var. kamtschaticum Rupr.
-205	107		SPECIES	SYNONYM		Adiantum pedatum var. aleuticum Rupr.0
+205	107		SPECIES	SYNONYM		Adiantum pedatum var. aleuticum Rupr.
 206	108		SPECIES	SYNONYM		Adiantum pedatum var. glaucinum H. Christ
 207	101		SPECIES	SYNONYM		Adiantum pedatum var. glaucinum C. Chr.
 208	108		SPECIES	SYNONYM		Adiantum pedatum var. protrusum H. Christ
