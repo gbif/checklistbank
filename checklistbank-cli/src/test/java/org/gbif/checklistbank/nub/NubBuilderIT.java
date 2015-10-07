@@ -116,6 +116,8 @@ public class NubBuilderIT {
         assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
         assertCanonical("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
         assertCanonical("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+
+        assertTree("1 5 6.txt");
     }
 
     /**
@@ -293,6 +295,17 @@ public class NubBuilderIT {
         assertNotNull(getCanonical("Animalia", Rank.KINGDOM));
         assertNotNull(getCanonical("Coleoptera", Rank.ORDER));
         assertNotNull(getCanonical("Poaceae", Rank.FAMILY));
+    }
+
+    /**
+     * Make sure that species not snapping to any existing higher taxon get created under the incertae sedis kingdom
+     */
+    @Test
+    public void testIncertaeSedis() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(34);
+        build(src);
+
+        assertTree("34.txt");
     }
 
     @Test
@@ -646,6 +659,8 @@ public class NubBuilderIT {
         Relationship acc = IteratorUtil.single(u.node.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING));
         assertEquals(1, rels.size());
         assertNotEquals(rels.get(0).getEndNode(), acc.getEndNode());
+
+        assertTree("15 16.txt");
     }
 
     /**
@@ -713,13 +728,13 @@ public class NubBuilderIT {
      * builds a new nub and keeps dao open for further test queries.
      */
     private void build(NubSourceList src) {
-        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
+        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, true);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        printTree();
+        dao.printTree(System.out);
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
@@ -747,14 +762,14 @@ public class NubBuilderIT {
         dao.close();
         // new, empty DAO
         dao = UsageDao.temporaryDao(100);
-        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1);
+        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1, false);
         nb.run();
 
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        printTree();
+        dao.printTree(System.out);
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
@@ -975,15 +990,17 @@ public class NubBuilderIT {
         @Override
         public void end(Node n) {
         }
+
+        public boolean completed() {
+            return !treeIter.hasNext();
+        }
     }
 
     private void assertTree(String filename) throws IOException {
         NubTree expected = NubTree.read("trees/" + filename);
         assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
-        TaxonWalker.walkAccepted(dao.getNeo(), null, new TreeAsserter(expected));
-    }
-
-    private void printTree() {
-        TaxonWalker.walkAccepted(dao.getNeo(), null, new TreePrinter());
+        TreeAsserter treeAssert = new TreeAsserter(expected);
+        TaxonWalker.walkAccepted(dao.getNeo(), null, treeAssert);
+        assertTrue("There should be more taxa", treeAssert.completed());
     }
 }

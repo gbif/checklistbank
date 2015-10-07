@@ -11,26 +11,27 @@ Plantae
         Polipodiaceae
         Pteridaceae
           Adiantum
-            Adiantum pedatum
-              Adiantum pedatum subsp. pedatum L.
-                *Adiantum pedatum var. kamtschaticum Rupr.
-                *Adiantum pedatum var. glaucinum C. Chr.
-              Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
-                *Adiantum pedatum var. subpumilum W. H. Wagner
-            Adiantum hispidulum Sw.
-              *Adiantum pedatum Forst.
-            Adiantum patens
-              Adiantum patens subsp. oatesii (Bak.) Schelpe
-              *Adiantum pedatum A. Peter
+            Adiantum aleuticum (Rupr.) C.A.Paris
+              *Adiantum pedatum var. aleuticum Rupr.
             Adiantum brasiliense Raddi
               *Adiantum pedatum Raddi
-            Adiantum aleuticum (Rupr.) C.A.Paris
-              *Adiantum pedatum subsp. calderi Cody
-              *Adiantum pedatum var. aleuticum Rupr.
+            Adiantum hispidulum Sw.
+              *Adiantum pedatum Forst.
             Adiantum myriosorum Bak.
               *Adiantum pedatum var. glaucinum H. Christ
               *Adiantum pedatum var. myriosorum (Bak.) H. Christ
               *Adiantum pedatum var. protrusum H. Christ
+            Adiantum patens
+              Adiantum patens subsp. oatesii (Bak.) Schelpe
+                *Adiantum pedatum A. Peter
+              Adiantum patens subsp. patens
+            Adiantum pedatum
+              Adiantum pedatum subsp. calderi Cody
+              Adiantum pedatum subsp. pedatum
+                *Adiantum pedatum var. glaucinum C. Chr.
+                *Adiantum pedatum var. kamtschaticum Rupr.
+              Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
+                *Adiantum pedatum var. subpumilum W. H. Wagner
 Protozoa
 Viruses
 incertae sedis

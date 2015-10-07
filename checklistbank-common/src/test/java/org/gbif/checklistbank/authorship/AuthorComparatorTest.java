@@ -40,6 +40,8 @@ public class AuthorComparatorTest {
         assertEquals("g kirchn", comp.normalize("G.Kirchn. in Petzold & G.Kirchn."));
 
         assertEquals("torr gray", comp.normalize("Torr. & A.Gray"));
+        assertEquals("c chr", comp.normalize("C. Chr."));
+        assertEquals("h christ", comp.normalize("H. Christ"));
     }
 
     @Test
@@ -80,6 +82,8 @@ public class AuthorComparatorTest {
 
         assertAuth(null, "1978", Equality.DIFFERENT, null, "1934");
         assertAuth(null, "1978", Equality.EQUAL, null, "1978");
+
+        assertAuth("H. Christ", null, Equality.DIFFERENT, "C. Chr.", null);
     }
 
     @Test
@@ -100,6 +104,7 @@ public class AuthorComparatorTest {
 
     @Test
     public void testEqualsWithBasionym() throws Exception {
+        assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A.Murray bis.", null, null, null);
         assertAuth("Maxim.", null, Equality.EQUAL, "Max.", null);
         assertAuth("Maxim.", null, "Trautv. ex Maxim.", null, Equality.EQUAL, "Maxim.", null, null, null);
         assertAuth("Maxim.", null, "Trautv. ex Karl Johann Maximowicz", null, Equality.EQUAL, "Max.", null, null, null);
@@ -110,6 +115,7 @@ public class AuthorComparatorTest {
         assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A. Murray", null, null, null);
         assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A.Murray bis.", null, null, null);
         assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A. Murr.", null, null, null);
+        assertAuth("A.Murr", "1863", null, null, Equality.DIFFERENT, "B. Murr.", null, null, null);
 
         assertAuth("Debreczy & I. Rácz", null, null, null, Equality.EQUAL, "Debreczy & Rácz", null, null, null);
         assertAuth("Debreczy & I.Rácz", null, null, null, Equality.DIFFERENT, "Silba", "Debreczy & I.Rácz", null, null);

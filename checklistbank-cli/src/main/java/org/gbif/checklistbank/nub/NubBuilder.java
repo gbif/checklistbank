@@ -149,8 +149,8 @@ public class NubBuilder implements Runnable {
     /**
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
-    public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000, false);
+    public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, boolean debug) {
+        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000, debug);
     }
 
     /**
@@ -499,6 +499,7 @@ public class NubBuilder implements Runnable {
                 addDataset(src);
                 if (debug) {
                     monitor.run();
+                    db.dao.printTree(System.out);
                 }
             } catch (Exception e) {
                 LOG.error("Error processing source {}", src.name, e);
@@ -676,7 +677,7 @@ public class NubBuilder implements Runnable {
         addParsedNameIfNull(u);
 
         // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
-        if (p.kingdom != Kingdom.VIRUSES && u.parsedName.getGenusOrAbove() != null && !u.status.isSynonym() && !p.status.isSynonym()) {
+        if (p.kingdom != Kingdom.VIRUSES && u.parsedName.getGenusOrAbove() != null && u.status.isAccepted() && p.status.isAccepted()) {
             // check if implicit species or genus parents are needed
             SrcUsage implicit = new SrcUsage();
             try {
@@ -858,6 +859,9 @@ public class NubBuilder implements Runnable {
         LOG.info("Start basionym consolidation");
         detectBasionyms();
         consolidateBasionymGroups();
+        if (debug) {
+            db.dao.printTree(System.out);
+        }
     }
 
     /**

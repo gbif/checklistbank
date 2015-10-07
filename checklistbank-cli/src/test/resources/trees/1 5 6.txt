@@ -1,0 +1,21 @@
+Animalia
+  Porcellionidae
+    Lepiota
+      Lepiota carlanova MD
+Archaea
+Bacteria
+Chromista
+Fungi
+  Agaricaceae Yoda
+    Lepiota
+      Lepiota nuda
+        Lepiota nuda subsp. elegans DC.
+        Lepiota nuda subsp. nuda
+        Lepiota nuda var. europaea Döring
+        Lepiota nuda var. nuda
+      Lepiota seminuda Miller
+  Berto Miller
+Plantae
+Protozoa
+Viruses
+incertae sedis

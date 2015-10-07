@@ -1,0 +1,16 @@
+0			KINGDOM	ACCEPTED		Plantae
+1	0		FAMILY	ACCEPTED		Plantaginaceae
+2	1		GENUS	ACCEPTED		Plantago
+3	2		SPECIES	ACCEPTED		Plantago major
+
+10			FAMILY	ACCEPTED		Sapindaceae
+12	10		GENUS	ACCEPTED		Negundo Moench
+110	12		SPECIES	ACCEPTED		Negundo aceroides Moench
+111	110		VARIETY	ACCEPTED		Negundo aceroides var. violaceum G.Kirchn.
+112	110		VARIETY	ACCEPTED		Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.
+
+20			FAMILY	ACCEPTED		Klingonaceae
+22	20		GENUS	ACCEPTED		Klingon Moench
+210	22		SPECIES	ACCEPTED		Klingon aceroides Moench
+211	210		VARIETY	ACCEPTED		Klingon aceroides var. violaceum G.Kirchn.
+212	210		VARIETY	ACCEPTED		Klingon aceroides var. californicum (Torr. & A.Gray) Sarg.

@@ -1,0 +1,24 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+  Plantaginaceae
+    Plantago
+      Plantago major
+Protozoa
+Viruses
+incertae sedis
+  Klingonaceae
+    Klingon Moench
+      Klingon aceroides Moench
+        Klingon aceroides var. aceroides
+        Klingon aceroides var. californicum (Torr. & A.Gray) Sarg.
+        Klingon aceroides var. violaceum G.Kirchn.
+  Sapindaceae
+    Negundo Moench
+      Negundo aceroides Moench
+        Negundo aceroides var. aceroides
+        Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.
+        Negundo aceroides var. violaceum G.Kirchn.

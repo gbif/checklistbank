@@ -44,7 +44,7 @@ public class ManualNubBuild {
     private static void build(NubConfiguration cfg) {
         LOG.info("Build new nub");
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
-        NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000);
+        NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000, false);
         builder.run();
         dao.close();
         LOG.info("New backbone ready");

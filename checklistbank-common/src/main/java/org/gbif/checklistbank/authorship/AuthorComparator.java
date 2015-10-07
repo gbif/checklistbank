@@ -32,12 +32,16 @@ public class AuthorComparator {
 
     private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
     private static final Pattern EX_IN = Pattern.compile(" (ex|in) .+$", Pattern.CASE_INSENSITIVE);
-    private static final Pattern INITIALS = Pattern.compile("\\s[a-z]{1,2}\\s", Pattern.CASE_INSENSITIVE);
+    private static final Pattern INITIALS = Pattern.compile("\\b[A-Z]\\b");
+    private static final Pattern INITIAL_NAME = Pattern.compile("^([a-z])\\s+[a-z]{3,}$");
     private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
     private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
     private final Map<String, String> authorMap = Maps.newHashMap();
 
+    private final int minCommonSubstring;
+
     private AuthorComparator(Map<String, String> authors) {
+        this.minCommonSubstring = 3;
         for (Map.Entry<String, String> entry : authors.entrySet()) {
             String key = normalize(entry.getKey());
             String val = normalize(entry.getValue());
@@ -91,7 +95,7 @@ public class AuthorComparator {
         // try to remove initials if the remaining string is still large
         if (x.length() > 10) {
             String withoutInitials = INITIALS.matcher(x).replaceAll(" ");
-            if (withoutInitials.length() > 10 && withoutInitials.contains(" ")) {
+            if (withoutInitials.length() > 10 && withoutInitials.trim().contains(" ")) {
                 x = withoutInitials;
             }
         }
@@ -108,7 +112,7 @@ public class AuthorComparator {
 
     public Equality compare(String author1, String year1, String author2, String year2) {
         // compare recombination authors first
-        Equality result = compareAuthor(author1, author2, 3);
+        Equality result = compareAuthor(author1, author2, minCommonSubstring);
         if (result != Equality.EQUAL) {
             // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
             Equality yresult = compareYear(year1, year2);
@@ -209,7 +213,13 @@ public class AuthorComparator {
             } else {
                 String lcs = LongestCommonSubstring.lcs(a1, a2);
                 if (lcs.length() > minCommonSubstring) {
-                    return Equality.EQUAL;
+                    // do both names have a single initial which is different?
+                    // this is often the case when authors are relatives like brothers or son & father
+                    if (singleInitialsDiffer(a1, a2)) {
+                        return Equality.DIFFERENT;
+                    } else {
+                        return Equality.EQUAL;
+                    }
                 } else if (a1.equals(lcs) || a2.equals(lcs)) {
                     // the smallest common substring is the same as one of the inputs. Good enough
                     return Equality.EQUAL;
@@ -218,6 +228,17 @@ public class AuthorComparator {
             }
         }
         return Equality.UNKNOWN;
+    }
+
+    private boolean singleInitialsDiffer(String a1, String a2) {
+        Matcher m1 = INITIAL_NAME.matcher(a1);
+        Matcher m2 = INITIAL_NAME.matcher(a2);
+        if (m1.find() && m2.find()) {
+            if (!m1.group(1).equals(m2.group(1))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Equality compareAuthor2(String a1, String a2) {

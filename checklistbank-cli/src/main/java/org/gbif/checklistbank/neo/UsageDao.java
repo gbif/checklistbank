@@ -12,11 +12,14 @@ import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.TreePrinter;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -181,6 +184,14 @@ public class UsageDao {
 
     public GraphDatabaseService getNeo() {
         return neo;
+    }
+
+    /**
+     * Prints the entire neo4j tree out to a print stream, mainly for debugging.
+     * Synonyms are marked with a prepended asterisk.
+     */
+    public void printTree(PrintStream out) {
+        TaxonWalker.walkAccepted(getNeo(), null, new TreePrinter(out));
     }
 
     /**

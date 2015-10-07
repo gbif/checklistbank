@@ -58,7 +58,7 @@ Plantae
     Pteridaceae
       Adiantum
         Adiantum aleuticum (Rupr.) C.A.Paris
-          *Adiantum pedatum var. aleuticum
+          *Adiantum pedatum var. aleuticum Rupr.
         Adiantum brasiliense Raddi
           *Adiantum pedatum Raddi
         Adiantum hispidulum Sw.
@@ -67,8 +67,9 @@ Plantae
           *Adiantum pedatum var. glaucinum H. Christ
           *Adiantum pedatum var. myriosorum (Bak.) H. Christ
           *Adiantum pedatum var. protrusum H. Christ
-        Adiantum patens subsp. oatesii (Bak.) Schelpe
-          *Adiantum pedatum A. Peter
+        Adiantum patens
+          Adiantum patens subsp. oatesii (Bak.) Schelpe
+            *Adiantum pedatum A. Peter
         Adiantum pedatum
           Adiantum
             Adiantum pedatum subsp. calderi Cody
