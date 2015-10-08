@@ -741,11 +741,11 @@ public class NubBuilder implements Runnable {
                 // verify rank
                 Rank pRank = u.parsedName.getRank();
                 if (pRank != null && u.rank != pRank) {
-                    if (u.rank.isUncomparable()) {
+                    if (u.rank == null || u.rank.isUncomparable()) {
                         LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
                         u.rank = pRank;
                     } else if (pRank.isUncomparable()) {
-                        LOG.debug("Rank {} does not match parsed fuzzy rank {}. Ignore {}", u.rank, pRank, u.scientificName);
+                        LOG.debug("Rank {} does not match parsed fuzzy rank {} for {}", u.rank, pRank, u.scientificName);
                     } else {
                         LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
                         throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
