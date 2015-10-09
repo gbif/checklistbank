@@ -240,6 +240,11 @@
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro-tools</artifactId>
+      <version>1.7.7</version>
+    </dependency>
 
     <!-- TEST SCOPE -->
     <dependency>

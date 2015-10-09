@@ -4,14 +4,12 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
-import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.index.guice.IndexingModule;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
-import org.gbif.utils.file.ResourcesUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,17 +29,6 @@ import com.google.inject.Injector;
 import com.google.inject.name.Named;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.core.CoreContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,14 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
 
-  private static final Version VERSION = Version.LUCENE_4_10_3;
-
   protected static AtomicLong counter = new AtomicLong(0L);
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexer.class);
-
-  @Inject(optional = true)
-  @Named("writers")
-  private int numWriters = 1;
 
   @Inject(optional = true)
   @Named("batchSize")
@@ -84,15 +65,9 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
   private final SpeciesProfileServiceMyBatis speciesProfileService;
 
 
-  // other injected instances
-  private NameUsageDocConverter solrDocumentConverter;
-  private EmbeddedSolrReference solrRef;
-  private final File indexDir;
-
   //
   private List<Integer> allIds;
   private int jobCounter = 0;
-  private EmbeddedSolrServer[] writers;
 
 
   private class CountReporter extends Thread {
@@ -149,7 +124,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
   }
 
   @Inject
-  public NameUsageIndexer(EmbeddedSolrReference solr, @Named("threads") Integer threads,
+  public NameUsageIndexer(@Named("threads") Integer threads,
     UsageService nameUsageService, NameUsageDocConverter solrDocumentConverter,
     VernacularNameService vernacularNameService, DescriptionService descriptionService,
     DistributionService distributionService, SpeciesProfileService speciesProfileService) {
@@ -161,11 +136,6 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     this.speciesProfileService = (SpeciesProfileServiceMyBatis) speciesProfileService;
     // services
     this.nameUsageService = nameUsageService;
-    this.solrDocumentConverter = solrDocumentConverter;
-    // final solr
-    this.solrRef = solr;
-    this.indexDir = new File(getSolrHome(), "parts");
-    LOG.info("Creating solr indices in folder {}", indexDir.getAbsolutePath());
   }
 
   /**
@@ -201,99 +171,6 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     return tempProperties;
   }
 
-  private void setupServers() {
-    writers = new EmbeddedSolrServer[numWriters];
-    if (numWriters == 1) {
-      // use main server
-      writers[0] = solrRef.getSolr();
-    } else {
-      // insert others
-      LOG.debug("Setting up {} embedded solr servers ...", numWriters);
-      for (int idx = 0; idx < numWriters; idx++) {
-        writers[idx] = setupSolr(getWriterHome(idx));
-      }
-    }
-  }
-
-  private File getSolrHome() {
-    return new File(solrRef.getSolr().getCoreContainer().getSolrHome());
-  }
-
-  private void mergeIndices() throws IOException, SolrServerException {
-    if (numWriters == 1) {
-      LOG.info("Optimizing single solr index ...");
-      solrRef.getSolr().optimize();
-
-    } else {
-      File solrHome = getSolrHome();
-      // shutdown solr before we can merge into its index
-      solrRef.getSolr().getCoreContainer().shutdown();
-      File luceneDir = getLuceneDir(solrHome);
-      LOG.debug("Opening main lucene index at {}", luceneDir);
-      FSDirectory mainDir = FSDirectory.open(luceneDir);
-      IndexWriterConfig cfg = new IndexWriterConfig(VERSION, new StandardAnalyzer(VERSION));
-      IndexWriter fsWriter = new IndexWriter(mainDir, cfg);
-
-      LOG.info("Start merging of {} solr indices", jobCounter);
-      Directory[] parts = new Directory[jobCounter];
-      for (int idx = 0; idx < jobCounter; idx++) {
-        File threadDir = getLuceneDir(getWriterHome(idx));
-        LOG.info("Add lucene dir {} for merging", threadDir);
-        parts[idx] = FSDirectory.open(threadDir);
-      }
-      fsWriter.addIndexes(parts);
-      fsWriter.close();
-      mainDir.close();
-      LOG.info("Lucene dirs merged! Startup main solr again");
-
-      //startup solr again, keeping it in the same singleton wrapper that is accessible to the other tests
-      solrRef.setSolr(setupSolr(solrHome));
-    }
-  }
-
-  private File getWriterHome(int thread) {
-    return new File(indexDir, "slice" + thread);
-  }
-
-  private File getLuceneDir(File solrHome) {
-    return new File(solrHome, "data/index");
-  }
-
-  /**
-   * Setup an embedded solr only for with a given solr home.
-   * Creates a checklistbank solr index schema, solr.xml and all other config files needed.
-   *
-   * @return the created server
-   */
-  private EmbeddedSolrServer setupSolr(File solrHome) {
-
-    try {
-      // copy solr resource files
-      ResourcesUtil.copy(solrHome, "solr/", false, "solr.xml");
-      // copy default configurations
-      File conf = new File(solrHome, "conf");
-      ResourcesUtil.copy(conf, "solr/default/", false, "synonyms.txt", "protwords.txt", "stopwords.txt");
-      // copy specific configurations, overwriting above defaults
-      ResourcesUtil.copy(conf, "solr/conf/", false, "schema.xml", "solrconfig.xml");
-
-      // insert container
-      CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome.getAbsolutePath(), new File(solrHome, "solr.xml"));
-      EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "");
-
-      LOG.info("Created embedded solr server with solr dir {}", solrHome.getAbsolutePath());
-
-      // test solr
-      SolrPingResponse solrPingResponse = solrServer.ping();
-      LOG.info("Solr server configured at {}, ping response in {}", solrHome.getAbsolutePath(),
-        solrPingResponse.getQTime());
-
-      return solrServer;
-
-    } catch (Exception e) {
-      throw new IllegalStateException("Solr unavailable", e);
-    }
-  }
-
   @Override
   public int run() {
     int x = super.run();
@@ -327,10 +204,8 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     final int endKey = endIdx > allIds.size() ? allIds.get(allIds.size() - 1) : allIds.get(endIdx);
     jobCounter++;
 
-    // round robin on configured solr servers?
-    SolrServer solr = writers[jobCounter % numWriters];
 
-    return new NameUsageIndexingJob(solr, nameUsageService, startKey, endKey, solrDocumentConverter,
+    return new NameUsageIndexingJob(nameUsageService, startKey, endKey,
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
   }
 
@@ -347,10 +222,6 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     LOG.info("Sorted all {} usage ids in {}", allIds.size(), stopWatch.toString());
     LOG.info("{} full jobs each processing {} records to be created.", allIds.size() / batchSize, batchSize);
 
-    // insert solr servers if multiple writers are configured
-    setupServers();
-
-
     // start global reporter
     reporterThread = new CountReporter(allIds.size());
     reporterThread.start();
@@ -361,8 +232,6 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     try {
       super.shutdownService(tasksCount);
       LOG.info("All jobs completed.");
-      mergeIndices();
-      LOG.info("Species Index rebuild completed!");
     } catch (Exception e) {
       LOG.error("Error shutingdown the index", e);
     }

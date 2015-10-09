@@ -13,7 +13,6 @@ import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.common.search.solr.builders.EmbeddedServerBuilder;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -23,7 +22,6 @@ import java.util.Properties;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.solr.client.solrj.SolrServer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,7 +38,6 @@ public class NameUsageIndexingJobIT {
   private DescriptionServiceMyBatis descriptionService;
   private DistributionServiceMyBatis distributionService;
   private SpeciesProfileServiceMyBatis speciesProfileService;
-  private SolrServer solr;
 
   @Before
   public void init() throws IOException {
@@ -52,7 +49,6 @@ public class NameUsageIndexingJobIT {
     descriptionService = (DescriptionServiceMyBatis) inj.getInstance(DescriptionService.class);
     distributionService = (DistributionServiceMyBatis) inj.getInstance(DistributionService.class);
     speciesProfileService = (SpeciesProfileServiceMyBatis) inj.getInstance(SpeciesProfileService.class);
-    solr = new EmbeddedServerBuilder().build();
   }
 
   @Test
@@ -85,7 +81,7 @@ public class NameUsageIndexingJobIT {
     int end   = 114989970;
     start = 110448010;
     end   = 110448020;
-    NameUsageIndexingJob job = new NameUsageIndexingJob(solr, nameUsageService, start, end, new NameUsageDocConverter(),
+    NameUsageIndexingJob job = new NameUsageIndexingJob(nameUsageService, start, end,
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
     job.call();
   }
