@@ -43,6 +43,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Strings;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -606,4 +607,25 @@ public class UsageDao {
         return u;
     }
 
+    /**
+     * Logs stats about the daos neo and kvp store.
+     */
+    public void logStats() {
+        LOG.info("KVP store: " + kvpStore.getAbsolutePath());
+        kvp.checkNotClosed();
+        LOG.info("KVP facts: " + facts.size());
+        LOG.info("KVP verbatim: " + verbatim.size());
+        LOG.info("KVP usages: " + usages.size());
+        LOG.info("KVP extensions: " + extensions.size());
+        LOG.info("KVP srcUsages: " + srcUsages.size());
+        LOG.info("KVP nubUsages: " + nubUsages.size());
+
+        LOG.info("neoDir: " + neoDir.getAbsolutePath());
+        LOG.info("roots: " + IteratorUtil.count(allRootTaxa()));
+        LOG.info("families: " + IteratorUtil.count(allFamilies()));
+        LOG.info("genera: " + IteratorUtil.count(allGenera()));
+        LOG.info("basionyms: " + IteratorUtil.count(allBasionyms()));
+        LOG.info("synonyms: " + IteratorUtil.count(allSynonyms()));
+        LOG.info("all: " + IteratorUtil.count(allTaxa()));
+    }
 }

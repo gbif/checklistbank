@@ -1,11 +1,13 @@
 package org.gbif.checklistbank.cli.tree;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 
 import org.kohsuke.MetaInfServices;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
 /**
@@ -28,11 +30,22 @@ public class TreeCommand extends BaseCommand {
     @Override
     protected void doRun() {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, cfg.datasetKey, true, null, false);
+
         if (cfg.key != null) {
             try (Transaction tx = dao.beginTx()) {
-                NubUsage nub = dao.readNub(dao.getNeo().getNodeById(cfg.key));
-                System.out.println(nub);
+                Node n = dao.getNeo().getNodeById(cfg.key);
+
+                NubUsage nub = dao.readNub(n);
+                System.out.println("NUB: " + nub);
+
+                NameUsage u = dao.readUsage(n, true);
+                System.out.println("USAGE: " + u);
             }
+        }
+
+        // report stats
+        try (Transaction tx = dao.beginTx()) {
+            dao.logStats();
         }
 
         try (Transaction tx = dao.beginTx()) {
