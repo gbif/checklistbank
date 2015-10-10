@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
 /**
@@ -23,9 +24,11 @@ public class ReaderConfiguration {
 
     @NotNull
     @Valid
+    @Parameter(names = {"-d", "--dataset-key"}, required = false)
     public UUID datasetKey = Constants.NUB_DATASET_KEY;
 
     @Null
     @Valid
+    @Parameter(names = {"-k", "--key"}, required = false)
     public Long key = null;
 }

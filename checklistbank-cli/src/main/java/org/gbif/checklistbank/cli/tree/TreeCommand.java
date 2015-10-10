@@ -8,6 +8,10 @@ import org.gbif.cli.Command;
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Transaction;
 
+/**
+ * Simple command that reads an existing neo/kvp store and prints the entire tree
+ * or optionally first a requested node by its id.
+ */
 @MetaInfServices(Command.class)
 public class TreeCommand extends BaseCommand {
     private final ReaderConfiguration cfg = new ReaderConfiguration();
