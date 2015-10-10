@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -11,6 +12,8 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
@@ -29,11 +32,11 @@ import java.util.Date;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Sets;
-import com.google.common.collect.Lists;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
@@ -98,7 +101,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        if (Sets.newHashSet(AdminOperation.REPARSE).contains(cfg.operation)) {
+        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CONVERT_NUB).contains(cfg.operation)) {
             runSineDatasets();
         } else {
             runDatasetComamnds();
@@ -111,8 +114,26 @@ public class AdminCommand extends BaseCommand {
                 reparseNames();
                 break;
 
+            case CONVERT_NUB:
+                convertNubUsages();
+                break;
+
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Opens the neo4j nub storeage and converts the nub usages into name usages and then builds metrics for them.
+     * This is the same as the last steps in the nub build that get skipped when the final assertion has failed.
+     */
+    private void convertNubUsages() {
+        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, false);
+        try {
+            dao.convertNubUsages();
+            NubBuilder.builtUsageMetrics(dao);
+        } finally {
+            dao.close();
         }
     }
 

@@ -133,6 +133,7 @@ public class UsageDao {
     /**
      * A backend that is stored in files inside the configured neo directory.
      * @param eraseExisting if true erases any previous data files
+     * @param readOnly if true open neo4j in read only mode
      */
     public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, boolean readOnly, MetricRegistry registry, boolean eraseExisting) {
         DB kvp = null;

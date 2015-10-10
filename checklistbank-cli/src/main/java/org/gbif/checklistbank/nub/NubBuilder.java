@@ -93,7 +93,7 @@ public class NubBuilder implements Runnable {
     private final NubSourceList sources;
     private final NameParser parser = new NameParser();
     private NormalizerStats normalizerStats;
-    private boolean assertionsPassed;
+    private boolean assertionsPassed = true;
     private final boolean verifyBackbone;
     private NubSource currSrc;
     private ParentStack parents;
@@ -173,13 +173,13 @@ public class NubBuilder implements Runnable {
             assignUsageKeys();
             if (verifyBackbone){
                 verifyBackbone();
-            } else {
-                assertionsPassed = true;
             }
             // only convert usages and build metrics if nub passed assertions
             if (assertionsPassed){
                 db.dao.convertNubUsages();
                 builtUsageMetrics();
+            } else {
+                LOG.warn("Assertions not passed, metrics not build and no usages converted!");
             }
             LOG.info("New backbone built");
         } finally {
@@ -987,11 +987,15 @@ public class NubBuilder implements Runnable {
     }
 
     private void builtUsageMetrics() {
+        builtUsageMetrics(db.dao);
+    }
+
+    public static void builtUsageMetrics(UsageDao dao) {
         LOG.info("Walk all accepted taxa and build usage metrics");
-        UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
+        UsageMetricsHandler metricsHandler = new UsageMetricsHandler(dao);
         // TaxonWalker deals with transactions
-        TaxonWalker.walkAccepted(db.dao.getNeo(), null, metricsHandler);
-        normalizerStats = metricsHandler.getStats(0, null);
+        TaxonWalker.walkAccepted(dao.getNeo(), null, metricsHandler);
+        NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
         LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
     }
 
