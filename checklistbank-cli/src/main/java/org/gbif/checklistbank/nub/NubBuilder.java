@@ -62,6 +62,7 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -885,10 +886,6 @@ public class NubBuilder implements Runnable {
         for (LongCursor basCursor: basIds) {
             try (Transaction tx = db.beginTx()) {
                 Node bas = db.dao.getNeo().getNodeById(basCursor.value);
-                if (bas == null) {
-                    LOG.info("Basionym {} was removed. Ignore node id {}", basCursor.value);
-                    continue;
-                }
                 counter++;
                 // sort all usage by source dataset priority, placing doubtful names last
                 List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
@@ -896,13 +893,13 @@ public class NubBuilder implements Runnable {
                     // we stick to the first combination with the highest priority and make all others
                     //  a) synonyms of this if it is accepted
                     //  b) synonyms of the primarys accepted name if it was a synonym itself
+                    int modified = 0;
                     final NubUsage primary = group.remove(0);
                     final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
                     final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
-                    LOG.debug("Found basionym group with {} primary usage {} in basionym group: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
                     for (NubUsage u : group) {
                         if (!hasAccepted(u, accepted)) {
-                            counterModified++;
+                            modified++;
                             NubUsage previousParent = db.getParent(u);
                             if (previousParent != null) {
                                 u.addRemark(String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
@@ -917,11 +914,16 @@ public class NubBuilder implements Runnable {
                             }
                         }
                     }
+                    counterModified = counterModified + modified;
+                    LOG.debug("Consolidated {} usages from basionym group with {} primary usage {}: {}", modified, primary.status, primary.parsedName.canonicalNameComplete(), names(group));
                 }
                 tx.success();
+
+            } catch (NotFoundException e) {
+                LOG.info("Basionym {} was removed. Ignore node id {}", basCursor.value);
             }
-            LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
         }
+        LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
     }
 
     private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus) {
