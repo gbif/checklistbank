@@ -268,7 +268,7 @@ public class NubBuilder implements Runnable {
                         pn.setRank(u.rank);
 
                         NubUsageMatch autoMatch = db.findAcceptedNubUsage(u.kingdom, pn.canonicalName(), u.rank);
-                        if (!autoMatch.isMatch() && !autoMatch.homonym) {
+                        if (!autoMatch.isMatch()) {
                             NubUsage parent = db.getParent(u);
 
                             SrcUsage autonym = new SrcUsage();
@@ -284,8 +284,10 @@ public class NubBuilder implements Runnable {
             }
             tx.success();
             LOG.info("Created {} missing autonyms", counter);
+
         } catch (Exception e) {
-            LOG.error("Failed to create all missing autonyms", e);
+            //TODO: remove in final code and let a nub build fail!
+            LOG.error("Failed to create missing autonyms", e);
         }
     }
 

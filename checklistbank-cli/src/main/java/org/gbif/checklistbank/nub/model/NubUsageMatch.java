@@ -3,12 +3,10 @@ package org.gbif.checklistbank.nub.model;
 public class NubUsageMatch {
     public final NubUsage usage;
     public final boolean ignore;
-    public final boolean homonym;
 
     private NubUsageMatch(NubUsage usage, boolean ignore, boolean homonym) {
         this.usage = usage;
         this.ignore = ignore;
-        this.homonym = homonym;
     }
 
     public static NubUsageMatch match(NubUsage usage) {

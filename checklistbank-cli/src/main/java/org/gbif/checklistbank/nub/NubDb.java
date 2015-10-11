@@ -4,6 +4,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
@@ -126,17 +127,27 @@ public class NubDb {
         List<NubUsage> usages = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
             NubUsage rn = dao.readNub(n);
-            if (kingdom == rn.kingdom && rank == rn.rank && !rn.status.isSynonym()) {
+            if (kingdom == rn.kingdom && rank == rn.rank && rn.status.isAccepted()) {
                 usages.add(rn);
             }
         }
+        // remove doubtful ones
+        if (usages.size() > 1) {
+            Iterator<NubUsage> iter = usages.iterator();
+            while (iter.hasNext()) {
+                if (iter.next().status == TaxonomicStatus.DOUBTFUL) {
+                    iter.remove();
+                }
+            }
+        }
+
         if (usages.isEmpty()) {
             return NubUsageMatch.empty();
         } else if (usages.size() == 1) {
             return NubUsageMatch.match(usages.get(0));
         } else {
-            LOG.warn("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
-            return NubUsageMatch.homonym();
+            LOG.error("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
+            throw new IllegalStateException("accepted homonym encountered for "+kingdom+" kingdom: " + rank + " " + canonical);
         }
     }
 
