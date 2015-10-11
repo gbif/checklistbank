@@ -267,8 +267,8 @@ public class NubBuilder implements Runnable {
                         pn.setScientificName(pn.canonicalName());
                         pn.setRank(u.rank);
 
-                        NubUsage auto = db.findNubUsage(pn.canonicalName(), u.rank);
-                        if (auto == null) {
+                        NubUsageMatch autoMatch = db.findAcceptedNubUsage(u.kingdom, pn.canonicalName(), u.rank);
+                        if (!autoMatch.isMatch() && !autoMatch.homonym) {
                             NubUsage parent = db.getParent(u);
 
                             SrcUsage autonym = new SrcUsage();
@@ -284,6 +284,8 @@ public class NubBuilder implements Runnable {
             }
             tx.success();
             LOG.info("Created {} missing autonyms", counter);
+        } catch (Exception e) {
+            LOG.error("Failed to create all missing autonyms", e);
         }
     }
 

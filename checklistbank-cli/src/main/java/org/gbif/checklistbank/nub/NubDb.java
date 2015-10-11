@@ -122,21 +122,21 @@ public class NubDb {
     /**
      * Returns the matching accepted nub usage for that canonical name at the given rank.
      */
-    public NubUsage findNubUsage(String canonical, Rank rank) {
+    public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, String canonical, Rank rank) {
         List<NubUsage> usages = Lists.newArrayList();
         for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
             NubUsage rn = dao.readNub(n);
-            if (rank == rn.rank && !rn.status.isSynonym()) {
+            if (kingdom == rn.kingdom && rank == rn.rank && !rn.status.isSynonym()) {
                 usages.add(rn);
             }
         }
         if (usages.isEmpty()) {
-            return null;
+            return NubUsageMatch.empty();
         } else if (usages.size() == 1) {
-            return usages.get(0);
+            return NubUsageMatch.match(usages.get(0));
         } else {
             LOG.warn("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
-            throw new IllegalStateException("homonym " + canonical);
+            return NubUsageMatch.homonym();
         }
     }
 
@@ -164,7 +164,7 @@ public class NubDb {
             if (u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
                 ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
                 if (kResult.isSuccessful()) {
-                    return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()));
+                    return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()), false);
                 }
             }
             return NubUsageMatch.empty();
@@ -205,7 +205,7 @@ public class NubDb {
                     }
                 }
                 if (parent != null) {
-                    return NubUsageMatch.snap(checked.get(0));
+                    return NubUsageMatch.snap(checked.get(0), false);
                 }
             }
 
@@ -216,7 +216,7 @@ public class NubDb {
                     nu.issues.add(NameUsageIssue.HOMONYM);
                     nu.addRemark("Homonym known in other sources: " + u.scientificName);
                     LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
-                    return NubUsageMatch.snap(nu);
+                    return NubUsageMatch.snap(nu, true);
                 }
             }
             throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);
