@@ -105,6 +105,13 @@
             <id>gbif-all</id>
             <url>http://repository.gbif.org/content/groups/gbif</url>
         </repository>
+        <repository>
+          <id>cloudera-release</id>
+          <url>http://repository.cloudera.com/artifactory/cloudera-repos/</url>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+        </repository>
     </repositories>
 
     <modules>
