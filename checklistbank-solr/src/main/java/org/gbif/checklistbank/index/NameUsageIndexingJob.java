@@ -5,7 +5,6 @@ import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
-import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
@@ -13,15 +12,10 @@ import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.avro.Schema;
-import org.apache.avro.file.DataFileWriter;
-import org.apache.avro.io.DatumWriter;
-import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.common.SolrInputDocument;
@@ -34,6 +28,11 @@ import org.slf4j.LoggerFactory;
 public class NameUsageIndexingJob implements Callable<Integer> {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
+
+  /**
+   * SolrServer instance.
+   */
+  private final SolrServer solr;
 
   /**
    * Minimum usage key, inclusive, to process.
@@ -59,13 +58,14 @@ public class NameUsageIndexingJob implements Callable<Integer> {
   /**
    * {@link NameUsage}/{@link SolrInputDocument} converter.
    */
-  private final NameUsageAvroConverter nameUsageAvroConverter;
+  private final NameUsageDocConverter solrDocumentConverter;
 
   /**
    * Default constructor.
    */
-  public NameUsageIndexingJob(final UsageService nameUsageService, final int startKey,
-    final int endKey, final VernacularNameServiceMyBatis vernacularNameService, final DescriptionServiceMyBatis descriptionService,
+  public NameUsageIndexingJob(final SolrServer solr, final UsageService nameUsageService, final int startKey,
+    final int endKey, final NameUsageDocConverter solrDocumentConverter,
+    final VernacularNameServiceMyBatis vernacularNameService, final DescriptionServiceMyBatis descriptionService,
     final DistributionServiceMyBatis distributionService, final SpeciesProfileServiceMyBatis speciesProfileService) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
@@ -74,7 +74,8 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     this.speciesProfileService = speciesProfileService;
     this.startKey = startKey;
     this.endKey = endKey;
-    nameUsageAvroConverter = new NameUsageAvroConverter();
+    this.solrDocumentConverter = solrDocumentConverter;
+    this.solr = solr;
   }
 
   /**
@@ -99,37 +100,28 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     Map<Integer, List<Distribution>> distributionMap = distributionService.listRange(startKey, endKey);
 
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
-    File file = new File(startKey+ "-" + endKey + ".avro");
-    file.createNewFile();
-    System.out.println("Creating file " + file.getAbsolutePath());
-    ClassLoader classLoader = AvroTest.class.getClassLoader();
-    Schema schema = new Schema.Parser().parse(classLoader.getResource("solr.avrsc").openStream());
-    DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
-    try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<>(datumWriter)) {
-      dataFileWriter.create(schema, file);
 
-      // now we're ready to build the solr indices quicky!
-      for (NameUsage usage : usages) {
-        if (usage == null) {
+    // now we're ready to build the solr indices quicky!
+    for (NameUsage usage : usages) {
+      if (usage==null) {
           log.warn("Unexpected numm usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
           continue;
-        }
-        try {
-          UsageExtensions ext = new UsageExtensions();
-          ext.speciesProfiles = speciesProfileMap.get(usage.getKey());
-          ext.vernacularNames = vernacularNameMap.get(usage.getKey());
-          ext.descriptions = descriptionMap.get(usage.getKey());
-          ext.distributions = distributionMap.get(usage.getKey());
-
-          List<Integer> parents = nameUsageService.listParents(usage.getKey());
-          dataFileWriter.append(nameUsageAvroConverter.toObject(usage, parents, ext));
-
-        } catch (Exception e) {
-          log.error("Error indexing document for usage {}", usage.getKey(), e);
-        }
-        docCount++;
-        NameUsageIndexer.counter.incrementAndGet();
       }
+      try {
+        UsageExtensions ext = new UsageExtensions();
+        ext.speciesProfiles = speciesProfileMap.get(usage.getKey());
+        ext.vernacularNames = vernacularNameMap.get(usage.getKey());
+        ext.descriptions = descriptionMap.get(usage.getKey());
+        ext.distributions = distributionMap.get(usage.getKey());
+
+        List<Integer> parents = nameUsageService.listParents(usage.getKey());
+        solr.add(solrDocumentConverter.toObject(usage, parents, ext));
+
+      } catch (Exception e) {
+        log.error("Error indexing document for usage {}", usage.getKey(), e);
+      }
+      docCount++;
+      NameUsageIndexer.counter.incrementAndGet();
     }
     // job finished notice
     stopWatch.stop();
