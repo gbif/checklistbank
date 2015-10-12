@@ -101,7 +101,9 @@ public class NameUsageAvroConverter {
       NameUsageAvro nameUsageAvro = new NameUsageAvro();
       nameUsageAvro.setKey(usage.getKey());
       nameUsageAvro.setNubKey(usage.getNubKey());
-      nameUsageAvro.setDatasetKey(usage.getDatasetKey().toString());
+      if(usage.getDatasetKey() != null) {
+        nameUsageAvro.setDatasetKey(usage.getDatasetKey().toString());
+      }
       nameUsageAvro.setParent(usage.getParent());
       nameUsageAvro.setParentKey(usage.getParentKey());
       nameUsageAvro.setAccepted(usage.getAccepted());
@@ -188,8 +190,10 @@ public class NameUsageAvroConverter {
       return;
     }
     List<String> descriptions = Lists.newArrayList();
-    for (Description description : ext.descriptions) {
-      descriptions.add(serializeDescription(description));
+    if(ext.descriptions != null) {
+      for (Description description : ext.descriptions) {
+        descriptions.add(serializeDescription(description));
+      }
     }
     nameUsageAvro.setDescription(descriptions);
   }
@@ -204,9 +208,11 @@ public class NameUsageAvroConverter {
       return;
     }
     List<Integer> threatStatusKeys = Lists.newArrayList();
-    for (Distribution distribution : ext.distributions) {
-      if (distribution.getThreatStatus() != null) {
-        threatStatusKeys.add(distribution.getThreatStatus().ordinal());
+    if(ext.distributions != null) {
+      for (Distribution distribution : ext.distributions) {
+        if (distribution.getThreatStatus() != null) {
+          threatStatusKeys.add(distribution.getThreatStatus().ordinal());
+        }
       }
     }
     nameUsageAvro.setThreatStatusKey(threatStatusKeys);
@@ -272,11 +278,13 @@ public class NameUsageAvroConverter {
     List<String> vernacularNames = Lists.newArrayList();
     List<String> vernacularLang = Lists.newArrayList();
     List<String> vernacularNamesLang = Lists.newArrayList();
-    for (VernacularName vernacularName : ext.vernacularNames) {
-      vernacularNames.add(vernacularName.getVernacularName());
-      if (vernacularName.getLanguage() != null) {
-        vernacularLang.add(vernacularName.getLanguage().getIso2LetterCode());
-        vernacularNamesLang.add(serializeVernacularName(vernacularName));
+    if(ext.vernacularNames != null) {
+      for (VernacularName vernacularName : ext.vernacularNames) {
+        vernacularNames.add(vernacularName.getVernacularName());
+        if (vernacularName.getLanguage() != null) {
+          vernacularLang.add(vernacularName.getLanguage().getIso2LetterCode());
+          vernacularNamesLang.add(serializeVernacularName(vernacularName));
+        }
       }
     }
     nameUsageAvro.setVernacularName(vernacularNames);
