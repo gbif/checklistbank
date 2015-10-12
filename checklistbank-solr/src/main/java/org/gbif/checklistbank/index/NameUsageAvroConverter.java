@@ -135,13 +135,17 @@ public class NameUsageAvroConverter {
       // higher taxa
       nameUsageAvro.setHigherTaxonKey(parents);
       // enums
-      nameUsageAvro.setNameType(usage.getNameType().ordinal());
+      if(usage.getNameType() != null) {
+        nameUsageAvro.setNameType(usage.getNameType().ordinal());
+      }
       nameUsageAvro.setIssues(getOrdinals(usage.getIssues()));
       nameUsageAvro.setNomenclaturalStatusKey(getOrdinals(usage.getNomenclaturalStatus()));
       if(usage.getTaxonomicStatus() != null) {
         nameUsageAvro.setTaxonomicStatusKey(usage.getTaxonomicStatus().ordinal());
       }
-      nameUsageAvro.setRankKey(usage.getRank().ordinal());
+      if(usage.getRank() != null) {
+        nameUsageAvro.setRankKey(usage.getRank().ordinal());
+      }
 
       // extract extension infos
       if (extensions != null) {
