@@ -119,7 +119,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
     File file = new File(startKey+ "-" + endKey + ".avro");
     file.createNewFile();
-    System.out.println("Creating file " + file.getAbsolutePath());
+    log.info("Creating file " + file.getAbsolutePath());
     ClassLoader classLoader = AvroTest.class.getClassLoader();
     Schema schema = new Schema.Parser().parse(classLoader.getResource("solr.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
@@ -151,6 +151,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
     }
 
     moveToHdfs(file);
+    log.info(file.getName() + " moved to hdfs");
     // job finished notice
     stopWatch.stop();
     log.info("Finished indexing of usages in range {}-{}. Total time: {}",

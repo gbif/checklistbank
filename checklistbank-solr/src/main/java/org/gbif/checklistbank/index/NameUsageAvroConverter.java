@@ -138,7 +138,9 @@ public class NameUsageAvroConverter {
       nameUsageAvro.setNameType(usage.getNameType().ordinal());
       nameUsageAvro.setIssues(getOrdinals(usage.getIssues()));
       nameUsageAvro.setNomenclaturalStatusKey(getOrdinals(usage.getNomenclaturalStatus()));
-      nameUsageAvro.setTaxonomicStatusKey(usage.getTaxonomicStatus().ordinal());
+      if(usage.getTaxonomicStatus() != null) {
+        nameUsageAvro.setTaxonomicStatusKey(usage.getTaxonomicStatus().ordinal());
+      }
       nameUsageAvro.setRankKey(usage.getRank().ordinal());
 
       // extract extension infos
