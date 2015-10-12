@@ -337,9 +337,13 @@ public class UsageDao {
     }
 
     public NubUsage readNub(Node n) {
-        if (n == null) return null;
-        NubUsage nub = nubUsages.get(n.getId());
-        nub.node = n;
+        NubUsage nub = null;
+        if (n != null) {
+            nub = nubUsages.get(n.getId());
+            if (nub != null) {
+                nub.node = n;
+            }
+        }
         return nub;
     }
 

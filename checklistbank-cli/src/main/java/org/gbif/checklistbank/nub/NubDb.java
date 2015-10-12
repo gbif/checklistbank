@@ -92,8 +92,7 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public NubUsage getParent(NubUsage child) {
-        Node p = getParent(child.node);
-        return p == null ? null : dao.readNub(p);
+        return child == null ? null : dao.readNub( getParent(child.node) );
     }
 
     public NubUsage getKingdom(Kingdom kingdom) {
@@ -104,13 +103,18 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public Node getParent(Node child) {
-        Relationship rel;
-        if (child.hasLabel(Labels.SYNONYM)) {
-            rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
-        } else {
-            rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+        if (child != null) {
+            Relationship rel;
+            if (child.hasLabel(Labels.SYNONYM)) {
+                rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
+            } else {
+                rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+            }
+            if (rel != null) {
+                return rel.getOtherNode(child);
+            }
         }
-        return rel == null ? null : rel.getOtherNode(child);
+        return null;
     }
 
     /**

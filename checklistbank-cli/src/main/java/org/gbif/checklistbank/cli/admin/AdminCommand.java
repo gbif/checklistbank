@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.cli.admin;
 
-import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -12,9 +11,8 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
-import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -101,7 +99,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CONVERT_NUB).contains(cfg.operation)) {
+        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS).contains(cfg.operation)) {
             runSineDatasets();
         } else {
             runDatasetComamnds();
@@ -114,8 +112,8 @@ public class AdminCommand extends BaseCommand {
                 reparseNames();
                 break;
 
-            case CONVERT_NUB:
-                convertNubUsages();
+            case CLEAN_ORPHANS:
+                cleanOrphans();
                 break;
 
             default:
@@ -124,17 +122,14 @@ public class AdminCommand extends BaseCommand {
     }
 
     /**
-     * Opens the neo4j nub storeage and converts the nub usages into name usages and then builds metrics for them.
-     * This is the same as the last steps in the nub build that get skipped when the final assertion has failed.
+     * Cleans up orphan records in the postgres db.
      */
-    private void convertNubUsages() {
-        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, false);
-        try {
-            dao.convertNubUsages();
-            NubBuilder.builtUsageMetrics(dao);
-        } finally {
-            dao.close();
-        }
+    private void cleanOrphans() {
+        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+        ParsedNameServiceMyBatis parsedNameService = (ParsedNameServiceMyBatis) inj.getInstance(ParsedNameService.class);
+        LOG.info("Start cleaning up orphan names. This will take a while ...");
+        int num = parsedNameService.deleteOrphaned();
+        LOG.info("{} orphan names deleted", num);
     }
 
     private void runDatasetComamnds() {

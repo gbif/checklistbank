@@ -48,4 +48,9 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
         assertEquals(1150, service.reparseAll());
     }
 
+    @Test
+    public void testOrphaned() throws Exception {
+        assertEquals(1107, ((ParsedNameServiceMyBatis) service).deleteOrphaned());
+    }
+
 }
