@@ -60,7 +60,7 @@ public class BasionymSorter {
         List<T> originals = Lists.newArrayList();
         for (T obj : names) {
             ParsedName p = func.apply(obj);
-            if (p.getBracketAuthorship() != null || p.getBracketYear() != null) {
+            if (p.isRecombination()) {
                 recombinations.add(obj);
             } else if (p.getAuthorship() != null || p.getYear() != null) {
                 originals.add(obj);

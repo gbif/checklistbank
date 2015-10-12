@@ -165,9 +165,13 @@ public class NubBuilder implements Runnable {
             parents = new ParentStack(db.getKingdom(Kingdom.INCERTAE_SEDIS));
             addDatasets();
             groupByBasionym();
-            verifyAcceptedSpecies();
+
+            // flagging of suspicous usages
+            flagParentMismatch();
             flagEmptyGroups();
             flagSimilarNames();
+            flagDoubtfulOriginalNames();
+
             createAutonyms();
             addPublicationDois();
             addExtensionData();
@@ -191,6 +195,32 @@ public class NubBuilder implements Runnable {
             } else {
                 LOG.warn("Backbone dao not closed!");
             }
+        }
+    }
+
+    /**
+     * http://dev.gbif.org/issues/browse/POR-2815
+     */
+    private void flagDoubtfulOriginalNames() {
+        LOG.info("Start flagging doubtful original names");
+        try (Transaction tx = db.beginTx()) {
+            for (Node gn : IteratorUtil.loop(db.dao.allGenera())) {
+                NubUsage genus = db.dao.readNub(gn);
+                Integer gYear = genus.parsedName.getYearInt();
+                if (gYear != null) {
+                    // all accepted included taxa should have been described after the genus
+                    // flag the ones that have an earlier publication date!
+                    for (Node n : Traversals.ACCEPTED_DESCENDANTS.traverse(gn).nodes()) {
+                        NubUsage u = db.dao.readNub(n);
+                        Integer year = u.parsedName.getYearInt();
+                        if (year != null && year < gYear) {
+                            u.issues.add(NameUsageIssue.PUBLISHED_BEFORE_GENUS);
+                            db.store(u);
+                        }
+                    }
+                }
+            }
+            tx.success();
         }
     }
 
@@ -294,9 +324,9 @@ public class NubBuilder implements Runnable {
     /**
      * Goes through all accepted species and infraspecies and makes sure the name matches the genus, species classification.
      * For example an accepted species Picea alba with a parent genus of Abies is taxonomic nonsense.
-     * Badly classified names are assigned the doubtful status and an issue is flagged
+     * Badly classified names are assigned the doubtful status and an NameUsageIssue.NAME_PARENT_MISMATCH is flagged
      */
-    private void verifyAcceptedSpecies() {
+    private void flagParentMismatch() {
 
     }
 
@@ -464,15 +494,13 @@ public class NubBuilder implements Runnable {
      */
     private void addExtensionData() {
         LOG.warn("NOT IMPLEMENTED: Copy extension data to backbone");
-        if (false) {
-            Joiner commaJoin = Joiner.on(", ").skipNulls();
-            for (Node n : IteratorUtil.loop(db.dao.allTaxa())) {
-                NubUsage nub = db.dao.readNub(n);
-                if (!nub.sourceIds.isEmpty()) {
-                    LOG.debug("Add extension data from source ids {}", commaJoin.join(nub.sourceIds));
-                }
-            }
-        }
+        //Joiner commaJoin = Joiner.on(", ").skipNulls();
+        //for (Node n : IteratorUtil.loop(db.dao.allTaxa())) {
+        //    NubUsage nub = db.dao.readNub(n);
+        //    if (!nub.sourceIds.isEmpty()) {
+        //        LOG.debug("Add extension data from source ids {}", commaJoin.join(nub.sourceIds));
+        //    }
+        //}
     }
 
     private void flagEmptyGroups() {
