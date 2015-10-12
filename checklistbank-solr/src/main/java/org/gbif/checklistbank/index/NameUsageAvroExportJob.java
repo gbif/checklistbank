@@ -123,7 +123,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
     ClassLoader classLoader = AvroTest.class.getClassLoader();
     Schema schema = new Schema.Parser().parse(classLoader.getResource("solr.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
-    try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<>(datumWriter)) {
+    try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<NameUsageAvro>(datumWriter)) {
       dataFileWriter.create(schema, file);
 
       // now we're ready to build the solr indices quicky!
