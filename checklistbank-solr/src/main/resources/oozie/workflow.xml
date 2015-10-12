@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ~ Copyright 2012 Global Biodiversity Information Facility (GBIF) ~ ~
+  Licensed under the Apache License, Version 2.0 (the "License"); ~ you may
+  not use this file except in compliance with the License. ~ You may obtain
+  a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~
+  ~ Unless required by applicable law or agreed to in writing, software ~ distributed
+  under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied. ~ See the License for
+  the specific language governing permissions and ~ limitations under the License. -->
+<workflow-app xmlns="uri:oozie:workflow:0.4.5" name="occurrence-index-builder-${occurrence.environment}">
+
+  <global>
+    <job-tracker>${wf:conf("hadoop.jobtracker")}</job-tracker>
+    <name-node>${wf:conf("hdfs.namenode")}</name-node>
+    <configuration>
+      <property>
+        <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>oozie.launcher.mapred.job.queue.name</name>
+        <value>${wf:conf("hadoop.queuename")}</value>
+      </property>
+    </configuration>
+  </global>
+
+  <start to="create-avro-table" />
+
+  <action name="create-avro-table">
+    <hive xmlns="uri:oozie:hive-action:0.4">
+      <job-xml>conf/hive-config.xml</job-xml>
+      <script>hive-scripts/create_avro_table.q</script>
+      <param>avroTable=${wf:conf("hive.db")}.name_usage_avro</param>
+    </hive>
+
+    <ok to="build_index" />
+    <error to="kill" />
+  </action>
+
+  <action name='build_index'>
+      <shell xmlns="uri:oozie:shell-action:0.3">
+          <exec>scripts/build_solr_idx.sh</exec>
+          <argument>${wf:conf("solr.home")}</argument>
+          <argument>${wf:conf("hdfs.namenode")}/user/hive/warehouse/${wf:conf("hive.db")}.db/name_usage_avro/</argument>
+          <argument>${wf:conf("solr.zk")}</argument>
+          <argument>${wf:conf("hdfs.out.dir")}</argument>
+          <argument>${wf:conf("solr.collection")}</argument>
+          <argument>${wf:conf("solr.collection.opts")}</argument>
+          <argument>${wf:conf("hadoop.client.opts")}</argument>
+          <argument>${wf:conf("mapred.opts")}</argument>
+          <argument>${wf:conf("solr.http.url")}</argument>
+          <file>scripts/build_solr_idx.sh</file>
+          <archive>solr.zip#solr</archive>
+      </shell>
+      <ok to="end" />
+      <error to="kill" />
+  </action>
+
+
+  <kill name="kill">
+    <message>Occurrence index building failed:[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+  <end name="end" />
+
+</workflow-app>

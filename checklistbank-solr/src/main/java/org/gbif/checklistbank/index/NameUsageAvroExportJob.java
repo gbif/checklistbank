@@ -164,7 +164,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
   private boolean moveToHdfs(File file) throws IOException{
     Configuration configuration = new Configuration();
     configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);
-    Path targetPath = new Path(targetHdfsDir);
+    Path targetPath = new Path(targetHdfsDir, file.getName());
     return FileUtil.copy(file, FileSystem.get(configuration), targetPath, true, configuration);
   }
 

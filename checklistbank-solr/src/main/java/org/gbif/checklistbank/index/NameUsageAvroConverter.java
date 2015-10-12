@@ -159,7 +159,7 @@ public class NameUsageAvroConverter {
       return nameUsageAvro;
 
     } catch (Exception e) {
-      log.error("Error converting usage {} to solr document", usage.getKey(), e);
+      log.error("Error converting usage {} to solr document", usage, e);
       throw new RuntimeException(e);
     }
   }
@@ -190,11 +190,10 @@ public class NameUsageAvroConverter {
       return;
     }
     List<String> descriptions = Lists.newArrayList();
-    if(ext.descriptions != null) {
-      for (Description description : ext.descriptions) {
-        descriptions.add(serializeDescription(description));
-      }
+    for (Description description : ext.descriptions) {
+      descriptions.add(serializeDescription(description));
     }
+
     nameUsageAvro.setDescription(descriptions);
   }
 
@@ -208,13 +207,12 @@ public class NameUsageAvroConverter {
       return;
     }
     List<Integer> threatStatusKeys = Lists.newArrayList();
-    if(ext.distributions != null) {
-      for (Distribution distribution : ext.distributions) {
-        if (distribution.getThreatStatus() != null) {
-          threatStatusKeys.add(distribution.getThreatStatus().ordinal());
-        }
+    for (Distribution distribution : ext.distributions) {
+      if (distribution.getThreatStatus() != null) {
+        threatStatusKeys.add(distribution.getThreatStatus().ordinal());
       }
     }
+
     nameUsageAvro.setThreatStatusKey(threatStatusKeys);
   }
 
@@ -278,15 +276,15 @@ public class NameUsageAvroConverter {
     List<String> vernacularNames = Lists.newArrayList();
     List<String> vernacularLang = Lists.newArrayList();
     List<String> vernacularNamesLang = Lists.newArrayList();
-    if(ext.vernacularNames != null) {
-      for (VernacularName vernacularName : ext.vernacularNames) {
-        vernacularNames.add(vernacularName.getVernacularName());
-        if (vernacularName.getLanguage() != null) {
-          vernacularLang.add(vernacularName.getLanguage().getIso2LetterCode());
-          vernacularNamesLang.add(serializeVernacularName(vernacularName));
-        }
+
+    for (VernacularName vernacularName : ext.vernacularNames) {
+      vernacularNames.add(vernacularName.getVernacularName());
+      if (vernacularName.getLanguage() != null) {
+        vernacularLang.add(vernacularName.getLanguage().getIso2LetterCode());
+        vernacularNamesLang.add(serializeVernacularName(vernacularName));
       }
     }
+
     nameUsageAvro.setVernacularName(vernacularNames);
     nameUsageAvro.setVernacularLang(vernacularLang);
     nameUsageAvro.setVernacularNameLang(vernacularNamesLang);
