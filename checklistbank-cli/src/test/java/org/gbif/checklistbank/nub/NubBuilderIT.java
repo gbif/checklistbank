@@ -771,13 +771,13 @@ public class NubBuilderIT {
      * builds a new nub and keeps dao open for further test queries.
      */
     private void build(NubSourceList src) {
-        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, true);
+        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        dao.printTree(System.out);
+        dao.printTree();
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
@@ -805,14 +805,14 @@ public class NubBuilderIT {
         dao.close();
         // new, empty DAO
         dao = UsageDao.temporaryDao(100);
-        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1, false);
+        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1);
         nb.run();
 
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        dao.printTree(System.out);
+        dao.printTree();
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());

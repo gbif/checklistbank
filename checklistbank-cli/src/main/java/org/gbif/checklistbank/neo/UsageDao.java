@@ -5,12 +5,12 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.TreePrinter;
@@ -19,7 +19,6 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -192,8 +191,8 @@ public class UsageDao {
      * Prints the entire neo4j tree out to a print stream, mainly for debugging.
      * Synonyms are marked with a prepended asterisk.
      */
-    public void printTree(PrintStream out) {
-        TaxonWalker.walkAccepted(getNeo(), null, new TreePrinter(out));
+    public void printTree() {
+        TaxonWalker.walkAccepted(getNeo(), null, new TreePrinter());
     }
 
     /**

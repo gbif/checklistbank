@@ -30,7 +30,6 @@ import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
-import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
@@ -106,9 +105,6 @@ public class NubBuilder implements Runnable {
     private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
     private final Map<UUID, Integer> priorities = Maps.newHashMap();
     private Integer maxPriority = 0;
-    // monitor open files and threads
-    private final ResourcesMonitor monitor = new ResourcesMonitor();
-    private final boolean debug;
     private int datasetCounter = 1;
     private final int batchSize;
 
@@ -124,7 +120,7 @@ public class NubBuilder implements Runnable {
     });
 
     private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
-                       boolean closeDao, boolean verifyBackbone, int batchSize, boolean debug) {
+                       boolean closeDao, boolean verifyBackbone, int batchSize) {
         db = NubDb.create(dao);
         this.sources = sources;
         this.authorComparator = authorComparator;
@@ -132,7 +128,6 @@ public class NubBuilder implements Runnable {
         this.newIdStart = newIdStart;
         this.closeDao = closeDao;
         this.verifyBackbone = verifyBackbone;
-        this.debug = debug;
         this.batchSize = batchSize;
     }
 
@@ -141,7 +136,7 @@ public class NubBuilder implements Runnable {
         try {
             IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
             return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax()+1, cfg.neo.nubReportDir(), true,
-                    cfg.autoImport, cfg.neo.batchSize, cfg.debug);
+                    cfg.autoImport, cfg.neo.batchSize);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load existing backbone ids", e);
         }
@@ -150,8 +145,8 @@ public class NubBuilder implements Runnable {
     /**
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
-    public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, boolean debug) {
-        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000, debug);
+    public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
+        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000);
     }
 
     /**
@@ -524,24 +519,14 @@ public class NubBuilder implements Runnable {
 
     private void addDatasets() {
         LOG.info("Start adding backbone sources");
-        if (debug) {
-            monitor.run();
-        }
         for (NubSource src : sources) {
             try {
                 addDataset(src);
-                if (debug) {
-                    monitor.run();
-                    db.dao.printTree(System.out);
-                }
             } catch (Exception e) {
                 LOG.error("Error processing source {}", src.name, e);
             } finally {
                 src.close();
             }
-        }
-        if (debug) {
-            monitor.run();
         }
     }
 
@@ -892,9 +877,6 @@ public class NubBuilder implements Runnable {
         LOG.info("Start basionym consolidation");
         detectBasionyms();
         consolidateBasionymGroups();
-        if (debug) {
-            db.dao.printTree(System.out);
-        }
     }
 
     /**

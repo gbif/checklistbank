@@ -49,7 +49,7 @@ public class TreeCommand extends BaseCommand {
         }
 
         try (Transaction tx = dao.beginTx()) {
-            dao.printTree(System.out);
+            dao.printTree();
         } finally {
             dao.close();
         }

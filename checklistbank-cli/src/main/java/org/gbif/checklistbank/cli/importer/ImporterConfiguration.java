@@ -56,4 +56,7 @@ public class ImporterConfiguration {
   @Parameter(names = "--pool-size")
   @Min(1)
   public int poolSize = 3;
+
+  @Parameter(names = "--debug")
+  public boolean debugNeo = false;
 }

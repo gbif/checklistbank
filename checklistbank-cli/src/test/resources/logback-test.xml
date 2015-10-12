@@ -1,29 +1,39 @@
 <configuration>
 
-  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
-    <resetJUL>true</resetJUL>
-  </contextListener>
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
 
-  <!-- Always good to have it in here for debugging -->
-  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
-    </encoder>
-  </appender>
+    <!-- Always good to have it in here for debugging -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+        </encoder>
+    </appender>
 
-  <logger name="org.dbunit" level="WARN"/>
-  <logger name="org.apache.ibatis" level="WARN"/>
-  <logger name="java.sql" level="WARN"/>
+    <appender name="TREES" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%msg %n</pattern>
+        </encoder>
+    </appender>
 
-  <logger name="org.gbif.dwc" level="ERROR"/>
-  <logger name="ch.qos.logback" level="WARN"/>
-  <logger name="org.gbif.checklistbank.cli" level="INFO"/>
-  <logger name="org.gbif.checklistbank.cli.importer" level="INFO"/>
-  <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
-  <logger name="org.gbif.checklistbank.neo" level="INFO"/>
+    <logger name="org.dbunit" level="WARN"/>
+    <logger name="org.apache.ibatis" level="WARN"/>
+    <logger name="java.sql" level="WARN"/>
 
-  <root level="INFO">
-    <appender-ref ref="CONSOLE"/>
-  </root>
+    <logger name="org.gbif.dwc" level="ERROR"/>
+    <logger name="ch.qos.logback" level="WARN"/>
+    <logger name="org.gbif.checklistbank.cli" level="INFO"/>
+    <logger name="org.gbif.checklistbank.cli.importer" level="INFO"/>
+    <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
+    <logger name="org.gbif.checklistbank.neo" level="INFO"/>
+
+    <logger name="org.gbif.checklistbank.neo.traverse.TreePrinter" level="DEBUG" additivity="false">
+        <appender-ref ref="TREES" />
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
 
 </configuration>
