@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
  */
-public class ImporterIT extends BaseTest {
+public class ImporterIT extends BaseTest implements AutoCloseable {
 
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
     private ImporterConfiguration iCfg;
@@ -100,7 +100,10 @@ public class ImporterIT extends BaseTest {
     }
 
     @After
-    public void shutdownPool() throws Exception {
+    public void close() throws Exception {
+        if (importService != null) {
+            importService.close();
+        }
         if (hds != null) {
             hds.close();
         }

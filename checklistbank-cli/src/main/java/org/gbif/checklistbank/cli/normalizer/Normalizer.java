@@ -375,6 +375,7 @@ public class Normalizer extends ImportDb implements Runnable {
             for (Node syn : IteratorUtil.loop(dao.allSynonyms())) {
                 Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
                 LazyUsage synU = new LazyUsage(syn);
+                LazyUsage accU = new LazyUsage(accepted);
                 // if the synonym is a parent of another child taxon - relink accepted as parent of child
                 for (Relationship rel : syn.getRelationships(RelType.PARENT_OF, Direction.OUTGOING)) {
                     Node child = rel.getOtherNode(syn);
@@ -398,12 +399,16 @@ public class Normalizer extends ImportDb implements Runnable {
                         rel.delete();
                     } else {
                         Node parent = rel.getOtherNode(syn);
-                        LOG.debug("Relink parent rel of synonym {}", synU.scientificName());
-                        // relink if parent is not the accepted
+                        // relink if parent is not the accepted and parent rank is higher than accepted or null
                         if (!parent.equals(accepted)) {
-                            childOfRelRelinkedToAccepted++;
-                            parent.createRelationshipTo(accepted, RelType.PARENT_OF);
-                            addIssueRemark(accepted, "Parent relation taken from synonym " + synU.scientificName());
+                            NameUsage parentU = dao.readUsage(parent, false);
+                            if (parentU.getRank() == null ||
+                                    (accU.getUsage().getRank() != null && parentU.getRank().higherThan(accU.getUsage().getRank()))) {
+                                LOG.debug("Relink parent rel of synonym {}", synU.scientificName());
+                                childOfRelRelinkedToAccepted++;
+                                parent.createRelationshipTo(accepted, RelType.PARENT_OF);
+                                addIssueRemark(accepted, "Parent relation taken from synonym " + synU.scientificName());
+                            }
                         }
                         rel.delete();
                     }

@@ -468,7 +468,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     @Override
     public void close() throws Exception {
         if (exec != null) {
-            exec.shutdown();
+            exec.shutdownNow();
         }
     }
 

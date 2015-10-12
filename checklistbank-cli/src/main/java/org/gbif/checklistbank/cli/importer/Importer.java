@@ -67,7 +67,6 @@ public class Importer extends ImportDb implements Runnable {
     // map of existing pro parte synonym clb usage keys to their accepted taxon given as neo node id to be updated at the very end
     private IntIntMap postProParteKeys = new IntIntHashMap();
     private int maxExistingNubKey = -1;
-    private final boolean debugNeo;
 
     private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
@@ -75,12 +74,11 @@ public class Importer extends ImportDb implements Runnable {
     private final int keyTypeSize = KeyType.values().length;
 
     private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
-                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService, boolean debugNeo) {
+                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         super(datasetKey, dao);
         this.importService = importService;
         this.nameUsageService = nameUsageService;
         this.usageService = usageService;
-        this.debugNeo = debugNeo;
         this.syncMeter = registry.meter(Metrics.SYNC_METER);
     }
 
@@ -91,13 +89,13 @@ public class Importer extends ImportDb implements Runnable {
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
                 UsageDao.persistentDao(cfg.neo, datasetKey, true, registry, false),
-                registry, importService, nameUsageService, usageService, cfg.debugNeo);
+                registry, importService, nameUsageService, usageService);
     }
 
     public void run() {
         LOG.info("Start importing checklist {}", datasetKey);
         try {
-            if (debugNeo) {
+            if (LOG.isDebugEnabled()) {
                 dao.printTree();
             }
             syncDataset();

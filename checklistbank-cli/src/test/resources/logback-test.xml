@@ -24,7 +24,7 @@
     <logger name="org.gbif.dwc" level="ERROR"/>
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="org.gbif.checklistbank.cli" level="INFO"/>
-    <logger name="org.gbif.checklistbank.cli.importer" level="INFO"/>
+    <logger name="org.gbif.checklistbank.cli.importer" level="DEBUG"/>
     <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
     <logger name="org.gbif.checklistbank.neo" level="INFO"/>
 

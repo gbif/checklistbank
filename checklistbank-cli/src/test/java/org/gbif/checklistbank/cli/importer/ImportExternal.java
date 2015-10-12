@@ -35,11 +35,11 @@ public class ImportExternal {
     private NormalizerConfiguration nCfg;
     private ImporterConfiguration iCfg;
 
-    public void index(String repo, String url, UUID datasetKey) throws IOException, SQLException {
+    public void index(String repo, String url, UUID datasetKey) throws Exception {
         this.datasetKey = datasetKey;
         init(repo);
-        //download(url);
-        //normalize();
+        download(url);
+        normalize();
         sync();
     }
 
@@ -63,7 +63,6 @@ public class ImportExternal {
         iCfg.clb.user = "postgres";
         iCfg.clb.password = "pogo";
         iCfg.solr.serverType = SolrServerType.HTTP;
-        iCfg.debugNeo = true;
         //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
 
         // truncate tables
@@ -95,22 +94,19 @@ public class ImportExternal {
         System.out.println(stats);
     }
 
-    private void sync() throws SQLException {
+    private void sync() throws Exception {
         ImporterIT iit = new ImporterIT();
         Importer importer = iit.build(iCfg, datasetKey, 3);
         importer.run();
+        iit.close();
     }
 
     public static void main(String[] args) throws Exception {
         ImportExternal imp = new ImportExternal();
 
-//    imp.index("/Users/markus/Desktop/repo",
-//      "http://ipt.jbrj.gov.br/ipt/archive.do?r=lista_especies_flora_brasil",
-//      UUID.fromString("aacd816d-662c-49d2-ad1a-97e66e2a2908"));
-
       imp.index("/Users/markus/Desktop/repo",
-                "http://plazi.cs.umb.edu/GgServer/dwca/A95B920F5DE03E3E45BD30D941AADB94.zip",
-                UUID.fromString("234376ba-a94e-4ce2-9d48-c8214da43864"));
+                "http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
+                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
 
 //    imp.index("/Users/markus/Desktop/repo",
 //            "http://data.canadensys.net/ipt/archive.do?r=vascan",
@@ -119,14 +115,6 @@ public class ImportExternal {
 //    imp.index("/Users/markus/Desktop/repo",
 //            "http://www.catalogueoflife.org/DCA_Export/zip/archive-complete.zip",
 //            UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
-
-//    imp.index("/Users/markus/Desktop/repo",
-//      "http://www.gbif.es/FreshwaterInvasives/data/download/dwcarchive.zip",
-//      UUID.fromString("36ad3207-1190-47ad-868e-b09d6c0aeec2"));
-//
-//    imp.index("/Users/markus/Desktop/repo",
-//      "http://ipt-mrbif.bebif.be/archive.do?r=reptiles",
-//      UUID.fromString("ed84efa3-71f0-42fb-8c8a-f3864d8be04e"));
 
     }
 }
