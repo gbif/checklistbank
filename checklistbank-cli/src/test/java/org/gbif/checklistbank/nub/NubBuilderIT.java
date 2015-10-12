@@ -725,6 +725,49 @@ public class NubBuilderIT {
     }
 
     /**
+     * http://dev.gbif.org/issues/browse/POR-2815
+     */
+    @Test
+    public void testGenusYears() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(35);
+        build(src);
+
+        // Heliopyrgus
+        NubUsage gen = assertCanonical("Heliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+
+        NubUsage spec = assertCanonical("Heliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertTrue(spec.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        NubUsage u = assertCanonical("Heliopyrgus willisyn", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, spec);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        u = assertCanonical("Heliopyrgus willi banane", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, spec);
+        assertTrue(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        u = assertCanonical("Heliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+
+        // Meliopyrgus
+        gen = assertCanonical("Meliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+        u = assertCanonical("Meliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+        u = assertCanonical("Meliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+
+        // Leliopyrgus
+        gen = assertCanonical("Leliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+        u = assertCanonical("Leliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+        u = assertCanonical("Leliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+    }
+
+    /**
      * builds a new nub and keeps dao open for further test queries.
      */
     private void build(NubSourceList src) {
