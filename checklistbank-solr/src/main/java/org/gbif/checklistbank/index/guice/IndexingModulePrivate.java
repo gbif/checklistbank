@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.index.guice;
 
+import org.gbif.checklistbank.index.NameUsageAvroExporter;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.common.search.inject.SolrModule;
@@ -35,9 +36,13 @@ public class IndexingModulePrivate extends PrivateServiceModule {
     // Main indexer class
     bind(NameUsageIndexer.class).in(Scopes.SINGLETON);
 
+    // Main indexer class
+    bind(NameUsageAvroExporter.class).in(Scopes.SINGLETON);
+
     install(new SolrModule());
 
     expose(NameUsageIndexer.class);
+    expose(NameUsageAvroExporter.class);
     expose(SolrServer.class);
     expose(EmbeddedSolrReference.class);
   }
