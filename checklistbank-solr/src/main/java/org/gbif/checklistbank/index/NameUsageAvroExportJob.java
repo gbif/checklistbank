@@ -144,7 +144,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
           dataFileWriter.append(nameUsageAvroConverter.toObject(usage, parents, ext));
 
         } catch (Exception e) {
-          log.error("Error exporting  usage {} to avro", usage, e);
+          log.error("Error exporting  usage {}  extension {} to avro", usage, e);
         }
         docCount++;
         NameUsageIndexer.counter.incrementAndGet();

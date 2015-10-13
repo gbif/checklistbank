@@ -159,7 +159,7 @@ public class NameUsageAvroConverter {
       return nameUsageAvro;
 
     } catch (Exception e) {
-      log.error("Error converting usage {} to solr document", usage, e);
+      log.error("Error converting usage {} extension {} and parent {} to avro", usage, extensions, parents, e);
       throw new RuntimeException(e);
     }
   }
@@ -170,10 +170,11 @@ public class NameUsageAvroConverter {
     try {
       if (enums != null && !enums.isEmpty()) {
         for (Enum<?> literal : enums) {
-          ordinals.add(literal.ordinal());
+          if(literal != null) {
+            ordinals.add(literal.ordinal());
+          }
         }
       }
-      return ordinals;
     } catch (Exception e) {
       log.error("Error converting ordinals for enum", e);
     }
