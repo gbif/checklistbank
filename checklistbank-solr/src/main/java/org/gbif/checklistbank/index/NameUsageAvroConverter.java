@@ -166,9 +166,10 @@ public class NameUsageAvroConverter {
 
 
   private static List<Integer> getOrdinals(Collection<? extends Enum> enums){
-    List<Integer> ordinals = Lists.newArrayList();
+    List<Integer> ordinals = null;
     try {
       if (enums != null && !enums.isEmpty()) {
+        ordinals = Lists.newArrayList();
         for (Enum<?> literal : enums) {
           if(literal != null) {
             ordinals.add(literal.ordinal());
