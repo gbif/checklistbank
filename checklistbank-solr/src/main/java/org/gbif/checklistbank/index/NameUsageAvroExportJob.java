@@ -167,7 +167,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
       Configuration configuration = new Configuration();
       configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);
       Path targetPath = new Path(targetHdfsDir, file.getName());
-      log.info("Moving file {} to HDFS path ", file, targetPath);
+      log.info("Moving file {} to HDFS path {}", file, targetPath);
       return FileUtil.copy(file, FileSystem.get(configuration), targetPath, true, configuration);
     } catch (IOException ioe) {
       log.error("Error moving file to HDFS",ioe);
