@@ -40,7 +40,7 @@
         <gbif-cli.version>0.10</gbif-cli.version>
         <gbif-common.version>0.19</gbif-common.version>
         <gbif-common-mybatis.version>0.18</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.22</gbif-common-search.version>
+        <gbif-common-search.version>0.23-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.13</gbif-common-service.version>
         <gbif-common-ws.version>0.23</gbif-common-ws.version>
         <gbif-httputils.version>0.7</gbif-httputils.version>
@@ -96,7 +96,7 @@
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.12</slf4j.version>
-        <solr-lucene.version>4.10.3</solr-lucene.version>
+        <solr-lucene.version>5.3.0</solr-lucene.version>
         <tika.version>1.7</tika.version>
     </properties>
 

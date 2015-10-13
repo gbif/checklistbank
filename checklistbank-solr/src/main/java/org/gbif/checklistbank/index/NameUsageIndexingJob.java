@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
   /**
    * SolrServer instance.
    */
-  private final SolrServer solr;
+  private final SolrClient solrClient;
 
   /**
    * Minimum usage key, inclusive, to process.
@@ -63,7 +63,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
   /**
    * Default constructor.
    */
-  public NameUsageIndexingJob(final SolrServer solr, final UsageService nameUsageService, final int startKey,
+  public NameUsageIndexingJob(final SolrClient solrClient, final UsageService nameUsageService, final int startKey,
     final int endKey, final NameUsageDocConverter solrDocumentConverter,
     final VernacularNameServiceMyBatis vernacularNameService, final DescriptionServiceMyBatis descriptionService,
     final DistributionServiceMyBatis distributionService, final SpeciesProfileServiceMyBatis speciesProfileService) {
@@ -75,7 +75,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     this.startKey = startKey;
     this.endKey = endKey;
     this.solrDocumentConverter = solrDocumentConverter;
-    this.solr = solr;
+    this.solrClient = solrClient;
   }
 
   /**
@@ -115,7 +115,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
         ext.distributions = distributionMap.get(usage.getKey());
 
         List<Integer> parents = nameUsageService.listParents(usage.getKey());
-        solr.add(solrDocumentConverter.toObject(usage, parents, ext));
+        solrClient.add(solrDocumentConverter.toObject(usage, parents, ext));
 
       } catch (Exception e) {
         log.error("Error indexing document for usage {}", usage.getKey(), e);

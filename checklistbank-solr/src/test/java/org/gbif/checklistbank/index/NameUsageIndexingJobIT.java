@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -40,7 +40,7 @@ public class NameUsageIndexingJobIT {
   private DescriptionServiceMyBatis descriptionService;
   private DistributionServiceMyBatis distributionService;
   private SpeciesProfileServiceMyBatis speciesProfileService;
-  private SolrServer solr;
+  private SolrClient solrClient;
 
   @Before
   public void init() throws IOException {
@@ -52,7 +52,7 @@ public class NameUsageIndexingJobIT {
     descriptionService = (DescriptionServiceMyBatis) inj.getInstance(DescriptionService.class);
     distributionService = (DistributionServiceMyBatis) inj.getInstance(DistributionService.class);
     speciesProfileService = (SpeciesProfileServiceMyBatis) inj.getInstance(SpeciesProfileService.class);
-    solr = new EmbeddedServerBuilder().build();
+    solrClient = new EmbeddedServerBuilder().build();
   }
 
   @Test
@@ -85,7 +85,7 @@ public class NameUsageIndexingJobIT {
     int end   = 114989970;
     start = 110448010;
     end   = 110448020;
-    NameUsageIndexingJob job = new NameUsageIndexingJob(solr, nameUsageService, start, end, new NameUsageDocConverter(),
+    NameUsageIndexingJob job = new NameUsageIndexingJob(solrClient, nameUsageService, start, end, new NameUsageDocConverter(),
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
     job.call();
   }

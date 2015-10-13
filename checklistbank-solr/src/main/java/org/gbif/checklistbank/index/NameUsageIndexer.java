@@ -16,6 +16,8 @@ import org.gbif.utils.file.ResourcesUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +39,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.SolrPingResponse;
@@ -219,16 +221,16 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       File solrHome = getSolrHome();
       // shutdown solr before we can merge into its index
       solrRef.getSolr().getCoreContainer().shutdown();
-      File luceneDir = getLuceneDir(solrHome);
+      Path luceneDir = getLuceneDir(solrHome);
       LOG.debug("Opening main lucene index at {}", luceneDir);
       FSDirectory mainDir = FSDirectory.open(luceneDir);
-      IndexWriterConfig cfg = new IndexWriterConfig(VERSION, new StandardAnalyzer(VERSION));
+      IndexWriterConfig cfg = new IndexWriterConfig(new StandardAnalyzer());
       IndexWriter fsWriter = new IndexWriter(mainDir, cfg);
 
       LOG.info("Start merging of {} solr indices", jobCounter);
       Directory[] parts = new Directory[jobCounter];
       for (int idx = 0; idx < jobCounter; idx++) {
-        File threadDir = getLuceneDir(getWriterHome(idx));
+        Path threadDir = getLuceneDir(getWriterHome(idx));
         LOG.info("Add lucene dir {} for merging", threadDir);
         parts[idx] = FSDirectory.open(threadDir);
       }
@@ -246,8 +248,8 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     return new File(indexDir, "slice" + thread);
   }
 
-  private File getLuceneDir(File solrHome) {
-    return new File(solrHome, "data/index");
+  private static Path getLuceneDir(File solrHome) {
+    return Paths.get(solrHome.getPath(), "data/index");
   }
 
   /**
@@ -320,9 +322,9 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     jobCounter++;
 
     // round robin on configured solr servers?
-    SolrServer solr = writers[jobCounter % numWriters];
+    final SolrClient solrClient = writers[jobCounter % numWriters];
 
-    return new NameUsageIndexingJob(solr, nameUsageService, startKey, endKey, solrDocumentConverter,
+    return new NameUsageIndexingJob(solrClient, nameUsageService, startKey, endKey, solrDocumentConverter,
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
   }
 

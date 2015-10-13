@@ -4,23 +4,23 @@ import org.gbif.checklistbank.search.inject.SearchModule;
 
 import java.util.Properties;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 /**
  * Module for testing the search service.
  */
 public class SearchTestModule extends SearchModule {
 
-  private SolrServer solr;
+  private SolrClient solrClient;
 
-  public SearchTestModule(Properties properties, SolrServer solr) {
+  public SearchTestModule(Properties properties, SolrClient solrClient) {
     super(properties, false);
-    this.solr = solr;
+    this.solrClient = solrClient;
   }
 
   @Override
   protected void configureService() {
-    bind(SolrServer.class).toInstance(solr);
+    bind(SolrClient.class).toInstance(solrClient);
     super.configureService();
   }
 }

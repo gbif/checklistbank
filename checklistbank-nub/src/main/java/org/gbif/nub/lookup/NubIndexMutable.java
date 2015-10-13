@@ -13,7 +13,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class NubIndexMutable extends NubIndex {
   private NubIndexMutable() throws IOException {
     index = new RAMDirectory();
     LOG.info("Init a new, empty nub index");
-    cfg = new IndexWriterConfig(Version.LATEST, analyzer);
+    cfg = new IndexWriterConfig(analyzer);
     writer = new TrackingIndexWriter(new IndexWriter(index, cfg));
     // creates initial index segments
     writer.getIndexWriter().commit();

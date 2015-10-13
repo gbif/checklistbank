@@ -15,7 +15,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +40,12 @@ public class NubIndexImmutable extends NubIndex {
   private NubIndexImmutable(Directory d) throws IOException {
     index = d;
     DirectoryReader reader= DirectoryReader.open(index);
-    searcher = new IndexSearcher(reader);
+    searcher = new indexsearcher(reader);
   }
 
   private static void load(Directory d, UsageService usageService, int threads) throws IOException {
     LOG.info("Start building a new nub index");
-    IndexWriterConfig cfg = new IndexWriterConfig(Version.LATEST, analyzer);
+    IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
     IndexWriter writer = new IndexWriter(d, cfg);
     // creates initial index segments
     writer.commit();
@@ -67,7 +66,7 @@ public class NubIndexImmutable extends NubIndex {
   public static NubIndexImmutable newMemoryIndex(Iterable<NameUsageMatch> usages) throws IOException {
     LOG.info("Start building a new nub RAM index");
     RAMDirectory dir = new RAMDirectory();
-    IndexWriterConfig cfg = new IndexWriterConfig(Version.LATEST, analyzer);
+    IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
     IndexWriter writer = new IndexWriter(dir, cfg);
     // creates initial index segments
     writer.commit();
@@ -96,13 +95,13 @@ public class NubIndexImmutable extends NubIndex {
       Preconditions.checkArgument(indexDir.isDirectory(), "Given index directory exists but is not a directory");
       // load existing index from disk
       LOG.info("Loading existing nub index from disk: {}", indexDir.getAbsoluteFile());
-      dir = new MMapDirectory(indexDir);
+      dir = new MMapDirectory(indexDir.toPath());
 
     } else {
       // create new memory mapped file based index and then populate it
       LOG.info("Creating new nub index directory at {}", indexDir.getAbsoluteFile());
       FileUtils.forceMkdir(indexDir);
-      dir = new MMapDirectory(indexDir);
+      dir = new MMapDirectory(indexDir.toPath());
       load(dir, usageService, threads);
     }
     return new NubIndexImmutable(dir);

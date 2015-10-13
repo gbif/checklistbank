@@ -24,7 +24,7 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyQuery;
@@ -54,10 +54,9 @@ public abstract class NubIndex implements ClassificationResolver {
    */
   private static final FieldType INT_FIELD_MAX_PRECISION = new FieldType();
   static {
-    INT_FIELD_MAX_PRECISION.setIndexed(true);
     INT_FIELD_MAX_PRECISION.setTokenized(false);
     INT_FIELD_MAX_PRECISION.setOmitNorms(true);
-    INT_FIELD_MAX_PRECISION.setIndexOptions(FieldInfo.IndexOptions.DOCS_ONLY);
+    INT_FIELD_MAX_PRECISION.setIndexOptions(IndexOptions.DOCS);
     INT_FIELD_MAX_PRECISION.setNumericType(FieldType.NumericType.INT);
     INT_FIELD_MAX_PRECISION.setNumericPrecisionStep(Integer.MAX_VALUE);
     INT_FIELD_MAX_PRECISION.setStored(true);

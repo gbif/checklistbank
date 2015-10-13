@@ -9,6 +9,7 @@ import org.gbif.common.search.solr.SolrServerType;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class RealTimeModule extends PrivateModule {
       LOG.info("No solr service configured. Using pass thru mock solr service.");
     } else {
       SolrModule mod = new SolrModule();
-      bind(SolrServer.class).toInstance(mod.providerSolr(cfg));
+      bind(SolrClient.class).toInstance(mod.providerSolr(cfg));
       bind(NameUsageIndexService.class).to(NameUsageIndexServiceSolr.class).in(Scopes.SINGLETON);
     }
     expose(NameUsageIndexService.class);

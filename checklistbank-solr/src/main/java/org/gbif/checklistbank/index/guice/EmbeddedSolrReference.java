@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.index.guice;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 
 /**
@@ -11,8 +11,8 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 public class EmbeddedSolrReference {
   private EmbeddedSolrServer solr;
 
-  public EmbeddedSolrReference(SolrServer solr) {
-    this.solr = (EmbeddedSolrServer) solr;
+  public EmbeddedSolrReference(SolrClient solr) {
+    this.solr = (EmbeddedSolrServer)solr;
   }
 
   public EmbeddedSolrServer getSolr() {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<schema name="checklistbank" version="1.2">
+<schema name="checklistbank" version="1.5">
   <!-- attribute "name" is the name of this schema and is only used for display
      purposes. Applications should change this to reflect the nature of the search
      collection. version="1.2" is Solr's version number for the schema syntax
