@@ -31,25 +31,20 @@ public class TreeCommand extends BaseCommand {
     protected void doRun() {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, cfg.datasetKey, true, null, false);
 
-        if (cfg.key != null) {
-            try (Transaction tx = dao.beginTx()) {
+        try (Transaction tx = dao.beginTx()) {
+            if (cfg.key != null) {
                 Node n = dao.getNeo().getNodeById(cfg.key);
 
                 NubUsage nub = dao.readNub(n);
-                System.out.println("NUB: " + nub);
+                System.out.println("NUB: " + nub.toStringComplete());
 
                 NameUsage u = dao.readUsage(n, true);
                 System.out.println("USAGE: " + u);
+
+            } else {
+                dao.logStats();
+                dao.printTree();
             }
-        }
-
-        // report stats
-        try (Transaction tx = dao.beginTx()) {
-            dao.logStats();
-        }
-
-        try (Transaction tx = dao.beginTx()) {
-            dao.printTree();
         } finally {
             dao.close();
         }

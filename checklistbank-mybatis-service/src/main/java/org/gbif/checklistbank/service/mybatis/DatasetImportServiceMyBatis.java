@@ -168,6 +168,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         nameUsageMapper.updateForeignKeys(usageKey, parentKey, basionymKey);
     }
 
+    /**
+     * @return the usage key for the inserted record
+     */
     private int insertNewUsage(NameUsage u, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
         final UUID datasetKey = u.getDatasetKey();
 

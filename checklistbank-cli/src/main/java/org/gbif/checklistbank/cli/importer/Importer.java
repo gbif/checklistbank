@@ -151,6 +151,7 @@ public class Importer extends ImportDb implements Runnable {
                         u.setProParteKey(usageKey);
                         u.setOrigin(Origin.PROPARTE);
                         u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
+                        u.setKey(null); // in case of nub usages this is already populated!
                         for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
                             Node accN = rel.getEndNode();
                             int accNodeId = (int) accN.getId();
@@ -241,7 +242,8 @@ public class Importer extends ImportDb implements Runnable {
     private int syncUsage(NameUsage u, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions ext) {
         if (datasetKey == Constants.NUB_DATASET_KEY) {
             // for nub builts we generate the usageKey in code already. Both for inserts and updates.
-            return importService.syncUsage(u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
+            // just for pro parte usages we use the sequence generator!
+            return importService.syncUsage(u.getKey() == null || u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
         } else {
             return importService.syncUsage(false, u, parents, verbatim, metrics, ext);
         }

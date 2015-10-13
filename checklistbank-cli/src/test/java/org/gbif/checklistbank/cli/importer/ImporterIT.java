@@ -13,6 +13,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DatasetImportServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
@@ -56,7 +57,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
     private ImporterConfiguration iCfg;
-    private NameUsageService usageService;
+    private NameUsageService nameUsageService;
+    private UsageService usageService;
     private DatasetImportServiceCombined importService;
     private HikariDataSource hds;
 
@@ -70,7 +72,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     public Importer build(ImporterConfiguration cfg, UUID datasetKey, int poolSize) throws SQLException {
         MetricRegistry registry = new MetricRegistry("normalizer");
         initGuice(cfg, poolSize);
-        return Importer.create(cfg, datasetKey, registry, importService, usageService, null);
+        return Importer.create(cfg, datasetKey, registry, importService, nameUsageService, usageService);
     }
 
     private void initGuice(ImporterConfiguration cfg, int poolSize) {
@@ -79,7 +81,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
             Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
             Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
             hds = (HikariDataSource) inj.getInstance(dsKey);
-            usageService = inj.getInstance(NameUsageService.class);
+            nameUsageService = inj.getInstance(NameUsageService.class);
+            usageService = inj.getInstance(UsageService.class);
             importService = new DatasetImportServiceCombined((DatasetImportServiceMyBatis) inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), poolSize);
         }
     }
@@ -120,7 +123,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         runImport(datasetKey);
 
         // test db, all usages must be accepted and there is one root!
-        PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 500));
+        PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 500));
         assertEquals(20, resp.getResults().size());
         for (NameUsage u : resp.getResults()) {
             assertEquals("Bad datasetKey", datasetKey, u.getDatasetKey());
@@ -166,7 +169,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         runImport(datasetKey);
 
         // test db, all usages must be accepted and there is one root!
-        PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+        PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
         assertEquals(16, resp.getResults().size());
         for (NameUsage u : resp.getResults()) {
             assertFalse(u.isSynonym());
@@ -205,7 +208,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         // remember ids
         Map<Integer, String> ids = Maps.newHashMap();
         int sourceCounter = 0;
-        PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+        PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
         assertEquals(16, resp.getResults().size());
         for (NameUsage u : resp.getResults()) {
             ids.put(u.getKey(), u.getScientificName());
@@ -221,7 +224,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         // 2nd import - there are 10 SOURCE usages with stable ids and 6 HIGHER usages with instable ids
         runImport(datasetKey);
 
-        resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+        resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
         assertEquals(16, resp.getResults().size());
         for (NameUsage u : resp.getResults()) {
             if (Origin.SOURCE == u.getOrigin()) {
@@ -308,7 +311,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     }
 
     private void verify16(UUID datasetKey) {
-        PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+        PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
         // 18 source ones, 2 pro parte
         assertEquals(20, resp.getResults().size());
         int sources=0;
@@ -348,7 +351,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     }
 
     private NameUsage getUsageByTaxonID(UUID datasetKey, String taxonID) {
-        PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, taxonID, null);
+        PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, taxonID, null);
         assertEquals("More than one usage have the taxonID " + taxonID, 1, resp.getResults().size());
         return resp.getResults().get(0);
     }

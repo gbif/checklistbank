@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.importer;
 
 
+import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
@@ -38,8 +39,8 @@ public class ImportExternal {
     public void index(String repo, String url, UUID datasetKey) throws Exception {
         this.datasetKey = datasetKey;
         init(repo);
-        download(url);
-        normalize();
+        //download(url);
+        //normalize();
         sync();
     }
 
@@ -104,9 +105,11 @@ public class ImportExternal {
     public static void main(String[] args) throws Exception {
         ImportExternal imp = new ImportExternal();
 
-      imp.index("/Users/markus/Desktop/repo",
-                "http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
-                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
+      imp.index("/Users/markus/nub-repo", "", Constants.NUB_DATASET_KEY);
+
+//      imp.index("/Users/markus/Desktop/repo",
+//                "http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
+//                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
 
 //    imp.index("/Users/markus/Desktop/repo",
 //            "http://data.canadensys.net/ipt/archive.do?r=vascan",

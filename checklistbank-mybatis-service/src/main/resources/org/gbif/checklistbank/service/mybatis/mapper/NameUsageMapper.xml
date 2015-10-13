@@ -268,25 +268,25 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         VALUES (
         <if test="u.key != null">#{u.key},</if>
         <include refid="writeValues"/>,
-        <if test="u.proParteKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.proParteKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.proParteKey != -1">#{u.proParteKey},</if>
-        <if test="u.basionymKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.basionymKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.basionymKey != -1">#{u.basionymKey},</if>
-        <if test="u.kingdomKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.kingdomKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.kingdomKey != -1">#{u.kingdomKey},</if>
-        <if test="u.phylumKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.phylumKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.phylumKey != -1">#{u.phylumKey},</if>
-        <if test="u.classKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.classKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.classKey != -1">#{u.classKey},</if>
-        <if test="u.orderKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.orderKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.orderKey != -1">#{u.orderKey},</if>
-        <if test="u.familyKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.familyKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.familyKey != -1">#{u.familyKey},</if>
-        <if test="u.genusKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.genusKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.genusKey != -1">#{u.genusKey},</if>
-        <if test="u.subgenusKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.subgenusKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.subgenusKey != -1">#{u.subgenusKey},</if>
-        <if test="u.speciesKey == -1">currval('name_usage_id_seq'),</if>
+        <if test="u.speciesKey == -1">COALESCE(#{u.key}, currval('name_usage_id_seq')),</if>
         <if test="u.speciesKey != -1">#{u.speciesKey},</if>
         #{u.datasetKey}
         )
