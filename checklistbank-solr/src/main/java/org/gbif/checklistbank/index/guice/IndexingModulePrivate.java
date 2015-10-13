@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 
 /**
@@ -43,14 +43,14 @@ public class IndexingModulePrivate extends PrivateServiceModule {
 
     expose(NameUsageIndexer.class);
     expose(NameUsageAvroExporter.class);
-    expose(SolrServer.class);
+    expose(SolrClient.class);
     expose(EmbeddedSolrReference.class);
   }
 
   @Inject
   @Singleton
   @Provides
-  public EmbeddedSolrReference provideSolrReference(SolrServer solr) {
-    return new EmbeddedSolrReference(solr);
+  public EmbeddedSolrReference provideSolrReference(SolrClient solrClient) {
+    return new EmbeddedSolrReference(solrClient);
   }
 }
