@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import com.google.common.base.Throwables;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
@@ -150,7 +151,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
       }
     }
 
-    moveToHdfs(file);
+    moveToHdfs(file,nameNode);
     log.info(file.getName() + " moved to hdfs");
     // job finished notice
     stopWatch.stop();
@@ -161,11 +162,17 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
   }
 
 
-  private boolean moveToHdfs(File file) throws IOException{
-    Configuration configuration = new Configuration();
-    configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);
-    Path targetPath = new Path(targetHdfsDir, file.getName());
-    return FileUtil.copy(file, FileSystem.get(configuration), targetPath, true, configuration);
+  private boolean moveToHdfs(File file, String nameNode) throws IOException {
+    try {
+      Configuration configuration = new Configuration();
+      configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);
+      Path targetPath = new Path(targetHdfsDir, file.getName());
+      log.info("Moving file {} to HDFS path ", file, targetPath);
+      return FileUtil.copy(file, FileSystem.get(configuration), targetPath, true, configuration);
+    } catch (IOException ioe) {
+      log.error("Error moving file to HDFS",ioe);
+      throw Throwables.propagate(ioe);
+    }
   }
 
 }
