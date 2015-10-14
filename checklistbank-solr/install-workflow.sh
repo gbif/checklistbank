@@ -18,7 +18,7 @@ mvn -Psolr,$P package assembly:single
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
    echo "Removing content of current Oozie workflow directory"
-   hdfs dfs -rm -r /checklistbank-index-builder-$P/*
+   hdfs dfs -rm -f -r /checklistbank-index-builder-$P/*
 else
    echo "Creating workflow directory"
    hdfs dfs -mkdir /checklistbank-index-builder-$P/
