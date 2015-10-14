@@ -115,7 +115,7 @@ public class Importer extends ImportDb implements Runnable {
      * @throws EmptyImportException if no records at all have been imported
      */
     private void syncDataset() throws EmptyImportException {
-        if (datasetKey == Constants.NUB_DATASET_KEY) {
+        if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
             // remember the current highest nub key so we know if incoming ones are inserts or updates
             Integer high = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
             maxExistingNubKey = high == null ? -1 : high;
@@ -240,7 +240,7 @@ public class Importer extends ImportDb implements Runnable {
     }
 
     private int syncUsage(NameUsage u, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions ext) {
-        if (datasetKey == Constants.NUB_DATASET_KEY) {
+        if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
             // for nub builts we generate the usageKey in code already. Both for inserts and updates.
             // just for pro parte usages we use the sequence generator!
             return importService.syncUsage(u.getKey() == null || u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
