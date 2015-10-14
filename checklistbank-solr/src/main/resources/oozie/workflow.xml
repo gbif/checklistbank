@@ -24,13 +24,13 @@
     </configuration>
   </global>
 
-  <start to="create-avro-table" />
+  <start to="build_index" />
 
   <action name="create-avro-table">
     <hive xmlns="uri:oozie:hive-action:0.4">
       <job-xml>conf/hive-config.xml</job-xml>
       <script>hive-scripts/create_avro_table.q</script>
-      <param>avroTable=${wf:conf("hive.db")}.name_usage_avro</param>
+      <param>avroTable=${wf:conf("hive.db")}.name_usage</param>
     </hive>
 
     <ok to="build_index" />
@@ -41,7 +41,7 @@
       <shell xmlns="uri:oozie:shell-action:0.3">
           <exec>scripts/build_solr_idx.sh</exec>
           <argument>${wf:conf("solr.home")}</argument>
-          <argument>${wf:conf("hdfs.namenode")}/user/hive/warehouse/${wf:conf("hive.db")}.db/name_usage_avro/</argument>
+          <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("occurrence.environment")}/name_usage/</argument>
           <argument>${wf:conf("solr.zk")}</argument>
           <argument>${wf:conf("hdfs.out.dir")}</argument>
           <argument>${wf:conf("solr.collection")}</argument>
