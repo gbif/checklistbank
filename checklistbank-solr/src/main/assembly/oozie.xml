@@ -33,14 +33,6 @@
         <exclude>solr/</exclude>
       </excludes>
     </fileSet>
-    <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
-      <outputDirectory>/</outputDirectory>
-      <fileMode>0755</fileMode>
-      <includes>
-        <include>**/*.sh</include>
-      </includes>
-    </fileSet>
   </fileSets>
 
   <files>
