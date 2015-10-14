@@ -43,18 +43,22 @@
 
   <action name='build_index'>
       <shell xmlns="uri:oozie:shell-action:0.3">
-          <exec>scripts/build_solr_idx.sh</exec>
-          <argument>${wf:conf("solr.home")}</argument>
-          <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("environment")}/name_usage/</argument>
-          <argument>${wf:conf("solr.zk")}</argument>
-          <argument>${wf:conf("hdfs.out.dir")}</argument>
-          <argument>${wf:conf("solr.collection")}</argument>
-          <argument>${wf:conf("solr.collection.opts")}</argument>
-          <argument>${wf:conf("hadoop.client.opts")}</argument>
-          <argument>${wf:conf("mapred.opts")}</argument>
-          <argument>${wf:conf("solr.http.url")}</argument>
-          <file>scripts/build_solr_idx.sh</file>
-          <archive>solr.zip#solr</archive>
+        <prepare>
+          <delete path="${wf:conf('hdfs.out.dir')}/"/>
+          <mkdir path="${wf:conf('hdfs.out.dir')}/"/>
+        </prepare>
+        <exec>scripts/build_solr_idx.sh</exec>
+        <argument>${wf:conf("solr.home")}</argument>
+        <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("environment")}/name_usage/</argument>
+        <argument>${wf:conf("solr.zk")}</argument>
+        <argument>${wf:conf("hdfs.out.dir")}</argument>
+        <argument>${wf:conf("solr.collection")}</argument>
+        <argument>${wf:conf("solr.collection.opts")}</argument>
+        <argument>${wf:conf("hadoop.client.opts")}</argument>
+        <argument>${wf:conf("mapred.opts")}</argument>
+        <argument>${wf:conf("solr.http.url")}</argument>
+        <file>scripts/build_solr_idx.sh</file>
+        <archive>solr.zip#solr</archive>
       </shell>
       <ok to="end" />
       <error to="kill" />
