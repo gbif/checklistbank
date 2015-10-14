@@ -5,7 +5,7 @@ set -e
 P=$1
 TOKEN=$2
 
-echo "Getting latest occurrence-index-builder workflow properties file from github"
+echo "Getting latest checklistbank-index-builder workflow properties file from github"
 curl -s -H "Authorization: token $TOKEN" -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/gbif/gbif-configuration/contents/checklistbank-index-builder/$P.properties
 
 #extract the oozie.url value from the properties file
@@ -18,7 +18,7 @@ mvn -Psolr,$P package assembly:single
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
    echo "Removing content of current Oozie workflow directory"
-   hdfs dfs -rm -r /occurrence-index-builder-$P/*
+   hdfs dfs -rm -r /checklistbank-index-builder-$P/*
 else
    echo "Creating workflow directory"
    hdfs dfs -mkdir /checklistbank-index-builder-$P/
