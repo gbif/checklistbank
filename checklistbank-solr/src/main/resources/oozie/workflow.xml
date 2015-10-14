@@ -7,7 +7,7 @@
   under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES
   OR CONDITIONS OF ANY KIND, either express or implied. ~ See the License for
   the specific language governing permissions and ~ limitations under the License. -->
-<workflow-app xmlns="uri:oozie:workflow:0.4.5" name="occurrence-index-builder-${occurrence.environment}">
+<workflow-app xmlns="uri:oozie:workflow:0.4.5" name="checklistbank-index-builder-${environment}">
 
   <global>
     <job-tracker>${wf:conf("hadoop.jobtracker")}</job-tracker>
@@ -41,7 +41,7 @@
       <shell xmlns="uri:oozie:shell-action:0.3">
           <exec>scripts/build_solr_idx.sh</exec>
           <argument>${wf:conf("solr.home")}</argument>
-          <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("occurrence.environment")}/name_usage/</argument>
+          <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("environment")}/name_usage/</argument>
           <argument>${wf:conf("solr.zk")}</argument>
           <argument>${wf:conf("hdfs.out.dir")}</argument>
           <argument>${wf:conf("solr.collection")}</argument>
