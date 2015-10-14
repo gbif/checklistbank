@@ -27,11 +27,11 @@
   <start to="export_to_avro" />
 
   <action name="export_to_avro">
-    <prepare>
-      <delete path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
-      <mkdir path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
-    </prepare>
     <java>
+      <prepare>
+        <delete path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+        <mkdir path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+      </prepare>
       <main-class>org.gbif.checklistbank.index.NameUsageAvroExporter</main-class>
       <arg>${wf:conf("environment")}.properties</arg>
     </java>

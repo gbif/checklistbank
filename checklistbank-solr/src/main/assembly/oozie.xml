@@ -29,7 +29,8 @@
       <directory>${project.build.outputDirectory}/oozie/</directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
-        <exclude>**/*.sh</exclude>
+        <exclude>**/*.avrsc</exclude>
+        <exclude>solr/</exclude>
       </excludes>
     </fileSet>
     <fileSet>
