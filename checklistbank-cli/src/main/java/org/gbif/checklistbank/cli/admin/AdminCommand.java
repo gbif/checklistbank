@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -11,6 +12,8 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.cli.BaseCommand;
@@ -39,6 +42,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.MetaInfServices;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +119,10 @@ public class AdminCommand extends BaseCommand {
 
             case CLEAN_ORPHANS:
                 cleanOrphans();
+                break;
+
+            case SHOW:
+                show(cfg.key);
                 break;
 
             default:
@@ -202,6 +211,28 @@ public class AdminCommand extends BaseCommand {
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    private void show(UUID datasetKey) {
+        UsageDao dao = UsageDao.persistentDao(cfg.neo, datasetKey, true, null, false);
+        try (Transaction tx = dao.beginTx()) {
+            if (cfg.usageKey != null) {
+                Node n = dao.getNeo().getNodeById(cfg.usageKey);
+
+                NubUsage nub = dao.readNub(n);
+                System.out.println("NUB: " + nub.toStringComplete());
+
+                NameUsage u = dao.readUsage(n, true);
+                System.out.println("USAGE: " + u);
+
+            } else {
+                // show entire tree
+                dao.logStats();
+                dao.printTree();
+            }
+        } finally {
+            dao.close();
         }
     }
 

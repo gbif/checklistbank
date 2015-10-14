@@ -63,6 +63,10 @@ public class AdminConfiguration {
     @Nullable
     public File keys;
 
+    @Valid
+    @Parameter(names = {"--usage-key"}, required = false)
+    public Long usageKey;
+
     @Parameter(names = {"-t", "--type"}, required = false)
     @NotNull
     public DatasetType type = DatasetType.CHECKLIST;

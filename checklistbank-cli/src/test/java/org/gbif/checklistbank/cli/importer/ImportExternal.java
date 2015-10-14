@@ -7,7 +7,6 @@ import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
-import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -38,13 +37,13 @@ public class ImportExternal {
 
     public void index(String repo, String url, UUID datasetKey) throws Exception {
         this.datasetKey = datasetKey;
-        init(repo);
+        init(repo, false);
         //download(url);
         //normalize();
         sync();
     }
 
-    private void init(String repo) throws IOException, SQLException {
+    private void init(String repo, boolean truncate) throws IOException, SQLException {
         System.out.println("Init environment for dataset " + datasetKey);
         File tmp = new File(repo);
         File dwca = new File(tmp, "dwca");
@@ -63,18 +62,20 @@ public class ImportExternal {
         iCfg.clb.databaseName = "clb";
         iCfg.clb.user = "postgres";
         iCfg.clb.password = "pogo";
-        iCfg.solr.serverType = SolrServerType.HTTP;
+        //iCfg.solr.serverType = SolrServerType.HTTP;
         //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
 
-        // truncate tables
-        try (BaseConnection c = iCfg.clb.connect()){
-            try (Statement st = c.createStatement()) {
-                for (String table : Lists.newArrayList("name_usage_metrics", "raw_usage", "name_usage", "citation", "name")) {
-                    st.execute("TRUNCATE "+table+" CASCADE");
+        // truncate tables?
+        if (truncate) {
+            try (BaseConnection c = iCfg.clb.connect()){
+                try (Statement st = c.createStatement()) {
+                    for (String table : Lists.newArrayList("name_usage_metrics", "raw_usage", "name_usage", "citation", "name")) {
+                        st.execute("TRUNCATE "+table+" CASCADE");
+                    }
                 }
             }
+            System.out.println("Truncated clb tables");
         }
-        System.out.println("Truncated clb tables");
     }
 
     private void download(String url) throws IOException {

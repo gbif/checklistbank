@@ -345,10 +345,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         rawMapper.delete(u.getKey());
         insertVerbatim(verbatim, datasetKey, u.getKey());
 
-        // update nub mapping
-        nubRelMapper.delete(u.getKey());
-        if (u.getNubKey() != null) {
-            nubRelMapper.insert(datasetKey, u.getKey(), u.getNubKey());
+        // update nub mapping for non backbone records
+        if (!Constants.NUB_DATASET_KEY.equals(u.getDatasetKey())) {
+            nubRelMapper.delete(u.getKey());
+            if (u.getNubKey() != null) {
+                nubRelMapper.insert(datasetKey, u.getKey(), u.getNubKey());
+            }
         }
     }
 
