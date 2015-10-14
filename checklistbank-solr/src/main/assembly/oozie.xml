@@ -26,11 +26,10 @@
 
   <fileSets>
     <fileSet>
-      <directory>${project.build.outputDirectory}</directory>
+      <directory>${project.build.outputDirectory}/oozie/</directory>
       <outputDirectory>/</outputDirectory>
       <excludes>
         <exclude>**/*.sh</exclude>
-        <exclude>solr/</exclude>
       </excludes>
     </fileSet>
     <fileSet>
@@ -51,6 +50,10 @@
     </file>
     <file>
       <source>${project.build.outputDirectory}/oozie/conf/log4j.properties</source>
+      <outputDirectory>lib</outputDirectory>
+    </file>
+    <file>
+      <source>${project.build.outputDirectory}/solr.avrsc</source>
       <outputDirectory>lib</outputDirectory>
     </file>
   </files>

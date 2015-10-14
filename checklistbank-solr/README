@@ -10,3 +10,5 @@ To build a new index run the jar with a checklistbank.properties file containing
     java -Xmx4g -jar checklistbank-solr.jar ./checklistbank.properties
 
 For required and valid property file settings see [resources/checklistbank.properties](resources/checklistbank.properties)
+
+java -jar ~/Downloads/avro-tools-1.7.7.jar compile -string schema src/main/resources/solr.avrsc src/main/java/

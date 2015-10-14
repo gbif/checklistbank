@@ -148,7 +148,7 @@
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
             <includes>
-              <include>workflow.xml</include>
+              <include>/oozie/workflow.xml</include>
             </includes>
           </resource>
           <resource>
