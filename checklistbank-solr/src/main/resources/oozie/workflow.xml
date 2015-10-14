@@ -24,18 +24,22 @@
     </configuration>
   </global>
 
-  <start to="build_index" />
+  <start to="export_to_avro" />
 
-  <action name="create-avro-table">
-    <hive xmlns="uri:oozie:hive-action:0.4">
-      <job-xml>conf/hive-config.xml</job-xml>
-      <script>hive-scripts/create_avro_table.q</script>
-      <param>avroTable=${wf:conf("hive.db")}.name_usage</param>
-    </hive>
+  <action name="export_to_avro">
+    <prepare>
+      <delete path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+      <mkdir path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+    </prepare>
+    <java>
+      <main-class>org.gbif.checklistbank.index.NameUsageAvroExporter</main-class>
+      <arg>${wf:conf("environment")}.properties</arg>
+    </java>
 
-    <ok to="build_index" />
-    <error to="kill" />
+    <ok to="build_index"/>
+    <error to="kill"/>
   </action>
+
 
   <action name='build_index'>
       <shell xmlns="uri:oozie:shell-action:0.3">
