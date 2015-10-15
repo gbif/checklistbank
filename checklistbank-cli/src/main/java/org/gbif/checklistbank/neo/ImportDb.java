@@ -42,7 +42,7 @@ public class ImportDb {
      */
     protected Node nodeByTaxonId(String taxonID) {
 //      try {
-        return IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, taxonID));
+        return IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
 //      } catch (NoSuchElementException e) {
 //          throw new NotUniqueException(taxonID, "TaxonID not unique: " + taxonID);
 //      }
@@ -54,7 +54,7 @@ public class ImportDb {
     protected Node nodeByCanonical(String canonical) throws NotUniqueException {
         try {
             return IteratorUtil
-                    .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
+                    .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
         } catch (NoSuchElementException e) {
             throw new NotUniqueException(canonical, "Canonical name not unique: " + canonical);
         }
@@ -62,11 +62,11 @@ public class ImportDb {
 
     protected Collection<Node> nodesByCanonical(String canonical) {
         return IteratorUtil
-                .asCollection(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
+                .asCollection(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
     }
 
     protected List<Node> nodesByCanonicalAndRank(String canonical, Rank rank) {
-        List<Node> matching = filterByRank(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical), rank);
+        List<Node> matching = filterByRank(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical), rank);
         if (matching.size() > 10) {
             LOG.warn("There are {} matches for the {} {}. This might indicate we are not dealing with a proper checklist", matching.size(), rank, canonical);
         }
@@ -77,7 +77,7 @@ public class ImportDb {
         List<Node> matchingRanks = Lists.newArrayList();
         while(nodes.hasNext()) {
             Node n = nodes.next();
-            if (rank == null || n.getProperty(NodeProperties.RANK, rank.ordinal()).equals(rank.ordinal())) {
+            if (rank == null || n.getProperty(NeoProperties.RANK, rank.ordinal()).equals(rank.ordinal())) {
                 matchingRanks.add(n);
             }
         }
@@ -90,7 +90,7 @@ public class ImportDb {
     protected Node nodeBySciname(String sciname) throws NotUniqueException {
         try {
             return IteratorUtil
-                    .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname));
+                    .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname));
         } catch (NoSuchElementException e) {
             throw new NotUniqueException(sciname, "Scientific name not unique: " + sciname);
         }

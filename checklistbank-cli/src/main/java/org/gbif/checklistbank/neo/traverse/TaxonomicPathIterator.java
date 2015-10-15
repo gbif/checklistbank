@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -55,7 +55,7 @@ public class TaxonomicPathIterator implements AutoCloseable, Iterator<Path> {
         descendants.close();
       }
       Node root = roots.remove(0);
-      LOG.debug("Traverse a new root taxon: {}", root.getProperty(NodeProperties.SCIENTIFIC_NAME, null));
+      LOG.debug("Traverse a new root taxon: {}", root.getProperty(NeoProperties.SCIENTIFIC_NAME, null));
       descendants = Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
     }
     return descendants.next();

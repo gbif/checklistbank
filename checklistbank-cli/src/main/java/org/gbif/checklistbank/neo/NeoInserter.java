@@ -399,11 +399,11 @@ public class NeoInserter implements AutoCloseable {
                 // define indices
                 LOG.info("Building lucene index taxonID ...");
                 //TODO: neo4j batchinserter does not seem to evaluate the unique constraint. Duplicates pass thru (see tests) !!!
-                inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NodeProperties.TAXON_ID).create();
+                inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NeoProperties.TAXON_ID).create();
                 LOG.info("Building lucene index scientific name ...");
-                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
+                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.SCIENTIFIC_NAME).create();
                 LOG.info("Building lucene index canonical name ...");
-                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+                inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
             } finally {
                 // this is when lucene indices are build and thus throws RuntimeExceptions when unique constraints are broken
                 // we catch these exceptions below

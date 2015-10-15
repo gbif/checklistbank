@@ -2,7 +2,7 @@ package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 
 import javax.annotation.Nullable;
 
@@ -26,7 +26,7 @@ public class TreePrinter implements StartEndHandler {
         @Nullable
         @Override
         public String apply(@Nullable Node n) {
-            return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+            return (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
         }
     });
 
@@ -57,7 +57,7 @@ public class TreePrinter implements StartEndHandler {
         LOG.debug("{}{}{} [{}]",
                 StringUtils.repeat(' ', level * indentation),
                 n.hasLabel(Labels.SYNONYM) ? "*" : "",
-                n.getProperty(NodeProperties.SCIENTIFIC_NAME),
-                n.hasProperty(NodeProperties.RANK) ? Rank.values()[(Integer)n.getProperty(NodeProperties.RANK)] : "none");
+                n.getProperty(NeoProperties.SCIENTIFIC_NAME),
+                n.hasProperty(NeoProperties.RANK) ? Rank.values()[(Integer)n.getProperty(NeoProperties.RANK)] : "none");
     }
 }

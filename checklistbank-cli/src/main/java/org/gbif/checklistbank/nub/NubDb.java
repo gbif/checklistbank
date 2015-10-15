@@ -8,7 +8,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
@@ -59,7 +59,7 @@ public class NubDb {
         if (initialize) {
             try (Transaction tx = dao.beginTx()) {
                 Schema schema = dao.getNeo().schema();
-                schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+                schema.indexFor(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
                 tx.success();
             }
         }
@@ -82,7 +82,7 @@ public class NubDb {
 
     public List<NubUsage> findNubUsages(String canonical) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             usages.add(dao.readNub(n));
         }
         return usages;
@@ -129,7 +129,7 @@ public class NubDb {
      */
     public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, String canonical, Rank rank) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             NubUsage rn = dao.readNub(n);
             if (kingdom == rn.kingdom && rank == rn.rank && rn.status.isAccepted()) {
                 usages.add(rn);
@@ -164,7 +164,7 @@ public class NubDb {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
         final String name = dao.canonicalOrScientificName(u.parsedName, false);
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
             NubUsage rn = dao.readNub(n);
             if (matchesNub(u, uKingdom, rn, currNubParent)) {
                 checked.add(rn);

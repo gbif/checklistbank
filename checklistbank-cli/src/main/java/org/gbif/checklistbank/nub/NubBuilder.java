@@ -15,7 +15,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
@@ -62,6 +62,7 @@ import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -429,7 +430,7 @@ public class NubBuilder implements Runnable {
                     }
                     tx.success();
                 } catch (Exception e) {
-                    LOG.error("Error detecting basionyms for family {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), e);
+                    LOG.error("Error detecting basionyms for family {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, "no name"), e);
                 }
             }
             LOG.info("Discovered {} new basionym relations and created {} basionym placeholders", newRelations, newBasionyms);
@@ -591,7 +592,7 @@ public class NubBuilder implements Runnable {
                 // find basionym node by sourceKey
                 if (n != null && bas != null) {
                     if (!createBasionymRelationIfNotExisting(bas, n)) {
-                        LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NodeProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
+                        LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
                     }
                 } else {
                     LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
@@ -996,8 +997,21 @@ public class NubBuilder implements Runnable {
         for (Map.Entry<Long, NubUsage> entry : db.dao.nubUsages()) {
             NubUsage u = entry.getValue();
             if (u.rank != Rank.KINGDOM) {
-                u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom);
+                u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
                 db.dao.update(entry.getKey(), u);
+                // for pro parte synonyms we need to assigne extra keys, one per relation!
+                // http://dev.gbif.org/issues/browse/POR-2872
+                if (u.status == TaxonomicStatus.PROPARTE_SYNONYM) {
+                    try (Transaction tx = db.beginTx()) {
+                        Node n = db.getNode(entry.getKey());
+                        for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+                            int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, true);
+                            LOG.debug("Assign extra id {} for pro parte relation of primary usage {}", ppKey, u.usageKey);
+                            rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
+                        }
+                        tx.success();
+                    }
+                }
             }
         }
     }

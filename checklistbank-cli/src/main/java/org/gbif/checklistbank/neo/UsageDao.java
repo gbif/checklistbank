@@ -304,24 +304,24 @@ public class UsageDao {
     }
 
     private Rank readRank(Node n) {
-        return readEnum(n, NodeProperties.RANK, Rank.class, Rank.UNRANKED);
+        return readEnum(n, NeoProperties.RANK, Rank.class, Rank.UNRANKED);
     }
 
     private void updateNeo(Node n, NameUsage u) {
         if (n != null){
-            setProperty(n, NodeProperties.TAXON_ID, u.getTaxonID());
-            setProperty(n, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
-            setProperty(n, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
-            storeEnum(n, NodeProperties.RANK, u.getRank());
+            setProperty(n, NeoProperties.TAXON_ID, u.getTaxonID());
+            setProperty(n, NeoProperties.SCIENTIFIC_NAME, u.getScientificName());
+            setProperty(n, NeoProperties.CANONICAL_NAME, u.getCanonicalName());
+            storeEnum(n, NeoProperties.RANK, u.getRank());
         }
     }
 
     private String readCanonicalName(Node n) {
-        return (String) n.getProperty(NodeProperties.CANONICAL_NAME, null);
+        return (String) n.getProperty(NeoProperties.CANONICAL_NAME, null);
     }
 
     private String readScientificName(Node n) {
-        return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME, null);
+        return (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME, null);
     }
 
     public RankedName readRankedName(Node n) {
@@ -467,9 +467,9 @@ public class UsageDao {
     public void store(NubUsage nub) {
         nubUsages.put(nub.node.getId(), nub);
         // update neo node properties
-        setProperty(nub.node, NodeProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
-        setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
-        storeEnum(nub.node, NodeProperties.RANK, nub.rank);
+        setProperty(nub.node, NeoProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
+        setProperty(nub.node, NeoProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
+        storeEnum(nub.node, NeoProperties.RANK, nub.rank);
     }
 
     /**
@@ -519,10 +519,10 @@ public class UsageDao {
     public Map<String, Object> neoProperties(String taxonID, NameUsage u, VerbatimNameUsage v) {
         Map<String, Object> props = Maps.newHashMap();
         // NeoTaxon properties
-        props.put(NodeProperties.TAXON_ID, taxonID);
-        putIfNotNull(props, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
-        putIfNotNull(props, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
-        putIfNotNull(props, NodeProperties.RANK, u.getRank());
+        props.put(NeoProperties.TAXON_ID, taxonID);
+        putIfNotNull(props, NeoProperties.SCIENTIFIC_NAME, u.getScientificName());
+        putIfNotNull(props, NeoProperties.CANONICAL_NAME, u.getCanonicalName());
+        putIfNotNull(props, NeoProperties.RANK, u.getRank());
         return props;
     }
 

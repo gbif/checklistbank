@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 
 import java.util.List;
@@ -28,13 +28,13 @@ public class TaxonomicOrderExpander implements PathExpander {
     @Nullable
     @Override
     public Integer apply(Relationship rel) {
-      return (Integer) rel.getEndNode().getProperty(NodeProperties.RANK, Integer.MAX_VALUE);
+      return (Integer) rel.getEndNode().getProperty(NeoProperties.RANK, Integer.MAX_VALUE);
     }
   }).compound(Ordering.natural().onResultOf(new Function<Relationship, String>() {
                 @Nullable
                 @Override
                 public String apply(Relationship rel) {
-                  return (String) rel.getEndNode().getProperty(NodeProperties.CANONICAL_NAME, "");
+                  return (String) rel.getEndNode().getProperty(NeoProperties.CANONICAL_NAME, "");
                 }
               }));
 

@@ -14,7 +14,7 @@ import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoInserter;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.NotUniqueException;
 import org.gbif.checklistbank.neo.NotUniqueRuntimeException;
 import org.gbif.checklistbank.neo.RelType;
@@ -318,7 +318,7 @@ public class Normalizer extends ImportDb implements Runnable {
                     su.addIssue(NameUsageIssue.PARENT_CYCLE);
                     dao.store(syn.getId(), su, false);
 
-                    String taxonID = (String) syn.getProperty(NodeProperties.TAXON_ID, null);
+                    String taxonID = (String) syn.getProperty(NeoProperties.TAXON_ID, null);
                     cycles.add(taxonID);
 
                     NameUsageNode acc = create(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true, null, "Synonym cycle cut for taxonID " + taxonID);

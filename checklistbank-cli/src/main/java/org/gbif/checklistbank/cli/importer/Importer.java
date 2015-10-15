@@ -15,7 +15,7 @@ import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
@@ -151,7 +151,6 @@ public class Importer extends ImportDb implements Runnable {
                         u.setProParteKey(usageKey);
                         u.setOrigin(Origin.PROPARTE);
                         u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
-                        u.setKey(null); // in case of nub usages this is already populated!
                         for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
                             Node accN = rel.getEndNode();
                             int accNodeId = (int) accN.getId();
@@ -161,6 +160,10 @@ public class Importer extends ImportDb implements Runnable {
                                 u.setAcceptedKey(clbKeys.get(accNodeId));
                                 existingKey = true;
                             }
+                            // pro parte synonyms keep their id in the relation, read it
+                            // http://dev.gbif.org/issues/browse/POR-2872
+                            u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
+                            // sync the extra usage
                             int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
                             if (!existingKey) {
                                 // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
@@ -187,12 +190,12 @@ public class Importer extends ImportDb implements Runnable {
 
                 } catch (Throwable e) {
                     String id;
-                    if (n.hasProperty(NodeProperties.TAXON_ID)) {
-                        id = String.format("taxonID '%s'", n.getProperty(NodeProperties.TAXON_ID));
+                    if (n.hasProperty(NeoProperties.TAXON_ID)) {
+                        id = String.format("taxonID '%s'", n.getProperty(NeoProperties.TAXON_ID));
                     } else {
                         id = String.format("nodeID %s", n.getId());
                     }
-                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
+                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
                     LOG.error("Aborting sync of dataset {}", datasetKey);
                     throw e;
                 }
@@ -338,7 +341,7 @@ public class Importer extends ImportDb implements Runnable {
             try {
                 ClassificationUtils.setHigherRankKey(u, r, clbForeignKey(n.getId(), u.getHigherRankKey(r), KeyType.CLASSIFICATION));
             } catch (IllegalStateException e) {
-                LOG.error("{} (nodeID={}) has unprocessed {} reference to nodeId {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), n.getId(), r, u.getHigherRankKey(r));
+                LOG.error("{} (nodeID={}) has unprocessed {} reference to nodeId {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, "no name"), n.getId(), r, u.getHigherRankKey(r));
                 throw e;
             }
         }

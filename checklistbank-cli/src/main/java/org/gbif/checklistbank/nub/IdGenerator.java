@@ -64,8 +64,8 @@ public class IdGenerator implements Closeable {
         }
     }
 
-    public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom) {
-        LookupUsage u = lookup.match(canonicalName, authorship, year, rank, kingdom);
+    public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom, boolean forceNew) {
+        LookupUsage u = forceNew ? null : lookup.match(canonicalName, authorship, year, rank, kingdom);
         int id = -1;
         try {
             if (u == null) {

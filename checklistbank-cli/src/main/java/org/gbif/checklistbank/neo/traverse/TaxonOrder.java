@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 
 import java.util.Comparator;
 
@@ -13,13 +13,13 @@ public class TaxonOrder implements Comparator<Node> {
 
   @Override
   public int compare(Node n1, Node n2) {
-    int r1 = (int) n1.getProperty(NodeProperties.RANK, 9999);
-    int r2 = (int) n2.getProperty(NodeProperties.RANK, 9999);
+    int r1 = (int) n1.getProperty(NeoProperties.RANK, 9999);
+    int r2 = (int) n2.getProperty(NeoProperties.RANK, 9999);
 
     if (r1!=r2) {
       return r1 - r2;
     }
-    return n1.getProperty(NodeProperties.CANONICAL_NAME, "").toString()
-      .compareTo(n2.getProperty(NodeProperties.CANONICAL_NAME, "").toString());
+    return n1.getProperty(NeoProperties.CANONICAL_NAME, "").toString()
+      .compareTo(n2.getProperty(NeoProperties.CANONICAL_NAME, "").toString());
   }
 }

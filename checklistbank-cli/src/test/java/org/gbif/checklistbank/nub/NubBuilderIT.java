@@ -8,7 +8,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
@@ -919,7 +919,7 @@ public class NubBuilderIT {
 
     private List<NubUsage> listCanonical(String canonical) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             usages.add(get(n));
         }
         return usages;
@@ -944,7 +944,7 @@ public class NubBuilderIT {
 
     private List<NubUsage> listScientific(String sciname) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname))) {
             usages.add(get(n));
         }
         return usages;
@@ -981,7 +981,7 @@ public class NubBuilderIT {
     }
 
     private NubUsage get(String canonical) {
-        return get(dao.getNeo().findNode(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
+        return get(dao.getNeo().findNode(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
     }
 
     private NubUsage get(int key) {
@@ -1019,13 +1019,13 @@ public class NubBuilderIT {
         @Override
         public void start(Node n) {
             String expected = treeIter.next().name;
-            String name = (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+            String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
             assertEquals(expected, name);
 
             // check for synonyms and sort by name
             for (Node s : TreePrinter.SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
                 expected = treeIter.next().name;
-                name = (String) s.getProperty(NodeProperties.SCIENTIFIC_NAME);
+                name = (String) s.getProperty(NeoProperties.SCIENTIFIC_NAME);
                 assertEquals(expected, name);
             }
         }

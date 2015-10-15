@@ -12,7 +12,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 
 import java.net.URI;
@@ -92,9 +92,9 @@ public class NormalizerTest extends BaseTest {
         compareStats(norm.getStats());
 
         Set<String> taxonIndices = Sets.newHashSet();
-        taxonIndices.add(NodeProperties.TAXON_ID);
-        taxonIndices.add(NodeProperties.SCIENTIFIC_NAME);
-        taxonIndices.add(NodeProperties.CANONICAL_NAME);
+        taxonIndices.add(NeoProperties.TAXON_ID);
+        taxonIndices.add(NeoProperties.SCIENTIFIC_NAME);
+        taxonIndices.add(NeoProperties.CANONICAL_NAME);
         try (Transaction tx = beginTx()) {
             Schema schema = dao.getNeo().schema();
             for (IndexDefinition idf : schema.getIndexes(Labels.TAXON)) {
@@ -103,13 +103,13 @@ public class NormalizerTest extends BaseTest {
                 assertTrue(taxonIndices.remove(idxProps.get(0)));
             }
 
-            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "1001")));
-            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
-            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, "Crepis bakeri")));
+            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "1001")));
+            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
+            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "Crepis bakeri")));
 
-            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "x1001")));
-            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
-            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, "xCrepis bakeri")));
+            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "x1001")));
+            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
+            assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "xCrepis bakeri")));
         }
     }
 
