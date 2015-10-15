@@ -1,0 +1,11 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		GENUS	ACCEPTED		Heliopyrgus, 1957
+11	10		SPECIES	ACCEPTED		Heliopyrgus willi Plötz, 1884
+13	10		SPECIES	ACCEPTED		Heliopyrgus willi People, 1974
+
+2			KINGDOM	ACCEPTED		Animalia
+20	2		GENUS	ACCEPTED		Meliopyrgus, 1957
+21	20		SPECIES	ACCEPTED		Meliopyrgus willi Plötz, 1884
+23	20		SPECIES	ACCEPTED		Meliopyrgus willi People, 1974
+
+1000	2		SPECIES	ACCEPTED		Trichoneura bontocensis Perseus, 1999
