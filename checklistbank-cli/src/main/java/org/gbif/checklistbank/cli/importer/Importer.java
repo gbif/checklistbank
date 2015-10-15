@@ -234,7 +234,7 @@ public class Importer extends ImportDb implements Runnable {
                 }
             }
         }
-        
+
         // remove old usages
         if (firstUsageKey < 0) {
             LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);

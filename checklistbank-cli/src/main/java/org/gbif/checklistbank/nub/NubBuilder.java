@@ -48,6 +48,8 @@ import com.carrotsearch.hppc.IntLongMap;
 import com.carrotsearch.hppc.LongHashSet;
 import com.carrotsearch.hppc.LongIntHashMap;
 import com.carrotsearch.hppc.LongIntMap;
+import com.carrotsearch.hppc.ObjectLongHashMap;
+import com.carrotsearch.hppc.ObjectLongMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.LongCursor;
 import com.carrotsearch.hppc.cursors.LongIntCursor;
@@ -165,6 +167,7 @@ public class NubBuilder implements Runnable {
             // flagging of suspicous usages
             flagParentMismatch();
             flagEmptyGroups();
+            flagDuplicateAcceptedNames();
             flagSimilarNames();
             flagDoubtfulOriginalNames();
 
@@ -190,6 +193,17 @@ public class NubBuilder implements Runnable {
                 LOG.info("Backbone dao closed orderly");
             } else {
                 LOG.warn("Backbone dao not closed!");
+            }
+        }
+    }
+
+    private void flagDuplicateAcceptedNames() {
+        for (Kingdom k : Kingdom.values()) {
+            try (Transaction tx = db.beginTx()) {
+                LOG.info("Start flagging doubtful duplicate names in {}", k);
+                NubUsage ku = db.getKingdom(k);
+                markDuplicatesRedundant(Traversals.ACCEPTED_DESCENDANTS.traverse(ku.node).nodes().iterator());
+                tx.success();
             }
         }
     }
@@ -250,6 +264,45 @@ public class NubBuilder implements Runnable {
                         db.store(u);
                     } else {
                         names.add(name);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Assigns a doubtful status to accepted names that only differ in authorship
+     * @param iter any node iterator to check for names
+     */
+    private void markDuplicatesRedundant(ResourceIterator<Node> iter) {
+        ObjectLongMap names = new ObjectLongHashMap();
+        for (Node n : IteratorUtil.loop(iter)) {
+            if (!n.hasLabel(Labels.SYNONYM)) {
+                NubUsage u = db.dao.readNub(n);
+                String name = u.parsedName.canonicalName();
+                if (u.status == TaxonomicStatus.ACCEPTED && !Strings.isBlank(name)) {
+                    // prefix with rank ordinal to become unique across ranks (ordinal is shorter than full name to save mem)
+                    String indexedName = u.rank.ordinal() + name;
+                    if (names.containsKey(indexedName)) {
+                        // duplicate accepted canonical name. Check which has priority
+                        Node n1 = db.getNode(names.get(indexedName));
+                        NubUsage u1 = db.dao.readNub(n1);
+
+                        int p1 = priorities.get(u1.datasetKey);
+                        int p2 = priorities.get(u.datasetKey);
+
+                        if (p2 < p1) {
+                            // the old usage is from a less trusted source
+                            u1.status = TaxonomicStatus.DOUBTFUL;
+                            db.store(u1);
+                            names.put(indexedName, n.getId());
+                        } else {
+                            // the old usage is from a higher trusted source, keep it
+                            u.status = TaxonomicStatus.DOUBTFUL;
+                            db.store(u);
+                        }
+                    } else {
+                        names.put(indexedName, n.getId());
                     }
                 }
             }

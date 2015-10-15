@@ -407,6 +407,26 @@ public class NubBuilderIT {
     }
 
     @Test
+    public void testHomonym2() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(3, 2, 36);
+        src.setSourceRank(3, Rank.KINGDOM);
+        build(src);
+
+        assertEquals(2, listCanonical("Trichoneura bontocensis").size());
+        assertScientific("Trichoneura bontocensis Perseus, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+        assertEquals(2, listCanonical("Heliopyrgus willi").size());
+        assertScientific("Heliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+        assertEquals(2, listCanonical("Meliopyrgus willi").size());
+        assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertTree("3 2 36.txt");
+    }
+
+    @Test
     public void testGenusHomonyms() throws Exception {
         ClasspathSourceList src = ClasspathSourceList.source(29, 30, 31);
         src.setSourceRank(29, Rank.PHYLUM);
