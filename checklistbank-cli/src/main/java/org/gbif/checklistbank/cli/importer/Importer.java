@@ -34,6 +34,7 @@ import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.yammer.metrics.Meter;
@@ -206,23 +207,34 @@ public class Importer extends ImportDb implements Runnable {
         if (!postKeys.isEmpty()) {
             LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
             for (IntObjectCursor<Integer[]> c : postKeys) {
-                // update usage by usage doing both potential updates in one statement
-                Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
-                importService.updateForeignKeys(clbKey(c.key),
-                        clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
-                        clbKey(c.value[KeyType.BASIONYM.ordinal()])
-                );
+                //TODO: remove this try section as it should NEVER happen in good, production code!!!
+                // If it does the import should fail - this is only for nub build tests
+                try {
+                    // update usage by usage doing both potential updates in one statement
+                    Optional<Integer> parentKey = Optional.fromNullable(c.value[KeyType.ACCEPTED.ordinal()])
+                                              .or(Optional.fromNullable(c.value[KeyType.PARENT.ordinal()]));
+                    importService.updateForeignKeys(clbKey(c.key),
+                            clbKey(parentKey.orNull()),
+                            clbKey(c.value[KeyType.BASIONYM.ordinal()])
+                    );
+                } catch (IllegalStateException e) {
+                    LOG.error("CLB ID integrity problem", e);
+                }
             }
         }
         if (!postProParteKeys.isEmpty()) {
             LOG.info("Updating foreign keys for {} pro parte usages from dataset {}", postProParteKeys.size(), datasetKey);
             for (IntIntCursor c : postProParteKeys) {
-                // update usage by usage doing both potential updates in one statement
-                importService.updateForeignKeys(c.key, clbKey(c.value), null);
+                //TODO: remove this try section as it should NEVER happen in good, production code!!!
+                try {
+                    // update usage by usage doing both potential updates in one statement
+                    importService.updateForeignKeys(c.key, clbKey(c.value), null);
+                } catch (IllegalStateException e) {
+                    LOG.error("CLB ID integrity problem", e);
+                }
             }
         }
-
-
+        
         // remove old usages
         if (firstUsageKey < 0) {
             LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
