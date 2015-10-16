@@ -321,6 +321,7 @@ public class NubBuilderIT {
         for (NubUsage u : pedatums) {
             System.out.println(u.parsedName.getScientificName());
             NubUsage p = parentOrAccepted(u.node);
+            NameUsage nu = dao.readUsage(p.node, true);
             switch (u.parsedName.getScientificName()) {
                 case "Adiantum pedatum":
                     assertFalse(u.status.isSynonym());
@@ -330,16 +331,19 @@ public class NubBuilderIT {
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum hispidulum Sw.", p.parsedName.getScientificName());
+                    assertEquals((Integer)104, nu.getSourceTaxonKey());
                     break;
                 case "Adiantum pedatum A. Peter":
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum patens subsp. oatesii (Bak.) Schelpe", p.parsedName.getScientificName());
+                    assertEquals((Integer)105, nu.getSourceTaxonKey());
                     break;
                 case "Adiantum pedatum Raddi":
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum brasiliense Raddi", p.parsedName.getScientificName());
+                    assertEquals((Integer)106, nu.getSourceTaxonKey());
                     break;
                 default:
                     fail("Unexpected name " + u.parsedName.getScientificName());

@@ -6,7 +6,6 @@
     The vernacular name is omitted here and added later in the service implementation to avoid nasty SQL
     select distinct on (u.id) cannot be used directly as we need to have a different sort order
     -->
-    <!-- TODO: use a function for proparte synonyms to find the multiple acceptedKeys  -->
     <sql id="select">u.id, rel.nub_fk, u.dataset_key, u.constituent_key,
 CASE WHEN u.is_synonym THEN par.parent_fk ELSE u.parent_fk END as parentKey,
 CASE WHEN u.is_synonym THEN coalesce(parn2.canonical_name, parn2.scientific_name) ELSE coalesce(parn.canonical_name, parn.scientific_name) END as parent,
@@ -17,7 +16,7 @@ u.is_synonym, u.pp_synonym_fk, u.origin,u.status,u.nom_status,u.rank,u.reference
 n.scientific_name, n.canonical_name, n.type as nameType,
 authorship_full(n.authorship,n.year,n.bracket_authorship, n.bracket_year) as authorship,
 pub.citation as publishedIn, accto.citation as accordingTo,
-u.taxon_id, u."references",
+u.taxon_id, u.source_taxon_key, u."references",
 ku.id as kid, coalesce(kn.canonical_name,kn.scientific_name) as kingdom,
 pu.id as pid, coalesce(pn.canonical_name,pn.scientific_name) as phylum,
 cu.id as cid, coalesce(cn.canonical_name,cn.scientific_name) as class,
@@ -77,7 +76,6 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <!--  A mapping to build a NameUsage without any identifiers or a vernacular name -->
     <resultMap id="usageResultMap" type="NameUsage" autoMapping="true">
         <id property="key" column="id"/>
-        <result property="taxonID" column="source_id"/>
         <result property="nubKey" column="nub_fk"/>
         <result property="proParteKey" column="pp_synonym_fk"/>
         <result property="basionymKey" column="basionym_fk"/>
@@ -249,7 +247,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     nom_status,
     issues,
     name_published_in_fk, according_to_fk, origin,
-    remarks, "references", taxon_id, modified, num_descendants, last_interpreted,
+    remarks, "references", taxon_id, source_taxon_key, modified, num_descendants, last_interpreted,
     pp_synonym_fk, basionym_fk,
     kingdom_fk, phylum_fk, class_fk, order_fk, family_fk, genus_fk, subgenus_fk, species_fk
   </sql>
@@ -259,7 +257,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
     #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler },
     #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
-    #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.modified}, #{u.numDescendants}, now()
+    #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.sourceTaxonKey}, #{u.modified}, #{u.numDescendants}, now()
   </sql>
     <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
         INSERT INTO name_usage (

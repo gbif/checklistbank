@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
@@ -605,6 +606,8 @@ public class UsageDao {
         u.setOrigin(nub.origin);
         if (!nub.sourceIds.isEmpty()) {
             u.setSourceTaxonKey(nub.sourceIds.get(0));
+        } else if (nub.origin.equals(Origin.SOURCE)) {
+            LOG.warn("Source usage without source id found {} {}", u.getKey(), u.getScientificName());
         }
         u.setRemarks(remarkJoiner.join(nub.remarks));
         u.setIssues(nub.issues);

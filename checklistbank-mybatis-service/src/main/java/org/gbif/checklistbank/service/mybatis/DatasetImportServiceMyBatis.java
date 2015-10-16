@@ -383,6 +383,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
         uw.setKey(u.getKey());
         uw.setTaxonID(u.getTaxonID());
+        uw.setSourceTaxonKey(u.getSourceTaxonKey());
         uw.setDatasetKey(datasetKey);
         uw.setConstituentKey(u.getConstituentKey());
 
