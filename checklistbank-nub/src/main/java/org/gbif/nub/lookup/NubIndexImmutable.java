@@ -40,7 +40,7 @@ public class NubIndexImmutable extends NubIndex {
   private NubIndexImmutable(Directory d) throws IOException {
     index = d;
     DirectoryReader reader= DirectoryReader.open(index);
-    searcher = new indexsearcher(reader);
+    searcher = new IndexSearcher(reader);
   }
 
   private static void load(Directory d, UsageService usageService, int threads) throws IOException {
