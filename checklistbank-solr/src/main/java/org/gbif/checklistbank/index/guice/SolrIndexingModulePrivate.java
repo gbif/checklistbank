@@ -2,6 +2,7 @@ package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.index.NameUsageIndexer;
+import org.gbif.checklistbank.index.NameUsageIndexingConfig;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
 
@@ -19,12 +20,10 @@ import org.apache.solr.client.solrj.SolrClient;
  * This module depends on the registry client and checklist bank mybatis modules to be installed too
  * which is done in the {@link SolrIndexingModule}.
  */
-public class IndexingModulePrivate extends PrivateServiceModule {
+public class SolrIndexingModulePrivate extends PrivateServiceModule {
 
-  private static final String PREFIX = "checklistbank.indexer.";
-
-  public IndexingModulePrivate(Properties properties) {
-    super(PREFIX, properties);
+  public SolrIndexingModulePrivate(Properties properties) {
+    super(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX, properties);
   }
 
   @Override

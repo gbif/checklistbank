@@ -48,14 +48,14 @@ public class NameUsageAvroExporter extends ThreadPoolRunner<Integer> {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageAvroExporter.class);
 
   @Inject(optional = true)
-  @Named("batchSize")
+  @Named(NameUsageIndexingConfig.BATCH_SIZE)
   private int batchSize = 10000;
 
   /**
    * Log interval in seconds. Use property logInterval to set it, defaults to one minute.
    */
   @Inject(optional = true)
-  @Named("logInterval")
+  @Named(NameUsageIndexingConfig.LOG_INTERVAL)
   private Integer logInterval = 60;
 
   private String nameNode;
@@ -133,9 +133,9 @@ public class NameUsageAvroExporter extends ThreadPoolRunner<Integer> {
 
   @Inject
   public NameUsageAvroExporter(
-    @Named("threads") Integer threads,
-    @Named("nameNode") String nameNode,
-    @Named("targetHdfsDir") String targetHdfsDir,
+    @Named(NameUsageIndexingConfig.THREADS) Integer threads,
+    @Named(NameUsageIndexingConfig.NAME_NODE) String nameNode,
+    @Named(NameUsageIndexingConfig.TARGET_HDFS_DIR) String targetHdfsDir,
     UsageService nameUsageService,
     NameUsageDocConverter solrDocumentConverter,
     VernacularNameService vernacularNameService,

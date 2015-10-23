@@ -59,18 +59,18 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexer.class);
 
   @Inject(optional = true)
-  @Named("writers")
+  @Named(NameUsageIndexingConfig.WRITERS)
   private int numWriters = 1;
 
   @Inject(optional = true)
-  @Named("batchSize")
+  @Named(NameUsageIndexingConfig.BATCH_SIZE)
   private int batchSize = 10000;
 
   /**
    * Log interval in seconds. Use property logInterval to set it, defaults to one minute.
    */
   @Inject(optional = true)
-  @Named("logInterval")
+  @Named(NameUsageIndexingConfig.LOG_INTERVAL)
   private Integer logInterval = 60;
   private CountReporter reporterThread;
 

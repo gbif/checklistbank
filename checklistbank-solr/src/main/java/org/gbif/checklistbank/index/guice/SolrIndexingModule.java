@@ -30,6 +30,6 @@ public class SolrIndexingModule extends AbstractModule {
     install(new RegistryWsClientModule(properties));
 
     // Installs private indexing module
-    install(new IndexingModulePrivate(properties));
+    install(new SolrIndexingModulePrivate(properties));
   }
 }

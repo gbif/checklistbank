@@ -31,7 +31,5 @@ public class AvroIndexingModule extends AbstractModule {
     install(new AnonymousAuthModule());
     install(new RegistryWsClientModule(properties));
 
-    //expose the Avro exporter
-    bind(NameUsageAvroExporter.class).in(Scopes.SINGLETON);
   }
 }

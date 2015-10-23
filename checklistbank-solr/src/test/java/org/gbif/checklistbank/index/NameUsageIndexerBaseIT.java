@@ -23,8 +23,6 @@ import org.xml.sax.SAXException;
  * The class builds a fresh index before all tests run.
  */
 public abstract class NameUsageIndexerBaseIT {
-  private static final String PROPERTY_FILE = "checklistbank.properties";
-  private static final String PROPERTY_DEFAULT_FILE = "checklistbank-indexer-default.properties";
 
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexerBaseIT.class);
   private static EmbeddedSolrReference solrRef;
@@ -47,10 +45,10 @@ public abstract class NameUsageIndexerBaseIT {
     }
 
     // Creates the injector, merging properties taken from default test indexing and checklistbank
-    Properties props = PropertiesUtil.loadProperties(PROPERTY_DEFAULT_FILE);
-    Properties props2 = PropertiesUtil.loadProperties(PROPERTY_FILE);
+    Properties props = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_PROPERTY_FILE);
+    Properties props2 = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_INDEXING_PROPERTY_TEST_FILE);
     props.putAll(props2);
-    Injector injector = Guice.createInjector(new IndexingTestModule(props));
+    Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
     // Gets the indexer instance
     solrRef = injector.getInstance(EmbeddedSolrReference.class);
     nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);

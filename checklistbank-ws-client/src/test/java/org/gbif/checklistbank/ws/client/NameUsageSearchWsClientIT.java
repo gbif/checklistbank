@@ -12,7 +12,7 @@ import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.checklistbank.index.IndexingTestModule;
+import org.gbif.checklistbank.index.SolrIndexingTestModule;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
@@ -80,7 +80,7 @@ public class NameUsageSearchWsClientIT extends BaseResourceTest {
       Properties props = PropertiesUtil.loadProperties(PROPERTY_INDEXER_DEFAULT);
       Properties props2 = PropertiesUtil.loadProperties(ClientMyBatisITBase.PROPERTIES_FILE);
       props.putAll(props2);
-      Injector injector = Guice.createInjector(new IndexingTestModule(props));
+      Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
 
       // Gets the indexer instance
       solrRef = injector.getInstance(EmbeddedSolrReference.class);
