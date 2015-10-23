@@ -42,6 +42,13 @@ public interface ParsedNameMapper {
 
     void delete(@Param("key") int key);
 
+    int deleteOrphaned(@Param("keyMin") int keyMin, @Param("keyMax") int keyMax);
+
+    /**
+     * @return the maximum name key used
+     */
+    Integer maxKey();
+
     List<ParsedName> list(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
 
     /**

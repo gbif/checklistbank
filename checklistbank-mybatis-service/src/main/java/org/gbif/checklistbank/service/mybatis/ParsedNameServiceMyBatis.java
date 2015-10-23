@@ -73,6 +73,22 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
         return new PagingResponse<ParsedName>(page, null, mapper.list(datasetKey, page));
     }
 
+    public int deleteOrphaned() {
+        int deletedAll = 0;
+        Integer max = mapper.maxKey();
+        if (max != null) {
+            while (max > 0) {
+                int min = max - 100000;
+                int deleted = mapper.deleteOrphaned(min, max);
+                LOG.debug("Deleted {} orphaned names in range {}-{}", deleted, min, max);
+                max = min;
+                deletedAll = deletedAll + deleted;
+            }
+        }
+        return deletedAll;
+    }
+
+
     @Override
     public int reparseAll() {
         ReparseHandler handler = new ReparseHandler();

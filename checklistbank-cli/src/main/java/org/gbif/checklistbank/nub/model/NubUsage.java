@@ -93,4 +93,23 @@ public class NubUsage {
     public int hashCode() {
         return Objects.hash(usageKey, publishedIn, scientificNameID, rank, datasetKey, origin, parsedName, status, nomStatus, node, kingdom, sourceIds, issues, remarks);
     }
+
+    public String toStringComplete() {
+        return com.google.common.base.Objects.toStringHelper(this)
+                .add("usageKey", usageKey)
+                .add("publishedIn", publishedIn)
+                .add("scientificNameID", scientificNameID)
+                .add("rank", rank)
+                .add("origin", origin)
+                .add("parsedName", parsedName)
+                .add("status", status)
+                .add("nomStatus", nomStatus)
+                .add("node", node)
+                .add("kingdom", kingdom)
+                .add("sourceIds", sourceIds)
+                .add("issues", issues)
+                .add("remarks", remarks)
+                .add("datasetKey", datasetKey)
+                .toString();
+    }
 }

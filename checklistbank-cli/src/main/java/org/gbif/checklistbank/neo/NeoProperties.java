@@ -7,14 +7,16 @@ import org.gbif.dwc.terms.GbifTerm;
  * Property names of neo4j nodes.
  * Any property we store in neo should be listed here to avoid overlaps or other confusion.
  */
-public class NodeProperties {
+public class NeoProperties {
   // properties used in NeoTaxon
   public static final String TAXON_ID = DwcTerm.taxonID.simpleName();
   public static final String RANK = "rank";
   public static final String SCIENTIFIC_NAME = DwcTerm.scientificName.simpleName();
   public static final String CANONICAL_NAME = GbifTerm.canonicalName.simpleName();
+  // used for proparte relations
+  public static final String USAGE_KEY = "usageKey";
 
-  private NodeProperties() {
+  private NeoProperties() {
   }
 
 }

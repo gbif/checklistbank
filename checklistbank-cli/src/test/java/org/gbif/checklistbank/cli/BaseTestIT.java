@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 
 import org.junit.Test;
@@ -72,9 +72,9 @@ public class BaseTestIT extends BaseTest {
   public void testIndexPerformance() throws Exception {
     initDb();
     try (Transaction tx = beginTx()) {
-      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.TAXON_ID).create();
-      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.SCIENTIFIC_NAME).create();
-      dao.getNeo().schema().indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NeoProperties.TAXON_ID).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NeoProperties.SCIENTIFIC_NAME).create();
+      dao.getNeo().schema().indexFor(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
       tx.success();
     }
 

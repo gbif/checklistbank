@@ -70,7 +70,7 @@ public class NeoInserterTest {
 
         try (Transaction tx = dao.beginTx()) {
             Node n = dao.getNeo().getNodeById(0);
-            assertEquals("1", n.getProperty(NodeProperties.TAXON_ID));
+            assertEquals("1", n.getProperty(NeoProperties.TAXON_ID));
 
             VerbatimNameUsage v = dao.readVerbatim(n.getId());
             assertEquals("1", v.getCoreField(DwcTerm.taxonID));
@@ -118,7 +118,7 @@ public class NeoInserterTest {
         ins.close();
 
         try (Transaction tx = dao.beginTx()) {
-            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, "1")));
+            assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "1")));
         }
     }
 

@@ -75,6 +75,19 @@
       WHERE id=#{key}
     </delete>
 
+    <delete id="deleteOrphaned" parameterType="map">
+        DELETE FROM name
+        WHERE id &gt; #{keyMin} AND id &lt; #{keyMax} AND id NOT IN (
+          SELECT DISTINCT name_fk FROM name_usage WHERE name_fk &gt; #{keyMin} AND name_fk &lt; #{keyMax}
+        )
+    </delete>
+
+    <!--  the maximum key used -->
+    <select id="maxKey" parameterType="map" resultType="java.lang.Integer">
+        SELECT max(id)
+        FROM name
+    </select>
+
     <!--  list parsed names per dataset, incl duplicate names -->
     <select id="list" parameterType="map" resultMap="parsedNameResultMap">
       SELECT

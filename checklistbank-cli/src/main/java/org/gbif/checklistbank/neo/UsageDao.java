@@ -4,13 +4,14 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.TreePrinter;
@@ -19,7 +20,6 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
-import java.io.PrintStream;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -43,6 +43,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Strings;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,6 +133,7 @@ public class UsageDao {
     /**
      * A backend that is stored in files inside the configured neo directory.
      * @param eraseExisting if true erases any previous data files
+     * @param readOnly if true open neo4j in read only mode
      */
     public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, boolean readOnly, MetricRegistry registry, boolean eraseExisting) {
         DB kvp = null;
@@ -190,8 +192,8 @@ public class UsageDao {
      * Prints the entire neo4j tree out to a print stream, mainly for debugging.
      * Synonyms are marked with a prepended asterisk.
      */
-    public void printTree(PrintStream out) {
-        TaxonWalker.walkAccepted(getNeo(), null, new TreePrinter(out));
+    public void printTree() {
+        TaxonWalker.walkAccepted(getNeo(), null, new TreePrinter());
     }
 
     /**
@@ -303,24 +305,24 @@ public class UsageDao {
     }
 
     private Rank readRank(Node n) {
-        return readEnum(n, NodeProperties.RANK, Rank.class, Rank.UNRANKED);
+        return readEnum(n, NeoProperties.RANK, Rank.class, Rank.UNRANKED);
     }
 
     private void updateNeo(Node n, NameUsage u) {
         if (n != null){
-            setProperty(n, NodeProperties.TAXON_ID, u.getTaxonID());
-            setProperty(n, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
-            setProperty(n, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
-            storeEnum(n, NodeProperties.RANK, u.getRank());
+            setProperty(n, NeoProperties.TAXON_ID, u.getTaxonID());
+            setProperty(n, NeoProperties.SCIENTIFIC_NAME, u.getScientificName());
+            setProperty(n, NeoProperties.CANONICAL_NAME, u.getCanonicalName());
+            storeEnum(n, NeoProperties.RANK, u.getRank());
         }
     }
 
     private String readCanonicalName(Node n) {
-        return (String) n.getProperty(NodeProperties.CANONICAL_NAME, null);
+        return (String) n.getProperty(NeoProperties.CANONICAL_NAME, null);
     }
 
     private String readScientificName(Node n) {
-        return (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME, null);
+        return (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME, null);
     }
 
     public RankedName readRankedName(Node n) {
@@ -335,9 +337,13 @@ public class UsageDao {
     }
 
     public NubUsage readNub(Node n) {
-        if (n == null) return null;
-        NubUsage nub = nubUsages.get(n.getId());
-        nub.node = n;
+        NubUsage nub = null;
+        if (n != null) {
+            nub = nubUsages.get(n.getId());
+            if (nub != null) {
+                nub.node = n;
+            }
+        }
         return nub;
     }
 
@@ -462,9 +468,9 @@ public class UsageDao {
     public void store(NubUsage nub) {
         nubUsages.put(nub.node.getId(), nub);
         // update neo node properties
-        setProperty(nub.node, NodeProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
-        setProperty(nub.node, NodeProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
-        storeEnum(nub.node, NodeProperties.RANK, nub.rank);
+        setProperty(nub.node, NeoProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
+        setProperty(nub.node, NeoProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
+        storeEnum(nub.node, NeoProperties.RANK, nub.rank);
     }
 
     /**
@@ -514,10 +520,10 @@ public class UsageDao {
     public Map<String, Object> neoProperties(String taxonID, NameUsage u, VerbatimNameUsage v) {
         Map<String, Object> props = Maps.newHashMap();
         // NeoTaxon properties
-        props.put(NodeProperties.TAXON_ID, taxonID);
-        putIfNotNull(props, NodeProperties.SCIENTIFIC_NAME, u.getScientificName());
-        putIfNotNull(props, NodeProperties.CANONICAL_NAME, u.getCanonicalName());
-        putIfNotNull(props, NodeProperties.RANK, u.getRank());
+        props.put(NeoProperties.TAXON_ID, taxonID);
+        putIfNotNull(props, NeoProperties.SCIENTIFIC_NAME, u.getScientificName());
+        putIfNotNull(props, NeoProperties.CANONICAL_NAME, u.getCanonicalName());
+        putIfNotNull(props, NeoProperties.RANK, u.getRank());
         return props;
     }
 
@@ -600,10 +606,33 @@ public class UsageDao {
         u.setOrigin(nub.origin);
         if (!nub.sourceIds.isEmpty()) {
             u.setSourceTaxonKey(nub.sourceIds.get(0));
+        } else if (nub.origin.equals(Origin.SOURCE)) {
+            LOG.warn("Source usage without source id found {} {}", u.getKey(), u.getScientificName());
         }
         u.setRemarks(remarkJoiner.join(nub.remarks));
         u.setIssues(nub.issues);
         return u;
     }
 
+    /**
+     * Logs stats about the daos neo and kvp store.
+     */
+    public void logStats() {
+        LOG.info("KVP store: " + kvpStore.getAbsolutePath());
+        kvp.checkNotClosed();
+        LOG.info("KVP facts: " + facts.size());
+        LOG.info("KVP verbatim: " + verbatim.size());
+        LOG.info("KVP usages: " + usages.size());
+        LOG.info("KVP extensions: " + extensions.size());
+        LOG.info("KVP srcUsages: " + srcUsages.size());
+        LOG.info("KVP nubUsages: " + nubUsages.size());
+
+        LOG.info("neoDir: " + neoDir.getAbsolutePath());
+        LOG.info("roots: " + IteratorUtil.count(allRootTaxa()));
+        LOG.info("families: " + IteratorUtil.count(allFamilies()));
+        LOG.info("genera: " + IteratorUtil.count(allGenera()));
+        LOG.info("basionyms: " + IteratorUtil.count(allBasionyms()));
+        LOG.info("synonyms: " + IteratorUtil.count(allSynonyms()));
+        LOG.info("all: " + IteratorUtil.count(allTaxa()));
+    }
 }

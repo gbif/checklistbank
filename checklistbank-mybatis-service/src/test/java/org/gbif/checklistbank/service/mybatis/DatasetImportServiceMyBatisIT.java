@@ -134,6 +134,7 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetI
         assertNotNull(u2.getLastInterpreted());
         assertEquals(u.getModified(), u2.getModified());
         assertEquals(p.getKey(), u2.getNubKey());
+        assertEquals(u.getSourceTaxonKey(), u2.getSourceTaxonKey());
 
         // Try an update now with verbatim data (remove usage key as we detect existing record by taxonID only!)
         u.setKey(null);

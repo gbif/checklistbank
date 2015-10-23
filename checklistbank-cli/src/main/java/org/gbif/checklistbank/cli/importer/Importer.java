@@ -10,13 +10,12 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
-import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.ClassificationKeys;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
@@ -35,6 +34,7 @@ import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.yammer.metrics.Meter;
@@ -75,7 +75,7 @@ public class Importer extends ImportDb implements Runnable {
     private final int keyTypeSize = KeyType.values().length;
 
     private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
-                    DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
+                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         super(datasetKey, dao);
         this.importService = importService;
         this.nameUsageService = nameUsageService;
@@ -86,16 +86,19 @@ public class Importer extends ImportDb implements Runnable {
     /**
      * @param usageService only needed if you gonna sync the backbone dataset. Tests can usually just pass in null!
      */
-    public static Importer create(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry,
+    public static Importer create(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
-                UsageDao.persistentDao(cfg, datasetKey, true, registry, false),
+                UsageDao.persistentDao(cfg.neo, datasetKey, true, registry, false),
                 registry, importService, nameUsageService, usageService);
     }
 
     public void run() {
         LOG.info("Start importing checklist {}", datasetKey);
         try {
+            if (LOG.isDebugEnabled()) {
+                dao.printTree();
+            }
             syncDataset();
             LOG.info("Importing of {} succeeded.", datasetKey);
         } finally {
@@ -113,7 +116,7 @@ public class Importer extends ImportDb implements Runnable {
      * @throws EmptyImportException if no records at all have been imported
      */
     private void syncDataset() throws EmptyImportException {
-        if (datasetKey == Constants.NUB_DATASET_KEY) {
+        if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
             // remember the current highest nub key so we know if incoming ones are inserts or updates
             Integer high = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
             maxExistingNubKey = high == null ? -1 : high;
@@ -158,6 +161,10 @@ public class Importer extends ImportDb implements Runnable {
                                 u.setAcceptedKey(clbKeys.get(accNodeId));
                                 existingKey = true;
                             }
+                            // pro parte synonyms keep their id in the relation, read it
+                            // http://dev.gbif.org/issues/browse/POR-2872
+                            u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
+                            // sync the extra usage
                             int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
                             if (!existingKey) {
                                 // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
@@ -184,12 +191,12 @@ public class Importer extends ImportDb implements Runnable {
 
                 } catch (Throwable e) {
                     String id;
-                    if (n.hasProperty(NodeProperties.TAXON_ID)) {
-                        id = String.format("taxonID '%s'", n.getProperty(NodeProperties.TAXON_ID));
+                    if (n.hasProperty(NeoProperties.TAXON_ID)) {
+                        id = String.format("taxonID '%s'", n.getProperty(NeoProperties.TAXON_ID));
                     } else {
                         id = String.format("nodeID %s", n.getId());
                     }
-                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
+                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
                     LOG.error("Aborting sync of dataset {}", datasetKey);
                     throw e;
                 }
@@ -200,22 +207,33 @@ public class Importer extends ImportDb implements Runnable {
         if (!postKeys.isEmpty()) {
             LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
             for (IntObjectCursor<Integer[]> c : postKeys) {
-                // update usage by usage doing both potential updates in one statement
-                Integer parentKey = c.value[KeyType.ACCEPTED.ordinal()];
-                importService.updateForeignKeys(clbKey(c.key),
-                        clbKey(parentKey != null ? parentKey : c.value[KeyType.PARENT.ordinal()]),
-                        clbKey(c.value[KeyType.BASIONYM.ordinal()])
-                );
+                //TODO: remove this try section as it should NEVER happen in good, production code!!!
+                // If it does the import should fail - this is only for nub build tests
+                try {
+                    // update usage by usage doing both potential updates in one statement
+                    Optional<Integer> parentKey = Optional.fromNullable(c.value[KeyType.ACCEPTED.ordinal()])
+                                              .or(Optional.fromNullable(c.value[KeyType.PARENT.ordinal()]));
+                    importService.updateForeignKeys(clbKey(c.key),
+                            clbKey(parentKey.orNull()),
+                            clbKey(c.value[KeyType.BASIONYM.ordinal()])
+                    );
+                } catch (IllegalStateException e) {
+                    LOG.error("CLB ID integrity problem", e);
+                }
             }
         }
         if (!postProParteKeys.isEmpty()) {
             LOG.info("Updating foreign keys for {} pro parte usages from dataset {}", postProParteKeys.size(), datasetKey);
             for (IntIntCursor c : postProParteKeys) {
-                // update usage by usage doing both potential updates in one statement
-                importService.updateForeignKeys(c.key, clbKey(c.value), null);
+                //TODO: remove this try section as it should NEVER happen in good, production code!!!
+                try {
+                    // update usage by usage doing both potential updates in one statement
+                    importService.updateForeignKeys(c.key, clbKey(c.value), null);
+                } catch (IllegalStateException e) {
+                    LOG.error("CLB ID integrity problem", e);
+                }
             }
         }
-
 
         // remove old usages
         if (firstUsageKey < 0) {
@@ -237,16 +255,17 @@ public class Importer extends ImportDb implements Runnable {
     }
 
     private int syncUsage(NameUsage u, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions ext) {
-        if (datasetKey == Constants.NUB_DATASET_KEY) {
+        if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
             // for nub builts we generate the usageKey in code already. Both for inserts and updates.
-            return importService.syncUsage(u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
+            // just for pro parte usages we use the sequence generator!
+            return importService.syncUsage(u.getKey() == null || u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
         } else {
             return importService.syncUsage(false, u, parents, verbatim, metrics, ext);
         }
     }
 
     /**
-     * @return list of parental node ids
+     * @return list of parental clb usage keys
      */
     private List<Integer> buildClbParents(Node n) {
         // we copy the transformed, short list as it is still backed by some neo transaction
@@ -334,7 +353,7 @@ public class Importer extends ImportDb implements Runnable {
             try {
                 ClassificationUtils.setHigherRankKey(u, r, clbForeignKey(n.getId(), u.getHigherRankKey(r), KeyType.CLASSIFICATION));
             } catch (IllegalStateException e) {
-                LOG.error("{} (nodeID={}) has unprocessed {} reference to nodeId {}", n.getProperty(NodeProperties.SCIENTIFIC_NAME, "no name"), n.getId(), r, u.getHigherRankKey(r));
+                LOG.error("{} (nodeID={}) has unprocessed {} reference to nodeId {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, "no name"), n.getId(), r, u.getHigherRankKey(r));
                 throw e;
             }
         }

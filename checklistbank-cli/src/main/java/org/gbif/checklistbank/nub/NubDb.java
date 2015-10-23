@@ -4,10 +4,11 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
@@ -58,7 +59,7 @@ public class NubDb {
         if (initialize) {
             try (Transaction tx = dao.beginTx()) {
                 Schema schema = dao.getNeo().schema();
-                schema.indexFor(Labels.TAXON).on(NodeProperties.CANONICAL_NAME).create();
+                schema.indexFor(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
                 tx.success();
             }
         }
@@ -81,7 +82,7 @@ public class NubDb {
 
     public List<NubUsage> findNubUsages(String canonical) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             usages.add(dao.readNub(n));
         }
         return usages;
@@ -91,8 +92,7 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public NubUsage getParent(NubUsage child) {
-        Node p = getParent(child.node);
-        return p == null ? null : dao.readNub(p);
+        return child == null ? null : dao.readNub( getParent(child.node) );
     }
 
     public NubUsage getKingdom(Kingdom kingdom) {
@@ -103,13 +103,18 @@ public class NubDb {
      * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
      */
     public Node getParent(Node child) {
-        Relationship rel;
-        if (child.hasLabel(Labels.SYNONYM)) {
-            rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
-        } else {
-            rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+        if (child != null) {
+            Relationship rel;
+            if (child.hasLabel(Labels.SYNONYM)) {
+                rel = child.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING);
+            } else {
+                rel = child.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
+            }
+            if (rel != null) {
+                return rel.getOtherNode(child);
+            }
         }
-        return rel == null ? null : rel.getOtherNode(child);
+        return null;
     }
 
     /**
@@ -122,21 +127,31 @@ public class NubDb {
     /**
      * Returns the matching accepted nub usage for that canonical name at the given rank.
      */
-    public NubUsage findNubUsage(String canonical, Rank rank) {
+    public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, String canonical, Rank rank) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             NubUsage rn = dao.readNub(n);
-            if (rank == rn.rank && !rn.status.isSynonym()) {
+            if (kingdom == rn.kingdom && rank == rn.rank && rn.status.isAccepted()) {
                 usages.add(rn);
             }
         }
+        // remove doubtful ones
+        if (usages.size() > 1) {
+            Iterator<NubUsage> iter = usages.iterator();
+            while (iter.hasNext()) {
+                if (iter.next().status == TaxonomicStatus.DOUBTFUL) {
+                    iter.remove();
+                }
+            }
+        }
+
         if (usages.isEmpty()) {
-            return null;
+            return NubUsageMatch.empty();
         } else if (usages.size() == 1) {
-            return usages.get(0);
+            return NubUsageMatch.match(usages.get(0));
         } else {
-            LOG.warn("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
-            throw new IllegalStateException("homonym " + canonical);
+            LOG.error("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
+            throw new IllegalStateException("accepted homonym encountered for "+kingdom+" kingdom: " + rank + " " + canonical);
         }
     }
 
@@ -149,7 +164,7 @@ public class NubDb {
         List<NubUsage> checked = Lists.newArrayList();
         int canonMatches = 0;
         final String name = dao.canonicalOrScientificName(u.parsedName, false);
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
             NubUsage rn = dao.readNub(n);
             if (matchesNub(u, uKingdom, rn, currNubParent)) {
                 checked.add(rn);
@@ -164,7 +179,7 @@ public class NubDb {
             if (u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
                 ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
                 if (kResult.isSuccessful()) {
-                    return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()));
+                    return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()), false);
                 }
             }
             return NubUsageMatch.empty();
@@ -205,7 +220,7 @@ public class NubDb {
                     }
                 }
                 if (parent != null) {
-                    return NubUsageMatch.snap(checked.get(0));
+                    return NubUsageMatch.snap(checked.get(0), false);
                 }
             }
 
@@ -216,7 +231,7 @@ public class NubDb {
                     nu.issues.add(NameUsageIssue.HOMONYM);
                     nu.addRemark("Homonym known in other sources: " + u.scientificName);
                     LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
-                    return NubUsageMatch.snap(nu);
+                    return NubUsageMatch.snap(nu, true);
                 }
             }
             throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);

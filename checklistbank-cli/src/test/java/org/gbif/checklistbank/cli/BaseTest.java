@@ -9,7 +9,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 
@@ -155,18 +155,18 @@ public abstract class BaseTest {
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
   public NameUsage getUsageByTaxonId(String id) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, id));
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
 
   public NameUsageMetrics getMetricsByTaxonId(String taxonID) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.TAXON_ID, taxonID));
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
     return dao.readFacts(n.getId()).metrics;
   }
 
   public List<NameUsage> getUsagesByName(String name) {
     List<NameUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
@@ -176,7 +176,7 @@ public abstract class BaseTest {
    * Gets single usage by its canonical name. Returns null if none found or throws exception if more than 1 usage with that name exists!
    */
   public NameUsage getUsageByCanonical(String name) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, name));
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name));
     return getUsageByNode(n);
   }
 
@@ -184,12 +184,12 @@ public abstract class BaseTest {
    * Gets single usage by its scientific name. Returns null if none found or throws exception if more than 1 usage with that name exists!
    */
   public NameUsage getUsageByName(String name) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name));
+    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
     return getUsageByNode(n);
   }
 
   public List<Node> getNodesByName(String name) {
-    return IteratorUtil.asList(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, name));
+    return IteratorUtil.asList(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
   }
 
   public List<NameUsage> getAllUsages() {

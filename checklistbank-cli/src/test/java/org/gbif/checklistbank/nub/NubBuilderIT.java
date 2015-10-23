@@ -8,7 +8,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
@@ -321,6 +321,7 @@ public class NubBuilderIT {
         for (NubUsage u : pedatums) {
             System.out.println(u.parsedName.getScientificName());
             NubUsage p = parentOrAccepted(u.node);
+            NameUsage nu = dao.readUsage(p.node, true);
             switch (u.parsedName.getScientificName()) {
                 case "Adiantum pedatum":
                     assertFalse(u.status.isSynonym());
@@ -330,16 +331,19 @@ public class NubBuilderIT {
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum hispidulum Sw.", p.parsedName.getScientificName());
+                    assertEquals((Integer)104, nu.getSourceTaxonKey());
                     break;
                 case "Adiantum pedatum A. Peter":
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum patens subsp. oatesii (Bak.) Schelpe", p.parsedName.getScientificName());
+                    assertEquals((Integer)105, nu.getSourceTaxonKey());
                     break;
                 case "Adiantum pedatum Raddi":
                     assertTrue(u.status.isSynonym());
                     assertFalse(p.status.isSynonym());
                     assertEquals("Adiantum brasiliense Raddi", p.parsedName.getScientificName());
+                    assertEquals((Integer)106, nu.getSourceTaxonKey());
                     break;
                 default:
                     fail("Unexpected name " + u.parsedName.getScientificName());
@@ -404,6 +408,26 @@ public class NubBuilderIT {
         assertCanonical("Jungermanniopsida", Rank.CLASS, Origin.SOURCE, march);
 
         assertTree("3 2.txt");
+    }
+
+    @Test
+    public void testHomonym2() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(3, 2, 36);
+        src.setSourceRank(3, Rank.KINGDOM);
+        build(src);
+
+        assertEquals(2, listCanonical("Trichoneura bontocensis").size());
+        assertScientific("Trichoneura bontocensis Perseus, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+        assertEquals(2, listCanonical("Heliopyrgus willi").size());
+        assertScientific("Heliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+        assertEquals(2, listCanonical("Meliopyrgus willi").size());
+        assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+        assertTree("3 2 36.txt");
     }
 
     @Test
@@ -725,16 +749,59 @@ public class NubBuilderIT {
     }
 
     /**
+     * http://dev.gbif.org/issues/browse/POR-2815
+     */
+    @Test
+    public void testGenusYears() throws Exception {
+        ClasspathSourceList src = ClasspathSourceList.source(35);
+        build(src);
+
+        // Heliopyrgus
+        NubUsage gen = assertCanonical("Heliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+
+        NubUsage spec = assertCanonical("Heliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertTrue(spec.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        NubUsage u = assertCanonical("Heliopyrgus willisyn", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, spec);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        u = assertCanonical("Heliopyrgus willi banane", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, spec);
+        assertTrue(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+        u = assertCanonical("Heliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+
+        // Meliopyrgus
+        gen = assertCanonical("Meliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+        u = assertCanonical("Meliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+        u = assertCanonical("Meliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+
+
+        // Leliopyrgus
+        gen = assertCanonical("Leliopyrgus", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+        assertEquals(0, gen.issues.size());
+        u = assertCanonical("Leliopyrgus willi", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+        u = assertCanonical("Leliopyrgus correctwilli", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, gen);
+        assertFalse(u.issues.contains(NameUsageIssue.PUBLISHED_BEFORE_GENUS));
+    }
+
+    /**
      * builds a new nub and keeps dao open for further test queries.
      */
     private void build(NubSourceList src) {
-        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, true);
+        NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
         nb.run();
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        dao.printTree(System.out);
+        dao.printTree();
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
@@ -762,14 +829,14 @@ public class NubBuilderIT {
         dao.close();
         // new, empty DAO
         dao = UsageDao.temporaryDao(100);
-        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1, false);
+        NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax()+1);
         nb.run();
 
         IdGenerator.Metrics metrics = nb.idMetrics();
         System.out.println(metrics);
 
         tx = dao.beginTx();
-        dao.printTree(System.out);
+        dao.printTree();
 
         // assert we have only ever 8 root taxa - the kingdoms
         assertEquals(Kingdom.values().length, countRoot());
@@ -876,7 +943,7 @@ public class NubBuilderIT {
 
     private List<NubUsage> listCanonical(String canonical) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
             usages.add(get(n));
         }
         return usages;
@@ -901,7 +968,7 @@ public class NubBuilderIT {
 
     private List<NubUsage> listScientific(String sciname) {
         List<NubUsage> usages = Lists.newArrayList();
-        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NodeProperties.SCIENTIFIC_NAME, sciname))) {
+        for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname))) {
             usages.add(get(n));
         }
         return usages;
@@ -938,7 +1005,7 @@ public class NubBuilderIT {
     }
 
     private NubUsage get(String canonical) {
-        return get(dao.getNeo().findNode(Labels.TAXON, NodeProperties.CANONICAL_NAME, canonical));
+        return get(dao.getNeo().findNode(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
     }
 
     private NubUsage get(int key) {
@@ -976,13 +1043,13 @@ public class NubBuilderIT {
         @Override
         public void start(Node n) {
             String expected = treeIter.next().name;
-            String name = (String) n.getProperty(NodeProperties.SCIENTIFIC_NAME);
+            String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
             assertEquals(expected, name);
 
             // check for synonyms and sort by name
             for (Node s : TreePrinter.SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
                 expected = treeIter.next().name;
-                name = (String) s.getProperty(NodeProperties.SCIENTIFIC_NAME);
+                name = (String) s.getProperty(NeoProperties.SCIENTIFIC_NAME);
                 assertEquals(expected, name);
             }
         }

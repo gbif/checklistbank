@@ -53,7 +53,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     @Override
     protected void process(ChecklistNormalizedMessage msg) throws Exception {
         try {
-            Importer importer = Importer.create(cfg.neo, msg.getDatasetUuid(), registry, importService, nameUsageService, usageService);
+            Importer importer = Importer.create(cfg, msg.getDatasetUuid(), registry, importService, nameUsageService, usageService);
             importer.run();
             // notify rabbit
             Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);

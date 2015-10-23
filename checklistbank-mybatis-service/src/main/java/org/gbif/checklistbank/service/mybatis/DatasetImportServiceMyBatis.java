@@ -149,7 +149,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         Preconditions.checkNotNull(metrics);
 
         // find previous usageKey based on dataset specific taxonID, the source identifier for all non backbone usages
-        if (usage.getDatasetKey() != Constants.NUB_DATASET_KEY) {
+        if (!usage.getDatasetKey().equals(Constants.NUB_DATASET_KEY)) {
             usage.setKey(nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID()));
         }
 
@@ -168,6 +168,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         nameUsageMapper.updateForeignKeys(usageKey, parentKey, basionymKey);
     }
 
+    /**
+     * @return the usage key for the inserted record
+     */
     private int insertNewUsage(NameUsage u, @Nullable VerbatimNameUsage verbatim, NameUsageMetrics metrics, @Nullable UsageExtensions extensions) {
         final UUID datasetKey = u.getDatasetKey();
 
@@ -191,7 +194,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         insertVerbatim(verbatim, datasetKey, u.getKey());
 
         // insert nub mapping
-        if (u.getNubKey() != null && u.getDatasetKey() != Constants.NUB_DATASET_KEY) {
+        if (u.getNubKey() != null && !u.getDatasetKey().equals(Constants.NUB_DATASET_KEY)) {
             nubRelMapper.insert(datasetKey, u.getKey(), u.getNubKey());
         }
 
@@ -342,10 +345,12 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         rawMapper.delete(u.getKey());
         insertVerbatim(verbatim, datasetKey, u.getKey());
 
-        // update nub mapping
-        nubRelMapper.delete(u.getKey());
-        if (u.getNubKey() != null) {
-            nubRelMapper.insert(datasetKey, u.getKey(), u.getNubKey());
+        // update nub mapping for non backbone records
+        if (!Constants.NUB_DATASET_KEY.equals(u.getDatasetKey())) {
+            nubRelMapper.delete(u.getKey());
+            if (u.getNubKey() != null) {
+                nubRelMapper.insert(datasetKey, u.getKey(), u.getNubKey());
+            }
         }
     }
 
@@ -378,6 +383,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
         uw.setKey(u.getKey());
         uw.setTaxonID(u.getTaxonID());
+        uw.setSourceTaxonKey(u.getSourceTaxonKey());
         uw.setDatasetKey(datasetKey);
         uw.setConstituentKey(u.getConstituentKey());
 
@@ -468,7 +474,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     @Override
     public void close() throws Exception {
         if (exec != null) {
-            exec.shutdown();
+            exec.shutdownNow();
         }
     }
 

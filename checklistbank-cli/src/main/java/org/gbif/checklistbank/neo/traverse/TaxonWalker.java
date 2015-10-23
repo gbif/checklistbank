@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.checklistbank.neo.NodeProperties;
+import org.gbif.checklistbank.neo.NeoProperties;
 
 import javax.annotation.Nullable;
 
@@ -90,7 +90,7 @@ public class TaxonWalker {
       if (sb.length() > 0) {
         sb.append(" -- ");
       }
-      sb.append((String) n.getProperty(NodeProperties.CANONICAL_NAME, "none"));
+      sb.append((String) n.getProperty(NeoProperties.CANONICAL_NAME, "none"));
     }
     LOG.debug(sb.toString());
   }

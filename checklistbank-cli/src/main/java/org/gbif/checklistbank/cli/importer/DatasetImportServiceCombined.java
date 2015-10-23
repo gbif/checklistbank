@@ -69,7 +69,7 @@ public class DatasetImportServiceCombined implements AutoCloseable {
     public void close() throws Exception {
         LOG.info("Closing DatasetImportServiceCombined");
         sqlService.close();
-        solrExecutor.shutdown();
+        solrExecutor.shutdownNow();
     }
 
     class SolrUpdate implements Runnable {
