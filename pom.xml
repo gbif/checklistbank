@@ -98,7 +98,8 @@
         <slf4j.version>1.7.12</slf4j.version>
         <solr-lucene.version>5.3.1</solr-lucene.version>
         <tika.version>1.7</tika.version>
-
+        <hadoop.version>2.6.0-cdh5.4.7</hadoop.version>
+        <avro.version>1.7.7</avro.version>
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
     </properties>
@@ -786,6 +787,11 @@
                 <artifactId>validation-api</artifactId>
                 <version>${javax-validation-api.version}</version>
             </dependency>
+            <dependency>
+              <groupId>org.apache.avro</groupId>
+              <artifactId>avro</artifactId>
+              <version>${avro.version}</version>
+            </dependency>
 
             <!-- TEST SCOPE -->
             <dependency>
@@ -853,6 +859,21 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.hadoop</groupId>
+              <artifactId>hadoop-hdfs</artifactId>
+              <version>${hadoop.version}</version>
+              <classifier>tests</classifier>
+              <scope>test</scope>
+              <type>test-jar</type>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.hadoop</groupId>
+              <artifactId>hadoop-common</artifactId>
+              <version>${hadoop.version}</version>
+              <scope>test</scope>
+              <type>test-jar</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

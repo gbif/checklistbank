@@ -54,7 +54,7 @@
             </goals>
             <configuration>
               <includeArtifactIds>checklistbank-solr</includeArtifactIds>
-              <includes>**/*</includes>
+              <includes>**/*.xml</includes>
               <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
             </configuration>
           </execution>
@@ -159,7 +159,19 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
   </dependencies>
 
 </project>

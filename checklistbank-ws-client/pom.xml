@@ -41,7 +41,7 @@
             </goals>
             <configuration>
               <includeArtifactIds>checklistbank-search,checklistbank-solr</includeArtifactIds>
-              <includes>**/*</includes>
+              <includes>**/*.xml</includes>
               <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
             </configuration>
           </execution>
