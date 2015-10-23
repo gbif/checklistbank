@@ -31,8 +31,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 
 import static org.gbif.common.search.util.SearchConstants.NOT_OP;
 
@@ -62,8 +62,6 @@ public class NameUsageSearchServiceImpl
 
   private static final Multimap<NameUsageSearchParameter, String> SUGGEST_DEFAULT_FILTERS = ArrayListMultimap.create();
 
-  protected static final int DEFAULT_LIMIT = 10;
-
   static {
     // Suggest default filters for suggest service: names of type INFORMAL and BLACKLISTED are excluded by default.
     SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.INFORMAL.name());
@@ -75,9 +73,9 @@ public class NameUsageSearchServiceImpl
    * Default constructor.
    */
   @Inject
-  public NameUsageSearchServiceImpl(SolrServer server) {
+  public NameUsageSearchServiceImpl(SolrClient solrClient) {
     // Type parameter bounded to NameUsageSearch
-    super(server, null, NameUsageSearchResult.class, NameUsageSolrSearchResult.class,
+    super(solrClient, null, NameUsageSearchResult.class, NameUsageSolrSearchResult.class,
       NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER, NameUsageSolrSuggestResult.class);
   }
 

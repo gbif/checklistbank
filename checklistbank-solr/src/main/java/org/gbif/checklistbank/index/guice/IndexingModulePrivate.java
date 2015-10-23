@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.index.guice;
 
-import org.gbif.checklistbank.index.NameUsageAvroExporter;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.common.search.inject.SolrModule;
@@ -18,7 +17,7 @@ import org.apache.solr.client.solrj.SolrClient;
 /**
  * Guice module that bind the indexing classes.
  * This module depends on the registry client and checklist bank mybatis modules to be installed too
- * which is done in the {@link IndexingModule}.
+ * which is done in the {@link SolrIndexingModule}.
  */
 public class IndexingModulePrivate extends PrivateServiceModule {
 
@@ -36,13 +35,9 @@ public class IndexingModulePrivate extends PrivateServiceModule {
     // Main indexer class
     bind(NameUsageIndexer.class).in(Scopes.SINGLETON);
 
-    // Main indexer class
-    bind(NameUsageAvroExporter.class).in(Scopes.SINGLETON);
-
     install(new SolrModule());
 
     expose(NameUsageIndexer.class);
-    expose(NameUsageAvroExporter.class);
     expose(SolrClient.class);
     expose(EmbeddedSolrReference.class);
   }

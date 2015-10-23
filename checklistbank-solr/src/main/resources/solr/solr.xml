@@ -22,12 +22,4 @@
   sharedLib: path to a lib directory that will be shared across all cores
 -->
 <solr>
-
-  <!--
-  adminPath: RequestHandler path to manage cores.
-    If 'null' (or absent), cores will not be manageable via request handler
-  -->
-  <cores adminPath="/admin/cores" defaultCoreName="clbCore">
-    <core name="clbCore" instanceDir="collection1"/>
-  </cores>
 </solr>

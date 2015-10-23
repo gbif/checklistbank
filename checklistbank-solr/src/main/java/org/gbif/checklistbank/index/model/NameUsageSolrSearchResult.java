@@ -103,8 +103,6 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
     }
   };
 
-  private static Ordering<VernacularName> byNameAndLanguage = Ordering.natural().onResultOf(toNameLang);
-
   @JsonIgnore
   public HighlightableList getDescriptionsSerialized() {
     return new HighlightableDescription(getDescriptions());

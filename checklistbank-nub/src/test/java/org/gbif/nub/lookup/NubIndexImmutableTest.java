@@ -37,27 +37,26 @@ public class NubIndexImmutableTest {
     List<NameUsageMatch> usages = Lists.newArrayList();
 
     NameParser parser = new NameParser();
+    try(InputStream testFile = Resources.getResource("testNames.txt").openStream()) {
+      CSVReader reader = CSVReaderFactory.build(testFile, "UTF8", "\t", null, 0);
+      for (String[] row : reader) {
+        NameUsageMatch n = new NameUsageMatch();
+        n.setUsageKey(Integer.valueOf(row[0]));
+        n.setScientificName(row[1]);
+        n.setCanonicalName(parser.parseToCanonical(n.getScientificName(), null));
+        n.setFamily(row[2]);
+        n.setOrder(row[3]);
+        n.setClazz(row[4]);
+        n.setPhylum(row[5]);
+        n.setKingdom(row[6]);
+        boolean isSynonym = Boolean.parseBoolean(row[7]);
+        n.setStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
+        n.setRank(VocabularyUtils.lookupEnum(row[8], Rank.class));
+        usages.add(n);
+      }
 
-    InputStream in = Resources.newInputStreamSupplier(Resources.getResource("testNames.txt")).getInput();
-    CSVReader reader = CSVReaderFactory.build(in, "UTF8", "\t", null, 0);
-    for (String[] row : reader) {
-      NameUsageMatch n = new NameUsageMatch();
-      n.setUsageKey(Integer.valueOf(row[0]));
-      n.setScientificName(row[1]);
-      n.setCanonicalName(parser.parseToCanonical(n.getScientificName(), null));
-      n.setFamily(row[2]);
-      n.setOrder(row[3]);
-      n.setClazz(row[4]);
-      n.setPhylum(row[5]);
-      n.setKingdom(row[6]);
-      boolean isSynonym = Boolean.parseBoolean(row[7]);
-      n.setStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
-      n.setRank( VocabularyUtils.lookupEnum(row[8], Rank.class) );
-      usages.add(n);
+      Preconditions.checkArgument(usages.size() == 10, "Wrong number of test names");
     }
-
-    Preconditions.checkArgument(usages.size() == 10, "Wrong number of test names");
-
     return usages;
   }
 

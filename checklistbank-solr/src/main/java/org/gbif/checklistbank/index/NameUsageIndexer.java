@@ -5,7 +5,7 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.index.guice.IndexingModule;
+import org.gbif.checklistbank.index.guice.SolrIndexingModule;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
@@ -15,7 +15,8 @@ import org.gbif.utils.file.ResourcesUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
@@ -25,7 +26,6 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -38,7 +38,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -55,8 +54,6 @@ import org.slf4j.LoggerFactory;
  * The indexer makes direct use of the mybatis layer and requires a checklist bank datasource to be configured.
  */
 public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
-
-  private static final Version VERSION = Version.LUCENE_4_10_3;
 
   protected static AtomicLong counter = new AtomicLong(0L);
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexer.class);
@@ -157,8 +154,8 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     this.nameUsageService = nameUsageService;
     this.solrDocumentConverter = solrDocumentConverter;
     // final solr
-    this.solrRef = solr;
-    this.indexDir = new File(getSolrHome(), "parts");
+    solrRef = solr;
+    indexDir = new File(getSolrHome(), "parts");
     LOG.info("Creating solr indices in folder {}", indexDir.getAbsolutePath());
   }
 
@@ -173,7 +170,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
     }
     // Creates the injector
     Properties props = loadProperties(args[0]);
-    Injector injector = Guice.createInjector(new IndexingModule(props));
+    Injector injector = Guice.createInjector(new SolrIndexingModule(props));
     // Gets the indexer instance
     NameUsageIndexer nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
     nameUsageIndexer.run();
@@ -182,14 +179,10 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
   }
 
   private static Properties loadProperties(String propertiesFile) throws IOException {
-    InputStream inputStream = null;
     Properties tempProperties;
-    try {
-      inputStream = Files.newInputStreamSupplier(new File(propertiesFile)).getInput();
+    try (Reader reader = Files.newReader(new File(propertiesFile), Charset.defaultCharset())) {
       tempProperties = new Properties();
-      tempProperties.load(inputStream);
-    } finally {
-      Closeables.closeQuietly(inputStream);
+      tempProperties.load(reader);
     }
     return tempProperties;
   }

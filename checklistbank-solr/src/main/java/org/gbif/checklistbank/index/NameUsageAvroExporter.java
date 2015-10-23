@@ -4,7 +4,8 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
-import org.gbif.checklistbank.index.guice.IndexingModule;
+import org.gbif.checklistbank.index.guice.AvroIndexingModule;
+import org.gbif.checklistbank.index.guice.SolrIndexingModule;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
@@ -14,6 +15,8 @@ import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
@@ -164,7 +167,7 @@ public class NameUsageAvroExporter extends ThreadPoolRunner<Integer> {
     }
     // Creates the injector
     Properties props = loadProperties(args[0]);
-    Injector injector = Guice.createInjector(new IndexingModule(props));
+    Injector injector = Guice.createInjector(new AvroIndexingModule(props));
     // Gets the indexer instance
     NameUsageAvroExporter nameUsageIndexer = injector.getInstance(NameUsageAvroExporter.class);
     nameUsageIndexer.run();
@@ -174,14 +177,10 @@ public class NameUsageAvroExporter extends ThreadPoolRunner<Integer> {
   }
 
   private static Properties loadProperties(String propertiesFile) throws IOException {
-    InputStream inputStream = null;
     Properties tempProperties;
-    try {
-      inputStream = Files.newInputStreamSupplier(new File(propertiesFile)).getInput();
+    try (Reader reader = Files.newReader(new File(propertiesFile), Charset.defaultCharset())) {
       tempProperties = new Properties();
-      tempProperties.load(inputStream);
-    } finally {
-      Closeables.closeQuietly(inputStream);
+      tempProperties.load(reader);
     }
     return tempProperties;
   }

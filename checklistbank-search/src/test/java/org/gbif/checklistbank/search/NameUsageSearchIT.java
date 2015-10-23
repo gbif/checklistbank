@@ -260,7 +260,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
     return response;
   }
 
-  private static Set<String> getVernacularNamesSet(NameUsageSearchResult usage) {
+  private Set<String> getVernacularNamesSet(NameUsageSearchResult usage) {
     Set<String> vnames = Sets.newHashSet();
     for (VernacularName vn : usage.getVernacularNames()) {
       vnames.add(vn.getVernacularName());
@@ -288,7 +288,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
   /**
    * Utility method for testing suggest service.
    */
-  private static List<NameUsageSuggestResult> searchSuggest(String q) {
+  private List<NameUsageSuggestResult> searchSuggest(String q) {
     NameUsageSuggestRequest req = new NameUsageSuggestRequest();
     req.setQ(q);
     req.setLimit(10);
