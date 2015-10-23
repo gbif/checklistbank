@@ -3,7 +3,6 @@
  */
 package org.gbif.checklistbank.index;
 
-import org.gbif.checklistbank.index.guice.AvroIndexingModulePrivate;
 import org.gbif.checklistbank.index.guice.SolrIndexingModulePrivate;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 
@@ -38,7 +37,7 @@ public class SolrIndexingTestModule extends AbstractModule {
     install(new ChecklistBankServiceMyBatisModule(properties));
 
     // Installs private indexing module
-    install(new AvroIndexingModulePrivate(properties));
+    install(new SolrIndexingModulePrivate(properties));
   }
 
   /**
