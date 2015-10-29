@@ -34,7 +34,7 @@ import com.google.inject.Inject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 
-import static org.gbif.common.search.util.SearchConstants.NOT_OP;
+import static org.gbif.common.search.util.QueryUtils.NOT_OP;
 
 
 /**
