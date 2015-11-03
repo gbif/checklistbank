@@ -57,7 +57,6 @@
                   <artifact>org.jruby:jruby-complete</artifact>
                   <excludes>
                     <exclude>org/joda/**</exclude>
-                    <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
                 <filter>
@@ -66,6 +65,7 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
+                    <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
                 <filter>
