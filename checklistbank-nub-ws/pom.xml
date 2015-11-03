@@ -59,6 +59,7 @@
                   <artifact>org.jruby:jruby-complete</artifact>
                   <excludes>
                     <exclude>org/joda/**</exclude>
+                    <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
                 <filter>
@@ -74,6 +75,7 @@
                   <artifact>org.gbif.checklistbank:checklistbank-nub-ws</artifact>
                   <excludes>
                     <exclude>checklistbank.properties</exclude>
+                    <exclude>logback.xml</exclude>
                   </excludes>
                 </filter>
               </filters>
