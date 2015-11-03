@@ -55,6 +55,7 @@ import org.gbif.checklistbank.service.mybatis.UsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.CitationMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ColAnnotationMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
@@ -135,6 +136,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
         addMapperClass(SpeciesProfileMapper.class);
         addMapperClass(TypeSpecimenMapper.class);
         addMapperClass(DatasetMetricsMapper.class);
+        addMapperClass(DatasetMapper.class);
         addMapperClass(RawUsageMapper.class);
         addMapperClass(ParsedNameMapper.class);
         addMapperClass(CitationMapper.class);

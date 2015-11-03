@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Param;
  */
 public interface ReferenceMapper extends NameUsageComponentMapper<Reference> {
 
-  void insert(@Param("key") int usageKey, @Param("citationKey") int citationKey, @Param("obj") Reference reference, @Param("sourceKey") Integer sourceKey);
+  void insert(@Param("key") int usageKey, @Param("citationKey") int citationKey, @Param("obj") Reference reference);
 
 }

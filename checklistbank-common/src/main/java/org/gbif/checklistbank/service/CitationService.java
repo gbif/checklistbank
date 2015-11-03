@@ -7,12 +7,12 @@ package org.gbif.checklistbank.service;
 public interface CitationService {
 
   /**
-   * Get a citation string by its key.
-   */
-  String get(int key);
-
-  /**
    * Returns the key for an existing or newly inserted citation string.
    */
   Integer createOrGet(String citation);
+
+    /**
+     * Returns the key for an existing or newly inserted citation string.
+     */
+  Integer createOrGet(String citation, String doi, String link);
 }

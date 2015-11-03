@@ -2,12 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper">
 
-  <sql id="select">s.id, t.rank, t.scientific_name, t.designated_by, t.designation_type, s.citation AS source</sql>
+  <sql id="selectCommon">t.id, t.rank, t.scientific_name, t.designated_by, t.designation_type</sql>
+  <sql id="select">null AS sourceTaxonKey, c.citation as source, <include refid="selectCommon"/></sql>
+  <sql id="selectNub">t.usage_fk as sourceTaxonKey, d.title as source, <include refid="selectCommon"/></sql>
 
   <sql id="from"> typification t
-    LEFT JOIN citation s ON t.source_fk=s.id
+    LEFT JOIN citation c ON t.source_fk=c.id
   </sql>
-  <sql id="fromNub">JOIN nub_rel rel ON t.usage_fk=rel.usage_fk</sql>
+  <sql id="fromNub">typification t
+    JOIN nub_rel rel ON rel.usage_fk=t.usage_fk
+    LEFT JOIN dataset d ON rel.dataset_key=d.key
+  </sql>
 
   <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
 
@@ -35,9 +40,8 @@
   <!-- get all type specimen by nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="typeSpecimenResultMap">
     SELECT t.usage_fk,
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
-    <include refid="from"/>
     <include refid="fromNub"/>
     WHERE rel.nub_fk=#{key}
     ORDER BY t.scientific_name, t.id
@@ -51,7 +55,7 @@
 
   <insert id="insert" parameterType="map" useGeneratedKeys="false">
     INSERT INTO typification (usage_fk, rank, scientific_name, designated_by, designation_type, source_fk)
-    VALUES (#{key}, #{obj.taxonRank}::rank, #{obj.scientificName}, #{obj.typeDesignatedBy}, #{obj.typeDesignationType}, #{sourceKey})
+    VALUES (#{key}, #{obj.taxonRank}::rank, #{obj.scientificName}, #{obj.typeDesignatedBy}, #{obj.typeDesignationType}::type_designation_type, #{sourceKey})
   </insert>
 
 </mapper>

@@ -260,7 +260,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
                     citation = buildCitation(r);
                 }
                 if (!Strings.isNullOrEmpty(citation)) {
-                    referenceMapper.insert(usageKey, citationService.createOrGet(citation), r, citationService.createOrGet(r.getSource()));
+                    referenceMapper.insert(usageKey, citationService.createOrGet(citation, r.getDoi(), r.getLink()), r);
                 }
             }
             for (SpeciesProfile s : ext.speciesProfiles) {

@@ -10,12 +10,14 @@ import org.gbif.api.service.registry.NetworkService;
 import org.gbif.api.service.registry.NodeService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
+import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.deletion.DeleteService;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -104,7 +106,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     protected void doRun() {
         initRegistry();
-        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS).contains(cfg.operation)) {
+        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS, AdminOperation.SYNC_DATASETS, AdminOperation.SHOW).contains(cfg.operation)) {
             runSineDatasets();
         } else {
             runDatasetComamnds();
@@ -125,9 +127,28 @@ public class AdminCommand extends BaseCommand {
                 show(cfg.key);
                 break;
 
+            case SYNC_DATASETS:
+                syncDatasets();
+                break;
+
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private void syncDatasets() {
+        initRegistry();
+        Injector inj = Guice.createInjector(cfg.clb.createMapperModule());
+        DatasetMapper mapper = inj.getInstance(DatasetMapper.class);
+        LOG.info("Start syncing datasets from registry to CLB.");
+        int counter = 0;
+        Iterable<Dataset> datasets = Iterables.datasets(DatasetType.CHECKLIST, datasetService);
+        mapper.truncate();
+        for (Dataset d : datasets) {
+            mapper.insert(d.getKey(), d.getTitle());
+            counter++;
+        }
+        LOG.info("{} checklist titles copied", counter);
     }
 
     /**

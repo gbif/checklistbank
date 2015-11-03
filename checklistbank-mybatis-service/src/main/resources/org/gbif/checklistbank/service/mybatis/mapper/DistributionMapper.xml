@@ -2,19 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper">
 
+  <sql id="selectCommon">
+    d.id, d.location_id, d.locality, d.country,
+    d.occurrence_status, d.threat_status,d.establishment_means, d.appendix_cites,
+    d.start_day_of_year, d.end_day_of_year,
+    d.remarks,d.temporal,d.life_stage
+  </sql>
   <sql id="select">
-    d.usage_fk AS usageKey, null AS sourceTaxonKey,<include refid="selectNoUsageKey"/>
+    d.usage_fk AS usageKey, null AS sourceTaxonKey,c.citation as source,<include refid="selectCommon"/>
   </sql>
   <sql id="selectNub">
-    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,<include refid="selectNoUsageKey"/>
-  </sql>
-  <sql id="selectNoUsageKey">
-    d.id, d.country, d.location_id, d.locality, d.remarks,c.citation,
-    d.occurrence_status, d.threat_status,d.establishment_means, d.appendix_cites
+    rel.nub_fk as usageKey, d.usage_fk as sourceTaxonKey,ds.title as source,<include refid="selectCommon"/>
   </sql>
 
-  <sql id="from">distribution d LEFT JOIN citation c ON d.source_fk=c.id</sql>
-  <sql id="fromNub">JOIN nub_rel rel ON rel.usage_fk=d.usage_fk</sql>
+  <sql id="from">distribution d
+    LEFT JOIN citation c ON d.source_fk=c.id
+  </sql>
+  <sql id="fromNub">distribution d
+    JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
+    LEFT JOIN dataset ds ON rel.dataset_key=ds.key
+  </sql>
 
   <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
 
@@ -46,7 +53,6 @@
     SELECT
     <include refid="selectNub"/>
     FROM
-    <include refid="from"/>
     <include refid="fromNub"/>
     WHERE rel.nub_fk=#{key}
     ORDER BY d.country, d.id
@@ -67,7 +73,6 @@
     SELECT
     <include refid="selectNub"/>
     FROM
-    <include refid="from"/>
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
   </select>

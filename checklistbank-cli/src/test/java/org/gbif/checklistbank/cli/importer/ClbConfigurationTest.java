@@ -10,16 +10,6 @@ import org.junit.Test;
 
 public class ClbConfigurationTest {
 
-    @Test
-    public void testCreateServiceModule() throws Exception {
-        ClbConfiguration cfg = new ClbConfiguration();
-        cfg.serverName = "localhost";
-        cfg.user = "test";
-        cfg.password = "test";
-        cfg.parserTimeout = 100;
-        cfg.createServiceModule();
-    }
-
     @Test(expected = CreationException.class)
     public void testBadTimeout() throws Exception {
         ClbConfiguration cfg = new ClbConfiguration();

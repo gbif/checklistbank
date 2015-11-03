@@ -2,16 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper">
 
-  <sql id="select">r.id, r.type, r.remarks, c.citation, c.identifier, c.link</sql>
+  <sql id="selectCommon">r.id, r.type, r.remarks, c.citation, c.identifier, c.link</sql>
+  <sql id="select">null AS sourceTaxonKey, null as source,<include refid="selectCommon"/></sql>
+  <sql id="selectNub">r.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
 
-  <sql id="from">literature r JOIN citation c ON r.citation_fk=c.id</sql>
-  <sql id="fromNub">JOIN nub_rel rel ON r.usage_fk=rel.usage_fk </sql>
+  <sql id="from">literature r
+    JOIN citation c ON r.citation_fk=c.id
+  </sql>
+
+  <sql id="fromNub">literature r
+    JOIN citation c ON r.citation_fk=c.id
+    JOIN nub_rel rel ON r.usage_fk=rel.usage_fk
+    LEFT JOIN dataset d ON rel.dataset_key=d.key
+  </sql>
 
   <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
 
+
   <resultMap id="referenceResultMap" type="Reference" autoMapping="true">
     <result property="doi" column="identifier"/>
-    <result property="sourceTaxonKey" column="usage_fk"/>
   </resultMap>
 
 
@@ -29,9 +38,8 @@
   <!-- get all references by a nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="referenceResultMap">
     SELECT r.usage_fk,
-    <include refid="select"/>
+    <include refid="selectNub"/>
     FROM
-    <include refid="from"/>
     <include refid="fromNub"/>
     WHERE rel.nub_fk=#{key}
     ORDER BY citation

@@ -179,4 +179,14 @@
             ALTER TABLE name_usage ADD COLUMN source_taxon_key integer;
         </sql>
     </changeSet>
+    <changeSet id="34" author="markus">
+        <!-- add new dataset table: http://dev.gbif.org/issues/browse/POR-2700 -->
+        <sql>
+            CREATE TABLE dataset (
+                key uuid NOT NULL,
+                title text,
+                PRIMARY KEY (key)
+            )
+        </sql>
+    </changeSet>
 </databaseChangeLog>
