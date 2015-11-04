@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.deletion;
+package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.cli.Command;
 import org.gbif.cli.service.ServiceCommand;
@@ -7,17 +7,17 @@ import com.google.common.util.concurrent.Service;
 import org.kohsuke.MetaInfServices;
 
 @MetaInfServices(Command.class)
-public class DeleteCommand extends ServiceCommand {
+public class RegistryCommand extends ServiceCommand {
 
-  private final DeleteConfiguration configuration = new DeleteConfiguration();
+  private final RegistryConfiguration configuration = new RegistryConfiguration();
 
-  public DeleteCommand() {
-    super("deletion");
+  public RegistryCommand() {
+    super("registry");
   }
 
   @Override
   protected Service getService() {
-    return new DeleteService(configuration);
+    return new RegistryService(configuration);
   }
 
   @Override

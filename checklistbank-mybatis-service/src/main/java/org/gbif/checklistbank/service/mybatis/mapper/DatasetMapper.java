@@ -10,6 +10,10 @@ public interface DatasetMapper {
 
     void insert(@Param("uuid") UUID datasetKey, @Param("title") String title);
 
+    void update(@Param("uuid") UUID datasetKey, @Param("title") String title);
+
+    void delete(@Param("uuid") UUID datasetKey);
+
     void truncate();
 
 }

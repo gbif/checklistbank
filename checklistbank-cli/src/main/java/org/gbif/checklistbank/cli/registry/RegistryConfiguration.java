@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.deletion;
+package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
@@ -17,7 +17,7 @@ import com.beust.jcommander.ParametersDelegate;
  *
  */
 @SuppressWarnings("PublicField")
-public class DeleteConfiguration {
+public class RegistryConfiguration {
 
   @ParametersDelegate
   @Valid

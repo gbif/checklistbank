@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.deletion;
+package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
@@ -8,6 +8,7 @@ import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 
 import java.io.File;
@@ -22,25 +23,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
+/**
+ * A service that watches registry changed messages and does deletions of checklists and
+ * updates to the dataset title table in CLB.
+ */
+public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DeleteService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RegistryService.class);
 
-    private final DeleteConfiguration cfg;
-    private NameUsageIndexService solrService;
-    private DatasetImportService mybatisService;
+    private final RegistryConfiguration cfg;
+    private final NameUsageIndexService solrService;
+    private final DatasetImportService mybatisService;
+    private final DatasetMapper datasetMapper;
     private final Timer timerSolr = registry.timer(regName("solr.time"));
     private final Timer timerSql = registry.timer(regName("sql.time"));
 
-    public DeleteService(DeleteConfiguration cfg) {
+    public RegistryService(RegistryConfiguration cfg) {
         super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
         this.cfg = cfg;
 
         // init mybatis layer and solr from cfg instance
-        Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+        Injector inj = Guice.createInjector(cfg.clb.createMapperModule(), new RealTimeModule(cfg.solr));
         initDbPool(inj);
         solrService = inj.getInstance(NameUsageIndexService.class);
         mybatisService = inj.getInstance(DatasetImportService.class);
+        datasetMapper = inj.getInstance(DatasetMapper.class);
     }
 
     /**
@@ -90,15 +97,27 @@ public class DeleteService extends RabbitBaseService<RegistryChangeMessage> {
             context.stop();
         }
         deleteStorageFiles(cfg.neo, key);
+        // delete dataset table entry
+        datasetMapper.delete(key);
         MDC.remove(RabbitDatasetService.DATASET_MDC);
     }
 
     @Override
     public void handleMessage(RegistryChangeMessage msg) {
-        if (RegistryChangeMessage.ChangeType.DELETED == msg.getChangeType() && Dataset.class.equals(msg.getObjectClass())) {
+        if (Dataset.class.equals(msg.getObjectClass())) {
             Dataset d = (Dataset) msg.getOldObject();
             if (DatasetType.CHECKLIST == d.getType()) {
-                delete(d.getKey());
+                switch (msg.getChangeType()) {
+                    case DELETED:
+                        delete(d.getKey());
+                        break;
+                    case UPDATED:
+                        datasetMapper.update(d.getKey(), d.getTitle());
+                        break;
+                    case CREATED:
+                        datasetMapper.insert(d.getKey(), d.getTitle());
+                        break;
+                }
             }
         }
     }

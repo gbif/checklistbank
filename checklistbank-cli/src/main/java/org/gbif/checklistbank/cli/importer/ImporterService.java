@@ -5,7 +5,7 @@ import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.deletion.DeleteService;
+import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -64,7 +64,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             send(new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished, importer.getSyncCounter(), importer.getDelCounter()));
             // finally delete artifacts unless configured not to
             if (cfg.deleteNeo) {
-                DeleteService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
+                RegistryService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
             }
 
         } finally {

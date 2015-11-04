@@ -83,7 +83,7 @@
         <kryo.version>3.0.2</kryo.version>
         <liquibase.version>3.4.1</liquibase.version>
         <logback.version>1.1.2</logback.version>
-        <mapdb.version>2.0-beta8</mapdb.version>
+        <mapdb.version>2.0-beta10</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
         <metainf-services.version>1.5</metainf-services.version>
         <metrics.version>3.0.0-BETA1</metrics.version>

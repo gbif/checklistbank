@@ -12,7 +12,7 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.deletion.DeleteService;
+import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.ParsedNameService;
@@ -192,7 +192,7 @@ public class AdminCommand extends BaseCommand {
                         }
                         LOG.info("Removed dwca files from repository {}", dwcaFile);
 
-                        DeleteService.deleteStorageFiles(cfg.neo, d.getKey());
+                        RegistryService.deleteStorageFiles(cfg.neo, d.getKey());
                         break;
 
                     case CRAWL:
