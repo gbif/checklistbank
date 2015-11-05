@@ -378,19 +378,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <profiles>
-    <profile>
-      <id>jenkins</id>
-      <!-- for integration tests only! -->
-      <properties>
-        <rabbit.host>mq.gbif.org</rabbit.host>
-        <rabbit.vhost>/dev</rabbit.vhost>
-        <rabbit.username>crawler</rabbit.username>
-        <rabbit.password>crawler</rabbit.password>
-        <neo.repository>/tmp/neo</neo.repository>
-      </properties>
-    </profile>
-  </profiles>
-
 </project>

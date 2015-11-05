@@ -870,18 +870,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <profiles>
-        <!-- used by jenkins checklistbank-it for integration tests -->
-        <profile>
-            <id>jenkins</id>
-            <properties>
-                <checklistbank.db.host>builds.gbif.org</checklistbank.db.host>
-                <checklistbank.db.name>clb</checklistbank.db.name>
-                <checklistbank.db.username>clb</checklistbank.db.username>
-            </properties>
-        </profile>
-    </profiles>
 </project>
 
 
