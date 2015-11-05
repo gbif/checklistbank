@@ -37,7 +37,7 @@ public class ClbSourceListTest {
     private OrganizationService os;
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
     private UUID oldDKey;
 
@@ -75,7 +75,7 @@ public class ClbSourceListTest {
         when(os.publishedDatasets(eq(org1.getKey()), any(PagingRequest.class))).thenReturn(resp3);
 
         // use default prod API
-        Properties props = dbunit.getProperties();
+        Properties props = dbSetup.getProperties();
         cfg.clb.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
         cfg.clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
         cfg.clb.user = props.getProperty("checklistbank.db.dataSource.user");

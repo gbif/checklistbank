@@ -63,7 +63,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     private HikariDataSource hds;
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.empty();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.empty();
 
     /**
      * Uses an internal metrics registry to setup the normalizer

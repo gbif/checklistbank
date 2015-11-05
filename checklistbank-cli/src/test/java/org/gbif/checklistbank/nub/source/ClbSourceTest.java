@@ -18,12 +18,12 @@ import static org.junit.Assert.assertEquals;
  */
 public class ClbSourceTest {
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
     @Test
     public void testUsages() throws Exception {
         // use default prod API
-        Properties props = dbunit.getProperties();
+        Properties props = dbSetup.getProperties();
         ClbConfiguration clb = new ClbConfiguration();
         clb.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
         clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");

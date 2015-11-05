@@ -20,11 +20,11 @@ public class ArraySetIssueTypeHandlerTest {
     ResultSet rs;
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.empty();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.empty();
 
     @Test
     public void testConvert() throws Exception {
-        Connection con = dbunit.getConnection();
+        Connection con = dbSetup.getConnection();
         Statement st = con.createStatement();
         st.execute("drop table if exists tt");
         st.execute("create table tt (annes text[])");

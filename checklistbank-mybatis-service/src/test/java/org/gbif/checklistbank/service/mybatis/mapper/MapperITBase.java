@@ -19,7 +19,7 @@ public class MapperITBase<T> {
     private final Class<T> mapperClass;
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.empty();
+    public ClbDbTestRule sbSetup = ClbDbTestRule.empty();
 
     public MapperITBase(Class<T> mapperClass) {
         this.mapperClass = mapperClass;
@@ -27,7 +27,7 @@ public class MapperITBase<T> {
 
     @Before
     public void init() throws Exception {
-        Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(dbunit.getProperties()), 500);
+        Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(sbSetup.getProperties()), 500);
         injector = Guice.createInjector(module);
         mapper = injector.getInstance(mapperClass);
     }

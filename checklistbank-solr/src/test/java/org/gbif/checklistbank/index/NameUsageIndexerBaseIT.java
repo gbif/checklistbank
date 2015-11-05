@@ -31,8 +31,8 @@ public abstract class NameUsageIndexerBaseIT {
   @BeforeClass
   public static void setup() throws IOException, SAXException, ParserConfigurationException {
 
-    // run liquibase & dbunit
-    LOG.info("Run liquibase & dbunit once");
+    // run liquibase & dbSetup
+    LOG.info("Run liquibase & dbSetup once");
     try {
         ClbDbTestRule rule = ClbDbTestRule.squirrels();
       rule.apply(new Statement() {

@@ -342,11 +342,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
       <classifier>tests</classifier>

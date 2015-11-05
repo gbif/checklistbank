@@ -1,0 +1,15 @@
+id, usage_fk, location_id, locality, country, occurrence_status, threat_status, establishment_means, appendix_cites, start_day_of_year, end_day_of_year, start_year, end_year, source_fk, remarks, temporal, life_stage
+15	100000007	iso:br	brazil	BR	PRESENT	NEAR_THREATENED	INVASIVE	\N	\N	\N	\N	\N	28	no notes	\N	\N
+16	100000007	\N	french guiana	FR	PRESENT	\N	\N	\N	\N	\N	\N	\N	28	\N	\N	\N
+17	100000007	\N	peru	PE	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+18	100000007	\N	suriname	SR	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+19	100000040	\N	iraq	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+20	100000040	\N	israel	IL	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+21	100000040	\N	jordan	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+22	100000040	\N	lebanon	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+23	100000040	\N	lesbos isl, greece	GR	PRESENT	\N	\N	\N	\N	\N	\N	\N	28	\N	\N	\N
+24	100000040	\N	n and w iran	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+25	100000040	\N	palestine	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+26	100000040	\N	syria	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+27	100000040	\N	transcaucasia (armenia, azerbaijan, georgia)	\N	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N
+28	100000040	\N	turkey	TR	PRESENT	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N	\N

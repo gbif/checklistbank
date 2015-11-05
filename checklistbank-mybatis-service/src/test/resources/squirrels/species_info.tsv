@@ -1,0 +1,4 @@
+id, usage_fk, marine, terrestrial, extinct, hybrid, living_period, age_in_days, size_in_millimeter, mass_in_gram, life_form, habitat, freshwater, source_fk
+1	100000025	f	t	f	f	Pleistocene to Present	3650	430	340	\N	boreal forest	\N	\N
+2	100000025	f	t	f	f	Pleistocene to Present	3650	430	340	\N	temperate	\N	\N
+3	100000036	\N	\N	t	\N	\N	\N	\N	\N	\N	brackish	\N	\N

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
-        <version>23</version>
+        <version>25.1</version>
     </parent>
 
 
@@ -36,13 +36,13 @@
 
         <!-- dependency versions -->
         <dwc-api.version>1.13</dwc-api.version>
-        <gbif-api.version>0.30-SNAPSHOT</gbif-api.version>
+        <gbif-api.version>0.30</gbif-api.version>
         <gbif-cli.version>0.10</gbif-cli.version>
-        <gbif-common.version>0.19</gbif-common.version>
-        <gbif-common-mybatis.version>0.18</gbif-common-mybatis.version>
+        <gbif-common.version>0.20</gbif-common.version>
+        <gbif-common-mybatis.version>0.19-SNAPSHOT</gbif-common-mybatis.version>
         <gbif-common-search.version>0.24-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.14</gbif-common-service.version>
-        <gbif-common-ws.version>0.25</gbif-common-ws.version>
+        <gbif-common-ws.version>0.26</gbif-common-ws.version>
         <gbif-httputils.version>0.8</gbif-httputils.version>
         <gbif-microservice.version>0.4-SNAPSHOT</gbif-microservice.version>
         <gbif-postal-service.version>0.17</gbif-postal-service.version>
@@ -60,44 +60,43 @@
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.4</commons-io.version>
         <curator.version>2.7.1</curator.version>
-        <dbunit.version>2.4.9</dbunit.version>
-        <findbugs-jsr305.version>3.0.0</findbugs-jsr305.version>
+        <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
         <guava.version>18.0</guava.version>
         <guice.version>4.0</guice.version>
         <hamcrest.version>1.3</hamcrest.version>
-        <hikaricp.version>2.3.8</hikaricp.version>
+        <hikaricp.version>2.3.12</hikaricp.version>
         <hppc.version>0.7.1</hppc.version>
         <jackson.version>1.9.12</jackson.version>
         <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-        <jackson2.version>2.5.4</jackson2.version>
+        <jackson2.version>2.6.3</jackson2.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
-        <jcommander.version>1.47</jcommander.version>
+        <jcommander.version>1.48</jcommander.version>
         <jersey.version>1.18.3</jersey.version>
-        <jsoup.version>1.8.1</jsoup.version>
+        <jsoup.version>1.8.3</jsoup.version>
         <junit.version>4.11</junit.version>
         <!--
         before changing the KRYO library make sure the old format is still compatible:
          https://github.com/EsotericSoftware/kryo/blob/master/CHANGES.md
         -->
-        <kryo.version>3.0.2</kryo.version>
+        <kryo.version>3.0.3</kryo.version>
         <liquibase.version>3.4.1</liquibase.version>
-        <logback.version>1.1.2</logback.version>
+        <logback.version>1.1.3</logback.version>
         <mapdb.version>2.0-beta10</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
-        <metainf-services.version>1.5</metainf-services.version>
+        <metainf-services.version>1.6</metainf-services.version>
         <metrics.version>3.0.0-BETA1</metrics.version>
         <mockito.version>1.9.5</mockito.version>
         <mybatis.version>3.3.0</mybatis.version>
         <mybatis-guice.version>3.7</mybatis-guice.version>
-        <neo4j.version>2.2.5</neo4j.version>
-        <postgresql.version>9.2-1003-jdbc4</postgresql.version>
+        <neo4j.version>2.3.0</neo4j.version>
+        <postgresql.version>9.4-1205-jdbc42</postgresql.version>
         <powermock-mockito.version>1.5.4</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.12</slf4j.version>
         <solr-lucene.version>5.3.1</solr-lucene.version>
-        <tika.version>1.7</tika.version>
+        <tika.version>1.11</tika.version>
         <hadoop.version>2.6.0-cdh5.4.7</hadoop.version>
         <avro.version>1.7.7</avro.version>
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
@@ -834,12 +833,6 @@
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-mockito</artifactId>
                 <version>${powermock-mockito.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.dbunit</groupId>
-                <artifactId>dbunit</artifactId>
-                <version>${dbunit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

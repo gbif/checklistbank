@@ -35,8 +35,8 @@ public class NameUsageAvroExporterIT {
   @BeforeClass
   public static void setup() throws IOException {
     //return"hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/";
-    // run liquibase & dbunit
-    LOG.info("Run liquibase & dbunit once");
+    // run liquibase & dbSetup
+    LOG.info("Run liquibase & dbSetup once");
     try {
       ClbDbTestRule rule = ClbDbTestRule.squirrels();
       rule.apply(new Statement() {

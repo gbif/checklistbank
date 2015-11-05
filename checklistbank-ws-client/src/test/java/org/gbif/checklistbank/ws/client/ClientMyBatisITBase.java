@@ -29,7 +29,7 @@ public class ClientMyBatisITBase<T> extends BaseResourceTest {
   private final Class<T> wsClientClass;
 
   @Rule
-  public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+  public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
   public ClientMyBatisITBase(Class<T> wsClientClass) {
     super("org.gbif.checklistbank.ws", CONTEXT, ChecklistBankWsModule.class);

@@ -18,13 +18,13 @@ import static org.junit.Assert.assertNull;
 public class IdLookupImplIT {
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
     @Test
     public void testLookup() throws IOException, SQLException {
         ClbConfiguration cfg = new ClbConfiguration();
 
-        Properties props = dbunit.getProperties();
+        Properties props = dbSetup.getProperties();
         cfg.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
         cfg.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
         cfg.user = props.getProperty("checklistbank.db.dataSource.user");

@@ -1,0 +1,7 @@
+id, usage_fk, name, language, preferred, sex, life_stage, area, country, source_fk, plural
+100005	100000007	Neotropical Pygmy Squirrel	en	f	\N	\N	\N	\N	\N	\N
+100006	100000011	Tree squirrels	en	f	\N	\N	\N	\N	\N	\N
+100007	100000025	Eurasian Red Squirrel	en	f	\N	\N	\N	DE	\N	\N
+100008	100000040	Caucasian Squirrel	en	f	\N	\N	\N	\N	\N	\N
+100009	100000025	Europäisches Eichhörnchen	de	f	\N	\N	\N	\N	\N	\N
+100010	100000040	Kaukasischen Eichhörnchen	de	f	\N	\N	\N	\N	\N	\N

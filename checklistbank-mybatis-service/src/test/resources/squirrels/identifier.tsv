@@ -1,0 +1,4 @@
+id, usage_fk, type, identifier, title
+103	100000007	LSID	urn:lsid:catalogueoflife.org:taxon:df0a319c-29c1-102b-9a4a-00304854f820:col20120721	\N
+104	100000007	DOI	doi:10.1038/6905528	\N
+105	100000007	URL	http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=632417	\N

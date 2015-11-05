@@ -16,7 +16,7 @@ public class MyBatisServiceITBase<T> {
     protected T service;
 
     @Rule
-    public ClbDbTestRule dbunit = ClbDbTestRule.squirrels();
+    public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
     public MyBatisServiceITBase(Class<T> serviceClass) {
         this.serviceClass = serviceClass;
@@ -24,7 +24,7 @@ public class MyBatisServiceITBase<T> {
 
     @Before
     public void init() throws Exception {
-        Module module = new ChecklistBankServiceMyBatisModule(dbunit.getProperties());
+        Module module = new ChecklistBankServiceMyBatisModule(dbSetup.getProperties());
         injector = Guice.createInjector(module);
         service = injector.getInstance(serviceClass);
     }

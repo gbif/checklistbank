@@ -1,0 +1,4 @@
+id, usage_fk, rank, scientific_name, designated_by, designation_type, source_fk
+8	100000006	SPECIES	Sciurus pusillus Desmarest, 1817	Thomas	ORIGINAL_DESIGNATION	13
+11	100000011	SPECIES	Sciurus vulgaris Linnaeus, 1758	\N	\N	\N
+12	100000024	SPECIES	Sciurus vulgaris Linnaeus, 1758	\N	\N	\N

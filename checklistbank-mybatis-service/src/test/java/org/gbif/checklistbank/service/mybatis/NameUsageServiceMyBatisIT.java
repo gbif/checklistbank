@@ -329,7 +329,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
         assertEquals(1, m.getNumGenus());
         assertEquals(2, m.getNumSubgenus());
         assertEquals(2, m.getNumSpecies());
-        // not set in dbunit file
+        // not set in dbSetup file
         assertEquals(3, m.getNumDescendants());
         assertEquals(0, m.getNumFamily());
 

@@ -1,0 +1,5 @@
+id, dataset_key, count_usages, count_synonyms, count_names, count_col, count_nub, count_by_rank, count_by_kingdom, count_by_origin, count_vernacular_by_lang, count_extensions, count_other, downloaded, created, latest, count_by_issue, count_by_constituent
+1	d7dddbf4-2cf0-4f39-9b2a-bb099caae36c	10000	100	98202	25	35	\N	\N	\N	\N	\N	\N	\N	2013-08-13 10:27:24	t	\N	\N
+2	109aea14-c252-4a85-96e2-f5f4d5d088f4	100	0	100	25	35	\N	\N	\N	\N	\N	\N	\N	2013-05-13 10:27:24	f	\N	\N
+3	109aea14-c252-4a85-96e2-f5f4d5d088f4	200	0	199	25	35	\N	\N	\N	\N	\N	\N	\N	2013-07-14 10:27:24	f	\N	\N
+4	109aea14-c252-4a85-96e2-f5f4d5d088f4	1000	10	800	250	500	"genus"=>"120", "phylum"=>"10"	"plantae"=>"700", "animalia"=>"100"	\N	"da"=>"4", "de"=>"132"	\N	\N	\N	2013-08-13 10:27:24	t	\N	\N
