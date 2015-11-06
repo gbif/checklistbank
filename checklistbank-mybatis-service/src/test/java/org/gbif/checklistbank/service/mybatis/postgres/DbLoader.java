@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.postgres;
 
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.file.ResourcesUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +10,10 @@ import java.sql.DriverManager;
 import java.util.List;
 import java.util.Properties;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.CopyManager;
 import org.slf4j.Logger;
@@ -74,8 +73,7 @@ public class DbLoader {
 
     private static List<String> listTables(String folder) throws Exception {
         List<String> tables = Lists.newArrayList();
-        List<String> csvs = IOUtils.readLines(DbLoader.class.getClassLoader().getResourceAsStream(folder), Charsets.UTF_8);
-        for (String res : csvs) {
+        for (String res : ResourcesUtil.list(DbLoader.class, folder)) {
             tables.add(FilenameUtils.removeExtension(res));
         }
         return tables;
