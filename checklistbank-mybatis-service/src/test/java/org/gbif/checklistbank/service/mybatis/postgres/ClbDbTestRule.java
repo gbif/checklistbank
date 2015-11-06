@@ -117,10 +117,11 @@ public class ClbDbTestRule implements TestRule {
     private void before() throws Exception {
         SLF4JBridgeHandler.install();
         connection = DbLoader.connect(properties);
+        connection.setAutoCommit(false);
         if (tsvFolder != null) {
             DbLoader.load(connection, tsvFolder, true);
         } else {
-            DbLoader.truncate(connection, tsvFolder);
+            DbLoader.truncate(connection, "squirrels");
         }
         updateSequences();
         connection.setAutoCommit(true);
