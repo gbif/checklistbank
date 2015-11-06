@@ -38,7 +38,7 @@
         <dwc-api.version>1.13</dwc-api.version>
         <gbif-api.version>0.30</gbif-api.version>
         <gbif-cli.version>0.10</gbif-cli.version>
-        <gbif-common.version>0.20</gbif-common.version>
+        <gbif-common.version>0.21-SNAPSHOT</gbif-common.version>
         <gbif-common-mybatis.version>0.19-SNAPSHOT</gbif-common-mybatis.version>
         <gbif-common-search.version>0.24-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.14</gbif-common-service.version>
@@ -90,7 +90,7 @@
         <mybatis.version>3.3.0</mybatis.version>
         <mybatis-guice.version>3.7</mybatis-guice.version>
         <neo4j.version>2.3.0</neo4j.version>
-        <postgresql.version>9.4-1205-jdbc42</postgresql.version>
+        <postgresql.version>9.4-1205-jdbc41</postgresql.version>
         <powermock-mockito.version>1.5.4</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
