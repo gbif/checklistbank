@@ -21,47 +21,52 @@ import static org.junit.Assert.assertEquals;
 
 public class NameUsageDocConverterTest {
 
-  @Test
-  public void testToObject() throws Exception {
-    NameUsageDocConverter conv = new NameUsageDocConverter();
+    @Test
+    public void testToObject() throws Exception {
+        NameUsageDocConverter conv = new NameUsageDocConverter();
 
-    NameUsage u = new NameUsage();
-    u.setKey(12);
-    u.setDatasetKey(UUID.randomUUID());
-    u.setScientificName("Abies alba Mill.");
-    u.setCanonicalName("Abies alba");
-    u.setRank(Rank.SPECIES);
-    u.setSynonym(false);
-    u.setParentKey(1);
-    u.getIssues().add(NameUsageIssue.RANK_INVALID);
-    u.getIssues().add(NameUsageIssue.BACKBONE_MATCH_FUZZY);
+        NameUsage u = new NameUsage();
+        u.setKey(12);
+        u.setDatasetKey(UUID.randomUUID());
+        u.setScientificName("Abies alba Mill.");
+        u.setCanonicalName("Abies alba");
+        u.setRank(Rank.SPECIES);
+        u.setSynonym(false);
+        u.setParentKey(1);
+        u.setFamilyKey(1024);
+        u.setFamily("Pinaceae");
+        u.getIssues().add(NameUsageIssue.RANK_INVALID);
+        u.getIssues().add(NameUsageIssue.BACKBONE_MATCH_FUZZY);
 
-    UsageExtensions ext = new UsageExtensions();
-    SpeciesProfile sp = new SpeciesProfile();
-    sp.setTerrestrial(true);
-    sp.setHabitat("brackish");
-    ext.speciesProfiles.add(sp);
+        UsageExtensions ext = new UsageExtensions();
+        SpeciesProfile sp = new SpeciesProfile();
+        sp.setTerrestrial(true);
+        sp.setHabitat("brackish");
+        ext.speciesProfiles.add(sp);
 
-    VernacularName v1 = new VernacularName();
-    v1.setLanguage(Language.GERMAN);
-    v1.setVernacularName("Weißtanne");
-    VernacularName v2 = new VernacularName();
-    v2.setLanguage(Language.GERMAN);
-    v2.setVernacularName("Kohl Tanne");
-    ext.vernacularNames.add(v1);
-    ext.vernacularNames.add(v2);
+        VernacularName v1 = new VernacularName();
+        v1.setLanguage(Language.GERMAN);
+        v1.setVernacularName("Weißtanne");
+        VernacularName v2 = new VernacularName();
+        v2.setLanguage(Language.GERMAN);
+        v2.setVernacularName("Kohl Tanne");
+        ext.vernacularNames.add(v1);
+        ext.vernacularNames.add(v2);
 
-    SolrInputDocument doc = conv.toObject(u, Lists.newArrayList(12,15,20,100), ext);
+        SolrInputDocument doc = conv.toObject(u, Lists.newArrayList(12, 15, 20, 100), ext);
 
-    assertEquals(u.getKey().toString(), doc.get("key").getValue());
-    assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
-    assertEquals(u.getParentKey().toString(), doc.get("parent_key").getValue());
-    assertEquals(u.getCanonicalName(), doc.get("canonical_name").getValue());
-    assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
-    assertEquals(u.getRank().ordinal(), doc.get("rank_key").getValue());
-    assertThat((List<Integer>) doc.get("issues").getValue()).contains(NameUsageIssue.RANK_INVALID.ordinal(),
-      NameUsageIssue.BACKBONE_MATCH_FUZZY.ordinal());
-    assertThat((List<Integer>) doc.get("habitat_key").getValue()).containsOnlyOnce(Habitat.TERRESTRIAL.ordinal(), Habitat.FRESHWATER.ordinal());
-    assertThat((List<Integer>) doc.get("higher_taxon_key").getValue()).containsOnlyOnce(12, 15, 20, 100);
-  }
+        assertEquals(u.getKey().toString(), doc.get("key").getValue());
+        assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
+        assertEquals(u.getParentKey().toString(), doc.get("parent_key").getValue());
+        assertEquals(u.getFamily(), doc.get("family").getValue());
+        assertEquals(u.getFamilyKey().toString(), doc.get("family_key").getValue());
+        assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
+        assertEquals(u.getCanonicalName(), doc.get("canonical_name").getValue());
+        assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
+        assertEquals(u.getRank().ordinal(), doc.get("rank_key").getValue());
+        assertThat((List<Integer>) doc.get("issues").getValue()).contains(NameUsageIssue.RANK_INVALID.ordinal(),
+                NameUsageIssue.BACKBONE_MATCH_FUZZY.ordinal());
+        assertThat((List<Integer>) doc.get("habitat_key").getValue()).containsOnlyOnce(Habitat.TERRESTRIAL.ordinal(), Habitat.FRESHWATER.ordinal());
+        assertThat((List<Integer>) doc.get("higher_taxon_key").getValue()).containsOnlyOnce(12, 15, 20, 100);
+    }
 }

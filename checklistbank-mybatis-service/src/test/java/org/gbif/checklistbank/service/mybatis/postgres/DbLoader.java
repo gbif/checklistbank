@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
@@ -91,8 +92,10 @@ public class DbLoader {
     private static void truncate(Connection con, List<String> tables) throws Exception {
         LOG.debug("Truncate tables");
         for (String table : tables) {
-            try (java.sql.Statement st = con.createStatement()) {
-                st.execute("TRUNCATE " + table + " CASCADE");
+            if (!Strings.isNullOrEmpty(table)) {
+                try (java.sql.Statement st = con.createStatement()) {
+                    st.execute("TRUNCATE " + table + " CASCADE");
+                }
             }
         }
     }

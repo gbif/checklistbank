@@ -24,43 +24,43 @@ import org.xml.sax.SAXException;
  */
 public abstract class NameUsageIndexerBaseIT {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexerBaseIT.class);
-  private static EmbeddedSolrReference solrRef;
-  private static NameUsageIndexer nameUsageIndexer;
+    private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexerBaseIT.class);
+    private static EmbeddedSolrReference solrRef;
+    private static NameUsageIndexer nameUsageIndexer;
 
-  @BeforeClass
-  public static void setup() throws IOException, SAXException, ParserConfigurationException {
+    @BeforeClass
+    public static void setup() throws IOException, SAXException, ParserConfigurationException {
 
-    // run liquibase & dbSetup
-    LOG.info("Run liquibase & dbSetup once");
-    try {
-        ClbDbTestRule rule = ClbDbTestRule.squirrels();
-      rule.apply(new Statement() {
-        public void evaluate() throws Throwable {
-          // do nothing
+        // run liquibase & dbSetup
+        LOG.info("Run liquibase & dbSetup once");
+        try {
+            ClbDbTestRule rule = ClbDbTestRule.squirrels();
+            rule.apply(new Statement() {
+                public void evaluate() throws Throwable {
+                    // do nothing
+                }
+            }, null).evaluate();
+        } catch (Throwable throwable) {
+            Throwables.propagate(throwable);
         }
-      }, null).evaluate();
-    } catch (Throwable throwable) {
-      Throwables.propagate(throwable);
+
+        // Creates the injector, merging properties taken from default test indexing and checklistbank
+        Properties props = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_PROPERTY_FILE);
+        Properties props2 = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_INDEXING_PROPERTY_TEST_FILE);
+        props.putAll(props2);
+        Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
+        // Gets the indexer instance
+        solrRef = injector.getInstance(EmbeddedSolrReference.class);
+        nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
+        nameUsageIndexer.run();
     }
 
-    // Creates the injector, merging properties taken from default test indexing and checklistbank
-    Properties props = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_PROPERTY_FILE);
-    Properties props2 = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_INDEXING_PROPERTY_TEST_FILE);
-    props.putAll(props2);
-    Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
-    // Gets the indexer instance
-    solrRef = injector.getInstance(EmbeddedSolrReference.class);
-    nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
-    nameUsageIndexer.run();
-  }
+    protected static EmbeddedSolrServer solr() {
+        return solrRef.getSolr();
+    }
 
-  protected static EmbeddedSolrServer solr() {
-    return solrRef.getSolr();
-  }
-
-  protected static NameUsageIndexer indexer() {
-    return nameUsageIndexer;
-  }
+    protected static NameUsageIndexer indexer() {
+        return nameUsageIndexer;
+    }
 
 }
