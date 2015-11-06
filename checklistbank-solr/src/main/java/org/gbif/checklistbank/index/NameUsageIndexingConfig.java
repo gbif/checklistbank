@@ -12,14 +12,14 @@ public class NameUsageIndexingConfig {
   public static final String KEYS_INDEXING_CONF_PREFIX = "checklistbank.indexer.";
 
   //Common indexing settings
-  public static final String THREADS = KEYS_INDEXING_CONF_PREFIX + "threads";
-  public static final String BATCH_SIZE = KEYS_INDEXING_CONF_PREFIX + "batchSize";
-  public static final String WRITERS = KEYS_INDEXING_CONF_PREFIX + "writers";
-  public static final String LOG_INTERVAL = KEYS_INDEXING_CONF_PREFIX + "logInterval";
+  public static final String THREADS = "threads";
+  public static final String BATCH_SIZE = "batchSize";
+  public static final String WRITERS = "writers";
+  public static final String LOG_INTERVAL = "logInterval";
 
   //Avro indexing settings
-  public static final String NAME_NODE = KEYS_INDEXING_CONF_PREFIX + "nameNode";
-  public static final String TARGET_HDFS_DIR = KEYS_INDEXING_CONF_PREFIX + "targetHdfsDir";
+  public static final String NAME_NODE = "nameNode";
+  public static final String TARGET_HDFS_DIR = "targetHdfsDir";
 
 
   private NameUsageIndexingConfig(){
