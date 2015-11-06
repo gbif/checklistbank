@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.postgres;
 
-import org.gbif.checklistbank.utils.Resources;
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.file.ResourcesUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +73,7 @@ public class DbLoader {
 
     private static List<String> listTables(String folder) throws Exception {
         List<String> tables = Lists.newArrayList();
-        for (String res : Resources.getResourceListing(DbLoader.class, folder)) {
+        for (String res : ResourcesUtil.list(DbLoader.class, folder)) {
             tables.add(FilenameUtils.removeExtension(res));
         }
         return tables;
