@@ -17,6 +17,7 @@
   <properties>
     <!-- by default we use an embedded solr server -->
     <checklistbank.indexer.solr.server />
+    <postgresql.java7.version>9.4-1205-jdbc41</postgresql.java7.version>
   </properties>
 
   <build>
@@ -295,11 +296,26 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
+      <exclusions>
+        <!-- Exclude since it's for Java 8-->
+        <exclusion>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif.registry</groupId>
       <artifactId>registry-ws-client</artifactId>
     </dependency>
+    <!-- This dependency was added explicitly to use jdbc driver for Java 7 (JRE used in the Hadoop cluster) -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${postgresql.java7.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
