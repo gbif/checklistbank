@@ -147,7 +147,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
           log.error("Error exporting  usage {}  extension {} to avro", usage, e);
         }
         docCount++;
-        NameUsageIndexer.counter.incrementAndGet();
+        NameUsageAvroExporter.counter.incrementAndGet();
       }
     }
 
