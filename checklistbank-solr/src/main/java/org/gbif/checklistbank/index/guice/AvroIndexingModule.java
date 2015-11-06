@@ -9,6 +9,8 @@ import org.gbif.ws.client.guice.AnonymousAuthModule;
 
 import java.util.Properties;
 
+import com.google.inject.Scopes;
+
 /**
  * Guice module that initializes the required classes and dependencies for the CLB indexer.
  */
@@ -28,6 +30,7 @@ public class AvroIndexingModule extends PrivateServiceModule {
     //installs registry client
     install(new RegistryWsClientModule(getVerbatimProperties()));
 
+    bind(NameUsageAvroExporter.class).in(Scopes.SINGLETON);
     expose(NameUsageAvroExporter.class);
   }
 
