@@ -40,7 +40,7 @@
         <gbif-cli.version>0.10</gbif-cli.version>
         <gbif-common.version>0.21-SNAPSHOT</gbif-common.version>
         <gbif-common-mybatis.version>0.19-SNAPSHOT</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.24-SNAPSHOT</gbif-common-search.version>
+        <gbif-common-search.version>0.25-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.14</gbif-common-service.version>
         <gbif-common-ws.version>0.26</gbif-common-ws.version>
         <gbif-httputils.version>0.8</gbif-httputils.version>
