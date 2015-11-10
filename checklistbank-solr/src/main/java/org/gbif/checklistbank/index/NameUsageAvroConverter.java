@@ -6,22 +6,16 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.vocabulary.Habitat;
-import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
-import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.common.parsers.HabitatParser;
 import org.gbif.common.parsers.core.ParseResult;
-import org.gbif.common.search.util.AnnotationUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
 import com.google.common.collect.Lists;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
@@ -33,41 +27,11 @@ import org.slf4j.LoggerFactory;
 public class NameUsageAvroConverter {
 
   private static final String CONCAT = " # ";
-  private static final Pattern LANG_SPLIT = Pattern.compile("^([a-zA-Z]*)" + CONCAT + "(.*)$");
-
-  /**
-   * Holds a map of {@link org.gbif.api.model.checklistbank.NameUsage} properties (Java fields) to Solr fields name.
-   */
-  private final BiMap<String, String> fieldPropertyMap;
 
   /**
    * Logger for the {@link org.gbif.checklistbank.index.NameUsageAvroConverter} class
    */
-  protected static Logger log = LoggerFactory.getLogger(NameUsageAvroConverter.class);
-
-  public NameUsageAvroConverter() {
-    // initializes the map of Solr fields to Java fields
-    fieldPropertyMap = AnnotationUtils.initFieldsPropertiesMap(NameUsageSolrSearchResult.class);
-  }
-
-
-  public static Description deserializeDescription(String description) {
-    Description d = new Description();
-    d.setDescription(description);
-    return d;
-  }
-
-  public static VernacularName deserializeVernacularName(String vernacularName) {
-    Matcher m = LANG_SPLIT.matcher(vernacularName);
-    VernacularName vn = new VernacularName();
-    if (m.find()) {
-      vn.setLanguage(Language.fromIsoCode(m.group(1)));
-      vn.setVernacularName(m.group(2));
-    } else {
-      vn.setVernacularName(vernacularName);
-    }
-    return vn;
-  }
+  protected static final Logger LOG = LoggerFactory.getLogger(NameUsageAvroConverter.class);
 
   public static String serializeDescription(Description description) {
     return stripHtml(description.getDescription());
@@ -78,7 +42,7 @@ public class NameUsageAvroConverter {
       try {
         return Jsoup.parse(html).text();
       } catch (RuntimeException e) {
-        log.error("Failed to read description input");
+        LOG.error("Failed to read description input");
       }
     }
     return null;
@@ -96,7 +60,7 @@ public class NameUsageAvroConverter {
    *
    * @return a {@link org.apache.solr.common.SolrInputDocument} using the Object parameter.
    */
-  public NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions) {
+  public static NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions) {
     try {
       NameUsageAvro nameUsageAvro = new NameUsageAvro();
       nameUsageAvro.setKey(usage.getKey());
@@ -159,7 +123,7 @@ public class NameUsageAvroConverter {
       return nameUsageAvro;
 
     } catch (Exception e) {
-      log.error("Error converting usage {} extension {} and parent {} to avro", usage, extensions, parents, e);
+      LOG.error("Error converting usage {} extension {} and parent {} to avro", usage, extensions, parents, e);
       throw new RuntimeException(e);
     }
   }
@@ -177,7 +141,7 @@ public class NameUsageAvroConverter {
         }
       }
     } catch (Exception e) {
-      log.error("Error converting ordinals for enum", e);
+      LOG.error("Error converting ordinals for enum", e);
     }
     return ordinals;
   }
