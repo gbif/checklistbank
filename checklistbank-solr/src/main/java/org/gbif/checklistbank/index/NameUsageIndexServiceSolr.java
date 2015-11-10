@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.google.inject.Inject;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
 
 /**
@@ -22,7 +22,7 @@ import org.apache.solr.common.SolrInputDocument;
 public class NameUsageIndexServiceSolr implements NameUsageIndexService {
 
   private final NameUsageDocConverter converter = new NameUsageDocConverter();
-  private final SolrServer solr;
+  private final SolrClient solr;
   private final int commitWithinMs = 60*1000;
   private final UsageService usageService;
   private final VernacularNameService vernacularNameService;
@@ -34,7 +34,7 @@ public class NameUsageIndexServiceSolr implements NameUsageIndexService {
 
   @Inject
   public NameUsageIndexServiceSolr(
-    SolrServer solr,
+    SolrClient solr,
     UsageService usageService,
     VernacularNameService vernacularNameService,
     DescriptionService descriptionService,

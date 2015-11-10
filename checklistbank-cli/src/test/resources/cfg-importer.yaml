@@ -12,8 +12,9 @@ clb:
   password: "${checklistbank.db.password}"
   maximumPoolSize: 10
 solr:
-  serverType: HTTP
-  serverHome: ${checklistbank.solr.server}
+  serverType: CLOUD
+  #serverHome: c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181/solrdev
+  collection: dev_checklistbank
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev
