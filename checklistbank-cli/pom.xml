@@ -50,9 +50,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.1</version>
+        <version>2.4.2</version>
         <configuration>
           <createDependencyReducedPom>true</createDependencyReducedPom>
+            <artifactSet>
+                <!-- we exceed the 65535 maximum file limit for old jars so we need to exclude unused files.
+                 Neo4j contributes over 20.000 files with most of it being hardly used cypher.
+                 Cypher supports different syntax versions and we only need the latest. So we exclude v 1.9 and 2.2 here.
+                 -->
+                <excludes>
+                    <exclude>org.neo4j:neo4j-cypher-compiler-1.9_*</exclude>
+                    <exclude>org.neo4j:neo4j-cypher-compiler-2.2_*</exclude>
+                </excludes>
+            </artifactSet>
           <filters>
             <filter>
               <artifact>*:*</artifact>
