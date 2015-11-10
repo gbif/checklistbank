@@ -1,11 +1,12 @@
 DROP TABLE IF EXISTS ${avroTable};
-CREATE EXTERNAL TABLE ${avroTable}
+CREATE TABLE ${avroTable}
 ROW FORMAT SERDE
 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'
 STORED AS INPUTFORMAT
 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'
 OUTPUTFORMAT
 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+LOCATION '/checklistbank/solr/${environment}/name_usage'
 TBLPROPERTIES (
 'avro.schema.literal'='{
   "namespace":"org.gbif.checklistbank.index.model",
@@ -58,5 +59,4 @@ TBLPROPERTIES (
       {"name":"vernacularNameLang","type":["null",{"type":"array", "items":"string"}],"default":null},
       {"name":"higherTaxonKey","type":["null",{"type":"array", "items":"int"}],"default":null},
       {"name":"issues","type":["null",{"type":"array", "items":"int"}],"default":null}]
-}')
-LOCATION '/checklistbank/solr/dev/';
+}');
