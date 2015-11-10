@@ -40,11 +40,11 @@
         <gbif-cli.version>0.10</gbif-cli.version>
         <gbif-common.version>0.21-SNAPSHOT</gbif-common.version>
         <gbif-common-mybatis.version>0.19-SNAPSHOT</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.24-SNAPSHOT</gbif-common-search.version>
+        <gbif-common-search.version>0.25-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.14</gbif-common-service.version>
         <gbif-common-ws.version>0.26</gbif-common-ws.version>
         <gbif-httputils.version>0.8</gbif-httputils.version>
-        <gbif-microservice.version>0.4-SNAPSHOT</gbif-microservice.version>
+        <gbif-microservice.version>0.4</gbif-microservice.version>
         <gbif-postal-service.version>0.17</gbif-postal-service.version>
         <registry-client.version>2.38-SNAPSHOT</registry-client.version>
         <name-parser.version>2.9</name-parser.version>
@@ -59,7 +59,8 @@
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.4</commons-io.version>
-        <curator.version>2.7.1</curator.version>
+        <!-- make sure curator is the same as in microservices -->
+        <curator.version>2.9.0</curator.version>
         <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
         <guava.version>18.0</guava.version>
