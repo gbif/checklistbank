@@ -53,7 +53,7 @@ public class VerbatimUsageMigrator {
 
             Statement st = c1.createStatement();
             st.setFetchSize(FETCH_SIZE);
-            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated limit 2000");
+            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated");
             int counter = 0;
             int error = 0;
             Joiner countJoiner = Joiner.on("-");
@@ -115,7 +115,7 @@ public class VerbatimUsageMigrator {
         cfg.serverName = "pg1.gbif-uat.org";
         cfg.databaseName = "uat_checklistbank";
         cfg.user = "clb";
-        cfg.password = "";
+        cfg.password = "%BBJu2MgstXJ";
         VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg);
         migrator.updateAll();
     }
