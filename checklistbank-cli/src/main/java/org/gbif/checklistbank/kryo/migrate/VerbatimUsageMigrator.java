@@ -67,7 +67,7 @@ public class VerbatimUsageMigrator {
                 try {
                     update.setBytes(1, transform(rs.getInt(1), rs.getBytes(2)));
                     update.setInt(2, rs.getInt(1));
-                    //update.execute();
+                    update.execute();
                 } catch (Exception e) {
                     error++;
                     System.err.println("Failed to transform usage " + rs.getInt(1));
@@ -96,8 +96,8 @@ public class VerbatimUsageMigrator {
                     counters.get(midx).incrementAndGet();
                     return mapper.write(v);
                 }
-                System.out.print(midx+" "+usageKey+" ");
-                System.out.println(v);
+                //System.out.print(midx+" "+usageKey+" ");
+                //System.out.println(v);
             } catch (Exception e) {
                 // ignore, try next
             }
@@ -112,8 +112,8 @@ public class VerbatimUsageMigrator {
 
     public static void main(String[] args) throws Exception {
         ClbConfiguration cfg = new ClbConfiguration();
-        cfg.serverName = "pg1.gbif-uat.org";
-        cfg.databaseName = "uat_checklistbank";
+        cfg.serverName = "pg1.gbif.org";
+        cfg.databaseName = "checklistbank2";
         cfg.user = "clb";
         cfg.password = "";
         VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg);
