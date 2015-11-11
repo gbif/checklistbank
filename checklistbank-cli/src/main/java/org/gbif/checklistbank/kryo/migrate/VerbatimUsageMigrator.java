@@ -20,8 +20,11 @@ import com.google.common.collect.Lists;
 
 /**
  * Reads all raw usage data from the raw table and updates the kryo serialization data to the latest version.
+ * It uses different kryo factories with slightly different class registrations in order to handle different serialization formats
+ * created during indexing with different factories.
  */
 public class VerbatimUsageMigrator {
+    private static final int FETCH_SIZE = 1000;
     private VerbatimNameUsageMapperKryo mapper = new VerbatimNameUsageMapperKryo(new ClbKryoFactory1Curr());
     private final ClbConfiguration cfg;
 
@@ -49,13 +52,13 @@ public class VerbatimUsageMigrator {
             PreparedStatement update = c2.prepareStatement("UPDATE raw_usage SET migrated=true, data=? WHERE usage_fk=?");
 
             Statement st = c1.createStatement();
-            st.setFetchSize(100);
+            st.setFetchSize(FETCH_SIZE);
             ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated");
             int counter = 0;
             int error = 0;
             Joiner countJoiner = Joiner.on("-");
             while (rs.next()) {
-                if (counter % 100 == 0) {
+                if (counter % FETCH_SIZE == 0) {
                     System.out.println(counter + " updated, " + error + ": " + countJoiner.join(counters));
                     c2.commit();
                 }
