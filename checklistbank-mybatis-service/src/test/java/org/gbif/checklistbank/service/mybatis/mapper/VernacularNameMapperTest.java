@@ -13,10 +13,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class VernacularNameMapperTest extends NameUsageComponentMapperITBase<VernacularNameMapper> {
+public class VernacularNameMapperTest extends MapperITBase<VernacularNameMapper> {
 
     public VernacularNameMapperTest() {
-        super(VernacularNameMapper.class);
+        super(VernacularNameMapper.class, true);
     }
 
     @Test

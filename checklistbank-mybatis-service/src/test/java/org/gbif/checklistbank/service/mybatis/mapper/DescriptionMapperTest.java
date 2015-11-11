@@ -9,10 +9,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DescriptionMapperTest extends NameUsageComponentMapperITBase<DescriptionMapper> {
+public class DescriptionMapperTest extends MapperITBase<DescriptionMapper> {
 
     public DescriptionMapperTest() {
-        super(DescriptionMapper.class);
+        super(DescriptionMapper.class, true);
     }
 
     @Test

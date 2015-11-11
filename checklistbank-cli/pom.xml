@@ -130,11 +130,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <dependency>
-      <groupId>org.mapdb</groupId>
-      <artifactId>mapdb</artifactId>
-    </dependency>
-
     <!-- GBIF -->
     <dependency>
       <groupId>org.gbif</groupId>
@@ -215,6 +210,10 @@
     </dependency>
 
     <!-- other -->
+    <dependency>
+      <groupId>org.mapdb</groupId>
+      <artifactId>mapdb</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apache.curator</groupId>
       <artifactId>curator-client</artifactId>

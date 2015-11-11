@@ -23,7 +23,7 @@ public class NameUsageMetricsMapperIT extends MapperITBase<NameUsageMetricsMappe
     private NameUsageMapper usageMapper;
 
     public NameUsageMetricsMapperIT() {
-        super(NameUsageMetricsMapper.class);
+        super(NameUsageMetricsMapper.class, false);
     }
 
     @Before

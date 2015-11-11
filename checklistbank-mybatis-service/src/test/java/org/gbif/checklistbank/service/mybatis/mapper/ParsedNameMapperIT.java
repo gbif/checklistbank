@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNull;
 public class ParsedNameMapperIT extends MapperITBase<ParsedNameMapper> {
 
     public ParsedNameMapperIT() {
-        super(ParsedNameMapper.class);
+        super(ParsedNameMapper.class, false);
     }
 
     /**

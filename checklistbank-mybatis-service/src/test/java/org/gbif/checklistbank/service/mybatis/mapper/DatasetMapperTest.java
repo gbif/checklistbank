@@ -10,7 +10,7 @@ import static org.junit.Assert.assertNull;
 public class DatasetMapperTest extends MapperITBase<DatasetMapper> {
 
     public DatasetMapperTest() {
-        super(DatasetMapper.class);
+        super(DatasetMapper.class, false);
     }
 
     @Test

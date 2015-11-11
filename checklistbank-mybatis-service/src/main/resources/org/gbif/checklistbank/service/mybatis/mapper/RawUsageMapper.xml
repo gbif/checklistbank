@@ -11,7 +11,7 @@
   <select id="get" parameterType="map" resultMap="rawResultMap">
     SELECT r.*, m.downloaded
     FROM raw_usage r
-      JOIN dataset_metrics m ON r.dataset_key=m.dataset_key AND m.latest
+      LEFT JOIN dataset_metrics m ON r.dataset_key=m.dataset_key AND m.latest
     WHERE usage_fk=#{key}
   </select>
 

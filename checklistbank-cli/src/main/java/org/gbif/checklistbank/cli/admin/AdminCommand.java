@@ -13,6 +13,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.registry.RegistryService;
+import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.ParsedNameService;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -56,7 +58,7 @@ import org.slf4j.LoggerFactory;
 public class AdminCommand extends BaseCommand {
     private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
     private static final String DWCA_SUFFIX = ".dwca";
-
+    private static final Set<AdminOperation> SINE_COMMANDS = Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS, AdminOperation.SYNC_DATASETS, AdminOperation.SHOW, AdminOperation.UPDATE_VERBATIM);
     private final AdminConfiguration cfg = new AdminConfiguration();
     private MessagePublisher publisher;
     private ZookeeperUtils zkUtils;
@@ -105,15 +107,19 @@ public class AdminCommand extends BaseCommand {
 
     @Override
     protected void doRun() {
-        initRegistry();
-        if (Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS, AdminOperation.SYNC_DATASETS, AdminOperation.SHOW).contains(cfg.operation)) {
-            runSineDatasets();
-        } else {
-            runDatasetComamnds();
+        try {
+            initRegistry();
+            if (SINE_COMMANDS.contains(cfg.operation)) {
+                runSineDatasets();
+            } else {
+                runDatasetComamnds();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void runSineDatasets() {
+    private void runSineDatasets() throws Exception {
         switch (cfg.operation) {
             case REPARSE:
                 reparseNames();
@@ -131,9 +137,18 @@ public class AdminCommand extends BaseCommand {
                 syncDatasets();
                 break;
 
+            case UPDATE_VERBATIM:
+                updateVerbatim();
+                break;
+
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private void updateVerbatim() throws Exception {
+        VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg.clb);
+        migrator.updateAll();
     }
 
     private void syncDatasets() {
@@ -162,7 +177,7 @@ public class AdminCommand extends BaseCommand {
         LOG.info("{} orphan names deleted", num);
     }
 
-    private void runDatasetComamnds() {
+    private void runDatasetComamnds() throws IOException {
         if (cfg.keys != null) {
             datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
                 @Nullable
@@ -177,7 +192,6 @@ public class AdminCommand extends BaseCommand {
 
         for (Dataset d : datasets) {
             LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
-            try {
                 switch (cfg.operation) {
                     case CLEANUP:
                         zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
@@ -205,32 +219,28 @@ public class AdminCommand extends BaseCommand {
                         } else {
                             // validation result is a fake valid checklist validation
                             send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
-                                            URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                                            new DwcaValidationReport(d.getKey(),
-                                                    new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-                                    )
-                            );
-                        }
-                        break;
+                                        URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
+                                        new DwcaValidationReport(d.getKey(),
+                                                new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+                                )
+                        );
+                    }
+                    break;
 
-                    case IMPORT:
-                        if (!cfg.neo.neoDir(d.getKey()).exists()) {
-                            LOG.info("Missing neo4j directory. Cannot import dataset {}", title(d));
-                        } else {
-                            send(new ChecklistNormalizedMessage(d.getKey()));
-                        }
-                        break;
+                case IMPORT:
+                    if (!cfg.neo.neoDir(d.getKey()).exists()) {
+                        LOG.info("Missing neo4j directory. Cannot import dataset {}", title(d));
+                    } else {
+                        send(new ChecklistNormalizedMessage(d.getKey()));
+                    }
+                    break;
 
-                    case ANALYZE:
-                        send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
-                        break;
+                case ANALYZE:
+                    send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
+                    break;
 
-                    default:
-                        throw new UnsupportedOperationException();
-                }
-
-            } catch (Throwable e) {
-                throw new RuntimeException(e);
+                default:
+                    throw new UnsupportedOperationException();
             }
         }
     }

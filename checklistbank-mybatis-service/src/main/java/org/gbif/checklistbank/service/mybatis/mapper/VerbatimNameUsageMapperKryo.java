@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,12 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper {
     private final KryoPool pool;
 
     public VerbatimNameUsageMapperKryo() {
+        this(new ClbKryoFactory());
+    }
+
+    public VerbatimNameUsageMapperKryo(KryoFactory factory) {
         // Build pool with SoftReferences enabled (optional)
-        pool = new KryoPool.Builder(new ClbKryoFactory()).softReferences().build();
+        pool = new KryoPool.Builder(factory).softReferences().build();
     }
 
     @Override

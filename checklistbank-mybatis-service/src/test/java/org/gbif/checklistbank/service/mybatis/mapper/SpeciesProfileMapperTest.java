@@ -8,10 +8,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class SpeciesProfileMapperTest extends NameUsageComponentMapperITBase<SpeciesProfileMapper> {
+public class SpeciesProfileMapperTest extends MapperITBase<SpeciesProfileMapper> {
 
     public SpeciesProfileMapperTest() {
-        super(SpeciesProfileMapper.class);
+        super(SpeciesProfileMapper.class, true);
     }
 
     @Test

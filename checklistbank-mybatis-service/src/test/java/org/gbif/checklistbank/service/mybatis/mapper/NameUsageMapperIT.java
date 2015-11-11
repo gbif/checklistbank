@@ -27,7 +27,7 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     private ParsedNameMapper parsedNameMapper;
 
     public NameUsageMapperIT() {
-        super(NameUsageMapper.class);
+        super(NameUsageMapper.class, false);
     }
 
     @Before

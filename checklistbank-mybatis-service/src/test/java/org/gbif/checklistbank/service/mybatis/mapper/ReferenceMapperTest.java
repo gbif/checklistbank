@@ -9,10 +9,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class ReferenceMapperTest extends NameUsageComponentMapperITBase<ReferenceMapper> {
+public class ReferenceMapperTest extends MapperITBase<ReferenceMapper> {
 
     public ReferenceMapperTest() {
-        super(ReferenceMapper.class);
+        super(ReferenceMapper.class, true);
     }
 
     @Test

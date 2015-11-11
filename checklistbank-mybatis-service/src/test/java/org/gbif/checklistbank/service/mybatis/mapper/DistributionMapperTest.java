@@ -14,10 +14,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class DistributionMapperTest extends NameUsageComponentMapperITBase<DistributionMapper> {
+public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
 
     public DistributionMapperTest() {
-        super(DistributionMapper.class);
+        super(DistributionMapper.class, true);
     }
 
     @Test

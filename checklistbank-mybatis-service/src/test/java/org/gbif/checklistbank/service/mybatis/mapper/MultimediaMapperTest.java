@@ -12,10 +12,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MultimediaMapperTest extends NameUsageComponentMapperITBase<MultimediaMapper> {
+public class MultimediaMapperTest extends MapperITBase<MultimediaMapper> {
 
     public MultimediaMapperTest() {
-        super(MultimediaMapper.class);
+        super(MultimediaMapper.class, true);
     }
 
     @Test

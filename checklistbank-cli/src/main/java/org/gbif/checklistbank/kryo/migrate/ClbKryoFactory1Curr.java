@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.kryo;
+package org.gbif.checklistbank.kryo.migrate;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.checklistbank.Description;
@@ -34,6 +34,11 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.api.vocabulary.TypeDesignationType;
 import org.gbif.api.vocabulary.TypeStatus;
+import org.gbif.checklistbank.kryo.EnumSetSerializer;
+import org.gbif.checklistbank.kryo.ImmutableListSerializer;
+import org.gbif.checklistbank.kryo.TermSerializer;
+import org.gbif.checklistbank.kryo.URISerializer;
+import org.gbif.checklistbank.kryo.UUIDSerializer;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcElement;
@@ -57,7 +62,6 @@ import java.util.UUID;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
-import com.google.common.collect.ImmutableList;
 
 /**
  * Creates a kryo factory usable for thread safe kryo pools that can deal with clb api classes.
@@ -73,73 +77,74 @@ import com.google.common.collect.ImmutableList;
  * This registration reduces the resulting binary size and improves performance,
  * BUT the registered integers must stay the same over time or otherwise existing data in unreadable.
  */
-public class ClbKryoFactory implements KryoFactory {
+public class ClbKryoFactory1Curr implements KryoFactory {
 
     @Override
     public Kryo create() {
         Kryo kryo = new Kryo();
         kryo.setRegistrationRequired(true);
 
-        kryo.register(NameUsage.class, 0);
-        kryo.register(VerbatimNameUsage.class, 1);
-        kryo.register(NameUsageMetrics.class, 2);
-        kryo.register(UsageExtensions.class, 3);
-        kryo.register(ParsedName.class, 4);
-        kryo.register(DatasetMetrics.class, 5);
-        kryo.register(Description.class, 6);
-        kryo.register(Distribution.class, 7);
-        kryo.register(Identifier.class, 8);
-        kryo.register(NameUsageMediaObject.class, 9);
-        kryo.register(Reference.class, 10);
-        kryo.register(SpeciesProfile.class, 11);
-        kryo.register(TypeSpecimen.class, 12);
-        kryo.register(VernacularName.class, 13);
+        kryo.register(NameUsage.class);
+        kryo.register(VerbatimNameUsage.class);
+        kryo.register(NameUsageMetrics.class);
+        kryo.register(UsageExtensions.class);
+        kryo.register(ParsedName.class);
+        kryo.register(Description.class);
+        kryo.register(Distribution.class);
+        kryo.register(Identifier.class);
+        kryo.register(NameUsageMediaObject.class);
+        kryo.register(Reference.class);
+        kryo.register(SpeciesProfile.class);
+        kryo.register(NameUsage.class);
+        kryo.register(TypeSpecimen.class);
+        kryo.register(VernacularName.class);
+        kryo.register(DatasetMetrics.class);
 
         // java & commons
-        kryo.register(Date.class, 20);
-        kryo.register(HashMap.class, 21);
-        kryo.register(HashSet.class, 22);
-        kryo.register(ArrayList.class, 23);
-        kryo.register(UUID.class, new UUIDSerializer(), 24);
-        kryo.register(URI.class, new URISerializer(), 25);
-        kryo.register(ImmutableList.class, new ImmutableListSerializer(), 26);
-
+        kryo.register(Date.class);
+        kryo.register(HashMap.class);
+        kryo.register(HashSet.class);
+        kryo.register(ArrayList.class);
+        kryo.register(UUID.class, new UUIDSerializer());
+        kryo.register(URI.class, new URISerializer());
+        ImmutableListSerializer.registerSerializers(kryo);
         // enums
-        kryo.register(EnumSet.class, new EnumSetSerializer(), 30);
-        kryo.register(NameUsageIssue.class, 31);
-        kryo.register(NomenclaturalStatus.class, 32);
-        kryo.register(NomenclaturalStatus[].class, 33);
-        kryo.register(TaxonomicStatus.class, 34);
-        kryo.register(Origin.class, 35);
-        kryo.register(Rank.class, 36);
-        kryo.register(Extension.class, 37);
-        kryo.register(Kingdom.class, 38);
-        kryo.register(NameType.class, 39);
-        kryo.register(NamePart.class,40);
-        kryo.register(Language.class, 41);
-        kryo.register(Country.class, 42);
-        kryo.register(OccurrenceStatus.class, 43);
-        kryo.register(LifeStage.class, 44);
-        kryo.register(ThreatStatus.class, 45);
-        kryo.register(EstablishmentMeans.class, 46);
-        kryo.register(CitesAppendix.class, 47);
-        kryo.register(IdentifierType.class, 48);
-        kryo.register(MediaType.class, 49);
-        kryo.register(TypeStatus.class, 50);
-        kryo.register(TypeDesignationType.class, 51);
-        kryo.register(Sex.class, 52);
+        kryo.register(EnumSet.class, new EnumSetSerializer());
+        kryo.register(NameUsageIssue.class);
+        kryo.register(NomenclaturalStatus.class);
+        kryo.register(NomenclaturalStatus[].class);
+        kryo.register(TaxonomicStatus.class);
+        kryo.register(Origin.class);
+        kryo.register(Rank.class);
+        kryo.register(Extension.class);
+        kryo.register(Kingdom.class);
+        kryo.register(NameType.class);
+        kryo.register(NamePart.class);
+        kryo.register(Language.class);
+        kryo.register(Country.class);
+        kryo.register(OccurrenceStatus.class);
+        kryo.register(LifeStage.class);
+        kryo.register(ThreatStatus.class);
+        kryo.register(EstablishmentMeans.class);
+        kryo.register(CitesAppendix.class);
+        kryo.register(IdentifierType.class);
+        kryo.register(MediaType.class);
+        kryo.register(TypeStatus.class);
+        kryo.register(TypeDesignationType.class);
+        kryo.register(Sex.class);
         // term enums
-        kryo.register(AcTerm.class, 53);
-        kryo.register(DcElement.class, 54);
-        kryo.register(DcTerm.class, 55);
-        kryo.register(DwcTerm.class, 56);
-        kryo.register(EolReferenceTerm.class, 57);
-        kryo.register(GbifInternalTerm.class, 58);
-        kryo.register(GbifTerm.class, 59);
-        kryo.register(IucnTerm.class, 60);
-        kryo.register(XmpRightsTerm.class, 61);
-        kryo.register(XmpTerm.class, 62);
-        kryo.register(UnknownTerm.class, new TermSerializer(), 63);
+        kryo.register(AcTerm.class);
+        kryo.register(DcElement.class);
+        kryo.register(DcTerm.class);
+        kryo.register(DwcTerm.class);
+        kryo.register(EolReferenceTerm.class);
+        kryo.register(GbifInternalTerm.class);
+        kryo.register(GbifTerm.class);
+        kryo.register(IucnTerm.class);
+        kryo.register(XmpRightsTerm.class);
+        kryo.register(XmpTerm.class);
+        TermSerializer ts = new TermSerializer();
+        kryo.register(UnknownTerm.class, ts);
 
         return kryo;
     }

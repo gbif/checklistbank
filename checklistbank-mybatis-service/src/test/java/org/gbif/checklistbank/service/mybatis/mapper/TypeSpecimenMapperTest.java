@@ -12,10 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class TypeSpecimenMapperTest extends NameUsageComponentMapperITBase<TypeSpecimenMapper> {
+public class TypeSpecimenMapperTest extends MapperITBase<TypeSpecimenMapper> {
 
     public TypeSpecimenMapperTest() {
-        super(TypeSpecimenMapper.class);
+        super(TypeSpecimenMapper.class, true);
     }
 
     @Test

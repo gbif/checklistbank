@@ -9,12 +9,14 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.model.RawUsage;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -336,4 +338,40 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
         assertNull(service.getMetrics(NOT_FOUND_KEY));
     }
 
+    @Test
+    public void insertRaw() {
+        final int key = 100000001;
+        final byte[] data = "xeghwax542tgld@".getBytes();
+        RawUsage raw = new RawUsage();
+        raw.setUsageKey(key);
+        raw.setDatasetKey(CHECKLIST_KEY);
+        // date is null in dataset_metrics table
+        //raw.setLastCrawled(new Date());
+        raw.setData(data);
+
+        ((NameUsageServiceMyBatis) service).insertRaw(raw);
+
+        RawUsage raw2 = ((NameUsageServiceMyBatis) service).getRaw(key);
+        Assert.assertEquals(raw, raw2);
+    }
+
+
+    @Test
+    public void updateRaw() {
+        final int key = 100000001;
+        final byte[] data = "xeghwax542tgld@".getBytes();
+
+        RawUsage raw = new RawUsage();
+        raw.setUsageKey(key);
+        raw.setDatasetKey(CHECKLIST_KEY);
+        ((NameUsageServiceMyBatis) service).insertRaw(raw);
+
+        // date is null in dataset_metrics table
+        //raw.setLastCrawled(new Date());
+        raw.setData(data);
+        ((NameUsageServiceMyBatis) service).updateRaw(raw);
+
+        RawUsage raw2 = ((NameUsageServiceMyBatis) service).getRaw(key);
+        Assert.assertEquals(raw, raw2);
+    }
 }
