@@ -12,9 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.esotericsoftware.kryo.KryoException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -24,7 +24,7 @@ import com.google.common.collect.Lists;
  * created during indexing with different factories.
  */
 public class VerbatimUsageMigrator {
-    private static final int FETCH_SIZE = 1000;
+    private static final int FETCH_SIZE = 100;
     private VerbatimNameUsageMapperKryo mapper = new VerbatimNameUsageMapperKryo(new ClbKryoFactory1Curr());
     private final ClbConfiguration cfg;
 
@@ -53,7 +53,7 @@ public class VerbatimUsageMigrator {
 
             Statement st = c1.createStatement();
             st.setFetchSize(FETCH_SIZE);
-            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated");
+            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated limit 2000");
             int counter = 0;
             int error = 0;
             Joiner countJoiner = Joiner.on("-");
@@ -67,14 +67,14 @@ public class VerbatimUsageMigrator {
                 try {
                     update.setBytes(1, transform(rs.getInt(1), rs.getBytes(2)));
                     update.setInt(2, rs.getInt(1));
-                    update.execute();
+                    //update.execute();
                 } catch (Exception e) {
                     error++;
                     System.err.println("Failed to transform usage " + rs.getInt(1));
                     e.printStackTrace();
                 }
             }
-            System.out.println(counter + " updated, " + error + ": " + countJoiner.join(counters));
+            System.out.println(counter + " updated, " + error + " errors: " + countJoiner.join(counters));
             rs.close();
             st.close();
             c2.commit();
@@ -92,13 +92,31 @@ public class VerbatimUsageMigrator {
             try {
                 midx++;
                 VerbatimNameUsage v = mapper.read(data);
-                counters.get(midx).incrementAndGet();
-                return mapper.write(v);
-            } catch (KryoException e) {
+                if (verifyInstance(v)) {
+                    counters.get(midx).incrementAndGet();
+                    return mapper.write(v);
+                }
+                System.out.print(midx+" "+usageKey+" ");
+                System.out.println(v);
+            } catch (Exception e) {
                 // ignore, try next
             }
         }
         throw new IllegalStateException("No mapper found to deserialize " + usageKey);
     }
 
+    private boolean verifyInstance(VerbatimNameUsage v) {
+        return v.getExtensions() instanceof Map
+                && v.getFields() instanceof Map;
+    }
+
+    public static void main(String[] args) throws Exception {
+        ClbConfiguration cfg = new ClbConfiguration();
+        cfg.serverName = "pg1.gbif-uat.org";
+        cfg.databaseName = "uat_checklistbank";
+        cfg.user = "clb";
+        cfg.password = "";
+        VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg);
+        migrator.updateAll();
+    }
 }
