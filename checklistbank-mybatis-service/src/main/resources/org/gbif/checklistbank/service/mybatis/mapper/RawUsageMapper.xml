@@ -16,14 +16,9 @@
   </select>
 
   <insert id="insert" parameterType="RawUsage" useGeneratedKeys="false" keyProperty="usage_fk">
-    INSERT INTO raw_usage (usage_fk, dataset_key, data)
-    VALUES  (#{r.usageKey}, #{r.datasetKey}, #{r.data})
+    INSERT INTO raw_usage (usage_fk, dataset_key, json)
+    VALUES  (#{r.usageKey}, #{r.datasetKey}, #{r.json})
   </insert>
-
-  <update id="update" parameterType="RawUsage">
-    UPDATE raw_usage SET data = #{r.data}
-    WHERE usage_fk = #{r.usageKey}
-  </update>
 
   <delete id="delete" parameterType="map">
     DELETE FROM raw_usage

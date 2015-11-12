@@ -2,10 +2,8 @@ package org.gbif.checklistbank.kryo.migrate;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
-import org.gbif.checklistbank.kryo.ClbKryoFactory;
-import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperJson;
-import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperKryo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -29,14 +26,14 @@ public class VerbatimUsageMigrator {
     private static final int FETCH_SIZE = 1000;
     private final ClbConfiguration cfg;
 
-    private VerbatimNameUsageMapper jsonMapper = new VerbatimNameUsageMapperJson();
+    private VerbatimNameUsageMapperJson jsonMapper = new VerbatimNameUsageMapperJson();
 
     private List<VerbatimNameUsageMapperKryo> allMapper = Lists.newArrayList(
             new VerbatimNameUsageMapperKryo(new KryoFactory2_13()),
             new VerbatimNameUsageMapperKryo(new KryoFactory2_15()),
             new VerbatimNameUsageMapperKryo(new KryoFactory2_25()),
             new VerbatimNameUsageMapperKryo(new VerbatimNameUsageMapperKryo.VerbatimKryoFactory()),
-            new VerbatimNameUsageMapperKryo(new ClbKryoFactory())
+            new VerbatimNameUsageMapperKryo(new CliKryoFactory())
     );
     private List<AtomicInteger> counters = Lists.newArrayList();
 
@@ -67,15 +64,15 @@ public class VerbatimUsageMigrator {
                     c2.commit();
                 }
                 counter++;
-                // transform
                 try {
+                    // transform
                     update.setString(1, transform(rs.getInt(1), rs.getBytes(2)));
                     update.setInt(2, rs.getInt(1));
                     update.execute();
                 } catch (Exception e) {
                     error++;
                     System.err.println("Failed to transform usage " + rs.getInt(1));
-                    e.printStackTrace();
+                    System.err.println("Failed to transform usage " + rs.getInt(1));
                 }
             }
             System.out.println(counter + " updated, " + error + " errors: " + countJoiner.join(counters));
@@ -92,21 +89,19 @@ public class VerbatimUsageMigrator {
 
     private String transform(int usageKey, byte[] data) throws IllegalArgumentException {
         int midx = -1;
-        for (VerbatimNameUsageMapper mapper : allMapper) {
+        for (VerbatimNameUsageMapperKryo mapper : allMapper) {
             try {
                 midx++;
                 VerbatimNameUsage v = mapper.read(data);
                 if (verifyInstance(v)) {
                     counters.get(midx).incrementAndGet();
-                    String json = new String(jsonMapper.write(v), Charsets.UTF_8);
-                    //System.out.println(midx+" "+usageKey+" "+json);
-                    return json;
+                    return jsonMapper.write(v);
                 }
             } catch (Exception e) {
                 // ignore, try next
             }
         }
-        throw new IllegalStateException("No liveMapper found to deserialize " + usageKey);
+        throw new IllegalStateException("No kryo mapper found to deserialize " + usageKey);
     }
 
     private boolean verifyInstance(VerbatimNameUsage v) {
@@ -114,13 +109,4 @@ public class VerbatimUsageMigrator {
                 && v.getFields() instanceof Map;
     }
 
-    public static void main(String[] args) throws Exception {
-        ClbConfiguration cfg = new ClbConfiguration();
-        cfg.serverName = "pg1.gbif.org";
-        cfg.databaseName = "checklistbank2";
-        cfg.user = "clb";
-        cfg.password = "%BBJu2MgstXJ";
-        VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg);
-        migrator.updateAll();
-    }
 }

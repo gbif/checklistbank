@@ -16,8 +16,6 @@ public interface RawUsageMapper {
 
   void insert(@Param("r") RawUsage usage);
 
-  void update(@Param("r") RawUsage usage);
-
   /**
    * @param key usage key
    */

@@ -1,7 +1,8 @@
-package org.gbif.checklistbank.service.mybatis.mapper;
+package org.gbif.checklistbank.kryo;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
+import org.gbif.checklistbank.kryo.migrate.VerbatimNameUsageMapperKryo;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 public class VerbatimNameUsageMapperKryoTest {
 
-    private VerbatimNameUsageMapper mapper = new VerbatimNameUsageMapperKryo();
+    private VerbatimNameUsageMapperKryo mapper = new VerbatimNameUsageMapperKryo();
 
     class Pair<X, Y> {
         public X x;

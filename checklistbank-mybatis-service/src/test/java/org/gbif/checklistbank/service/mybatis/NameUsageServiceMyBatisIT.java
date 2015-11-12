@@ -341,13 +341,13 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     @Test
     public void insertRaw() {
         final int key = 100000001;
-        final byte[] data = "xeghwax542tgld@".getBytes();
+        final String data = "xeghwax542tgld@";
         RawUsage raw = new RawUsage();
         raw.setUsageKey(key);
         raw.setDatasetKey(CHECKLIST_KEY);
         // date is null in dataset_metrics table
         //raw.setLastCrawled(new Date());
-        raw.setData(data);
+        raw.setJson(data);
 
         ((NameUsageServiceMyBatis) service).insertRaw(raw);
 
@@ -355,23 +355,4 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
         Assert.assertEquals(raw, raw2);
     }
 
-
-    @Test
-    public void updateRaw() {
-        final int key = 100000001;
-        final byte[] data = "xeghwax542tgld@".getBytes();
-
-        RawUsage raw = new RawUsage();
-        raw.setUsageKey(key);
-        raw.setDatasetKey(CHECKLIST_KEY);
-        ((NameUsageServiceMyBatis) service).insertRaw(raw);
-
-        // date is null in dataset_metrics table
-        //raw.setLastCrawled(new Date());
-        raw.setData(data);
-        ((NameUsageServiceMyBatis) service).updateRaw(raw);
-
-        RawUsage raw2 = ((NameUsageServiceMyBatis) service).getRaw(key);
-        Assert.assertEquals(raw, raw2);
-    }
 }

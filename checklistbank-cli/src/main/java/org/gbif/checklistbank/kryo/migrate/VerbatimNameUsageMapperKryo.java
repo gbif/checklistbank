@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.service.mybatis.mapper;
+package org.gbif.checklistbank.kryo.migrate;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
@@ -27,16 +27,13 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.collect.ImmutableList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Serializing/Deserializing tool specifically for the term maps of a VerbatimNameUsage to be stored in postgres
  * or neo backends as a single binary column.
  */
-public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper {
+public class VerbatimNameUsageMapperKryo {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VerbatimNameUsageMapperKryo.class);
     private static final int BUFFER_SIZE = 4096;
     // kryo is not thread safe, see https://github.com/EsotericSoftware/kryo#threading
     private final KryoPool pool;
@@ -82,7 +79,6 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper {
         }
     }
 
-    @Override
     public VerbatimNameUsage read(byte[] bytes) {
         if (bytes != null) {
             Kryo kryo = pool.borrow();
@@ -96,7 +92,6 @@ public class VerbatimNameUsageMapperKryo implements VerbatimNameUsageMapper {
         return null;
     }
 
-    @Override
     public byte[] write(VerbatimNameUsage verbatim) {
         if (verbatim != null) {
             Kryo kryo = pool.borrow();

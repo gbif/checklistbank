@@ -10,70 +10,24 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.dwc.terms.UnknownTerm;
 
 import java.net.URI;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class VerbatimNameUsageMapperTest {
+public class VerbatimNameUsageMapperJsonTest {
   final URI qname1 = URI.create("http://it.was/not/me");
   final URI qname2 = URI.create("http://ditch.me/null");
 
-  /**
-   * Very simple performance comparison of the 3 different serlialization mappers.
-   * As the kryo based one is 10 times faster we only use that:
-   * <ul>
-   *   <li>kryo: 1163ms</li>
-   *   <li>json: 11740ms</li>
-   *   <li>smile: 11255ms</li>
-   * </ul>
-   */
-  @Test
-  public void testPerformance() throws Exception {
-    VerbatimNameUsageMapper parser = new VerbatimNameUsageMapperKryo();
-
-    VerbatimNameUsage v = new VerbatimNameUsage();
-    v.setKey(4712681);
-    v.setLastCrawled(new Date());
-    v.setCoreField(new UnknownTerm(qname1), "1200");
-    for (DwcTerm t : DwcTerm.values()) {
-      v.setCoreField(t, RandomStringUtils.random(20));
-    }
-    v.getExtensions().put(Extension.DESCRIPTION, Lists.<Map<Term, String>>newArrayList());
-    for (int i=0; i < 6; i++) {
-      Map<Term, String> rec = Maps.newHashMap();
-      rec.put(DcTerm.identifier, RandomStringUtils.random(10));
-      rec.put(DcTerm.type, "description");
-      rec.put(DcTerm.description, RandomStringUtils.random(1000));
-      v.getExtensions().get(Extension.DESCRIPTION).add(rec);
-    }
-
-    byte[] data = parser.write(v);
-    VerbatimNameUsage v2 = parser.read(data);
-//    assertEquals(v, v2);
-
-    long start = System.nanoTime();
-    for (int x=10000; x>0; x--) {
-      parser.read(data);
-    }
-    long end = System.nanoTime();
-    System.out.println(end - start);
-  }
-
   @Test
   public void testRoundTripping() throws Exception {
-    VerbatimNameUsageMapper parser = new VerbatimNameUsageMapperKryo();
+    VerbatimNameUsageMapperJson parser = new VerbatimNameUsageMapperJson();
 
     VerbatimNameUsage v = new VerbatimNameUsage();
-    v.setKey(4712681);
-    v.setLastCrawled(new Date());
     v.setCoreField(DwcTerm.scientificName, "Abies alba");
     v.setCoreField(DwcTerm.taxonRank, "Gattung");
     v.setCoreField(DwcTerm.taxonID, "dqwd23");
@@ -90,9 +44,9 @@ public class VerbatimNameUsageMapperTest {
     infos.add(map(GbifTerm.ageInDays, "750", IucnTerm.threatStatus, "extinct", GbifTerm.isExtinct, "true"));
     v.getExtensions().put(Extension.SPECIES_PROFILE, infos);
 
-    byte[] data = parser.write(v);
+    String json = parser.write(v);
 
-    VerbatimNameUsage v2 = parser.read(data);
+    VerbatimNameUsage v2 = parser.read(json);
     assertEquals(v, v2);
   }
 

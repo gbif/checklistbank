@@ -37,8 +37,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.SpeciesProfileMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperKryo;
+import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperJson;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 
 import java.util.Date;
@@ -74,7 +73,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     private final NameUsageMetricsMapper metricsMapper;
     private final NubRelMapper nubRelMapper;
     private final RawUsageMapper rawMapper;
-    private final VerbatimNameUsageMapper vParser = new VerbatimNameUsageMapperKryo();
+    private final VerbatimNameUsageMapperJson vParser = new VerbatimNameUsageMapperJson();
     private final ParsedNameService nameService;
     private final CitationService citationService;
     private final DescriptionMapper descriptionMapper;
@@ -206,7 +205,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
             RawUsage raw = new RawUsage();
             raw.setUsageKey(usageKey);
             raw.setDatasetKey(datasetKey);
-            raw.setData(vParser.write(verbatim));
+            raw.setJson(vParser.write(verbatim));
             rawMapper.insert(raw);
         }
     }

@@ -119,10 +119,6 @@
             <groupId>org.gbif</groupId>
             <artifactId>name-parser</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-        </dependency>
 
         <!-- test scope -->
         <dependency>

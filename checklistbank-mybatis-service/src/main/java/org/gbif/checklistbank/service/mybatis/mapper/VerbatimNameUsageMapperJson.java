@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * Serializing/Deserializing tool specifically for the term maps of a VerbatimNameUsage to be stored in postgres
  * or neo backends as a single binary column.
  */
-public class VerbatimNameUsageMapperJson implements VerbatimNameUsageMapper {
+public class VerbatimNameUsageMapperJson {
 
   private static final Logger LOG = LoggerFactory.getLogger(VerbatimNameUsageMapperJson.class);
   private final ObjectReader reader;
@@ -36,8 +36,7 @@ public class VerbatimNameUsageMapperJson implements VerbatimNameUsageMapper {
     writer = mapper.writerWithView(VerbatimNameUsage.class);
   }
 
-  @Override
-  public VerbatimNameUsage read(byte[] json) {
+  public VerbatimNameUsage read(String json) {
     if (json != null) {
       try {
         return reader.readValue(json);
@@ -48,11 +47,10 @@ public class VerbatimNameUsageMapperJson implements VerbatimNameUsageMapper {
     return null;
   }
 
-  @Override
-  public byte[] write(VerbatimNameUsage verbatim) {
+  public String write(VerbatimNameUsage verbatim) {
     if (verbatim != null) {
       try {
-        return writer.writeValueAsBytes(verbatim);
+        return writer.writeValueAsString(verbatim);
 
       } catch (IOException e) {
         LOG.error("Cannot serialize raw json data", e);

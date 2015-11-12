@@ -189,4 +189,13 @@
             )
         </sql>
     </changeSet>
+    <changeSet id="35" author="markus">
+        <!--
+        store verbatim data as json instead of binary kryo
+        we do not remove the previous binary column here as we want to migrate the data first
+        -->
+        <sql>
+            ALTER TABLE raw_usage ADD COLUMN json text;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

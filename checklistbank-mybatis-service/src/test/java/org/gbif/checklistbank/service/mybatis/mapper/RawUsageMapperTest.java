@@ -22,7 +22,7 @@ public class RawUsageMapperTest extends MapperITBase<RawUsageMapper> {
     public void crudTest() {
         final RawUsage raw = new RawUsage();
         raw.setUsageKey(usageKey);
-        raw.setData("sf4FDSFDSFDSAFSA".getBytes());
+        raw.setJson("{'me':'markus'}");
         raw.setDatasetKey(datasetKey);
         raw.setLastCrawled(new Date());
 
