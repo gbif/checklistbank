@@ -63,7 +63,6 @@ import java.util.UUID;
 import com.carrotsearch.hppc.IntArrayList;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
-import com.google.common.collect.ImmutableList;
 import org.neo4j.kernel.impl.core.NodeProxy;
 
 
@@ -107,9 +106,9 @@ public class CliKryoFactory implements KryoFactory {
         kryo.register(ArrayList.class);
         kryo.register(UUID.class, new UUIDSerializer());
         kryo.register(URI.class, new URISerializer());
-        kryo.register(ImmutableList.class, new ImmutableListSerializer());
         kryo.register(IntArrayList.class, new IntArrayListSerializer());
         kryo.register(int[].class);
+        ImmutableListSerializer.registerSerializers(kryo);
 
         // enums
         kryo.register(EnumSet.class, new EnumSetSerializer());
