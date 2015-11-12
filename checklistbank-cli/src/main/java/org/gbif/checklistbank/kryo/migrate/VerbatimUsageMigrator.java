@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.kryo.ClbKryoFactory;
 import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperJson;
 import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperKryo;
 
 import java.sql.Connection;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
@@ -24,14 +26,16 @@ import com.google.common.collect.Lists;
  * created during indexing with different factories.
  */
 public class VerbatimUsageMigrator {
-    private static final int FETCH_SIZE = 100;
-    private VerbatimNameUsageMapperKryo mapper = new VerbatimNameUsageMapperKryo(new ClbKryoFactory1Curr());
+    private static final int FETCH_SIZE = 1000;
     private final ClbConfiguration cfg;
 
-    private List<VerbatimNameUsageMapperKryo> allMapper = Lists.newArrayList(mapper,
-            new VerbatimNameUsageMapperKryo(new ClbKryoFactory4()),
-            new VerbatimNameUsageMapperKryo(new ClbKryoFactory2()),
-            new VerbatimNameUsageMapperKryo(new ClbKryoFactory3()),
+    private VerbatimNameUsageMapper jsonMapper = new VerbatimNameUsageMapperJson();
+
+    private List<VerbatimNameUsageMapperKryo> allMapper = Lists.newArrayList(
+            new VerbatimNameUsageMapperKryo(new KryoFactory2_13()),
+            new VerbatimNameUsageMapperKryo(new KryoFactory2_15()),
+            new VerbatimNameUsageMapperKryo(new KryoFactory2_25()),
+            new VerbatimNameUsageMapperKryo(new VerbatimNameUsageMapperKryo.VerbatimKryoFactory()),
             new VerbatimNameUsageMapperKryo(new ClbKryoFactory())
     );
     private List<AtomicInteger> counters = Lists.newArrayList();
@@ -49,11 +53,11 @@ public class VerbatimUsageMigrator {
             c1.setAutoCommit(false);
             c2.setAutoCommit(false);
 
-            PreparedStatement update = c2.prepareStatement("UPDATE raw_usage SET migrated=true, data=? WHERE usage_fk=?");
+            PreparedStatement update = c2.prepareStatement("UPDATE raw_usage SET json=? WHERE usage_fk=?");
 
             Statement st = c1.createStatement();
             st.setFetchSize(FETCH_SIZE);
-            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE NOT migrated");
+            ResultSet rs = st.executeQuery("SELECT usage_fk, data FROM raw_usage WHERE json IS NULL");
             int counter = 0;
             int error = 0;
             Joiner countJoiner = Joiner.on("-");
@@ -65,7 +69,7 @@ public class VerbatimUsageMigrator {
                 counter++;
                 // transform
                 try {
-                    update.setBytes(1, transform(rs.getInt(1), rs.getBytes(2)));
+                    update.setString(1, transform(rs.getInt(1), rs.getBytes(2)));
                     update.setInt(2, rs.getInt(1));
                     update.execute();
                 } catch (Exception e) {
@@ -86,7 +90,7 @@ public class VerbatimUsageMigrator {
         }
     }
 
-    private byte[] transform(int usageKey, byte[] data) throws IllegalArgumentException {
+    private String transform(int usageKey, byte[] data) throws IllegalArgumentException {
         int midx = -1;
         for (VerbatimNameUsageMapper mapper : allMapper) {
             try {
@@ -94,15 +98,15 @@ public class VerbatimUsageMigrator {
                 VerbatimNameUsage v = mapper.read(data);
                 if (verifyInstance(v)) {
                     counters.get(midx).incrementAndGet();
-                    return mapper.write(v);
+                    String json = new String(jsonMapper.write(v), Charsets.UTF_8);
+                    //System.out.println(midx+" "+usageKey+" "+json);
+                    return json;
                 }
-                //System.out.print(midx+" "+usageKey+" ");
-                //System.out.println(v);
             } catch (Exception e) {
                 // ignore, try next
             }
         }
-        throw new IllegalStateException("No mapper found to deserialize " + usageKey);
+        throw new IllegalStateException("No liveMapper found to deserialize " + usageKey);
     }
 
     private boolean verifyInstance(VerbatimNameUsage v) {
@@ -115,7 +119,7 @@ public class VerbatimUsageMigrator {
         cfg.serverName = "pg1.gbif.org";
         cfg.databaseName = "checklistbank2";
         cfg.user = "clb";
-        cfg.password = "";
+        cfg.password = "%BBJu2MgstXJ";
         VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg);
         migrator.updateAll();
     }

@@ -34,16 +34,12 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.api.vocabulary.TypeDesignationType;
 import org.gbif.api.vocabulary.TypeStatus;
-import org.gbif.checklistbank.cli.model.ClassificationKeys;
-import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.kryo.EnumSetSerializer;
-import org.gbif.checklistbank.kryo.NullSerializer;
+import org.gbif.checklistbank.kryo.ImmutableListSerializer;
 import org.gbif.checklistbank.kryo.TermSerializer;
 import org.gbif.checklistbank.kryo.URISerializer;
 import org.gbif.checklistbank.kryo.UUIDSerializer;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.nub.model.NubUsage;
-import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcElement;
 import org.gbif.dwc.terms.DcTerm;
@@ -66,36 +62,21 @@ import java.util.UUID;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
-import org.neo4j.kernel.impl.core.NodeProxy;
 
 /**
- * Creates a kryo factory usable for thread safe kryo pools that can deal with clb api classes.
- * We use Kryo for extremely fast byte serialization of objects:
- * 1) We store in postgres a byte array for the verbatim usage instances.
- * 2) We use kryo to serialize various information in kvp stores during checklist indexing and nub builds.
- *
- * The serialization format of kryo stays the same over minor version changes, so we do not need to reindex checklists
- * just because we update the kryo library. Make sure to not update to an incompatible format change, see kryo changes logs:
- * https://github.com/EsotericSoftware/kryo/blob/master/CHANGES.md
- *
- * CAUTION! We require registration of all classes that kryo should be able to handle.
- * This registration reduces the resulting binary size and improves performance,
- * BUT the registered integers must stay the same over time or otherwise existing data in unreadable.
+ * Kryo factory as used in VerbatimNameUsageMapperKryo in release 2.25
  */
-public class ClbKryoFactory2 implements KryoFactory {
+public class KryoFactory2_25 implements KryoFactory {
 
     @Override
     public Kryo create() {
         Kryo kryo = new Kryo();
         kryo.setRegistrationRequired(true);
+
         kryo.register(NameUsage.class);
         kryo.register(VerbatimNameUsage.class);
-        kryo.register(NubUsage.class);
-        kryo.register(UsageFacts.class);
         kryo.register(NameUsageMetrics.class);
-        kryo.register(ClassificationKeys.class);
         kryo.register(UsageExtensions.class);
-        kryo.register(SrcUsage.class);
         kryo.register(ParsedName.class);
         kryo.register(Description.class);
         kryo.register(Distribution.class);
@@ -115,6 +96,7 @@ public class ClbKryoFactory2 implements KryoFactory {
         kryo.register(ArrayList.class);
         kryo.register(UUID.class, new UUIDSerializer());
         kryo.register(URI.class, new URISerializer());
+        ImmutableListSerializer.registerSerializers(kryo);
         // enums
         kryo.register(EnumSet.class, new EnumSetSerializer());
         kryo.register(NameUsageIssue.class);
@@ -152,9 +134,7 @@ public class ClbKryoFactory2 implements KryoFactory {
         kryo.register(XmpTerm.class);
         TermSerializer ts = new TermSerializer();
         kryo.register(UnknownTerm.class, ts);
-        // ignore those classes and set them to null upon read:
-        NullSerializer devNull = new NullSerializer();
-        kryo.register(NodeProxy.class, devNull);
+
         return kryo;
-   }
+    }
 }
