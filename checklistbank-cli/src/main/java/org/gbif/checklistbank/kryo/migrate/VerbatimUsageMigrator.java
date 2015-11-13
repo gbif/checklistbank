@@ -71,8 +71,7 @@ public class VerbatimUsageMigrator {
                     update.execute();
                 } catch (Exception e) {
                     error++;
-                    System.err.println("Failed to transform usage " + rs.getInt(1));
-                    System.err.println("Failed to transform usage " + rs.getInt(1));
+                    System.err.println("Failed to transform usage " + rs.getInt(1) + ": " + e.getMessage());
                 }
             }
             System.out.println(counter + " updated, " + error + " errors: " + countJoiner.join(counters));
