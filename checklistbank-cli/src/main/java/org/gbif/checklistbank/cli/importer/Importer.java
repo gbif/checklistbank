@@ -10,7 +10,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
-import org.gbif.checklistbank.cli.model.ClassificationKeys;
+import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.ImportDb;
@@ -334,12 +334,13 @@ public class Importer extends ImportDb implements Runnable {
      * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
      */
     @VisibleForTesting
-    protected NameUsage buildClbNameUsage(Node n, @Nullable ClassificationKeys classification) {
+    protected NameUsage buildClbNameUsage(Node n, @Nullable Classification classification) {
         // this is using neo4j internal node ids as keys:
         NameUsage u = dao.readUsage(n, true);
         Preconditions.checkNotNull(u, "Node %s not found in kvp store", n.getId());
         if (classification != null) {
             ClassificationUtils.copyLinneanClassificationKeys(classification, u);
+            ClassificationUtils.copyLinneanClassification(classification, u);
         }
         if (n.hasLabel(Labels.SYNONYM)) {
             u.setSynonym(true);

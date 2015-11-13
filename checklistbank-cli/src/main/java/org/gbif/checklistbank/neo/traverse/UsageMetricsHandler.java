@@ -7,7 +7,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.cli.model.ClassificationKeys;
+import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 
 import java.util.LinkedList;
@@ -30,7 +30,7 @@ public class UsageMetricsHandler implements StartEndHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(UsageMetricsHandler.class);
     // neo node ids for the higher classification links
-    private final ClassificationKeys classification = new ClassificationKeys();
+    private final Classification classification = new Classification();
     private final LinkedList<NameUsageMetrics> parentCounts = Lists.newLinkedList();
     private int counter;
     private int roots;
@@ -62,6 +62,7 @@ public class UsageMetricsHandler implements StartEndHandler {
         }
         if (u.getRank() != null && u.getRank().isLinnean()) {
             ClassificationUtils.setHigherRankKey(classification, u.getRank(), (int) n.getId());
+            ClassificationUtils.setHigherRank(classification, u.getRank(), u.getCanonicalOrScientificName());
         }
         // for linnean ranks increase all parent data
         if (u.getRank() != null && u.getRank().isLinnean() && u.getRank() != Rank.KINGDOM) {
@@ -99,6 +100,7 @@ public class UsageMetricsHandler implements StartEndHandler {
         // remove this rank from current classification
         if (u.getRank() != null && u.getRank().isLinnean()) {
             ClassificationUtils.setHigherRankKey(classification, u.getRank(), null);
+            ClassificationUtils.setHigherRank(classification, u.getRank(), null);
         }
         if (debug) LOG.info("end: {} {} {} #  {}-{}-{}", u.getTaxonID(), u.getRank(), u.getScientificName(), metrics.getNumDescendants(), metrics.getNumSynonyms(), parentCounts.size());
     }
