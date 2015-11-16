@@ -18,6 +18,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 /**
  * Service that updates a solr checklistbank index in real time.
+ * A maximum of one minute is allowed for a commit to happen.
  */
 public class NameUsageIndexServiceSolr implements NameUsageIndexService {
 

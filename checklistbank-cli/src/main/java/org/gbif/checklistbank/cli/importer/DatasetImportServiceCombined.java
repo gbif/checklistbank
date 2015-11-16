@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
@@ -69,7 +70,12 @@ public class DatasetImportServiceCombined implements AutoCloseable {
     public void close() throws Exception {
         LOG.info("Closing DatasetImportServiceCombined");
         sqlService.close();
-        solrExecutor.shutdownNow();
+        LOG.info("Shutting down solr executor");
+        solrExecutor.shutdown();
+        if (!solrExecutor.awaitTermination(2*60, TimeUnit.SECONDS)) {
+            List<?> jobs = solrExecutor.shutdownNow(); // Cancel currently executing tasks
+            LOG.warn("Shutting down solr executor instantly, loosing {} updates", jobs.size());
+        }
     }
 
     class SolrUpdate implements Runnable {
