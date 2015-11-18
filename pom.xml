@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
-        <version>25.1</version>
+        <version>26</version>
     </parent>
 
 
@@ -36,18 +36,18 @@
 
         <!-- dependency versions -->
         <dwc-api.version>1.13</dwc-api.version>
-        <gbif-api.version>0.30</gbif-api.version>
+        <gbif-api.version>0.31</gbif-api.version>
         <gbif-cli.version>0.10</gbif-cli.version>
-        <gbif-common.version>0.21-SNAPSHOT</gbif-common.version>
-        <gbif-common-mybatis.version>0.19-SNAPSHOT</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.25-SNAPSHOT</gbif-common-search.version>
+        <gbif-common.version>0.21</gbif-common.version>
+        <gbif-common-mybatis.version>0.20</gbif-common-mybatis.version>
+        <gbif-common-search.version>0.25</gbif-common-search.version>
         <gbif-common-service.version>0.14</gbif-common-service.version>
         <gbif-common-ws.version>0.26</gbif-common-ws.version>
         <gbif-httputils.version>0.8</gbif-httputils.version>
         <gbif-microservice.version>0.4</gbif-microservice.version>
         <gbif-postal-service.version>0.17</gbif-postal-service.version>
-        <registry-client.version>2.38-SNAPSHOT</registry-client.version>
-        <name-parser.version>2.9</name-parser.version>
+        <registry-client.version>2.38</registry-client.version>
+        <name-parser.version>2.10</name-parser.version>
         <gbif-parser.version>0.17</gbif-parser.version>
         <dwca-io.version>1.24</dwca-io.version>
         <!-- external libs -->
