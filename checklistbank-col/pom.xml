@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>checklistbank-motherpom</artifactId>
     <groupId>org.gbif.checklistbank</groupId>
@@ -11,6 +12,13 @@
 
   <name>ChecklistBank Catalogue of Life Feedback</name>
   <description>Tolls needed to fulfill the GBIF i4Life deliverables providing and consuming feedback for Catalog of Life.</description>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>http://gbif.github.io/checklistbank/${project.artifactId}/</url>
+    </site>
+  </distributionManagement>
 
   <properties>
     <registry.ws.url>http://api.gbif.org/</registry.ws.url>
@@ -79,7 +87,7 @@
       <artifactId>guava</artifactId>
     </dependency>
     <dependency>
-      <groupId> com.google.inject</groupId>
+      <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
     </dependency>
     <dependency>

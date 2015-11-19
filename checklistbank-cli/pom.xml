@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -13,6 +14,13 @@
 
   <name>ChecklistBank Commandline Tools</name>
   <description>Commandline tools for ChecklistBank dataset imports</description>
+
+  <distributionManagement>
+    <site>
+      <id>gh-pages</id>
+      <url>http://gbif.github.io/checklistbank/${project.artifactId}/</url>
+    </site>
+  </distributionManagement>
 
   <properties>
     <!-- older lucene version required by neo4j -->
@@ -53,16 +61,16 @@
         <version>2.4.2</version>
         <configuration>
           <createDependencyReducedPom>true</createDependencyReducedPom>
-            <artifactSet>
-                <!-- we exceed the 65535 maximum file limit for old jars so we need to exclude unused files.
-                 Neo4j contributes over 20.000 files with most of it being hardly used cypher.
-                 Cypher supports different syntax versions and we only need the latest. So we exclude v 1.9 and 2.2 here.
-                 -->
-                <excludes>
-                    <exclude>org.neo4j:neo4j-cypher-compiler-1.9_*</exclude>
-                    <exclude>org.neo4j:neo4j-cypher-compiler-2.2_*</exclude>
-                </excludes>
-            </artifactSet>
+          <artifactSet>
+            <!-- we exceed the 65535 maximum file limit for old jars so we need to exclude unused files.
+             Neo4j contributes over 20.000 files with most of it being hardly used cypher.
+             Cypher supports different syntax versions and we only need the latest. So we exclude v 1.9 and 2.2 here.
+             -->
+            <excludes>
+              <exclude>org.neo4j:neo4j-cypher-compiler-1.9_*</exclude>
+              <exclude>org.neo4j:neo4j-cypher-compiler-2.2_*</exclude>
+            </excludes>
+          </artifactSet>
           <filters>
             <filter>
               <artifact>*:*</artifact>
@@ -92,16 +100,16 @@
                   </manifestEntries>
                 </transformer>
                 <!-- This bit merges the various GeoTools META-INF/services files         -->
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
               </transformers>
               <relocations>
                 <relocation>
-                    <pattern>org.codehaus.plexus.util</pattern>
-                    <shadedPattern>org.shaded.plexus.util</shadedPattern>
-                    <excludes>
-                        <exclude>org.codehaus.plexus.util.xml.Xpp3Dom</exclude>
-                        <exclude>org.codehaus.plexus.util.xml.pull.*</exclude>
-                    </excludes>
+                  <pattern>org.codehaus.plexus.util</pattern>
+                  <shadedPattern>org.shaded.plexus.util</shadedPattern>
+                  <excludes>
+                    <exclude>org.codehaus.plexus.util.xml.Xpp3Dom</exclude>
+                    <exclude>org.codehaus.plexus.util.xml.pull.*</exclude>
+                  </excludes>
                 </relocation>
               </relocations>
             </configuration>
