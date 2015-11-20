@@ -32,10 +32,7 @@ import org.gbif.common.search.model.WildcardPadding;
 import java.util.List;
 import java.util.UUID;
 
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import org.apache.solr.client.solrj.beans.Field;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
@@ -93,15 +90,6 @@ import org.codehaus.jackson.annotate.JsonIgnore;
     @FullTextSearchField(field = "kingdom", partialMatching = WildcardPadding.NONE),
   })
 public class NameUsageSolrSearchResult extends NameUsageSearchResult {
-
-  private static Function<VernacularName, String> toNameLang = new Function<VernacularName, String>() {
-
-    @Override
-    public String apply(VernacularName obj) {
-      String lang = obj.getLanguage() == null ? "" : obj.getLanguage().getIso2LetterCode();
-      return Strings.nullToEmpty(obj.getVernacularName()) + lang;
-    }
-  };
 
   @JsonIgnore
   public HighlightableList getDescriptionsSerialized() {

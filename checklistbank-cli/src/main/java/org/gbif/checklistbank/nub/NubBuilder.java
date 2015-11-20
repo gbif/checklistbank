@@ -279,6 +279,11 @@ public class NubBuilder implements Runnable {
         for (Node n : IteratorUtil.loop(iter)) {
             if (!n.hasLabel(Labels.SYNONYM)) {
                 NubUsage u = db.dao.readNub(n);
+                if (u == null || u.parsedName == null) {
+                    LOG.error("Missing nub or parsedName for accepted {}", n.getProperties(NeoProperties.SCIENTIFIC_NAME, "???"));
+                    continue;
+                }
+
                 String name = u.parsedName.canonicalName();
                 if (u.status == TaxonomicStatus.ACCEPTED && !Strings.isBlank(name)) {
                     // prefix with rank ordinal to become unique across ranks (ordinal is shorter than full name to save mem)
@@ -558,6 +563,10 @@ public class NubBuilder implements Runnable {
             for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
                 if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
                     NubUsage nub = db.dao.readNub(gen);
+                    if (nub == null || nub.status == null) {
+                        LOG.error("Missing nub or status for genus: {}", gen.getProperties(NeoProperties.SCIENTIFIC_NAME, "???"));
+                        continue;
+                    }
                     if (!nub.status.isSynonym()) {
                         nub.issues.add(NameUsageIssue.NO_SPECIES);
                         if (TaxonomicStatus.ACCEPTED == nub.status) {
@@ -609,6 +618,9 @@ public class NubBuilder implements Runnable {
                 for (SrcUsage u : batch) {
                     // catch errors processing individual records too
                     try {
+                        if (u.scientificName.startsWith("Cetraria stuppea") || u.scientificName.startsWith("Cetraria muricata")) {
+                            LOG.warn("TROUBLE");
+                        }
                         LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
                         sourceUsageCounter++;
                         parents.add(u);
@@ -644,6 +656,11 @@ public class NubBuilder implements Runnable {
                 Node bas = db.getNode(src2NubKey.get(c.value));
                 // find basionym node by sourceKey
                 if (n != null && bas != null) {
+                    String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
+                    String bname = (String) bas.getProperty(NeoProperties.SCIENTIFIC_NAME);
+                    if (name.toLowerCase().startsWith("incertae") || bname.toLowerCase().startsWith("incertae")) {
+                        LOG.info("TROUBLE {} {}", name, bname);
+                    }
                     if (!createBasionymRelationIfNotExisting(bas, n)) {
                         LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
                     }

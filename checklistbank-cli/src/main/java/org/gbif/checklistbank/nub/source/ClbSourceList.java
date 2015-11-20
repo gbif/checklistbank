@@ -8,6 +8,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
@@ -42,6 +43,25 @@ public class ClbSourceList extends NubSourceList {
         return new ClbSourceList(regInj.getInstance(DatasetService.class), regInj.getInstance(OrganizationService.class), cfg);
     }
 
+    public static ClbSourceList create(NubConfiguration cfg, List<UUID> sourceDatasetKeys) {
+        Injector regInj = cfg.registry.createRegistryInjector();
+        DatasetService datasetService = regInj.getInstance(DatasetService.class);
+
+        List<NubSource> sources = Lists.newArrayList();
+        for (UUID dKey : sourceDatasetKeys) {
+            sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg.clb));
+        }
+        return new ClbSourceList(cfg, sources);
+    }
+
+    public ClbSourceList(NubConfiguration cfg, List<NubSource> sources) {
+        super();
+        this.cfg = cfg;
+        this.datasetService = null;
+        this.organizationService = null;
+        submitSources(sources);
+    }
+
     public ClbSourceList(DatasetService datasetService, OrganizationService organizationService, NubConfiguration cfg) {
         super();
         this.cfg = cfg;
@@ -50,8 +70,8 @@ public class ClbSourceList extends NubSourceList {
         loadSources();
     }
 
-    private NubSource buildSource(Dataset d, Rank rank) {
-        NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle());
+    private static NubSource buildSource(Dataset d, Rank rank, ClbConfiguration cfg) {
+        NubSource src = new ClbSource(cfg, d.getKey(), d.getTitle());
         src.created = d.getCreated();
         src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
         if (rank != null) {
@@ -82,7 +102,7 @@ public class ClbSourceList extends NubSourceList {
                 Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
                 Dataset d = datasetService.get(key);
                 if (d != null) {
-                    sources.add(buildSource(d, rank));
+                    sources.add(buildSource(d, rank, cfg.clb));
 
                 } else {
                     // try if its an organization
@@ -93,7 +113,7 @@ public class ClbSourceList extends NubSourceList {
                         int counter = 0;
                         for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
                             if (!keys.contains(d2.getKey())) {
-                                sources.add(buildSource(d2, rank));
+                                sources.add(buildSource(d2, rank, cfg.clb));
                                 counter++;
                             }
                         }
