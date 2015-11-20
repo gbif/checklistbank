@@ -417,11 +417,11 @@ public class Normalizer extends ImportDb implements Runnable {
             tx.success();
         }
 
-        LOG.info("Relations cleaned up, {} synonym cycles detected, {} chained synonyms relinked");
+        LOG.info("Relations cleaned up, {} synonym cycles detected, {} chained synonyms relinked", cycles.size(), chainedSynonyms);
         LOG.info("Synonym relations cleaned up. "
                         + "{} childOf relations deleted, {} childOf rels relinked to accepted,"
                         + "{} parentOf relations deleted, {} parentOf rels moved from synonym to accepted",
-                cycles.size(), chainedSynonyms, childOfRelDeleted, childOfRelRelinkedToAccepted, parentOfRelDeleted, parentOfRelRelinked);
+                childOfRelDeleted, childOfRelRelinkedToAccepted, parentOfRelDeleted, parentOfRelRelinked);
     }
 
     /**
