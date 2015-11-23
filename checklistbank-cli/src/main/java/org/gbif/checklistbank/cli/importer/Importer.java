@@ -107,6 +107,82 @@ public class Importer extends ImportDb implements Runnable {
         }
     }
 
+  /**
+   * Syncs a single node.
+   */
+    private int syncNode(Node n) {
+        final int usageKey;
+
+        try {
+            final int nodeId = (int) n.getId();
+            VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
+            UsageFacts facts = dao.readFacts(nodeId);
+            if (facts == null) {
+                facts = new UsageFacts();
+                facts.metrics = new NameUsageMetrics();
+            }
+            NameUsage u = buildClbNameUsage(n, facts.classification);
+            List<Integer> parents = buildClbParents(n);
+            UsageExtensions ext = dao.readExtensions(nodeId);
+
+            // do we have pro parte relations? we need to duplicate the synonym for each additional accepted taxon to fit the postgres db model
+            if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
+                u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+                u.setProParteKey(SELF_ID);
+                usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
+                LOG.debug("First synced pro parte usage {}", usageKey);
+                // now insert the other pro parte records
+                u.setProParteKey(usageKey);
+                u.setOrigin(Origin.PROPARTE);
+                u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
+                for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+                    Node accN = rel.getEndNode();
+                    int accNodeId = (int) accN.getId();
+                    boolean existingKey = false;
+                    // not all accepted usages might already exist in postgres, only use the key if they exist
+                    if (clbKeys.containsKey(accNodeId)) {
+                        u.setAcceptedKey(clbKeys.get(accNodeId));
+                        existingKey = true;
+                    }
+                    // pro parte synonyms keep their id in the relation, read it
+                    // http://dev.gbif.org/issues/browse/POR-2872
+                    u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
+                    // sync the extra usage
+                    int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
+                    if (!existingKey) {
+                        // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
+                        postProParteKeys.put(ppid, accNodeId);
+                    }
+                    syncCounter++;
+                }
+            } else {
+                usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
+            }
+            // keep map of node ids to clb usage keys
+            clbKeys.put(nodeId, usageKey);
+            syncMeter.mark();
+            syncCounter++;
+            if (syncCounter % 100000 == 0) {
+                LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+            } else if (syncCounter % 10000 == 0) {
+                LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+            }
+
+        } catch (Throwable e) {
+            String id;
+            if (n.hasProperty(NeoProperties.TAXON_ID)) {
+                id = String.format("taxonID '%s'", n.getProperty(NeoProperties.TAXON_ID));
+            } else {
+                id = String.format("nodeID %s", n.getId());
+            }
+            LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
+            LOG.error("Aborting sync of dataset {}", datasetKey);
+            throw e;
+        }
+
+        return usageKey;
+    }
+
     /**
      * Iterates over all accepted taxa in taxonomical order including all synonyms and syncs the usage individually
      * with Checklist Bank Postgres. As basionym relations can crosslink basically any record we first set the basionym
@@ -129,76 +205,10 @@ public class Importer extends ImportDb implements Runnable {
         try (Transaction tx = dao.beginTx()) {
             // returns all nodes, accepted and synonyms
             for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
-                try {
-                    final int nodeId = (int) n.getId();
-                    VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
-                    UsageFacts facts = dao.readFacts(nodeId);
-                    if (facts == null) {
-                        facts = new UsageFacts();
-                        facts.metrics = new NameUsageMetrics();
-                    }
-                    NameUsage u = buildClbNameUsage(n, facts.classification);
-                    List<Integer> parents = buildClbParents(n);
-                    UsageExtensions ext = dao.readExtensions(nodeId);
-
-                    // do we have pro parte relations? we need to duplicate the synonym for each additional accepted taxon to fit the postgres db model
-                    final int usageKey;
-                    if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
-                        u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
-                        u.setProParteKey(SELF_ID);
-                        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
-                        LOG.debug("First synced pro parte usage {}", usageKey);
-                        // now insert the other pro parte records
-                        u.setProParteKey(usageKey);
-                        u.setOrigin(Origin.PROPARTE);
-                        u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
-                        for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
-                            Node accN = rel.getEndNode();
-                            int accNodeId = (int) accN.getId();
-                            boolean existingKey = false;
-                            // not all accepted usages might already exist in postgres, only use the key if they exist
-                            if (clbKeys.containsKey(accNodeId)) {
-                                u.setAcceptedKey(clbKeys.get(accNodeId));
-                                existingKey = true;
-                            }
-                            // pro parte synonyms keep their id in the relation, read it
-                            // http://dev.gbif.org/issues/browse/POR-2872
-                            u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
-                            // sync the extra usage
-                            int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
-                            if (!existingKey) {
-                                // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
-                                postProParteKeys.put(ppid, accNodeId);
-                            }
-                            syncCounter++;
-                        }
-                    } else {
-                        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
-                    }
-                    // keep map of node ids to clb usage keys
-                    clbKeys.put(nodeId, usageKey);
                     if (firstUsageKey < 0) {
                         firstUsageKey = usageKey;
                         LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
                     }
-                    syncMeter.mark();
-                    syncCounter++;
-                    if (syncCounter % 100000 == 0) {
-                        LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-                    } else if (syncCounter % 10000 == 0) {
-                        LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-                    }
-
-                } catch (Throwable e) {
-                    String id;
-                    if (n.hasProperty(NeoProperties.TAXON_ID)) {
-                        id = String.format("taxonID '%s'", n.getProperty(NeoProperties.TAXON_ID));
-                    } else {
-                        id = String.format("nodeID %s", n.getId());
-                    }
-                    LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
-                    LOG.error("Aborting sync of dataset {}", datasetKey);
-                    throw e;
                 }
             }
         }
