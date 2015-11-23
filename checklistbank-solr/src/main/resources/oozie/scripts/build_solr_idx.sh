@@ -19,8 +19,8 @@ echo "HADOOP_LIBJAR" $HADOOP_LIBJAR
 if [ $IS_SINGLE_SHARD = true ] ; then
 
 hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/solr-map-reduce-*.jar $MAP_RED_OPTS -D mapreduce.job.user.classpath.first=true \
--libjars $HADOOP_LIBJAR --morphline-file avro_solr_morphline.conf --shards 1 --output-dir $OUT_HDFS_DIR \
---log4j log4j.properties --verbose "$AVRO_TABLE" \
+-libjars $HADOOP_LIBJAR --morphline-file avro_solr_morphline.conf --output-dir $OUT_HDFS_DIR \
+--log4j log4j.properties --verbose --shards 1 --solr-home-dir solr/collection1/ "$AVRO_TABLE" \
 
 else
 
