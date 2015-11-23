@@ -4,10 +4,18 @@ set -e
 #!/bin/bash
 P=$1
 TOKEN=$2
+#get the third parameter, if absent use a default of false
+IS_SINGLE_SHARD=${3-'false'}
 
 echo "Getting latest checklistbank-index-builder workflow properties file from github"
 curl -s -H "Authorization: token $TOKEN" -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/gbif/gbif-configuration/contents/checklistbank-index-builder/$P.properties
 
+if [ $IS_SINGLE_SHARD = true ] ; then
+  echo -e "\nsolr.is_single_shard=true\n" >> $P.properties
+else
+  echo -e "\nsolr.is_single_shard=false\n" >> $P.properties
+fi
+exit 0
 #extract the oozie.url value from the properties file
 oozie_url=`cat $P.properties| grep "oozie.url" | cut -d'=' -f2`
 
