@@ -24,7 +24,7 @@
     </configuration>
   </global>
 
-  <start to="export_to_avro" />
+  <start to="build_index" />
 
   <action name="export_to_avro">
     <java>
@@ -57,6 +57,7 @@
         <argument>${wf:conf("hadoop.client.opts")}</argument>
         <argument>${wf:conf("mapred.opts")}</argument>
         <argument>${wf:conf("solr.http.url")}</argument>
+        <argument>${wf:conf("solr.is_single_shard")}</argument>
         <file>scripts/build_solr_idx.sh</file>
         <archive>solr.zip#solr</archive>
       </shell>
