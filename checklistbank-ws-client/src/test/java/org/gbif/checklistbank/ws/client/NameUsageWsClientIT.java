@@ -33,12 +33,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class NameUsageWsClientIT extends ClientMyBatisITBase<NameUsageService> {
+public class NameUsageWsClientIT {
 
+  final NameUsageService wsClient;
   private final int NOT_FOUND_KEY = -10;
 
   public NameUsageWsClientIT() {
-    super(NameUsageService.class);
+    wsClient = WsClientSuite.getClient(NameUsageService.class);
   }
 
   @Test

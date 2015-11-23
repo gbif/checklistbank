@@ -21,7 +21,11 @@ public class ChecklistBankWsModule extends GbifServletListener {
   public static final String APP_CONF_FILE = "checklistbank.properties";
 
   public ChecklistBankWsModule() throws IOException {
-    super(PropertiesUtil.readFromFile(ConfUtils.getAppConfFile(APP_CONF_FILE)), SpeciesResource.class.getPackage().getName(), false);
+    this(PropertiesUtil.readFromFile(ConfUtils.getAppConfFile(APP_CONF_FILE)));
+  }
+
+  public ChecklistBankWsModule(Properties properties) {
+    super(properties, SpeciesResource.class.getPackage().getName(), false);
   }
 
   @Override

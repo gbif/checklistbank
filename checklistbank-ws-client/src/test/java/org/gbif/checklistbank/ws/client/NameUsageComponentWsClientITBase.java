@@ -22,13 +22,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class NameUsageComponentWsClientITBase<T extends NameUsageExtensionService> extends ClientMyBatisITBase<T> {
+public class NameUsageComponentWsClientITBase<T extends NameUsageExtensionService> {
 
+  final T wsClient;
   private int usageKey;
   private int expectedResults;
 
   public NameUsageComponentWsClientITBase(Class<T> serviceClass, int usageKey, int expectedResults) {
-    super(serviceClass);
+    wsClient = WsClientSuite.getClient(serviceClass);
     this.usageKey = usageKey;
     this.expectedResults = expectedResults;
   }

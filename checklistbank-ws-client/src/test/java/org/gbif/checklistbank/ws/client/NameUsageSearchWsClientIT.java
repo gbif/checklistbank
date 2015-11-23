@@ -12,30 +12,12 @@ import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.checklistbank.index.SolrIndexingTestModule;
-import org.gbif.checklistbank.index.NameUsageIndexer;
-import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.gbif.checklistbank.ws.UrlBindingModule;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankSearchWsTestModule;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
-import org.gbif.utils.file.properties.PropertiesUtil;
-import org.gbif.ws.client.BaseResourceTest;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
-import com.google.common.base.Throwables;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.gbif.api.model.common.paging.PagingConstants.DEFAULT_PARAM_LIMIT;
 import static org.gbif.api.model.common.paging.PagingConstants.DEFAULT_PARAM_OFFSET;
@@ -43,76 +25,12 @@ import static org.gbif.api.model.common.paging.PagingConstants.DEFAULT_PARAM_OFF
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class NameUsageSearchWsClientIT extends BaseResourceTest {
-
-  private static final String PROPERTY_INDEXER_DEFAULT = "checklistbank-indexer-default.properties";
-
-  private static final Logger LOG = LoggerFactory.getLogger(NameUsageSearchWsClientIT.class);
+public class NameUsageSearchWsClientIT {
 
   private NameUsageSearchService wsClient;
-  private static EmbeddedSolrReference solrRef;
-
-  /**
-   * Starts up a solr server and indexes the test database.
-   * Wrapped in a static method so we can set the solr server in the ChecklistBankSearchWsTestModule
-   * which must have a default, empty constructor.
-   */
-  public static EmbeddedSolrReference setup() {
-    if (solrRef != null) {
-      return solrRef;
-    }
-
-    // run liquibase & dbSetup
-    LOG.info("Run liquibase & dbSetup once");
-    try {
-        ClbDbTestRule rule = ClbDbTestRule.squirrels();
-      rule.apply(new Statement() {
-        public void evaluate() throws Throwable {
-          // do nothing
-        }
-      }, null).evaluate();
-    } catch (Throwable throwable) {
-      Throwables.propagate(throwable);
-    }
-
-    // Creates the injector, merging properties taken from default test indexing and checklistbank
-    try {
-      Properties props = PropertiesUtil.loadProperties(PROPERTY_INDEXER_DEFAULT);
-      Properties props2 = PropertiesUtil.loadProperties(ClientMyBatisITBase.PROPERTIES_FILE);
-      props.putAll(props2);
-      Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
-
-      // Gets the indexer instance
-      solrRef = injector.getInstance(EmbeddedSolrReference.class);
-
-      // build the solr index
-      NameUsageIndexer nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
-      LOG.info("Build solr index");
-      nameUsageIndexer.run();
-
-      return solrRef;
-
-    } catch (IOException e) {
-      throw new RuntimeException("Cant load properties to build solr index", e);
-    }
-  }
-
 
   public NameUsageSearchWsClientIT() {
-    super("org.gbif.checklistbank.ws", ClientMyBatisITBase.CONTEXT, ChecklistBankSearchWsTestModule.class);
-  }
-
-  @Before
-  public void init() {
-    Properties props;
-    try {
-      props = PropertiesUtil.loadProperties(ClientMyBatisITBase.PROPERTIES_FILE);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    Injector clientInjector = Guice.createInjector(new UrlBindingModule(getBaseURI(), ClientMyBatisITBase.CONTEXT),
-      new ChecklistBankWsClientModule(props, true, false));
-    wsClient = clientInjector.getInstance(NameUsageSearchService.class);
+    wsClient = WsClientSuite.getClient(NameUsageSearchService.class);
   }
 
   @Test

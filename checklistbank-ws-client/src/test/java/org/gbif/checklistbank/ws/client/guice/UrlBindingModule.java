@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.ws;
+package org.gbif.checklistbank.ws.client.guice;
 
 import java.net.URI;
 

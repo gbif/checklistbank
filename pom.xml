@@ -619,25 +619,6 @@
         <version>${jersey.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>com.sun.grizzly</groupId>
-        <artifactId>grizzly-servlet-webserver</artifactId>
-        <version>${grizzly-servlet-webserver.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey.jersey-test-framework</groupId>
-        <artifactId>jersey-test-framework-grizzly</artifactId>
-        <version>${jersey.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.jersey.jersey-test-framework</groupId>
-        <artifactId>jersey-test-framework-core</artifactId>
-        <version>${jersey.version}</version>
-        <scope>test</scope>
-      </dependency>
-
       <!-- metrics -->
       <dependency>
         <groupId>com.yammer.metrics</groupId>
