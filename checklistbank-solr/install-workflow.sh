@@ -15,7 +15,7 @@ if [ $IS_SINGLE_SHARD = true ] ; then
 else
   echo -e "\nsolr.is_single_shard=false\n" >> $P.properties
 fi
-exit 0
+
 #extract the oozie.url value from the properties file
 oozie_url=`cat $P.properties| grep "oozie.url" | cut -d'=' -f2`
 
