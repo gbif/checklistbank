@@ -12,7 +12,7 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import com.google.inject.Inject;
-import com.zaxxer.hikari.proxy.IHikariConnectionProxy;
+import com.zaxxer.hikari.pool.ProxyConnection;
 import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +40,8 @@ public class UsageServiceMyBatis implements UsageService {
   @Override
   public List<Integer> listAll() {
     try (Connection con = ds.getConnection()){
-      IHikariConnectionProxy hakiri = (IHikariConnectionProxy) con;
-      PGConnection pgcon = (PGConnection) hakiri.getPoolBagEntry().connection;
+      ProxyConnection hikari = (ProxyConnection) con;
+      PGConnection pgcon = hikari.unwrap(PGConnection.class);
       IntArrayPgWriter intMapper = new IntArrayPgWriter();
       pgcon.getCopyAPI().copyOut("copy (SELECT id FROM name_usage WHERE deleted IS NULL) TO STDOUT WITH NULL '' ", intMapper);
       return intMapper.result();
