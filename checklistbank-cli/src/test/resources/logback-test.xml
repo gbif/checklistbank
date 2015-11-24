@@ -13,6 +13,7 @@
 
     <appender name="NUB_FILE" class="ch.qos.logback.core.FileAppender">
         <file>nub.log</file>
+        <append>false</append>
         <encoder>
             <pattern>%msg %n</pattern>
         </encoder>
@@ -25,6 +26,7 @@
     </appender>
     <appender name="TREES_FILE" class="ch.qos.logback.core.FileAppender">
         <file>clb-tree.txt</file>
+        <append>false</append>
         <encoder>
             <pattern>%msg %n</pattern>
         </encoder>

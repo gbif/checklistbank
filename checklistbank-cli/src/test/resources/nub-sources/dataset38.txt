@@ -1,0 +1,5 @@
+1			KINGDOM	ACCEPTED		Plantae
+2	1		PHYLUM	ACCEPTED		Pinophyta
+3	2		FAMILY	ACCEPTED		Pinaceae
+10	3		SPECIES	ACCEPTED		Abies pindrow Spach
+20	3		SPECIES	ACCEPTED		Abies taxifolia Drum. ex Gordon
