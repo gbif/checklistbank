@@ -3,11 +3,12 @@
 
 ## To build the project
 
-It is configured to build a shaded, executable jar which will build a full new Solr index from the postgres database using a configurabale amount of threads.
+It is configured to build a shaded, executable jar which will build a full new Solr index from the postgres database using a configurabale amount of threads. The following Maven command will produce a shaded jar in your target dir named checklistbank-solr.jar.
 
 ```
-mvn install package will produce a shaded jar in your target dir named checklistbank-solr.jar.
+mvn install package
 ```
+
 
 ## Building the Solr Index
 
@@ -16,36 +17,34 @@ This project provides the checklistbank solr index, it provides two main impleme
 ### org.gbif.checklistbank.index.NameUsageIndexer 
 Builds an index using embedded Solr servers, this class is mainly used for Unit/Integration testing. However, this class can be used to build a fully functional Solr index by executing the jar file and providing a properties file with the configuration settings:
   
-    ```
+  ```bash
     java -Xmx4g -jar checklistbank-solr.jar ./checklistbank.properties
-    ```
-    The properties file must contain the following settings:
+  ```
     
-    ```    
-    \#Thread pool configuration
-    checklistbank.indexer.threads=16
-    checklistbank.indexer.batchSize=10000
-    checklistbank.indexer.writers=1
+The properties file must contain the following settings:
     
-    \# leave blank to use embedded solr server
-    checklistbank.indexer.solr.server=
-    checklistbank.indexer.solr.delete=false
-    checklistbank.indexer.solr.server.type=EMBEDDED
-    
-    \# mybatis
-    checklistbank.db.dataSourceClassName=org.postgresql.ds.PGSimpleDataSource
-    checklistbank.db.dataSource.serverName=postgres server name
-    checklistbank.db.dataSource.databaseName=checklistbank db
-    checklistbank.db.dataSource.user=
-    checklistbank.db.dataSource.password=
-    checklistbank.db.enableCache=true
-    checklistbank.db.maximumPoolSize=10
-    checklistbank.db.connectionTimeout=10000
-    checklistbank.db.leakDetectionThreshold=20000
-    
-    \# registry
-    registry.ws.url=http://api.gbif.org/
-    ```
+   ```
+   \#Thread pool configuration
+   checklistbank.indexer.threads=16
+   checklistbank.indexer.batchSize=10000
+   checklistbank.indexer.writers=1
+   \# leave blank to use embedded solr server
+   checklistbank.indexer.solr.server=
+   checklistbank.indexer.solr.delete=false
+   checklistbank.indexer.solr.server.type=EMBEDDED
+   \# mybatis
+   checklistbank.db.dataSourceClassName=org.postgresql.ds.PGSimpleDataSource
+   checklistbank.db.dataSource.serverName=postgres server name
+   checklistbank.db.dataSource.databaseName=checklistbank db
+   checklistbank.db.dataSource.user=
+   checklistbank.db.dataSource.password=
+   checklistbank.db.enableCache=true
+   checklistbank.db.maximumPoolSize=10
+   checklistbank.db.connectionTimeout=10000
+   checklistbank.db.leakDetectionThreshold=20000
+   \# registry
+   registry.ws.url=http://api.gbif.org/
+   ```
 
 ### Oozie [workflow](src/main/resources/oozie/workflow.xml)  
 This worflow has the capability of building Solr indexes for both cloud  and non-cloud servers. The non-cloud index is produced in a single shard index stored in HDFS, it will be copied into the Solr server. In general terms the workflow steps are: 
@@ -110,17 +109,19 @@ This worflow has the capability of building Solr indexes for both cloud  and non
   ```
 #### Examples
 
-  To install/copy the Oozie workflow and created a single shard index run:
+To install/copy the Oozie workflow and created a single shard index run:
+  
   ```
   ./install-workflow.sh gitOAuthToken true
   ```
   
-  To install/copy the Oozie workflow and created a cloud shard index run:
-    ```
+To install/copy the Oozie workflow and created a cloud shard index run:
+
+  ```
     ./install-workflow.sh gitOAuthToken false
-    ```
+  ```
   
-  The workflow can also be executed using custom properties file using the Oozie client, this once the workflow was already installed on HDFS:
+The workflow can also be executed using custom properties file using the Oozie client, this once the workflow was already installed on HDFS:
     
   ```
     oozie job --oozie http://oozieserver:11000/oozie/ -config custom.properties -run
