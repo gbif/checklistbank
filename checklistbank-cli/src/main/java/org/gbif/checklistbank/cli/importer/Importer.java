@@ -12,18 +12,23 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.concurrent.NamedThreadFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.ChunkingTaxonomicNodeIterator;
 import org.gbif.checklistbank.neo.traverse.TaxonomicNodeIterator;
 import org.gbif.checklistbank.service.UsageService;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 import com.carrotsearch.hppc.IntIntHashMap;
@@ -56,7 +61,7 @@ public class Importer extends ImportDb implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
     private final static int SELF_ID = -1;
     private final Meter syncMeter;
-    private int syncCounter;
+    private volatile int syncCounter;
     private int delCounter;
     private final DatasetImportServiceCombined importService;
     private final NameUsageService nameUsageService;
@@ -71,8 +76,12 @@ public class Importer extends ImportDb implements Runnable {
 
     private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
-    ;
     private final int keyTypeSize = KeyType.values().length;
+
+    // thread pool for import jobs
+    private final static int THREAD_POOL_SIZE = 8;
+    private ThreadPoolExecutor datasyncExec = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("importer-datasync"));
 
     private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
                      DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
@@ -89,7 +98,7 @@ public class Importer extends ImportDb implements Runnable {
     public static Importer create(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
-                UsageDao.persistentDao(cfg.neo, datasetKey, true, registry, false),
+                UsageDao.persistentDao(cfg.neo, datasetKey, /* TODO was readOnly */ false, registry, false),
                 registry, importService, nameUsageService, usageService);
     }
 
@@ -102,8 +111,53 @@ public class Importer extends ImportDb implements Runnable {
             syncDataset();
             LOG.info("Importing of {} succeeded.", datasetKey);
         } finally {
+
+            datasyncExec.shutdown(); // Disable new tasks from being submitted
+            try {
+                if (datasyncExec.getActiveCount() > 0) {
+                    // Wait up to 10 minutes for existing tasks to terminate
+                    LOG.info("Waiting up to 10 minutes for {} datasync threads to complete", datasyncExec.getActiveCount());
+                }
+                if (!datasyncExec.awaitTermination(9, TimeUnit.MINUTES)) {
+                    datasyncExec.shutdownNow(); // Cancel currently executing tasks
+                    // Wait a while for tasks to respond to being cancelled
+                    if (!datasyncExec.awaitTermination(1, TimeUnit.MINUTES)) {
+                        LOG.error("Threadpool did not shut down in time!");
+                    }
+                }
+            } catch (InterruptedException ie) {
+                // (Re-)Cancel if current thread also interrupted
+                datasyncExec.shutdownNow();
+                // Preserve interrupt status
+                Thread.currentThread().interrupt();
+            }
+
+            LOG.info("Shutting down graph database");
             dao.close();
             LOG.info("Neo database {} shut down.", datasetKey);
+        }
+    }
+
+    class DatasetSyncer implements Runnable {
+        final long startNode;
+
+        DatasetSyncer(long startNode) {
+            this.startNode = startNode;
+        }
+
+        @Override
+        public void run() {
+            LOG.debug("Thread starting from node {}.", startNode);
+
+            try (Transaction tx = dao.beginTx()) {
+                // returns all descendant nodes, accepted and synonyms
+                for (Node n : TaxonomicNodeIterator.all(dao.getNeo(), startNode)) {
+                    syncNode(n);
+                }
+            }
+            finally {
+                LOG.debug("Thread completed from node {}.", startNode);
+            }
         }
     }
 
@@ -159,7 +213,9 @@ public class Importer extends ImportDb implements Runnable {
                 usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
             }
             // keep map of node ids to clb usage keys
-            clbKeys.put(nodeId, usageKey);
+            synchronized (clbKeys) {
+                clbKeys.put(nodeId, usageKey);
+            }
             syncMeter.mark();
             syncCounter++;
             if (syncCounter % 100000 == 0) {
@@ -202,14 +258,34 @@ public class Importer extends ImportDb implements Runnable {
         // in order to avoid clock differences between machines and threads.
         int firstUsageKey = -1;
 
+        int threadCount = 0;
+
         try (Transaction tx = dao.beginTx()) {
             // returns all nodes, accepted and synonyms
-            for (Node n : TaxonomicNodeIterator.all(dao.getNeo())) {
+            for (Node n : ChunkingTaxonomicNodeIterator.all(dao.getNeo())) {
+                if (n.hasLabel(Labels.CHUNK)) {
+                    datasyncExec.submit(new DatasetSyncer(n.getId()));
+                    LOG.debug("Chunk marker found, job {} from node {} submitted", ++threadCount, n.getId());
+                } else {
+                    int usageKey = syncNode(n);
+
                     if (firstUsageKey < 0) {
                         firstUsageKey = usageKey;
                         LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
                     }
                 }
+            }
+        }
+
+        while (datasyncExec.getActiveCount() > 0) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOG.error("Importer interrupted, data is likely to be inconsistent.");
+                Thread.currentThread().interrupt();
             }
         }
 
@@ -329,12 +405,14 @@ public class Importer extends ImportDb implements Runnable {
         } else {
             // remember non classification keys for update after all records have been synced once
             int nid = (int) nodeId;
-            if (postKeys.containsKey(nid)) {
-                postKeys.get(nid)[type.ordinal()] = nodeFk;
-            } else {
-                Integer[] keys = new Integer[keyTypeSize];
-                keys[type.ordinal()] = nodeFk;
-                postKeys.put(nid, keys);
+            synchronized (postKeys) {
+                if (postKeys.containsKey(nid)) {
+                    postKeys.get(nid)[type.ordinal()] = nodeFk;
+                } else {
+                    Integer[] keys = new Integer[keyTypeSize];
+                    keys[type.ordinal()] = nodeFk;
+                    postKeys.put(nid, keys);
+                }
             }
             return null;
         }

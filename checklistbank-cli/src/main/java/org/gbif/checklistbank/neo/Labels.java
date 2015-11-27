@@ -13,5 +13,6 @@ public enum Labels implements Label {
     GENUS,
     SPECIES,
     INFRASPECIES,
-    ROOT
+    ROOT,
+    CHUNK
 }

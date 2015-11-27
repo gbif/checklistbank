@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -31,7 +32,7 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
   private Iterator<Relationship> synonyms;
   private final boolean inclSynonyms;
 
-  private TaxonomicNodeIterator(List<Node> roots, boolean synonyms) {
+  TaxonomicNodeIterator(List<Node> roots, boolean synonyms) {
     Collections.sort(roots, new TaxonOrder());
     this.roots = roots;
     this.inclSynonyms = synonyms;
@@ -58,6 +59,18 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
     };
   }
 
+  /**
+   * Iterates over all taxa from the given node down,, also returning all synonyms for each accepted taxon.
+   */
+  public static Iterable<Node> all(final GraphDatabaseService db, final long id) {
+    return new Iterable<Node>() {
+      @Override
+      public Iterator<Node> iterator() {
+        return new TaxonomicNodeIterator(Lists.newArrayList(db.getNodeById(id)), true);
+      }
+    };
+  }
+
   @Override
   public boolean hasNext() {
     return (descendants != null && descendants.hasNext()) || !roots.isEmpty() || (synonyms != null
@@ -77,8 +90,7 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
         descendants.close();
       }
       Node root = roots.remove(0);
-      LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
-      descendants = Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
+      descendants = getDescendants(root);
     }
     Path descendant = descendants.next();
     if (inclSynonyms && descendant != null) {
@@ -86,6 +98,11 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
       synonyms = descendant.endNode().getRelationships(RelType.SYNONYM_OF, Direction.INCOMING).iterator();
     }
     return descendant.endNode();
+  }
+
+  ResourceIterator<Path> getDescendants(Node root) {
+    LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
+    return Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
   }
 
   @Override
@@ -99,5 +116,4 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
       descendants.close();
     }
   }
-
 }

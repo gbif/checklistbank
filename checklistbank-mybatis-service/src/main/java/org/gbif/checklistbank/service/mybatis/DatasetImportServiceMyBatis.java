@@ -45,8 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
@@ -85,7 +86,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     private final TypeSpecimenMapper typeSpecimenMapper;
     private final VernacularNameMapper vernacularNameMapper;
     private final DatasetMetricsMapper datasetMetricsMapper;
-    private ExecutorService exec;
+    private ThreadPoolExecutor exec;
 
     @Inject
     DatasetImportServiceMyBatis(UsageMapper usageMapper, NameUsageMapper nameUsageMapper,
@@ -125,7 +126,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         }
         if (poolSize > 0) {
             LOG.info("Use {} threads to run import sync statements in parallel", poolSize);
-            exec = Executors.newFixedThreadPool(poolSize, new NamedThreadFactory("import-mybatis"));
+            exec = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("import-mybatis"));
         }
     }
 
@@ -473,7 +474,27 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     @Override
     public void close() throws Exception {
         if (exec != null) {
-            exec.shutdownNow();
+            if (exec.getActiveCount() > 0) {
+                LOG.warn("Close called, waiting up to 10 minutes for {} threads to finish", exec.getActiveCount());
+            }
+            exec.shutdown(); // Disable new tasks from being submitted
+            try {
+                // Wait a while for existing tasks to terminate
+                if (!exec.awaitTermination(9, TimeUnit.MINUTES)) {
+                    exec.shutdownNow(); // Cancel currently executing tasks
+                    // Wait a while for tasks to respond to being cancelled
+                    if (!exec.awaitTermination(1, TimeUnit.MINUTES)) {
+                        LOG.error("Threadpool did not shut down in time! {} remain.", exec.getActiveCount());
+                    }
+                }
+            } catch (InterruptedException ie) {
+                // (Re-)Cancel if current thread also interrupted
+                exec.shutdownNow();
+                // Preserve interrupt status
+                Thread.currentThread().interrupt();
+            }
+
+            LOG.info("Thread pool shutdown status: {}", exec.isShutdown());
         }
     }
 

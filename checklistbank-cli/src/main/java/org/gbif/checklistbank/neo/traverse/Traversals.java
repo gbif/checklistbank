@@ -67,4 +67,9 @@ public class Traversals {
             .expand(new TaxonomicOrderExpander())
             .evaluator(new AcceptedOnlyEvaluator());
 
+    /**
+     * Traversal that extends ACCEPTED_DESCENDANTS to mark appropriate points in the graph to start concurrent processing.
+     */
+    public static final TraversalDescription ACCEPTED_DESCENDANTS_AND_MARK_CHUNKS = ACCEPTED_DESCENDANTS
+            .evaluator(new ChunkingEvaluator());
 }
