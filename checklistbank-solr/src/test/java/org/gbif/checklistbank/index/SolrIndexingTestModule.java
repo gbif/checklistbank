@@ -32,7 +32,7 @@ public class SolrIndexingTestModule extends AbstractModule {
 
   @Override
   protected void configure() {
-    replaceSolrCfg();
+    removeUnUsedSolrCfg();
     // Installs the MyBatis service layer
     install(new ChecklistBankServiceMyBatisModule(properties));
 
@@ -41,12 +41,11 @@ public class SolrIndexingTestModule extends AbstractModule {
   }
 
   /**
-   * Copies Solr config files required to run the tests.
+   * Removes Solr config files NOT required to run the tests.
    */
-  private static void replaceSolrCfg(){
+  private static void removeUnUsedSolrCfg(){
     try {
-      Path embeddedSolrCfg = Paths.get(Resources.getResource("solr/collection1/conf/solrconfig-embedded.xml").toURI());
-      Files.copy(embeddedSolrCfg, Paths.get(Resources.getResource("solr/collection1/conf/solrconfig.xml").toURI()), StandardCopyOption.REPLACE_EXISTING);
+      Files.delete(Paths.get(Resources.getResource("solr/collection1/conf/hdfs_directory_factory.xml").toURI()));
     } catch(URISyntaxException | IOException ex){
       Throwables.propagate(ex);
     }

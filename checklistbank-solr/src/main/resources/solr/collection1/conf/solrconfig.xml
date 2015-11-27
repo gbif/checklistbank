@@ -3,22 +3,11 @@
   <luceneMatchVersion>5.3.1</luceneMatchVersion>
   <dataDir>${solr.data.dir:}</dataDir>
 
-  <directoryFactory name="DirectoryFactory" class="org.apache.solr.core.HdfsDirectoryFactory">
-    <str name="solr.hdfs.home">${solr.hdfs.home:}</str>
-    <str name="solr.hdfs.confdir">${solr.hdfs.confdir:}</str>
-    <str name="solr.hdfs.security.kerberos.enabled">${solr.hdfs.security.kerberos.enabled:false}</str>
-    <str name="solr.hdfs.security.kerberos.keytabfile">${solr.hdfs.security.kerberos.keytabfile:}</str>
-    <str name="solr.hdfs.security.kerberos.principal">${solr.hdfs.security.kerberos.principal:}</str>
-    <bool name="solr.hdfs.blockcache.enabled">${solr.hdfs.blockcache.enabled:true}</bool>
-    <int name="solr.hdfs.blockcache.slab.count">${solr.hdfs.blockcache.slab.count:1}</int>
-    <bool name="solr.hdfs.blockcache.direct.memory.allocation">${solr.hdfs.blockcache.direct.memory.allocation:true}</bool>
-    <int name="solr.hdfs.blockcache.blocksperbank">${solr.hdfs.blockcache.blocksperbank:16384}</int>
-    <bool name="solr.hdfs.blockcache.read.enabled">${solr.hdfs.blockcache.read.enabled:true}</bool>
-    <bool name="solr.hdfs.blockcache.write.enabled">${solr.hdfs.blockcache.write.enabled:true}</bool>
-    <bool name="solr.hdfs.nrtcachingdirectory.enable">${solr.hdfs.nrtcachingdirectory.enable:true}</bool>
-    <int name="solr.hdfs.nrtcachingdirectory.maxmergesizemb">${solr.hdfs.nrtcachingdirectory.maxmergesizemb:16}</int>
-    <int name="solr.hdfs.nrtcachingdirectory.maxcachedmb">${solr.hdfs.nrtcachingdirectory.maxcachedmb:192}</int>
-  </directoryFactory>
+  <xi:include href="hdfs_directory_factory.xml" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:fallback>
+      <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.MMapDirectoryFactory}" />
+    </xi:fallback>
+  </xi:include>
 
   <!-- The CodecFactory for defining the format of the inverted index.
        The default implementation is SchemaCodecFactory, which is the official Lucene
@@ -158,8 +147,8 @@
                and old cache.
       -->
     <filterCache class="solr.FastLRUCache"
-                 size="16384"
-                 initialSize="4096"
+                 size="6144"
+                 initialSize="3072"
                  autowarmCount="0"/>
 
     <!-- Query Result Cache
@@ -171,8 +160,8 @@
                        to occupy
       -->
     <queryResultCache class="solr.LRUCache"
-                      size="16384"
-                      initialSize="4096"
+                      size="8192"
+                      initialSize="2048"
                       autowarmCount="0"/>
 
     <!-- Document Cache
@@ -182,8 +171,8 @@
          this cache will not be autowarmed.
       -->
     <documentCache class="solr.LRUCache"
-                   size="16384"
-                   initialSize="4096"
+                   size="8192"
+                   initialSize="2048"
                    autowarmCount="0"/>
 
     <!-- custom cache currently used by block join -->
@@ -241,13 +230,99 @@
       -->
     <listener event="newSearcher" class="solr.QuerySenderListener">
       <arr name="queries">
-         <lst><str name="q">nub_key:212</str></lst>
+        <lst>
+          <str name="q">*:*</str>
+          <str name="rows">20</str>
+          <str name="start">0</str>
+          <str name="q.alt">*:*</str>
+          <str name="hl.snippets">10</str>
+          <str name="hl.fragsize">0</str>
+          <str name="sort">score desc</str>
+          <str name="sort">num_descendants desc</str>
+          <str name="sort">scientific_name_str asc</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.missing">true</str>
+          <str name="facet.sort">count</str>
+          <str name="facet.field">{!ex=ffqissues}issues</str>
+          <str name="facet.field">{!ex=ffqthreat_status_key}threat_status_key</str>
+          <str name="facet.field">{!ex=ffqhigher_taxon_key}higher_taxon_key</str>
+          <str name="facet.field">{!ex=ffqextinct}extinct</str>
+          <str name="facet.field">{!ex=ffqhabitat_key}habitat_key</str>
+          <str name="facet.field">{!ex=ffqrank_key}rank_key</str>
+          <str name="facet.field">{!ex=ffqname_type}name_type</str>
+          <str name="facet.field">{!ex=ffqtaxonomic_status_key}taxonomic_status_key</str>
+          <str name="facet.field">{!ex=ffqnomenclatural_status_key}nomenclatural_status_key</str>
+          <str name="facet.field">{!ex=ffqdataset_key}dataset_key</str>
+          <str name="f.issues.facet.missing">false</str>
+          <str name="f.issues.facet.method">enum</str>
+          <str name="f.threat_status_key.facet.missing">false</str>
+          <str name="f.threat_status_key.facet.method">enum</str>
+          <str name="f.higher_taxon_key.facet.missing">false</str>
+          <str name="f.higher_taxon_key.facet.method">fc</str>
+          <str name="f.extinct.facet.missing">false</str>
+          <str name="f.extinct.facet.method">enum</str>
+          <str name="f.habitat_key.facet.missing">false</str>
+          <str name="f.habitat_key.facet.method">enum</str>
+          <str name="f.rank_key.facet.missing">false</str>
+          <str name="f.rank_key.facet.method">enum</str>
+          <str name="f.name_type.facet.missing">false</str>
+          <str name="f.name_type.facet.method">enum</str>
+          <str name="f.taxonomic_status_key.facet.missing">false</str>
+          <str name="f.taxonomic_status_key.facet.method">enum</str>
+          <str name="f.nomenclatural_status_key.facet.missing">false</str>
+          <str name="f.nomenclatural_status_key.facet.method">enum</str>
+          <str name="f.dataset_key.facet.missing">false</str>
+          <str name="f.dataset_key.facet.method">enum</str>
+        </lst>
       </arr>
     </listener>
     <listener event="firstSearcher" class="solr.QuerySenderListener">
       <arr name="queries">
         <lst>
-          <str name="q">nub_key:212</str>
+          <str name="q">*:*</str>
+          <str name="rows">20</str>
+          <str name="start">0</str>
+          <str name="q.alt">*:*</str>
+          <str name="hl.snippets">10</str>
+          <str name="hl.fragsize">0</str>
+          <str name="sort">score desc</str>
+          <str name="sort">num_descendants desc</str>
+          <str name="sort">scientific_name_str asc</str>
+          <str name="facet">true</str>
+          <str name="facet.mincount">1</str>
+          <str name="facet.missing">true</str>
+          <str name="facet.sort">count</str>
+          <str name="facet.field">{!ex=ffqissues}issues</str>
+          <str name="facet.field">{!ex=ffqthreat_status_key}threat_status_key</str>
+          <str name="facet.field">{!ex=ffqhigher_taxon_key}higher_taxon_key</str>
+          <str name="facet.field">{!ex=ffqextinct}extinct</str>
+          <str name="facet.field">{!ex=ffqhabitat_key}habitat_key</str>
+          <str name="facet.field">{!ex=ffqrank_key}rank_key</str>
+          <str name="facet.field">{!ex=ffqname_type}name_type</str>
+          <str name="facet.field">{!ex=ffqtaxonomic_status_key}taxonomic_status_key</str>
+          <str name="facet.field">{!ex=ffqnomenclatural_status_key}nomenclatural_status_key</str>
+          <str name="facet.field">{!ex=ffqdataset_key}dataset_key</str>
+          <str name="f.issues.facet.missing">false</str>
+          <str name="f.issues.facet.method">enum</str>
+          <str name="f.threat_status_key.facet.missing">false</str>
+          <str name="f.threat_status_key.facet.method">enum</str>
+          <str name="f.higher_taxon_key.facet.missing">false</str>
+          <str name="f.higher_taxon_key.facet.method">fc</str>
+          <str name="f.extinct.facet.missing">false</str>
+          <str name="f.extinct.facet.method">enum</str>
+          <str name="f.habitat_key.facet.missing">false</str>
+          <str name="f.habitat_key.facet.method">enum</str>
+          <str name="f.rank_key.facet.missing">false</str>
+          <str name="f.rank_key.facet.method">enum</str>
+          <str name="f.name_type.facet.missing">false</str>
+          <str name="f.name_type.facet.method">enum</str>
+          <str name="f.taxonomic_status_key.facet.missing">false</str>
+          <str name="f.taxonomic_status_key.facet.method">enum</str>
+          <str name="f.nomenclatural_status_key.facet.missing">false</str>
+          <str name="f.nomenclatural_status_key.facet.method">enum</str>
+          <str name="f.dataset_key.facet.missing">false</str>
+          <str name="f.dataset_key.facet.method">enum</str>
         </lst>
       </arr>
     </listener>
