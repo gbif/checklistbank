@@ -57,6 +57,9 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>org.gbif.ws.app.Application</mainClass>
+                  <manifestEntries>
+                    <Class-Path>conf/</Class-Path>
+                  </manifestEntries>
                 </transformer>
               </transformers>
               <filters>
@@ -73,6 +76,7 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>logback.xml</exclude>
+                    <exclude>jetty-logging.properties</exclude>
                   </excludes>
                 </filter>
                 <filter>
@@ -175,6 +179,11 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>log4j-over-slf4j</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <!-- To ship JUL (e.g. Guice) logging to SLF4J -->
     <dependency>

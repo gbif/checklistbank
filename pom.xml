@@ -420,6 +420,12 @@
         <version>${slf4j.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>log4j-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>runtime</scope>
+      </dependency>
       <!-- Ships Guice logging to SLF -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -446,6 +452,10 @@
         <artifactId>solr-core</artifactId>
         <version>${solr-lucene.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
