@@ -76,7 +76,6 @@
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
                     <exclude>logback.xml</exclude>
-                    <exclude>jetty-logging.properties</exclude>
                   </excludes>
                 </filter>
                 <filter>
