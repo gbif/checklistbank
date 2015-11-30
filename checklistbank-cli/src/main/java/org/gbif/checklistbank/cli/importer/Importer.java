@@ -279,16 +279,17 @@ public class Importer extends ImportDb implements Runnable {
             }
         }
 
-        while (datasyncExec.getActiveCount() > 0) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
+        datasyncExec.shutdown();
+        try {
+            while (!datasyncExec.awaitTermination(5, TimeUnit.SECONDS)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
+                }
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                LOG.error("Importer interrupted, data is likely to be inconsistent.");
-                Thread.currentThread().interrupt();
-            }
+        } catch (InterruptedException e) {
+            LOG.error("Importer interrupted, data is likely to be inconsistent.");
+            datasyncExec.shutdownNow();
+            Thread.currentThread().interrupt();
         }
 
         // finally update foreign keys that did not exist during initial inserts
