@@ -734,7 +734,20 @@ public class NubBuilderIT {
   @Test
   @Ignore("write test")
   public void testHomoToHeteroTypicalSynonym() throws Exception {
+  }
 
+
+  @Test
+  public void testBeeBasionyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(40);
+    src.setSourceRank(40, Rank.PHYLUM);
+    build(src);
+
+    NubUsage nu = assertScientific("Amegilla atrocincta (Lepeletier)", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NameUsage u = getUsage(nu.node);
+    assertEquals("Anthophora atrocincta Lepeletier, 1841", u.getBasionym());
+
+    assertTree("40.txt");
   }
 
   /**

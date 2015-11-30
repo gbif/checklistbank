@@ -124,7 +124,7 @@ public class NubBuilder implements Runnable {
 
     private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
                        boolean closeDao, boolean verifyBackbone, int batchSize) {
-        db = NubDb.create(dao);
+        db = NubDb.create(dao, authorComparator);
         this.sources = sources;
         this.authorComparator = authorComparator;
         idGen = new IdGenerator(idLookup, newIdStart, reportDir);
@@ -149,7 +149,7 @@ public class NubBuilder implements Runnable {
      * @param dao the dao to create the nub. Will be left open after run() is called.
      */
     public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
-        return new NubBuilder(dao, sources, idLookup, AuthorComparator.createWithoutAuthormap(), newIdStart, null, false, false, 10000);
+        return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, null, false, false, 10000);
     }
 
     /**

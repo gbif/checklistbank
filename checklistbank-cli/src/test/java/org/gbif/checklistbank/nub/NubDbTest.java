@@ -5,6 +5,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -29,7 +30,7 @@ public class NubDbTest {
     @Test
     public void testCountTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb nub = NubDb.create(dao);
+        NubDb nub = NubDb.create(dao, AuthorComparator.createWithoutAuthormap());
         try (Transaction tx = dao.beginTx()){
 
             assertEquals(0l, nub.countTaxa());
@@ -56,7 +57,7 @@ public class NubDbTest {
     @Test
     public void testFindAcceptedCanonical() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb db = NubDb.create(dao);
+        NubDb db = NubDb.create(dao,  AuthorComparator.createWithoutAuthormap());
         try (Transaction tx = dao.beginTx()){
 
             final NubUsage plantae = db.addRoot(buildNub(Kingdom.PLANTAE, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
@@ -92,7 +93,7 @@ public class NubDbTest {
     @Test
     public void testGetParent() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb db = NubDb.create(dao);
+        NubDb db = NubDb.create(dao,  AuthorComparator.createWithoutAuthormap());
         try (Transaction tx = dao.beginTx()){
             final NubUsage plantae = db.addRoot(buildNub(Kingdom.PLANTAE, "Plantae", Rank.KINGDOM, TaxonomicStatus.ACCEPTED));
             final NubUsage oenanteP = db.addUsage(plantae, buildNub("Oenanthe Vieillot, 1816", Rank.GENUS, TaxonomicStatus.ACCEPTED));
@@ -112,7 +113,7 @@ public class NubDbTest {
     @Ignore("Authorship handling needs to be settled first")
     public void testFindTaxa() throws Exception {
         UsageDao dao = UsageDao.temporaryDao(10);
-        NubDb db = NubDb.create(dao);
+        NubDb db = NubDb.create(dao,  AuthorComparator.createWithoutAuthormap());
         try (Transaction tx = dao.beginTx()){
 
         }

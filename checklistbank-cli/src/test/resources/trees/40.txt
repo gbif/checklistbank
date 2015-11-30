@@ -1,0 +1,24 @@
+Animalia
+  Arthropoda
+    Insecta
+      Apidae
+        Amegilla Friese
+          Amegilla atrocincta (Lepeletier)
+            *Anthophora atrocincta Lepeletier, 1841
+            *Anthophora domicola Cockerell, 1908
+            *Anthophora latipes Friese, 1922
+            *Anthophora plumipes (Fabricius)
+            *Apis plumipes Fabricius, 1781
+            *Centris plumipes (Fabricius)
+            *Hemisia plumipes (Fabricius)
+            *Podalirius atrocinctus (Lepeletier)
+            *Podalirius plumipes (Fabricius)
+          Amegilla brooksi Eardley, 1994
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

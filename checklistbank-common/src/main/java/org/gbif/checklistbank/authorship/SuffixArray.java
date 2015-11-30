@@ -1,30 +1,26 @@
 package org.gbif.checklistbank.authorship;
 
 /*************************************************************************
- *  Compilation:  javac SuffixArray.java
- *  Execution:  java SuffixArray < input.txt
- *
- *  A data type that computes the suffix array of a string.
- *
- *   % java SuffixArray < abra.txt
- *    i ind lcp rnk  select
- *   ---------------------------
- *    0  11   -   0  "!"
- *    1  10   0   1  "A!"
- *    2   7   1   2  "ABRA!"
- *    3   0   4   3  "ABRACADABRA!"
- *    4   3   1   4  "ACADABRA!"
- *    5   5   1   5  "ADABRA!"
- *    6   8   0   6  "BRA!"
- *    7   1   3   7  "BRACADABRA!"
- *    8   4   0   8  "CADABRA!"
- *    9   6   0   9  "DABRA!"
- *   10   9   0  10  "RA!"
- *   11   2   2  11  "RACADABRA!"
- *
- *  See SuffixArrayX.java for an optimized version that uses 3-way
- *  radix quicksort and does not use the nested class Suffix.
- *
+ * Compilation:  javac SuffixArray.java
+ * Execution:  java SuffixArray < input.txt
+ * A data type that computes the suffix array of a string.
+ * % java SuffixArray < abra.txt
+ * i ind lcp rnk  select
+ * ---------------------------
+ * 0  11   -   0  "!"
+ * 1  10   0   1  "A!"
+ * 2   7   1   2  "ABRA!"
+ * 3   0   4   3  "ABRACADABRA!"
+ * 4   3   1   4  "ACADABRA!"
+ * 5   5   1   5  "ADABRA!"
+ * 6   8   0   6  "BRA!"
+ * 7   1   3   7  "BRACADABRA!"
+ * 8   4   0   8  "CADABRA!"
+ * 9   6   0   9  "DABRA!"
+ * 10   9   0  10  "RA!"
+ * 11   2   2  11  "RACADABRA!"
+ * See SuffixArrayX.java for an optimized version that uses 3-way
+ * radix quicksort and does not use the nested class Suffix.
  *************************************************************************/
 
 import java.util.Arrays;
