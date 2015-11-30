@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
 import com.carrotsearch.hppc.IntIntHashMap;
@@ -61,7 +62,7 @@ public class Importer extends ImportDb implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
     private final static int SELF_ID = -1;
     private final Meter syncMeter;
-    private volatile int syncCounter;
+    private AtomicInteger syncCounter = new AtomicInteger(0);
     private int delCounter;
     private final DatasetImportServiceCombined importService;
     private final NameUsageService nameUsageService;
@@ -207,7 +208,7 @@ public class Importer extends ImportDb implements Runnable {
                         // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
                         postProParteKeys.put(ppid, accNodeId);
                     }
-                    syncCounter++;
+                    syncCounter.getAndIncrement();
                 }
             } else {
                 usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
@@ -217,11 +218,12 @@ public class Importer extends ImportDb implements Runnable {
                 clbKeys.put(nodeId, usageKey);
             }
             syncMeter.mark();
-            syncCounter++;
-            if (syncCounter % 100000 == 0) {
-                LOG.info("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
-            } else if (syncCounter % 10000 == 0) {
-                LOG.debug("Synced {} usages from dataset {}, latest usage key={}", syncCounter, datasetKey, usageKey);
+
+            int c = syncCounter.incrementAndGet();
+            if (c % 100000 == 0) {
+                LOG.info("Synced {} usages from dataset {}, latest usage key={}", c, datasetKey, usageKey);
+            } else if (c % 10000 == 0) {
+                LOG.debug("Synced {} usages from dataset {}, latest usage key={}", c, datasetKey, usageKey);
             }
 
         } catch (Throwable e) {
@@ -451,7 +453,7 @@ public class Importer extends ImportDb implements Runnable {
     }
 
     public int getSyncCounter() {
-        return syncCounter;
+        return syncCounter.get();
     }
 
     public int getDelCounter() {
