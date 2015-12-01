@@ -80,17 +80,19 @@ public class Importer extends ImportDb implements Runnable {
     private final int keyTypeSize = KeyType.values().length;
 
     // thread pool for import jobs
-    private final static int THREAD_POOL_SIZE = 8;
-    private ThreadPoolExecutor datasyncExec = new ThreadPoolExecutor(THREAD_POOL_SIZE, THREAD_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("importer-datasync"));
+    private ThreadPoolExecutor datasyncExec;
 
     private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
-                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
+                     DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService,
+                     int importThreads) {
         super(datasetKey, dao);
         this.importService = importService;
         this.nameUsageService = nameUsageService;
         this.usageService = usageService;
         this.syncMeter = registry.meter(Metrics.SYNC_METER);
+        LOG.debug("Starting importer-datasync thread pool with {} threads", importThreads);
+        this.datasyncExec = new ThreadPoolExecutor(importThreads, importThreads, 0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("importer-datasync"));
     }
 
     /**
@@ -100,7 +102,7 @@ public class Importer extends ImportDb implements Runnable {
                                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
         return new Importer(datasetKey,
                 UsageDao.persistentDao(cfg.neo, datasetKey, /* TODO was readOnly */ false, registry, false),
-                registry, importService, nameUsageService, usageService);
+                registry, importService, nameUsageService, usageService, cfg.importThreads);
     }
 
     public void run() {
