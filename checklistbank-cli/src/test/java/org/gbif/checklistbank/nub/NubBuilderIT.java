@@ -747,6 +747,7 @@ public class NubBuilderIT {
     NameUsage u = getUsage(nu.node);
     assertEquals("Anthophora atrocincta Lepeletier, 1841", u.getBasionym());
 
+    dao.printTree();
     assertTree("40.txt");
   }
 
@@ -1068,15 +1069,17 @@ public class NubBuilderIT {
 
     @Override
     public void start(Node n) {
-      String expected = treeIter.next().name;
+      NubNode expected = treeIter.next();
       String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
-      assertEquals(expected, name);
+      assertEquals(expected.name, name);
+      assertEquals(expected.basionym, n.hasLabel(Labels.BASIONYM));
 
       // check for synonyms and sort by name
       for (Node s : TreePrinter.SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
-        expected = treeIter.next().name;
+        expected = treeIter.next();
         name = (String) s.getProperty(NeoProperties.SCIENTIFIC_NAME);
-        assertEquals(expected, name);
+        assertEquals(expected.name, name);
+        assertEquals(expected.basionym, s.hasLabel(Labels.BASIONYM));
       }
     }
 

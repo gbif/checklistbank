@@ -4,11 +4,11 @@ Animalia
       Apidae
         Amegilla Friese
           Amegilla atrocincta (Lepeletier)
-            *Anthophora atrocincta Lepeletier, 1841
+            *$Anthophora atrocincta Lepeletier, 1841
             *Anthophora domicola Cockerell, 1908
             *Anthophora latipes Friese, 1922
             *Anthophora plumipes (Fabricius)
-            *Apis plumipes Fabricius, 1781
+            *$Apis plumipes Fabricius, 1781
             *Centris plumipes (Fabricius)
             *Hemisia plumipes (Fabricius)
             *Podalirius atrocinctus (Lepeletier)

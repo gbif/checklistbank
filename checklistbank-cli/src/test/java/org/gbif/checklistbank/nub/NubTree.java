@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.checklistbank.neo.traverse.TreePrinter;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.BufferedReader;
@@ -20,136 +21,140 @@ import org.apache.commons.lang3.StringUtils;
  * Especially useful for larger tree snippets.
  */
 public class NubTree implements Iterable<NubNode> {
-    private NubNode root = new NubNode(null);
+  private NubNode root = new NubNode(null, false);
+  private static final Pattern INDENT = Pattern.compile("^( +\\" + TreePrinter.SYNONYM_SYMBOL + "?\\" + TreePrinter.BASIONYM_SYMBOL + "?)");
 
-    public static NubTree read(String classpathFilename) throws IOException {
-        return read(FileUtils.classpathStream(classpathFilename));
-    }
+  public static NubTree read(String classpathFilename) throws IOException {
+    return read(FileUtils.classpathStream(classpathFilename));
+  }
 
-    public static NubTree read(InputStream stream) throws IOException {
-        Pattern INDENT = Pattern.compile("^( +\\*?)");
-        NubTree tree = new NubTree();
-        LinkedList<NubNode> parents = Lists.newLinkedList();
+  public static NubTree read(InputStream stream) throws IOException {
+    NubTree tree = new NubTree();
+    LinkedList<NubNode> parents = Lists.newLinkedList();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-        String line = br.readLine();
-        while ( line != null ) {
-            int level = 0;
-            boolean synonym = false;
-            if (!StringUtils.isBlank(line)) {
-                Matcher m = INDENT.matcher(line);
-                if (m.find()) {
-                    String prefix = m.group(1);
-                    if (prefix.endsWith("*")) {
-                        synonym = true;
-                    }
-                    level = prefix.length() - (synonym ? 1 : 0);
-                    if (level % 2 != 0) {
-                        throw new IllegalArgumentException("Tree is not indented properly. Use 2 spaces only for: " + line);
-                    }
-                    level = level / 2;
-                    NubNode n = new NubNode(m.replaceAll("").trim());
-                    while (parents.size() > level) {
-                        // remove latest parents until we are at the right level
-                        parents.removeLast();
-                    }
-                    if (parents.size() < level) {
-                        throw new IllegalArgumentException("Tree is not properly indented. Use 2 spaces for children: " + line);
-                    }
-                    NubNode p = parents.peekLast();
-                    if (synonym) {
-                        p.synonyms.add(n);
-                    } else {
-                        p.children.add(n);
-                    }
-                    parents.add(n);
+    BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+    String line = br.readLine();
+    while (line != null) {
+      int level = 0;
+      boolean synonym = false;
+      boolean basionym = false;
+      if (!StringUtils.isBlank(line)) {
+        Matcher m = INDENT.matcher(line);
+        if (m.find()) {
+          String prefix = m.group(1);
+          if (prefix.endsWith(TreePrinter.BASIONYM_SYMBOL)) {
+            basionym = true;
+          }
+          if (prefix.contains(TreePrinter.SYNONYM_SYMBOL)) {
+            synonym = true;
+          }
+          level = prefix.length() - (synonym ? 1 : 0) - (basionym ? 1 : 0);
+          if (level % 2 != 0) {
+            throw new IllegalArgumentException("Tree is not indented properly. Use 2 spaces only for: " + line);
+          }
+          level = level / 2;
+          NubNode n = new NubNode(m.replaceAll("").trim(), basionym);
+          while (parents.size() > level) {
+            // remove latest parents until we are at the right level
+            parents.removeLast();
+          }
+          if (parents.size() < level) {
+            throw new IllegalArgumentException("Tree is not properly indented. Use 2 spaces for children: " + line);
+          }
+          NubNode p = parents.peekLast();
+          if (synonym) {
+            p.synonyms.add(n);
+          } else {
+            p.children.add(n);
+          }
+          parents.add(n);
 
-                } else {
-                    NubNode n = new NubNode(line.trim());
-                    tree.getRoot().children.add(n);
-                    parents.clear();
-                    parents.add(n);
-                }
-            }
-            line = br.readLine();
+        } else {
+          NubNode n = new NubNode(line.trim(), false);
+          tree.getRoot().children.add(n);
+          parents.clear();
+          parents.add(n);
         }
-        return tree;
+      }
+      line = br.readLine();
+    }
+    return tree;
+  }
+
+  public NubNode getRoot() {
+    return root;
+  }
+
+  public void print(Appendable out) throws IOException {
+    for (NubNode n : root.children) {
+      n.print(out, 0, false);
+    }
+  }
+
+  @Override
+  public Iterator<NubNode> iterator() {
+    return new NNIterator(this);
+  }
+
+  private class NNIter {
+    private int synIdx;
+    private final NubNode node;
+
+    public NNIter(NubNode node) {
+      this.node = node;
     }
 
-    public NubNode getRoot() {
-        return root;
+    public boolean moreSynonyms() {
+      return node.synonyms.size() > synIdx;
     }
 
-    public void print(Appendable out) throws IOException {
-        for (NubNode n : root.children) {
-            n.print(out, 0, false);
-        }
+    public NNIter nextSynonym() {
+      NubNode n = node.synonyms.get(synIdx);
+      synIdx++;
+      return new NNIter(n);
+    }
+  }
+
+  private class NNIterator implements Iterator<NubNode> {
+    private LinkedList<NNIter> stack = Lists.newLinkedList();
+    private NNIter curr = null;
+
+    NNIterator(NubTree tree) {
+      for (NubNode r : tree.getRoot().children) {
+        this.stack.addFirst(new NNIter(r));
+      }
     }
 
     @Override
-    public Iterator<NubNode> iterator() {
-        return new NNIterator(this);
+    public boolean hasNext() {
+      return !stack.isEmpty() || (curr != null && curr.moreSynonyms());
     }
 
-    private class NNIter {
-        private int synIdx;
-        private final NubNode node;
+    @Override
+    public NubNode next() {
+      if (curr == null) {
+        poll();
+        return curr.node;
 
-        public NNIter(NubNode node) {
-            this.node = node;
-        }
+      } else if (curr.moreSynonyms()) {
+        return curr.nextSynonym().node;
 
-        public boolean moreSynonyms() {
-            return node.synonyms.size() > synIdx;
-        }
-
-        public NNIter nextSynonym() {
-            NubNode n = node.synonyms.get(synIdx);
-            synIdx++;
-            return new NNIter(n);
-        }
+      } else {
+        poll();
+        return curr.node;
+      }
     }
 
-    private class NNIterator implements Iterator<NubNode> {
-        private LinkedList<NNIter> stack = Lists.newLinkedList();
-        private NNIter curr = null;
-
-        NNIterator(NubTree tree) {
-            for (NubNode r : tree.getRoot().children) {
-                this.stack.addFirst(new NNIter(r));
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !stack.isEmpty() || (curr != null && curr.moreSynonyms());
-        }
-
-        @Override
-        public NubNode next() {
-            if (curr == null) {
-                poll();
-                return curr.node;
-
-            } else if (curr.moreSynonyms()) {
-                return curr.nextSynonym().node;
-
-            } else {
-                poll();
-                return curr.node;
-            }
-        }
-
-        private void poll() {
-            curr = stack.removeLast();
-            while (!curr.node.children.isEmpty()) {
-                stack.add(new NNIter(curr.node.children.removeLast()));
-            }
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
+    private void poll() {
+      curr = stack.removeLast();
+      while (!curr.node.children.isEmpty()) {
+        stack.add(new NNIter(curr.node.children.removeLast()));
+      }
     }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException();
+    }
+  }
 }

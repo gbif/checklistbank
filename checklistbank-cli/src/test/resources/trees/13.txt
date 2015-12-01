@@ -7,12 +7,12 @@ Plantae
   Asteraceae
     Albi
       Albi tomentosa (Micheli) Standl.
-        *? tomentosa Micheli
+        *$? tomentosa Micheli
         *Albizia tomentosa (Micheli) Standl.
   Fabaceae
     Albizia
       Albizia adianthifolia (Schum.) W.Wight
-        *? adianthifolia Schum.
+        *$? adianthifolia Schum.
         *Albi adianthifolia (Schum.) W.Wight
   Gentianaceae
     Albi

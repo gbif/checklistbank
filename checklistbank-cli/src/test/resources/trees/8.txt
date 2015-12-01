@@ -31,7 +31,7 @@ Plantae
                 *Adiantum pedatum var. glaucinum C. Chr.
                 *Adiantum pedatum var. kamtschaticum Rupr.
               Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
-                *Adiantum pedatum var. subpumilum W. H. Wagner
+                *$Adiantum pedatum var. subpumilum W. H. Wagner
 Protozoa
 Viruses
 incertae sedis

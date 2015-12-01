@@ -45,7 +45,7 @@ Plantae
       Poaceae
         Trichoneura
           Trichoneura ciliata (Peter) S.M.Phillips
-            *Leptochloa ciliata Peter
+            *$Leptochloa ciliata Peter
             *Trichoneura hirtella Napper
       Scrophulariaceae
         Blattaria P. Miller, 1754

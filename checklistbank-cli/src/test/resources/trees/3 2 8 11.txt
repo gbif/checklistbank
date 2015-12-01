@@ -49,7 +49,7 @@ Plantae
       Poaceae
         Trichoneura
           Trichoneura ciliata (Peter) S.M.Phillips
-            *Leptochloa ciliata Peter
+            *$Leptochloa ciliata Peter
             *Trichoneura hirtella Napper
       Scrophulariaceae
         Blattaria P. Miller, 1754
@@ -58,12 +58,12 @@ Plantae
     Pteridaceae
       Adiantum
         Adiantum aleuticum (Rupr.) C.A.Paris
-          *Adiantum pedatum var. aleuticum Rupr.
+          *$Adiantum pedatum var. aleuticum Rupr.
         Adiantum brasiliense Raddi
           *Adiantum pedatum Raddi
         Adiantum hispidulum Sw.
           *Adiantum pedatum Forst.
-        Adiantum myriosorum Bak.
+        $Adiantum myriosorum Bak.
           *Adiantum pedatum var. glaucinum H. Christ
           *Adiantum pedatum var. myriosorum (Bak.) H. Christ
           *Adiantum pedatum var. protrusum H. Christ
@@ -77,7 +77,7 @@ Plantae
             *Adiantum pedatum var. glaucinum C. Chr.
             *Adiantum pedatum var. kamtschaticum Rupr.
           Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
-            *Adiantum pedatum var. subpumilum W. H. Wagner
+            *$Adiantum pedatum var. subpumilum W. H. Wagner
   Oenanthe Linnaeus, 1753
 Protozoa
 Viruses
