@@ -200,6 +200,10 @@ public class UsageDao {
    */
   public void printTree(Writer writer, boolean xml) {
     StartEndHandler printer = xml ? new TreeXmlPrinter(writer) : new TreePrinter(writer);
+    printTree(printer);
+  }
+
+  public void printTree(StartEndHandler printer) {
     TaxonWalker.walkAccepted(getNeo(), null, printer);
   }
 

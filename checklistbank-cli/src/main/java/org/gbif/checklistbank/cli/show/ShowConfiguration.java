@@ -31,10 +31,14 @@ public class ShowConfiguration {
   public Long usageKey;
 
   @Valid
+  @Parameter(names = {"-f", "--file"}, required = true)
+  public File file;
+
+  @Valid
   @Parameter(names = {"--xml"}, required = false)
   public boolean xml = false;
 
   @Valid
-  @Parameter(names = {"-f", "--file"}, required = true)
-  public File file;
+  @Parameter(names = {"--canonicalOnly"}, required = false)
+  public boolean canonicalOnly = false;
 }

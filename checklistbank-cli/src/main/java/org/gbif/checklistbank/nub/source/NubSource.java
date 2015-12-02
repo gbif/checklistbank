@@ -84,7 +84,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     Preconditions.checkArgument(repository.isDirectory());
     cfg.neoRepository = repository;
   }
-  
+
   abstract void initNeo(NeoUsageWriter writer) throws Exception;
 
   public class NeoUsageWriter extends TabMapperBase {
