@@ -108,9 +108,6 @@ public class Importer extends ImportDb implements Runnable {
     public void run() {
         LOG.info("Start importing checklist {}", datasetKey);
         try {
-            if (LOG.isDebugEnabled()) {
-                dao.printTree();
-            }
             syncDataset();
             LOG.info("Importing of {} succeeded.", datasetKey);
         } finally {

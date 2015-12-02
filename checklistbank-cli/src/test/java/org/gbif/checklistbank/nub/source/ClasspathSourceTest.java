@@ -14,7 +14,7 @@ public class ClasspathSourceTest {
     @Test
     public void testUsages() throws Exception {
         ClasspathSource src = new ClasspathSource(1);
-        src.init();
+        src.init(false);
 
         int counter = 0;
         for (SrcUsage u : src) {

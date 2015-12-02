@@ -23,6 +23,8 @@ import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -747,7 +749,7 @@ public class NubBuilderIT {
     NameUsage u = getUsage(nu.node);
     assertEquals("Anthophora atrocincta Lepeletier, 1841", u.getBasionym());
 
-    dao.printTree();
+    printTree();
     assertTree("40.txt");
   }
 
@@ -821,14 +823,14 @@ public class NubBuilderIT {
   /**
    * builds a new nub and keeps dao open for further test queries.
    */
-  private void build(NubSourceList src) {
+  private void build(NubSourceList src) throws IOException {
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
     nb.run();
     IdGenerator.Metrics metrics = nb.idMetrics();
     System.out.println(metrics);
 
     tx = dao.beginTx();
-    dao.printTree();
+    printTree();
 
     // assert we have only ever 8 root taxa - the kingdoms
     assertEquals(Kingdom.values().length, countRoot());
@@ -850,7 +852,7 @@ public class NubBuilderIT {
     }
   }
 
-  private void rebuild(NubSourceList src) {
+  private void rebuild(NubSourceList src) throws IOException {
     IdLookupImpl previousIds = new IdLookupImpl(dao);
     tx.close();
     dao.close();
@@ -863,7 +865,7 @@ public class NubBuilderIT {
     System.out.println(metrics);
 
     tx = dao.beginTx();
-    dao.printTree();
+    printTree();
 
     // assert we have only ever 8 root taxa - the kingdoms
     assertEquals(Kingdom.values().length, countRoot());
@@ -1075,7 +1077,7 @@ public class NubBuilderIT {
       assertEquals(expected.basionym, n.hasLabel(Labels.BASIONYM));
 
       // check for synonyms and sort by name
-      for (Node s : TreePrinter.SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
+      for (Node s : new TreePrinter(null, NeoProperties.SCIENTIFIC_NAME).SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
         expected = treeIter.next();
         name = (String) s.getProperty(NeoProperties.SCIENTIFIC_NAME);
         assertEquals(expected.name, name);
@@ -1098,5 +1100,11 @@ public class NubBuilderIT {
     TreeAsserter treeAssert = new TreeAsserter(expected);
     TaxonWalker.walkAccepted(dao.getNeo(), null, treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
+  }
+
+  private void printTree() throws IOException {
+    Writer writer = new PrintWriter(System.out);
+    dao.printTree(writer, false);
+    writer.flush();
   }
 }

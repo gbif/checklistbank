@@ -14,7 +14,7 @@ class LoadSource implements Callable<NubSource> {
 
     @Override
     public NubSource call() throws Exception {
-        src.init();
+        src.init(false);
         return src;
     }
 }
