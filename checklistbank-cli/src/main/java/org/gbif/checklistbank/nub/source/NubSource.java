@@ -127,7 +127,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       // also add neo properties?
       if (writeNeoProperties) {
         n.setProperty(NeoProperties.SCIENTIFIC_NAME, u.scientificName);
-        n.setProperty(NeoProperties.CANONICAL_NAME, parser.parseToCanonical(u.scientificName, u.rank));
+        String canonical = parser.parseToCanonical(u.scientificName, u.rank);
+        if (canonical != null) {
+          n.setProperty(NeoProperties.CANONICAL_NAME, canonical);
+        }
         if (u.rank != null) {
           n.setProperty(NeoProperties.RANK, u.rank.ordinal());
         }
