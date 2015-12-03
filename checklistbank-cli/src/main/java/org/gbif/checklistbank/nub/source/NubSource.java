@@ -94,6 +94,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   public class NeoUsageWriter extends TabMapperBase {
     private int counter = 0;
+    private int skipped = 0;
     private Transaction tx;
     private IntIntMap ids = new IntIntHashMap();
     private IntObjectMap<Integer> nonNubRankUsages = new IntObjectHashMap<Integer>();
@@ -138,16 +139,19 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
             while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
               u.parentKey = nonNubRankUsages.get(u.parentKey);
             }
-            Node nubParent = getOrCreate(u.parentKey);
-            for (Relationship rel : n.getRelationships()) {
-              if (rel.isType(RelType.PARENT_OF)) {
-                Node child = rel.getOtherNode(n);
-                nubParent.createRelationshipTo(child, RelType.PARENT_OF);
+            if (u.parentKey != null) {
+              Node nubParent = getOrCreate(u.parentKey);
+              for (Relationship rel : n.getRelationships()) {
+                if (rel.isType(RelType.PARENT_OF)) {
+                  Node child = rel.getOtherNode(n);
+                  nubParent.createRelationshipTo(child, RelType.PARENT_OF);
+                }
+                rel.delete();
               }
-              rel.delete();
             }
             n.delete();
           }
+          skipped++;
           return;
 
         } else {
@@ -234,6 +238,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     public int getCounter() {
       return counter;
+    }
+
+    public int getSkipped() {
+      return skipped;
     }
   }
 

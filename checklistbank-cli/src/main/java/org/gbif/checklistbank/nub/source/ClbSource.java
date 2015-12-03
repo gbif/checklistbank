@@ -39,7 +39,7 @@ public class ClbSource extends NubSource {
                     + " FROM name_usage u JOIN name n ON u.name_fk=n.id"
                     + " WHERE u.dataset_key = '" + key + "')"
                     + " TO STDOUT WITH NULL ''", writer);
-            LOG.info("Loaded nub source data {} with {} usages into neo4j", name, writer.getCounter());
+            LOG.info("Loaded nub source data {} with {} usages into neo4j, skipping {}", name, writer.getCounter(), writer.getSkipped());
         }
     }
 }
