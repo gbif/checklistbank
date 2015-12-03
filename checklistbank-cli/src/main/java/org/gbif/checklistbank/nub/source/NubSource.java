@@ -75,6 +75,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   /**
    * Loads data into the source and does any other initialization needed before usages() can be called.
    * Make sure to call this method once before the usage iterator is used!
+   *
    * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
    */
   public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
@@ -139,15 +140,18 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
             while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
               u.parentKey = nonNubRankUsages.get(u.parentKey);
             }
+            Node nubParent = null;
             if (u.parentKey != null) {
-              Node nubParent = getOrCreate(u.parentKey);
-              for (Relationship rel : n.getRelationships()) {
-                if (rel.isType(RelType.PARENT_OF)) {
+              nubParent = getOrCreate(u.parentKey);
+            }
+            for (Relationship rel : n.getRelationships()) {
+              if (rel.isType(RelType.PARENT_OF)) {
+                if (nubParent != null) {
                   Node child = rel.getOtherNode(n);
                   nubParent.createRelationshipTo(child, RelType.PARENT_OF);
                 }
-                rel.delete();
               }
+              rel.delete();
             }
             n.delete();
           }
