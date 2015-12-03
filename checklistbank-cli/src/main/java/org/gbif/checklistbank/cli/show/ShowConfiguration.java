@@ -39,6 +39,6 @@ public class ShowConfiguration {
   public boolean xml = false;
 
   @Valid
-  @Parameter(names = {"--canonicalOnly"}, required = false)
-  public boolean canonicalOnly = false;
+  @Parameter(names = {"--canonical"}, required = false)
+  public boolean canonical = false;
 }

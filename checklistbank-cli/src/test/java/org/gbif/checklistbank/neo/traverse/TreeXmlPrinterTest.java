@@ -16,7 +16,7 @@ public class TreeXmlPrinterTest {
   @Test
   public void testTree() throws Exception {
     try (ClasspathSource src = new ClasspathSource(8);) {
-      src.init(true);
+      src.init(true, false);
       UsageDao dao = src.open();
 
       try (Writer writer = new PrintWriter(System.out)) {

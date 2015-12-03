@@ -55,7 +55,7 @@ public class ShowCommand extends BaseCommand {
               // show entire tree
               dao.logStats();
               try (Writer writer = new FileWriter(cfg.file)) {
-                if (cfg.canonicalOnly) {
+                if (cfg.canonical) {
                   dao.printTree(new TreePrinter(writer, NeoProperties.CANONICAL_NAME));
                 } else {
                   dao.printTree(writer, cfg.xml);

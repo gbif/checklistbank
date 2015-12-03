@@ -76,7 +76,7 @@ import org.slf4j.LoggerFactory;
 public class NubBuilder implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
     private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
-    private static final Set<Rank> NUB_RANKS;
+    public static final Set<Rank> NUB_RANKS;
 
     static {
         List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);

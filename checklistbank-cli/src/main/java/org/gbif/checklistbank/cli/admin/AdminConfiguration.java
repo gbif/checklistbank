@@ -26,78 +26,78 @@ import org.apache.commons.io.LineIterator;
  */
 public class AdminConfiguration {
 
-    @ParametersDelegate
-    @NotNull
-    @Valid
-    public MessagingConfiguration messaging = new MessagingConfiguration();
+  @ParametersDelegate
+  @NotNull
+  @Valid
+  public MessagingConfiguration messaging = new MessagingConfiguration();
 
-    @ParametersDelegate
-    @NotNull
-    @Valid
-    public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+  @ParametersDelegate
+  @NotNull
+  @Valid
+  public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
 
-    @ParametersDelegate
-    @Valid
-    @NotNull
-    public ClbConfiguration clb = new ClbConfiguration();
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ClbConfiguration clb = new ClbConfiguration();
 
-    @ParametersDelegate
-    @Valid
-    @NotNull
-    public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
-    @ParametersDelegate
-    @NotNull
-    @Valid
-    public NeoConfiguration neo;
+  @ParametersDelegate
+  @NotNull
+  @Valid
+  public NeoConfiguration neo;
 
-    @Parameter(names = "--archive-repository")
-    @NotNull
-    public File archiveRepository;
+  @Parameter(names = "--archive-repository")
+  @NotNull
+  public File archiveRepository;
 
-    @Parameter(names = {"-k", "--key"}, required = false)
-    @Nullable
-    public UUID key;
+  @Parameter(names = {"-k", "--key"}, required = false)
+  @Nullable
+  public UUID key;
 
-    @Parameter(names = {"-f", "--keys"}, required = false)
-    @Nullable
-    public File keys;
+  @Parameter(names = {"-f", "--keys"}, required = false)
+  @Nullable
+  public File keys;
 
-    @Valid
-    @Parameter(names = {"--usage-key"}, required = false)
-    public Long usageKey;
+  @Parameter(names = {"-t", "--type"}, required = false)
+  @NotNull
+  public DatasetType type = DatasetType.CHECKLIST;
 
-    @Parameter(names = {"-t", "--type"}, required = false)
-    @NotNull
-    public DatasetType type = DatasetType.CHECKLIST;
+  @Parameter(names = {"-op", "--operation"}, required = true)
+  @NotNull
+  public AdminOperation operation;
 
-    @Parameter(names = {"-op", "--operation"}, required = true)
-    @NotNull
-    public AdminOperation operation;
+  @Valid
+  @Parameter(names = {"--nub-ranks-only"}, required = false)
+  public boolean nubRanksOnly = false;
 
-    /**
-     * Returns the directory with the decompressed archive folder created by the dwca downloader.
-     */
-    public File archiveDir(UUID datasetKey) {
-        return new File(archiveRepository, datasetKey.toString());
-    }
+  /**
+   * Returns the directory with the decompressed archive folder created by the dwca downloader.
+   */
+  public File archiveDir(UUID datasetKey) {
+    return new File(archiveRepository, datasetKey.toString());
+  }
 
-    public List<UUID> listKeys() {
-        List<UUID> result = Lists.newArrayList();
-        if (keys != null || keys.exists()) {
-            try {
-                LineIterator lines = new LineIterator(new FileReader(keys));
-                while (lines.hasNext()) {
-                    try {
-                        result.add(UUID.fromString(lines.nextLine()));
-                    } catch (IllegalArgumentException e) {
-                        // ignore
-                    }
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+  public List<UUID> listKeys() {
+    List<UUID> result = Lists.newArrayList();
+    if (keys != null || keys.exists()) {
+      try {
+        LineIterator lines = new LineIterator(new FileReader(keys));
+        while (lines.hasNext()) {
+          try {
+            result.add(UUID.fromString(lines.nextLine()));
+          } catch (IllegalArgumentException e) {
+            // ignore
+          }
         }
-        return result;
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
     }
+    return result;
+  }
 }

@@ -11,6 +11,7 @@ import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.nameparser.NameParser;
@@ -22,9 +23,12 @@ import java.util.UUID;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
+import com.carrotsearch.hppc.IntObjectHashMap;
+import com.carrotsearch.hppc.IntObjectMap;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -73,10 +77,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    * Make sure to call this method once before the usage iterator is used!
    * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
    */
-  public void init(boolean writeNeoProperties) throws Exception {
+  public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
-    try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, false, null, true), writeNeoProperties)) {
+    try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, false, null, true), writeNeoProperties, nubRanksOnly)) {
       initNeo(writer);
     }
   }
@@ -92,16 +96,20 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private int counter = 0;
     private Transaction tx;
     private IntIntMap ids = new IntIntHashMap();
+    private IntObjectMap<Integer> nonNubRankUsages = new IntObjectHashMap<Integer>();
     private final UsageDao dao;
     private Node root;
     private final boolean writeNeoProperties;
+    private final boolean nubRanksOnly;
     private final NameParser parser;
 
-    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties) {
+
+    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly) {
       // the number of columns in our query to consume
       super(7);
       this.dao = dao;
       this.writeNeoProperties = writeNeoProperties;
+      this.nubRanksOnly = nubRanksOnly;
       // we only need a parser in case we need to write neo properties
       parser = writeNeoProperties ? new NameParser() : null;
       tx = dao.beginTx();
@@ -116,11 +124,43 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.originalNameKey = toInt(row[2]);
       u.rank = row[3] == null ? null : Rank.valueOf(row[3]);
       u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
-      if (u.status == null) {
-        LOG.error("Source usage {} missing required taxonomic status", row[0]);
-      }
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
+
+      if (nubRanksOnly) {
+        if ((u.rank == null || !NubBuilder.NUB_RANKS.contains(u.rank))) {
+          // do not create a node, just keep the id mapped to the next higher parent with an nub rank
+          nonNubRankUsages.put(u.key, u.parentKey);
+          // we might have created a node already, delete it if there is one
+          if (ids.containsKey(u.key)) {
+            Node n = dao.getNeo().getNodeById(ids.get(u.key));
+            // delete all relations and relink parent rel to next nub rank
+            while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
+              u.parentKey = nonNubRankUsages.get(u.parentKey);
+            }
+            Node nubParent = getOrCreate(u.parentKey);
+            for (Relationship rel : n.getRelationships()) {
+              if (rel.isType(RelType.PARENT_OF)) {
+                Node child = rel.getOtherNode(n);
+                nubParent.createRelationshipTo(child, RelType.PARENT_OF);
+              }
+              rel.delete();
+            }
+            n.delete();
+          }
+          return;
+
+        } else {
+          // make sure the parent and basionym are nub ranks
+          while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
+            u.parentKey = nonNubRankUsages.get(u.parentKey);
+          }
+          if (u.originalNameKey != null && nonNubRankUsages.containsKey(u.originalNameKey)) {
+            u.originalNameKey = null;
+          }
+        }
+      }
+
       counter++;
       Node n = getOrCreate(u.key);
       dao.storeSourceUsage(n, u);
