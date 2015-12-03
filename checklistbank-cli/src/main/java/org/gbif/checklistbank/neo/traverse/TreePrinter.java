@@ -23,6 +23,7 @@ public class TreePrinter implements StartEndHandler {
   private static final Logger LOG = LoggerFactory.getLogger(TreePrinter.class);
   public static final String SYNONYM_SYMBOL = "*";
   public static final String BASIONYM_SYMBOL = "$";
+  public static final String NULL_NAME = "???";
 
   private static final int indentation = 2;
   private int level = 0;
@@ -33,7 +34,7 @@ public class TreePrinter implements StartEndHandler {
     @Nullable
     @Override
     public String apply(@Nullable Node n) {
-      return (String) n.getProperty(nameProperty);
+      return (String) n.getProperty(nameProperty, NULL_NAME);
     }
   });
 
@@ -70,7 +71,7 @@ public class TreePrinter implements StartEndHandler {
       if (n.hasLabel(Labels.BASIONYM)) {
         writer.write(BASIONYM_SYMBOL);
       }
-      writer.write((String)n.getProperty(nameProperty, "???"));
+      writer.write((String)n.getProperty(nameProperty, NULL_NAME));
       if (n.hasProperty(NeoProperties.RANK)) {
         writer.write(" [");
         writer.write(Rank.values()[(Integer) n.getProperty(NeoProperties.RANK)].name().toLowerCase());

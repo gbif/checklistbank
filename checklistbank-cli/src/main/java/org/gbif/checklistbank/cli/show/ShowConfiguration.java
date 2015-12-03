@@ -31,7 +31,7 @@ public class ShowConfiguration {
   public Long usageKey;
 
   @Valid
-  @Parameter(names = {"-f", "--file"}, required = true)
+  @Parameter(names = {"-f", "--file"}, required = false)
   public File file;
 
   @Valid

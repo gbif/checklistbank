@@ -13,6 +13,7 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
+import org.gbif.nameparser.NameParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,12 +95,15 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private final UsageDao dao;
     private Node root;
     private final boolean writeNeoProperties;
+    private final NameParser parser;
 
     public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties) {
       // the number of columns in our query to consume
       super(7);
       this.dao = dao;
       this.writeNeoProperties = writeNeoProperties;
+      // we only need a parser in case we need to write neo properties
+      parser = writeNeoProperties ? new NameParser() : null;
       tx = dao.beginTx();
       root = dao.getNeo().createNode(Labels.ROOT);
     }
@@ -123,11 +127,9 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       // also add neo properties?
       if (writeNeoProperties) {
         n.setProperty(NeoProperties.SCIENTIFIC_NAME, u.scientificName);
+        n.setProperty(NeoProperties.CANONICAL_NAME, parser.parseToCanonical(u.scientificName, u.rank));
         if (u.rank != null) {
           n.setProperty(NeoProperties.RANK, u.rank.ordinal());
-        }
-        if (u.status.isSynonym()) {
-          n.addLabel(Labels.SYNONYM);
         }
       }
       // root?
@@ -138,6 +140,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
         Node p = getOrCreate(pid);
         if (u.status.isSynonym()) {
           n.createRelationshipTo(p, RelType.SYNONYM_OF);
+          n.addLabel(Labels.SYNONYM);
         } else {
           p.createRelationshipTo(n, RelType.PARENT_OF);
         }
@@ -147,6 +150,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
         int oid = u.originalNameKey;
         Node o = getOrCreate(oid);
         o.createRelationshipTo(n, RelType.BASIONYM_OF);
+        o.addLabel(Labels.BASIONYM);
       }
       if (counter % 1000 == 0) {
         renewTx();
