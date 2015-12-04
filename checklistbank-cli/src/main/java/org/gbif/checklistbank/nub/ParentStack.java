@@ -84,6 +84,17 @@ public class ParentStack {
     parents.add(src);
   }
 
+  /**
+   * @return true if the current sources immediate parent is part of the nub
+   */
+  public boolean parentInNub() {
+    SrcUsage curr = parents.getLast();
+    if (curr != null) {
+      return nubMap.containsKey(curr.parentKey);
+    }
+    return false;
+  }
+
   public LinkedList<SrcUsage> getParents() {
     return parents;
   }

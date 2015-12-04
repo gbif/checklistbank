@@ -1,0 +1,391 @@
+1			ORDER	ACCEPTED		Mantodea
+531	1		FAMILY	ACCEPTED		Hymenopodidae
+532	531		SUBFAMILY	ACCEPTED		Acromantinae
+533	532		TRIBE	ACCEPTED		Acromantini
+534	533		GENUS	ACCEPTED		Acromantis Saussure, 1870
+535	534		SPECIES	ACCEPTED		Acromantis australis Saussure, 1871
+536	534		SPECIES	ACCEPTED		Acromantis dyaka Hebard, 1920
+537	534		SPECIES	ACCEPTED		Acromantis elegans Lombardo, 1993
+538	534		SPECIES	ACCEPTED		Acromantis formosana Shiraki, 1911
+539	534		SPECIES	ACCEPTED		Acromantis gestri Giglio-Tos, 1915
+540	534		SPECIES	ACCEPTED		Acromantis grandis Beier, 1930
+541	534		SPECIES	ACCEPTED		Acromantis hesione Stal, 1877
+542	534		SPECIES	ACCEPTED		Acromantis indica Giglio-Tos, 1915
+543	534		SPECIES	ACCEPTED		Acromantis insularis Giglio-Tos, 1915
+544	534		SPECIES	ACCEPTED		Acromantis japonica Westwood, 1889
+545	534		SPECIES	ACCEPTED		Acromantis lilii Werner, 1922
+546	545		SPECIES	SYNONYM		Acromantis javana Giglio-Tos, 1915
+547	534		SPECIES	ACCEPTED		Acromantis luzonica Hebard, 1920
+548	534		SPECIES	ACCEPTED		Acromantis montana Giglio-Tos, 1915
+549	534		SPECIES	ACCEPTED		Acromantis moultoni Giglio-Tos, 1915
+550	549		SPECIES	SYNONYM		Acromantis westwoodi Giglio-Tos, 1915
+551	534		SPECIES	ACCEPTED		Acromantis nicobarica Mukherjee, 1995
+552	534		SPECIES	ACCEPTED		Acromantis oligoneura Haan, 1842
+553	552		SPECIES	SYNONYM		Acromantis parvula Westwood, 1889
+554	552		SPECIES	SYNONYM		Acromantis formosa Saussure, 1870
+555	534		SPECIES	ACCEPTED		Acromantis palauana Beier, 1972
+556	534		SPECIES	ACCEPTED		Acromantis philippina Beier, 1966
+557	534		SPECIES	ACCEPTED		Acromantis satsumensis Matsumura, 1913
+558	534		SPECIES	ACCEPTED		Acromantis siporana Giglio-Tos, 1915
+559	533		GENUS	ACCEPTED		Anasigerpes Giglio-Tos, 1915
+560	559		GENUS	SYNONYM		Phylloharpax Werner, 1915
+561	559		SPECIES	ACCEPTED		Anasigerpes amieti Roy, 1963
+562	559		SPECIES	ACCEPTED		Anasigerpes bifasciata Giglio-Tos, 1915
+563	559		SPECIES	ACCEPTED		Anasigerpes centralis Roy, 1966
+564	559		SPECIES	ACCEPTED		Anasigerpes grilloti Roy, 1978
+565	559		SPECIES	ACCEPTED		Anasigerpes heydeni Werner, 1908
+566	565		SPECIES	SYNONYM		Anasigerpes roemeri Werner, 1908
+567	565		SPECIES	SYNONYM		Anasigerpes modesta Giglio-Tos, 1915
+568	565		SPECIES	SYNONYM		Anasigerpes crassipes Rehn, 1914
+569	565		SPECIES	SYNONYM		Anasigerpes alluaudi Chopard, 1914
+570	559		SPECIES	ACCEPTED		Anasigerpes nigripes Roy, 1964
+571	570		SPECIES	SYNONYM		Anasigerpes punctata Roy, 1966
+572	570		SPECIES	SYNONYM		Anasigerpes coxalis Werner, 1915
+573	559		SPECIES	ACCEPTED		Anasigerpes trifasciata Giglio-Tos, 1915
+574	559		SPECIES	ACCEPTED		Anasigerpes unifasciata Roy, 1979
+575	533		GENUS	ACCEPTED		Anaxarcha Stal, 1877
+576	575		GENUS	SYNONYM		Parastatilia Werner, 1922
+577	575		GENUS	SYNONYM		Anaxandra Kirby, 1904
+578	575		SPECIES	ACCEPTED		Anaxarcha acuta Beier, 1963
+579	575		SPECIES	ACCEPTED		Anaxarcha graminea Stal, 1877
+580	579		SPECIES	SYNONYM		Anaxarcha grammica Stal, 1877
+581	575		SPECIES	ACCEPTED		Anaxarcha hyalina Zhang, 1988
+582	575		SPECIES	ACCEPTED		Anaxarcha intermedia Mukherjee, 1995
+583	575		SPECIES	ACCEPTED		Anaxarcha limbata Giglio-Tos, 1915
+584	583		SPECIES	SYNONYM		Anaxarcha parallela Werner, 1930
+585	575		SPECIES	ACCEPTED		Anaxarcha pulchella Werner, 1922
+586	575		SPECIES	ACCEPTED		Anaxarcha pulchra Werner, 1922
+587	575		SPECIES	ACCEPTED		Anaxarcha sinensis Beier, 1933
+588	575		SPECIES	ACCEPTED		Anaxarcha tianmushanensis Zheng, 1985
+589	575		SPECIES	ACCEPTED		Anaxarcha zhengi Ren & Wang, 1994
+590	533		GENUS	ACCEPTED		Anoplosigerpes Werner, 1928
+591	590		SPECIES	ACCEPTED		Anoplosigerpes tessmanni Werner, 1928
+592	533		GENUS	ACCEPTED		Chrysomantis Giglio-Tos, 1915
+593	592		GENUS	SYNONYM		Uvarovmantis Beier, 1930
+594	592		SPECIES	ACCEPTED		Chrysomantis cachani Roy, 1964
+595	592		SPECIES	ACCEPTED		Chrysomantis centralis La Greca & Lombardo, 1987
+596	592		SPECIES	ACCEPTED		Chrysomantis cervoides La Greca & Lombardo, 1987
+597	592		SPECIES	ACCEPTED		Chrysomantis congica La Greca & Lombardo, 1987
+598	592		SPECIES	ACCEPTED		Chrysomantis girardi Gillon & Roy, 1968
+599	592		SPECIES	ACCEPTED		Chrysomantis royi La Greca & Lombardo, 1987
+600	592		SPECIES	ACCEPTED		Chrysomantis speciosa Giglio-Tos, 1915
+601	592		SPECIES	ACCEPTED		Chrysomantis tristis Beier, 1930
+602	533		GENUS	ACCEPTED		Citharomantis Rehn, 1909
+603	602		SPECIES	ACCEPTED		Citharomantis falcata Rehn, 1909
+604	533		GENUS	ACCEPTED		Ephestiasula Giglio-Tos, 1915
+605	604		SPECIES	ACCEPTED		Ephestiasula amoena (Bolivar, 1897)
+606	604		SPECIES	ACCEPTED		Ephestiasula intermedia Werner, 1930
+607	604		SPECIES	ACCEPTED		Ephestiasula pictipes (Wood-Mason, 1879)
+608	604		SPECIES	ACCEPTED		Ephestiasula woodmasoni Mukherjee, Stiewe & Ghorai, 2010
+609	533		GENUS	ACCEPTED		Ephippiomantis Werner, 1922
+610	609		SPECIES	ACCEPTED		Ephippiomantis ophirensis Werner, 1922
+611	533		GENUS	ACCEPTED		Heliomantis Giglio-Tos, 1915
+612	611		GENUS	SYNONYM		Paraspilota Bolivar, 1913
+613	611		GENUS	SYNONYM		Deiroharpax Werner, 1916
+614	611		SPECIES	ACCEPTED		Heliomantis elegans Navas, 1904
+615	614		SPECIES	SYNONYM		Heliomantis viridis Werner, 1916
+616	611		SPECIES	ACCEPTED		Heliomantis latipennis Werner, 1930
+617	533		GENUS	ACCEPTED		Hestiasula Saussure, 1871
+618	617		GENUS	SYNONYM		Hestias Saussure, 1872
+619	617		GENUS	SYNONYM		Catestiasula Giglio-Tos, 1915
+620	617		SPECIES	ACCEPTED		Hestiasula basinigra Zhang, 1992
+621	617		SPECIES	ACCEPTED		Hestiasula brunneriana Saussure, 1871
+622	617		SPECIES	ACCEPTED		Hestiasula castetsi Bolivar, 1897
+623	617		SPECIES	ACCEPTED		Hestiasula ceylonica Beier, 1956
+624	617		SPECIES	ACCEPTED		Hestiasula gyldenstolpei Werner, 1930
+625	617		SPECIES	ACCEPTED		Hestiasula hoffmanni Tinkham, 1937
+626	617		SPECIES	ACCEPTED		Hestiasula inermis Wood-Mason, 1879
+627	617		SPECIES	ACCEPTED		Hestiasula javana Beier, 1929
+628	617		SPECIES	ACCEPTED		Hestiasula kastneri Beier, 1942
+629	617		SPECIES	ACCEPTED		Hestiasula major Beier, 1929
+630	617		SPECIES	ACCEPTED		Hestiasula masoni Giglio-Tos, 1915
+631	617		SPECIES	ACCEPTED		Hestiasula moultoni Giglio-Tos, 1915
+632	617		SPECIES	ACCEPTED		Hestiasula nigrofemorata Werner, 1930
+633	617		SPECIES	ACCEPTED		Hestiasula nitida Brunner, 1892
+634	617		SPECIES	ACCEPTED		Hestiasula phyllopus Haan, 1842
+635	634		SPECIES	SYNONYM		Hestiasula sarawaca Westwood, 1889
+636	617		SPECIES	ACCEPTED		Hestiasula rogenhoferi Saussure, 1872
+637	617		SPECIES	ACCEPTED		Hestiasula seminigra Zhang, 1992
+638	617		SPECIES	ACCEPTED		Hestiasula woodi Giglio-Tos, 1915
+639	617		SPECIES	ACCEPTED		Hestiasula zhejiangensis Zhou & Shen, 1992
+640	533		GENUS	ACCEPTED		Metacromantis Beier, 1930
+641	640		SPECIES	ACCEPTED		Metacromantis nigrofemorata Ghate, Thulsi Ra, Maqsood Javed & Roy, 2006
+642	640		SPECIES	ACCEPTED		Metacromantis oxyops Beier, 1930
+643	533		GENUS	ACCEPTED		Odontomantis Saussure, 1871
+644	643		GENUS	SYNONYM		Euantissa Giglio-Tos, 1927
+645	643		GENUS	SYNONYM		Antissa Stal, 1871
+646	643		SPECIES	ACCEPTED		Odontomantis brachyptera Zheng, 1989
+647	643		SPECIES	ACCEPTED		Odontomantis buhleri Beier, 1952
+648	643		SPECIES	ACCEPTED		Odontomantis chayuensis Zheng, 1989
+649	643		SPECIES	ACCEPTED		Odontomantis euphrosyne Stal, 1877
+650	643		SPECIES	ACCEPTED		Odontomantis foveafrons Zhang, 1985
+651	643		SPECIES	ACCEPTED		Odontomantis hainana Tinkham, 1937
+652	643		SPECIES	ACCEPTED		Odontomantis laticollis Beier, 1933
+653	643		SPECIES	ACCEPTED		Odontomantis longipennis Zheng, 1989
+654	643		SPECIES	ACCEPTED		Odontomantis micans Saussure, 1871
+655	643		SPECIES	ACCEPTED		Odontomantis montana Giglio-Tos, 1915
+656	643		SPECIES	ACCEPTED		Odontomantis monticola Beier, 1933
+657	643		SPECIES	ACCEPTED		Odontomantis nigrimarginalis Zhang, 1985
+658	643		SPECIES	ACCEPTED		Odontomantis ornata Werner, 1935
+659	643		SPECIES	ACCEPTED		Odontomantis parva Giglio-Tos, 1915
+660	643		SPECIES	ACCEPTED		Odontomantis planiceps Haan, 1842
+661	660		SPECIES	SYNONYM		Odontomantis javana Saussure, 1870
+662	643		SPECIES	ACCEPTED		Odontomantis pulchra Olivier, 1792
+663	662		SPECIES	SYNONYM		Odontomantis marginalis Stoll, 1813
+664	662		SPECIES	SYNONYM		Odontomantis flavicincta Olivier, 1792
+665	662		SPECIES	SYNONYM		Odontomantis caffraria Lichtenstein, 1802
+666	643		SPECIES	ACCEPTED		Odontomantis rhyssa Werner, 1930
+667	643		SPECIES	ACCEPTED		Odontomantis sinensis Giglio-Tos, 1915
+668	643		SPECIES	ACCEPTED		Odontomantis xizangensis Zheng, 1989
+669	533		GENUS	ACCEPTED		Oligomantis Giglio-Tos, 1915
+670	669		SPECIES	ACCEPTED		Oligomantis hyalina Werner, 1916
+671	669		SPECIES	ACCEPTED		Oligomantis mentaweiana Giglio-Tos, 1915
+672	669		SPECIES	ACCEPTED		Oligomantis orientalis Giglio-Tos, 1915
+673	533		GENUS	ACCEPTED		Otomantis Bolivar, 1890
+674	673		GENUS	SYNONYM		Acanthomantis Saussure & Zehntner, 1895
+675	673		SPECIES	ACCEPTED		Otomantis aurita Saussure & Zehntner, 1895
+676	673		SPECIES	ACCEPTED		Otomantis capirica Giglio-Tos, 1915
+677	676		SPECIES	SYNONYM		Otomantis xenocentrus Werner, 1915
+678	673		SPECIES	ACCEPTED		Otomantis casaica Beier, 1934
+679	673		SPECIES	ACCEPTED		Otomantis rendalli Kirby, 1899
+680	673		SPECIES	ACCEPTED		Otomantis scutigera Bolivar, 1890
+681	680		SPECIES	SYNONYM		Otomantis africana Saussure & Zehntner, 1895
+682	533		GENUS	ACCEPTED		Oxypiloidea Schulthess, 1898
+683	682		SUBGENUS	ACCEPTED		Oxypiloidea (Oxypiloidea) Schulthess, 1898
+684	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) acuminata (Kevan, 1954)
+685	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) angolica Roy, 2013
+686	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) carvalhoi Roy, 2013
+687	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) dargei Roy, 2013
+688	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) denticulata Roy, 2013
+689	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) lobata (Schulthess-Schindler, 1898)
+690	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) murphyi Roy, 2013
+691	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) namibiana Roy, 2013
+692	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) tridens Saussure, 1872
+693	683		SPECIES	ACCEPTED		Oxypiloidea (Oxypiloidea) zernyi (Beier, 1942)
+694	682		SUBGENUS	ACCEPTED		Oxypiloidea (Catasigerpes) Giglio-Tos, 1927
+695	694		GENUS	SYNONYM		Sigerpes Wood-Mason, 1879
+696	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) brunnerianus (Saussure, 1871)
+697	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) centrafricana Roy, 2013
+698	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) congicus (Giglio-Tos, 1915)
+699	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) erlangeri (Beier, 1931)
+700	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) granulata (Roy, 1965)
+701	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) ivoirensis Roy, 2013
+702	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) jeanneli (Chopard, 1938)
+703	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) maldesi Roy, 2013
+704	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) margarethae (Werner, 1912)
+705	704		SPECIES	SYNONYM		Oxypiloidea (Catasigerpes) niloticus (Giglio-Tos, 1915)
+706	704		SPECIES	SYNONYM		Oxypiloidea (Catasigerpes) camerunensis (Giglio-Tos, 1915)
+707	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) maroccana Roy, 2013
+708	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) mortuifolia (Saussure, 1899)
+709	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) nigericus (Giglio-Tos, 1915)
+710	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) occidentalis (Wood-Mason, 1879)
+711	710		SPECIES	SYNONYM		Oxypiloidea (Catasigerpes) toganus (Giglio-Tos, 1915)
+712	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) orientalis Roy, 2013
+713	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) sinuata Roy, 2013
+714	694		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) subcornuta (Westwood, 1889)
+715	533		GENUS	ACCEPTED		Parahestiasula Lombardo, 1995
+716	715		SPECIES	ACCEPTED		Parahestiasula obscura Lombardo, 1995
+717	533		GENUS	ACCEPTED		Psychomantis Giglio-Tos, 1915
+718	717		SPECIES	ACCEPTED		Psychomantis borneensis Haan, 1842
+719	717		SPECIES	ACCEPTED		Psychomantis malayensis Beier, 1931
+720	533		GENUS	ACCEPTED		Rhomantis Giglio-Tos, 1915
+721	720		SPECIES	ACCEPTED		Rhomantis moultoni Giglio-Tos, 1915
+722	531		SUBFAMILY	ACCEPTED		Epaphroditinae
+723	722		TRIBE	ACCEPTED		Phyllocranini
+724	723		GENUS	ACCEPTED		Amphecostephanus Rehn, 1912
+725	724		SPECIES	ACCEPTED		Amphecostephanus rex Rehn, 1912
+726	723		GENUS	ACCEPTED		Epaphrodita Serville, 1831
+727	726		SPECIES	ACCEPTED		Epaphrodita lobivertex Lombardo & Perez-Gelabert, 2004
+728	726		SPECIES	ACCEPTED		Epaphrodita musarum Palisot de Beauvois, 1805
+729	728		SPECIES	SYNONYM		Epaphrodita dentifrons Saussure, 1872
+730	726		SPECIES	ACCEPTED		Epaphrodita undulata Saussure, 1870
+731	723		GENUS	ACCEPTED		Parablepharis Saussure, 1870
+732	731		SPECIES	ACCEPTED		Parablepharis kuhlii de Haan, 1842
+733	732		SUBSPECIES	ACCEPTED		Parablepharis kuhlii asiatica Roy, 2008
+734	732		SUBSPECIES	ACCEPTED		Parablepharis kuhlii kuhlii
+735	723		GENUS	ACCEPTED		Phyllocrania Burmeister, 1838
+736	735		SPECIES	ACCEPTED		Phyllocrania illudens Saussure & Zehntner, 1895
+737	735		SPECIES	ACCEPTED		Phyllocrania insignis Westwood, 1843
+738	735		SPECIES	ACCEPTED		Phyllocrania paradoxa Burmeister, 1838
+739	531		SUBFAMILY	ACCEPTED		Hymenopodinae
+740	739		TRIBE	ACCEPTED		Hymenopodini
+741	740		GENUS	ACCEPTED		Attalia Uvarov, 1936
+742	741		SPECIES	ACCEPTED		Attalia philbyi Uvarov, 1936
+743	740		GENUS	ACCEPTED		Chlidonoptera Karsch, 1892
+744	743		GENUS	SYNONYM		Bomistria Saussure, 1898
+745	743		GENUS	SYNONYM		Anabomistria Giglio-Tos, 1915
+746	743		SPECIES	ACCEPTED		Chlidonoptera chopardi Roy, 1964
+747	743		SPECIES	ACCEPTED		Chlidonoptera lestoni Roy & Leston, 1975
+748	743		SPECIES	ACCEPTED		Chlidonoptera vexillum Karsch, 1892
+749	748		SPECIES	SYNONYM		Chlidonoptera lunata Saussure, 1898
+750	743		SPECIES	ACCEPTED		Chlidonoptera werneri Giglio-Tos, 1915
+751	740		GENUS	ACCEPTED		Chloroharpax Werner, 1908
+752	751		SPECIES	ACCEPTED		Chloroharpax modesta Gerstaecker, 1883
+753	752		SPECIES	SYNONYM		Chloroharpax ocellifer Werner, 1908
+754	740		GENUS	ACCEPTED		Congoharpax Serville, 1839
+755	754		SPECIES	ACCEPTED		Congoharpax aberrans Roy, 1963
+756	755		SPECIES	SYNONYM		Congoharpax lobipes Chopard, 1954
+757	754		SPECIES	ACCEPTED		Congoharpax boulardi Roy, 1972
+758	754		SPECIES	ACCEPTED		Congoharpax brunneri Kirby, 1904
+759	758		SPECIES	SYNONYM		Congoharpax sumatrana Brunner, 1898
+760	754		SPECIES	ACCEPTED		Congoharpax coiffaiti Roy, 1972
+761	754		SPECIES	ACCEPTED		Congoharpax judithae Roy, 1972
+762	740		GENUS	ACCEPTED		Creobroter Westwood, 1889
+763	762		GENUS	SYNONYM		Creobrotra Saussure, 1898
+764	762		GENUS	SYNONYM		Creobotra Saussure, 1869
+765	762		GENUS	SYNONYM		Creoboter Burmeister, 1840
+766	762		SPECIES	ACCEPTED		Creobroter apicalis Saussure, 1869
+767	762		SPECIES	ACCEPTED		Creobroter celebensis Werner, 1931
+768	767		SPECIES	SYNONYM		Creobroter inornatus Sjostedt, 1930
+769	762		SPECIES	ACCEPTED		Creobroter discifera Serville, 1839
+770	769		SPECIES	SYNONYM		Creobroter lobatus Stal, 1877
+771	762		SPECIES	ACCEPTED		Creobroter elongata Beier, 1929
+772	762		SPECIES	ACCEPTED		Creobroter episcopalis Stal, 1877
+773	762		SPECIES	ACCEPTED		Creobroter fasciatus Werner, 1927
+774	762		SPECIES	ACCEPTED		Creobroter fuscoareatus Saussure, 1870
+775	762		SPECIES	ACCEPTED		Creobroter gemmatus Saussure, 1869
+776	762		SPECIES	ACCEPTED		Creobroter granulicollis Saussure, 1870
+777	762		SPECIES	ACCEPTED		Creobroter insolitus Beier, 1942
+778	762		SPECIES	ACCEPTED		Creobroter jiangxiensis Zheng, 1988
+779	762		SPECIES	ACCEPTED		Creobroter labuanae Hebard, 1920
+780	762		SPECIES	ACCEPTED		Creobroter laevicollis Saussure, 1870
+781	762		SPECIES	ACCEPTED		Creobroter medanus Giglio-Tos, 1915
+782	762		SPECIES	ACCEPTED		Creobroter meleagris Stal, 1877
+783	762		SPECIES	ACCEPTED		Creobroter nebulosa Zheng, 1988
+784	762		SPECIES	ACCEPTED		Creobroter pictipennis Wood-Mason, 1878
+785	762		SPECIES	ACCEPTED		Creobroter signifer Walker, 1859
+786	762		SPECIES	ACCEPTED		Creobroter sumatranus de Haan, 1842
+787	762		SPECIES	ACCEPTED		Creobroter urbanus Fabricius, 1775
+788	762		SPECIES	ACCEPTED		Creobroter vitripennis Beier, 1933
+789	740		GENUS	ACCEPTED		Galinthias Stal, 1877
+790	789		SPECIES	ACCEPTED		Galinthias amoena Saussure, 1871
+791	790		SPECIES	SYNONYM		Galinthias hyalina Saussure, 1899
+792	789		SPECIES	ACCEPTED		Galinthias meruensis Sjostedt, 1909
+793	792		SPECIES	SYNONYM		Galinthias usambarica Sjostedt, 1909
+794	789		SPECIES	ACCEPTED		Galinthias occidentalis Beier, 1930
+795	740		GENUS	ACCEPTED		Harpagomantis Kirby, 1899
+796	795		GENUS	SYNONYM		Harpax Serville, 1831
+797	795		GENUS	SYNONYM		Australomantis Rehn, 1901
+798	795		SPECIES	ACCEPTED		Harpagomantis discolor Stal, 1877
+799	795		SPECIES	ACCEPTED		Harpagomantis nana Lucas, 1849
+800	795		SPECIES	ACCEPTED		Harpagomantis tricolor Linne, 1758
+801	800		SPECIES	SYNONYM		Harpagomantis spinocula Serville, 1839
+802	800		SPECIES	SYNONYM		Harpagomantis quadricornis Stoll, 1813
+803	800		SPECIES	SYNONYM		Harpagomantis paradoxa Goeze, 1778
+804	800		SPECIES	SYNONYM		Harpagomantis lobata Fabricius, 1781
+805	800		SPECIES	SYNONYM		Harpagomantis cornuta Olivier, 1792
+806	740		GENUS	ACCEPTED		Helvia Stal, 1877
+807	806		SPECIES	ACCEPTED		Helvia cardinalis Stal, 1877
+808	740		GENUS	ACCEPTED		Hymenopus Serville, 1831
+809	808		GENUS	SYNONYM		Hymenopa Serville, 1839
+810	808		SPECIES	ACCEPTED		Hymenopus bicornis Latreille, 1807
+811	808		SPECIES	ACCEPTED		Hymenopus coronatoides Wang & et al., 1994
+812	808		SPECIES	ACCEPTED		Hymenopus coronatus Olivier, 1792
+813	740		GENUS	ACCEPTED		Panurgica Karsch, 1896
+814	813		GENUS	SYNONYM		Propanurgica Giglio-Tos, 1915
+815	813		GENUS	SYNONYM		Mystipola Saussure, 1898
+816	813		SPECIES	ACCEPTED		Panurgica basilewskyi La Greca, 1954
+817	813		SPECIES	ACCEPTED		Panurgica compressicollis Saussure, 1898
+818	813		SPECIES	ACCEPTED		Panurgica duplex Karsch, 1896
+819	813		SPECIES	ACCEPTED		Panurgica feae Griffini, 1907
+820	813		SPECIES	ACCEPTED		Panurgica fratercula Rehn, 1912
+821	813		SPECIES	ACCEPTED		Panurgica fusca Giglio-Tos, 1915
+822	813		SPECIES	ACCEPTED		Panurgica langi Rehn, 1949
+823	813		SPECIES	ACCEPTED		Panurgica liberiana Rehn, 1912
+824	813		SPECIES	ACCEPTED		Panurgica mende Rehn, 1949
+825	813		SPECIES	ACCEPTED		Panurgica rehni La Greca, 1954
+826	740		GENUS	ACCEPTED		Parymenopus Wood-Mason, 1890
+827	826		GENUS	SYNONYM		Parhymenopus Wood-Mason, 1890
+828	826		SPECIES	ACCEPTED		Parymenopus davisoni Wood-Mason, 1890
+829	740		GENUS	ACCEPTED		Pseudocreobotra Saussure, 1870
+830	829		GENUS	SYNONYM		Theomantis Giglio-Tos, 1915
+831	829		SPECIES	ACCEPTED		Pseudocreobotra amarae Rehn, 1901
+832	829		SPECIES	ACCEPTED		Pseudocreobotra ocellata Beauvois, 1805
+833	832		SPECIES	SYNONYM		Pseudocreobotra ocellaria Drury, 1773
+834	829		SPECIES	ACCEPTED		Pseudocreobotra wahlbergi Stal, 1871
+835	740		GENUS	ACCEPTED		Pseudoharpax Saussure, 1870
+836	835		SPECIES	ACCEPTED		Pseudoharpax abyssinicus Beier, 1930
+837	835		SPECIES	ACCEPTED		Pseudoharpax beieri La Greca, 1950
+838	835		SPECIES	ACCEPTED		Pseudoharpax crenaticollis La Greca, 1954
+839	835		SPECIES	ACCEPTED		Pseudoharpax dubius La Greca, 1954
+840	835		SPECIES	ACCEPTED		Pseudoharpax erythraeus Giglio-Tos, 1915
+841	835		SPECIES	ACCEPTED		Pseudoharpax francoisi Bolivar, 1908
+842	835		SPECIES	ACCEPTED		Pseudoharpax nigericus Giglio-Tos, 1915
+843	835		SPECIES	ACCEPTED		Pseudoharpax parallelus La Greca, 1954
+844	835		SPECIES	ACCEPTED		Pseudoharpax ugandanus Giglio-Tos, 1915
+845	844		SPECIES	SYNONYM		Pseudoharpax laticollis Beier, 1930
+846	835		SPECIES	ACCEPTED		Pseudoharpax virescens Serville, 1839
+847	846		SUBSPECIES	ACCEPTED		Pseudoharpax virescens centralis La Greca, 1954
+848	846		SUBSPECIES	ACCEPTED		Pseudoharpax virescens virescens
+849	740		GENUS	ACCEPTED		Theopropus Saussure, 1898
+850	849		SPECIES	ACCEPTED		Theopropus borneensis Beier, 1942
+851	849		SPECIES	ACCEPTED		Theopropus cattulus Westwood, 1889
+852	849		SPECIES	ACCEPTED		Theopropus elegans Westwood, 1832
+853	852		SPECIES	SYNONYM		Theopropus praecontatrix Saussure, 1898
+854	852		SPECIES	SYNONYM		Theopropus flavicans Giglio-Tos, 1927
+855	849		SPECIES	ACCEPTED		Theopropus rubrobrunneus Beier, 1931
+856	531		SUBFAMILY	ACCEPTED		Oxypilinae
+857	856		TRIBE	ACCEPTED		Oxypilini
+858	857		GENUS	ACCEPTED		Ceratomantis Wood-Mason, 1876
+859	858		SPECIES	ACCEPTED		Ceratomantis ghatei Roy & Svenson, 2007
+860	858		SPECIES	ACCEPTED		Ceratomantis gigliotosi Roy, 2007
+861	858		SPECIES	ACCEPTED		Ceratomantis kimberlae Svenson, 2007
+862	858		SPECIES	ACCEPTED		Ceratomantis saussurii Wood-Mason, 1876
+863	858		SPECIES	ACCEPTED		Ceratomantis yunnanensis Zhang, 1986
+864	857		GENUS	ACCEPTED		Junodia Schulthess-Rechberg, 1899
+865	864		GENUS	SYNONYM		Euoxypilus Giglio-Tos, 1915
+866	864		SPECIES	ACCEPTED		Junodia amoena Schulthess-Rechberg, 1899
+867	864		SPECIES	ACCEPTED		Junodia beieri Roy, 1972
+868	864		SPECIES	ACCEPTED		Junodia congica Giglio-Tos, 1915
+869	868		SPECIES	SYNONYM		Junodia maculata Roy, 1972
+870	864		SPECIES	ACCEPTED		Junodia hararensis Roy, 1972
+871	864		SPECIES	ACCEPTED		Junodia lameyi Beier, 1942
+872	871		SPECIES	SYNONYM		Junodia olseni Roy, 1965
+873	864		SPECIES	ACCEPTED		Junodia maternaschulzei Stiewe & Roy, 2010
+874	864		SPECIES	ACCEPTED		Junodia spinosa Roy, 1972
+875	864		SPECIES	ACCEPTED		Junodia stiewei Roy, 2009
+876	864		SPECIES	ACCEPTED		Junodia strigipennis Westwood, 1889
+877	864		SPECIES	ACCEPTED		Junodia vansomereni Roy, 1972
+878	864		SPECIES	ACCEPTED		Junodia vansoni Roy, 2009
+879	857		GENUS	ACCEPTED		Oxypilus Serville, 1831
+880	879		SUBGENUS	ACCEPTED		Oxypilus (Anoxypilus) Giglio-Tos, 1915
+881	880		SUBGENUS	SYNONYM		Oxypilus (Setoxypilus) Roy, 1966
+882	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) burri (Roy, 1969)
+883	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) capensis (Saussure, 1871)
+884	883		SPECIES	SYNONYM		Mantis nasutus (Fabricius, 1787)
+885	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) inscriptus (Beier, 1955)
+886	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) meruensis (Sjostedt, 1909)
+887	886		SPECIES	SYNONYM		Oxypilus (Anoxypilus) nigericus (Beier, 1930)
+888	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) polyacanthus Giglio-Tos, 1915
+889	888		SPECIES	SYNONYM		Oxypilus (Anoxypilus) basilewskyi (Roy, 1966)
+890	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) servillei Roy & Stiewe, 2013
+891	880		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) transvalensis (Giglio-Tos, 1915)
+892	879		SUBGENUS	ACCEPTED		Oxypilus (Oxypilus) Serville, 1831
+893	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) annulatus Serville, 1831
+894	893		SPECIES	SYNONYM		Oxypilus (Oxypilus) distinctus Beier, 1930
+895	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) cherlonneixi Roy, 1999
+896	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) descampsi Roy, 1966
+897	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) enei Roy, 1966
+898	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) falcatus Roy, 1966
+899	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) flavicoxa Roy, 1964
+900	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) gillonae Roy, 1966
+901	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) guentheri Roy, 1966
+902	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) hamatus Roy, 1966
+903	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) lamottei Roy, 1966
+904	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) maculifemur Roy & Stiewe, 2013
+905	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) montanus Roy, 1999
+906	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) pallidus Roy, 1966
+907	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) pierrei Roy & Stiewe, 2013
+908	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) raggei Roy, 1969
+909	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) tanzanicus Roy, 1969
+910	892		SPECIES	ACCEPTED		Oxypilus (Oxypilus) villiersi Roy, 1966
+911	857		GENUS	ACCEPTED		Pachymantis Saussure, 1871
+912	911		GENUS	SYNONYM		Echinomastoharpax Werner, 1916
+913	911		SPECIES	ACCEPTED		Pachymantis bicingulata de Haan, 1842
+914	911		SPECIES	ACCEPTED		Pachymantis maculicoxa Roy, 2013
+915	911		SPECIES	ACCEPTED		Pachymantis piceifemur Roy, 2013
+916	857		GENUS	ACCEPTED		Pseudoxypilus Giglio-Tos, 1915
+917	916		SPECIES	ACCEPTED		Pseudoxypilus hemerobius Stoll, 1788
+918	917		SPECIES	SYNONYM		Pseudoxypilus neuroptera Lichtenstein, 1802
+919	857		GENUS	ACCEPTED		Triaenocorypha Wood-Mason, 1890
+920	919		SPECIES	ACCEPTED		Triaenocorypha dohertyi Wood-Mason, 1890

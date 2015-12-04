@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * https://en.wikipedia.org/wiki/Graph_Modelling_Language
  */
-public class GmlPrinter implements AutoCloseable {
+public class GmlPrinter implements NeoPrinter {
   private static final Logger LOG = LoggerFactory.getLogger(GmlPrinter.class);
   private final Writer writer;
   private final String nameProperty;

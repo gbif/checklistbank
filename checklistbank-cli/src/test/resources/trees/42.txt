@@ -1,0 +1,115 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis
+  Acanthopidae
+  Empusidae
+    Blepharodes Bolivar, 1890
+      *Phlaebarodes Giglio-Tos, 1917
+      Blepharodes candelarius Bolivar, 1890
+        *Blepharis kotschyi (Schulthess, 1894)
+      Blepharodes cornutus (Schulthess, 1894)
+        Blepharodes cornutus subsp. cornutus
+        Blepharodes cornutus subsp. minor Kevan, 1954
+      Blepharodes parumspinosus Beier, 1930
+      Blepharodes sudanensis Werner, 1907
+    Blepharopsis Rehn, 1902
+      *Blepharis Serville, 1831
+      Blepharopsis mendica (Fabricius, 1775)
+        Blepharopsis mendica subsp. mendica
+          *Mantis marmorata subsp. (Olivier, 1792)
+        Blepharopsis mendica subsp. nuda Giglio-Tos, 1917
+    Chopardempusa Paulian, 1958
+      Chopardempusa neglecta (Paulian, 1958)
+    Dilatempusa Roy, 2004
+      Dilatempusa aegyptiaca Giglio-Tos, 1917
+        *Empusa dilaticollis (Lombardo, 1992)
+        *Empusa megalocephala (Gistel, 1856)
+        *Empusa murati (Chopard, 1940)
+    Empusa Illiger, 1798
+      *Ampusa Rambur, 1839
+      *Phantoma Risso, 1826
+      Empusa binotata Serville, 1839
+      Empusa fasciata Brulle, 1832
+      Empusa guttula (Thunberg, 1815)
+        *Empusa dolosa Serville, 1839
+      Empusa hedenborgii Stal, 1871
+        *Empusa hyalina Charpentier, 1835
+        *Empusa pectinicornis Linne, 1767
+      Empusa longicollis Ramme, 1950
+      Empusa pennata (Thunberg, 1815)
+        *Empusa brachyptera Fischer-Waldheim, 1846
+        *Empusa clavata Goeze, 1778
+        *Empusa egena Charpentier, 1841
+        *Empusa europaea Fieber, 1853
+        *Empusa humbertiana Saussure, 1869
+        *Empusa occidentalis Fieber, 1853
+        *Empusa pauperata Fabricius, 1781
+        *Empusa pectinata Drury, 1770
+        *Empusa servillii Saussure, 1872
+        *Empusa spuria Goeze, 1778
+        *Empusa tricornis Goeze, 1778
+        *Empusa unicornis Saussure, 1871
+        *Empusa variabilis Risso, 1826
+      Empusa pennicornis Pallas, 1773
+        Empusa pennicornis subsp. angulata Lindt, 1978
+        Empusa pennicornis subsp. baysunica Lindt, 1978
+        Empusa pennicornis subsp. brevidorsa Lindt, 1977
+        Empusa pennicornis subsp. buharica Lindt, 1977
+        Empusa pennicornis subsp. caputobtusa Lindt, 1979
+        Empusa pennicornis subsp. condarinica Lindt, 1977
+        Empusa pennicornis subsp. copetdagica Lindt, 1977
+        Empusa pennicornis subsp. hodshamuminica Lindt, 1976
+        Empusa pennicornis subsp. iliense Lindt, 1977
+        Empusa pennicornis subsp. lindti Otte, 2004
+          *Empusa pennicornis subsp. orientalis Lindt, 1979
+        Empusa pennicornis subsp. longidorsa Lindt, 1977
+        Empusa pennicornis subsp. longoapicale Lindt, 1979
+        Empusa pennicornis subsp. luppovae Lindt, 1979
+        Empusa pennicornis subsp. mujuncumica Lindt, 1976
+        Empusa pennicornis subsp. pennicornis
+          *Empusa pennicornis subsp. attenuata Werner, 1921
+          *Empusa pennicornis subsp. marginatus Thunberg, 1815
+          *Empusa pennicornis subsp. stolli Saussure, 1871
+          *Mantis pallasiana subsp. (Olivier, 1792)
+        Empusa pennicornis subsp. similis Lindt, 1978
+      Empusa romboidea Lindt, 1976
+        Empusa romboidea subsp. nana Lindt, 1976
+        Empusa romboidea subsp. romboidea
+      Empusa simonyi Krauss, 1902
+      Empusa spinosa Krauss, 1902
+        *Empusa fronticornis Stoll, 1813
+        *Empusa nympha Stoll, 1813
+        *Empusa purpuripennis Serville, 1839
+        *Empusa wahlbergi Stal, 1856
+      Empusa uvarovi Chopard, 1921
+    Gongylus Thunberg, 1815
+      Gongylus gongylodes Linne, 1758
+        *Gongylus flabellicornis Fabricius, 1793
+      Gongylus pauperatus Fabricius, 1793
+      Gongylus trachelophyllus Burmeister, 1838
+    Hemiempusa Saussure & Zehntner, 1895
+      Hemiempusa capensis Burmeister, 1838
+        *Hemiempusa phantasma Rehn, 1949
+    Hypsicorypha Krauss, 1892
+      Hypsicorypha gracilis Burmeister, 1838
+        *Hypsicorypha guichardi La Greca, 1952
+        *Hypsicorypha juliae Krauss, 1892
+        *Hypsicorypha longifrons Saussure, 1870
+    Idolomantis Uvarov, 1940
+      *Idolum Saussure, 1869
+      Idolomantis diabolica (Saussure, 1869)
+        *Idolum diabroticum (Shelford, 1903)
+    Idolomorpha Burmeister, 1838
+      Idolomorpha dentifrons Saussure & Zehntner, 1895
+      Idolomorpha lateralis Burmeister, 1838
+        *Idolomorpha defoliata Serville, 1839
+        *Idolomorpha spinifrons Saussure, 1859
+      Idolomorpha madagascariensis Westwood, 1889
+      Idolomorpha sagitta Sjostedt, 1900
+  Eremiaphilidae

@@ -1,0 +1,386 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis
+  Hymenopodidae
+    Acromantis Saussure, 1870
+      Acromantis australis Saussure, 1871
+      Acromantis dyaka Hebard, 1920
+      Acromantis elegans Lombardo, 1993
+      Acromantis formosana Shiraki, 1911
+      Acromantis gestri Giglio-Tos, 1915
+      Acromantis grandis Beier, 1930
+      Acromantis hesione Stal, 1877
+      Acromantis indica Giglio-Tos, 1915
+      Acromantis insularis Giglio-Tos, 1915
+      Acromantis japonica Westwood, 1889
+      Acromantis lilii Werner, 1922
+        *Acromantis javana Giglio-Tos, 1915
+      Acromantis luzonica Hebard, 1920
+      Acromantis montana Giglio-Tos, 1915
+      Acromantis moultoni Giglio-Tos, 1915
+        *Acromantis westwoodi Giglio-Tos, 1915
+      Acromantis nicobarica Mukherjee, 1995
+      Acromantis oligoneura Haan, 1842
+        *Acromantis formosa Saussure, 1870
+        *Acromantis parvula Westwood, 1889
+      Acromantis palauana Beier, 1972
+      Acromantis philippina Beier, 1966
+      Acromantis satsumensis Matsumura, 1913
+      Acromantis siporana Giglio-Tos, 1915
+    Amphecostephanus Rehn, 1912
+      Amphecostephanus rex Rehn, 1912
+    Anasigerpes Giglio-Tos, 1915
+      *Phylloharpax Werner, 1915
+      Anasigerpes amieti Roy, 1963
+      Anasigerpes bifasciata Giglio-Tos, 1915
+      Anasigerpes centralis Roy, 1966
+      Anasigerpes grilloti Roy, 1978
+      Anasigerpes heydeni Werner, 1908
+        *Anasigerpes alluaudi Chopard, 1914
+        *Anasigerpes crassipes Rehn, 1914
+        *Anasigerpes modesta Giglio-Tos, 1915
+        *Anasigerpes roemeri Werner, 1908
+      Anasigerpes nigripes Roy, 1964
+        *Anasigerpes coxalis Werner, 1915
+        *Anasigerpes punctata Roy, 1966
+      Anasigerpes trifasciata Giglio-Tos, 1915
+      Anasigerpes unifasciata Roy, 1979
+    Anaxarcha Stal, 1877
+      *Anaxandra Kirby, 1904
+      *Parastatilia Werner, 1922
+      Anaxarcha acuta Beier, 1963
+      Anaxarcha graminea Stal, 1877
+        *Anaxarcha grammica Stal, 1877
+      Anaxarcha hyalina Zhang, 1988
+      Anaxarcha intermedia Mukherjee, 1995
+      Anaxarcha limbata Giglio-Tos, 1915
+        *Anaxarcha parallela Werner, 1930
+      Anaxarcha pulchella Werner, 1922
+      Anaxarcha pulchra Werner, 1922
+      Anaxarcha sinensis Beier, 1933
+      Anaxarcha tianmushanensis Zheng, 1985
+      Anaxarcha zhengi Ren & Wang, 1994
+    Anoplosigerpes Werner, 1928
+      Anoplosigerpes tessmanni Werner, 1928
+    Attalia Uvarov, 1936
+      Attalia philbyi Uvarov, 1936
+    Ceratomantis Wood-Mason, 1876
+      Ceratomantis ghatei Roy & Svenson, 2007
+      Ceratomantis gigliotosi Roy, 2007
+      Ceratomantis kimberlae Svenson, 2007
+      Ceratomantis saussurii Wood-Mason, 1876
+      Ceratomantis yunnanensis Zhang, 1986
+    Chlidonoptera Karsch, 1892
+      *Anabomistria Giglio-Tos, 1915
+      *Bomistria Saussure, 1898
+      Chlidonoptera chopardi Roy, 1964
+      Chlidonoptera lestoni Roy & Leston, 1975
+      Chlidonoptera vexillum Karsch, 1892
+        *Chlidonoptera lunata Saussure, 1898
+      Chlidonoptera werneri Giglio-Tos, 1915
+    Chloroharpax Werner, 1908
+      Chloroharpax modesta Gerstaecker, 1883
+        *Chloroharpax ocellifer Werner, 1908
+    Chrysomantis Giglio-Tos, 1915
+      *Uvarovmantis Beier, 1930
+      Chrysomantis cachani Roy, 1964
+      Chrysomantis centralis La Greca & Lombardo, 1987
+      Chrysomantis cervoides La Greca & Lombardo, 1987
+      Chrysomantis congica La Greca & Lombardo, 1987
+      Chrysomantis girardi Gillon & Roy, 1968
+      Chrysomantis royi La Greca & Lombardo, 1987
+      Chrysomantis speciosa Giglio-Tos, 1915
+      Chrysomantis tristis Beier, 1930
+    Citharomantis Rehn, 1909
+      Citharomantis falcata Rehn, 1909
+    Congoharpax Serville, 1839
+      Congoharpax aberrans Roy, 1963
+        *Congoharpax lobipes Chopard, 1954
+      Congoharpax boulardi Roy, 1972
+      Congoharpax brunneri Kirby, 1904
+        *Congoharpax sumatrana Brunner, 1898
+      Congoharpax coiffaiti Roy, 1972
+      Congoharpax judithae Roy, 1972
+    Creobroter Westwood, 1889
+      *Creoboter Burmeister, 1840
+      *Creobotra Saussure, 1869
+      *Creobrotra Saussure, 1898
+      Creobroter apicalis Saussure, 1869
+      Creobroter celebensis Werner, 1931
+        *Creobroter inornatus Sjostedt, 1930
+      Creobroter discifera Serville, 1839
+        *Creobroter lobatus Stal, 1877
+      Creobroter elongata Beier, 1929
+      Creobroter episcopalis Stal, 1877
+      Creobroter fasciatus Werner, 1927
+      Creobroter fuscoareatus Saussure, 1870
+      Creobroter gemmatus Saussure, 1869
+      Creobroter granulicollis Saussure, 1870
+      Creobroter insolitus Beier, 1942
+      Creobroter jiangxiensis Zheng, 1988
+      Creobroter labuanae Hebard, 1920
+      Creobroter laevicollis Saussure, 1870
+      Creobroter medanus Giglio-Tos, 1915
+      Creobroter meleagris Stal, 1877
+      Creobroter nebulosa Zheng, 1988
+      Creobroter pictipennis Wood-Mason, 1878
+      Creobroter signifer Walker, 1859
+      Creobroter sumatranus de Haan, 1842
+      Creobroter urbanus Fabricius, 1775
+      Creobroter vitripennis Beier, 1933
+    Epaphrodita Serville, 1831
+      Epaphrodita lobivertex Lombardo & Perez-Gelabert, 2004
+      Epaphrodita musarum Palisot de Beauvois, 1805
+        *Epaphrodita dentifrons Saussure, 1872
+      Epaphrodita undulata Saussure, 1870
+    Ephestiasula Giglio-Tos, 1915
+      Ephestiasula amoena (Bolivar, 1897)
+      Ephestiasula intermedia Werner, 1930
+      Ephestiasula pictipes (Wood-Mason, 1879)
+      Ephestiasula woodmasoni Mukherjee, Stiewe & Ghorai, 2010
+    Ephippiomantis Werner, 1922
+      Ephippiomantis ophirensis Werner, 1922
+    Galinthias Stal, 1877
+      Galinthias amoena Saussure, 1871
+        *Galinthias hyalina Saussure, 1899
+      $Galinthias meruensis Sjostedt, 1909
+        *Galinthias usambarica Sjostedt, 1909
+        *Oxypilus meruensis (Sjostedt, 1909)
+        *Oxypilus nigericus (Beier, 1930)
+      Galinthias occidentalis Beier, 1930
+    Harpagomantis Kirby, 1899
+      *Australomantis Rehn, 1901
+      *Harpax Serville, 1831
+      Harpagomantis discolor Stal, 1877
+      Harpagomantis nana Lucas, 1849
+      Harpagomantis tricolor Linne, 1758
+        *Harpagomantis cornuta Olivier, 1792
+        *Harpagomantis lobata Fabricius, 1781
+        *Harpagomantis paradoxa Goeze, 1778
+        *Harpagomantis quadricornis Stoll, 1813
+        *Harpagomantis spinocula Serville, 1839
+    Heliomantis Giglio-Tos, 1915
+      *Deiroharpax Werner, 1916
+      *Paraspilota Bolivar, 1913
+      Heliomantis elegans Navas, 1904
+        *Heliomantis viridis Werner, 1916
+      Heliomantis latipennis Werner, 1930
+    Helvia Stal, 1877
+      Helvia cardinalis Stal, 1877
+    Hestiasula Saussure, 1871
+      *Catestiasula Giglio-Tos, 1915
+      *Hestias Saussure, 1872
+      Hestiasula basinigra Zhang, 1992
+      Hestiasula brunneriana Saussure, 1871
+      Hestiasula castetsi Bolivar, 1897
+      Hestiasula ceylonica Beier, 1956
+      Hestiasula gyldenstolpei Werner, 1930
+      Hestiasula hoffmanni Tinkham, 1937
+      Hestiasula inermis Wood-Mason, 1879
+      Hestiasula javana Beier, 1929
+      Hestiasula kastneri Beier, 1942
+      Hestiasula major Beier, 1929
+      Hestiasula masoni Giglio-Tos, 1915
+      Hestiasula moultoni Giglio-Tos, 1915
+      Hestiasula nigrofemorata Werner, 1930
+      Hestiasula nitida Brunner, 1892
+      Hestiasula phyllopus Haan, 1842
+        *Hestiasula sarawaca Westwood, 1889
+      Hestiasula rogenhoferi Saussure, 1872
+      Hestiasula seminigra Zhang, 1992
+      Hestiasula woodi Giglio-Tos, 1915
+      Hestiasula zhejiangensis Zhou & Shen, 1992
+    Hymenopus Serville, 1831
+      *Hymenopa Serville, 1839
+      Hymenopus bicornis Latreille, 1807
+      Hymenopus coronatoides Wang et al., 1994
+      Hymenopus coronatus Olivier, 1792
+    Junodia Schulthess-Rechberg, 1899
+      *Euoxypilus Giglio-Tos, 1915
+      Junodia amoena Schulthess-Rechberg, 1899
+      Junodia beieri Roy, 1972
+      Junodia congica Giglio-Tos, 1915
+        *Junodia maculata Roy, 1972
+      Junodia hararensis Roy, 1972
+      Junodia lameyi Beier, 1942
+        *Junodia olseni Roy, 1965
+      Junodia maternaschulzei Stiewe & Roy, 2010
+      Junodia spinosa Roy, 1972
+      Junodia stiewei Roy, 2009
+      Junodia strigipennis Westwood, 1889
+      Junodia vansomereni Roy, 1972
+      Junodia vansoni Roy, 2009
+    Metacromantis Beier, 1930
+      Metacromantis nigrofemorata Ghate, Thulsi Ra, Maqsood Javed & Roy, 2006
+      Metacromantis oxyops Beier, 1930
+    Odontomantis Saussure, 1871
+      *Antissa Stal, 1871
+      *Euantissa Giglio-Tos, 1927
+      Odontomantis brachyptera Zheng, 1989
+      Odontomantis buhleri Beier, 1952
+      Odontomantis chayuensis Zheng, 1989
+      Odontomantis euphrosyne Stal, 1877
+      Odontomantis foveafrons Zhang, 1985
+      Odontomantis hainana Tinkham, 1937
+      Odontomantis laticollis Beier, 1933
+      Odontomantis longipennis Zheng, 1989
+      Odontomantis micans Saussure, 1871
+      Odontomantis montana Giglio-Tos, 1915
+      Odontomantis monticola Beier, 1933
+      Odontomantis nigrimarginalis Zhang, 1985
+      Odontomantis ornata Werner, 1935
+      Odontomantis parva Giglio-Tos, 1915
+      Odontomantis planiceps Haan, 1842
+        *Odontomantis javana Saussure, 1870
+      Odontomantis pulchra Olivier, 1792
+        *Odontomantis caffraria Lichtenstein, 1802
+        *Odontomantis flavicincta Olivier, 1792
+        *Odontomantis marginalis Stoll, 1813
+      Odontomantis rhyssa Werner, 1930
+      Odontomantis sinensis Giglio-Tos, 1915
+      Odontomantis xizangensis Zheng, 1989
+    Oligomantis Giglio-Tos, 1915
+      Oligomantis hyalina Werner, 1916
+      Oligomantis mentaweiana Giglio-Tos, 1915
+      Oligomantis orientalis Giglio-Tos, 1915
+    Otomantis Bolivar, 1890
+      *Acanthomantis Saussure & Zehntner, 1895
+      Otomantis aurita Saussure & Zehntner, 1895
+      Otomantis capirica Giglio-Tos, 1915
+        *Otomantis xenocentrus Werner, 1915
+      Otomantis casaica Beier, 1934
+      Otomantis rendalli Kirby, 1899
+      Otomantis scutigera Bolivar, 1890
+        *Otomantis africana Saussure & Zehntner, 1895
+    Oxypiloidea Schulthess, 1898
+      *Sigerpes Wood-Mason, 1879
+      Oxypiloidea acuminata (Kevan, 1954)
+      Oxypiloidea angolica Roy, 2013
+      Oxypiloidea brunnerianus (Saussure, 1871)
+      Oxypiloidea carvalhoi Roy, 2013
+      Oxypiloidea centrafricana Roy, 2013
+      Oxypiloidea congicus (Giglio-Tos, 1915)
+      Oxypiloidea dargei Roy, 2013
+      Oxypiloidea denticulata Roy, 2013
+      Oxypiloidea erlangeri (Beier, 1931)
+      Oxypiloidea granulata (Roy, 1965)
+      Oxypiloidea ivoirensis Roy, 2013
+      Oxypiloidea jeanneli (Chopard, 1938)
+      Oxypiloidea lobata (Schulthess-Schindler, 1898)
+      Oxypiloidea maldesi Roy, 2013
+      Oxypiloidea margarethae (Werner, 1912)
+        *Oxypiloidea camerunensis (Giglio-Tos, 1915)
+        *Oxypiloidea niloticus (Giglio-Tos, 1915)
+      Oxypiloidea maroccana Roy, 2013
+      Oxypiloidea mortuifolia (Saussure, 1899)
+      Oxypiloidea murphyi Roy, 2013
+      Oxypiloidea namibiana Roy, 2013
+      Oxypiloidea occidentalis (Wood-Mason, 1879)
+        *Oxypiloidea toganus (Giglio-Tos, 1915)
+      Oxypiloidea orientalis Roy, 2013
+      Oxypiloidea sinuata Roy, 2013
+      Oxypiloidea subcornuta (Westwood, 1889)
+      Oxypiloidea tridens Saussure, 1872
+      Oxypiloidea zernyi (Beier, 1942)
+    Oxypilus Serville, 1831
+      Oxypilus annulatus Serville, 1831
+        *Oxypilus distinctus Beier, 1930
+      Oxypilus burri (Roy, 1969)
+      Oxypilus capensis (Saussure, 1871)
+        *Mantis nasutus (Fabricius, 1787)
+      Oxypilus cherlonneixi Roy, 1999
+      Oxypilus descampsi Roy, 1966
+      Oxypilus enei Roy, 1966
+      Oxypilus falcatus Roy, 1966
+      Oxypilus flavicoxa Roy, 1964
+      Oxypilus gillonae Roy, 1966
+      Oxypilus guentheri Roy, 1966
+      Oxypilus hamatus Roy, 1966
+      Oxypilus inscriptus (Beier, 1955)
+      Oxypilus lamottei Roy, 1966
+      Oxypilus maculifemur Roy & Stiewe, 2013
+      Oxypilus montanus Roy, 1999
+      Oxypilus pallidus Roy, 1966
+      Oxypilus pierrei Roy & Stiewe, 2013
+      Oxypilus polyacanthus Giglio-Tos, 1915
+        *Oxypilus basilewskyi (Roy, 1966)
+      Oxypilus raggei Roy, 1969
+      Oxypilus servillei Roy & Stiewe, 2013
+      Oxypilus tanzanicus Roy, 1969
+      Oxypilus transvalensis (Giglio-Tos, 1915)
+      Oxypilus villiersi Roy, 1966
+    Pachymantis Saussure, 1871
+      *Echinomastoharpax Werner, 1916
+      Pachymantis bicingulata de Haan, 1842
+      Pachymantis maculicoxa Roy, 2013
+      Pachymantis piceifemur Roy, 2013
+    Panurgica Karsch, 1896
+      *Mystipola Saussure, 1898
+      *Propanurgica Giglio-Tos, 1915
+      Panurgica basilewskyi La Greca, 1954
+      Panurgica compressicollis Saussure, 1898
+      Panurgica duplex Karsch, 1896
+      Panurgica feae Griffini, 1907
+      Panurgica fratercula Rehn, 1912
+      Panurgica fusca Giglio-Tos, 1915
+      Panurgica langi Rehn, 1949
+      Panurgica liberiana Rehn, 1912
+      Panurgica mende Rehn, 1949
+      Panurgica rehni La Greca, 1954
+    Parablepharis Saussure, 1870
+      Parablepharis kuhlii de Haan, 1842
+        Parablepharis kuhlii subsp. asiatica Roy, 2008
+        Parablepharis kuhlii subsp. kuhlii
+    Parahestiasula Lombardo, 1995
+      Parahestiasula obscura Lombardo, 1995
+    Parymenopus Wood-Mason, 1890
+      *Parhymenopus Wood-Mason, 1890
+      Parymenopus davisoni Wood-Mason, 1890
+    Phyllocrania Burmeister, 1838
+      Phyllocrania illudens Saussure & Zehntner, 1895
+      Phyllocrania insignis Westwood, 1843
+      Phyllocrania paradoxa Burmeister, 1838
+    Pseudocreobotra Saussure, 1870
+      *Theomantis Giglio-Tos, 1915
+      Pseudocreobotra amarae Rehn, 1901
+      Pseudocreobotra ocellata Beauvois, 1805
+        *Pseudocreobotra ocellaria Drury, 1773
+      Pseudocreobotra wahlbergi Stal, 1871
+    Pseudoharpax Saussure, 1870
+      Pseudoharpax abyssinicus Beier, 1930
+      Pseudoharpax beieri La Greca, 1950
+      Pseudoharpax crenaticollis La Greca, 1954
+      Pseudoharpax dubius La Greca, 1954
+      Pseudoharpax erythraeus Giglio-Tos, 1915
+      Pseudoharpax francoisi Bolivar, 1908
+      $Pseudoharpax nigericus Giglio-Tos, 1915
+        *Oxypiloidea nigericus (Giglio-Tos, 1915)
+      Pseudoharpax parallelus La Greca, 1954
+      Pseudoharpax ugandanus Giglio-Tos, 1915
+        *Pseudoharpax laticollis Beier, 1930
+      Pseudoharpax virescens Serville, 1839
+        Pseudoharpax virescens subsp. centralis La Greca, 1954
+        Pseudoharpax virescens subsp. virescens
+    Pseudoxypilus Giglio-Tos, 1915
+      Pseudoxypilus hemerobius Stoll, 1788
+        *Pseudoxypilus neuroptera Lichtenstein, 1802
+    Psychomantis Giglio-Tos, 1915
+      Psychomantis borneensis Haan, 1842
+      Psychomantis malayensis Beier, 1931
+    Rhomantis Giglio-Tos, 1915
+      Rhomantis moultoni Giglio-Tos, 1915
+    Theopropus Saussure, 1898
+      Theopropus borneensis Beier, 1942
+      Theopropus cattulus Westwood, 1889
+      Theopropus elegans Westwood, 1832
+        *Theopropus flavicans Giglio-Tos, 1927
+        *Theopropus praecontatrix Saussure, 1898
+      Theopropus rubrobrunneus Beier, 1931
+    Triaenocorypha Wood-Mason, 1890
+      Triaenocorypha dohertyi Wood-Mason, 1890

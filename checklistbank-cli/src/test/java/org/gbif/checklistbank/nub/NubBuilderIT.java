@@ -311,6 +311,18 @@ public class NubBuilderIT {
     assertTree("34.txt");
   }
 
+  /**
+   * Testing entire family Hymenopodidae from the Mantodea dataset:
+   * http://dev.gbif.org/issues/browse/POR-2986
+   */
+  @Test
+  public void testIncertaeSedisSynonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(42);
+    build(src);
+
+    assertTree("42.txt");
+  }
+
   @Test
   public void testColAdiantumSynonym() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(8);
@@ -824,7 +836,7 @@ public class NubBuilderIT {
   /**
    * builds a new nub and keeps dao open for further test queries.
    */
-  private void build(NubSourceList src) throws IOException {
+  private void build(NubSourceList src) throws Exception {
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
     nb.run();
     IdGenerator.Metrics metrics = nb.idMetrics();
@@ -853,7 +865,7 @@ public class NubBuilderIT {
     }
   }
 
-  private void rebuild(NubSourceList src) throws IOException {
+  private void rebuild(NubSourceList src) throws Exception {
     IdLookupImpl previousIds = new IdLookupImpl(dao);
     tx.close();
     dao.close();
@@ -1103,9 +1115,8 @@ public class NubBuilderIT {
     assertTrue("There should be more taxa", treeAssert.completed());
   }
 
-  private void printTree() throws IOException {
+  private void printTree() throws Exception {
     Writer writer = new PrintWriter(System.out);
     dao.printTree(writer, GraphFormat.TEXT, true);
-    writer.flush();
   }
 }

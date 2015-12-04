@@ -15,10 +15,12 @@ import org.gbif.checklistbank.cli.show.GraphFormat;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.printer.GmlPrinter;
-import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.printer.NeoPrinter;
+import org.gbif.checklistbank.neo.printer.TabPrinter;
 import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.neo.printer.TreeXmlPrinter;
+import org.gbif.checklistbank.neo.traverse.StartEndHandler;
+import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
@@ -200,12 +202,17 @@ public class UsageDao {
    * Prints the entire neo4j tree out to a print stream, mainly for debugging.
    * Synonyms are marked with a prepended asterisk.
    */
-  public void printTree(Writer writer, GraphFormat format, boolean fullNames) {
-    if (format == GraphFormat.GML) {
-      try (GmlPrinter printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME)){
-        printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
-        printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
+  public void printTree(Writer writer, GraphFormat format, boolean fullNames) throws Exception {
+    if (format == GraphFormat.GML || format == GraphFormat.TAB) {
+      NeoPrinter printer;
+      if (format == GraphFormat.GML) {
+        printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
+      } else {
+        printer = new TabPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
       }
+      printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
+      printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
+      printer.close();
 
     } else {
       StartEndHandler printer;
@@ -219,13 +226,10 @@ public class UsageDao {
       }
       printTree(printer);
     }
+    writer.flush();
   }
 
-  public void printTree(StartEndHandler printer) {
-    TaxonWalker.walkAccepted(getNeo(), null, printer);
-  }
-
-  public void printGml(StartEndHandler printer) {
+  private void printTree(StartEndHandler printer) {
     TaxonWalker.walkAccepted(getNeo(), null, printer);
   }
 

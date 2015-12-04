@@ -1,0 +1,119 @@
+1			ORDER	ACCEPTED		Mantodea
+2	1		FAMILY	ACCEPTED		Acanthopidae
+322	1		FAMILY	ACCEPTED		Empusidae
+323	322		SUBFAMILY	ACCEPTED		Blepharodinae
+324	323		GENUS	ACCEPTED		Blepharodes Bolivar, 1890
+325	324		GENUS	SYNONYM		Phlaebarodes Giglio-Tos, 1917
+326	324		SPECIES	ACCEPTED		Blepharodes candelarius Bolivar, 1890
+327	326		SPECIES	SYNONYM		Blepharis kotschyi (Schulthess, 1894)
+328	324		SPECIES	ACCEPTED		Blepharodes cornutus (Schulthess, 1894)
+329	328		SUBSPECIES	ACCEPTED		Blepharodes cornutus cornutus
+330	328		SUBSPECIES	ACCEPTED		Blepharodes cornutus minor Kevan, 1954
+331	324		SPECIES	ACCEPTED		Blepharodes parumspinosus Beier, 1930
+332	324		SPECIES	ACCEPTED		Blepharodes sudanensis Werner, 1907
+333	323		GENUS	ACCEPTED		Blepharopsis Rehn, 1902
+334	333		GENUS	SYNONYM		Blepharis Serville, 1831
+335	333		SPECIES	ACCEPTED		Blepharopsis mendica (Fabricius, 1775)
+336	335		SUBSPECIES	ACCEPTED		Blepharopsis mendica mendica
+337	336		SUBSPECIES	SYNONYM		Mantis marmorata (Olivier, 1792)
+338	335		SUBSPECIES	ACCEPTED		Blepharopsis mendica nuda Giglio-Tos, 1917
+339	323		GENUS	ACCEPTED		Idolomantis Uvarov, 1940
+340	339		GENUS	SYNONYM		Idolum Saussure, 1869
+341	339		SPECIES	ACCEPTED		Idolomantis diabolica (Saussure, 1869)
+342	341		SPECIES	SYNONYM		Idolum diabroticum (Shelford, 1903)
+343	322		SUBFAMILY	ACCEPTED		Empusinae
+344	343		TRIBE	ACCEPTED		Empusini
+345	344		GENUS	ACCEPTED		Dilatempusa Roy, 2004
+346	345		SPECIES	ACCEPTED		Dilatempusa aegyptiaca Giglio-Tos, 1917
+347	346		SPECIES	SYNONYM		Empusa murati (Chopard, 1940)
+348	346		SPECIES	SYNONYM		Empusa megalocephala (Gistel, 1856)
+349	346		SPECIES	SYNONYM		Empusa dilaticollis (Lombardo, 1992)
+350	344		GENUS	ACCEPTED		Empusa Illiger, 1798
+351	350		GENUS	SYNONYM		Phantoma Risso, 1826
+352	350		GENUS	SYNONYM		Ampusa Rambur, 1839
+353	350		SPECIES	ACCEPTED		Empusa binotata Serville, 1839
+354	350		SPECIES	ACCEPTED		Empusa fasciata Brulle, 1832
+355	350		SPECIES	ACCEPTED		Empusa guttula (Thunberg, 1815)
+356	355		SPECIES	SYNONYM		Empusa dolosa Serville, 1839
+357	350		SPECIES	ACCEPTED		Empusa hedenborgii Stal, 1871
+358	357		SPECIES	SYNONYM		Empusa hyalina Charpentier, 1835
+359	357		SPECIES	SYNONYM		Empusa pectinicornis Linne, 1767
+360	350		SPECIES	ACCEPTED		Empusa longicollis Ramme, 1950
+361	350		SPECIES	ACCEPTED		Empusa pennata (Thunberg, 1815)
+362	361		SPECIES	SYNONYM		Empusa variabilis Risso, 1826
+363	361		SPECIES	SYNONYM		Empusa unicornis Saussure, 1871
+364	361		SPECIES	SYNONYM		Empusa tricornis Goeze, 1778
+365	361		SPECIES	SYNONYM		Empusa spuria Goeze, 1778
+366	361		SPECIES	SYNONYM		Empusa servillii Saussure, 1872
+367	361		SPECIES	SYNONYM		Empusa pauperata Fabricius, 1781
+368	361		SPECIES	SYNONYM		Empusa occidentalis Fieber, 1853
+369	361		SPECIES	SYNONYM		Empusa humbertiana Saussure, 1869
+370	361		SPECIES	SYNONYM		Empusa europaea Fieber, 1853
+371	361		SPECIES	SYNONYM		Empusa egena Charpentier, 1841
+372	361		SPECIES	SYNONYM		Empusa clavata Goeze, 1778
+373	361		SPECIES	SYNONYM		Empusa brachyptera Fischer-Waldheim, 1846
+374	361		SPECIES	SYNONYM		Empusa pectinata Drury, 1770
+375	350		SPECIES	ACCEPTED		Empusa pennicornis Pallas, 1773
+376	375		SUBSPECIES	ACCEPTED		Empusa pennicornis angulata Lindt, 1978
+377	375		SUBSPECIES	ACCEPTED		Empusa pennicornis baysunica Lindt, 1978
+378	375		SUBSPECIES	ACCEPTED		Empusa pennicornis brevidorsa Lindt, 1977
+379	375		SUBSPECIES	ACCEPTED		Empusa pennicornis buharica Lindt, 1977
+380	375		SUBSPECIES	ACCEPTED		Empusa pennicornis caputobtusa Lindt, 1979
+381	375		SUBSPECIES	ACCEPTED		Empusa pennicornis condarinica Lindt, 1977
+382	375		SUBSPECIES	ACCEPTED		Empusa pennicornis copetdagica Lindt, 1977
+383	375		SUBSPECIES	ACCEPTED		Empusa pennicornis hodshamuminica Lindt, 1976
+384	375		SUBSPECIES	ACCEPTED		Empusa pennicornis iliense Lindt, 1977
+385	375		SUBSPECIES	ACCEPTED		Empusa pennicornis lindti Otte, 2004
+386	385		SUBSPECIES	SYNONYM		Empusa pennicornis orientalis Lindt, 1979
+387	375		SUBSPECIES	ACCEPTED		Empusa pennicornis longidorsa Lindt, 1977
+388	375		SUBSPECIES	ACCEPTED		Empusa pennicornis longoapicale Lindt, 1979
+389	375		SUBSPECIES	ACCEPTED		Empusa pennicornis luppovae Lindt, 1979
+390	375		SUBSPECIES	ACCEPTED		Empusa pennicornis mujuncumica Lindt, 1976
+391	375		SUBSPECIES	ACCEPTED		Empusa pennicornis pennicornis
+392	391		SUBSPECIES	SYNONYM		Empusa pennicornis stolli Saussure, 1871
+393	391		SUBSPECIES	SYNONYM		Mantis pallasiana (Olivier, 1792)
+394	391		SUBSPECIES	SYNONYM		Empusa pennicornis marginatus Thunberg, 1815
+395	391		SUBSPECIES	SYNONYM		Empusa pennicornis attenuata Werner, 1921
+396	375		SUBSPECIES	ACCEPTED		Empusa pennicornis similis Lindt, 1978
+397	350		SPECIES	ACCEPTED		Empusa romboidea Lindt, 1976
+398	397		SUBSPECIES	ACCEPTED		Empusa romboidea nana Lindt, 1976
+399	397		SUBSPECIES	ACCEPTED		Empusa romboidea romboidea
+400	350		SPECIES	ACCEPTED		Empusa simonyi Krauss, 1902
+401	350		SPECIES	ACCEPTED		Empusa spinosa Krauss, 1902
+402	401		SPECIES	SYNONYM		Empusa wahlbergi Stal, 1856
+403	401		SPECIES	SYNONYM		Empusa purpuripennis Serville, 1839
+404	401		SPECIES	SYNONYM		Empusa nympha Stoll, 1813
+405	401		SPECIES	SYNONYM		Empusa fronticornis Stoll, 1813
+406	350		SPECIES	ACCEPTED		Empusa uvarovi Chopard, 1921
+407	344		GENUS	ACCEPTED		Gongylus Thunberg, 1815
+408	407		SPECIES	ACCEPTED		Gongylus gongylodes Linne, 1758
+409	408		SPECIES	SYNONYM		Gongylus flabellicornis Fabricius, 1793
+410	407		SPECIES	ACCEPTED		Gongylus pauperatus Fabricius, 1793
+411	407		SPECIES	ACCEPTED		Gongylus trachelophyllus Burmeister, 1838
+412	344		GENUS	ACCEPTED		Hypsicorypha Krauss, 1892
+413	412		SPECIES	ACCEPTED		Hypsicorypha gracilis Burmeister, 1838
+414	413		SPECIES	SYNONYM		Hypsicorypha longifrons Saussure, 1870
+415	413		SPECIES	SYNONYM		Hypsicorypha juliae Krauss, 1892
+416	413		SPECIES	SYNONYM		Hypsicorypha guichardi La Greca, 1952
+417	343		TRIBE	ACCEPTED		Idolomorphini
+418	417		GENUS	ACCEPTED		Chopardempusa Paulian, 1958
+419	418		SPECIES	ACCEPTED		Chopardempusa neglecta (Paulian, 1958)
+420	417		GENUS	ACCEPTED		Hemiempusa Saussure & Zehntner, 1895
+421	420		SPECIES	ACCEPTED		Hemiempusa capensis Burmeister, 1838
+422	421		SPECIES	SYNONYM		Hemiempusa phantasma Rehn, 1949
+423	417		GENUS	ACCEPTED		Idolomorpha Burmeister, 1838
+424	423		SPECIES	ACCEPTED		Idolomorpha dentifrons Saussure & Zehntner, 1895
+425	423		SPECIES	ACCEPTED		Idolomorpha lateralis Burmeister, 1838
+426	425		SPECIES	SYNONYM		Idolomorpha spinifrons Saussure, 1859
+427	425		SPECIES	SYNONYM		Idolomorpha defoliata Serville, 1839
+428	423		SPECIES	ACCEPTED		Idolomorpha madagascariensis Westwood, 1889
+429	423		SPECIES	ACCEPTED		Idolomorpha sagitta Sjostedt, 1900
+430	343		GENUS	ACCEPTED		Incertae sedis
+431	430		GENUS	SYNONYM		Cephalomantis Gistel, 1856
+432	430		SPECIES	ACCEPTED		Incertae sedis
+433	432		SPECIES	SYNONYM		Cephalomantis viridipennis Gistel, 1856
+434	430		SPECIES	ACCEPTED		Incertae sedis
+435	434		SPECIES	SYNONYM		Cephalomantis rustica Gistel, 1856
+436	430		SPECIES	ACCEPTED		Incertae sedis
+437	436		SPECIES	SYNONYM		Cephalomantis gracilis Gistel, 1856
+438	1		FAMILY	ACCEPTED		Eremiaphilidae
