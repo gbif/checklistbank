@@ -202,9 +202,10 @@ public class UsageDao {
    */
   public void printTree(Writer writer, GraphFormat format, boolean fullNames) {
     if (format == GraphFormat.GML) {
-      GmlPrinter printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
-      printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
-      printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
+      try (GmlPrinter printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME)){
+        printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
+        printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
+      }
 
     } else {
       StartEndHandler printer;

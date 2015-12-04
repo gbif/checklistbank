@@ -64,7 +64,11 @@ public class GmlPrinter implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
-    writer.write("]\n");
+  public void close() {
+    try {
+      writer.write("]\n");
+    } catch (IOException e) {
+      Throwables.propagate(e);
+    }
   }
 }
