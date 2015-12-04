@@ -1,9 +1,11 @@
-package org.gbif.checklistbank.neo.traverse;
+package org.gbif.checklistbank.neo.printer;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
+import org.gbif.checklistbank.neo.traverse.StartEndHandler;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 

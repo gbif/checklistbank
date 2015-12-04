@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.show.GraphFormat;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
@@ -14,7 +15,7 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-import org.gbif.checklistbank.neo.traverse.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -1104,7 +1105,7 @@ public class NubBuilderIT {
 
   private void printTree() throws IOException {
     Writer writer = new PrintWriter(System.out);
-    dao.printTree(writer, false);
+    dao.printTree(writer, GraphFormat.TEXT, true);
     writer.flush();
   }
 }

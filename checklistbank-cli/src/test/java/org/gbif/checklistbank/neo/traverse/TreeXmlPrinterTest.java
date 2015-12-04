@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.checklistbank.cli.show.GraphFormat;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
 
@@ -20,7 +21,7 @@ public class TreeXmlPrinterTest {
       UsageDao dao = src.open();
 
       try (Writer writer = new PrintWriter(System.out)) {
-        dao.printTree(writer, true);
+        dao.printTree(writer, GraphFormat.XML, true);
       }
       dao.closeAndDelete();
     }

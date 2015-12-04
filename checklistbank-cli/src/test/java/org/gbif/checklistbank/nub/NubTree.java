@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.checklistbank.neo.traverse.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.BufferedReader;

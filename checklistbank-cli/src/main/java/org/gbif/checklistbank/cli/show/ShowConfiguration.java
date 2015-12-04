@@ -35,10 +35,10 @@ public class ShowConfiguration {
   public File file;
 
   @Valid
-  @Parameter(names = {"--xml"}, required = false)
-  public boolean xml = false;
+  @Parameter(names = {"--format"}, required = false)
+  public GraphFormat format = GraphFormat.TEXT;
 
   @Valid
-  @Parameter(names = {"--canonical"}, required = false)
-  public boolean canonical = false;
+  @Parameter(names = {"--full-names"}, required = false)
+  public boolean fullNames = false;
 }

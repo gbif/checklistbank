@@ -47,7 +47,7 @@
         <appender-ref ref="NUB_FILE" />
     </logger>
 
-    <logger name="org.gbif.checklistbank.neo.traverse.TreePrinter" level="DEBUG" additivity="false">
+    <logger name="org.gbif.checklistbank.neo.printer.TreePrinter" level="DEBUG" additivity="false">
         <appender-ref ref="TREES_FILE" />
     </logger>
 

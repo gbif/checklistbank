@@ -11,12 +11,14 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.cli.show.GraphFormat;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.neo.printer.GmlPrinter;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
-import org.gbif.checklistbank.neo.traverse.TreePrinter;
-import org.gbif.checklistbank.neo.traverse.TreeXmlPrinter;
+import org.gbif.checklistbank.neo.printer.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TreeXmlPrinter;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
@@ -47,6 +49,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,14 +199,32 @@ public class UsageDao {
   /**
    * Prints the entire neo4j tree out to a print stream, mainly for debugging.
    * Synonyms are marked with a prepended asterisk.
-   * @param xml if true print tree as xml file
    */
-  public void printTree(Writer writer, boolean xml) {
-    StartEndHandler printer = xml ? new TreeXmlPrinter(writer) : new TreePrinter(writer);
-    printTree(printer);
+  public void printTree(Writer writer, GraphFormat format, boolean fullNames) {
+    if (format == GraphFormat.GML) {
+      GmlPrinter printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
+      printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
+      printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
+
+    } else {
+      StartEndHandler printer;
+      switch (format) {
+        case XML:
+          printer = new TreeXmlPrinter(writer);
+          break;
+        default:
+          printer = new TreePrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
+          break;
+      }
+      printTree(printer);
+    }
   }
 
   public void printTree(StartEndHandler printer) {
+    TaxonWalker.walkAccepted(getNeo(), null, printer);
+  }
+
+  public void printGml(StartEndHandler printer) {
     TaxonWalker.walkAccepted(getNeo(), null, printer);
   }
 

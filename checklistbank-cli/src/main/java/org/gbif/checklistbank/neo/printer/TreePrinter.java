@@ -1,8 +1,10 @@
-package org.gbif.checklistbank.neo.traverse;
+package org.gbif.checklistbank.neo.printer;
 
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
+import org.gbif.checklistbank.neo.traverse.StartEndHandler;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -13,14 +15,11 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Ordering;
 import org.neo4j.graphdb.Node;
 import org.parboiled.common.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A handler that can be used with the TaxonWalker to print a neo4j taxonomy in a simple nested text structure.
  */
 public class TreePrinter implements StartEndHandler {
-  private static final Logger LOG = LoggerFactory.getLogger(TreePrinter.class);
   public static final String SYNONYM_SYMBOL = "*";
   public static final String BASIONYM_SYMBOL = "$";
   public static final String NULL_NAME = "???";

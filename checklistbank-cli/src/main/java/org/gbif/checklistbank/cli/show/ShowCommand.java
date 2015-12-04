@@ -2,9 +2,7 @@ package org.gbif.checklistbank.cli.show;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.registry.DatasetService;
-import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.TreePrinter;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
@@ -55,11 +53,7 @@ public class ShowCommand extends BaseCommand {
               // show entire tree
               dao.logStats();
               try (Writer writer = new FileWriter(cfg.file)) {
-                if (cfg.canonical) {
-                  dao.printTree(new TreePrinter(writer, NeoProperties.CANONICAL_NAME));
-                } else {
-                  dao.printTree(writer, cfg.xml);
-                }
+                dao.printTree(writer, cfg.format, cfg.fullNames);
               }
             }
           } finally {
