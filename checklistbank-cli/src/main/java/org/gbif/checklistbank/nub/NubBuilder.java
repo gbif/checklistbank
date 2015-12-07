@@ -756,7 +756,7 @@ public class NubBuilder implements Runnable {
    * Removes a taxon if it has no accepted children
    */
   public void removeTaxonIfEmpty(NubUsage u) {
-    if (!u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF)
+    if (u != null && !u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF)
         && !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)) {
       delete(u);
     }
@@ -1011,7 +1011,7 @@ public class NubBuilder implements Runnable {
         tx.success();
 
       } catch (NotFoundException e) {
-        LOG.info("Basionym {} was removed. Ignore node id {}", basCursor.value);
+        LOG.info("Basionym {} was removed. Ignore for consolidation", basCursor.value);
       }
     }
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);

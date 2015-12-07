@@ -417,7 +417,9 @@ public class NubDb {
       parent.node.createRelationshipTo(child, RelType.PARENT_OF);
       // read nub usage to add an issue to the child
       NubUsage cu = dao.readNub(child);
-      Collections.addAll(cu.issues, issues);
+      if (issues != null) {
+        Collections.addAll(cu.issues, issues);
+      }
       if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
         cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
       }
