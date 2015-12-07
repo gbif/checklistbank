@@ -2,11 +2,16 @@ package org.gbif.checklistbank.neo;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializerTest;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.show.GraphFormat;
+import org.gbif.checklistbank.nub.source.ClasspathSource;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.UUID;
 
+import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.assertj.core.util.Preconditions;
@@ -55,7 +60,34 @@ public class UsageDaoTest {
         }
     }
 
-    private void verifyData(boolean expectRels, Node n1, Node n2) throws Exception {
+  @Test
+  public void testTrees() throws Exception {
+    try (ClasspathSource src = new ClasspathSource(8);) {
+      src.init(true, false);
+      dao = src.open();
+
+      Writer writer = new PrintWriter(System.out);
+      for (Rank rank : Rank.LINNEAN_RANKS) {
+        for (GraphFormat format : GraphFormat.values()) {
+          for (int bool = 1; bool>0; bool--) {
+            try (Transaction tx = dao.beginTx()) {
+              writer.write("\n"+org.apache.commons.lang3.StringUtils.repeat("+", 60)+"\n");
+              writer.write("Format="+format+", rank="+rank+", fullNames="+(bool==1)+"\n");
+              writer.write(org.apache.commons.lang3.StringUtils.repeat("+", 80)+"\n");
+              dao.printTree(writer, format, bool==1, rank);
+            } catch (IllegalArgumentException e) {
+              if (format != GraphFormat.GML && format != GraphFormat.TAB) {
+                Throwables.propagate(e);
+              }
+            }
+          }
+        }
+      }
+      writer.flush();
+    }
+  }
+
+  private void verifyData(boolean expectRels, Node n1, Node n2) throws Exception {
         assertEquals(MapDbObjectSerializerTest.usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, false), "Usage 1 missing"));
         assertEquals(MapDbObjectSerializerTest.usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, true), "Usage 1 missing"));
         assertEquals(MapDbObjectSerializerTest.usage(200, Rank.SPECIES), Preconditions.checkNotNull(dao.readUsage(n2, false), "Usage 2 missing"));

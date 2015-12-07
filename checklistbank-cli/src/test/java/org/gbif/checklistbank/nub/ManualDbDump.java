@@ -57,7 +57,7 @@ public class ManualDbDump {
     LOG.info("Dump local neo db {} to {} file {}", datasetKey, format, f.getAbsolutePath());
     UsageDao dao = UsageDao.persistentDao(cfg, datasetKey, true, null, false);
     try (Transaction tx = dao.beginTx()) {
-       dao.printTree(new BufferedWriter(new FileWriter(f)), GraphFormat.TAB, true);
+       dao.printTree(new BufferedWriter(new FileWriter(f)), GraphFormat.TAB, true, null);
     }
     dao.close();
     LOG.info("Neo dumped");

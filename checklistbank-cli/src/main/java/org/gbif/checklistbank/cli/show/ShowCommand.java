@@ -53,7 +53,7 @@ public class ShowCommand extends BaseCommand {
               // show entire tree
               dao.logStats();
               try (Writer writer = new FileWriter(cfg.file)) {
-                dao.printTree(writer, cfg.format, cfg.fullNames);
+                dao.printTree(writer, cfg.format, cfg.fullNames, cfg.lowestRank);
               }
             }
           } finally {

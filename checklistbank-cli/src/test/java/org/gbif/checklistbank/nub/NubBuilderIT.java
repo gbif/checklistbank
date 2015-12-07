@@ -1117,6 +1117,6 @@ public class NubBuilderIT {
 
   private void printTree() throws Exception {
     Writer writer = new PrintWriter(System.out);
-    dao.printTree(writer, GraphFormat.TEXT, true);
+    dao.printTree(writer, GraphFormat.TEXT, true, null);
   }
 }

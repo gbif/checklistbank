@@ -202,13 +202,16 @@ public class UsageDao {
    * Prints the entire neo4j tree out to a print stream, mainly for debugging.
    * Synonyms are marked with a prepended asterisk.
    */
-  public void printTree(Writer writer, GraphFormat format, boolean fullNames) throws Exception {
+  public void printTree(Writer writer, GraphFormat format, boolean fullNames, @Nullable Rank lowestRank) throws Exception {
     if (format == GraphFormat.GML || format == GraphFormat.TAB) {
       NeoPrinter printer;
       if (format == GraphFormat.GML) {
         printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
       } else {
         printer = new TabPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
+      }
+      if (lowestRank != null) {
+        throw new IllegalArgumentException("Rank filter not allowed with "+format+" format");
       }
       printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
       printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
@@ -224,13 +227,13 @@ public class UsageDao {
           printer = new TreePrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
           break;
       }
-      printTree(printer);
+      printTree(printer, lowestRank);
     }
     writer.flush();
   }
 
-  private void printTree(StartEndHandler printer) {
-    TaxonWalker.walkAccepted(getNeo(), null, printer);
+  private void printTree(StartEndHandler printer, @Nullable Rank lowestRank) {
+    TaxonWalker.walkAccepted(getNeo(), null, lowestRank, printer);
   }
 
   /**

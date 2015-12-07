@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.show;
 
 import org.gbif.api.model.Constants;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 
 import java.io.File;
@@ -41,4 +42,8 @@ public class ShowConfiguration {
   @Valid
   @Parameter(names = {"--full-names"}, required = false)
   public boolean fullNames = false;
+
+  @Valid
+  @Parameter(names = {"--lowest-rank"}, required = false)
+  public Rank lowestRank;
 }

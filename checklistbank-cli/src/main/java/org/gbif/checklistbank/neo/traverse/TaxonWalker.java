@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;
 
 import javax.annotation.Nullable;
@@ -27,10 +28,17 @@ public class TaxonWalker {
    * Walks allAccepted nodes in a single transaction
    */
   public static void walkAccepted(GraphDatabaseService db, @Nullable Meter meter, StartEndHandler ... handler) {
+    walkAccepted(db, meter, null, handler);
+  }
+
+  /**
+   * Walks allAccepted nodes in a single transaction
+   */
+  public static void walkAccepted(GraphDatabaseService db, @Nullable Meter meter, @Nullable Rank lowestRank, StartEndHandler ... handler) {
     Path lastPath = null;
     long counter = 0;
     try (Transaction tx = db.beginTx()){
-      for (Path p : TaxonomicPathIterator.allAccepted(db)) {
+      for (Path p : TaxonomicPathIterator.allAccepted(db, lowestRank)) {
         if (counter % reportingSize == 0) {
           LOG.debug("Processed {}. Rate = {}", counter, meter == null ? "unknown" : meter.getMeanRate());
         }
