@@ -528,8 +528,13 @@ public class NubBuilder implements Runnable {
         ku.rank = Rank.KINGDOM;
         ku.status = TaxonomicStatus.ACCEPTED;
         ku.parsedName = new ParsedName();
+        ku.parsedName.setType(NameType.SCIENTIFIC);
         ku.parsedName.setGenusOrAbove(k.scientificName());
-
+        // treat incertae sedis placeholder kingdom different
+        if (k == Kingdom.INCERTAE_SEDIS) {
+          ku.status = TaxonomicStatus.DOUBTFUL;
+          ku.parsedName.setType(NameType.PLACEHOLDER);
+        }
         db.addRoot(ku);
       }
       tx.success();
@@ -618,9 +623,6 @@ public class NubBuilder implements Runnable {
         for (SrcUsage u : batch) {
           // catch errors processing individual records too
           try {
-            if (u.scientificName.startsWith("Cetraria stuppea") || u.scientificName.startsWith("Cetraria muricata")) {
-              LOG.warn("TROUBLE");
-            }
             LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
             sourceUsageCounter++;
             parents.add(u);
@@ -656,10 +658,15 @@ public class NubBuilder implements Runnable {
         Node bas = db.getNode(src2NubKey.get(c.value));
         // find basionym node by sourceKey
         if (n != null && bas != null) {
-          String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
-          String bname = (String) bas.getProperty(NeoProperties.SCIENTIFIC_NAME);
-          if (name.toLowerCase().startsWith("incertae") || bname.toLowerCase().startsWith("incertae")) {
-            LOG.info("TROUBLE {} {}", name, bname);
+          // basionym has not been verified yet, make sure its of rank <= genus and its name type is no placeholder
+          NubUsage basUsage = db.dao.readNub(bas);
+          if (!basUsage.rank.isSpeciesOrBelow()) {
+            LOG.warn("Ignore explicit basionym {} of rank {}", basUsage.parsedName.getScientificName(), basUsage.rank);
+            continue;
+          }
+          if (!basUsage.parsedName.getType().isBackboneType()) {
+            LOG.warn("Ignore explicit basionym {} with name type {}", basUsage.parsedName.getScientificName(), basUsage.parsedName.getType());
+            continue;
           }
           if (!createBasionymRelationIfNotExisting(bas, n)) {
             LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
