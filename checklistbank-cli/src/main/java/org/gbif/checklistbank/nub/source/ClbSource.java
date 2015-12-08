@@ -20,7 +20,7 @@ public class ClbSource extends NubSource {
 
     public ClbSource(ClbConfiguration clb, UUID key, String name) {
         this.key = key;
-        this.name = name;
+        this.name = name.replaceAll("\\s", " ");
         this.clb = clb;
     }
 

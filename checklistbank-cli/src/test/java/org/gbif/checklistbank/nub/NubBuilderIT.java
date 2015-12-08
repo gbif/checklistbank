@@ -104,7 +104,7 @@ public class NubBuilderIT {
   public void testUnknownKingdom() throws Exception {
     build(ClasspathSourceList.source(4));
 
-    NubUsage k = assertCanonical(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    NubUsage k = assertCanonical(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     NubUsage f = assertCanonical("Popeliaceae", Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
     NubUsage g = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, f);
     NubUsage u = assertCanonical("Lepiota nuda", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, g);
