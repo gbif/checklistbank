@@ -4,15 +4,12 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.neo.traverse.TaxonomicOrderExpander;
 
 import java.io.IOException;
 import java.io.Writer;
-import javax.annotation.Nullable;
 
-import com.google.common.base.Function;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Ordering;
 import org.neo4j.graphdb.Node;
 import org.parboiled.common.StringUtils;
 
@@ -22,20 +19,12 @@ import org.parboiled.common.StringUtils;
 public class TreePrinter implements StartEndHandler {
   public static final String SYNONYM_SYMBOL = "*";
   public static final String BASIONYM_SYMBOL = "$";
-  public static final String NULL_NAME = "???";
 
   private static final int indentation = 2;
   private int level = 0;
   private final String nameProperty;
   private final Writer writer;
 
-  public final Ordering<Node> SYNONYM_ORDER = Ordering.natural().onResultOf(new Function<Node, String>() {
-    @Nullable
-    @Override
-    public String apply(@Nullable Node n) {
-      return (String) n.getProperty(nameProperty, NULL_NAME);
-    }
-  });
 
   public TreePrinter(Writer writer, String nameProperty) {
     this.writer = writer;
@@ -50,10 +39,6 @@ public class TreePrinter implements StartEndHandler {
   public void start(Node n) {
     print(n);
     level++;
-    // check for synonyms and sort by name
-    for (Node s : SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
-      print(s);
-    }
   }
 
   @Override
@@ -70,7 +55,7 @@ public class TreePrinter implements StartEndHandler {
       if (n.hasLabel(Labels.BASIONYM)) {
         writer.write(BASIONYM_SYMBOL);
       }
-      writer.write((String)n.getProperty(nameProperty, NULL_NAME));
+      writer.write((String)n.getProperty(nameProperty, TaxonomicOrderExpander.NULL_NAME));
       if (n.hasProperty(NeoProperties.RANK)) {
         writer.write(" [");
         writer.write(Rank.values()[(Integer) n.getProperty(NeoProperties.RANK)].name().toLowerCase());

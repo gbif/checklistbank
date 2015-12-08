@@ -15,7 +15,6 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.TaxonWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -1088,14 +1087,6 @@ public class NubBuilderIT {
       String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
       assertEquals(expected.name, name);
       assertEquals(expected.basionym, n.hasLabel(Labels.BASIONYM));
-
-      // check for synonyms and sort by name
-      for (Node s : new TreePrinter(null, NeoProperties.SCIENTIFIC_NAME).SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
-        expected = treeIter.next();
-        name = (String) s.getProperty(NeoProperties.SCIENTIFIC_NAME);
-        assertEquals(expected.name, name);
-        assertEquals(expected.basionym, s.hasLabel(Labels.BASIONYM));
-      }
     }
 
     @Override

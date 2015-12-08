@@ -29,6 +29,10 @@ public class TaxonWalker {
   private static final Logger LOG = LoggerFactory.getLogger(TaxonWalker.class);
   private static final int reportingSize = 10000;
 
+  public static void walkTree(GraphDatabaseService db, StartEndHandler ... handler) {
+    walkTree(db, null, null, null, handler);
+  }
+
   /**
    * Walks all nodes in a taxonomic tree order in a single transaction
    * @param root if given starts to walk the subtree including the given node

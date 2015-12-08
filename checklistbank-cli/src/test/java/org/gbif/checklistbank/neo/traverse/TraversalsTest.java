@@ -33,7 +33,7 @@ public class TraversalsTest {
   @Before
   public void init() throws IOException {
     dbf = Files.newTemporaryFolder();
-    db = new GraphDatabaseFactory().newEmbeddedDatabase(dbf.getAbsolutePath());
+    db = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(dbf).newGraphDatabase();
   }
 
   @After

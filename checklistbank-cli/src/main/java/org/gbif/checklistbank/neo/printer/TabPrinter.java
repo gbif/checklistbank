@@ -6,6 +6,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
+import org.gbif.checklistbank.neo.traverse.TaxonomicOrderExpander;
 import org.gbif.io.TabWriter;
 
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class TabPrinter implements StartEndHandler, AutoCloseable {
         row[3] = Rank.values()[(Integer) n.getProperty(NeoProperties.RANK)].name();
       }
       row[4] = n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name();
-      row[6] = (String) n.getProperty(nameProperty, TreePrinter.NULL_NAME);
+      row[6] = (String) n.getProperty(nameProperty, TaxonomicOrderExpander.NULL_NAME);
       writer.write(row);
     } catch (IOException e) {
       Throwables.propagate(e);
