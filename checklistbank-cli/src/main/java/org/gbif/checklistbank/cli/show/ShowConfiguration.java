@@ -28,8 +28,12 @@ public class ShowConfiguration {
   public UUID key = Constants.NUB_DATASET_KEY;
 
   @Valid
-  @Parameter(names = {"--usage-key"}, required = false)
-  public Long usageKey;
+  @Parameter(names = {"--root-id"}, required = false)
+  public Long rootId;
+
+  @Valid
+  @Parameter(names = {"--root-name"}, required = false)
+  public String rootName;
 
   @Valid
   @Parameter(names = {"-f", "--file"}, required = false)

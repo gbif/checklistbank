@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.show;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.cli.BaseCommand;
@@ -9,22 +8,18 @@ import org.gbif.cli.Command;
 
 import java.io.FileWriter;
 import java.io.Writer;
+import java.util.Collection;
 
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
  */
 @MetaInfServices(Command.class)
 public class ShowCommand extends BaseCommand {
-    private static final Logger LOG = LoggerFactory.getLogger(ShowCommand.class);
-    private static final String DWCA_SUFFIX = ".dwca";
     private final ShowConfiguration cfg = new ShowConfiguration();
-    private DatasetService datasetService;
 
     public ShowCommand() {
         super("show");
@@ -39,22 +34,39 @@ public class ShowCommand extends BaseCommand {
     protected void doRun() {
         try {
           UsageDao dao = UsageDao.persistentDao(cfg.neo, cfg.key, true, null, false);
+          Node root = null;
           try (Transaction tx = dao.beginTx()) {
-            if (cfg.usageKey != null) {
-              Node n = dao.getNeo().getNodeById(cfg.usageKey);
+            if (cfg.rootId != null || cfg.rootName != null) {
+              if (cfg.rootId != null) {
+                System.out.println("Show root node " + cfg.rootId);
+                root = dao.getNeo().getNodeById(cfg.rootId);
+              } else {
+                System.out.println("Show root node " + cfg.rootName);
+                Collection<Node> rootNodes = dao.findByName(cfg.rootName);
+                if (rootNodes.isEmpty()) {
+                  System.out.println("No root found");
+                  return;
+                } else if (rootNodes.size() > 1) {
+                  System.out.println("Multiple root nodes found. Please select one by its id:");
+                  for (Node n : rootNodes) {
+                    System.out.println("NUB: " + dao.readNub(n).toStringComplete());
+                  }
+                  return;
+                }
+                root = rootNodes.iterator().next();
+              }
 
-              NubUsage nub = dao.readNub(n);
+              NubUsage nub = dao.readNub(root);
               System.out.println("NUB: " + nub.toStringComplete());
 
-              NameUsage u = dao.readUsage(n, true);
+              NameUsage u = dao.readUsage(root, true);
               System.out.println("USAGE: " + u);
+            }
 
-            } else {
-              // show entire tree
-              dao.logStats();
-              try (Writer writer = new FileWriter(cfg.file)) {
-                dao.printTree(writer, cfg.format, cfg.fullNames, cfg.lowestRank);
-              }
+            // show tree
+            dao.logStats();
+            try (Writer writer = new FileWriter(cfg.file)) {
+              dao.printTree(writer, cfg.format, cfg.fullNames, cfg.lowestRank, root);
             }
           } finally {
             dao.close();

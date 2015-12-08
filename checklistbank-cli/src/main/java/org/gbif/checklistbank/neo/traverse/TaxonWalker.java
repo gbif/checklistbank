@@ -1,10 +1,13 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 
+import java.util.List;
 import javax.annotation.Nullable;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
@@ -13,6 +16,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,20 +30,49 @@ public class TaxonWalker {
   private static final int reportingSize = 10000;
 
   /**
-   * Walks allAccepted nodes in a single transaction
+   * Walks all nodes in a taxonomic tree order in a single transaction
+   * @param root if given starts to walk the subtree including the given node
    */
-  public static void walkAccepted(GraphDatabaseService db, @Nullable Meter meter, StartEndHandler ... handler) {
-    walkAccepted(db, meter, null, handler);
+  public static void walkTree(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
+    try (Transaction tx = db.beginTx()){
+      walkTree(MultiRootPathIterator.create(findRoot(db, root), filterRank(Traversals.TREE, lowestRank)), meter, handler);
+    }
   }
 
   /**
    * Walks allAccepted nodes in a single transaction
    */
-  public static void walkAccepted(GraphDatabaseService db, @Nullable Meter meter, @Nullable Rank lowestRank, StartEndHandler ... handler) {
+  public static void walkAcceptedTree(GraphDatabaseService db, StartEndHandler ... handler) {
+    walkAcceptedTree(db, null, null, null, handler);
+  }
+
+  /**
+   * Walks allAccepted nodes in a single transaction
+   */
+  public static void walkAcceptedTree(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
+    try (Transaction tx = db.beginTx()){
+      walkTree(MultiRootPathIterator.create(findRoot(db, root), filterRank(Traversals.ACCEPTED_TREE, lowestRank)), meter, handler);
+    }
+  }
+
+  private static List<Node> findRoot(GraphDatabaseService db, @Nullable Node root) {
+    if (root != null) {
+      return Lists.newArrayList(root);
+    }
+    return IteratorUtil.asList(db.findNodes(Labels.ROOT));
+  }
+
+  private static TraversalDescription filterRank(TraversalDescription td, @Nullable Rank lowestRank) {
+    if (lowestRank != null) {
+      return td.evaluator(new RankEvaluator(lowestRank));
+    }
+    return td;
+  }
+
+  private static void walkTree(Iterable<Path> paths, @Nullable Meter meter, StartEndHandler ... handler) {
     Path lastPath = null;
     long counter = 0;
-    try (Transaction tx = db.beginTx()){
-      for (Path p : TaxonomicPathIterator.allAccepted(db, lowestRank)) {
+      for (Path p : paths) {
         if (counter % reportingSize == 0) {
           LOG.debug("Processed {}. Rate = {}", counter, meter == null ? "unknown" : meter.getMeanRate());
         }
@@ -77,7 +111,6 @@ public class TaxonWalker {
           handleEnd(n, handler);
         }
       }
-    }
   }
 
   private static void handleStart(Node n, StartEndHandler ... handler) {

@@ -74,7 +74,7 @@ public class UsageDaoTest {
               writer.write("\n"+org.apache.commons.lang3.StringUtils.repeat("+", 60)+"\n");
               writer.write("Format="+format+", rank="+rank+", fullNames="+(bool==1)+"\n");
               writer.write(org.apache.commons.lang3.StringUtils.repeat("+", 80)+"\n");
-              dao.printTree(writer, format, bool==1, rank);
+              dao.printTree(writer, format, bool==1, rank, null);
             } catch (IllegalArgumentException e) {
               if (format != GraphFormat.GML && format != GraphFormat.TAB) {
                 Throwables.propagate(e);

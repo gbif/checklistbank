@@ -48,7 +48,7 @@ public class UsageMetricsHandlerTest extends BaseTest {
     }
 
     UsageMetricsHandler handler = new UsageMetricsHandler(dao);
-    TaxonWalker.walkAccepted(dao.getNeo(), null, handler);
+    TaxonWalker.walkAcceptedTree(dao.getNeo(), handler);
 
     NormalizerStats stats = handler.getStats(1, Lists.<String>newArrayList());
     System.out.println(stats);

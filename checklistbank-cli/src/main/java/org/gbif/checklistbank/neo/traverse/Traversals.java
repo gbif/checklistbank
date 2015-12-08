@@ -11,65 +11,73 @@ import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
  * Various reusable traversal descriptions for taxonomic neo dbs.
  */
 public class Traversals {
-    public static final TraversalDescription PARENT = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.PARENT_OF, Direction.INCOMING)
-            .depthFirst()
-            .evaluator(Evaluators.toDepth(1))
-            .evaluator(Evaluators.excludeStartPosition());
+  public static final TraversalDescription PARENT = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.INCOMING)
+      .depthFirst()
+      .evaluator(Evaluators.toDepth(1))
+      .evaluator(Evaluators.excludeStartPosition());
 
-    public static final TraversalDescription PARENTS = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.PARENT_OF, Direction.INCOMING)
-            .depthFirst()
-            .evaluator(Evaluators.excludeStartPosition());
+  public static final TraversalDescription PARENTS = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.INCOMING)
+      .depthFirst()
+      .evaluator(Evaluators.excludeStartPosition());
 
-    public static final TraversalDescription CHILDREN = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.PARENT_OF, Direction.OUTGOING)
-            .breadthFirst()
-            .evaluator(Evaluators.toDepth(1))
-            .evaluator(Evaluators.excludeStartPosition());
+  public static final TraversalDescription CHILDREN = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
+      .breadthFirst()
+      .evaluator(Evaluators.toDepth(1))
+      .evaluator(Evaluators.excludeStartPosition());
 
-    /**
-     * Traversal that iterates depth first over all descendants including synonyms.
-     */
-    public static final TraversalDescription DESCENDANTS = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.PARENT_OF, Direction.OUTGOING)
-            .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
-            .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
-            .depthFirst()
-            .evaluator(Evaluators.excludeStartPosition());
+  /**
+   * Traversal that iterates depth first over all descendants including synonyms.
+   */
+  public static final TraversalDescription DESCENDANTS = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
+      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
+      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
+      .depthFirst()
+      .evaluator(Evaluators.excludeStartPosition());
 
-    public static final TraversalDescription SYNONYMS = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
-            .breadthFirst()
-            .evaluator(Evaluators.toDepth(1))
-            .evaluator(Evaluators.excludeStartPosition());
+  public static final TraversalDescription SYNONYMS = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
+      .breadthFirst()
+      .evaluator(Evaluators.toDepth(1))
+      .evaluator(Evaluators.excludeStartPosition());
 
-    public static final TraversalDescription ACCEPTED = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
-            .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)
-            .breadthFirst()
-            .evaluator(Evaluators.toDepth(1))
-            .evaluator(Evaluators.excludeStartPosition());
+  public static final TraversalDescription ACCEPTED = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
+      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)
+      .breadthFirst()
+      .evaluator(Evaluators.toDepth(1))
+      .evaluator(Evaluators.excludeStartPosition());
 
-    /**
-     * Finds all nodes connected via a basionym_of relation regardless of the direction.
-     */
-    public static final TraversalDescription BASIONYM_GROUP = new MonoDirectionalTraversalDescription()
-            .relationships(RelType.BASIONYM_OF)
-            .breadthFirst();
+  /**
+   * Finds all nodes connected via a basionym_of relation regardless of the direction.
+   */
+  public static final TraversalDescription BASIONYM_GROUP = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.BASIONYM_OF)
+      .breadthFirst();
 
-    /**
-     * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.
-     * The traversal includes the initial starting node!
-     */
-    public static final TraversalDescription ACCEPTED_DESCENDANTS = new MonoDirectionalTraversalDescription()
-            .depthFirst()
-            .expand(new TaxonomicOrderExpander())
-            .evaluator(new AcceptedOnlyEvaluator());
+  /**
+   * Traversal that iterates over all child taxa and their synonyms in taxonomic order, i.e. by rank and secondary ordered by the name.
+   * The traversal includes the initial starting node!
+   */
+  public static final TraversalDescription TREE = new MonoDirectionalTraversalDescription()
+      .depthFirst()
+      .expand(TaxonomicOrderExpander.TREE_WITH_SYNONYMS_EXPANDER);
 
-    /**
-     * Traversal that extends ACCEPTED_DESCENDANTS to mark appropriate points in the graph to start concurrent processing.
-     */
-    public static final TraversalDescription ACCEPTED_DESCENDANTS_AND_MARK_CHUNKS = ACCEPTED_DESCENDANTS
-            .evaluator(new ChunkingEvaluator());
+  /**
+   * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.
+   * The traversal includes the initial starting node!
+   */
+  public static final TraversalDescription ACCEPTED_TREE = new MonoDirectionalTraversalDescription()
+      .depthFirst()
+      .expand(TaxonomicOrderExpander.TREE_EXPANDER)
+      .evaluator(new AcceptedOnlyEvaluator());
+
+  /**
+   * Traversal that extends ACCEPTED_TREE to mark appropriate points in the graph to start concurrent processing.
+   */
+  public static final TraversalDescription ACCEPTED_TREE_AND_MARK_CHUNKS = ACCEPTED_TREE
+      .evaluator(new ChunkingEvaluator());
 }

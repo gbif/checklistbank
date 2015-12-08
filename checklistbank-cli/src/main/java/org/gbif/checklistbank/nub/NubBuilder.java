@@ -202,7 +202,7 @@ public class NubBuilder implements Runnable {
       try (Transaction tx = db.beginTx()) {
         LOG.info("Start flagging doubtful duplicate names in {}", k);
         NubUsage ku = db.getKingdom(k);
-        markDuplicatesRedundant(Traversals.ACCEPTED_DESCENDANTS.traverse(ku.node).nodes().iterator());
+        markDuplicatesRedundant(Traversals.ACCEPTED_TREE.traverse(ku.node).nodes().iterator());
         tx.success();
       }
     }
@@ -220,7 +220,7 @@ public class NubBuilder implements Runnable {
         if (gYear != null) {
           // all accepted included taxa should have been described after the genus
           // flag the ones that have an earlier publication date!
-          for (Node n : Traversals.ACCEPTED_DESCENDANTS.traverse(gn).nodes()) {
+          for (Node n : Traversals.ACCEPTED_TREE.traverse(gn).nodes()) {
             NubUsage u = db.dao.readNub(n);
             Integer year = u.parsedName.getYearInt();
             if (year != null && year < gYear) {
@@ -1105,7 +1105,7 @@ public class NubBuilder implements Runnable {
     LOG.info("Walk all accepted taxa and build usage metrics");
     UsageMetricsHandler metricsHandler = new UsageMetricsHandler(dao);
     // TaxonWalker deals with transactions
-    TaxonWalker.walkAccepted(dao.getNeo(), null, metricsHandler);
+    TaxonWalker.walkAcceptedTree(dao.getNeo(), metricsHandler);
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }

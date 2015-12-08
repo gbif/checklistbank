@@ -102,7 +102,7 @@ public class TaxonomicNodeIterator implements AutoCloseable, Iterator<Node> {
 
   ResourceIterator<Path> getDescendants(Node root) {
     LOG.debug("Traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
-    return Traversals.ACCEPTED_DESCENDANTS.traverse(root).iterator();
+    return Traversals.ACCEPTED_TREE.traverse(root).iterator();
   }
 
   @Override

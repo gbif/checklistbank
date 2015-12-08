@@ -7,24 +7,24 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * depth first, rank then scientific name order based branching.
  */
 public class TaxonomicOrderExpander implements PathExpander {
+  public final static TaxonomicOrderExpander TREE_EXPANDER = new TaxonomicOrderExpander(false);
+  public final static TaxonomicOrderExpander TREE_WITH_SYNONYMS_EXPANDER = new TaxonomicOrderExpander(true);
 
-  private static final Logger LOG = LoggerFactory.getLogger(TaxonomicOrderExpander.class);
-  private final Ordering<Relationship> TAX_ORDER = Ordering.natural().onResultOf(new Function<Relationship, Integer>() {
+  private final boolean inclSynonyms;
+
+  private static final Ordering<Relationship> TAX_ORDER = Ordering.natural().onResultOf(new Function<Relationship, Integer>() {
     @Nullable
     @Override
     public Integer apply(Relationship rel) {
@@ -38,14 +38,24 @@ public class TaxonomicOrderExpander implements PathExpander {
                 }
               }));
 
+  private TaxonomicOrderExpander(boolean inclSynonyms) {
+    this.inclSynonyms = inclSynonyms;
+  }
+
   @Override
   public Iterable<Relationship> expand(Path path, BranchState state) {
+    List<Relationship> children = TAX_ORDER.sortedCopy(path.endNode().getRelationships(RelType.PARENT_OF, Direction.OUTGOING));
 
-    List<Relationship> children = Lists.newArrayList(
-      IteratorUtil.asCollection(path.endNode().getRelationships(RelType.PARENT_OF, Direction.OUTGOING))
-    );
+    if (inclSynonyms) {
+      return Iterables.concat(
+          path.endNode().getRelationships(RelType.SYNONYM_OF, Direction.INCOMING),
+          path.endNode().getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING),
+          children
+      );
 
-    return TAX_ORDER.sortedCopy(children);
+    } else {
+      return children;
+    }
   }
 
   @Override

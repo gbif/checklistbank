@@ -1111,12 +1111,12 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
-    TaxonWalker.walkAccepted(dao.getNeo(), null, treeAssert);
+    TaxonWalker.walkAcceptedTree(dao.getNeo(), treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
   }
 
   private void printTree() throws Exception {
     Writer writer = new PrintWriter(System.out);
-    dao.printTree(writer, GraphFormat.TEXT, true, null);
+    dao.printTree(writer, GraphFormat.TEXT);
   }
 }

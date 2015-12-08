@@ -472,7 +472,7 @@ public class Normalizer extends ImportDb implements Runnable {
         LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
         metricsHandler = new UsageMetricsHandler(dao);
         matchHandler = new NubMatchHandler(lookup, dao);
-        TaxonWalker.walkAccepted(dao.getNeo(), metricsMeter, metricsHandler, matchHandler);
+        TaxonWalker.walkAcceptedTree(dao.getNeo(), null, null, metricsMeter, metricsHandler, matchHandler);
         LOG.info("Walked all accepted taxa and built metrics");
     }
 

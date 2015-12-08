@@ -15,7 +15,6 @@ import org.gbif.checklistbank.cli.show.GraphFormat;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.printer.GmlPrinter;
-import org.gbif.checklistbank.neo.printer.NeoPrinter;
 import org.gbif.checklistbank.neo.printer.TabPrinter;
 import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.neo.printer.TreeXmlPrinter;
@@ -27,6 +26,7 @@ import org.gbif.checklistbank.utils.CleanupUtils;
 
 import java.io.File;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -51,7 +51,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -202,38 +201,40 @@ public class UsageDao {
    * Prints the entire neo4j tree out to a print stream, mainly for debugging.
    * Synonyms are marked with a prepended asterisk.
    */
-  public void printTree(Writer writer, GraphFormat format, boolean fullNames, @Nullable Rank lowestRank) throws Exception {
-    if (format == GraphFormat.GML || format == GraphFormat.TAB) {
-      NeoPrinter printer;
-      if (format == GraphFormat.GML) {
-        printer = new GmlPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
-      } else {
-        printer = new TabPrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
-      }
-      if (lowestRank != null) {
-        throw new IllegalArgumentException("Rank filter not allowed with "+format+" format");
-      }
-      printer.printNodes(GlobalGraphOperations.at(getNeo()).getAllNodes());
-      printer.printEdges(GlobalGraphOperations.at(getNeo()).getAllRelationships());
-      printer.close();
+  public void printTree(Writer writer, GraphFormat format) throws Exception {
+    printTree(writer, format, true, null, null);
+  }
 
-    } else {
-      StartEndHandler printer;
-      switch (format) {
-        case XML:
-          printer = new TreeXmlPrinter(writer);
-          break;
-        default:
-          printer = new TreePrinter(writer, fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME);
-          break;
-      }
-      printTree(printer, lowestRank);
+  /**
+   * Prints the entire neo4j tree out to a print stream, mainly for debugging.
+   * Synonyms are marked with a prepended asterisk.
+   */
+  public void printTree(Writer writer, GraphFormat format, boolean fullNames, @Nullable Rank lowestRank, @Nullable Node root) throws Exception {
+    StartEndHandler printer;
+    final String nameProperty = fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME;
+    switch (format) {
+      case XML:
+        printer = new TreeXmlPrinter(writer);
+        break;
+
+      case GML:
+        printer = new GmlPrinter(writer, nameProperty);
+        break;
+
+      case TAB:
+        printer = new TabPrinter(writer, nameProperty);
+        break;
+
+      default:
+        printer = new TreePrinter(writer, nameProperty);
+        break;
     }
+    printTree(printer, lowestRank, root);
     writer.flush();
   }
 
-  private void printTree(StartEndHandler printer, @Nullable Rank lowestRank) {
-    TaxonWalker.walkAccepted(getNeo(), null, lowestRank, printer);
+  private void printTree(StartEndHandler printer, @Nullable Rank lowestRank, @Nullable Node root) {
+    TaxonWalker.walkTree(getNeo(), root, lowestRank, null, printer);
   }
 
   /**
@@ -289,6 +290,14 @@ public class UsageDao {
 
   public Transaction beginTx() {
     return neo.beginTx();
+  }
+
+  /**
+   * Finds nodes by their canonical name property.
+   * Be careful when using this method on large graphs without a schema indexing the canonical name property!
+   */
+  public Collection<Node> findByName(String canonicalName){
+    return IteratorUtil.asCollection(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
   }
 
   /**

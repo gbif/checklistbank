@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Node iterator that traverses all nodes in a taxonomic parent-child order starting from the top root nodes.
- * It stops when the tree is sufficiently broad, see {@link Traversals#ACCEPTED_DESCENDANTS_AND_MARK_CHUNKS}.
+ * It stops when the tree is sufficiently broad, see {@link Traversals#ACCEPTED_TREE_AND_MARK_CHUNKS}.
  */
 public class ChunkingTaxonomicNodeIterator extends TaxonomicNodeIterator {
 
@@ -25,6 +25,6 @@ public class ChunkingTaxonomicNodeIterator extends TaxonomicNodeIterator {
   @Override
   ResourceIterator<Path> getDescendants(Node root) {
     LOG.debug("Chunk-traverse a new root taxon: {}", root.getProperty(DwcTerm.scientificName.simpleName(), null));
-    return Traversals.ACCEPTED_DESCENDANTS_AND_MARK_CHUNKS.traverse(root).iterator();
+    return Traversals.ACCEPTED_TREE_AND_MARK_CHUNKS.traverse(root).iterator();
   }
 }
