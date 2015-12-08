@@ -28,11 +28,11 @@ public class ShowConfiguration {
   public UUID key = Constants.NUB_DATASET_KEY;
 
   @Valid
-  @Parameter(names = {"--root-id"}, required = false)
+  @Parameter(names = {"--id", "--root-id"}, required = false)
   public Long rootId;
 
   @Valid
-  @Parameter(names = {"--root-name"}, required = false)
+  @Parameter(names = {"-n", "--name", "--root-name"}, required = false)
   public String rootName;
 
   @Valid
@@ -44,10 +44,10 @@ public class ShowConfiguration {
   public GraphFormat format = GraphFormat.TEXT;
 
   @Valid
-  @Parameter(names = {"--full-names"}, required = false)
+  @Parameter(names = {"-fn", "--full-names"}, required = false)
   public boolean fullNames = false;
 
   @Valid
-  @Parameter(names = {"--lowest-rank"}, required = false)
+  @Parameter(names = {"-r", "--lowest-rank"}, required = false)
   public Rank lowestRank;
 }
