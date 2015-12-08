@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.show;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.cli.BaseCommand;
@@ -49,7 +50,7 @@ public class ShowCommand extends BaseCommand {
                 } else if (rootNodes.size() > 1) {
                   System.out.println("Multiple root nodes found. Please select one by its id:");
                   for (Node n : rootNodes) {
-                    System.out.println("NUB: " + dao.readNub(n).toStringComplete());
+                    System.out.println(n.getId() + ": " + n.getProperty(NeoProperties.SCIENTIFIC_NAME, "???"));
                   }
                   return;
                 }
@@ -57,7 +58,7 @@ public class ShowCommand extends BaseCommand {
               }
 
               NubUsage nub = dao.readNub(root);
-              System.out.println("NUB: " + nub.toStringComplete());
+              System.out.println("NUB: " + (nub == null ? "null" : nub.toStringComplete()));
 
               NameUsage u = dao.readUsage(root, true);
               System.out.println("USAGE: " + u);
