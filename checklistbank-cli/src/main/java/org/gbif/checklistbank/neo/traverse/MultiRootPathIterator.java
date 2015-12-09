@@ -4,8 +4,10 @@ import org.gbif.checklistbank.neo.NeoProperties;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.ResourceIterator;
@@ -21,16 +23,19 @@ public class MultiRootPathIterator implements AutoCloseable, Iterator<Path> {
   private static final Logger LOG = LoggerFactory.getLogger(MultiRootPathIterator.class);
 
   private final TraversalDescription td;
-  private final List<Node> roots;
+  private final LinkedList<Node> roots;
   private ResourceIterator<Path> rootPaths;
   private final String debugProperty;
+  private Path next;
 
   private MultiRootPathIterator(List<Node> roots, TraversalDescription td, String debugProperty) {
     this.td = td;
     this.debugProperty = debugProperty;
     Collections.sort(roots, new TaxonOrder());
-    this.roots = roots;
+    this.roots = Lists.newLinkedList();
+    this.roots.addAll(roots);
     LOG.debug("Found {} root nodes to iterate over", roots.size());
+    prefetch();
   }
 
   public static Iterable<Path> create(final List<Node> roots, final TraversalDescription td, final String debugProperty) {
@@ -48,22 +53,31 @@ public class MultiRootPathIterator implements AutoCloseable, Iterator<Path> {
 
   @Override
   public boolean hasNext() {
-    return (rootPaths != null && rootPaths.hasNext()) || !roots.isEmpty();
+    return next != null;
   }
 
   @Override
   public Path next() {
-    if (rootPaths == null || !rootPaths.hasNext()) {
+    Path p = next;
+    prefetch();
+    return p;
+  }
+
+  public void prefetch() {
+    while ((rootPaths == null || !rootPaths.hasNext()) && !roots.isEmpty()) {
       // close as quickly as we can
       if (rootPaths != null) {
         rootPaths.close();
       }
-      Node root = roots.remove(0);
+      Node root = roots.removeFirst();
       LOG.debug("Traverse a new root taxon: {}", root.getProperty(debugProperty, null));
-
       rootPaths = td.traverse(root).iterator();
     }
-    return rootPaths.next();
+    if (rootPaths != null && rootPaths.hasNext()) {
+      next = rootPaths.next();
+    } else {
+      next = null;
+    }
   }
 
   @Override

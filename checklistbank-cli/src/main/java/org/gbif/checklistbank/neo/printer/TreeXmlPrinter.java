@@ -5,20 +5,16 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
-import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
-import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Ordering;
 import com.google.common.xml.XmlEscapers;
 import org.neo4j.graphdb.Node;
 import org.parboiled.common.StringUtils;
@@ -31,14 +27,6 @@ public class TreeXmlPrinter implements StartEndHandler {
   private final NameParser parser;
   private LinkedList<String> parents = Lists.newLinkedList();
 
-  public static final Ordering<Node> SYNONYM_ORDER = Ordering.natural().onResultOf(new Function<Node, String>() {
-    @Nullable
-    @Override
-    public String apply(@Nullable Node n) {
-      return (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
-    }
-  });
-
   public TreeXmlPrinter(Writer writer) {
     this.writer = writer;
     parser = new NameParser(250);
@@ -46,16 +34,14 @@ public class TreeXmlPrinter implements StartEndHandler {
 
   @Override
   public void start(Node n) {
-    open(n, false);
-    // check for synonyms and sort by name
-    for (Node s : SYNONYM_ORDER.sortedCopy(Traversals.SYNONYMS.traverse(n).nodes())) {
-      open(s, true);
-    }
+    open(n, n.hasLabel(Labels.SYNONYM));
   }
 
   @Override
   public void end(Node n) {
-    close(n);
+    if (!n.hasLabel(Labels.SYNONYM)){
+      close(n);
+    }
   }
 
   private void open(Node n, boolean close) {

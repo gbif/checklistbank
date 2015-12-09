@@ -51,6 +51,9 @@ public class TabPrinter implements StartEndHandler, AutoCloseable {
         for (Relationship synRel : n.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING)) {
           parentKeys.add(synRel.getOtherNode(n).getId());
         }
+        for (Relationship synRel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+          parentKeys.add(synRel.getOtherNode(n).getId());
+        }
         row[1] = ID_CONCAT.join(parentKeys);
       } else {
         if (n.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {

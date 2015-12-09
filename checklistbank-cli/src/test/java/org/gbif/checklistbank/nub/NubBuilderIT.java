@@ -433,8 +433,8 @@ public class NubBuilderIT {
     assertScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
     assertEquals(2, listCanonical("Heliopyrgus willi").size());
-    assertScientific("Heliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
-    assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Heliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertEquals(2, listCanonical("Meliopyrgus willi").size());
     assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -704,9 +704,14 @@ public class NubBuilderIT {
   public void testProParteSynonym() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(15, 16);
     build(src);
+    tx = dao.beginTx();
 
     NubUsage u = assertCanonical("Poa pubescens", "Lej.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.PROPARTE_SYNONYM, null);
     assertEquals(3, u.sourceIds.size());
+
+    NameUsage nu = dao.readUsage(u.node, true);
+    assertEquals("Poa pratensis L.", nu.getAccepted());
+
     List<Relationship> rels = IteratorUtil.asList(u.node.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING));
     Relationship acc = IteratorUtil.single(u.node.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING));
     assertEquals(1, rels.size());
@@ -1102,7 +1107,7 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
-    TaxonWalker.walkAcceptedTree(dao.getNeo(), treeAssert);
+    TaxonWalker.walkTree(dao.getNeo(), treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
   }
 

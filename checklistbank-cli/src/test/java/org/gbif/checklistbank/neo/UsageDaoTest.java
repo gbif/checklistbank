@@ -9,9 +9,11 @@ import org.gbif.checklistbank.nub.source.ClasspathSource;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.UUID;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.assertj.core.util.Preconditions;
@@ -62,14 +64,29 @@ public class UsageDaoTest {
 
   @Test
   public void testTrees() throws Exception {
-    try (ClasspathSource src = new ClasspathSource(8);) {
+    try (ClasspathSource src = new ClasspathSource(41);) {
       src.init(true, false);
-      dao = src.open();
+      dao = src.open(false);
+
+      // add pro parte & basionym rel
+      try (Transaction tx = dao.beginTx()) {
+        Node ppsyn = dao.findByNameSingle("Acromantis javana");
+        Node acc2 = dao.findByNameSingle("Acromantis montana");
+        ppsyn.createRelationshipTo(acc2, RelType.PROPARTE_SYNONYM_OF);
+        // basionym
+        ppsyn.createRelationshipTo(acc2, RelType.BASIONYM_OF);
+        ppsyn.addLabel(Labels.BASIONYM);
+
+        tx.success();
+      }
+
+      List<Rank> ranks = Lists.newArrayList((Rank)null);
+      ranks.addAll(Rank.LINNEAN_RANKS);
 
       Writer writer = new PrintWriter(System.out);
-      for (Rank rank : Rank.LINNEAN_RANKS) {
-        for (GraphFormat format : GraphFormat.values()) {
-          for (int bool = 1; bool>0; bool--) {
+      for (GraphFormat format : GraphFormat.values()) {
+        for (int bool = 1; bool>0; bool--) {
+          for (Rank rank : ranks) {
             try (Transaction tx = dao.beginTx()) {
               writer.write("\n"+org.apache.commons.lang3.StringUtils.repeat("+", 60)+"\n");
               writer.write("Format="+format+", rank="+rank+", fullNames="+(bool==1)+"\n");

@@ -5,6 +5,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Uniqueness;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 
 /**
@@ -26,7 +27,8 @@ public class Traversals {
       .relationships(RelType.PARENT_OF, Direction.OUTGOING)
       .breadthFirst()
       .evaluator(Evaluators.toDepth(1))
-      .evaluator(Evaluators.excludeStartPosition());
+      .evaluator(Evaluators.excludeStartPosition())
+      .uniqueness(Uniqueness.NODE_PATH);
 
   /**
    * Traversal that iterates depth first over all descendants including synonyms.
@@ -36,7 +38,8 @@ public class Traversals {
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
       .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
       .depthFirst()
-      .evaluator(Evaluators.excludeStartPosition());
+      .evaluator(Evaluators.excludeStartPosition())
+      .uniqueness(Uniqueness.NODE_PATH);
 
   public static final TraversalDescription SYNONYMS = new MonoDirectionalTraversalDescription()
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
@@ -56,7 +59,8 @@ public class Traversals {
    */
   public static final TraversalDescription BASIONYM_GROUP = new MonoDirectionalTraversalDescription()
       .relationships(RelType.BASIONYM_OF)
-      .breadthFirst();
+      .breadthFirst()
+      .uniqueness(Uniqueness.NODE_PATH);
 
   /**
    * Traversal that iterates over all child taxa and their synonyms in taxonomic order, i.e. by rank and secondary ordered by the name.
@@ -64,7 +68,8 @@ public class Traversals {
    */
   public static final TraversalDescription TREE = new MonoDirectionalTraversalDescription()
       .depthFirst()
-      .expand(TaxonomicOrderExpander.TREE_WITH_SYNONYMS_EXPANDER);
+      .expand(TaxonomicOrderExpander.TREE_WITH_SYNONYMS_EXPANDER)
+      .uniqueness(Uniqueness.NODE_PATH);
 
   /**
    * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.
@@ -73,11 +78,14 @@ public class Traversals {
   public static final TraversalDescription ACCEPTED_TREE = new MonoDirectionalTraversalDescription()
       .depthFirst()
       .expand(TaxonomicOrderExpander.TREE_EXPANDER)
-      .evaluator(new AcceptedOnlyEvaluator());
+      .evaluator(new AcceptedOnlyEvaluator())
+      .uniqueness(Uniqueness.NODE_PATH);
+
 
   /**
    * Traversal that extends ACCEPTED_TREE to mark appropriate points in the graph to start concurrent processing.
    */
   public static final TraversalDescription ACCEPTED_TREE_AND_MARK_CHUNKS = ACCEPTED_TREE
-      .evaluator(new ChunkingEvaluator());
+      .evaluator(new ChunkingEvaluator())
+      .uniqueness(Uniqueness.NODE_PATH);
 }

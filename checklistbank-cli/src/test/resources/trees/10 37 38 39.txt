@@ -6,17 +6,17 @@ Fungi
 Plantae
   Fontinalaceae
     Fontinalis
-      Fontinalis antipyretica Hedwig, 1801
-      Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891
-      Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916
       Fontinalis antipyretica (C. Müller) W. H. Welch in Grout, 1934
+      Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916
+      Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891
+      Fontinalis antipyretica Hedwig, 1801
   Pinaceae
     Abies
-      Abies pindrow Spach
       Abies pindrow (Royle ex D. Don) Royle
-      Abies taxifolia Jeffr. ex Gordon
-      Abies taxifolia Drum. ex Gordon
+      Abies pindrow Spach
       Abies taxifolia C.Presl
+      Abies taxifolia Drum. ex Gordon
+      Abies taxifolia Jeffr. ex Gordon
       Abies taxifolia Raf.
 Protozoa
 Viruses

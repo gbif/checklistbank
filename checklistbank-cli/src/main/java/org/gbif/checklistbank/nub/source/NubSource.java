@@ -289,7 +289,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   @Override
   public CloseableIterator<SrcUsage> iterator() {
     if (dao == null) {
-      dao = open();
+      dao = open(true);
     }
     return new SrcUsageIterator(dao);
   }
@@ -297,8 +297,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   /**
    * @return a new read only dao
    */
-  public UsageDao open() {
-    return UsageDao.persistentDao(cfg, key, true, null, false);
+  public UsageDao open(boolean readOnly) {
+    return UsageDao.persistentDao(cfg, key, readOnly, null, false);
   }
 
   /**

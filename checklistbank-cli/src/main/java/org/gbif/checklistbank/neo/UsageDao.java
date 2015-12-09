@@ -279,6 +279,23 @@ public class UsageDao {
   }
 
   /**
+   *
+   * @param canonicalName
+   * @return th matching node, null or NoSuchElementException
+   */
+  public Node findByNameSingle(String canonicalName) {
+    return IteratorUtil.single(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
+  }
+
+  /**
+   * @param scientificName
+   * @return th matching node, null or NoSuchElementException
+   */
+  public Node findByScientificName(String scientificName) {
+    return IteratorUtil.single(neo.findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, scientificName));
+  }
+
+  /**
    * Creates a new neo node labeld as a taxon.
    *
    * @return the new & empty neo node

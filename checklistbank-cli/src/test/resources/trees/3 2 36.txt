@@ -8,8 +8,8 @@ Animalia
       Orthoptera
         Limoniidae
           Trichoneura
-            Trichoneura bontocensis Perseus, 1999
             Trichoneura bontocensis Alexander, 1934
+            Trichoneura bontocensis Perseus, 1999
             Trichoneura formosensis (Alexander, 1923)
         Blattaria Weyenbergh, 1874
   Chordata
@@ -54,8 +54,8 @@ Plantae
       Scrophulariaceae
         Blattaria P. Miller, 1754
   Heliopyrgus, 1957
-    Heliopyrgus willi Plötz, 1884
     Heliopyrgus willi People, 1974
+    Heliopyrgus willi Plötz, 1884
   Oenanthe Linnaeus, 1753
 Protozoa
 Viruses

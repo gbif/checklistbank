@@ -19,10 +19,10 @@ Plantae
               *Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.
             Acer negundo var. negundo
             Acer negundo var. violaceum (G. Kirchn.) H. Jaeger
+              *$Negundo aceroides var. violaceum G.Kirchn.
               *Acer violaceum (Kirchn.) Simonkai
               *Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub
               *Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber
-              *$Negundo aceroides var. violaceum G.Kirchn.
         Negundo Moench
   Aceraceae
     Negundo Boehm.

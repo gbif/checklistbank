@@ -77,6 +77,7 @@ public class TaxonWalker {
     Path lastPath = null;
     long counter = 0;
       for (Path p : paths) {
+        logPath(p);
         if (counter % reportingSize == 0) {
           LOG.debug("Processed {}. Rate = {}", counter, meter == null ? "unknown" : meter.getMeanRate());
         }
@@ -137,7 +138,7 @@ public class TaxonWalker {
       }
       sb.append((String) n.getProperty(NeoProperties.CANONICAL_NAME, "none"));
     }
-    LOG.debug(sb.toString());
+    LOG.info(sb.toString());
   }
 
 }
