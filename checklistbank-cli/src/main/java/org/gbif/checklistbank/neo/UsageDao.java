@@ -47,8 +47,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -131,7 +129,9 @@ public class UsageDao {
         .make();
 
     File storeDir = Files.createTempDir();
-    GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, NeoConfiguration.CacheType.NONE, false, mappedMemory, false);
+    NeoConfiguration cfg = new NeoConfiguration();
+    cfg.mappedMemory = mappedMemory;
+    GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false, false);
     CleanupUtils.registerCleanupHook(storeDir);
 
     return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
@@ -149,12 +149,9 @@ public class UsageDao {
       final File kvpF = cfg.kvp(datasetKey);
       final File storeDir = cfg.neoDir(datasetKey);
       if (eraseExisting) {
+        LOG.debug("Remove existing data store");
         if (kvpF.exists()) {
           kvpF.delete();
-        }
-        if (storeDir.exists()) {
-          LOG.debug("Remove existing data store");
-          FileUtils.deleteQuietly(storeDir);
         }
       }
       FileUtils.forceMkdir(kvpF.getParentFile());
@@ -163,7 +160,7 @@ public class UsageDao {
           .fileMmapEnableIfSupported()
           .transactionDisable()
           .make();
-      GraphDatabaseBuilder builder = newEmbeddedDb(storeDir, cfg.cacheType, readOnly, cfg.mappedMemory, eraseExisting);
+      GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, readOnly, eraseExisting);
       return new UsageDao(kvp, storeDir, kvpF, builder, registry);
 
     } catch (Exception e) {
@@ -172,25 +169,6 @@ public class UsageDao {
       }
       throw new IllegalStateException("Failed to init persistent DAO for " + datasetKey, e);
     }
-  }
-
-  /**
-   * Creates a new embedded db in the neoRepository folder.
-   *
-   * @param eraseExisting if true deletes previously existing db
-   */
-  private static GraphDatabaseBuilder newEmbeddedDb(File storeDir, NeoConfiguration.CacheType cacheType, boolean readOnly, int mappedMemory, boolean eraseExisting) {
-    if (eraseExisting && storeDir.exists()) {
-      // erase previous db
-      LOG.debug("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
-      FileUtils.deleteQuietly(storeDir);
-    }
-    return new GraphDatabaseFactory()
-        .newEmbeddedDatabaseBuilder(storeDir.getAbsolutePath())
-        .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-        .setConfig(GraphDatabaseSettings.cache_type, cacheType.name().toLowerCase())
-        .setConfig(GraphDatabaseSettings.read_only, Boolean.toString(readOnly))
-        .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "M");
   }
 
   public GraphDatabaseService getNeo() {

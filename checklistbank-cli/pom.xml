@@ -251,6 +251,10 @@
       <artifactId>neo4j-cypher</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-shell</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
     </dependency>
