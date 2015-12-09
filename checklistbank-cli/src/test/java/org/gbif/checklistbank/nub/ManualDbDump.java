@@ -21,7 +21,6 @@ public class ManualDbDump {
   private static NeoConfiguration neo() {
     NeoConfiguration cfg = new NeoConfiguration();
     cfg.neoRepository = new File("/Users/markus/Desktop/repo/neo");
-    cfg.cacheType = NeoConfiguration.CacheType.SOFT;
     cfg.mappedMemory = 1024;
     return cfg;
   }

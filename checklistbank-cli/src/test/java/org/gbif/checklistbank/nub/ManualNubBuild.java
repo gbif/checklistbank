@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.Constants;
-import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
@@ -24,7 +23,6 @@ public class ManualNubBuild {
         cfg.autoImport = false;
         cfg.registry.wsUrl = "http://api.gbif-uat.org/v1";
         cfg.neo.neoRepository = new File("/Users/markus/Desktop/repo");
-        cfg.neo.cacheType = NeoConfiguration.CacheType.SOFT;
         cfg.neo.mappedMemory = 1024;
         cfg.clb.serverName = "localhost";
         cfg.clb.databaseName = "clb";
