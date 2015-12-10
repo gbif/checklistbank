@@ -1,16 +1,19 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 
+import com.google.common.collect.Lists;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
@@ -20,31 +23,33 @@ import org.neo4j.graphdb.traversal.BranchState;
  * depth first, rank then scientific name order based branching.
  */
 public class TaxonomicOrderExpander implements PathExpander {
-  public final static TaxonomicOrderExpander TREE_EXPANDER = new TaxonomicOrderExpander(false);
-  public final static TaxonomicOrderExpander TREE_WITH_SYNONYMS_EXPANDER = new TaxonomicOrderExpander(true);
+  /**
+   * Expander following the parent_of relations in taxonomic order
+   */
+  public final static TaxonomicOrderExpander TREE_EXPANDER = new TaxonomicOrderExpander();
 
-  public static final String NULL_NAME = "???";
+  /**
+   * Expander following the parent_of and synonym_of relations in taxonomic order
+   */
+  public final static TaxonomicOrderExpander TREE_WITH_SYNONYMS_EXPANDER = new TaxonomicOrderExpander(RelType.SYNONYM_OF);
 
-  private final boolean inclSynonyms;
+  /**
+   * Expander following the parent_of, synonym_of and proparte_synonym_of relations in taxonomic order
+   */
+  public final static TaxonomicOrderExpander TREE_WITH_PPSYNONYMS_EXPANDER = new TaxonomicOrderExpander(RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF);
 
-  private static final Ordering<Relationship> PARENT_ORDER = Ordering.natural().onResultOf(
-      new Function<Relationship, Integer>() {
+  private final Set<RelType> synRels;
+
+  private static final Ordering<Relationship> CHILDREN_ORDER = Ordering.from(new TaxonomicOrder()).onResultOf(
+      new Function<Relationship, Node>() {
         @Nullable
         @Override
-        public Integer apply(Relationship rel) {
-          return (Integer) rel.getEndNode().getProperty(NeoProperties.RANK, Integer.MAX_VALUE);
+        public Node apply(Relationship rel) {
+          return rel.getEndNode();
 
         }
       }
-  ).compound(Ordering.natural().onResultOf(
-      new Function<Relationship, String>() {
-        @Nullable
-        @Override
-        public String apply(Relationship rel) {
-          return (String) rel.getEndNode().getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
-        }
-      }
-  ));
+  );
 
   private static final Ordering<Relationship> SYNONYM_ORDER = Ordering.natural().reverse().onResultOf(
       new Function<Relationship, Boolean>() {
@@ -54,35 +59,41 @@ public class TaxonomicOrderExpander implements PathExpander {
           return rel.getStartNode().hasLabel(Labels.BASIONYM);
         }
       }
-  ).compound(Ordering.natural().onResultOf(
-      new Function<Relationship, String>() {
-        @Nullable
-        @Override
-        public String apply(Relationship rel) {
-          return (String) rel.getStartNode().getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
-        }
-      }
-  ));
+  ).compound(
+      Ordering.from(new TaxonomicOrder()).onResultOf(
+          new Function<Relationship, Node>() {
+            @Nullable
+            @Override
+            public Node apply(Relationship rel) {
+              return rel.getStartNode();
 
-  private TaxonomicOrderExpander(boolean inclSynonyms) {
-    this.inclSynonyms = inclSynonyms;
+            }
+          }
+      )
+  );
+
+  private TaxonomicOrderExpander(RelType ... synonymRelations) {
+    if (synonymRelations == null) {
+      this.synRels = ImmutableSet.of();
+    } else {
+      this.synRels = ImmutableSet.copyOf(synonymRelations);
+    }
   }
 
   @Override
   public Iterable<Relationship> expand(Path path, BranchState state) {
-    List<Relationship> children = PARENT_ORDER.sortedCopy(path.endNode().getRelationships(RelType.PARENT_OF, Direction.OUTGOING));
-    if (inclSynonyms) {
+    List<Relationship> children = CHILDREN_ORDER.sortedCopy(path.endNode().getRelationships(RelType.PARENT_OF, Direction.OUTGOING));
+    if (synRels.isEmpty()) {
+      return children;
+    } else {
+      List<Iterable<Relationship>> synResults = Lists.newArrayList();
+      for (RelType rt : synRels) {
+        synResults.add(path.endNode().getRelationships(rt, Direction.INCOMING));
+      }
       return Iterables.concat(
-          SYNONYM_ORDER.sortedCopy(
-              Iterables.concat(
-                  path.endNode().getRelationships(RelType.SYNONYM_OF, Direction.INCOMING),
-                  path.endNode().getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
-              )
-          ),
+          SYNONYM_ORDER.sortedCopy(Iterables.concat(synResults)),
           children
       );
-    } else {
-      return children;
     }
   }
 

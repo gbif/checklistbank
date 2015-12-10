@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;

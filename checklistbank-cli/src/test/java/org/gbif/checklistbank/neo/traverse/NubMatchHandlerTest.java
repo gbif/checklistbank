@@ -53,7 +53,7 @@ public class NubMatchHandlerTest {
 
             // assign keys
             NubMatchHandler handler = new NubMatchHandler(lookup, dao);
-            TaxonWalker.walkAcceptedTree(dao.getNeo(), handler);
+            TreeWalker.walkAcceptedTree(dao.getNeo(), handler);
 
             // verify keys
             verifyKey(a, null);

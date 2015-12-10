@@ -13,7 +13,7 @@ import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
@@ -1107,7 +1107,7 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
-    TaxonWalker.walkTree(dao.getNeo(), treeAssert);
+    TreeWalker.walkTree(dao.getNeo(), treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
   }
 

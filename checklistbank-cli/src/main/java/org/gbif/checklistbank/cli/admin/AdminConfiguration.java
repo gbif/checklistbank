@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.LineIterator;
 
 /**

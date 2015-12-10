@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;

@@ -13,7 +13,7 @@ import org.gbif.dwc.terms.XmpRightsTerm;
 import java.net.URI;
 import java.util.Map;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Test;
 

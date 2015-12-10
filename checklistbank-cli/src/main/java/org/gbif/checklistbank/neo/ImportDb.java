@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.helpers.collection.IteratorUtil;

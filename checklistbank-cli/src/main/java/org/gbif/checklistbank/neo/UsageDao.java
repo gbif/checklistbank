@@ -19,7 +19,7 @@ import org.gbif.checklistbank.neo.printer.TabPrinter;
 import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.neo.printer.TreeXmlPrinter;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
@@ -212,7 +212,7 @@ public class UsageDao {
   }
 
   private void printTree(StartEndHandler printer, @Nullable Rank lowestRank, @Nullable Node root) {
-    TaxonWalker.walkTree(getNeo(), root, lowestRank, null, printer);
+    TreeWalker.walkTree(getNeo(), root, lowestRank, null, printer);
   }
 
   /**

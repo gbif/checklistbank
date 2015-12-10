@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.xml.XmlEscapers;

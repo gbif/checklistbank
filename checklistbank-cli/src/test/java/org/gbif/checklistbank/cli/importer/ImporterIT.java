@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.sql.DataSource;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.beust.jcommander.internal.Sets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

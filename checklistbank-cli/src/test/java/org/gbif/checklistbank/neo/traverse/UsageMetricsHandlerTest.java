@@ -10,7 +10,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -48,7 +48,7 @@ public class UsageMetricsHandlerTest extends BaseTest {
     }
 
     UsageMetricsHandler handler = new UsageMetricsHandler(dao);
-    TaxonWalker.walkAcceptedTree(dao.getNeo(), handler);
+    TreeWalker.walkAcceptedTree(dao.getNeo(), handler);
 
     NormalizerStats stats = handler.getStats(1, Lists.<String>newArrayList());
     System.out.println(stats);

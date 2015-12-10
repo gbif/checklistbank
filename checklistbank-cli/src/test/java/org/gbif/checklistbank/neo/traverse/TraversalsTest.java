@@ -96,13 +96,14 @@ public class TraversalsTest {
       assertTraversalSizes(Traversals.PARENTS, 10, 0, 5, 0, 0, 0);
       assertTraversalSizes(Traversals.CHILDREN, 0, 0, 0, 0, 3, 0);
       // descendants are synonyms (incl pro parte) and children
-      assertTraversalSizes(Traversals.DESCENDANTS, 1, 0, 2, 0, 19, 0);
+      assertTraversalSizes(Traversals.DESCENDANTS, 1, 0, 2, 0, 20, 0);
       assertTraversalSizes(Traversals.SYNONYMS, 1, 0, 1, 0, 0, 0);
       assertTraversalSizes(Traversals.ACCEPTED, 0, 2, 0, 1, 0, 1);
       assertTraversalSizes(Traversals.BASIONYM_GROUP, 1, 1, 4, 4, 1, 4);
 
-      assertTraversalSizes(Traversals.TREE, 2, 1, 3, 1, 20, 1);
-      assertTraversalSizes(Traversals.ACCEPTED_TREE, 1, 0, 1, 0, 17, 0);
+      // numbers just as descendants +1 for the start node
+      assertTraversalSizes(Traversals.SORTED_TREE, 2, 1, 3, 1, 21, 1);
+      assertTraversalSizes(Traversals.SORTED_ACCEPTED_TREE, 1, 0, 1, 0, 17, 0);
     }
   }
 

@@ -27,13 +27,16 @@ import static junit.framework.Assert.assertEquals;
 /**
  *
  */
-public class TaxonWalkerTest {
+public class TreeWalkerTest {
   private File dbf;
   private GraphDatabaseService db;
   private Node root;
   private Node phylum;
+  private Node order;
+  private Node family;
   private Node genus;
   private Node bas;
+  private Node ppSyn;
   private int idx;
 
   @Before
@@ -69,7 +72,7 @@ public class TaxonWalkerTest {
       Node syn = createNode(Rank.PHYLUM, Labels.TAXON, Labels.SYNONYM);
       syn.createRelationshipTo(phylum, RelType.SYNONYM_OF);
 
-      // phylum children
+      // phylum children of all ranks
       Node p = phylum;
       for (Rank r : Rank.values()) {
         if (Rank.PHYLUM.higherThan(r) && r.higherThan(Rank.SUBGENUS)) {
@@ -78,15 +81,36 @@ public class TaxonWalkerTest {
           p = child;
           if (r == Rank.GENUS) {
             genus = child;
+          } else if (r == Rank.FAMILY) {
+            family = child;
+          } else if (r == Rank.ORDER) {
+            order = child;
           }
         }
+      }
+
+      // chain up more orders, each with 3 families
+      for (int idx = 1; idx <= 3; idx++) {
+        Node n = createNode(Rank.ORDER, Labels.TAXON);
+        phylum.createRelationshipTo(n, RelType.PARENT_OF);
+        for (int idx2 = 1; idx2 <= 3; idx2++) {
+          Node f = createNode(Rank.FAMILY, Labels.TAXON);
+          n.createRelationshipTo(f, RelType.PARENT_OF);
+        }
+      }
+
+
+      // 3 species inside genus without a synonym
+      for (int idx = 1; idx <= 3; idx++) {
+        Node sp = createNode(Rank.SPECIES, Labels.TAXON);
+        genus.createRelationshipTo(sp, RelType.PARENT_OF);
       }
 
       // 1 basionym
       bas = createNode(Rank.SPECIES, Labels.TAXON, Labels.BASIONYM);
       genus.createRelationshipTo(bas, RelType.PARENT_OF);
 
-      // 5 species inside genus
+      // 5 more species inside genus
       for (int idx = 1; idx <= 5; idx++) {
         Node sp = createNode(Rank.SPECIES, Labels.TAXON);
         genus.createRelationshipTo(sp, RelType.PARENT_OF);
@@ -94,6 +118,33 @@ public class TaxonWalkerTest {
         Node spSyn = createNode(Rank.SPECIES, Labels.TAXON, Labels.SYNONYM);
         spSyn.createRelationshipTo(sp, RelType.SYNONYM_OF);
         bas.createRelationshipTo(spSyn, RelType.BASIONYM_OF);
+
+        if (idx % 3 == 0) {
+          // multiple synonyms and a basionym
+          for (int idx2 = 1; idx2 <= 6; idx2++) {
+            Node syn2 = createNode(idx2%2==0 ? Rank.SPECIES : Rank.SUBSPECIES, Labels.TAXON, Labels.SYNONYM);
+            syn2.createRelationshipTo(sp, RelType.SYNONYM_OF);
+          }
+          bas = createNode(Rank.SPECIES, Labels.TAXON, Labels.BASIONYM, Labels.SYNONYM);
+          bas.createRelationshipTo(sp, RelType.SYNONYM_OF);
+          bas.createRelationshipTo(sp, RelType.BASIONYM_OF);
+        }
+      }
+
+      // new genus with 4 species and a pro parte synonym for 3 of them
+      Node genus2 = createNode(Rank.GENUS, Labels.TAXON);
+      family.createRelationshipTo(genus2, RelType.PARENT_OF);
+
+      ppSyn = createNode(Rank.SPECIES, Labels.TAXON, Labels.SYNONYM);
+      for (int idx = 1; idx <= 4; idx++) {
+        Node sp = createNode(Rank.SPECIES, Labels.TAXON);
+        genus2.createRelationshipTo(sp, RelType.PARENT_OF);
+
+        if (idx == 2) {
+          ppSyn.createRelationshipTo(sp, RelType.SYNONYM_OF);
+        }else if (idx > 2) {
+          ppSyn.createRelationshipTo(sp, RelType.PROPARTE_SYNONYM_OF);
+        }
       }
 
       tx.success();
@@ -103,34 +154,46 @@ public class TaxonWalkerTest {
   @Test
   public void testWalkTree() throws Exception {
     StringWriter writer = new StringWriter();
-    TaxonWalker.walkTree(db, new TreePrinter(writer));
+    TreeWalker.walkTree(db, new TreePrinter(writer));
+    System.out.println(writer.toString());
     assertEquals(Resources.toString(Resources.getResource("traverse/tree.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TaxonWalker.walkTree(db, phylum, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, phylum, null, null, new TreePrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treePhylum.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TaxonWalker.walkTree(db, genus, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, genus, null, null, new TreePrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeGenus.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TaxonWalker.walkTree(db, bas, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, bas, null, null, new TreePrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeBasionym.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TaxonWalker.walkTree(db, phylum, Rank.ORDER, null, new TreePrinter(writer));
-    assertEquals(Resources.toString(Resources.getResource("traverse/tree-f-order.txt"), Charsets.UTF_8), writer.toString());
+    TreeWalker.walkTree(db, phylum, Rank.ORDER, null, new TreePrinter(writer));
+    assertEquals(Resources.toString(Resources.getResource("traverse/tree-order.txt"), Charsets.UTF_8), writer.toString());
   }
 
   @Test
   public void testWalkAcceptedTree() throws Exception {
     StringWriter writer = new StringWriter();
-    TaxonWalker.walkAcceptedTree(db, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, new TreePrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAccepted.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TaxonWalker.walkAcceptedTree(db, genus, null, null, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, genus, null, null, new TreePrinter(writer));
+    assertEquals(Resources.toString(Resources.getResource("traverse/treeAcceptedGenus.txt"), Charsets.UTF_8), writer.toString());
+  }
+
+  @Test
+  public void testChunkingHandler() throws Exception {
+    StringWriter writer = new StringWriter();
+    TreeWalker.walkAcceptedTree(db, new TreePrinter(writer));
+    assertEquals(Resources.toString(Resources.getResource("traverse/treeAccepted.txt"), Charsets.UTF_8), writer.toString());
+
+    writer = new StringWriter();
+    TreeWalker.walkAcceptedTree(db, genus, null, null, new TreePrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAcceptedGenus.txt"), Charsets.UTF_8), writer.toString());
   }
 

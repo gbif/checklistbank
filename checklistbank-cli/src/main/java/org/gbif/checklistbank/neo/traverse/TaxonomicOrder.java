@@ -9,17 +9,17 @@ import org.neo4j.graphdb.Node;
 /**
  * Orders taxon nodes by their rank first, then canonical name.
  */
-public class TaxonOrder implements Comparator<Node> {
+public class TaxonomicOrder implements Comparator<Node> {
 
   @Override
   public int compare(Node n1, Node n2) {
-    int r1 = (int) n1.getProperty(NeoProperties.RANK, 9999);
-    int r2 = (int) n2.getProperty(NeoProperties.RANK, 9999);
+    int r1 = (int) n1.getProperty(NeoProperties.RANK, Integer.MAX_VALUE);
+    int r2 = (int) n2.getProperty(NeoProperties.RANK, Integer.MAX_VALUE);
 
     if (r1!=r2) {
       return r1 - r2;
     }
-    return n1.getProperty(NeoProperties.CANONICAL_NAME, "").toString()
-      .compareTo(n2.getProperty(NeoProperties.CANONICAL_NAME, "").toString());
+    return NeoProperties.getName(n1).compareTo(NeoProperties.getName(n2));
   }
+
 }

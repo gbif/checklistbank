@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.junit.After;
@@ -94,6 +94,7 @@ public abstract class BaseTest {
 
     openDb(datasetKey);
     compareStats(stats);
+
     dao.close();
 
     return stats;

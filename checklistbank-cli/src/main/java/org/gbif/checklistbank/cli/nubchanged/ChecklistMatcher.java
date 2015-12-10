@@ -10,7 +10,7 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import java.util.Map;
 import java.util.UUID;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.slf4j.Logger;

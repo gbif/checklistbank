@@ -7,7 +7,7 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 
 /**
  * dev/null implementation of an IdLookup doing nothing.

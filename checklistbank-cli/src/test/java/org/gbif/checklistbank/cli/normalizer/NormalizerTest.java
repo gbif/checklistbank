@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.beust.jcommander.internal.Sets;
 import com.yammer.metrics.MetricRegistry;
 import org.junit.Ignore;

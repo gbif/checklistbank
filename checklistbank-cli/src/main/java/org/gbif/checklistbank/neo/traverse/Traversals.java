@@ -32,6 +32,9 @@ public class Traversals {
 
   /**
    * Traversal that iterates depth first over all descendants including synonyms.
+   * The node of pro parte synonyms will be visited multiple times, once for each synonym/pro_parte relationship!
+   * There is no particular order for the direct children.
+   * See SORTED_TREE if a taxonomic order is required!
    */
   public static final TraversalDescription DESCENDANTS = new MonoDirectionalTraversalDescription()
       .relationships(RelType.PARENT_OF, Direction.OUTGOING)
@@ -45,14 +48,16 @@ public class Traversals {
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
       .breadthFirst()
       .evaluator(Evaluators.toDepth(1))
-      .evaluator(Evaluators.excludeStartPosition());
+      .evaluator(Evaluators.excludeStartPosition())
+      .uniqueness(Uniqueness.NODE_PATH);
 
   public static final TraversalDescription ACCEPTED = new MonoDirectionalTraversalDescription()
       .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
       .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)
       .breadthFirst()
       .evaluator(Evaluators.toDepth(1))
-      .evaluator(Evaluators.excludeStartPosition());
+      .evaluator(Evaluators.excludeStartPosition())
+      .uniqueness(Uniqueness.NODE_PATH);
 
   /**
    * Finds all nodes connected via a basionym_of relation regardless of the direction.
@@ -62,11 +67,47 @@ public class Traversals {
       .breadthFirst()
       .uniqueness(Uniqueness.NODE_PATH);
 
+
   /**
-   * Traversal that iterates over all child taxa and their synonyms in taxonomic order, i.e. by rank and secondary ordered by the name.
-   * The traversal includes the initial starting node!
+   * Traversal that iterates depth first over all descendants including synonyms and the starting node.
+   * The node of pro parte synonyms will be visited only once as pro_parte relationships are ignored.
+   * There is no particular order for the direct children.
+   * See SORTED_TREE traversals if a taxonomic order is required!
    */
-  public static final TraversalDescription TREE = new MonoDirectionalTraversalDescription()
+  public static final TraversalDescription TREE_WITHOUT_PRO_PARTE = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
+      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
+      .depthFirst()
+      .uniqueness(Uniqueness.NODE_PATH);
+
+  /**
+   * Traversal that extends TREE_WITHOUT_PRO_PARTE to mark appropriate points in the graph to start concurrent processing.
+   */
+  public static final TraversalDescription TREE_AND_MARK_CHUNKS = TREE_WITHOUT_PRO_PARTE
+      .evaluator(new ChunkingEvaluator());
+
+  /**
+   * Traversal that iterates over all child taxa and their synonyms in a taxonomic order, i.e. by rank and secondary ordered by the name.
+   * The traversal includes the initial starting node.
+   * The node of pro parte synonyms will be visited multiple times, once for each synonym/pro_parte relationship!
+   *
+   * This traversal differes from DESCENDANTS that it includes the starting node and yields the nodes in a taxonomic order.
+   * The order is a bit expensive to calculate and requires more memory. So use DESCENDANTS whenever possible.
+   */
+  public static final TraversalDescription SORTED_TREE = new MonoDirectionalTraversalDescription()
+      .depthFirst()
+      .expand(TaxonomicOrderExpander.TREE_WITH_PPSYNONYMS_EXPANDER)
+      .uniqueness(Uniqueness.NODE_PATH);
+
+  /**
+   * Traversal that iterates over all child taxa and their synonyms in a taxonomic order, but excludes pro parte relations, the node of pro parte synonyms will
+   * therefore be visited only once via the synonym_of relationship.
+   * The traversal includes the initial starting node.
+   *
+   * This traversal differes from DESCENDANTS that it includes the starting node and yields the nodes in a taxonomic order.
+   * The order is a bit expensive to calculate and requires more memory. So use DESCENDANTS whenever possible.
+   */
+  public static final TraversalDescription SORTED_TREE_WITHOUT_PRO_PARTE = new MonoDirectionalTraversalDescription()
       .depthFirst()
       .expand(TaxonomicOrderExpander.TREE_WITH_SYNONYMS_EXPANDER)
       .uniqueness(Uniqueness.NODE_PATH);
@@ -75,17 +116,10 @@ public class Traversals {
    * Traversal that iterates over all accepted child taxa in taxonomic order, i.e. by rank and secondary ordered by the name.
    * The traversal includes the initial starting node!
    */
-  public static final TraversalDescription ACCEPTED_TREE = new MonoDirectionalTraversalDescription()
+  public static final TraversalDescription SORTED_ACCEPTED_TREE = new MonoDirectionalTraversalDescription()
       .depthFirst()
       .expand(TaxonomicOrderExpander.TREE_EXPANDER)
       .evaluator(new AcceptedOnlyEvaluator())
       .uniqueness(Uniqueness.NODE_PATH);
 
-
-  /**
-   * Traversal that extends ACCEPTED_TREE to mark appropriate points in the graph to start concurrent processing.
-   */
-  public static final TraversalDescription ACCEPTED_TREE_AND_MARK_CHUNKS = ACCEPTED_TREE
-      .evaluator(new ChunkingEvaluator())
-      .uniqueness(Uniqueness.NODE_PATH);
 }

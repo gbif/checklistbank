@@ -20,7 +20,7 @@ import org.gbif.checklistbank.neo.NotUniqueRuntimeException;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.dwc.terms.DwcTerm;
@@ -472,7 +472,7 @@ public class Normalizer extends ImportDb implements Runnable {
         LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
         metricsHandler = new UsageMetricsHandler(dao);
         matchHandler = new NubMatchHandler(lookup, dao);
-        TaxonWalker.walkAcceptedTree(dao.getNeo(), null, null, metricsMeter, metricsHandler, matchHandler);
+        TreeWalker.walkAcceptedTree(dao.getNeo(), null, null, metricsMeter, metricsHandler, matchHandler);
         LOG.info("Walked all accepted taxa and built metrics");
     }
 

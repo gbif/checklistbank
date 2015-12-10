@@ -6,7 +6,7 @@ import org.gbif.checklistbank.utils.ResourcesMonitor;
 
 import java.util.List;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.helpers.collection.Iterables;

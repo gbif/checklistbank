@@ -6,7 +6,7 @@ import org.gbif.dwc.terms.Term;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.google.common.base.Splitter;
 
 /**

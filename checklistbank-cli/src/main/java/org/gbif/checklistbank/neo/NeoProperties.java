@@ -3,6 +3,8 @@ package org.gbif.checklistbank.neo;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 
+import org.neo4j.graphdb.Node;
+
 /**
  * Property names of neo4j nodes.
  * Any property we store in neo should be listed here to avoid overlaps or other confusion.
@@ -15,8 +17,18 @@ public class NeoProperties {
   public static final String CANONICAL_NAME = GbifTerm.canonicalName.simpleName();
   // used for proparte relations
   public static final String USAGE_KEY = "usageKey";
+  public static final String NULL_NAME = "???";
 
   private NeoProperties() {
   }
 
+  /**
+   * @return the canonical name if existing, otherwise the scientific name property or ultimately the default ??? as last resort
+   */
+  public static String getName(Node n) {
+    if (n.hasProperty(NeoProperties.CANONICAL_NAME)) {
+      return (String)n.getProperty(NeoProperties.CANONICAL_NAME);
+    }
+    return (String)n.getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
+  }
 }

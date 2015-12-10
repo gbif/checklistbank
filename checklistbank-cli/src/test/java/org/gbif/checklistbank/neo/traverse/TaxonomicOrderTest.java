@@ -8,20 +8,20 @@ import org.gbif.checklistbank.cli.model.NameUsageNode;
 import java.util.Collections;
 import java.util.List;
 
-import com.beust.jcommander.internal.Lists;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
-public class TaxonOrderTest extends BaseTest {
+public class TaxonomicOrderTest extends BaseTest {
 
   @Test
   public void testCompare() throws Exception {
     initDb();
     try (Transaction tx = beginTx()) {
-      TaxonOrder order = new TaxonOrder();
+      TaxonomicOrder order = new TaxonomicOrder();
       List<Node> nodes = Lists.newArrayList(
         build(Rank.GENUS, "Pinus"),
         build(Rank.GENUS, "Abies"),

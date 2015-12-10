@@ -18,7 +18,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.TaxonWalker;
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.beust.jcommander.internal.Maps;
+import com.google.common.collect.Maps;
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.IntLongMap;
 import com.carrotsearch.hppc.LongHashSet;
@@ -202,7 +202,7 @@ public class NubBuilder implements Runnable {
       try (Transaction tx = db.beginTx()) {
         LOG.info("Start flagging doubtful duplicate names in {}", k);
         NubUsage ku = db.getKingdom(k);
-        markDuplicatesRedundant(Traversals.ACCEPTED_TREE.traverse(ku.node).nodes().iterator());
+        markDuplicatesRedundant(Traversals.SORTED_ACCEPTED_TREE.traverse(ku.node).nodes().iterator());
         tx.success();
       }
     }
@@ -220,7 +220,7 @@ public class NubBuilder implements Runnable {
         if (gYear != null) {
           // all accepted included taxa should have been described after the genus
           // flag the ones that have an earlier publication date!
-          for (Node n : Traversals.ACCEPTED_TREE.traverse(gn).nodes()) {
+          for (Node n : Traversals.SORTED_ACCEPTED_TREE.traverse(gn).nodes()) {
             NubUsage u = db.dao.readNub(n);
             Integer year = u.parsedName.getYearInt();
             if (year != null && year < gYear) {
@@ -1105,7 +1105,7 @@ public class NubBuilder implements Runnable {
     LOG.info("Walk all accepted taxa and build usage metrics");
     UsageMetricsHandler metricsHandler = new UsageMetricsHandler(dao);
     // TaxonWalker deals with transactions
-    TaxonWalker.walkAcceptedTree(dao.getNeo(), metricsHandler);
+    TreeWalker.walkAcceptedTree(dao.getNeo(), metricsHandler);
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }
