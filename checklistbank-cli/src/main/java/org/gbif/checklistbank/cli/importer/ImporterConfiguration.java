@@ -59,5 +59,13 @@ public class ImporterConfiguration {
 
   @Parameter(names = "--import-threads")
   @Min(1)
-  public int importThreads = 8;
+  public int importThreads = 3;
+
+  @Parameter(names = "--chunk-size")
+  @Min(1)
+  public int chunkSize = 1000;
+
+  @Parameter(names = "--chunk-min-size")
+  @Min(0)
+  public int chunkMinSize = 100;
 }

@@ -1,9 +1,11 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoProperties;
+import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.neo.UsageDao;
 
+import com.carrotsearch.hppc.LongHashSet;
+import com.carrotsearch.hppc.LongSet;
+import com.google.common.base.Preconditions;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -17,18 +19,34 @@ import org.neo4j.graphdb.traversal.Evaluator;
  */
 public class ChunkingEvaluator implements Evaluator {
 
+  private UsageDao dao;
+  private int chunkSize;
+  private int minChunkSize;
+  private LongSet chunkIds = new LongHashSet();
+
+  public ChunkingEvaluator(UsageDao dao, int minChunkSize, int chunkSize) {
+    Preconditions.checkArgument(minChunkSize < chunkSize, "Minimum chunk size needs to be smaller then the chunk size");
+    Preconditions.checkArgument(minChunkSize >= 0, "Minimum chunk size needs to be positive");
+    Preconditions.checkArgument(chunkSize > 0, "Chunk size needs to be at least 1");
+    this.chunkSize = chunkSize;
+    this.dao = dao;
+    this.minChunkSize = minChunkSize;
+  }
+
   @Override
   public Evaluation evaluate(Path path) {
-    Node end = path.endNode();
-
-    int rank = (int)end.getProperty(NeoProperties.RANK, -1); // Unknown ranks should be passed, don't mark for a new thread.
-
-    if (rank >= Rank.FAMILY.ordinal()) {
-      end.addLabel(Labels.CHUNK);
+    Node n = path.endNode();
+    UsageFacts facts = dao.readFacts(n.getId());
+    int size = facts == null ? -1 : facts.metrics.getNumDescendants() + facts.metrics.getNumSynonyms();
+    if (size > minChunkSize && (size < chunkSize || size - facts.metrics.getNumChildren() < minChunkSize)) {
+      chunkIds.add(n.getId());
       return Evaluation.INCLUDE_AND_PRUNE;
-    }
-    else {
+    } else {
       return Evaluation.INCLUDE_AND_CONTINUE;
     }
+  }
+
+  public boolean isChunk(long nodeId) {
+    return chunkIds.contains(nodeId);
   }
 }

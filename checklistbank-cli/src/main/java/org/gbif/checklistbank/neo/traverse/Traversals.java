@@ -81,12 +81,6 @@ public class Traversals {
       .uniqueness(Uniqueness.NODE_PATH);
 
   /**
-   * Traversal that extends TREE_WITHOUT_PRO_PARTE to mark appropriate points in the graph to start concurrent processing.
-   */
-  public static final TraversalDescription TREE_AND_MARK_CHUNKS = TREE_WITHOUT_PRO_PARTE
-      .evaluator(new ChunkingEvaluator());
-
-  /**
    * Traversal that iterates over all child taxa and their synonyms in a taxonomic order, i.e. by rank and secondary ordered by the name.
    * The traversal includes the initial starting node.
    * The node of pro parte synonyms will be visited multiple times, once for each synonym/pro_parte relationship!

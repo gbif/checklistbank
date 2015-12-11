@@ -19,6 +19,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.ChunkingEvaluator;
 import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeIterables;
@@ -63,6 +64,7 @@ public class Importer extends ImportDb implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
   private final static int SELF_ID = -1;
   private final Meter syncMeter;
+  private final ImporterConfiguration cfg;
   private AtomicInteger syncCounter = new AtomicInteger(0);
   private int delCounter;
   private final DatasetImportServiceCombined importService;
@@ -75,6 +77,7 @@ public class Importer extends ImportDb implements Runnable {
   // map of existing pro parte synonym clb usage keys to their accepted taxon given as neo node id to be updated at the very end
   private IntIntMap postProParteKeys = new IntIntHashMap();
   private int maxExistingNubKey = -1;
+  private volatile int firstUsageKey = -1;
 
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
@@ -85,14 +88,15 @@ public class Importer extends ImportDb implements Runnable {
 
   private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
                    DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService,
-                   int importThreads) {
+                   ImporterConfiguration cfg) {
     super(datasetKey, dao);
+    this.cfg = cfg;
     this.importService = importService;
     this.nameUsageService = nameUsageService;
     this.usageService = usageService;
     this.syncMeter = registry.meter(Metrics.SYNC_METER);
-    LOG.debug("Starting importer-datasync thread pool with {} threads", importThreads);
-    this.datasyncExec = new ThreadPoolExecutor(importThreads, importThreads, 0L, TimeUnit.MILLISECONDS,
+    LOG.debug("Starting importer-datasync thread pool with {} threads", cfg.importThreads);
+    this.datasyncExec = new ThreadPoolExecutor(cfg.importThreads, cfg.importThreads, 0L, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("importer-datasync"));
   }
 
@@ -102,8 +106,8 @@ public class Importer extends ImportDb implements Runnable {
   public static Importer create(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                 DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
     return new Importer(datasetKey,
-        UsageDao.persistentDao(cfg.neo, datasetKey, /* TODO was readOnly */ false, registry, false),
-        registry, importService, nameUsageService, usageService, cfg.importThreads);
+        UsageDao.persistentDao(cfg.neo, datasetKey, true, registry, false),
+        registry, importService, nameUsageService, usageService, cfg);
   }
 
   public void run() {
@@ -157,7 +161,7 @@ public class Importer extends ImportDb implements Runnable {
           counter++;
         }
       } finally {
-        LOG.info("Thread completed chunk of {} nodes starting with node {}", counter, startNode);
+        LOG.debug("Completed chunk of {} nodes starting with node {}", counter, startNode);
       }
     }
   }
@@ -216,6 +220,10 @@ public class Importer extends ImportDb implements Runnable {
       // keep map of node ids to clb usage keys
       synchronized (clbKeys) {
         clbKeys.put(nodeId, usageKey);
+        if (firstUsageKey < 0) {
+          firstUsageKey = usageKey;
+          LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
+        }
       }
       syncMeter.mark();
 
@@ -258,24 +266,19 @@ public class Importer extends ImportDb implements Runnable {
     }
     // we keep the very first usage key to retrieve the exact last modified timestamp from the database
     // in order to avoid clock differences between machines and threads.
-    int firstUsageKey = -1;
-
-    int threadCount = 0;
+    firstUsageKey = -1;
+    int chunks = 0;
 
     try (Transaction tx = dao.beginTx()) {
       // returns all nodes, accepted and synonyms
-      for (Node n : MultiRootNodeIterator.create(TreeIterables.findRoot(dao.getNeo()), Traversals.TREE_AND_MARK_CHUNKS)) {
-        System.out.println(n.getId());
-        if (n.hasLabel(Labels.CHUNK)) {
+      LOG.info("Chunking imports into slices of {} to {}", cfg.chunkMinSize, cfg.chunkSize);
+      ChunkingEvaluator chunkingEvaluator = new ChunkingEvaluator(dao, cfg.chunkMinSize, cfg.chunkSize);
+      for (Node n : MultiRootNodeIterator.create(TreeIterables.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
+        if (chunkingEvaluator.isChunk(n.getId())) {
           datasyncExec.submit(new DatasetSyncer(n.getId()));
-          LOG.debug("Chunk marker found, job {} from node {} submitted", ++threadCount, n.getId());
-
+          LOG.debug("Chunk job {} from node {} submitted", ++chunks, n.getId());
         } else {
-          int usageKey = syncNode(n);
-          if (firstUsageKey < 0) {
-            firstUsageKey = usageKey;
-            LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
-          }
+          syncNode(n);
         }
       }
     }
@@ -283,15 +286,14 @@ public class Importer extends ImportDb implements Runnable {
     datasyncExec.shutdown();
     try {
       while (!datasyncExec.awaitTermination(5, TimeUnit.SECONDS)) {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
-        }
+        LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
       }
     } catch (InterruptedException e) {
       LOG.error("Importer interrupted, data is likely to be inconsistent.");
       datasyncExec.shutdownNow();
       Thread.currentThread().interrupt();
     }
+    LOG.info("{} chunk jobs completed", chunks);
 
     // finally update foreign keys that did not exist during initial inserts
     if (!postKeys.isEmpty()) {
