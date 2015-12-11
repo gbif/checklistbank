@@ -25,6 +25,6 @@ public class ShellConfiguration {
   public UUID key = Constants.NUB_DATASET_KEY;
 
   @Parameter(names = {"--port"}, required = false)
-  public int port = 8082;
+  public int port = 1337;
 
 }
