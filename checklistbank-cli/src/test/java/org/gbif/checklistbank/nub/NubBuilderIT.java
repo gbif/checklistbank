@@ -429,8 +429,8 @@ public class NubBuilderIT {
     build(src);
 
     assertEquals(2, listCanonical("Trichoneura bontocensis").size());
-    assertScientific("Trichoneura bontocensis Perseus, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     assertScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Trichoneura bontocensis Perseus, 1999", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertEquals(2, listCanonical("Heliopyrgus willi").size());
     assertScientific("Heliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);

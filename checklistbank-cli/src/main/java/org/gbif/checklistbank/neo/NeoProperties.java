@@ -25,10 +25,14 @@ public class NeoProperties {
   /**
    * @return the canonical name if existing, otherwise the scientific name property or ultimately the default ??? as last resort
    */
-  public static String getName(Node n) {
+  public static String getCanonicalName(Node n) {
     if (n.hasProperty(NeoProperties.CANONICAL_NAME)) {
       return (String)n.getProperty(NeoProperties.CANONICAL_NAME);
     }
+    return (String)n.getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
+  }
+
+  public static String getScientificName(Node n) {
     return (String)n.getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
   }
 }

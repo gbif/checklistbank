@@ -7,13 +7,16 @@ import org.gbif.checklistbank.cli.model.NameUsageNode;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 
 public class TaxonomicOrderTest extends BaseTest {
 
@@ -26,26 +29,42 @@ public class TaxonomicOrderTest extends BaseTest {
         build(Rank.GENUS, "Pinus"),
         build(Rank.GENUS, "Abies"),
         build(Rank.FAMILY, "Pinaceae"),
+        build(Rank.SPECIES, "Abies alba", "Abies alba Mill."),
         build(Rank.KINGDOM, "Plantae"),
+        build(Rank.SUBSPECIES, "Abies alba alpina", "Abies alba subsp. alpina L."),
+        build(Rank.SPECIES, "Abies alba", "Abies alba L."),
+        build(Rank.VARIETY, "Abies alba berlina", "Abies alba var. berlina DC."),
+        build(Rank.SUBSPECIES, "Abies alba caucasia", "Abies alba subsp. caucasia Reich."),
         build(Rank.UNRANKED, "nonsense"),
         build(null, "Incertae sedis"),
         build(Rank.INFRAGENERIC_NAME, "Abieta")
       );
       Collections.sort(nodes, order);
 
-      assertEquals(3, nodes.get(0).getId());
-      assertEquals(2, nodes.get(1).getId());
-      assertEquals(1, nodes.get(2).getId());
-      assertEquals(0, nodes.get(3).getId());
+      Long[] expected = new Long[]{4l,2l,1l,0l,11l,6l,3l,5l,8l,7l,9l,10l};
+      Long[] sorted = Lists.transform(nodes, new Function<Node, Long>() {
+        @Nullable
+        @Override
+        public Long apply(@Nullable Node n) {
+          return n.getId();
+        }
+      }).toArray(new Long[]{});
+
+      System.out.println(Joiner.on("l,").join(sorted));
+      assertArrayEquals(expected, sorted);
     }
   }
 
   private Node build(Rank rank, String name){
+    return build(rank, name, name);
+  }
+
+  private Node build(Rank rank, String canonical, String scientific){
     Node n = dao.createTaxon();
     NameUsage u = new NameUsage();
     u.setRank(rank);
-    u.setCanonicalName(name);
-    u.setScientificName(name);
+    u.setCanonicalName(canonical);
+    u.setScientificName(scientific);
     dao.store(new NameUsageNode(n, u, true), true);
     return n;
   }

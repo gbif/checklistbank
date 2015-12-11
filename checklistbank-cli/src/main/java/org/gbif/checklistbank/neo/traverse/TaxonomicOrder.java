@@ -7,7 +7,7 @@ import java.util.Comparator;
 import org.neo4j.graphdb.Node;
 
 /**
- * Orders taxon nodes by their rank first, then canonical name.
+ * Orders taxon nodes by their rank first, then canonical name and scientificName ultimately.
  */
 public class TaxonomicOrder implements Comparator<Node> {
 
@@ -19,7 +19,13 @@ public class TaxonomicOrder implements Comparator<Node> {
     if (r1!=r2) {
       return r1 - r2;
     }
-    return NeoProperties.getName(n1).compareTo(NeoProperties.getName(n2));
+    String c1 = NeoProperties.getCanonicalName(n1);
+    String c2 = NeoProperties.getCanonicalName(n2);
+    int canonicalComparison = c1.compareTo(c2);
+    if (canonicalComparison == 0) {
+      return NeoProperties.getScientificName(n1).compareTo(NeoProperties.getScientificName(n2));
+    }
+    return canonicalComparison;
   }
 
 }

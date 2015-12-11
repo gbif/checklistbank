@@ -48,7 +48,7 @@ public abstract class MultiRooIterator<T> implements AutoCloseable, Iterator<T> 
         rootPaths.close();
       }
       Node root = roots.next();
-      LOG.debug("Traverse a new root taxon: {}", NeoProperties.getName(root));
+      LOG.debug("Traverse a new root taxon: {}", NeoProperties.getCanonicalName(root));
       rootPaths = iterateRoot(root);
     }
     if (rootPaths != null && rootPaths.hasNext()) {
