@@ -1,4 +1,4 @@
-taxonID	acceptedNameUsageID	taxonRank	scientificName
+taxonID	parentNameUsageID	taxonRank	scientificName
 1		family	Agaricaceae
 2	1	genus	Lepiota
 3	2	species	Lepiota seminuda

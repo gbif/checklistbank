@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<archive xmlns="http://rs.tdwg.org/dwc/text/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://rs.tdwg.org/dwc/text/ http://darwincore.googlecode.com/svn/trunk/text/tdwg_dwc_text.xsd">
+	<core encoding="UTF-8" linesTerminatedBy="\n" fieldsTerminatedBy="\t" fieldsEnclosedBy='' ignoreHeaderLines="1" rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+		<files>
+			<location>denormed_mixed.txt</location>
+		</files>
+		<id index="0" />
+		<field index="1" term="http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"/>
+		<field index="2" term="http://rs.tdwg.org/dwc/terms/parentNameUsageID"/>
+		<field index="3" term="http://rs.tdwg.org/dwc/terms/taxonRank"/>
+		<field index="4" term="http://rs.tdwg.org/dwc/terms/genus"/>
+		<field index="5" term="http://rs.tdwg.org/dwc/terms/scientificName"/>
+		<field default="Agaricomycetes" term="http://rs.tdwg.org/dwc/terms/class"/>
+		<field default="Basidiomycota" term="http://rs.tdwg.org/dwc/terms/phylum"/>
+		<field default="Fungi" term="http://rs.tdwg.org/dwc/terms/kingdom"/>
+	</core>
+</archive>
+

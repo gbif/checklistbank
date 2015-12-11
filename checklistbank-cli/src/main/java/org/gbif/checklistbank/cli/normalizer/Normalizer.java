@@ -244,6 +244,13 @@ public class Normalizer extends ImportDb implements Runnable {
         if (!taxon.node.hasLabel(Labels.SYNONYM) && taxon.rank != null) {
             ClassificationUtils.setHigherRank(lc, taxon.rank, null);
         }
+        // ignore genus and below for synonyms
+        // http://dev.gbif.org/issues/browse/POR-2992
+        if (taxon.node.hasLabel(Labels.SYNONYM)) {
+          ClassificationUtils.setHigherRank(lc, Rank.GENUS, null);
+          ClassificationUtils.setHigherRank(lc, Rank.SUBGENUS, null);
+          ClassificationUtils.setHigherRank(lc, Rank.SPECIES, null);
+        }
 
         // from kingdom to genus
         for (Rank hr : Rank.DWC_RANKS) {

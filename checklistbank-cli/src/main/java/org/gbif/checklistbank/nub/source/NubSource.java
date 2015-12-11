@@ -99,7 +99,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private IntIntMap ids = new IntIntHashMap();
     private IntObjectMap<Integer> nonNubRankUsages = new IntObjectHashMap<Integer>();
     private final UsageDao dao;
-    private Node root;
     private final boolean writeNeoProperties;
     private final boolean nubRanksOnly;
     private final NameParser parser;
@@ -114,7 +113,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       // we only need a parser in case we need to write neo properties
       parser = writeNeoProperties ? new NameParser() : null;
       tx = dao.beginTx();
-      root = dao.getNeo().createNode(Labels.ROOT);
     }
 
     @Override
@@ -182,9 +180,11 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
           n.setProperty(NeoProperties.RANK, u.rank.ordinal());
         }
       }
+
       // root?
       if (u.parentKey == null) {
-        root.createRelationshipTo(n, RelType.PARENT_OF);
+        n.addLabel(Labels.ROOT);
+
       } else {
         int pid = u.parentKey;
         Node p = getOrCreate(pid);
@@ -197,12 +197,11 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       }
       // establish basionym a relation?
       if (u.originalNameKey != null) {
-        int oid = u.originalNameKey;
-        Node o = getOrCreate(oid);
+        Node o = getOrCreate(u.originalNameKey);
         o.createRelationshipTo(n, RelType.BASIONYM_OF);
         o.addLabel(Labels.BASIONYM);
       }
-      if (counter % 1000 == 0) {
+      if (counter % 10000 == 0) {
         renewTx();
       }
     }

@@ -63,9 +63,9 @@ public class ImporterConfiguration {
 
   @Parameter(names = "--chunk-size")
   @Min(1)
-  public int chunkSize = 1000;
+  public int chunkSize = 10000;
 
   @Parameter(names = "--chunk-min-size")
   @Min(0)
-  public int chunkMinSize = 100;
+  public int chunkMinSize = 1000;
 }

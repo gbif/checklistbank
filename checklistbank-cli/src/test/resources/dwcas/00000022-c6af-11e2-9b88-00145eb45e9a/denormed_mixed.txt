@@ -1,0 +1,4 @@
+taxonID	acceptedNameUsageID	parentNameUsageID	taxonRank	genus	scientificName
+1			species	Lepiota	Lepiota seminuda
+2			species	Lepiota	Lepiota nuda
+3	2		species	Kamasutra	Kamasutra nuda
