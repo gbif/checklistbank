@@ -140,12 +140,13 @@ public class TraversalsTest {
 
 
     try (Transaction tx = db.beginTx()) {
+      // child1, child1Syn, child2, child2Syn, root, bas
       assertTraversalSizes(Traversals.PARENT, 1, 0, 1, 0, 0, 0);
       assertTraversalSizes(Traversals.PARENTS, 10, 0, 5, 0, 0, 0);
       assertTraversalSizes(Traversals.CHILDREN, 0, 0, 0, 0, 3, 0);
       // descendants are synonyms (incl pro parte) and children
       assertTraversalSizes(Traversals.DESCENDANTS, 1, 0, 2, 0, 20, 0);
-      assertTraversalSizes(Traversals.SYNONYMS, 1, 0, 1, 0, 0, 0);
+      assertTraversalSizes(Traversals.SYNONYMS, 1, 0, 2, 0, 0, 0);
       assertTraversalSizes(Traversals.ACCEPTED, 0, 2, 0, 1, 0, 1);
       assertTraversalSizes(Traversals.BASIONYM_GROUP, 1, 1, 4, 4, 1, 4);
 
@@ -156,12 +157,12 @@ public class TraversalsTest {
   }
 
   private void assertTraversalSizes(TraversalDescription td, int child1, int child1Syn, int child2, int child2Syn, int root, int bas) {
-    assertEquals("child1 traversal wrong", child1, IteratorUtil.asCollection(td.traverse(this.child1)).size());
-    assertEquals("child1Syn traversal wrong", child1Syn, IteratorUtil.asCollection(td.traverse(this.child1Syn)).size());
-    assertEquals("child2 traversal wrong", child2, IteratorUtil.asCollection(td.traverse(this.child2)).size());
-    assertEquals("child2Syn traversal wrong", child2Syn, IteratorUtil.asCollection(td.traverse(this.child2Syn)).size());
-    assertEquals("root traversal wrong", root, IteratorUtil.asCollection(td.traverse(this.root)).size());
-    assertEquals("bas traversal wrong", bas, IteratorUtil.asCollection(td.traverse(this.bas)).size());
+    assertEquals("child1 traversal wrong", child1, IteratorUtil.count(td.traverse(this.child1)));
+    assertEquals("child1Syn traversal wrong", child1Syn, IteratorUtil.count(td.traverse(this.child1Syn)));
+    assertEquals("child2 traversal wrong", child2, IteratorUtil.count(td.traverse(this.child2)));
+    assertEquals("child2Syn traversal wrong", child2Syn, IteratorUtil.count(td.traverse(this.child2Syn)));
+    assertEquals("root traversal wrong", root, IteratorUtil.count(td.traverse(this.root)));
+    assertEquals("bas traversal wrong", bas, IteratorUtil.count(td.traverse(this.bas)));
 
   }
 
