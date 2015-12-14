@@ -60,7 +60,7 @@ public class ManualImport {
     iCfg.clb.serverName = "localhost";
     iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
-    iCfg.clb.password = "xxx";
+    iCfg.clb.password = "pogo";
     //iCfg.solr.serverType = SolrServerType.HTTP;
     //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
 

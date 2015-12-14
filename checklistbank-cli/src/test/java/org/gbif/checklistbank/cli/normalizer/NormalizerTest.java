@@ -17,6 +17,7 @@ import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.yammer.metrics.MetricRegistry;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
@@ -371,8 +373,9 @@ public class NormalizerTest extends BaseTest {
     NormalizerStats stats = normalize(20);
     assertEquals(1, stats.getRoots());
     assertEquals(9, stats.getCountByOrigin(Origin.SOURCE));
-    assertEquals(27, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
-    assertEquals(36, stats.getCount());
+    // all distinct higher taxa but the synonym genera and the explicit genus Chaetosphaeria
+    assertEquals(24, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
+    assertEquals(33, stats.getCount());
 
     try (Transaction tx = beginTx()) {
       // make sure we only have one such genus
@@ -388,6 +391,46 @@ public class NormalizerTest extends BaseTest {
           "Sordariomycetes",
           "Ascomycota",
           "Fungi");
+
+      // verify all denormed usages
+      Map<String, Rank> expected = Maps.newHashMap();
+      expected.put("Fungi", Rank.KINGDOM);
+      expected.put("Ascomycota", Rank.PHYLUM);
+      expected.put("Arthoniomycetes", Rank.CLASS);
+      expected.put("Dothideomycetes", Rank.CLASS);
+      expected.put("Incertae sedis", Rank.CLASS);
+      expected.put("Lecanoromycetes", Rank.CLASS);
+      expected.put("Sordariomycetes", Rank.CLASS);
+      expected.put("Arthoniales", Rank.ORDER);
+      expected.put("Capnodiales", Rank.ORDER);
+      expected.put("Chaetosphaeriales", Rank.ORDER);
+      expected.put("Lecanorales", Rank.ORDER);
+      expected.put("Pleosporales", Rank.ORDER);
+      expected.put("Triblidiales", Rank.ORDER);
+      expected.put("Arthoniaceae", Rank.FAMILY);
+      expected.put("Arthopyreniaceae", Rank.FAMILY);
+      expected.put("Chaetosphaeriaceae", Rank.FAMILY);
+      expected.put("Mycosphaerellaceae", Rank.FAMILY);
+      expected.put("Parmeliaceae", Rank.FAMILY);
+      expected.put("Triblidiaceae", Rank.FAMILY);
+      expected.put("Arthopyrenia", Rank.GENUS);
+      expected.put("Blitridium", Rank.GENUS);
+      expected.put("Pseudocercospora", Rank.GENUS);
+      expected.put("Septoria", Rank.GENUS);
+      expected.put("Sphaerella", Rank.GENUS);
+
+      for (Node n : IteratorUtil.loop(dao.allTaxa())) {
+        u = dao.readUsage(n, true);
+        if (u.getOrigin() == Origin.DENORMED_CLASSIFICATION) {
+          Rank r = expected.remove(u.getScientificName());
+          if (r == null) {
+            fail("Missing denormed usage " + u.getScientificName());
+          } else if (!r.equals(u.getRank())) {
+              fail("Wrong rank for denormed usage "+u.getScientificName());
+          }
+        }
+      }
+      assertTrue(expected.isEmpty());
     }
   }
 
@@ -405,7 +448,7 @@ public class NormalizerTest extends BaseTest {
     NormalizerStats stats = normalize(6);
     assertEquals(1, stats.getRoots());
     assertEquals(226, stats.getCountByOrigin(Origin.SOURCE));
-    assertEquals(49, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
+    assertEquals(43, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
 
     try (Transaction tx = beginTx()) {
       assertUsage("426221",
@@ -558,11 +601,11 @@ public class NormalizerTest extends BaseTest {
     NormalizerStats stats = normalize(8);
     try (Transaction tx = beginTx()) {
       assertEquals(1, stats.getRoots());
-      assertEquals(15, stats.getCount());
-      assertEquals(4, stats.getSynonyms());
-      assertEquals(15, stats.getCountByOrigin(Origin.SOURCE));
+      assertEquals(17, stats.getCount());
+      assertEquals(6, stats.getSynonyms());
+      assertEquals(17, stats.getCountByOrigin(Origin.SOURCE));
       assertEquals(2, stats.getCountByRank(Rank.GENUS));
-      assertEquals(5, stats.getCountByRank(Rank.SPECIES));
+      assertEquals(7, stats.getCountByRank(Rank.SPECIES));
       assertEquals(5, stats.getCountByRank(Rank.SUBSPECIES));
 
       // genus synonym
@@ -918,7 +961,7 @@ public class NormalizerTest extends BaseTest {
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
 
-    assertEquals(59, stats.getCount());
+    assertEquals(57, stats.getCount());
     assertEquals(7, stats.getDepth());
     assertEquals(53, stats.getCountByOrigin(Origin.SOURCE));
     assertEquals(1, stats.getRoots());
@@ -1040,12 +1083,12 @@ public class NormalizerTest extends BaseTest {
     openDb(datasetKey);
     compareStats(stats);
     assertEquals(40, stats.getCountByOrigin(Origin.SOURCE));
-    assertEquals(5, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
+    assertEquals(0, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
     assertEquals(0, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
     assertEquals(0, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
     assertEquals(1, stats.getRoots());
     assertEquals(17, stats.getSynonyms());
-    assertEquals(45, stats.getCount());
+    assertEquals(40, stats.getCount());
 
     try (Transaction tx = beginTx()) {
       NameUsage subgen = getUsageByTaxonId("171415");

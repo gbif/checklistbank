@@ -10,7 +10,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.neo.traverse.TreeIterables;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
@@ -19,6 +19,7 @@ import org.gbif.nameparser.NameParser;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.UUID;
 
 import com.carrotsearch.hppc.IntIntHashMap;
@@ -29,9 +30,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,13 +248,11 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   public class SrcUsageIterator implements CloseableIterator<SrcUsage> {
     private final Transaction tx;
-    private final ResourceIterator<Node> nodes;
-    private final Node root;
+    private final Iterator<Node> nodes;
 
     public SrcUsageIterator(UsageDao dao) {
       tx = dao.beginTx();
-      root = IteratorUtil.first(dao.getNeo().findNodes(Labels.ROOT));
-      this.nodes = Traversals.DESCENDANTS.traverse(root).nodes().iterator();
+      this.nodes = TreeIterables.allNodes(dao.getNeo(), null, null, true).iterator();
     }
 
     @Override
@@ -275,7 +272,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     @Override
     public void close() {
-      nodes.close();
       tx.close();
     }
   }

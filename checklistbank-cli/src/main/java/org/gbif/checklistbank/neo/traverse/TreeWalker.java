@@ -34,7 +34,7 @@ public class TreeWalker {
    */
   public static void walkTree(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
     try (Transaction tx = db.beginTx()){
-      walkTree(TreeIterables.allPath(db, root, lowestRank, true), meter, handler);
+      walkTree(TreeIterablesSorted.allPath(db, root, lowestRank, true), meter, handler);
     }
   }
 
@@ -50,7 +50,7 @@ public class TreeWalker {
    */
   public static void walkAcceptedTree(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
     try (Transaction tx = db.beginTx()){
-      walkTree(TreeIterables.acceptedPath(db, root, lowestRank), meter, handler);
+      walkTree(TreeIterablesSorted.acceptedPath(db, root, lowestRank), meter, handler);
     }
   }
 

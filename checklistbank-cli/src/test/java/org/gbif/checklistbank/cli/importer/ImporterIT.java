@@ -249,7 +249,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
     assertEquals(1, stats.getRoots());
-    assertEquals(296, stats.getCount());
+    assertEquals(290, stats.getCount());
     assertEquals(36, stats.getSynonyms());
 
     // 1st import
@@ -270,12 +270,13 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // insert neo db
     NormalizerStats stats = insertNeo(datasetKey);
-    assertEquals(18, stats.getCount());
-    assertEquals(6, stats.getSynonyms());
+    assertEquals(20, stats.getCount());
+    // 6+2 pro parte counts
+    assertEquals(8, stats.getSynonyms());
     assertEquals(1, stats.getRoots());
     // pro parte records stay as one in the normalized neo db
     assertEquals(0, stats.getCountByOrigin(Origin.PROPARTE));
-    assertEquals(18, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(20, stats.getCountByOrigin(Origin.SOURCE));
 
     // 1st import
     runImport(datasetKey);

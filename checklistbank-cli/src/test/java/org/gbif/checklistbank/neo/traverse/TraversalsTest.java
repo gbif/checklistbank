@@ -1,7 +1,10 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
+import org.gbif.utils.text.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +22,7 @@ import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TraversalsTest {
   private File dbf;
@@ -42,54 +46,98 @@ public class TraversalsTest {
     FileUtils.deleteQuietly(dbf);
   }
 
-  private void setupNodesAndRels() {
+  private Node createNode(Rank rank, Labels ... label) {
+    Node n = db.createNode(label);
+    n.setProperty(NeoProperties.RANK, rank.ordinal());
+    n.setProperty(NeoProperties.SCIENTIFIC_NAME, StringUtils.randomSpecies());
+    return n;
+  }
+
+  @Test
+  public void testFindParents() {
     // SETUP NODES AND RELATIONS
     try (Transaction tx = db.beginTx()) {
       // single root
-      root = db.createNode(Labels.ROOT);
-      // chain up 10 children
+      root = createNode(Rank.KINGDOM, Labels.ROOT);
+
+      // add children of all ranks
       Node p = root;
-      for (int idx = 1; idx <= 10; idx++) {
-        Node child = db.createNode(Labels.TAXON);
-        p.createRelationshipTo(child, RelType.PARENT_OF);
-        p = child;
+      for (Rank r : Rank.values()) {
+        if (Rank.KINGDOM.higherThan(r) && r.higherThan(Rank.FORM)) {
+          Node child = createNode(r, Labels.TAXON);
+          p.createRelationshipTo(child, RelType.PARENT_OF);
+          p = child;
+          if (r == Rank.ORDER) {
+            child1 = child;
+          } else if (r == Rank.VARIETY) {
+            child2 = child;
+          }
+          // second child not further related
+          Node child2 = createNode(r, Labels.TAXON);
+          p.createRelationshipTo(child2, RelType.PARENT_OF);
+        }
       }
-      child1 = p;
-
-      // 5 other nodes downward from root
-      p = root;
-      for (int idx = 1; idx <= 5; idx++) {
-        Node child = db.createNode(Labels.TAXON);
-        p.createRelationshipTo(child, RelType.PARENT_OF);
-        p = child;
-      }
-      child2 = p;
-
-      // synonyms
-      child2Syn = db.createNode(Labels.SYNONYM);
-      child2Syn.createRelationshipTo(child2, RelType.SYNONYM_OF);
-
-      child1Syn = db.createNode(Labels.SYNONYM);
-      child1Syn.createRelationshipTo(child1, RelType.SYNONYM_OF);
-      child1Syn.createRelationshipTo(child2, RelType.PROPARTE_SYNONYM_OF);
-
-      // one basionym with 3 rels
-      Node n = db.createNode(Labels.TAXON);
-      root.createRelationshipTo(n, RelType.PARENT_OF);
-
-      bas = db.createNode(Labels.SYNONYM);
-      bas.createRelationshipTo(n, RelType.SYNONYM_OF);
-      bas.createRelationshipTo(n, RelType.BASIONYM_OF);
-      bas.createRelationshipTo(child2, RelType.BASIONYM_OF);
-      bas.createRelationshipTo(child2Syn, RelType.BASIONYM_OF);
-
       tx.success();
+    }
+
+    try (Transaction tx = db.beginTx()) {
+      assertNull(Traversals.findParentWithRank(child1, Rank.SPECIES));
+      assertNull(Traversals.findParentWithRank(child1, Rank.FAMILY));
+      assertNull(Traversals.findParentWithRank(child1, Rank.ORDER));
+      assertEquals(root, Traversals.findParentWithRank(child1, Rank.KINGDOM));
+      assertEquals(Rank.SUBCLASS.ordinal(), Traversals.findParentWithRank(child1, Rank.SUBCLASS).getProperty(NeoProperties.RANK));
+
+      assertNull(Traversals.findParentWithRank(child2, Rank.UNRANKED));
+      assertNull(Traversals.findParentWithRank(child1, Rank.ORDER));
+      assertEquals(root, Traversals.findParentWithRank(child2, Rank.KINGDOM));
     }
   }
 
   @Test
   public void testTraversals() {
-    setupNodesAndRels();
+      // SETUP NODES AND RELATIONS
+      try (Transaction tx = db.beginTx()) {
+        // single root
+        root = db.createNode(Labels.ROOT);
+        // chain up 10 children
+        Node p = root;
+        for (int idx = 1; idx <= 10; idx++) {
+          Node child = db.createNode(Labels.TAXON);
+          p.createRelationshipTo(child, RelType.PARENT_OF);
+          p = child;
+        }
+        child1 = p;
+
+        // 5 other nodes downward from root
+        p = root;
+        for (int idx = 1; idx <= 5; idx++) {
+          Node child = db.createNode(Labels.TAXON);
+          p.createRelationshipTo(child, RelType.PARENT_OF);
+          p = child;
+        }
+        child2 = p;
+
+        // synonyms
+        child2Syn = db.createNode(Labels.SYNONYM);
+        child2Syn.createRelationshipTo(child2, RelType.SYNONYM_OF);
+
+        child1Syn = db.createNode(Labels.SYNONYM);
+        child1Syn.createRelationshipTo(child1, RelType.SYNONYM_OF);
+        child1Syn.createRelationshipTo(child2, RelType.PROPARTE_SYNONYM_OF);
+
+        // one basionym with 3 rels
+        Node n = db.createNode(Labels.TAXON);
+        root.createRelationshipTo(n, RelType.PARENT_OF);
+
+        bas = db.createNode(Labels.SYNONYM);
+        bas.createRelationshipTo(n, RelType.SYNONYM_OF);
+        bas.createRelationshipTo(n, RelType.BASIONYM_OF);
+        bas.createRelationshipTo(child2, RelType.BASIONYM_OF);
+        bas.createRelationshipTo(child2Syn, RelType.BASIONYM_OF);
+
+        tx.success();
+      }
+
 
     try (Transaction tx = db.beginTx()) {
       assertTraversalSizes(Traversals.PARENT, 1, 0, 1, 0, 0, 0);

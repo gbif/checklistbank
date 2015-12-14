@@ -12,6 +12,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -118,25 +119,26 @@ public abstract class BaseTest {
       if (n.hasLabel(Labels.ROOT)) {
         roots++;
       }
+      // pro parte relations count as extra synonyms!
+      final int countAs = n.hasLabel(Labels.SYNONYM) ? IteratorUtil.count(Traversals.ACCEPTED.traverse(n)) : 1;
       if (n.hasLabel(Labels.SYNONYM)) {
-        synonyms++;
+        synonyms = synonyms + countAs;
         if (!n.hasRelationship(RelType.SYNONYM_OF)) {
           throw new IllegalStateException("Node "+n.getId()+" with synonym label but without synonymOf relationship found");
         }
       } else if (u.isSynonym()) {
         throw new IllegalStateException("Node "+n.getId()+" without synonym label but usage has isSynonym=true");
       }
-
       if (!countByOrigin.containsKey(u.getOrigin())) {
-        countByOrigin.put(u.getOrigin(), 1);
+        countByOrigin.put(u.getOrigin(), countAs);
       } else {
-        countByOrigin.put(u.getOrigin(), countByOrigin.get(u.getOrigin()) + 1);
+        countByOrigin.put(u.getOrigin(), countByOrigin.get(u.getOrigin()) + countAs);
       }
       if (u.getRank() != null) {
         if (!countByRank.containsKey(u.getRank())) {
-          countByRank.put(u.getRank(), 1);
+          countByRank.put(u.getRank(), countAs);
         } else {
-          countByRank.put(u.getRank(), countByRank.get(u.getRank()) + 1);
+          countByRank.put(u.getRank(), countByRank.get(u.getRank()) + countAs);
         }
       }
     }

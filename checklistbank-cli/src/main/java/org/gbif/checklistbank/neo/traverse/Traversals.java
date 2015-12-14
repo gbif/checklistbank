@@ -1,8 +1,12 @@
 package org.gbif.checklistbank.neo.traverse;
 
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 
 import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Uniqueness;
@@ -30,22 +34,9 @@ public class Traversals {
       .evaluator(Evaluators.excludeStartPosition())
       .uniqueness(Uniqueness.NODE_PATH);
 
-  /**
-   * Traversal that iterates depth first over all descendants including synonyms.
-   * The node of pro parte synonyms will be visited multiple times, once for each synonym/pro_parte relationship!
-   * There is no particular order for the direct children.
-   * See SORTED_TREE if a taxonomic order is required!
-   */
-  public static final TraversalDescription DESCENDANTS = new MonoDirectionalTraversalDescription()
-      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
-      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
-      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
-      .depthFirst()
-      .evaluator(Evaluators.excludeStartPosition())
-      .uniqueness(Uniqueness.NODE_PATH);
-
   public static final TraversalDescription SYNONYMS = new MonoDirectionalTraversalDescription()
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
+      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)
       .breadthFirst()
       .evaluator(Evaluators.toDepth(1))
       .evaluator(Evaluators.excludeStartPosition())
@@ -79,6 +70,24 @@ public class Traversals {
       .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
       .depthFirst()
       .uniqueness(Uniqueness.NODE_PATH);
+
+  /**
+   * Traversal that iterates depth first over all descendants including synonyms and the starting node.
+   * The node of pro parte synonyms will be visited multiple times.
+   * There is no particular order for the direct children.
+   * See SORTED_TREE traversals if a taxonomic order is required!
+   */
+  public static final TraversalDescription TREE = TREE_WITHOUT_PRO_PARTE
+      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING);
+
+  /**
+   * Traversal that iterates depth first over all descendants including synonyms.
+   * The node of pro parte synonyms will be visited multiple times, once for each synonym/pro_parte relationship!
+   * There is no particular order for the direct children.
+   * See SORTED_TREE if a taxonomic order is required!
+   */
+  public static final TraversalDescription DESCENDANTS = TREE
+      .evaluator(Evaluators.excludeStartPosition());
 
   /**
    * Traversal that iterates over all child taxa and their synonyms in a taxonomic order, i.e. by rank and secondary ordered by the name.
@@ -116,4 +125,21 @@ public class Traversals {
       .evaluator(new AcceptedOnlyEvaluator())
       .uniqueness(Uniqueness.NODE_PATH);
 
+
+  /**
+   * Tries to find a parent node with the given rank
+   * @param start node to start looking for parents, excluded from search
+   * @return the parent node with requested rank or null
+   */
+  public static Node findParentWithRank(Node start, Rank rank) {
+    try(ResourceIterator<Node> parents = Traversals.PARENTS.traverse(start).nodes().iterator()) {
+      while (parents.hasNext()) {
+        Node p = parents.next();
+        if ((int)p.getProperty(NeoProperties.RANK, -1) == rank.ordinal()) {
+          return p;
+        }
+      }
+    }
+    return null;
+  }
 }

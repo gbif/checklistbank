@@ -22,7 +22,7 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.ChunkingEvaluator;
 import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-import org.gbif.checklistbank.neo.traverse.TreeIterables;
+import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
 import org.gbif.checklistbank.service.UsageService;
 
 import java.util.Calendar;
@@ -273,7 +273,7 @@ public class Importer extends ImportDb implements Runnable {
       // returns all nodes, accepted and synonyms
       LOG.info("Chunking imports into slices of {} to {}", cfg.chunkMinSize, cfg.chunkSize);
       ChunkingEvaluator chunkingEvaluator = new ChunkingEvaluator(dao, cfg.chunkMinSize, cfg.chunkSize);
-      for (Node n : MultiRootNodeIterator.create(TreeIterables.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
+      for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
           datasyncExec.submit(new DatasetSyncer(n.getId()));
           LOG.debug("Chunk job {} from node {} submitted", ++chunks, n.getId());
