@@ -1,0 +1,12 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Porifera
+3	2		CLASS	ACCEPTED		Hexactinellida
+4	3		SUBCLASS	ACCEPTED		Amphidiscophora
+5	4		ORDER	ACCEPTED		Amphidiscosida
+6	5		FAMILY	ACCEPTED		Hyalonematidae
+
+10	6		GENUS	ACCEPTED		Hyalonema Gray, 1832
+20	10		SUBGENUS	ACCEPTED		Hyalonema (Corynonema) Ijima, 1927
+21	20		SPECIES	ACCEPTED		Hyalonema (Corynonema) grandancora Lendenfeld, 1915
+30	10		SUBGENUS	ACCEPTED		Hyalonema (Hyalonema) Gray, 1832
+31	21		SPECIES	SYNONYM		Hyalonema (Hyalonema) grandancora Lendenfeld, 1915

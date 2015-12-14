@@ -123,6 +123,20 @@ public class NubBuilderIT {
   }
 
   /**
+   * Worms declares the same species name twice in different subgenera.
+   * One being a synonym of the other. Make sure we only see the accepted species and ignore the synonym which has the exact same name!
+   */
+  @Test
+  public void testWormsSubgenera() throws Exception {
+    build(ClasspathSourceList.source(43));
+
+    NubUsage genus = assertCanonical("Hyalonema", "Gray, 1832", Rank.GENUS, Origin.SOURCE);
+    assertCanonical("Hyalonema grandancora", "Lendenfeld, 1915", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
+
+    assertTree("43.txt");
+  }
+
+  /**
    * http://dev.gbif.org/issues/browse/POR-398
    */
   @Test
