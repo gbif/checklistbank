@@ -4,7 +4,6 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
@@ -12,9 +11,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
 
-import com.google.common.collect.Lists;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 import com.google.common.xml.XmlEscapers;
 import org.neo4j.graphdb.Node;
 import org.parboiled.common.StringUtils;
@@ -22,12 +21,12 @@ import org.parboiled.common.StringUtils;
 /**
  * A handler that can be used with the TaxonWalker to print a neo4j taxonomy in a simple nested text structure.
  */
-public class TreeXmlPrinter implements StartEndHandler {
+public class XmlPrinter implements TreePrinter {
   private final Writer writer;
   private final NameParser parser;
   private LinkedList<String> parents = Lists.newLinkedList();
 
-  public TreeXmlPrinter(Writer writer) {
+  public XmlPrinter(Writer writer) {
     this.writer = writer;
     parser = new NameParser(250);
   }
@@ -46,8 +45,8 @@ public class TreeXmlPrinter implements StartEndHandler {
 
   private void open(Node n, boolean close) {
     try {
-      String sname = (String)n.getProperty(NeoProperties.SCIENTIFIC_NAME, "root");
-      String cname = (String)n.getProperty(NeoProperties.CANONICAL_NAME, null);
+      String sname = NeoProperties.getScientificName(n);
+      String cname = NeoProperties.getCanonicalName(n);
       Rank rank = Rank.values()[(Integer) n.getProperty(NeoProperties.RANK, Rank.UNRANKED.ordinal())];
       if (Strings.isNullOrEmpty(cname)) {
         try {
@@ -105,5 +104,10 @@ public class TreeXmlPrinter implements StartEndHandler {
 
   private String escapeTag(String x) {
     return x.replaceAll("[^a-zA-Z0-9_.-]", "_");
+  }
+
+  @Override
+  public void close() {
+
   }
 }

@@ -17,8 +17,8 @@ import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.printer.GmlPrinter;
 import org.gbif.checklistbank.neo.printer.TabPrinter;
 import org.gbif.checklistbank.neo.printer.TreePrinter;
-import org.gbif.checklistbank.neo.printer.TreeXmlPrinter;
-import org.gbif.checklistbank.neo.traverse.StartEndHandler;
+import org.gbif.checklistbank.neo.printer.TxtPrinter;
+import org.gbif.checklistbank.neo.printer.XmlPrinter;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -31,9 +31,10 @@ import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
@@ -187,32 +188,40 @@ public class UsageDao {
    * Prints the entire neo4j tree out to a print stream, mainly for debugging.
    * Synonyms are marked with a prepended asterisk.
    */
-  public void printTree(Writer writer, GraphFormat format, boolean fullNames, @Nullable Rank lowestRank, @Nullable Node root) throws Exception {
-    StartEndHandler printer;
-    final String nameProperty = fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME;
+  public void printTree(Writer writer, GraphFormat format, final boolean fullNames, @Nullable Rank lowestRank, @Nullable Node root) throws Exception {
+    final Function<Node, String> getTitle = new Function<Node, String>() {
+      @Nullable
+      @Override
+      public String apply(@Nullable Node input) {
+        return fullNames ? NeoProperties.SCIENTIFIC_NAME : NeoProperties.CANONICAL_NAME;
+      }
+    };
+
+    TreePrinter printer;
     switch (format) {
       case XML:
-        printer = new TreeXmlPrinter(writer);
+        printer = new XmlPrinter(writer);
         break;
 
       case GML:
-        printer = new GmlPrinter(writer, nameProperty);
+        printer = new GmlPrinter(writer, getTitle);
         break;
 
       case TAB:
-        printer = new TabPrinter(writer, nameProperty);
+        printer = new TabPrinter(writer, getTitle);
         break;
 
       default:
-        printer = new TreePrinter(writer, nameProperty);
+        printer = new TxtPrinter(writer, getTitle);
         break;
     }
     printTree(printer, lowestRank, root);
     writer.flush();
   }
 
-  private void printTree(StartEndHandler printer, @Nullable Rank lowestRank, @Nullable Node root) {
+  private void printTree(TreePrinter printer, @Nullable Rank lowestRank, @Nullable Node root) {
     TreeWalker.walkTree(getNeo(), root, lowestRank, null, printer);
+    printer.close();
   }
 
   /**

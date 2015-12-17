@@ -19,6 +19,7 @@ import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -418,6 +419,10 @@ public class NubDb {
       // read nub usage to add an issue to the child
       NubUsage cu = dao.readNub(child);
       if (issues != null) {
+        if (cu.issues == null) {
+          LOG.warn("Nub usage {} {} with null issue set", child.getId(), cu.parsedName.fullName());
+          cu.issues = EnumSet.noneOf(NameUsageIssue.class);
+        }
         Collections.addAll(cu.issues, issues);
       }
       if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {

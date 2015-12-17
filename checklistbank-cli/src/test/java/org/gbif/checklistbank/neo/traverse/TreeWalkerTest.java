@@ -4,7 +4,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.printer.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TxtPrinter;
 
 import java.io.File;
 import java.io.IOException;
@@ -154,46 +154,46 @@ public class TreeWalkerTest {
   @Test
   public void testWalkTree() throws Exception {
     StringWriter writer = new StringWriter();
-    TreeWalker.walkTree(db, new TreePrinter(writer));
+    TreeWalker.walkTree(db, new TxtPrinter(writer));
     System.out.println(writer.toString());
     assertEquals(Resources.toString(Resources.getResource("traverse/tree.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, phylum, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, phylum, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treePhylum.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, genus, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, genus, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeGenus.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, bas, null, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, bas, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeBasionym.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, phylum, Rank.ORDER, null, new TreePrinter(writer));
+    TreeWalker.walkTree(db, phylum, Rank.ORDER, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/tree-order.txt"), Charsets.UTF_8), writer.toString());
   }
 
   @Test
   public void testWalkAcceptedTree() throws Exception {
     StringWriter writer = new StringWriter();
-    TreeWalker.walkAcceptedTree(db, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAccepted.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkAcceptedTree(db, genus, null, null, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, genus, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAcceptedGenus.txt"), Charsets.UTF_8), writer.toString());
   }
 
   @Test
   public void testChunkingHandler() throws Exception {
     StringWriter writer = new StringWriter();
-    TreeWalker.walkAcceptedTree(db, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAccepted.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkAcceptedTree(db, genus, null, null, new TreePrinter(writer));
+    TreeWalker.walkAcceptedTree(db, genus, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeAcceptedGenus.txt"), Charsets.UTF_8), writer.toString());
   }
 

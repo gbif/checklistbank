@@ -5,7 +5,6 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.io.TabWriter;
 
 import java.io.IOException;
@@ -13,26 +12,24 @@ import java.io.Writer;
 import java.util.Set;
 
 import com.beust.jcommander.internal.Sets;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Throwables;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Dumps a neo db in a simple tab delimited format used by the nub integration tests.
  */
-public class TabPrinter implements StartEndHandler, AutoCloseable {
-  private static final Logger LOG = LoggerFactory.getLogger(TabPrinter.class);
-  private final String nameProperty;
+public class TabPrinter implements TreePrinter {
+  private final Function<Node, String> getTitle;
   private final TabWriter writer;
   private static final Joiner ID_CONCAT = Joiner.on(";").skipNulls();
 
-  public TabPrinter(Writer writer, String nameProperty) {
+  public TabPrinter(Writer writer, Function<Node, String> getTitle) {
     this.writer = new TabWriter(writer);
-    this.nameProperty = nameProperty;
+    this.getTitle = getTitle;
   }
 
   @Override
@@ -66,7 +63,7 @@ public class TabPrinter implements StartEndHandler, AutoCloseable {
         row[3] = Rank.values()[(Integer) n.getProperty(NeoProperties.RANK)].name();
       }
       row[4] = n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name();
-      row[6] = (String) n.getProperty(nameProperty, NeoProperties.NULL_NAME);
+      row[6] = getTitle.apply(n);
       writer.write(row);
     } catch (IOException e) {
       Throwables.propagate(e);

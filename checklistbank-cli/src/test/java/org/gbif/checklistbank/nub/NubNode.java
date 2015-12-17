@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.checklistbank.neo.printer.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TxtPrinter;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -35,10 +35,10 @@ public class NubNode {
   public void print(Appendable out, int level, boolean synonym) throws IOException {
     out.append(StringUtils.repeat(" ", level * 2));
     if (synonym) {
-      out.append(TreePrinter.SYNONYM_SYMBOL);
+      out.append(TxtPrinter.SYNONYM_SYMBOL);
     }
     if (basionym) {
-      out.append(TreePrinter.BASIONYM_SYMBOL);
+      out.append(TxtPrinter.BASIONYM_SYMBOL);
     }
     out.append(name + "\n");
     // recursive

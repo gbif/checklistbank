@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.nub;
 
-import org.gbif.checklistbank.neo.printer.TreePrinter;
+import org.gbif.checklistbank.neo.printer.TxtPrinter;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.BufferedReader;
@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class NubTree implements Iterable<NubNode> {
   private NubNode root = new NubNode(null, false);
-  private static final Pattern INDENT = Pattern.compile("^( +\\" + TreePrinter.SYNONYM_SYMBOL + "?\\" + TreePrinter.BASIONYM_SYMBOL + "?)");
+  private static final Pattern INDENT = Pattern.compile("^( +\\" + TxtPrinter.SYNONYM_SYMBOL + "?\\" + TxtPrinter.BASIONYM_SYMBOL + "?)");
 
   public static NubTree read(String classpathFilename) throws IOException {
     return read(FileUtils.classpathStream(classpathFilename));
@@ -42,10 +42,10 @@ public class NubTree implements Iterable<NubNode> {
         Matcher m = INDENT.matcher(line);
         if (m.find()) {
           String prefix = m.group(1);
-          if (prefix.endsWith(TreePrinter.BASIONYM_SYMBOL)) {
+          if (prefix.endsWith(TxtPrinter.BASIONYM_SYMBOL)) {
             basionym = true;
           }
-          if (prefix.contains(TreePrinter.SYNONYM_SYMBOL)) {
+          if (prefix.contains(TxtPrinter.SYNONYM_SYMBOL)) {
             synonym = true;
           }
           level = prefix.length() - (synonym ? 1 : 0) - (basionym ? 1 : 0);
