@@ -154,24 +154,24 @@ public class TreeWalkerTest {
   @Test
   public void testWalkTree() throws Exception {
     StringWriter writer = new StringWriter();
-    TreeWalker.walkTree(db, new TxtPrinter(writer));
+    TreeWalker.walkTree(db, true, new TxtPrinter(writer));
     System.out.println(writer.toString());
     assertEquals(Resources.toString(Resources.getResource("traverse/tree.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, phylum, null, null, new TxtPrinter(writer));
+    TreeWalker.walkTree(db, true, phylum, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treePhylum.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, genus, null, null, new TxtPrinter(writer));
+    TreeWalker.walkTree(db, true, genus, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeGenus.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, bas, null, null, new TxtPrinter(writer));
+    TreeWalker.walkTree(db, true, bas, null, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/treeBasionym.txt"), Charsets.UTF_8), writer.toString());
 
     writer = new StringWriter();
-    TreeWalker.walkTree(db, phylum, Rank.ORDER, null, new TxtPrinter(writer));
+    TreeWalker.walkTree(db, true, phylum, Rank.ORDER, null, new TxtPrinter(writer));
     assertEquals(Resources.toString(Resources.getResource("traverse/tree-order.txt"), Charsets.UTF_8), writer.toString());
   }
 

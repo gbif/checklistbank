@@ -2,7 +2,7 @@ package org.gbif.checklistbank.nub;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.cli.show.GraphFormat;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.source.ClbSource;
 

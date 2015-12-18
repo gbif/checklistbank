@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 
@@ -30,6 +31,13 @@ public class NeoProperties {
       return (String)n.getProperty(NeoProperties.CANONICAL_NAME);
     }
     return (String)n.getProperty(NeoProperties.SCIENTIFIC_NAME, NULL_NAME);
+  }
+
+  public static Rank getRank(Node n, Rank defaultValue) {
+    if (n.hasProperty(NeoProperties.RANK)) {
+      return Rank.values()[(int)n.getProperty(NeoProperties.RANK)];
+    }
+    return defaultValue;
   }
 
   public static String getScientificName(Node n) {

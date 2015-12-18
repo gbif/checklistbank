@@ -7,7 +7,7 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.show.GraphFormat;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
@@ -1121,7 +1121,7 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
-    TreeWalker.walkTree(dao.getNeo(), treeAssert);
+    TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
   }
 

@@ -24,17 +24,17 @@ public class TreeWalker {
   private static final Logger LOG = LoggerFactory.getLogger(TreeWalker.class);
   private static final int reportingSize = 10000;
 
-  public static void walkTree(GraphDatabaseService db, StartEndHandler ... handler) {
-    walkTree(db, null, null, null, handler);
+  public static void walkTree(GraphDatabaseService db, boolean inclProParte, StartEndHandler ... handler) {
+    walkTree(db, inclProParte, null, null, null, handler);
   }
 
   /**
-   * Walks all nodes in a taxonomic tree order in a single transaction
+   * Walks all nodes in a taxonomic tree order in a single transaction including pro parte relations
    * @param root if given starts to walk the subtree including the given node
    */
-  public static void walkTree(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
+  public static void walkTree(GraphDatabaseService db, boolean inclProParte, @Nullable Node root, @Nullable Rank lowestRank, @Nullable Meter meter, StartEndHandler ... handler) {
     try (Transaction tx = db.beginTx()){
-      walkTree(TreeIterablesSorted.allPath(db, root, lowestRank, true), meter, handler);
+      walkTree(TreeIterablesSorted.allPath(db, root, lowestRank, inclProParte), meter, handler);
     }
   }
 
@@ -118,7 +118,7 @@ public class TreeWalker {
       if (sb.length() > 0) {
         sb.append(" -- ");
       }
-      sb.append((String) n.getProperty(NeoProperties.CANONICAL_NAME, "none"));
+      sb.append(NeoProperties.getCanonicalName(n));
     }
     LOG.info(sb.toString());
   }

@@ -26,7 +26,7 @@ public class TreeIterablesSorted {
   }
 
   /**
-   * Iterates over all paths ending in an accepted node.
+   * Iterates over all paths
    */
   public static Iterable<Path> allPath(GraphDatabaseService db, @Nullable Node root, @Nullable Rank lowestRank, boolean inclProParte) {
     return MultiRootPathIterator.create(findRoot(db, root), filterRank(inclProParte ? Traversals.SORTED_TREE : Traversals.SORTED_TREE_WITHOUT_PRO_PARTE, lowestRank));

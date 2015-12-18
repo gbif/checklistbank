@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.show;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 
 import java.io.File;
 import java.util.UUID;

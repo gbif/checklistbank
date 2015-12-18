@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.show;
+package org.gbif.checklistbank.cli.model;
 
 /**
  *
@@ -16,8 +16,14 @@ public enum GraphFormat {
 
   /**
    * Graph modelling language
+   * See http://www.fim.uni-passau.de/fileadmin/files/lehrstuhl/brandenburg/projekte/gml/gml-technical-report.pdf
    */
   GML("gml"),
+
+  /**
+   * http://www.graphviz.org/doc/info/lang.html
+   */
+  DOT("dot"),
 
   /**
    * Tab delimited format used for nub sources in integration tests

@@ -4,9 +4,11 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializerTest;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.cli.show.GraphFormat;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
+import org.gbif.utils.file.FileUtils;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
@@ -18,6 +20,7 @@ import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
 import org.assertj.core.util.Preconditions;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -61,6 +64,33 @@ public class UsageDaoTest {
             verifyData(true, dao.getNeo().getNodeById(0), dao.getNeo().getNodeById(1));
         }
     }
+
+  @Test
+  @Ignore("manual test to generate GML test files for rod pages forest diff tool")
+  public void testTrees2() throws Exception {
+    try (ClasspathSource src = new ClasspathSource(41);) {
+      src.init(true, false);
+      dao = src.open(false);
+
+      // add pro parte & basionym rel
+      try (Transaction tx = dao.beginTx()) {
+        Node ppsyn = dao.findByNameSingle("Acromantis javana");
+        Node acc2 = dao.findByNameSingle("Acromantis montana");
+        ppsyn.createRelationshipTo(acc2, RelType.PROPARTE_SYNONYM_OF);
+        // basionym
+        ppsyn.createRelationshipTo(acc2, RelType.BASIONYM_OF);
+        ppsyn.addLabel(Labels.BASIONYM);
+
+        tx.success();
+      }
+
+      Writer writer = FileUtils.startNewUtf8File(new File("/Users/markus/Dropbox/nub-ng/diff-test/test-without-authors.gml"));
+      try (Transaction tx = dao.beginTx()) {
+        dao.printTree(writer, GraphFormat.GML, false, null, null);
+      }
+      writer.flush();
+    }
+  }
 
   @Test
   public void testTrees() throws Exception {

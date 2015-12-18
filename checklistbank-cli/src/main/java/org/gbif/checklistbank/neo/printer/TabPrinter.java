@@ -21,6 +21,7 @@ import org.neo4j.graphdb.Relationship;
 
 /**
  * Dumps a neo db in a simple tab delimited format used by the nub integration tests.
+ * Expects no pro parte relations in the walker!
  */
 public class TabPrinter implements TreePrinter {
   private final Function<Node, String> getTitle;
