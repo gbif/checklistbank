@@ -3,6 +3,8 @@ package org.gbif.checklistbank.neo.traverse;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;
 
+import javax.annotation.Nullable;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -13,7 +15,7 @@ import org.neo4j.graphdb.traversal.Evaluator;
  */
 public class RankEvaluator implements Evaluator {
 
-  private final Rank threshold;
+  private final @Nullable Rank threshold;
 
   public RankEvaluator(Rank threshold) {
     this.threshold = threshold;
@@ -21,8 +23,15 @@ public class RankEvaluator implements Evaluator {
 
   @Override
   public Evaluation evaluate(Path path) {
-    Node end = path.endNode();
-    Rank rank = Rank.values()[ (int) end.getProperty(NeoProperties.RANK, Rank.UNRANKED.ordinal())];
-    return threshold.higherThan(rank) ? Evaluation.EXCLUDE_AND_CONTINUE : Evaluation.INCLUDE_AND_CONTINUE;
+    return evaluateNode(path.endNode()) ? Evaluation.INCLUDE_AND_CONTINUE : Evaluation.EXCLUDE_AND_CONTINUE;
+  }
+
+  /**
+   * @return true if the satisfies the rank evaluator and should be included.
+   */
+  public boolean evaluateNode(Node n) {
+    if (threshold == null) return true;
+    Rank rank = Rank.values()[ (int) n.getProperty(NeoProperties.RANK, Rank.UNRANKED.ordinal())];
+    return !threshold.higherThan(rank);
   }
 }

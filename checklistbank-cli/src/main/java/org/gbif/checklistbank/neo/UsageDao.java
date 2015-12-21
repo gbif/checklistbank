@@ -210,11 +210,11 @@ public class UsageDao {
     boolean includeProParte = false;
     switch (format) {
       case GML:
-        printer = new GmlPrinter(writer, fullNames ? getScientific : getCanonical, !fullNames);
+        printer = new GmlPrinter(writer, lowestRank, fullNames ? getScientific : getCanonical, !fullNames);
         break;
 
       case DOT:
-        printer = new DotPrinter(writer, fullNames ? getScientific : getCanonical);
+        printer = new DotPrinter(writer, lowestRank, fullNames ? getScientific : getCanonical);
         break;
 
       case TAB:

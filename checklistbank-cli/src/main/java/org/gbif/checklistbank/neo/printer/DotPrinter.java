@@ -1,10 +1,14 @@
 package org.gbif.checklistbank.neo.printer;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
+import org.gbif.checklistbank.neo.traverse.RankEvaluator;
 
 import java.io.IOException;
 import java.io.Writer;
+
+import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
@@ -29,10 +33,12 @@ import org.neo4j.graphdb.Relationship;
 public class DotPrinter implements TreePrinter {
   private final Writer writer;
   private final Function<Node, String> getTitle;
+  private final RankEvaluator rankEvaluator;
 
-  public DotPrinter(Writer writer, Function<Node, String> getTitle) {
+  public DotPrinter(Writer writer, @Nullable Rank rankThreshold, Function<Node, String> getTitle) {
     this.writer = writer;
     this.getTitle = getTitle;
+    this.rankEvaluator = new RankEvaluator(rankThreshold);
     printHeader();
   }
 
@@ -71,36 +77,38 @@ public class DotPrinter implements TreePrinter {
 
       // edges
       for (Relationship rel : n.getRelationships(Direction.OUTGOING)) {
-        //n1 -> n16 [type=parent_of]
-        long start;
-        long end;
-        String type = null;
-        if (rel.isType(RelType.PARENT_OF)) {
-          start = rel.getStartNode().getId();
-          end = rel.getEndNode().getId();
-        } else {
-          start = rel.getEndNode().getId();
-          end = rel.getStartNode().getId();
-          if (rel.isType(RelType.SYNONYM_OF)) {
-            type = "syn";
-          } else if (rel.isType(RelType.PROPARTE_SYNONYM_OF)) {
-            type = "pp";
-          } else if (rel.isType(RelType.BASIONYM_OF)) {
-            type = "bas";
+        if (rankEvaluator.evaluateNode(rel.getOtherNode(n))) {
+          //n1 -> n16 [type=parent_of]
+          long start;
+          long end;
+          String type = null;
+          if (rel.isType(RelType.PARENT_OF)) {
+            start = rel.getStartNode().getId();
+            end = rel.getEndNode().getId();
           } else {
-            type = rel.getType().name().toLowerCase().replace("_of", "");
+            start = rel.getEndNode().getId();
+            end = rel.getStartNode().getId();
+            if (rel.isType(RelType.SYNONYM_OF)) {
+              type = "syn";
+            } else if (rel.isType(RelType.PROPARTE_SYNONYM_OF)) {
+              type = "pp";
+            } else if (rel.isType(RelType.BASIONYM_OF)) {
+              type = "bas";
+            } else {
+              type = rel.getType().name().toLowerCase().replace("_of", "");
+            }
           }
+          writer.append("  n");
+          writer.append(String.valueOf(start));
+          writer.append(" -> n");
+          writer.append(String.valueOf(end));
+          if (type != null) {
+            writer.append("  [color=darkgreen, fontcolor=darkgreen, label=");
+            writer.append(type);
+            writer.append("]");
+          }
+          writer.append("\n");
         }
-        writer.append("  n");
-        writer.append(String.valueOf(start));
-        writer.append(" -> n");
-        writer.append(String.valueOf(end));
-        if (type != null) {
-          writer.append("  [color=darkgreen, fontcolor=darkgreen, label=");
-          writer.append(type);
-          writer.append("]");
-        }
-        writer.append("\n");
       }
 
     } catch (IOException e) {

@@ -3,10 +3,13 @@ package org.gbif.checklistbank.neo.printer;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
+import org.gbif.checklistbank.neo.traverse.RankEvaluator;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Function;
@@ -26,14 +29,16 @@ public class GmlPrinter implements TreePrinter {
   private final List<Edge> edges = Lists.newArrayList();
   private final Function<Node, String> getTitle;
   private final boolean strictTree;
+  private final RankEvaluator rankEvaluator;
 
   /**
    * @param strictTree if true omit any pro parte and basionym relations to force a strict tree
    */
-  public GmlPrinter(Writer writer, Function<Node, String> getTitle, boolean strictTree) {
+  public GmlPrinter(Writer writer, @Nullable Rank rankThreshold, Function<Node, String> getTitle, boolean strictTree) {
     this.strictTree = strictTree;
     this.writer = writer;
     this.getTitle = getTitle;
+    this.rankEvaluator = new RankEvaluator(rankThreshold);
     printHeader();
   }
 
@@ -102,15 +107,21 @@ public class GmlPrinter implements TreePrinter {
       // synonym_of relations are inversed so the tree strictly points into one direction
       if (strictTree) {
         for (Relationship rel : n.getRelationships(RelType.PARENT_OF, Direction.OUTGOING)) {
-          edges.add(Edge.create(rel));
+          if (rankEvaluator.evaluateNode(rel.getOtherNode(n))) {
+            edges.add(Edge.create(rel));
+          }
         }
         for (Relationship rel : n.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING)) {
-          edges.add(Edge.inverse(rel));
+          if (rankEvaluator.evaluateNode(rel.getOtherNode(n))) {
+            edges.add(Edge.inverse(rel));
+          }
         }
 
       } else {
         for (Relationship rel : n.getRelationships(Direction.OUTGOING)) {
-          edges.add(Edge.create(rel));
+          if (rankEvaluator.evaluateNode(rel.getOtherNode(n))) {
+            edges.add(Edge.create(rel));
+          }
         }
       }
 
