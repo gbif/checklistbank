@@ -84,9 +84,9 @@ public class UsageDaoTest {
         tx.success();
       }
 
-      Writer writer = FileUtils.startNewUtf8File(new File("/Users/markus/Desktop/test.gml"));
+      Writer writer = FileUtils.startNewUtf8File(new File("/Users/markus/Desktop/test.txt"));
       try (Transaction tx = dao.beginTx()) {
-        dao.printTree(writer, GraphFormat.GML, false, Rank.GENUS, null);
+        dao.printTree(writer, GraphFormat.LIST, true, Rank.SUBGENUS, null);
       }
       writer.flush();
     }

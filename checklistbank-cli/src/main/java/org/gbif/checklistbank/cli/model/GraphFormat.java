@@ -28,7 +28,12 @@ public enum GraphFormat {
   /**
    * Tab delimited format used for nub sources in integration tests
    */
-  TAB("tab");
+  TAB("tab"),
+
+  /**
+   * Denormalised list of genus or infrageneric names. Not tree format really.
+   */
+  LIST("txt");
 
   public final String suffix;
 

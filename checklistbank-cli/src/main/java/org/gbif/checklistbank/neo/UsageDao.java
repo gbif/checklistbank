@@ -16,6 +16,7 @@ import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.printer.DotPrinter;
 import org.gbif.checklistbank.neo.printer.GmlPrinter;
+import org.gbif.checklistbank.neo.printer.ListPrinter;
 import org.gbif.checklistbank.neo.printer.TabPrinter;
 import org.gbif.checklistbank.neo.printer.TreePrinter;
 import org.gbif.checklistbank.neo.printer.TxtPrinter;
@@ -210,11 +211,15 @@ public class UsageDao {
     boolean includeProParte = false;
     switch (format) {
       case GML:
-        printer = new GmlPrinter(writer, lowestRank, fullNames ? getScientific : getCanonical, !fullNames);
+        printer = new GmlPrinter(writer, lowestRank, fullNames ? getScientific : getCanonical, true);
         break;
 
       case DOT:
         printer = new DotPrinter(writer, lowestRank, fullNames ? getScientific : getCanonical);
+        break;
+
+      case LIST:
+        printer = new ListPrinter(writer, fullNames ? getScientific : getCanonical);
         break;
 
       case TAB:
