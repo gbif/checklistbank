@@ -230,9 +230,8 @@ public class Importer extends ImportDb implements Runnable {
       int c = syncCounter.incrementAndGet();
       if (c % 100000 == 0) {
         LOG.info("Synced {} usages from dataset {}, latest usage key={}", c, datasetKey, usageKey);
-      } else if (c % 10000 == 0) {
-        LOG.debug("Synced {} usages from dataset {}, latest usage key={}", c, datasetKey, usageKey);
       }
+      LOG.debug("Synced usage {} from dataset {}", usageKey, datasetKey);
 
     } catch (Throwable e) {
       String id;
