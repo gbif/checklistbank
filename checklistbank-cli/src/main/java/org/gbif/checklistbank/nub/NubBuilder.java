@@ -854,6 +854,11 @@ public class NubBuilder implements Runnable {
             throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
           }
         }
+        // strip author names from higher taxa
+        if (u.rank.higherThan(Rank.GENUS)) {
+          clearAuthorship(u.parsedName);
+        }
+
       } catch (UnparsableException e) {
         // allow virus names in the nub
         if (e.type == NameType.VIRUS) {
@@ -865,6 +870,13 @@ public class NubBuilder implements Runnable {
         }
       }
     }
+  }
+
+  private void clearAuthorship(ParsedName pn) {
+    pn.setAuthorship(null);
+    pn.setYear(null);
+    pn.setBracketAuthorship(null);
+    pn.setBracketYear(null);
   }
 
   private void updateNomenclature(NubUsage nub, SrcUsage u) {

@@ -698,6 +698,21 @@ public class NubBuilderIT {
     assertTree("44.txt");
   }
 
+  /**
+   * Make sure families with different authorships dont get created twice.
+   * We want unique names!
+   */
+  @Test
+  public void testUniqueFamilies() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(45);
+    src.setSourceRank(45, Rank.PHYLUM);
+    build(src);
+
+    assertScientific("Asteraceae", Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+    assertTree("45.txt");
+  }
+
   @Test
   @Ignore("Manual test for profiling performance issues")
   public void testPerformance() throws Exception {
