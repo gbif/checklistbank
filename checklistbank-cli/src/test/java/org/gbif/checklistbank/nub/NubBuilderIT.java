@@ -13,8 +13,8 @@ import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
-import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -28,8 +28,10 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -53,6 +55,10 @@ import static org.junit.Assert.fail;
 public class NubBuilderIT {
   private UsageDao dao;
   private Transaction tx;
+
+  private static void log(String msg, Object ... args) {
+    System.out.println(String.format(msg, args));
+  }
 
   @Before
   public void init() {
@@ -113,11 +119,13 @@ public class NubBuilderIT {
   public void testUpdateAuthorship() throws Exception {
     build(ClasspathSourceList.source(1, 5, 6));
 
-    assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
     assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
     assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
     assertCanonical("Lepiota nuda nuda", "", Rank.SUBSPECIES, Origin.AUTONYM);
     assertCanonical("Lepiota nuda europaea", "Döring", Rank.VARIETY, Origin.SOURCE);
+    // families dont use authors!
+    // http://dev.gbif.org/issues/browse/POR-2877
+    assertCanonical("Agaricaceae", "", Rank.FAMILY, Origin.SOURCE);
 
     assertTree("1 5 6.txt");
   }
@@ -168,7 +176,8 @@ public class NubBuilderIT {
     ClasspathSourceList src = ClasspathSourceList.source(27);
     build(src);
 
-    assertEquals(4, countSpecies());
+    assertEquals(2, countSpecies());
+    assertEquals(4, countGenera());
   }
 
   /**
@@ -243,7 +252,8 @@ public class NubBuilderIT {
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
-    NubUsage fam = assertCanonical("Agaricaceae", "Yoda", Rank.FAMILY, Origin.SOURCE);
+    // no authors in family names
+    NubUsage fam = assertCanonical("Agaricaceae", "", Rank.FAMILY, Origin.SOURCE);
     NubUsage g = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, fam);
     NubUsage ls = assertCanonical("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, g);
 
@@ -744,7 +754,6 @@ public class NubBuilderIT {
   public void testProParteSynonym() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(15, 16);
     build(src);
-    tx = dao.beginTx();
 
     NubUsage u = assertCanonical("Poa pubescens", "Lej.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.PROPARTE_SYNONYM, null);
     assertEquals(3, u.sourceIds.size());
@@ -881,8 +890,10 @@ public class NubBuilderIT {
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
+    Stopwatch watch = Stopwatch.createUnstarted();
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
     nb.run();
+    log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
     IdGenerator.Metrics metrics = nb.idMetrics();
     System.out.println(metrics);
 
@@ -894,6 +905,7 @@ public class NubBuilderIT {
 
     // assert we have unique ids
     assertUniqueIds();
+    log("Core test completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
   }
 
   private void assertUniqueIds() {
@@ -1113,6 +1125,10 @@ public class NubBuilderIT {
 
   private long countSpecies() {
     return IteratorUtil.count(dao.getNeo().findNodes(Labels.SPECIES));
+  }
+
+  private long countGenera() {
+    return IteratorUtil.count(dao.getNeo().findNodes(Labels.GENUS));
   }
 
   private long countRoot() {

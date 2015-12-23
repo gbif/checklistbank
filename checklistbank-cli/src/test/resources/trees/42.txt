@@ -22,7 +22,6 @@ incertae sedis
       *Blepharis Serville, 1831
       Blepharopsis mendica (Fabricius, 1775)
         Blepharopsis mendica subsp. mendica
-          *Mantis marmorata subsp. (Olivier, 1792)
         Blepharopsis mendica subsp. nuda Giglio-Tos, 1917
     Chopardempusa Paulian, 1958
       Chopardempusa neglecta (Paulian, 1958)
@@ -76,7 +75,6 @@ incertae sedis
           *Empusa pennicornis subsp. attenuata Werner, 1921
           *Empusa pennicornis subsp. marginatus Thunberg, 1815
           *Empusa pennicornis subsp. stolli Saussure, 1871
-          *Mantis pallasiana subsp. (Olivier, 1792)
         Empusa pennicornis subsp. similis Lindt, 1978
       Empusa romboidea Lindt, 1976
         Empusa romboidea subsp. nana Lindt, 1976

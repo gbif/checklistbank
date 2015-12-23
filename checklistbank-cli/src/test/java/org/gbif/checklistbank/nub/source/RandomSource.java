@@ -28,10 +28,9 @@ public class RandomSource extends NubSource {
     private Random rnd = new Random();
 
     public RandomSource(int size, Kingdom kingdom) {
-        this.size = size;
-        this.kingdom = kingdom;
-        key = UUID.randomUUID();
-        name = "Random dataset " + kingdom;
+      super(UUID.randomUUID(), "Random dataset " + kingdom, true);
+      this.size = size;
+      this.kingdom = kingdom;
     }
 
     @Override

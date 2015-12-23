@@ -30,9 +30,9 @@ Fungi
   Ascomycota
   Basidiomycota
     Agaricomycetes
-      Agaricales Underw.
+      Agaricales
       Polyporales
-        Polyporaceae Fr. ex Corda
+        Polyporaceae
 Plantae
   Bryophyta
   Marchantiophyta

@@ -31,11 +31,13 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.yammer.metrics.MetricRegistry;
@@ -245,6 +247,7 @@ public class UsageDao {
    * Fully closes the dao leaving any potentially existing persistence files untouched.
    */
   public void close() {
+    Stopwatch watch = Stopwatch.createStarted();
     try {
       if (kvp != null && !kvp.isClosed()) {
         kvp.close();
@@ -253,7 +256,7 @@ public class UsageDao {
       LOG.error("Failed to close kvp store {}", kvpStore.getAbsolutePath(), e);
     }
     closeNeo();
-    LOG.debug("Closed dao {}", neoDir.getName());
+    LOG.debug("Closed DAO in {}ms for directory {}", watch.elapsed(TimeUnit.MILLISECONDS), neoDir.getAbsolutePath());
   }
 
   public void closeAndDelete() {
@@ -275,7 +278,7 @@ public class UsageDao {
 
   private void closeNeo() {
     try {
-      if (neo != null && neo.isAvailable(100)) {
+      if (neo != null) {
         neo.shutdown();
       }
     } catch (Exception e) {

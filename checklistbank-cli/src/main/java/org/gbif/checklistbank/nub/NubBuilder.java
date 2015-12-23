@@ -13,6 +13,7 @@ import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
@@ -40,8 +41,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.carrotsearch.hppc.IntLongHashMap;
 import com.carrotsearch.hppc.IntLongMap;
@@ -61,6 +66,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -95,7 +101,6 @@ public class NubBuilder implements Runnable {
   private final boolean closeDao;
   private final NubSourceList sources;
   private final NameParser parser = new NameParser();
-  private NormalizerStats normalizerStats;
   private boolean assertionsPassed = true;
   private final boolean verifyBackbone;
   private NubSource currSrc;
@@ -593,7 +598,9 @@ public class NubBuilder implements Runnable {
       } catch (Exception e) {
         LOG.error("Error processing source {}", src.name, e);
       } finally {
+        Stopwatch sw = Stopwatch.createStarted();
         src.close();
+        LOG.debug("Closing source {} took {}ms", src.name, sw.elapsed(TimeUnit.MILLISECONDS));
       }
     }
   }
@@ -617,37 +624,44 @@ public class NubBuilder implements Runnable {
 
     // do transactions in batches to dont slow down neo too much
     int batchCounter = 1;
-    for (List<SrcUsage> batch : Iterables.partition(source, batchSize)) {
-      LOG.info("process batch {}x{}", batchCounter++, batchSize);
-      try (Transaction tx = db.beginTx()) {
-        for (SrcUsage u : batch) {
-          // catch errors processing individual records too
-          try {
-            LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
-            sourceUsageCounter++;
-            parents.add(u);
-            // replace accepted taxa with doubtful ones for all nomenclators
-            if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
-              u.status = TaxonomicStatus.DOUBTFUL;
-            }
-            NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
-            if (nub != null) {
-              parents.put(nub);
-            }
-          } catch (IgnoreSourceUsageException e) {
-            LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
+    // makes sure to close the iterator - important for releasing neo resources, slows down considerably otherwise!
+    try (CloseableIterator<SrcUsage> iter = source.iterator()) {
+      UnmodifiableIterator<List<SrcUsage>> batchIter = Iterators.partition(iter, batchSize);
+      while (batchIter.hasNext()) {
+        try (Transaction tx = db.beginTx()) {
+          List<SrcUsage> batch = batchIter.next();
+          LOG.debug("process batch {} with {} usages", batchCounter++, batch.size());
+          for (SrcUsage u : batch) {
+            // catch errors processing individual records too
+            try {
+              LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+              sourceUsageCounter++;
+              parents.add(u);
+              // replace accepted taxa with doubtful ones for all nomenclators
+              if (currSrc.nomenclator && TaxonomicStatus.ACCEPTED == u.status) {
+                u.status = TaxonomicStatus.DOUBTFUL;
+              }
+              NubUsage nub = processSourceUsage(u, Origin.SOURCE, parents.nubParent());
+              if (nub != null) {
+                parents.put(nub);
+              }
+            } catch (IgnoreSourceUsageException e) {
+              LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
-          } catch (StackOverflowError e) {
-            // if this happens its time to fix some code!
-            LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
-            LOG.error("CAUSE: {}", u.parsedName);
+            } catch (StackOverflowError e) {
+              // if this happens its time to fix some code!
+              LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
+              LOG.error("CAUSE: {}", u.parsedName);
 
-          } catch (RuntimeException e) {
-            LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+            } catch (RuntimeException e) {
+              LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
+            }
           }
+          tx.success();
         }
-        tx.success();
       }
+    } catch (Exception e) {
+      Throwables.propagate(e);
     }
 
     // process explicit basionym relations
@@ -1120,10 +1134,6 @@ public class NubBuilder implements Runnable {
     TreeWalker.walkAcceptedTree(dao.getNeo(), metricsHandler);
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
-  }
-
-  public NormalizerStats getStats() {
-    return normalizerStats;
   }
 
   public IdGenerator.Metrics idMetrics() {

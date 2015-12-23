@@ -21,12 +21,14 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.io.Files;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -56,6 +58,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
   private static final NeoConfiguration cfg = new NeoConfiguration();
+  private final Stopwatch watch = Stopwatch.createUnstarted();
 
   static {
     cfg.neoRepository = Files.createTempDir();
@@ -69,6 +72,18 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public boolean nomenclator = false;
 
   private UsageDao dao;
+  private final boolean useTmpDao;
+
+  /**
+   * @param useTmpDao if true uses a temporary DAO that is not closed at the end of init.
+   *                  If too many sources are created this can result in a large number of open files!
+   *                  Do not use this for production.
+   */
+  public NubSource(UUID key, String name, boolean useTmpDao) {
+    this.key = key;
+    this.name = name;
+    this.useTmpDao = useTmpDao;
+  }
 
   /**
    * Loads data into the source and does any other initialization needed before usages() can be called.
@@ -79,8 +94,18 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
-    try (NeoUsageWriter writer = new NeoUsageWriter(UsageDao.persistentDao(cfg, key, false, null, true), writeNeoProperties, nubRanksOnly)) {
+    watch.reset().start();
+    UsageDao initDao;
+    if (useTmpDao) {
+      initDao = UsageDao.temporaryDao(128);
+      // reuse the dao for reading
+      dao = initDao;
+    } else {
+      initDao = open(false, true);
+    }
+    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly)) {
       initNeo(writer);
+      LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getSkipped());
     }
   }
 
@@ -228,7 +253,9 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     public void close() throws IOException {
       tx.success();
       tx.close();
-      dao.close();
+      if (!useTmpDao) {
+        dao.close();
+      }
     }
 
     private void renewTx() {
@@ -272,6 +299,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     @Override
     public void close() {
+      tx.success();
       tx.close();
     }
   }
@@ -284,7 +312,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   @Override
   public CloseableIterator<SrcUsage> iterator() {
     if (dao == null) {
-      dao = open(true);
+      dao = open(true, false);
     }
     return new SrcUsageIterator(dao);
   }
@@ -292,8 +320,12 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   /**
    * @return a new read only dao
    */
-  public UsageDao open(boolean readOnly) {
-    return UsageDao.persistentDao(cfg, key, readOnly, null, false);
+  public UsageDao open(boolean readOnly, boolean eraseExisting) {
+    watch.reset().start();
+    UsageDao d = UsageDao.persistentDao(cfg, key, readOnly, null, eraseExisting);
+    LOG.debug("Opening DAO in {}ms for dataset {}", watch.elapsed(TimeUnit.MILLISECONDS), key);
+    watch.stop();
+    return d;
   }
 
   /**
