@@ -687,6 +687,17 @@ public class NubBuilderIT {
     assertTree("32 33.txt");
   }
 
+  /**
+   * Avoid Plantae spec. and other indetermined names found in Pensoft sources.
+   */
+  @Test
+  public void testSpecNames() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(44);
+    build(src);
+
+    assertTree("44.txt");
+  }
+
   @Test
   @Ignore("Manual test for profiling performance issues")
   public void testPerformance() throws Exception {

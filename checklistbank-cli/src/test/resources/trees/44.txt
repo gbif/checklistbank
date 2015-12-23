@@ -1,0 +1,13 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+  Kartoffela
+    Kartoffela margareta
+      Kartoffela margareta subsp. margareta
+      Kartoffela margareta subsp. schoener
+Protozoa
+Viruses
+incertae sedis
