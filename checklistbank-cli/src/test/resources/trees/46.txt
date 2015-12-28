@@ -1,0 +1,26 @@
+Animalia
+  Annelida
+    Polychaeta
+      Echiuroidea
+        Ikedidae
+    Maldanidae
+  Arthropoda
+    Arachnida
+      Araneae
+        Segestriidae
+      Pseudoscorpiones
+        Pseudochiridiidae
+  Echinodermata
+    Asteroidea
+      Paxillosida
+    Crinoidea
+  Xenacoelomorpha
+    Acoela
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

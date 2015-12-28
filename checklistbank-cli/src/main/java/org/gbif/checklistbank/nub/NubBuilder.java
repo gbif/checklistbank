@@ -855,8 +855,8 @@ public class NubBuilder implements Runnable {
         if (!Strings.isBlank(u.parsedName.getSensu())) {
           throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
         }
-        // verify rank
-        Rank pRank = u.parsedName.getRank();
+        // consider parsed rank only for bi/trinomials
+        Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
         if (pRank != null && u.rank != pRank) {
           if (u.rank == null || u.rank.isUncomparable()) {
             LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);

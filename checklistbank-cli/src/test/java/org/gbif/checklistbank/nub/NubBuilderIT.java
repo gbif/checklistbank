@@ -747,6 +747,23 @@ public class NubBuilderIT {
     assertEquals(1, listCanonical("Fuligo septica").size());
   }
 
+
+  /**
+   * Nub builds seem to have trouble if the given rank and the name parsed rank differ.
+   * Make sure higher taxonomy does not suffer from that.
+   *
+   * order Echiuroidea with family Ikedidae [family]
+   * Araneae
+   * @throws Exception
+   */
+  @Test
+  public void testHigherRanksWithAwkwardsSuffices() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(46);
+    src.setSourceRank(46, Rank.KINGDOM);
+    build(src);
+    assertTree("46.txt");
+  }
+
   /**
    * Pro parte synonyms should exist as a single synonym node with multiple synonym relations
    */
