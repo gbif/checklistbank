@@ -4,28 +4,24 @@ public class NubUsageMatch {
     public final NubUsage usage;
     public final boolean ignore;
 
-    private NubUsageMatch(NubUsage usage, boolean ignore, boolean homonym) {
+    private NubUsageMatch(NubUsage usage, boolean ignore) {
         this.usage = usage;
         this.ignore = ignore;
     }
 
     public static NubUsageMatch match(NubUsage usage) {
-        return new NubUsageMatch(usage, false, false);
+        return new NubUsageMatch(usage, false);
     }
 
     /**
      * Snaps to a usage but flag it to be ignored in immediate processing.
      */
-    public static NubUsageMatch snap(NubUsage usage, boolean homonym) {
-        return new NubUsageMatch(usage, true, homonym);
+    public static NubUsageMatch snap(NubUsage usage) {
+        return new NubUsageMatch(usage, true);
     }
 
     public static NubUsageMatch empty() {
-        return new NubUsageMatch(null, false, false);
-    }
-
-    public static NubUsageMatch homonym() {
-        return new NubUsageMatch(null, false, true);
+        return new NubUsageMatch(null, false);
     }
 
     public boolean isMatch() {

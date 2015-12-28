@@ -18,9 +18,9 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +28,9 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -163,6 +163,7 @@ public class NubDb {
    * @return the existing usage or null if it does not exist yet.
    */
   public NubUsageMatch findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
+    final boolean qualifiedName = u.parsedName.hasAuthorship();
     List<NubUsage> checked = Lists.newArrayList();
     int canonMatches = 0;
     final String name = dao.canonicalOrScientificName(u.parsedName, false);
@@ -176,69 +177,126 @@ public class NubDb {
       }
     }
 
-    if (checked.size() == 0) {
+    if (checked.isEmpty()) {
       // try harder to match to kingdoms by name alone
       if (u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
         ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
         if (kResult.isSuccessful()) {
-          return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()), false);
+          return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()));
         }
       }
       return NubUsageMatch.empty();
+    }
 
-    } else if (checked.size() == 1) {
+    // first try exact single match with authorship
+    if (qualifiedName) {
+      NubUsage match = null;
+      for (NubUsage nu : checked) {
+        if (u.parsedName.canonicalNameComplete().equals(nu.parsedName.canonicalNameComplete())) {
+          if (match != null) {
+            LOG.warn("Exact homonym encountered for {}", u.scientificName);
+            match = null;
+            break;
+          }
+          match = nu;
+        }
+      }
+      if (match != null) {
+        return NubUsageMatch.match(match);
+      }
+    }
+
+    // avoid the case when an accepted name without author is being matched against synonym names with authors from the same source
+    if (u.status.isAccepted() && !qualifiedName && currSource.equals(qualifiedSynonymsFromSingleSource(checked))) {
+      LOG.debug("{} canonical homonyms encountered for {}, but all from the same source", checked.size(), u.scientificName);
+      return NubUsageMatch.empty();
+    }
+
+    if (checked.size() == 1) {
       return NubUsageMatch.match(checked.get(0));
+    }
 
-    } else if (checked.size() - canonMatches == 1) {
-      // prefer the single match with authorship!
+    // we have at least 2 match candidates here, maybe more
+    // prefer a single match with authorship!
+    if (qualifiedName && checked.size() - canonMatches == 1) {
       for (NubUsage nu : checked) {
         if (nu.parsedName.hasAuthorship()) {
           return NubUsageMatch.match(nu);
         }
       }
-
-    } else {
-      if (u.status.isAccepted()) {
-        // avoid the case when an accepted name without author is being matched against synonym names with authors from the same source
-        Set<UUID> sources = new HashSet<UUID>();
-        for (NubUsage nu : checked) {
-          sources.add(nu.datasetKey);
-        }
-        if (sources.contains(currSource) && sources.size() == 1) {
-          LOG.debug("{} homonyms encountered for {}, but only synonyms from the same source", checked.size(), u.scientificName);
-          return NubUsageMatch.empty();
-        }
-      }
-
-      // all synonyms pointing to the same accepted? then it wont matter much
-      Iterator<NubUsage> iter = checked.iterator();
-      Node parent = getParent(iter.next().node);
-      if (parent != null) {
-        while (iter.hasNext()) {
-          Node p2 = getParent(iter.next().node);
-          if (!parent.equals(p2)) {
-            parent = null;
-            break;
-          }
-        }
-        if (parent != null) {
-          return NubUsageMatch.snap(checked.get(0), false);
-        }
-      }
-
-      // finally pick the first accepted randomly
-      // TODO: is this is a good idea???
-      for (NubUsage nu : checked) {
-        if (nu.status.isAccepted()) {
-          nu.issues.add(NameUsageIssue.HOMONYM);
-          nu.addRemark("Homonym known in other sources: " + u.scientificName);
-          LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
-          return NubUsageMatch.snap(nu, true);
-        }
-      }
-      throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);
     }
-    return NubUsageMatch.empty();
+
+    // all synonyms pointing to the same accepted? then it wont matter much for snapping
+    Iterator<NubUsage> iter = checked.iterator();
+    Node parent = getParent(iter.next().node);
+    if (parent != null) {
+      while (iter.hasNext()) {
+        Node p2 = getParent(iter.next().node);
+        if (!parent.equals(p2)) {
+          parent = null;
+          break;
+        }
+      }
+      if (parent != null) {
+        return NubUsageMatch.snap(checked.get(0));
+      }
+    }
+
+    // try to do better authorship matching
+    if (qualifiedName) {
+      iter = checked.iterator();
+      for (NubUsage nu : checked) {
+        Equality author = authComp.compare(u.parsedName, nu.parsedName);
+        if (author != Equality.EQUAL) {
+          iter.remove();
+        }
+      }
+    }
+
+    // finally pick the first accepted randomly
+    for (NubUsage nu : checked) {
+      if (nu.status.isAccepted()) {
+        nu.issues.add(NameUsageIssue.HOMONYM);
+        nu.addRemark("Homonym known in other sources: " + u.scientificName);
+        LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
+        return NubUsageMatch.snap(nu);
+      }
+    }
+    throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);
+  }
+
+  /**
+   * Checks if all nubusages are synonyms, have authorship and origin from the same source
+   * @return the source UUID all usages share
+   */
+  private UUID qualifiedSynonymsFromSingleSource(Collection<NubUsage> usages) {
+    UUID source = null;
+    for (NubUsage nu : usages) {
+      if (!nu.parsedName.hasAuthorship() || nu.status.isAccepted()) {
+        return null;
+      }
+      if (source == null) {
+        source = nu.datasetKey;
+      } else if (!source.equals(nu.datasetKey)) {
+        return null;
+      }
+    }
+    return source;
+  }
+
+  private NubUsage singleOrNull(Collection<NubUsage> usages, boolean isAccepted) {
+    NubUsage u = null;
+    for (NubUsage nu : usages) {
+      if (nu.status.isAccepted() == isAccepted) {
+        if (u == null) {
+          u = nu;
+        } else {
+          // multiple matches
+          return null;
+        }
+      }
+    }
+    return u;
   }
 
   private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match, NubUsage currNubParent) {
