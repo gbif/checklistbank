@@ -70,7 +70,7 @@ public class UsageDaoTest {
   public void testTrees2() throws Exception {
     try (ClasspathSource src = new ClasspathSource(41);) {
       src.init(true, false);
-      dao = src.open(false);
+      dao = src.getDao();
 
       // add pro parte & basionym rel
       try (Transaction tx = dao.beginTx()) {
@@ -96,7 +96,7 @@ public class UsageDaoTest {
   public void testTrees() throws Exception {
     try (ClasspathSource src = new ClasspathSource(41);) {
       src.init(true, false);
-      dao = src.open(false);
+      dao = src.getDao();
 
       // add pro parte & basionym rel
       try (Transaction tx = dao.beginTx()) {

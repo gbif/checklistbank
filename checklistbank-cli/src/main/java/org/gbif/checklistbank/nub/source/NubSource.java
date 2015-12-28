@@ -317,10 +317,17 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     return new SrcUsageIterator(dao);
   }
 
+  public UsageDao getDao() {
+    return dao;
+  }
+
   /**
    * @return a new read only dao
    */
   public UsageDao open(boolean readOnly, boolean eraseExisting) {
+    if (useTmpDao) {
+      throw new IllegalStateException("Temporary DAOs cannot be opened again");
+    }
     watch.reset().start();
     UsageDao d = UsageDao.persistentDao(cfg, key, readOnly, null, eraseExisting);
     LOG.debug("Opening DAO in {}ms for dataset {}", watch.elapsed(TimeUnit.MILLISECONDS), key);
