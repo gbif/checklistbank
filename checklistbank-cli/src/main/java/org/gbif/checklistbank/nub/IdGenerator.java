@@ -80,6 +80,7 @@ public class IdGenerator {
   public void writeReports(File reportingDir) throws IOException {
     // add current date folder
     reportingDir = new File(reportingDir, new Date(System.currentTimeMillis()).toString());
+    LOG.info("Writing nub reports to {}", reportingDir.getAbsolutePath());
     if (reportingDir.exists()) {
       FileUtils.deleteDirectory(reportingDir);
     }
