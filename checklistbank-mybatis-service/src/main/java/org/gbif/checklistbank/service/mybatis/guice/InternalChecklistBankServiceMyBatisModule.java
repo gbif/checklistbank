@@ -30,6 +30,7 @@ import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.TocEntry;
 import org.gbif.checklistbank.model.Usage;
+import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.model.UsageRelated;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ColAnnotationService;
@@ -69,6 +70,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.SpeciesProfileMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
 import org.gbif.mybatis.guice.MyBatisModule;
@@ -91,90 +93,92 @@ import com.google.inject.Scopes;
  */
 public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
-    public static final String DATASOURCE_BINDING_NAME = "checklistbank";
-    private final int parserTimeout;
+  public static final String DATASOURCE_BINDING_NAME = "checklistbank";
+  private final int parserTimeout;
 
-    public InternalChecklistBankServiceMyBatisModule(Properties props, int parserTimeout) {
-        super(DATASOURCE_BINDING_NAME, props);
-        Preconditions.checkArgument(parserTimeout >= 50, "Name parser timeout must be at least 50ms");
-        this.parserTimeout = parserTimeout;
-    }
+  public InternalChecklistBankServiceMyBatisModule(Properties props, int parserTimeout) {
+    super(DATASOURCE_BINDING_NAME, props);
+    Preconditions.checkArgument(parserTimeout >= 50, "Name parser timeout must be at least 50ms");
+    this.parserTimeout = parserTimeout;
+  }
 
-    @Override
-    protected void bindMappers() {
-        // mybatis config
-        addAlias("Usage").to(Usage.class);
-        addAlias("RawUsage").to(RawUsage.class);
-        addAlias("NameUsage").to(NameUsage.class);
-        addAlias("NameUsageContainer").to(NameUsageContainer.class);
-        addAlias("NameUsageMetrics").to(NameUsageMetrics.class);
-        addAlias("NameUsageWritable").to(NameUsageWritable.class);
-        addAlias("ParsedName").to(ParsedName.class);
-        addAlias("VernacularName").to(VernacularName.class);
-        addAlias("Reference").to(Reference.class);
-        addAlias("Description").to(Description.class);
-        addAlias("Identifier").to(Identifier.class);
-        addAlias("Distribution").to(Distribution.class);
-        addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
-        addAlias("SpeciesProfile").to(SpeciesProfile.class);
-        addAlias("TypeSpecimen").to(TypeSpecimen.class);
-        addAlias("DatasetMetrics").to(DatasetMetrics.class);
-        addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
-        addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
-        addAlias("TocEntry").to(TocEntry.class);
-        addAlias("UsageRelated").to(UsageRelated.class);
+  @Override
+  protected void bindMappers() {
+    // mybatis config
+    addAlias("Usage").to(Usage.class);
+    addAlias("RawUsage").to(RawUsage.class);
+    addAlias("NameUsage").to(NameUsage.class);
+    addAlias("NameUsageContainer").to(NameUsageContainer.class);
+    addAlias("NameUsageMetrics").to(NameUsageMetrics.class);
+    addAlias("NameUsageWritable").to(NameUsageWritable.class);
+    addAlias("ParsedName").to(ParsedName.class);
+    addAlias("VernacularName").to(VernacularName.class);
+    addAlias("Reference").to(Reference.class);
+    addAlias("Description").to(Description.class);
+    addAlias("Identifier").to(Identifier.class);
+    addAlias("Distribution").to(Distribution.class);
+    addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
+    addAlias("SpeciesProfile").to(SpeciesProfile.class);
+    addAlias("TypeSpecimen").to(TypeSpecimen.class);
+    addAlias("DatasetMetrics").to(DatasetMetrics.class);
+    addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
+    addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
+    addAlias("TocEntry").to(TocEntry.class);
+    addAlias("UsageRelated").to(UsageRelated.class);
+    addAlias("UsageCount").to(UsageCount.class);
 
-        // mybatis mapper
-        addMapperClass(UsageMapper.class);
-        addMapperClass(NameUsageMapper.class);
-        addMapperClass(VernacularNameMapper.class);
-        addMapperClass(ReferenceMapper.class);
-        addMapperClass(DescriptionMapper.class);
-        addMapperClass(IdentifierMapper.class);
-        addMapperClass(DistributionMapper.class);
-        addMapperClass(MultimediaMapper.class);
-        addMapperClass(SpeciesProfileMapper.class);
-        addMapperClass(TypeSpecimenMapper.class);
-        addMapperClass(DatasetMetricsMapper.class);
-        addMapperClass(DatasetMapper.class);
-        addMapperClass(RawUsageMapper.class);
-        addMapperClass(ParsedNameMapper.class);
-        addMapperClass(CitationMapper.class);
-        addMapperClass(NameUsageMetricsMapper.class);
-        addMapperClass(NubRelMapper.class);
-        addMapperClass(ColAnnotationMapper.class);
-    }
+    // mybatis mapper
+    addMapperClass(UsageMapper.class);
+    addMapperClass(UsageCountMapper.class);
+    addMapperClass(NameUsageMapper.class);
+    addMapperClass(VernacularNameMapper.class);
+    addMapperClass(ReferenceMapper.class);
+    addMapperClass(DescriptionMapper.class);
+    addMapperClass(IdentifierMapper.class);
+    addMapperClass(DistributionMapper.class);
+    addMapperClass(MultimediaMapper.class);
+    addMapperClass(SpeciesProfileMapper.class);
+    addMapperClass(TypeSpecimenMapper.class);
+    addMapperClass(DatasetMetricsMapper.class);
+    addMapperClass(DatasetMapper.class);
+    addMapperClass(RawUsageMapper.class);
+    addMapperClass(ParsedNameMapper.class);
+    addMapperClass(CitationMapper.class);
+    addMapperClass(NameUsageMetricsMapper.class);
+    addMapperClass(NubRelMapper.class);
+    addMapperClass(ColAnnotationMapper.class);
+  }
 
-    @Override
-    protected void bindTypeHandlers() {
-        // mybatis type handler
-        handleType(Country.class).with(CountryTypeHandler.class);
-        handleType(Language.class).with(LanguageTypeHandler.class);
-        handleType(UUID.class).with(UuidTypeHandler.class);
-        handleType(URI.class).with(UriTypeHandler.class);
-    }
+  @Override
+  protected void bindTypeHandlers() {
+    // mybatis type handler
+    handleType(Country.class).with(CountryTypeHandler.class);
+    handleType(Language.class).with(LanguageTypeHandler.class);
+    handleType(UUID.class).with(UuidTypeHandler.class);
+    handleType(URI.class).with(UriTypeHandler.class);
+  }
 
-    @Override
-    protected void bindManagers() {
-        // services. Make sure they are also exposed in the public module!
-        bind(NameUsageService.class).to(NameUsageServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(VernacularNameService.class).to(VernacularNameServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(ReferenceService.class).to(ReferenceServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(DescriptionService.class).to(DescriptionServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(DistributionService.class).to(DistributionServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(IdentifierService.class).to(IdentifierServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(MultimediaService.class).to(MultimediaServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(SpeciesProfileService.class).to(SpeciesProfileServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(TypeSpecimenService.class).to(TypeSpecimenServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(DatasetMetricsService.class).to(DatasetMetricsServiceMyBatis.class).in(Scopes.SINGLETON);
-        // not exposed in API
-        bind(UsageService.class).to(UsageServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(ParsedNameService.class).to(ParsedNameServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(DatasetImportService.class).to(DatasetImportServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(CitationService.class).to(CitationServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(ColAnnotationService.class).to(ColAnnotationServiceMyBatis.class).in(Scopes.SINGLETON);
-        bind(DatasetAnalysisService.class).to(DatasetAnalysisServiceMyBatis.class).in(Scopes.SINGLETON);
+  @Override
+  protected void bindManagers() {
+    // services. Make sure they are also exposed in the public module!
+    bind(NameUsageService.class).to(NameUsageServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(VernacularNameService.class).to(VernacularNameServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(ReferenceService.class).to(ReferenceServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DescriptionService.class).to(DescriptionServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DistributionService.class).to(DistributionServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(IdentifierService.class).to(IdentifierServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(MultimediaService.class).to(MultimediaServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(SpeciesProfileService.class).to(SpeciesProfileServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(TypeSpecimenService.class).to(TypeSpecimenServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DatasetMetricsService.class).to(DatasetMetricsServiceMyBatis.class).in(Scopes.SINGLETON);
+    // not exposed in API
+    bind(UsageService.class).to(UsageServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(ParsedNameService.class).to(ParsedNameServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DatasetImportService.class).to(DatasetImportServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(CitationService.class).to(CitationServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(ColAnnotationService.class).to(ColAnnotationServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(DatasetAnalysisService.class).to(DatasetAnalysisServiceMyBatis.class).in(Scopes.SINGLETON);
 
-        bind(NameParser.class).toInstance(new NameParser(parserTimeout));
-    }
+    bind(NameParser.class).toInstance(new NameParser(parserTimeout));
+  }
 }

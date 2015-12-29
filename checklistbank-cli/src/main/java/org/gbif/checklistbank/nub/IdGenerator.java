@@ -77,18 +77,6 @@ public class IdGenerator {
     return id;
   }
 
-  protected void setReissued(IntSet reissued) {
-    this.reissued = reissued;
-  }
-
-  protected void setResurrected(IntSet resurrected) {
-    this.resurrected = resurrected;
-  }
-
-  protected void setCreated(List<LookupUsage> created) {
-    this.created = created;
-  }
-
   public void writeReports(File reportingDir) throws IOException {
     // add current date folder
     reportingDir = new File(reportingDir, new Date(System.currentTimeMillis()).toString());

@@ -45,10 +45,6 @@ public class NeoConfiguration {
     return new File(neoRepository, "kvp" + File.separator + datasetKey.toString());
   }
 
-  public File nubReportDir() {
-    return new File(neoRepository, "nub");
-  }
-
   /**
    * Creates a new embedded db in the neoRepository folder.
    *

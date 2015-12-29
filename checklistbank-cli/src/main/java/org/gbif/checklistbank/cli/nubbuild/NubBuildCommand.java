@@ -33,7 +33,7 @@ public class NubBuildCommand extends BaseCommand {
   protected void doRun() {
     NubBuilder builder = NubBuilder.create(cfg);
     builder.run();
-    builder.report(cfg.neo.nubReportDir());
+    builder.report(cfg.reportDir);
 
     if (cfg.autoImport && builder.assertionsPassed()) {
       try {

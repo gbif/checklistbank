@@ -16,6 +16,7 @@ import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.nameparser.NameParser;
 import org.gbif.service.guice.PrivateServiceModule;
@@ -39,50 +40,52 @@ import java.util.Properties;
  */
 
 public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
-    private static final String PREFIX = "checklistbank.db.";
-    public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
-    private final int parserTimeout;
+  private static final String PREFIX = "checklistbank.db.";
+  public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
+  private final int parserTimeout;
 
-    /**
-     * Uses the given properties to configure the service.
-     *
-     * @param properties to use
-     */
-    public ChecklistBankServiceMyBatisModule(Properties properties) {
-        super(PREFIX, properties);
-        parserTimeout = Integer.parseInt(properties.getProperty(PARSER_TIMEOUT_PROP, "500"));
-    }
+  /**
+   * Uses the given properties to configure the service.
+   *
+   * @param properties to use
+   */
+  public ChecklistBankServiceMyBatisModule(Properties properties) {
+    super(PREFIX, properties);
+    parserTimeout = Integer.parseInt(properties.getProperty(PARSER_TIMEOUT_PROP, "500"));
+  }
 
-    @Override
-    protected void configureService() {
-        // there is no validation happening currently
-        //install(new ValidationModule());
+  @Override
+  protected void configureService() {
+    // there is no validation happening currently
+    //install(new ValidationModule());
 
-        // default parser timeout is 500ms
-        // install mybatis module
-        MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule(getProperties(), parserTimeout);
-        install(mybatModule);
-        // expose a named datasource binding
-        expose(mybatModule.getDatasourceKey());
+    // default parser timeout is 500ms
+    // install mybatis module
+    MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule(getProperties(), parserTimeout);
+    install(mybatModule);
+    // expose a named datasource binding
+    expose(mybatModule.getDatasourceKey());
 
-        expose(NameUsageService.class);
-        expose(VernacularNameService.class);
-        expose(ReferenceService.class);
-        expose(DescriptionService.class);
-        expose(DistributionService.class);
-        expose(IdentifierService.class);
-        expose(MultimediaService.class);
-        expose(SpeciesProfileService.class);
-        expose(TypeSpecimenService.class);
-        expose(DatasetMetricsService.class);
-        // not available in API:
-        expose(UsageService.class);
-        expose(ParsedNameService.class);
-        expose(NameParser.class);
-        expose(DatasetImportService.class);
-        expose(CitationService.class);
-        expose(ColAnnotationService.class);
-        expose(DatasetAnalysisService.class);
-    }
+    expose(NameUsageService.class);
+    expose(VernacularNameService.class);
+    expose(ReferenceService.class);
+    expose(DescriptionService.class);
+    expose(DistributionService.class);
+    expose(IdentifierService.class);
+    expose(MultimediaService.class);
+    expose(SpeciesProfileService.class);
+    expose(TypeSpecimenService.class);
+    expose(DatasetMetricsService.class);
+    // not available in API:
+    expose(UsageService.class);
+    expose(ParsedNameService.class);
+    expose(NameParser.class);
+    expose(DatasetImportService.class);
+    expose(CitationService.class);
+    expose(ColAnnotationService.class);
+    expose(DatasetAnalysisService.class);
+    expose(UsageCountMapper.class);
+
+  }
 
 }
