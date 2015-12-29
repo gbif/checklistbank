@@ -273,7 +273,7 @@ public class NubBuilder implements Runnable {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = db.dao.readNub(n);
         if (u == null) {
-          LOG.warn("Missing kvp nub usage for node {}", n.getId());
+          LOG.warn("Missing kvp nub usage for node {} {}", n.getId(), NeoProperties.getScientificName(n));
         } else {
           String name = SciNameNormalizer.normalize(db.dao.canonicalOrScientificName(u.parsedName, false));
           if (!Strings.isBlank(name)) {
