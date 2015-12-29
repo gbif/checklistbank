@@ -6,18 +6,19 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
-
-import javax.annotation.Nullable;
+import java.sql.Date;
+import java.util.Collections;
+import java.util.List;
 
 import com.carrotsearch.hppc.IntHashSet;
 import com.carrotsearch.hppc.IntSet;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,152 +26,110 @@ import org.slf4j.LoggerFactory;
  * Nub id generator trying to reuse previously existing ids, even if they had been deleted.
  * It will only ever issue the same id once.
  */
-public class IdGenerator implements Closeable {
-    private static final Logger LOG = LoggerFactory.getLogger(IdGenerator.class);
-    private IdLookup lookup;
-    private final int idStart;
-    private int nextId;
-    private IntSet resurrected = new IntHashSet();
-    private IntSet reissued = new IntHashSet();
-    private final File fdeleted;
-    private final FileWriter fresurrected;
-    private final FileWriter fcreated;
-    Joiner nameJoiner = Joiner.on(" ").skipNulls();
+public class IdGenerator {
+  private static final Logger LOG = LoggerFactory.getLogger(IdGenerator.class);
+  private IdLookup lookup;
+  private final int idStart;
+  private int nextId;
+  private IntSet resurrected = new IntHashSet();
+  private IntSet reissued = new IntHashSet();
+  private List<LookupUsage> created = Lists.newArrayList();
+  private final Joiner nameJoiner = Joiner.on(" ").skipNulls();
 
-    /**
-     *
-     * @param lookup
-     * @param idStart
-     * @param reportDir if null no reports will be written
-     */
-    public IdGenerator(IdLookup lookup, int idStart, @Nullable File reportDir) {
-        this.lookup = lookup;
-        Preconditions.checkArgument(idStart < Constants.NUB_MAXIMUM_KEY);
-        this.idStart = idStart;
-        nextId = idStart;
-        if (reportDir == null) {
-            fdeleted = null;
-            fresurrected = null;
-            fcreated = null;
-        } else {
-            fdeleted = new File(reportDir, "deleted.txt");
-            try {
-                fdeleted.getParentFile().mkdirs();
-                fresurrected = new FileWriter(new File(reportDir, "resurrected.txt"));
-                fcreated = new FileWriter(new File(reportDir, "created.txt"));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+  /**
+   *
+   * @param lookup
+   * @param idStart
+   */
+  public IdGenerator(IdLookup lookup, int idStart) {
+    this.lookup = lookup;
+    Preconditions.checkArgument(idStart < Constants.NUB_MAXIMUM_KEY);
+    this.idStart = idStart;
+    nextId = idStart;
+  }
+
+  public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom, boolean forceNew) {
+    LookupUsage u = forceNew ? null : lookup.match(canonicalName, authorship, year, rank, kingdom);
+    int id = -1;
+    if (u == null) {
+      id = nextId++;
+      LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
+      created.add(new LookupUsage(id, canonicalName, authorship, year, rank, kingdom, false));
+    } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
+      id = nextId++;
+      LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
+      LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
+      created.add(new LookupUsage(id, canonicalName, authorship, year, rank, kingdom, false));
+    } else {
+      id = u.getKey();
+      if (u.isDeleted()) {
+        resurrected.add(id);
+        LOG.debug("Resurrected id {} for {} {} {}", id, canonicalName, authorship, year);
+      } else {
+        reissued.add(id);
+        LOG.debug("Reissued id {} for {} {} {}", id, canonicalName, authorship, year);
+      }
+    }
+    // make sure we dont exceed the maximum nub id limit which we use to identify nub usages elsewhere
+    if (id > Constants.NUB_MAXIMUM_KEY) {
+      throw new IllegalStateException("Exceeded maximum nub id limit " + Constants.NUB_MAXIMUM_KEY);
+    }
+    return id;
+  }
+
+  protected void setReissued(IntSet reissued) {
+    this.reissued = reissued;
+  }
+
+  protected void setResurrected(IntSet resurrected) {
+    this.resurrected = resurrected;
+  }
+
+  protected void setCreated(List<LookupUsage> created) {
+    this.created = created;
+  }
+
+  public void writeReports(File reportingDir) throws IOException {
+    // add current date folder
+    reportingDir = new File(reportingDir, new Date(System.currentTimeMillis()).toString());
+    if (reportingDir.exists()) {
+      FileUtils.deleteDirectory(reportingDir);
+    }
+    FileUtils.forceMkdir(reportingDir);
+
+    // prepare lists for sorting
+    List<LookupUsage> del = Lists.newArrayList();
+    List<LookupUsage> res = Lists.newArrayList();
+    for (LookupUsage u : lookup) {
+      if (u.isDeleted()) {
+        if (resurrected.contains(u.getKey())) {
+          res.add(u);
         }
+      } else {
+        if (!reissued.contains(u.getKey())) {
+          del.add(u);
+        }
+      }
     }
 
-    public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom, boolean forceNew) {
-        LookupUsage u = forceNew ? null : lookup.match(canonicalName, authorship, year, rank, kingdom);
-        int id = -1;
-        try {
-            if (u == null) {
-                id = nextId++;
-                LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
-                logName(fcreated, id, canonicalName, authorship, year);
-            } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
-                id = nextId++;
-                LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
-                LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
-                logName(fcreated, id, canonicalName, authorship, year);
-            } else {
-                id = u.getKey();
-                if (u.isDeleted()) {
-                    resurrected.add(id);
-                    logName(fresurrected, u);
-                    LOG.debug("Resurrected id {} for {} {} {}", id, canonicalName, authorship, year);
-                } else {
-                    reissued.add(id);
-                    LOG.debug("Reissued id {} for {} {} {}", id, canonicalName, authorship, year);
-                }
-            }
-        } catch (IOException e) {
-            LOG.warn("Failed to write idgenerator report log");
-        }
-        // make sure we dont exceed the maximum nub id limit which we use to identify nub usages elsewhere
-        if (id > Constants.NUB_MAXIMUM_KEY){
-            throw new IllegalStateException("Exceeded maximum nub id limit " + Constants.NUB_MAXIMUM_KEY);
-        }
-        return id;
+    // write report files
+    print(del, new File(reportingDir, "deleted.txt"));
+    print(res, new File(reportingDir, "resurrected.txt"));
+    print(created, new File(reportingDir, "created.txt"));
+  }
+
+  private void print(List<LookupUsage> usages, File f) throws IOException {
+    try (FileWriter writer = new FileWriter(f)){
+      // sort and write
+      Collections.sort(usages);
+      for (LookupUsage u : usages) {
+        writer.write(u.getKey());
+        writer.write('\t');
+        writer.write(u.getRank().name());
+        writer.write('\t');
+        writer.write(nameJoiner.join(u.getCanonical(), u.getAuthorship(), u.getYear()));
+        writer.write('\n');
+      }
     }
-
-    private void logName(Writer writer, LookupUsage u) throws IOException {
-        logName(writer, u.getKey(), u.getCanonical(), u.getAuthorship(), u.getYear());
-    }
-    private void logName(Writer writer, int key, String canonical, String authorship, String year) throws IOException {
-        if (writer != null) {
-            writer.write(key + '\t' + nameJoiner.join(canonical, authorship, year) + '\n');
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        fresurrected.close();
-        fcreated.close();
-        try (FileWriter delwriter = new FileWriter(fdeleted)) {
-            for (LookupUsage u : lookup) {
-                if (!u.isDeleted() && !reissued.contains(u.getKey())) {
-                    logName(delwriter, u);
-                }
-            }
-        }
-    }
-
-    /**
-     * Reports all ids that have changed between 2 backbone builds.
-     */
-    public class Metrics {
-        /**
-         * Newly reissued nub ids that did not exist before.
-         */
-        public final IntSet created;
-
-        /**
-         * Resurrecetd nub ids that existed before but had been assigned to deleted usages in the old nub.
-         */
-        public final IntSet resurrected;
-
-        /**
-         * Deleted nub ids that existed before but have been removed from the new backbone.
-         */
-        public final IntSet deleted;
-
-        public Metrics(IntSet created, IntSet resurrected, IntSet deleted) {
-            this.created = created;
-            this.resurrected = resurrected;
-            this.deleted = deleted;
-        }
-
-        @Override
-        public String toString() {
-            return "Metrics{" +
-                    "created=" + created.size() +
-                    ", resurrected=" + resurrected.size() +
-                    ", deleted=" + deleted.size() +
-                    '}';
-        }
-    }
-
-    /**
-     * Builds a new metrics report.
-     * This is a little costly, so dont use this in debugging!
-     */
-    public Metrics metrics() {
-        IntSet created = new IntHashSet(nextId-idStart);
-        for (int id=idStart; id<nextId; id++) {
-            created.add(id);
-        }
-        IntSet deleted = new IntHashSet(lookup.deletedIds());
-        for (LookupUsage u : lookup) {
-            if (!u.isDeleted() && !reissued.contains(u.getKey())) {
-                deleted.add(u.getKey());
-            }
-        }
-        return new Metrics(created, resurrected, deleted);
-    }
-
+  }
 }

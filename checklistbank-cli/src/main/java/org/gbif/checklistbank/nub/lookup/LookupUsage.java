@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * Simple usage representing the minimal nub usage info needed to match names.
  */
-public class LookupUsage {
+public class LookupUsage implements Comparable<LookupUsage> {
     private int key;
     private String canonical;
     private String authorship;
@@ -111,4 +111,16 @@ public class LookupUsage {
                 && Objects.equals(this.authorship, other.authorship)
                 && Objects.equals(this.deleted, other.deleted);
     }
+
+  @Override
+  public int compareTo(LookupUsage o) {
+    int res = Integer.compare(this.rank.ordinal(), o.rank.ordinal());
+    if (res == 0) {
+      res = Integer.compare(this.kingdom.ordinal(), o.kingdom.ordinal());
+    }
+    if (res == 0) {
+      res = this.canonical.compareTo(o.canonical);
+    }
+    return res;
+  }
 }

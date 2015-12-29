@@ -36,6 +36,7 @@ import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,6 @@ public class NubBuilder implements Runnable {
   private int sourceUsageCounter = 0;
   private final AuthorComparator authorComparator;
   private final IdGenerator idGen;
-  private final int newIdStart;
   private final IntLongMap src2NubKey = new IntLongHashMap();
   private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
   private final Map<UUID, Integer> priorities = Maps.newHashMap();
@@ -127,13 +127,12 @@ public class NubBuilder implements Runnable {
     }
   });
 
-  private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, File reportDir,
+  private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart,
                      boolean closeDao, boolean verifyBackbone, int batchSize) {
     db = NubDb.create(dao, authorComparator);
     this.sources = sources;
     this.authorComparator = authorComparator;
-    idGen = new IdGenerator(idLookup, newIdStart, reportDir);
-    this.newIdStart = newIdStart;
+    idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
     this.verifyBackbone = verifyBackbone;
     this.batchSize = batchSize;
@@ -143,7 +142,7 @@ public class NubBuilder implements Runnable {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
     try {
       IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
-      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, cfg.neo.nubReportDir(), true,
+      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true,
           cfg.autoImport, cfg.neo.batchSize);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
@@ -154,7 +153,7 @@ public class NubBuilder implements Runnable {
    * @param dao the dao to create the nub. Will be left open after run() is called.
    */
   public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart) {
-    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, null, false, false, 10000);
+    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, false, false, 10000);
   }
 
   /**
@@ -199,6 +198,17 @@ public class NubBuilder implements Runnable {
       } else {
         LOG.warn("Backbone dao not closed!");
       }
+    }
+  }
+
+  /**
+   * Writes a file based report about deleted, resurrected and newly added taxa.
+   */
+  public void report(File reportingDir) {
+    try {
+      idGen.writeReports(reportingDir);
+    } catch (IOException e) {
+      LOG.warn("Failed to write ID report", e);
     }
   }
 
@@ -776,7 +786,7 @@ public class NubBuilder implements Runnable {
   /**
    * Removes a taxon if it has no accepted children
    */
-  public void removeTaxonIfEmpty(NubUsage u) {
+  private void removeTaxonIfEmpty(NubUsage u) {
     if (u != null && !u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF)
         && !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)) {
       delete(u);
@@ -1124,27 +1134,12 @@ public class NubBuilder implements Runnable {
   }
 
   private void builtUsageMetrics() {
-    builtUsageMetrics(db.dao);
-  }
-
-  public static void builtUsageMetrics(UsageDao dao) {
     LOG.info("Walk all accepted taxa and build usage metrics");
-    UsageMetricsHandler metricsHandler = new UsageMetricsHandler(dao);
+    UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
     // TaxonWalker deals with transactions
-    TreeWalker.walkAcceptedTree(dao.getNeo(), metricsHandler);
+    TreeWalker.walkAcceptedTree(db.dao.getNeo(), metricsHandler);
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
-  }
-
-  public IdGenerator.Metrics idMetrics() {
-    return idGen.metrics();
-  }
-
-  /**
-   * @return the first newly generated id that did not exist in clb before
-   */
-  public int getNewIdStart() {
-    return newIdStart;
   }
 
   /**

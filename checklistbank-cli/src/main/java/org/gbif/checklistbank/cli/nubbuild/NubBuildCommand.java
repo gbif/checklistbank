@@ -17,36 +17,37 @@ import org.slf4j.LoggerFactory;
 
 @MetaInfServices(Command.class)
 public class NubBuildCommand extends BaseCommand {
-    private static final Logger LOG = LoggerFactory.getLogger(NubBuildCommand.class);
-    private final NubConfiguration cfg = new NubConfiguration();
+  private static final Logger LOG = LoggerFactory.getLogger(NubBuildCommand.class);
+  private final NubConfiguration cfg = new NubConfiguration();
 
-    public NubBuildCommand() {
-        super("nub-build");
+  public NubBuildCommand() {
+    super("nub-build");
+  }
+
+  @Override
+  protected Object getConfigurationObject() {
+    return cfg;
+  }
+
+  @Override
+  protected void doRun() {
+    NubBuilder builder = NubBuilder.create(cfg);
+    builder.run();
+    builder.report(cfg.neo.nubReportDir());
+
+    if (cfg.autoImport && builder.assertionsPassed()) {
+      try {
+        MessagePublisher publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
+        publisher.send(new ChecklistNormalizedMessage(Constants.NUB_DATASET_KEY));
+        LOG.info("Sending ChecklistNormalizedMessage for backbone dataset {}", Constants.NUB_DATASET_KEY);
+        publisher.close();
+      } catch (IOException e) {
+        Throwables.propagate(e);
+      }
+
+    } else if (!builder.assertionsPassed()) {
+      LOG.warn("Backbone failed basic validations, check logs!");
     }
-
-    @Override
-    protected Object getConfigurationObject() {
-        return cfg;
-    }
-
-    @Override
-    protected void doRun() {
-        NubBuilder builder = NubBuilder.create(cfg);
-        builder.run();
-
-        if (cfg.autoImport && builder.assertionsPassed()) {
-            try {
-                MessagePublisher publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
-                publisher.send(new ChecklistNormalizedMessage(Constants.NUB_DATASET_KEY));
-                LOG.info("Sending ChecklistNormalizedMessage for backbone dataset {}", Constants.NUB_DATASET_KEY);
-                publisher.close();
-            } catch (IOException e) {
-                Throwables.propagate(e);
-            }
-
-        } else if (!builder.assertionsPassed()){
-            LOG.warn("Backbone failed basic validations, check logs!");
-        }
-    }
+  }
 
 }

@@ -20,7 +20,6 @@ import org.gbif.common.parsers.core.ParseResult;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -242,10 +241,11 @@ public class NubDb {
       }
     }
 
-    // try to do better authorship matching
+    // try to do better authorship matching, remove canonical matches
     if (qualifiedName) {
       iter = checked.iterator();
-      for (NubUsage nu : checked) {
+      while (iter.hasNext()) {
+        NubUsage nu = iter.next();
         Equality author = authComp.compare(u.parsedName, nu.parsedName);
         if (author != Equality.EQUAL) {
           iter.remove();
@@ -476,13 +476,11 @@ public class NubDb {
       parent.node.createRelationshipTo(child, RelType.PARENT_OF);
       // read nub usage to add an issue to the child
       NubUsage cu = dao.readNub(child);
-      if (issues != null) {
-        if (cu.issues == null) {
-          LOG.warn("Nub usage {} {} with null issue set", child.getId(), cu.parsedName.fullName());
-          cu.issues = EnumSet.noneOf(NameUsageIssue.class);
-        }
-        Collections.addAll(cu.issues, issues);
+      if (cu == null) {
+        LOG.warn("Child {} of new parent {} not existing. Ignore", child.getId(), parent.parsedName.fullName());
+        return;
       }
+      Collections.addAll(cu.issues, issues);
       if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
         cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
       }

@@ -143,6 +143,13 @@ public class UsageDao {
   }
 
   /**
+   * @return a readonly dao of an existing neo db
+   */
+  public static UsageDao open(NeoConfiguration cfg, UUID datasetKey) {
+    return persistentDao(cfg, datasetKey, true, null, false);
+  }
+
+  /**
    * A backend that is stored in files inside the configured neo directory.
    *
    * @param eraseExisting if true erases any previous data files

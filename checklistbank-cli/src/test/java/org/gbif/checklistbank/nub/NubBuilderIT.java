@@ -911,8 +911,6 @@ public class NubBuilderIT {
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
     nb.run();
     log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
-    IdGenerator.Metrics metrics = nb.idMetrics();
-    System.out.println(metrics);
 
     tx = dao.beginTx();
     printTree();
@@ -946,9 +944,6 @@ public class NubBuilderIT {
     dao = UsageDao.temporaryDao(100);
     NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1);
     nb.run();
-
-    IdGenerator.Metrics metrics = nb.idMetrics();
-    System.out.println(metrics);
 
     tx = dao.beginTx();
     printTree();
