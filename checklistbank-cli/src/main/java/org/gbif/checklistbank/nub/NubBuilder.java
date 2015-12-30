@@ -72,6 +72,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
@@ -218,7 +219,7 @@ public class NubBuilder implements Runnable {
       try (Transaction tx = db.beginTx()) {
         LOG.info("Start flagging doubtful duplicate names in {}", k);
         NubUsage ku = db.getKingdom(k);
-        markDuplicatesRedundant(Traversals.SORTED_ACCEPTED_TREE.traverse(ku.node).nodes().iterator());
+        markDuplicatesRedundant(Traversals.ACCEPTED_TREE.traverse(ku.node).nodes());
         tx.success();
       }
     }
@@ -301,11 +302,11 @@ public class NubBuilder implements Runnable {
   /**
    * Assigns a doubtful status to accepted names that only differ in authorship
    *
-   * @param iter any node iterator to check for names
+   * @param nodes any node iterable to check for names
    */
-  private void markDuplicatesRedundant(ResourceIterator<Node> iter) {
-    ObjectLongMap names = new ObjectLongHashMap();
-    for (Node n : IteratorUtil.loop(iter)) {
+  private void markDuplicatesRedundant(ResourceIterable<Node> nodes) {
+    ObjectLongMap<String> names = new ObjectLongHashMap<String>();
+    for (Node n : nodes) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
         String name = u.parsedName.canonicalName();

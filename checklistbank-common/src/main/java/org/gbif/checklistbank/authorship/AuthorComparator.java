@@ -170,9 +170,11 @@ public class AuthorComparator {
   private void parseAuthorship(ParsedName pn) {
     // try to use full sciname minus the epithets
     String lastEpithet = coalesce(pn.getInfraSpecificEpithet(), pn.getSpecificEpithet(), pn.getGenusOrAbove());
-    int idx = pn.getScientificName().lastIndexOf(lastEpithet);
-    if (idx >= 0) {
-      pn.setAuthorship(pn.getScientificName().substring(idx + lastEpithet.length()));
+    if (lastEpithet != null && pn.getScientificName() != null) {
+      int idx = pn.getScientificName().lastIndexOf(lastEpithet);
+      if (idx >= 0) {
+        pn.setAuthorship(pn.getScientificName().substring(idx + lastEpithet.length()));
+      }
     }
     // copy full name to year, will be extracted/normalized in year comparison
     pn.setYear(pn.getScientificName());

@@ -60,16 +60,23 @@ public class Traversals {
 
 
   /**
+   * Traversal that iterates depth first over all accepted descendants including the starting node.
+   * There is no particular order for the direct children.
+   * Use the SORTED_TREE traversals if a taxonomic order is required!
+   */
+  public static final TraversalDescription ACCEPTED_TREE = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
+      .depthFirst()
+      .uniqueness(Uniqueness.NODE_PATH);
+
+  /**
    * Traversal that iterates depth first over all descendants including synonyms and the starting node.
    * The node of pro parte synonyms will be visited only once as pro_parte relationships are ignored.
    * There is no particular order for the direct children.
    * See SORTED_TREE traversals if a taxonomic order is required!
    */
-  public static final TraversalDescription TREE_WITHOUT_PRO_PARTE = new MonoDirectionalTraversalDescription()
-      .relationships(RelType.PARENT_OF, Direction.OUTGOING)
-      .relationships(RelType.SYNONYM_OF, Direction.INCOMING)
-      .depthFirst()
-      .uniqueness(Uniqueness.NODE_PATH);
+  public static final TraversalDescription TREE_WITHOUT_PRO_PARTE = ACCEPTED_TREE
+      .relationships(RelType.SYNONYM_OF, Direction.INCOMING);
 
   /**
    * Traversal that iterates depth first over all descendants including synonyms and the starting node.

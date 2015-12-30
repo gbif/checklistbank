@@ -389,6 +389,7 @@ public class NubDb {
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
   private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
+    LOG.debug("create {} {} {} {} with parent {}", nub.origin.name().toLowerCase(), nub.status.name().toLowerCase(), nub.parsedName.getScientificName(), nub.rank, parent == null ? "none" : parent.parsedName.getScientificName());
     if (nub.node == null) {
       // create new neo node if none exists yet (should be the regular case)
       nub.node = dao.createTaxon();
