@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.ws.resources;
 
+import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.util.ExtraMediaTypes;
@@ -30,13 +31,19 @@ public class TreemapResource {
   }
 
   @GET
+  @Path("root")
+  public List<UsageCount> nubRoot() {
+    return root(Constants.NUB_DATASET_KEY);
+  }
+
+  @GET
   @Path("root/{uuid}")
   public List<UsageCount> root(@PathParam("uuid") UUID datasetKey) {
     return usageCountMapper.root(datasetKey);
   }
 
   @GET
-  @Path("species/{id}")
+  @Path("children/{id}")
   public List<UsageCount> children(@PathParam("id") int parentKey) {
     return usageCountMapper.children(parentKey);
   }

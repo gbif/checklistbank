@@ -747,7 +747,6 @@ public class NubBuilderIT {
     assertEquals(1, listCanonical("Fuligo septica").size());
   }
 
-
   /**
    * Nub builds seem to have trouble if the given rank and the name parsed rank differ.
    * Make sure higher taxonomy does not suffer from that.
@@ -762,6 +761,17 @@ public class NubBuilderIT {
     src.setSourceRank(46, Rank.KINGDOM);
     build(src);
     assertTree("46.txt");
+  }
+
+  /**
+   * Make sure non parsed names get treated well.
+   * Parsing can fail due to regex timeouts or badly formed names
+   */
+  @Test
+  public void testParsingTimouts() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(47);
+    build(src);
+    assertTree("47.txt");
   }
 
   /**
@@ -908,7 +918,7 @@ public class NubBuilderIT {
    */
   private void build(NubSourceList src) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
-    NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10);
+    NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
     nb.run();
     log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
 
@@ -942,7 +952,7 @@ public class NubBuilderIT {
     dao.close();
     // new, empty DAO
     dao = UsageDao.temporaryDao(100);
-    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1);
+    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1, 100);
     nb.run();
 
     tx = dao.beginTx();

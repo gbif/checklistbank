@@ -45,7 +45,7 @@ public class ManualNubBuild {
     private static void build(NubConfiguration cfg) {
         LOG.info("Build new nub");
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
-        NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Lists.newArrayList(UUID.fromString("bf3db7c9-5e5d-4fd0-bd5b-94539eaf9598"))), new IdLookupPassThru(), 1000);
+        NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Lists.newArrayList(UUID.fromString("bf3db7c9-5e5d-4fd0-bd5b-94539eaf9598"))), new IdLookupPassThru(), 1000, 1000);
         builder.run();
         dao.close();
         LOG.info("New backbone ready");
@@ -56,9 +56,9 @@ public class ManualNubBuild {
         UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
         NubBuilder builder;
         if (sources == null) {
-            builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000);
+            builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000, 1000);
         } else {
-            builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Arrays.asList(sources)), new IdLookupPassThru(), 1000);
+            builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Arrays.asList(sources)), new IdLookupPassThru(), 1000, 1000);
         }
         builder.run();
         dao.close();

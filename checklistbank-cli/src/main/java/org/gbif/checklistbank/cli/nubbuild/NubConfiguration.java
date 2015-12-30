@@ -9,6 +9,7 @@ import java.io.File;
 import java.net.URI;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.ParametersDelegate;
@@ -56,4 +57,9 @@ public class NubConfiguration {
   @Nullable
   public File reportDir;
 
+  /**
+   * In milliseconds.
+   */
+  @Min(100)
+  public int parserTimeout = 1000;
 }

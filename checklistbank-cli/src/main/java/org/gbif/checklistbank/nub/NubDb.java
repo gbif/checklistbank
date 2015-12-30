@@ -358,7 +358,7 @@ public class NubDb {
     }
   }
 
-  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue... issues) {
+  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {
     LOG.debug("create {} {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.getScientificName(), src.rank, parent == null ? "none" : parent.parsedName.getScientificName());
 
     NubUsage nub = new NubUsage(src);
@@ -367,7 +367,9 @@ public class NubDb {
     if (src.key != null) {
       nub.sourceIds.add(src.key);
     }
-    Collections.addAll(nub.issues, issues);
+    if (issues != null) {
+      Collections.addAll(nub.issues, issues);
+    }
     return addUsage(parent, nub);
   }
 

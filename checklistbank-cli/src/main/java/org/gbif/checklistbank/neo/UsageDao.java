@@ -584,6 +584,7 @@ public class UsageDao {
    * Deletes kvp usage and neo node together with all its relations.
    */
   public void delete(NubUsage nub) {
+    LOG.debug("Deleting node {} {}", nub.node.getId(), NeoProperties.getScientificName(nub.node));
     nubUsages.remove(nub.node.getId());
     // remove all relations
     for (Relationship rel : nub.node.getRelationships()) {
