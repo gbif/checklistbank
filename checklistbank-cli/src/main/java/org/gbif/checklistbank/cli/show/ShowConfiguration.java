@@ -51,4 +51,9 @@ public class ShowConfiguration {
   @Valid
   @Parameter(names = {"-r", "--lowest-rank"}, required = false)
   public Rank lowestRank;
+
+  @Valid
+  @Parameter(names = {"--dao-report"}, required = false)
+  public boolean daoReport = false;
+
 }

@@ -37,6 +37,10 @@ public class ShowCommand extends BaseCommand {
           UsageDao dao = UsageDao.persistentDao(cfg.neo, cfg.key, true, null, false);
           Node root = null;
           try (Transaction tx = dao.beginTx()) {
+            if (cfg.daoReport) {
+              dao.consistencyNubReport();
+            }
+
             if (cfg.rootId != null || cfg.rootName != null) {
               if (cfg.rootId != null) {
                 System.out.println("Show root node " + cfg.rootId);
