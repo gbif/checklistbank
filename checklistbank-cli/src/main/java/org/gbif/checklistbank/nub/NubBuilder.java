@@ -117,7 +117,7 @@ public class NubBuilder implements Runnable {
   private int datasetCounter = 1;
   private final int batchSize;
 
-  private final Ordering priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
+  private final Ordering<NubUsage> priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
     @Nullable
     @Override
     public Integer apply(@Nullable NubUsage u) {
@@ -559,6 +559,7 @@ public class NubBuilder implements Runnable {
         ku.parsedName = new ParsedName();
         ku.parsedName.setType(NameType.SCIENTIFIC);
         ku.parsedName.setGenusOrAbove(k.scientificName());
+        ku.parsedName.setScientificName(k.scientificName());
         // treat incertae sedis placeholder kingdom different
         if (k == Kingdom.INCERTAE_SEDIS) {
           ku.status = TaxonomicStatus.DOUBTFUL;
@@ -1035,7 +1036,8 @@ public class NubBuilder implements Runnable {
     // now consolidate each basionym group in its own transaction
     for (LongCursor basCursor : basIds) {
       try (Transaction tx = db.beginTx()) {
-        Node bas = db.dao.getNeo().getNodeById(basCursor.value);
+        Node bas = db.getNode(basCursor.value);
+
         counter++;
         // sort all usage by source dataset priority, placing doubtful names last
         List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
@@ -1056,12 +1058,7 @@ public class NubBuilder implements Runnable {
                     u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                 );
               }
-              //TODO: remove this try/catch once we found the error leading to this exception!!!
-              try {
-                convertToSynonymOf(u, accepted, synStatus);
-              } catch (Exception e) {
-                LOG.error("Failed to consolidate {} from basionym group {}", u, primary, e);
-              }
+              convertToSynonymOf(u, accepted, synStatus);
             }
           }
           counterModified = counterModified + modified;
@@ -1070,7 +1067,7 @@ public class NubBuilder implements Runnable {
         tx.success();
 
       } catch (NotFoundException e) {
-        LOG.info("Basionym {} was removed. Ignore for consolidation", basCursor.value);
+        LOG.info("Basionym {} was removed. Ignore for consolidation", basCursor.value, e);
       }
     }
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);

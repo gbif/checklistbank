@@ -368,13 +368,13 @@ public class NubDb {
       // create new neo node if none exists yet (should be the regular case)
       nub.node = dao.createTaxon();
     }
-    LOG.debug("created node {} for {} {} {} {} with parent {}",
+    LOG.debug("created node {} for {} {} {} {} with {}",
         nub.node.getId(),
         nub.origin == null ? "" : nub.origin.name().toLowerCase(),
         nub.status == null ? "" : nub.status.name().toLowerCase(),
         nub.parsedName == null ? "no parsed nane" : nub.parsedName.getScientificName(),
         nub.rank,
-        parent == null ? "none" : parent.parsedName.getScientificName()
+        parent == null ? "no parent" : "parent " + parent.parsedName.getScientificName()
     );
 
     if (parent == null) {
@@ -526,11 +526,10 @@ public class NubDb {
   public List<NubUsage> listBasionymGroup(Node bas) {
     List<NubUsage> group = Lists.newArrayList();
     for (Node n : IteratorUtil.loop(Traversals.BASIONYM_GROUP.traverse(bas).nodes().iterator())) {
-      NubUsage nub = dao.readNub(n);
-      // nub can be null in case of placeholder neo nodes that do no have a real NubUsage in the kvp store
-      // ignore those!
-      if (nub != null) {
-        group.add(nub);
+      try {
+        group.add(dao.readNub(n));
+      } catch (NotFoundException e) {
+        LOG.info("Basionym group member {} was removed. Ignore", n.getId());
       }
     }
     return group;
