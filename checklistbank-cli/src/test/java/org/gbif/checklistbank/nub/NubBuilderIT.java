@@ -461,8 +461,8 @@ public class NubBuilderIT {
     assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertEquals(2, listCanonical("Meliopyrgus willi").size());
-    assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
-    assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+    assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+    assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertTree("3 2 36.txt");
   }
 

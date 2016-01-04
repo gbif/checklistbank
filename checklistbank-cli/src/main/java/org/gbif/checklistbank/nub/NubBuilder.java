@@ -905,7 +905,6 @@ public class NubBuilder implements Runnable {
           u.parsedName = new ParsedName();
           u.parsedName.setScientificName(u.scientificName);
           u.parsedName.setType(e.type);
-          u.parsedName.setAuthorsParsed(false);
         } else {
           throw new IgnoreSourceUsageException("Unparsable " + e.type, u.scientificName);
         }
