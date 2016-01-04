@@ -54,6 +54,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.helpers.Strings;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.tooling.GlobalGraphOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -719,5 +720,30 @@ public class UsageDao {
     LOG.info("basionyms: " + IteratorUtil.count(allBasionyms()));
     LOG.info("synonyms: " + IteratorUtil.count(allSynonyms()));
     LOG.info("all: " + IteratorUtil.count(allTaxa()));
+  }
+
+  public void consistencyNubReport() {
+    try (Transaction tx = neo.beginTx()) {
+      int nCounter = 0;
+      for (Node n : GlobalGraphOperations.at(getNeo()).getAllNodes()) {
+        nCounter++;
+        if (readNub(n) == null) {
+          LOG.warn("Missing KVP nub usage for node {} {}", n.getId(), NeoProperties.getScientificName(n));
+        }
+      }
+      LOG.info("Found {} neo4j nodes in total", nCounter);
+    }
+
+    try (Transaction tx = neo.beginTx()) {
+      int kvpCounter = 0;
+      for (long id : nubUsages.keySet()) {
+        kvpCounter++;
+        if (neo.getNodeById(id) == null) {
+          NubUsage u = nubUsages.get(id);
+          LOG.warn("Missing neo4j node for usage {}", u);
+        }
+      }
+      LOG.info("Found {} kvp nub usages in total", kvpCounter);
+    }
   }
 }

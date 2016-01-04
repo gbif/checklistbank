@@ -192,6 +192,11 @@ public class NubBuilder implements Runnable {
         LOG.warn("Assertions not passed, metrics not build and no usages converted!");
       }
       LOG.info("New backbone built");
+
+    } catch (Exception e){
+      LOG.error("Fatal error. Backbone build failed!", e);
+      db.dao.consistencyNubReport();
+
     } finally {
       sources.close();
       if (closeDao) {
@@ -793,11 +798,13 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Removes a taxon if it has no accepted children
+   * Removes a taxon if it has no accepted children or synonyms
    */
   private void removeTaxonIfEmpty(NubUsage u) {
-    if (u != null && !u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF)
-        && !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)) {
+    if (u != null &&
+        !u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF) &&
+        !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)
+        ) {
       delete(u);
     }
   }

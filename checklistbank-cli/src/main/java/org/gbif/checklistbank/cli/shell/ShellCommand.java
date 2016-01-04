@@ -49,6 +49,7 @@ public class ShellCommand extends ServiceCommand {
           .setConfig(ShellSettings.remote_shell_port, String.valueOf(cfg.port))
           // listen to all IPs, not localhost only
           .setConfig(ShellSettings.remote_shell_host, "0.0.0.0")
+          .setConfig(ShellSettings.remote_shell_host, "0.0.0.0")
           .newGraphDatabase();
       System.out.println("Opening neo4j shell on port " + cfg.port);
     }

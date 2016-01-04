@@ -81,14 +81,6 @@ public class NubDb {
     return dao.beginTx();
   }
 
-  public List<NubUsage> findNubUsages(String canonical) {
-    List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
-      usages.add(dao.readNub(n));
-    }
-    return usages;
-  }
-
   /**
    * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
    */
@@ -284,21 +276,6 @@ public class NubDb {
     return source;
   }
 
-  private NubUsage singleOrNull(Collection<NubUsage> usages, boolean isAccepted) {
-    NubUsage u = null;
-    for (NubUsage nu : usages) {
-      if (nu.status.isAccepted() == isAccepted) {
-        if (u == null) {
-          u = nu;
-        } else {
-          // multiple matches
-          return null;
-        }
-      }
-    }
-    return u;
-  }
-
   private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match, NubUsage currNubParent) {
     if (u.rank != match.rank) {
       return false;
@@ -359,8 +336,6 @@ public class NubDb {
   }
 
   public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {
-    LOG.debug("create {} {} {} {} with parent {}", origin.name().toLowerCase(), src.status.name().toLowerCase(), src.parsedName.getScientificName(), src.rank, parent == null ? "none" : parent.parsedName.getScientificName());
-
     NubUsage nub = new NubUsage(src);
     nub.datasetKey = sourceDatasetKey;
     nub.origin = origin;
@@ -389,11 +364,19 @@ public class NubDb {
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
   private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
-    LOG.debug("create {} {} {} {} with parent {}", nub.origin.name().toLowerCase(), nub.status.name().toLowerCase(), nub.parsedName.getScientificName(), nub.rank, parent == null ? "none" : parent.parsedName.getScientificName());
     if (nub.node == null) {
       // create new neo node if none exists yet (should be the regular case)
       nub.node = dao.createTaxon();
     }
+    LOG.debug("created node {} for {} {} {} {} with parent {}",
+        nub.node.getId(),
+        nub.origin.name().toLowerCase(),
+        nub.status.name().toLowerCase(),
+        nub.parsedName.getScientificName(),
+        nub.rank,
+        parent == null ? "none" : parent.parsedName.getScientificName()
+    );
+
     if (parent == null) {
       nub.node.addLabel(Labels.ROOT);
     } else {
