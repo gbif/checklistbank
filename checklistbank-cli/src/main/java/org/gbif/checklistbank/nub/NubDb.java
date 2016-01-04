@@ -370,9 +370,9 @@ public class NubDb {
     }
     LOG.debug("created node {} for {} {} {} {} with parent {}",
         nub.node.getId(),
-        nub.origin.name().toLowerCase(),
-        nub.status.name().toLowerCase(),
-        nub.parsedName.getScientificName(),
+        nub.origin == null ? "" : nub.origin.name().toLowerCase(),
+        nub.status == null ? "" : nub.status.name().toLowerCase(),
+        nub.parsedName == null ? "no parsed nane" : nub.parsedName.getScientificName(),
         nub.rank,
         parent == null ? "none" : parent.parsedName.getScientificName()
     );
