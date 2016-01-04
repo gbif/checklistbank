@@ -6,12 +6,12 @@
     <id property="key" column="id"/>
     <id property="name" column="scientific_name"/>
     <id property="rank" column="rank"/>
-    <id property="size" column="cnt"/>
+    <id property="size" column="num_descendants"/>
   </resultMap>
 
   <!--  list root usages -->
   <select id="root" parameterType="map" resultMap="usageCountMap">
-      SELECT u.id, u.rank, n.scientific_name, 0 as cnt
+      SELECT u.id, u.rank, n.scientific_name, u.num_descendants
       FROM name_usage u JOIN name n on u.name_fk=n.id
       WHERE u.deleted IS NULL AND u.parent_fk is null and u.is_synonym=false and u.dataset_key=#{key, jdbcType=OTHER}
       ORDER BY u.rank, n.scientific_name
@@ -20,7 +20,7 @@
   <!--  list children -->
   <select id="children" parameterType="map" resultMap="usageCountMap">
       WITH child_query AS (
-        SELECT u.id, u.rank, n.scientific_name, 0 as cnt
+        SELECT u.id, u.rank, n.scientific_name, u.num_descendants
         FROM name_usage u JOIN name n on u.name_fk=n.id
         WHERE u.deleted IS NULL AND u.parent_fk=#{key} and u.is_synonym=false
       )

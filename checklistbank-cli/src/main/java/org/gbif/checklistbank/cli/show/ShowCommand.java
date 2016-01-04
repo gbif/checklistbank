@@ -39,40 +39,42 @@ public class ShowCommand extends BaseCommand {
           try (Transaction tx = dao.beginTx()) {
             if (cfg.daoReport) {
               dao.consistencyNubReport();
-            }
+              dao.logStats();
 
-            if (cfg.rootId != null || cfg.rootName != null) {
-              if (cfg.rootId != null) {
-                System.out.println("Show root node " + cfg.rootId);
-                root = dao.getNeo().getNodeById(cfg.rootId);
-              } else {
-                System.out.println("Show root node " + cfg.rootName);
-                Collection<Node> rootNodes = dao.findByName(cfg.rootName);
-                if (rootNodes.isEmpty()) {
-                  System.out.println("No root found");
-                  return;
-                } else if (rootNodes.size() > 1) {
-                  System.out.println("Multiple root nodes found. Please select one by its id:");
-                  for (Node n : rootNodes) {
-                    System.out.println(n.getId() + ": " + n.getProperty(NeoProperties.SCIENTIFIC_NAME, "???"));
+            } else {
+              if (cfg.rootId != null || cfg.rootName != null) {
+                if (cfg.rootId != null) {
+                  System.out.println("Show root node " + cfg.rootId);
+                  root = dao.getNeo().getNodeById(cfg.rootId);
+                } else {
+                  System.out.println("Show root node " + cfg.rootName);
+                  Collection<Node> rootNodes = dao.findByName(cfg.rootName);
+                  if (rootNodes.isEmpty()) {
+                    System.out.println("No root found");
+                    return;
+                  } else if (rootNodes.size() > 1) {
+                    System.out.println("Multiple root nodes found. Please select one by its id:");
+                    for (Node n : rootNodes) {
+                      System.out.println(n.getId() + ": " + n.getProperty(NeoProperties.SCIENTIFIC_NAME, "???"));
+                    }
+                    return;
                   }
-                  return;
+                  root = rootNodes.iterator().next();
                 }
-                root = rootNodes.iterator().next();
+
+                NubUsage nub = dao.readNub(root);
+                System.out.println("NUB: " + (nub == null ? "null" : nub.toStringComplete()));
+
+                NameUsage u = dao.readUsage(root, true);
+                System.out.println("USAGE: " + u);
               }
 
-              NubUsage nub = dao.readNub(root);
-              System.out.println("NUB: " + (nub == null ? "null" : nub.toStringComplete()));
-
-              NameUsage u = dao.readUsage(root, true);
-              System.out.println("USAGE: " + u);
+              // show tree
+              try (Writer writer = new FileWriter(cfg.file)) {
+                dao.printTree(writer, cfg.format, cfg.fullNames, cfg.lowestRank, root);
+              }
             }
 
-            // show tree
-            dao.logStats();
-            try (Writer writer = new FileWriter(cfg.file)) {
-              dao.printTree(writer, cfg.format, cfg.fullNames, cfg.lowestRank, root);
-            }
           } finally {
             dao.close();
           }
