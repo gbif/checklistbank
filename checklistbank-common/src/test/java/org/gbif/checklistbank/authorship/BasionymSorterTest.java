@@ -223,7 +223,6 @@ public class BasionymSorterTest {
 
   /**
    * Test what happens if a group contains 2 or more basionyms.
-   * TODO: Expect an exception to be thrown???
    */
   @Test
   public void testMultipleBasionyms() throws Exception {
@@ -240,6 +239,7 @@ public class BasionymSorterTest {
     assertEquals(2, g.getRecombinations().size());
     assertNotNull(g.getBasionym());
     assertEquals("Negundo violaceum G.Kirchn.", g.getBasionym().getScientificName());
+    assertEquals(2, g.getBasionyms().size());
   }
 
   @Test

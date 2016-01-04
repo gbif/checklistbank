@@ -1,0 +1,20 @@
+Animalia
+  Eulophidae
+    Aprostocetus
+      Aprostocetus flavus (Girault, 1913)
+        *$Ootetrastichus flavus Girault, 1913
+        *Aprostocerella flava Girault, 1913
+        *Epomphaloides flavus Girault, 1913
+        *Neotetrastichodes flavus Girault, 1913
+        *Selitrichodes flava Girault, 1913
+        *Trichaporoides flavus Girault, 1913
+      Aprostocetus rieki (De Santis, 1979)
+        *$Tetrastichus rieki De Santis, 1979
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

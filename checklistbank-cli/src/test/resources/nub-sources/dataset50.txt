@@ -1,0 +1,11 @@
+1			KINGDOM	ACCEPTED		Animalia
+10	1		FAMILY	ACCEPTED		Eulophidae
+100	10		SPECIES	ACCEPTED		Aprostocetus flavus (Girault, 1913)
+101	100		SPECIES	SYNONYM		Aprostocerella flava Girault, 1913
+102	100		SPECIES	SYNONYM		Epomphaloides flavus Girault, 1913
+103	100		SPECIES	SYNONYM		Ootetrastichus flavus Girault, 1913
+104	100		SPECIES	SYNONYM		Selitrichodes flava Girault, 1913
+105	100		SPECIES	SYNONYM		Trichaporoides flavus Girault, 1913
+110	10		SPECIES	ACCEPTED		Aprostocetus rieki (De Santis, 1979) 
+111	110		SPECIES	SYNONYM		Neotetrastichodes flavus Girault, 1913
+111	110		SPECIES	SYNONYM		Tetrastichus rieki De Santis, 1979

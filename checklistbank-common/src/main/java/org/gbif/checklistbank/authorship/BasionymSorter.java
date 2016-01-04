@@ -39,28 +39,32 @@ public class BasionymSorter {
     return null;
   }
 
-  private <T> T findBasionym(String authorship, String year, List<T> originals, Function<T, ParsedName> func) {
+  private <T> List<T> findBasionyms(String authorship, String year, List<T> originals, Function<T, ParsedName> func) {
+    List<T> basionyms = Lists.newArrayList();
     for (T obj : originals) {
       ParsedName b = func.apply(obj);
       if (authorComp.equals(authorship, year, b.getAuthorship(), b.getYear())) {
-        return obj;
+        basionyms.add(obj);
       }
     }
-    // try again without year in case we didnt find any but make sure we only match once!
-    T match = null;
-    if (authorship != null) {
-      for (T obj : originals) {
-        ParsedName b = func.apply(obj);
-        if (authorComp.equals(authorship, null, b.getAuthorship(), null)) {
-          if (match != null) {
-            // we have more than one match, dont use it!
-            return null;
+    if (basionyms.isEmpty()) {
+      // try again without year in case we didnt find any but make sure we only match once!
+      if (authorship != null) {
+        for (T obj : originals) {
+          ParsedName b = func.apply(obj);
+          if (authorComp.equals(authorship, null, b.getAuthorship(), null)) {
+            if (!basionyms.isEmpty()) {
+              // we have more than one match, dont use it!
+              basionyms.clear();
+              break;
+            } else {
+              basionyms.add(obj);
+            }
           }
-          match = obj;
         }
       }
     }
-    return match;
+    return basionyms;
   }
 
   /**
@@ -94,7 +98,7 @@ public class BasionymSorter {
     }
     // finally try to find the basionym for each group in the list of original names
     for (BasionymGroup<T> group : groups) {
-      group.setBasionym(findBasionym(group.getAuthorship(), group.getYear(), originals, func));
+      group.setBasionyms(findBasionyms(group.getAuthorship(), group.getYear(), originals, func));
     }
     return groups;
   }

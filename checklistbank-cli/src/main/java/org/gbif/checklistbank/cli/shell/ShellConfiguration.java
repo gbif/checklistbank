@@ -24,7 +24,4 @@ public class ShellConfiguration {
   @NotNull
   public UUID key = Constants.NUB_DATASET_KEY;
 
-  @Parameter(names = {"--port"}, required = false)
-  public int port = 1337;
-
 }

@@ -128,7 +128,7 @@ public class UsageDao {
    *
    * @param mappedMemory used for the neo4j db
    */
-  public static UsageDao temporaryDao(int mappedMemory) {
+  public static UsageDao temporaryDao(int mappedMemory, Integer shellPort) {
     LOG.debug("Create new in memory dao");
     DB kvp = DBMaker.memoryDB()
         .transactionDisable()
@@ -137,10 +137,24 @@ public class UsageDao {
     File storeDir = Files.createTempDir();
     NeoConfiguration cfg = new NeoConfiguration();
     cfg.mappedMemory = mappedMemory;
+    if (shellPort != null) {
+      cfg.shell = true;
+      cfg.port = shellPort;
+    }
     GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false, false);
     CleanupUtils.registerCleanupHook(storeDir);
 
     return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
+  }
+
+  /**
+   * A memory based backend which is erased after the JVM exits.
+   * Useful for short lived tests. Neo4j always persists some files which are cleaned up afterwards automatically
+   *
+   * @param mappedMemory used for the neo4j db
+   */
+  public static UsageDao temporaryDao(int mappedMemory) {
+    return temporaryDao(mappedMemory, null);
   }
 
   /**

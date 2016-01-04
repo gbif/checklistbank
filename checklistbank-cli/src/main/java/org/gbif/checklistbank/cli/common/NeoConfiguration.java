@@ -11,6 +11,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.helpers.Settings;
+import org.neo4j.shell.ShellSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,13 @@ public class NeoConfiguration {
   @Parameter(names = "--neo-mapped-memory")
   public int mappedMemory = 128;
 
+  @Min(1000)
+  @Parameter(names = {"--neo-shell-port"}, required = false)
+  public int port = 1337;
+
+  @Parameter(names = {"--neo-shell"}, required = false)
+  public boolean shell = false;
+
   public File neoDir(UUID datasetKey) {
     return new File(neoRepository, datasetKey.toString());
   }
@@ -56,11 +64,22 @@ public class NeoConfiguration {
       LOG.debug("Removing previous neo4j database from {}", storeDir.getAbsolutePath());
       FileUtils.deleteQuietly(storeDir);
     }
-    return new GraphDatabaseFactory()
+    GraphDatabaseBuilder builder = new GraphDatabaseFactory()
         .newEmbeddedDatabaseBuilder(storeDir)
         .setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE)
         .setConfig(GraphDatabaseSettings.read_only, Boolean.toString(readOnly))
         .setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
         .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "M");
+    if (shell) {
+      LOG.info("Enable neo4j shell on port " + port);
+      builder.setConfig(ShellSettings.remote_shell_enabled, Settings.TRUE)
+          .setConfig(ShellSettings.remote_shell_port, String.valueOf(port))
+          // listen to all IPs, not localhost only
+          .setConfig(ShellSettings.remote_shell_host, "0.0.0.0");
+    }
+    return builder;
   }
+
 }
+
+

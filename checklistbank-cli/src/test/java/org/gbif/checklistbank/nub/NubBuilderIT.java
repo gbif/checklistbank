@@ -62,7 +62,7 @@ public class NubBuilderIT {
 
   @Before
   public void init() {
-    dao = UsageDao.temporaryDao(128);
+    dao = UsageDao.temporaryDao(128, 1338);
   }
 
   @After
@@ -844,6 +844,61 @@ public class NubBuilderIT {
 
     printTree();
     assertTree("40.txt");
+  }
+
+  /**
+   * Neotetrastichodes flavus Girault, 1913 in the col takes priority and is a synonym of A. rieki.
+   * Therefore all combinations of that species epithet become also synonyms including the formerly doubtfully accepted Aprostocetus flavus (Girault, 1913)
+   */
+  @Test
+  public void testMultipleOriginals() throws Exception {
+    // data from catalog of life=48, IRMNG=49
+    ClasspathSourceList src = ClasspathSourceList.source(48, 50);
+    build(src);
+
+    printTree();
+
+    assertTree("48 50.txt");
+  }
+
+  /**
+   * Same as above, but this time Aprostocetus flavus is a properly accepted name in CoL and takes priority.
+   * Therefore we keep 2 accepted taxa and not all names get merged.
+   */
+  @Test
+  public void testMultipleOriginals2() throws Exception {
+    // data from catalog of life=49, IRMNG=50
+    ClasspathSourceList src = ClasspathSourceList.source(49, 50);
+    build(src);
+
+    printTree();
+
+    assertTree("49 50.txt");
+  }
+
+  /**
+   * Neotetrastichodes flavus is a synonym of Aprostocetus rieki, but also the basionym of Aprostocetus flavus.
+   * Expect the basionym to be a synonym of Aprostocetus flavus.
+   *
+   * Leave other accepted species as it was - we could consider to merge them all into a single accepted name...
+   */
+  @Test
+  public void testOverlappingBasionyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(51);
+    build(src);
+
+    printTree();
+
+    assertTree("51.txt");
+  }
+
+  /**
+   * Eternal loop that keeps the shell up and running so one can conenct to it and issue queries.
+   */
+  private void runShell() throws InterruptedException {
+    while(true) {
+      Thread.sleep(1000);
+    }
   }
 
   /**

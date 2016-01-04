@@ -1,0 +1,14 @@
+Animalia
+  Eulophidae
+    Aprostocetus
+      Aprostocetus flavus (Girault, 1913)
+        *$Neotetrastichodes flavus Girault, 1913
+      Aprostocetus rieki (De Santis, 1979)
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+Protozoa
+Viruses
+incertae sedis

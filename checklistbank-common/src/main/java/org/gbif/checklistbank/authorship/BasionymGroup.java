@@ -7,23 +7,35 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 
+/**
+ * As we often see missing brackets from author names we must code defensively and allow several original names
+ * in the data for a single epithet.
+ */
 public class BasionymGroup<T> {
   private static final Joiner joiner = Joiner.on("; ").skipNulls();
   private String epithet;
   private String authorship;
   private String year;
-  private T basionym;
+  private List<T> basionyms = Lists.newArrayList();
   private List<T> recombinations = Lists.newArrayList();
 
   public BasionymGroup() {
   }
 
   public T getBasionym() {
-    return basionym;
+    return basionyms.isEmpty() ? null : basionyms.get(0);
   }
 
-  public void setBasionym(T basionym) {
-    this.basionym = basionym;
+  public List<T> getBasionyms() {
+    return basionyms;
+  }
+
+  public void setBasionyms(List<T> basionyms) {
+    this.basionyms = basionyms;
+  }
+
+  public void addBasionym(T basionym) {
+    this.basionyms.add(basionym);
   }
 
   public List<T> getRecombinations() {
@@ -31,7 +43,7 @@ public class BasionymGroup<T> {
   }
 
   public boolean hasBasionym() {
-    return basionym != null;
+    return !basionyms.isEmpty();
   }
 
   public boolean hasRecombinations() {
@@ -58,7 +70,7 @@ public class BasionymGroup<T> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(basionym, recombinations);
+    return Objects.hash(basionyms, recombinations);
   }
 
   @Override
@@ -70,13 +82,13 @@ public class BasionymGroup<T> {
       return false;
     }
     final BasionymGroup other = (BasionymGroup) obj;
-    return Objects.equals(this.basionym, other.basionym)
+    return Objects.equals(this.basionyms, other.basionyms)
         && Objects.equals(this.recombinations, other.recombinations);
   }
 
   @Override
   public String toString() {
     return "BasionymGroup{" + epithet + ' ' + authorship + ' ' + year + " | " +
-        basionym + ": " + joiner.join(recombinations) + '}';
+        basionyms + ": " + joiner.join(recombinations) + '}';
   }
 }

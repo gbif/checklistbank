@@ -10,8 +10,6 @@ import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.Service;
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.helpers.Settings;
-import org.neo4j.shell.ShellSettings;
 
 /**
  * Command that opens a neo4j shell server
@@ -44,14 +42,12 @@ public class ShellCommand extends ServiceCommand {
       Preconditions.checkArgument(storeDir.exists(), "No neo4j store directory existing at " + storeDir.getAbsolutePath());
       System.out.println("Connecting to neo4j store at " + storeDir.getAbsolutePath());
 
-      neo = cfg.neo.newEmbeddedDb(storeDir, true, false)
-          .setConfig(ShellSettings.remote_shell_enabled, Settings.TRUE)
-          .setConfig(ShellSettings.remote_shell_port, String.valueOf(cfg.port))
-          // listen to all IPs, not localhost only
-          .setConfig(ShellSettings.remote_shell_host, "0.0.0.0")
-          .setConfig(ShellSettings.remote_shell_host, "0.0.0.0")
-          .newGraphDatabase();
-      System.out.println("Opening neo4j shell on port " + cfg.port);
+      // shell command without shell makes no sense
+      if (!cfg.neo.shell) {
+        cfg.neo.shell = true;
+      }
+      neo = cfg.neo.newEmbeddedDb(storeDir, true, false).newGraphDatabase();
+      System.out.println("Opening neo4j shell on port " + cfg.neo.port);
     }
 
     @Override

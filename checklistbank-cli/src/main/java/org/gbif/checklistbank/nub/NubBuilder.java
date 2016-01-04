@@ -172,7 +172,7 @@ public class NubBuilder implements Runnable {
 
       // flagging of suspicous usages
       flagParentMismatch();
-      flagEmptyGroups();
+      flagEmptyGenera();
       flagDuplicateAcceptedNames();
       flagSimilarNames();
       flagDoubtfulOriginalNames();
@@ -415,6 +415,7 @@ public class NubBuilder implements Runnable {
 
   /**
    * Goes through all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
+   * As we often see missing brackets from author names we must code defensively and allow several original names in the datat for a single epithet.
    */
   private void detectBasionyms() {
     try {
@@ -458,9 +459,7 @@ public class NubBuilder implements Runnable {
                       epithetBridges.get(epithet).add(epithet2);
                     }
                   }
-
                 }
-
               }
             }
             LOG.debug("{} distinct epithets found in family {}", epithets.size(), fam.parsedName.canonicalNameComplete());
@@ -504,7 +503,8 @@ public class NubBuilder implements Runnable {
                   }
                   // create basionym relations
                   if (basionym != null) {
-                    for (NubUsage u : group.getRecombinations()) {
+                    // there might be more original names cause our data is dirty
+                    for (NubUsage u : Iterables.concat(group.getRecombinations(), group.getBasionyms())) {
                       if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
                         newRelations++;
                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
@@ -592,15 +592,17 @@ public class NubBuilder implements Runnable {
     //}
   }
 
-  private void flagEmptyGroups() {
+  private void flagEmptyGenera() {
     LOG.info("flag empty genera as doubtful");
     try (Transaction tx = db.beginTx()) {
       for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
         if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
           NubUsage nub = read(gen);
-          if (nub == null || nub.status == null) {
-            LOG.error("Missing nub or status for genus: {}", gen.getProperties(NeoProperties.SCIENTIFIC_NAME, "???"));
-            continue;
+          if (nub.origin == Origin.IMPLICIT_NAME) {
+            // remove this genus as it was created by the nub builder as an implicit genus name for a species we seem to have moved or deleted since
+            if (removeTaxonIfEmpty(nub)) {
+              continue;
+            }
           }
           if (!nub.status.isSynonym()) {
             nub.issues.add(NameUsageIssue.NO_SPECIES);
@@ -723,7 +725,7 @@ public class NubBuilder implements Runnable {
    * @return true if basionym relationship was created
    */
   private boolean createBasionymRelationIfNotExisting(Node basionym, Node n) {
-    if (!n.hasRelationship(RelType.BASIONYM_OF, Direction.BOTH)) {
+    if (!basionym.equals(n) && !n.hasRelationship(RelType.BASIONYM_OF, Direction.BOTH)) {
       basionym.createRelationshipTo(n, RelType.BASIONYM_OF);
       basionym.addLabel(Labels.BASIONYM);
       return true;
@@ -800,14 +802,17 @@ public class NubBuilder implements Runnable {
 
   /**
    * Removes a taxon if it has no accepted children or synonyms
+   * @return true if usage was deleted
    */
-  private void removeTaxonIfEmpty(NubUsage u) {
+  private boolean removeTaxonIfEmpty(NubUsage u) {
     if (u != null &&
         !u.node.hasRelationship(Direction.INCOMING, RelType.SYNONYM_OF, RelType.PROPARTE_SYNONYM_OF) &&
         !u.node.hasRelationship(Direction.OUTGOING, RelType.PARENT_OF)
         ) {
       delete(u);
+      return true;
     }
+    return false;
   }
 
   private NubUsageMatch createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
@@ -1077,8 +1082,6 @@ public class NubBuilder implements Runnable {
     // convert to synonym, removing old parent relation
     // See http://dev.gbif.org/issues/browse/POR-398
     LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
-    // remember previous parent
-    NubUsage parent = db.getParent(u);
     // change status
     u.status = synStatus;
     // add synonymOf relation and delete existing parentOf or synonymOf relations
@@ -1089,8 +1092,6 @@ public class NubBuilder implements Runnable {
     db.assignParentToChildren(u.node, accepted);
     // move any synonyms to new accepted parent
     db.assignAcceptedToSynonyms(u.node, accepted.node);
-    // remove parent if it has no children or synonyms
-    removeTaxonIfEmpty(parent);
     // persist usage instance changes
     db.store(u);
   }
@@ -1099,6 +1100,7 @@ public class NubBuilder implements Runnable {
    * @return true of the given usage u has a SYNONYM_OF relation to the given acc usage
    */
   private boolean hasAccepted(NubUsage u, NubUsage acc) {
+    if (u.node.equals(acc.node)) return true;
     try (ResourceIterator<Node> iter = Traversals.ACCEPTED.traverse(u.node).nodes().iterator()) {
       while (iter.hasNext()) {
         if (iter.next().equals(acc.node)) {
