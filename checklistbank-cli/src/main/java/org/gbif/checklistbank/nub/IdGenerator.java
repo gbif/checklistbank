@@ -53,21 +53,21 @@ public class IdGenerator {
     int id = -1;
     if (u == null) {
       id = nextId++;
-      LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
+      LOG.debug("New id {} generated for {} {}", id, rank, name(canonicalName, authorship, year));
       created.add(new LookupUsage(id, canonicalName, authorship, year, rank, kingdom, false));
     } else if (reissued.contains(u.getKey()) || resurrected.contains(u.getKey())) {
       id = nextId++;
       LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, u.getKey(), id);
-      LOG.debug("New id {} generated for {} {} {}", id, canonicalName, authorship, year);
+      LOG.debug("New id {} generated for {} {}", id, rank, name(canonicalName, authorship, year));
       created.add(new LookupUsage(id, canonicalName, authorship, year, rank, kingdom, false));
     } else {
       id = u.getKey();
       if (u.isDeleted()) {
         resurrected.add(id);
-        LOG.debug("Resurrected id {} for {} {} {}", id, canonicalName, authorship, year);
+        LOG.debug("Resurrected id {} for {} {}", id, rank, name(canonicalName, authorship, year));
       } else {
         reissued.add(id);
-        LOG.debug("Reissued id {} for {} {} {}", id, canonicalName, authorship, year);
+        LOG.debug("Reissued id {} for {} {}", id, rank, name(canonicalName, authorship, year));
       }
     }
     // make sure we dont exceed the maximum nub id limit which we use to identify nub usages elsewhere
@@ -75,6 +75,20 @@ public class IdGenerator {
       throw new IllegalStateException("Exceeded maximum nub id limit " + Constants.NUB_MAXIMUM_KEY);
     }
     return id;
+  }
+
+  private String name(String canonicalName, String authorship, String year){
+    StringBuilder sb = new StringBuilder();
+    sb.append(canonicalName);
+    if (authorship != null){
+      sb.append(", ");
+      sb.append(authorship);
+    }
+    if (year != null){
+      sb.append(", ");
+      sb.append(year);
+    }
+    return sb.toString();
   }
 
   public void writeReports(File reportingDir) throws IOException {

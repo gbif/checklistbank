@@ -485,7 +485,7 @@ public class UsageDao {
         u.setSynonym(true);
       }
     } catch (RuntimeException e) {
-      LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId());
+      LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId(), e);
       u.addIssue(NameUsageIssue.RELATIONSHIP_MISSING);
       NameUsageNode.addRemark(u, "Multiple accepted name relations");
     }

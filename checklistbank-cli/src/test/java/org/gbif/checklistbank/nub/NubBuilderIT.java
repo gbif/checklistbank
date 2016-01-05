@@ -62,7 +62,7 @@ public class NubBuilderIT {
 
   @Before
   public void init() {
-    dao = UsageDao.temporaryDao(128, 1338);
+    dao = UsageDao.temporaryDao(128);
   }
 
   @After

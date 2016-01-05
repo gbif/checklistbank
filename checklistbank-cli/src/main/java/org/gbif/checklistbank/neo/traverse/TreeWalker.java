@@ -42,7 +42,7 @@ public class TreeWalker {
    * Walks allAccepted nodes in a single transaction
    */
   public static void walkAcceptedTree(GraphDatabaseService db, StartEndHandler ... handler) {
-    walkAcceptedTree(db, null, null, null, handler);
+    walkAcceptedTree(db, null, null, new Meter(), handler);
   }
 
   /**

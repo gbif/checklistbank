@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageService;
@@ -62,8 +63,8 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
                 crawlFinished = new Date();
             }
             send(new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished, importer.getSyncCounter(), importer.getDelCounter()));
-            // finally delete artifacts unless configured not to
-            if (cfg.deleteNeo) {
+            // finally delete artifacts unless configured not to or it is the nub!
+            if (cfg.deleteNeo && !Constants.NUB_DATASET_KEY.equals(msg.getDatasetUuid())) {
                 RegistryService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
             }
 

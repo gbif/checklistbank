@@ -23,18 +23,17 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
@@ -84,7 +83,7 @@ public class NubDb {
   /**
    * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
    */
-  public NubUsage getParent(NubUsage child) {
+  public NubUsage getParent(NubUsage child) throws NotFoundException {
     return child == null ? null : dao.readNub(getParent(child.node));
   }
 
@@ -455,7 +454,7 @@ public class NubDb {
    * @param n      the node with child nodes
    * @param parent the new parent to be linked
    */
-  public void assignParentToChildren(Node n, NubUsage parent, NameUsageIssue... issues) {
+  public void moveChildren(Node n, NubUsage parent, NameUsageIssue... issues) {
     for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
       Node child = rel.getOtherNode(n);
       rel.delete();
@@ -475,21 +474,21 @@ public class NubDb {
   }
 
   /**
-   * Iterates over all direct synonyms of a node, deletes that synonymOf relationship and creates a new synonymOf relation to the given new accepted node
-   * instead.
+   * Iterates over all direct synonyms (both synonymOf and proParteSynonymOf) of a node, deletes that relationship
+   * and creates a new relation of the same type to the given new accepted node instead.
    *
    * @param n        the node with synonym nodes
    * @param accepted the new accepted to be linked
    */
-  public void assignAcceptedToSynonyms(Node n, Node accepted) {
-    Set<Node> synonyms = Sets.newHashSet();
+  public void moveSynonyms(Node n, Node accepted) {
+    Map<Node, RelationshipType> synonyms = Maps.newHashMap();
     for (Relationship rel : Traversals.SYNONYMS.traverse(n).relationships()) {
       Node syn = rel.getOtherNode(n);
       rel.delete();
-      synonyms.add(syn);
+      synonyms.put(syn, rel.getType());
     }
-    for (Node syn : synonyms) {
-      syn.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+    for (Map.Entry<Node, RelationshipType> syn : synonyms.entrySet()) {
+      syn.getKey().createRelationshipTo(accepted, syn.getValue());
     }
   }
 

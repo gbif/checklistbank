@@ -1089,9 +1089,9 @@ public class NubBuilder implements Runnable {
     // flag issue
     u.issues.add(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
     // move any accepted children to new accepted parent
-    db.assignParentToChildren(u.node, accepted);
+    db.moveChildren(u.node, accepted);
     // move any synonyms to new accepted parent
-    db.assignAcceptedToSynonyms(u.node, accepted.node);
+    db.moveSynonyms(u.node, accepted.node);
     // persist usage instance changes
     db.store(u);
   }
