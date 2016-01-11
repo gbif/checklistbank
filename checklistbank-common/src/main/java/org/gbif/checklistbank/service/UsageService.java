@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,5 +31,10 @@ public interface UsageService {
    * Lists classification as parent keys.
    */
   List<Integer> listParents(int usageKey);
+
+  /**
+   * Lists all old name usage ids last interpreted before the given date.
+   */
+  List<Integer> listOldUsages(UUID datasetKey, Date before);
 
 }

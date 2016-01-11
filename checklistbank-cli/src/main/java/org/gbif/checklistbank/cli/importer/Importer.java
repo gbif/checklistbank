@@ -9,11 +9,11 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.model.UsageFacts;
-import org.gbif.checklistbank.concurrent.NamedThreadFactory;
+import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.neo.ImportDb;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
@@ -23,30 +23,39 @@ import org.gbif.checklistbank.neo.traverse.ChunkingEvaluator;
 import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
+import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageService;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.cursors.IntIntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
-import com.google.common.annotations.VisibleForTesting;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
+import com.google.common.collect.Sets;
+import com.google.inject.Inject;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -59,193 +68,82 @@ import org.slf4j.LoggerFactory;
  * Importer that reads a neo database and syncs it with a postgres checklistbank db and solr index.
  * It understands pro parte synonym relations and creates multiple postgres usages for each accepted parent.
  */
-public class Importer extends ImportDb implements Runnable {
+public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
   private final static int SELF_ID = -1;
-  private final Meter syncMeter;
   private final ImporterConfiguration cfg;
-  private AtomicInteger syncCounter = new AtomicInteger(0);
   private int delCounter;
-  private final DatasetImportServiceCombined importService;
+  private final DatasetImportService sqlService;
+  private final DatasetImportService solrService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
   private IntIntMap clbKeys = new IntIntHashMap();
   // map based around internal neo4j node ids:
   private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
-  // map of existing pro parte synonym clb usage keys to their accepted taxon given as neo node id to be updated at the very end
-  private IntIntMap postProParteKeys = new IntIntHashMap();
+  // list of pro parte synonym neo node ids
+  private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
+  private Queue<Future<Boolean>> sqlFutures = new ConcurrentLinkedQueue();
+  private Queue<Future<Boolean>> otherFutures = new ConcurrentLinkedQueue();
+
+  private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
   private final int keyTypeSize = KeyType.values().length;
 
-  // thread pool for import jobs
-  private ThreadPoolExecutor datasyncExec;
-
-  private Importer(UUID datasetKey, UsageDao dao, MetricRegistry registry,
-                   DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService,
+  @Inject
+  private Importer(UUID datasetKey, UsageDao dao,
+                   NameUsageService nameUsageService, UsageService usageService,
+                   DatasetImportService sqlService, DatasetImportService solrService,
                    ImporterConfiguration cfg) {
     super(datasetKey, dao);
     this.cfg = cfg;
-    this.importService = importService;
     this.nameUsageService = nameUsageService;
     this.usageService = usageService;
-    this.syncMeter = registry.meter(Metrics.SYNC_METER);
-    LOG.debug("Starting importer-datasync thread pool with {} threads", cfg.importThreads);
-    this.datasyncExec = new ThreadPoolExecutor(cfg.importThreads, cfg.importThreads, 0L, TimeUnit.MILLISECONDS,
-        new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("importer-datasync"));
+    this.sqlService = sqlService;
+    this.solrService = solrService;
   }
 
   /**
    * @param usageService only needed if you gonna sync the backbone dataset. Tests can usually just pass in null!
    */
-  public static Importer create(ImporterConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-                                DatasetImportServiceCombined importService, NameUsageService nameUsageService, UsageService usageService) {
+  public static Importer create(ImporterConfiguration cfg, UUID datasetKey,
+                                NameUsageService nameUsageService, UsageService usageService,
+                                DatasetImportService sqlService, DatasetImportService solrService) {
     return new Importer(datasetKey,
-        UsageDao.persistentDao(cfg.neo, datasetKey, true, registry, false),
-        registry, importService, nameUsageService, usageService, cfg);
+        UsageDao.persistentDao(cfg.neo, datasetKey, true, null, false),
+        nameUsageService, usageService,
+        sqlService, solrService,
+        cfg);
   }
 
   public void run() {
     LOG.info("Start importing checklist {}", datasetKey);
     try {
       syncDataset();
+      LOG.info("Waiting for threads to finish {} sql and {} solr jobs", sqlFutures.size(), otherFutures.size());
+      awaitFutures(sqlFutures);
+      awaitFutures(otherFutures);
       LOG.info("Importing of {} succeeded.", datasetKey);
+
+    } catch (InterruptedException e) {
+      Throwables.propagate(e);
+      LOG.error("Job interrupted, data is likely to be inconsistent.");
+      Thread.currentThread().interrupt();
+
+    } catch (ExecutionException e) {
+      LOG.error("Error executing job", e.getCause());
+      Throwables.propagate(e);
+
     } finally {
-
-      datasyncExec.shutdown(); // Disable new tasks from being submitted
-      try {
-        if (datasyncExec.getActiveCount() > 0) {
-          // Wait up to 10 minutes for existing tasks to terminate
-          LOG.info("Waiting up to 10 minutes for {} datasync threads to complete", datasyncExec.getActiveCount());
-        }
-        if (!datasyncExec.awaitTermination(9, TimeUnit.MINUTES)) {
-          datasyncExec.shutdownNow(); // Cancel currently executing tasks
-          // Wait a while for tasks to respond to being cancelled
-          if (!datasyncExec.awaitTermination(1, TimeUnit.MINUTES)) {
-            LOG.error("Threadpool did not shut down in time!");
-          }
-        }
-      } catch (InterruptedException ie) {
-        // (Re-)Cancel if current thread also interrupted
-        datasyncExec.shutdownNow();
-        // Preserve interrupt status
-        Thread.currentThread().interrupt();
-      }
-
-      LOG.info("Shutting down graph database");
+      LOG.debug("Shutting down graph database");
       dao.close();
       LOG.info("Neo database {} shut down.", datasetKey);
     }
-  }
-
-  class DatasetSyncer implements Runnable {
-    final long startNode;
-
-    DatasetSyncer(long startNode) {
-      this.startNode = startNode;
-    }
-
-    @Override
-    public void run() {
-      LOG.debug("Thread starting from node {}.", startNode);
-      int counter = 0;
-      try (Transaction tx = dao.beginTx()) {
-        // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
-        for (Node n : MultiRootNodeIterator.create(dao.getNeo().getNodeById(startNode), Traversals.TREE_WITHOUT_PRO_PARTE)) {
-          syncNode(n);
-          counter++;
-        }
-      } finally {
-        LOG.debug("Completed chunk of {} nodes starting with node {}", counter, startNode);
-      }
-    }
-  }
-
-  /**
-   * Syncs a single node.
-   */
-  private int syncNode(Node n) {
-    final int usageKey;
-
-    try {
-      final int nodeId = (int) n.getId();
-      VerbatimNameUsage verbatim = dao.readVerbatim(nodeId);
-      UsageFacts facts = dao.readFacts(nodeId);
-      if (facts == null) {
-        facts = new UsageFacts();
-        facts.metrics = new NameUsageMetrics();
-      }
-      NameUsage u = buildClbNameUsage(n, facts.classification);
-      List<Integer> parents = buildClbParents(n);
-      UsageExtensions ext = dao.readExtensions(nodeId);
-
-      // do we have pro parte relations? we need to duplicate the synonym for each additional accepted taxon to fit the postgres db model
-      if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
-        u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
-        u.setProParteKey(SELF_ID);
-        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
-        LOG.debug("First synced pro parte usage {}", usageKey);
-        // now insert the other pro parte records
-        u.setProParteKey(usageKey);
-        u.setOrigin(Origin.PROPARTE);
-        u.setTaxonID(null); // if we keep the original id we will do an update, not an insert
-        for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
-          Node accN = rel.getEndNode();
-          int accNodeId = (int) accN.getId();
-          boolean existingKey = false;
-          // not all accepted usages might already exist in postgres, only use the key if they exist
-          if (clbKeys.containsKey(accNodeId)) {
-            u.setAcceptedKey(clbKeys.get(accNodeId));
-            existingKey = true;
-          }
-          // pro parte synonyms keep their id in the relation, read it
-          // http://dev.gbif.org/issues/browse/POR-2872
-          u.setKey((Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
-          // sync the extra usage
-          int ppid = syncUsage(u, parents, verbatim, facts.metrics, ext);
-          if (!existingKey) {
-            // in case the accepted usage does not yet exist remember the relation and update the usage at the very end
-            postProParteKeys.put(ppid, accNodeId);
-          }
-          syncCounter.getAndIncrement();
-        }
-      } else {
-        usageKey = syncUsage(u, parents, verbatim, facts.metrics, ext);
-      }
-      // keep map of node ids to clb usage keys
-      synchronized (clbKeys) {
-        clbKeys.put(nodeId, usageKey);
-        if (firstUsageKey < 0) {
-          firstUsageKey = usageKey;
-          LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
-        }
-      }
-      syncMeter.mark();
-
-      int c = syncCounter.incrementAndGet();
-      if (c % 100000 == 0) {
-        LOG.info("Synced {} usages from dataset {}, latest usage key={}", c, datasetKey, usageKey);
-      }
-      LOG.debug("Synced usage {} from dataset {}", usageKey, datasetKey);
-
-    } catch (Throwable e) {
-      String id;
-      if (n.hasProperty(NeoProperties.TAXON_ID)) {
-        id = String.format("taxonID '%s'", n.getProperty(NeoProperties.TAXON_ID));
-      } else {
-        id = String.format("nodeID %s", n.getId());
-      }
-      LOG.error("Failed to sync {} {} from dataset {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, ""), id, datasetKey);
-      LOG.error("Aborting sync of dataset {}", datasetKey);
-      throw e;
-    }
-
-    return usageKey;
   }
 
   /**
@@ -254,9 +152,12 @@ public class Importer extends ImportDb implements Runnable {
    * key to null and update just those keys in a second iteration. Most usages will not have a basionymKey, so
    * performance should only be badly impacted in rare cases.
    *
+   * The taxonomic tree is traversed and whenever possible subtrees are processed in separate batches.
+   * The main traversal will happen more or less syncronously as it is required to exist before the subtrees can be synced.
+   *
    * @throws EmptyImportException if no records at all have been imported
    */
-  private void syncDataset() throws EmptyImportException {
+  private void syncDataset() throws EmptyImportException, ExecutionException, InterruptedException {
     if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
       // remember the current highest nub key so we know if incoming ones are inserts or updates
       Integer high = usageService.maxUsageKey(Constants.NUB_DATASET_KEY);
@@ -268,91 +169,165 @@ public class Importer extends ImportDb implements Runnable {
     firstUsageKey = -1;
     int chunks = 0;
 
+    // traverse the tree
     try (Transaction tx = dao.beginTx()) {
-      // returns all nodes, accepted and synonyms
       LOG.info("Chunking imports into slices of {} to {}", cfg.chunkMinSize, cfg.chunkSize);
       ChunkingEvaluator chunkingEvaluator = new ChunkingEvaluator(dao, cfg.chunkMinSize, cfg.chunkSize);
+      List<Integer> batch = Lists.newArrayList();
       for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
-          datasyncExec.submit(new DatasetSyncer(n.getId()));
-          LOG.debug("Chunk job {} from node {} submitted", ++chunks, n.getId());
+          LOG.debug("import chunk node {}", n.getId());
+          if (!batch.isEmpty()) {
+            Future<Boolean> f = sqlService.sync(datasetKey,this, batch);
+            addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+            // wait for main future to finish...
+            f.get();
+          }
+          // now we can submit a sync task for the subtree
+          batch = subtreeBatch(n);
+          LOG.debug("found subtree batch {}", Joiner.on(",").join(batch));
+          addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
+          addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+          // reset batch for new usages
+          batch = Lists.newArrayList();
+
         } else {
-          syncNode(n);
+          // add to main batch
+          LOG.debug("import main node {}", n.getId());
+          batch.add((int)n.getId());
+          if (isProParteNode(n)) {
+            proParteNodes.add(n.getId());
+          }
         }
+      }
+      if (!batch.isEmpty()) {
+        addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
+        addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
       }
     }
 
-    datasyncExec.shutdown();
-    try {
-      while (!datasyncExec.awaitTermination(5, TimeUnit.SECONDS)) {
-        LOG.info("Synchronizing dataset: approx. {} threads running, {} queued", datasyncExec.getActiveCount(), datasyncExec.getQueue().size());
-      }
-    } catch (InterruptedException e) {
-      LOG.error("Importer interrupted, data is likely to be inconsistent.");
-      datasyncExec.shutdownNow();
-      Thread.currentThread().interrupt();
-    }
-    LOG.info("{} chunk jobs completed", chunks);
+    // wait for main sql usage imports to be done so we dont break foreign key constraints
+    awaitFutures(sqlFutures);
+    LOG.info("Initial import completed. {} chunk jobs synced", chunks);
 
     // finally update foreign keys that did not exist during initial inserts
-    if (!postKeys.isEmpty()) {
-      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
-      for (IntObjectCursor<Integer[]> c : postKeys) {
-        //TODO: remove this try section as it should NEVER happen in good, production code!!!
-        // If it does the import should fail - this is only for nub build tests
-        try {
-          // update usage by usage doing both potential updates in one statement
-          Optional<Integer> parentKey = Optional.fromNullable(c.value[KeyType.ACCEPTED.ordinal()])
-              .or(Optional.fromNullable(c.value[KeyType.PARENT.ordinal()]));
-          importService.updateForeignKeys(clbKey(c.key),
-              clbKey(parentKey.orNull()),
-              clbKey(c.value[KeyType.BASIONYM.ordinal()])
-          );
-        } catch (IllegalStateException e) {
-          LOG.error("CLB ID integrity problem", e);
-        }
-      }
-    }
-    if (!postProParteKeys.isEmpty()) {
-      LOG.info("Updating foreign keys for {} pro parte usages from dataset {}", postProParteKeys.size(), datasetKey);
-      for (IntIntCursor c : postProParteKeys) {
-        //TODO: remove this try section as it should NEVER happen in good, production code!!!
-        try {
-          // update usage by usage doing both potential updates in one statement
-          importService.updateForeignKeys(c.key, clbKey(c.value), null);
-        } catch (IllegalStateException e) {
-          LOG.error("CLB ID integrity problem", e);
-        }
-      }
-    }
+    updateForeignKeys();
 
-    // remove old usages
+    // finally import extra pro parte usages
+    syncProParte();
+
+    // make sure we have imported at least one record
     if (firstUsageKey < 0) {
       LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
       throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
+    }
 
-    } else {
-      NameUsage first = nameUsageService.get(firstUsageKey, null);
-      if (first == null) {
-        LOG.error("First synced name usage with id {} not found", firstUsageKey);
-        throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
+    // remove old usages
+    deleteOldUsages();
+  }
+
+  private void updateForeignKeys() {
+    if (!postKeys.isEmpty()) {
+      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
+      List<UsageForeignKeys> fks = Lists.newArrayList();
+      for (IntObjectCursor<Integer[]> c : postKeys) {
+        // update usage by usage doing both potential updates in one statement
+        Optional<Integer> parentKey = Optional.fromNullable(c.value[KeyType.ACCEPTED.ordinal()])
+            .or(Optional.fromNullable(c.value[KeyType.PARENT.ordinal()]));
+        fks.add(new UsageForeignKeys(
+            clbKey(c.key),
+            clbKey(parentKey.orNull()),
+            clbKey(c.value[KeyType.BASIONYM.ordinal()]))
+        );
       }
-      Calendar cal = Calendar.getInstance();
-      cal.setTime(first.getLastInterpreted());
-      // use 2 seconds before first insert/update as the threshold to remove records
-      cal.add(Calendar.SECOND, -2);
-      delCounter = importService.deleteOldUsages(datasetKey, cal.getTime());
+      sqlService.updateForeignKeys(fks);
+      solrService.updateForeignKeys(fks);
     }
   }
 
-  private int syncUsage(NameUsage u, List<Integer> parents, VerbatimNameUsage verbatim, NameUsageMetrics metrics, UsageExtensions ext) {
-    if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
-      // for nub builts we generate the usageKey in code already. Both for inserts and updates.
-      // just for pro parte usages we use the sequence generator!
-      return importService.syncUsage(u.getKey() == null || u.getKey() > maxExistingNubKey, u, parents, verbatim, metrics, ext);
-    } else {
-      return importService.syncUsage(false, u, parents, verbatim, metrics, ext);
+  private void syncProParte() {
+    if (!proParteNodes.isEmpty()) {
+      LOG.info("Syncing {} pro parte usages from dataset {}", proParteNodes.size(), datasetKey);
+      for (List<Long> ids : Iterables.partition(proParteNodes, cfg.chunkSize)) {
+        List<NameUsage> batch = Lists.newArrayList();
+        try (Transaction tx = dao.getNeo().beginTx()) {
+          for (Long id : ids) {
+            Node n = dao.getNeo().getNodeById(id);
+            NameUsage primary = readUsage(n);
+            // modify as a template for all cloned pro parte usages
+            primary.setProParteKey(primary.getKey());
+            primary.setOrigin(Origin.PROPARTE);
+            primary.setTaxonID(null); // if we keep the original id we will do an update, not an insert
+            for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+              // pro parte synonyms keep their id in the relation, read it
+              // http://dev.gbif.org/issues/browse/POR-2872
+              NameUsage u = clone(primary);
+              u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
+              Node accN = rel.getEndNode();
+              // all nodes should be synced by now, so clb keys must be known
+              u.setAcceptedKey(clbKeys.get((int) accN.getId()));
+              batch.add(u);
+            }
+          }
+        }
+        // submit sync job
+        addFuture(sqlService.sync(datasetKey, batch), sqlFutures);
+        addFuture(solrService.sync(datasetKey, batch), otherFutures);
+      }
     }
+  }
+
+  private List<Integer> subtreeBatch(Node startNode) {
+    LOG.debug("Create new batch from subtree starting from node {}.", startNode.getId());
+    List<Integer> ids = Lists.newArrayList();
+    try (Transaction tx = dao.beginTx()) {
+      // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
+      for (Node n : MultiRootNodeIterator.create(startNode, Traversals.TREE_WITHOUT_PRO_PARTE)) {
+        ids.add((int)n.getId());
+        if (isProParteNode(n)) {
+          proParteNodes.add(n.getId());
+        }
+      }
+    }
+    LOG.debug("Created batch of {} nodes starting with node {}", ids.size(), startNode);
+    return ids;
+  }
+
+  private boolean isProParteNode(Node n) {
+    if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
+      return true;
+    }
+    return false;
+  }
+
+  private void deleteOldUsages() {
+    NameUsage first = nameUsageService.get(firstUsageKey, null);
+    if (first == null || first.getLastInterpreted() == null) {
+      LOG.error("First synced name usage with id {} not found", firstUsageKey);
+      throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
+    }
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(first.getLastInterpreted());
+    // use 2 seconds before first insert/update as the threshold to remove records
+    cal.add(Calendar.SECOND, -2);
+
+
+    LOG.info("Deleting all usages in dataset {} before {}", datasetKey, cal.getTime());
+    // iterate over all ids to be deleted and remove them from solr first
+    List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
+
+    addFuture(sqlService.deleteUsages(datasetKey, ids), sqlFutures);
+    addFuture(solrService.deleteUsages(datasetKey, ids), otherFutures);
+  }
+
+  /**
+   * Blocks until all currently listed futures are completed.
+   */
+  private void awaitFutures(Collection<Future<Boolean>> futures) throws ExecutionException, InterruptedException {
+    for (Future<Boolean> f : futures) {
+      f.get();
+    }
+    futures.clear();
   }
 
   /**
@@ -423,14 +398,40 @@ public class Importer extends ImportDb implements Runnable {
     }
   }
 
+  private NameUsage clone(NameUsage u) {
+    Kryo kryo = kryoPool.borrow();
+    try {
+      // write
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream(256);
+      Output output = new Output(buffer, 256);
+      kryo.writeObject(output, u);
+      output.close();
+      // read
+      return kryo.readObject(new Input(buffer.toByteArray()), NameUsage.class);
+
+    } finally {
+      kryoPool.release(kryo);
+    }
+  }
+
+  @Override
+  public NameUsage readUsage(long id) {
+    try (Transaction tx = dao.beginTx()) {
+      Node n = dao.getNeo().getNodeById(id);
+      return readUsage(n);
+    }
+  }
+
   /**
    * Reads the full name usage from neo and updates all foreign keys to use CLB usage keys.
    */
-  @VisibleForTesting
-  protected NameUsage buildClbNameUsage(Node n, @Nullable Classification classification) {
+  private NameUsage readUsage(Node n) {
     // this is using neo4j internal node ids as keys:
     NameUsage u = dao.readUsage(n, true);
     Preconditions.checkNotNull(u, "Node %s not found in kvp store", n.getId());
+
+    UsageFacts facts = dao.readFacts(n.getId());
+    Classification classification = facts == null ? null : facts.classification;
     if (classification != null) {
       ClassificationUtils.copyLinneanClassificationKeys(classification, u);
       ClassificationUtils.copyLinneanClassification(classification, u);
@@ -452,11 +453,77 @@ public class Importer extends ImportDb implements Runnable {
       }
     }
     u.setDatasetKey(datasetKey);
+    // update usage status and ppkey for primary pro parte usages
+    if (isProParteNode(n)) {
+      u.setTaxonomicStatus(TaxonomicStatus.PROPARTE_SYNONYM);
+      u.setProParteKey(SELF_ID);
+    }
     return u;
   }
 
+  @Override
+  public boolean isInsert(NameUsage u) {
+    if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
+      // for nub builds we generate the usageKey in code already. Both for inserts and updates. check key range
+      return u.getKey() == null || u.getKey() > maxExistingNubKey;
+    } else {
+      return false;
+    }
+  }
+
+  @Override
+  public UsageExtensions readExtensions(long id) {
+    return dao.readExtensions(id);
+  }
+
+  @Override
+  public NameUsageMetrics readMetrics(long id) {
+    UsageFacts facts = dao.readFacts(id);
+    if (facts != null) {
+      return facts.metrics;
+    }
+    return new NameUsageMetrics();
+  }
+
+  @Override
+  public VerbatimNameUsage readVerbatim(long id) {
+    return dao.readVerbatim(id);
+  }
+
+  @Override
+  public List<Integer> readParentKeys(long id) {
+    try (Transaction tx = dao.beginTx()) {
+      Node n = dao.getNeo().getNodeById(id);
+      return buildClbParents(n);
+    }
+  }
+
+  @Override
+  public void reportNewUsageKey(long nodeId, int usageKey) {
+    // keep map of node ids to clb usage keys
+    synchronized (clbKeys) {
+      clbKeys.put((int)nodeId, usageKey);
+    }
+    if (firstUsageKey < 0) {
+      firstUsageKey = usageKey;
+      LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
+    }
+  }
+
+  @Override
+  public void reportNewFuture(Future<Boolean> future) {
+    addFuture(future, otherFutures);
+  }
+
+  private static Future<Boolean> addFuture(Future<Boolean> future, Queue<Future<Boolean>> queue) {
+    if (future != null) {
+      queue.add(future);
+    }
+    return future;
+  }
+
   public int getSyncCounter() {
-    return syncCounter.get();
+    return 0;//syncCounter.get();
   }
 
   public int getDelCounter() {

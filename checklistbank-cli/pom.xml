@@ -299,6 +299,11 @@
       <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+    </dependency>
+
     <!-- JACKSON 1.9 -->
     <dependency>
       <groupId>org.codehaus.jackson</groupId>

@@ -1,58 +1,49 @@
 package org.gbif.checklistbank.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.model.UsageForeignKeys;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
+import java.util.concurrent.Future;
 
 /**
  * Persistence service dealing with methods needed to import new checklists into checklistbank.
  * The methods are mostly doing batch operations and larger operations, hardly any single record modifications.
  * This interface is restricted to the mybatis module only!
  */
-public interface DatasetImportService {
+public interface DatasetImportService extends AutoCloseable {
 
-    /**
-     * Inserts or updates a complete name usage with all its extension data.
-     * The usage will have the key set to either an existing key or a newly generated one.
-     *
-     * @return the new or existing usage key, same as usage.key
-     */
-    int syncUsage(boolean insert, NameUsage usage, @Nullable VerbatimNameUsage verbatim, @Nullable NameUsageMetrics metrics, @Nullable UsageExtensions extensions);
+  Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages);
 
-    void updateForeignKeys(int usageKey, Integer parentKey, Integer basionymKey);
+  Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages);
 
-    /**
-     * Delete all existing nub relations and then batch insert new ones from the passed map.
-     * All dataset usages should be covered by the passed map and impossible nub matches should have a null value.
-     * This will lead to NameUsageIssue.BACKBONE_MATCH_NONE being added to the usages issue set.
-     *
-     * @param datasetKey the datasource to map to the nub
-     * @param relations  map from source usage id to a nub usage id for all usages in a dataset. Values can be null to indicate a NameUsageIssue.BACKBONE_MATCH_NONE
-     */
-    void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations);
+  Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks);
 
+  /**
+   * Delete all existing nub relations and then batch insert new ones from the passed map.
+   * All dataset usages should be covered by the passed map and impossible nub matches should have a null value.
+   * This will lead to NameUsageIssue.BACKBONE_MATCH_NONE being added to the usages issue set.
+   *
+   * This is a synchroneous call and on return all relations are guaranteed to be updated.
+   *
+   * @param datasetKey the datasource to map to the nub
+   * @param relations  map from source usage id to a nub usage id for all usages in a dataset. Values can be null to indicate a NameUsageIssue.BACKBONE_MATCH_NONE
+   */
+  void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations);
 
-    /**
-     * Remove entire dataset from checklistbank
-     * @return number of deleted usage records
-     */
-    int deleteDataset(UUID datasetKey);
+  /**
+   * Remove entire dataset from checklistbank
+   * @return number of deleted usage records
+   */
+  int deleteDataset(UUID datasetKey);
 
-    /**
-     * Deletes a single usage and its related extension data
-     * @param key usage key
-     */
-    void delete(int key);
+  Future<Boolean> deleteUsages(UUID datasetKey, List<Integer> usageKeys);
 
-    /**
-     * Lists all old name usage ids last interpreted before the given date.
-     */
-    List<Integer> listOldUsages(UUID datasetKey, Date before);
+  /**
+   * @return true if there is still a running import task
+   */
+  boolean isRunning();
+
 }

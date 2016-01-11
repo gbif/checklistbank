@@ -38,10 +38,12 @@ import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.CitationServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.ColAnnotationServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DatasetAnalysisServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.UsageSyncServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DatasetMetricsServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
@@ -95,11 +97,14 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
   public static final String DATASOURCE_BINDING_NAME = "checklistbank";
   private final int parserTimeout;
+  private final int importThreads;
 
-  public InternalChecklistBankServiceMyBatisModule(Properties props, int parserTimeout) {
+  public InternalChecklistBankServiceMyBatisModule(Properties props, int parserTimeout, int importThreads) {
     super(DATASOURCE_BINDING_NAME, props);
     Preconditions.checkArgument(parserTimeout >= 50, "Name parser timeout must be at least 50ms");
     this.parserTimeout = parserTimeout;
+    Preconditions.checkArgument(importThreads >= 0, "Number of import threads need to be positive");
+    this.importThreads = importThreads;
   }
 
   @Override
@@ -174,10 +179,17 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     // not exposed in API
     bind(UsageService.class).to(UsageServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(ParsedNameService.class).to(ParsedNameServiceMyBatis.class).in(Scopes.SINGLETON);
-    bind(DatasetImportService.class).to(DatasetImportServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(UsageSyncService.class).to(UsageSyncServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(CitationService.class).to(CitationServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(ColAnnotationService.class).to(ColAnnotationServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(DatasetAnalysisService.class).to(DatasetAnalysisServiceMyBatis.class).in(Scopes.SINGLETON);
+    bind(Integer.class)
+        .annotatedWith(Mybatis.class)
+        .toInstance(importThreads);
+    bind(DatasetImportService.class)
+        .annotatedWith(Mybatis.class)
+        .to(DatasetImportServiceMyBatis.class)
+        .in(Scopes.SINGLETON);
 
     bind(NameParser.class).toInstance(new NameParser(parserTimeout));
   }

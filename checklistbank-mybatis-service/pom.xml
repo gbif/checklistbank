@@ -79,6 +79,10 @@
       <artifactId>gbif-common</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.yammer.metrics</groupId>
+      <artifactId>metrics-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-api</artifactId>
     </dependency>
@@ -129,6 +133,10 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>dwc-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.carrotsearch</groupId>
+      <artifactId>hppc</artifactId>
     </dependency>
     <!-- test scope -->
     <dependency>

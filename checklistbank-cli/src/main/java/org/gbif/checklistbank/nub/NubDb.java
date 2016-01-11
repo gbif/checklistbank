@@ -23,17 +23,18 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
@@ -421,22 +422,22 @@ public class NubDb {
    * Create a new relationship of given type from to nodes and make sure only a single relation of that kind exists at the "to" node.
    * If more exist delete them silently.
    */
-  public void setSingleToRelationship(Node from, Node to, RelType reltype) {
+  public Relationship setSingleToRelationship(Node from, Node to, RelType reltype) {
     deleteRelations(to, reltype, Direction.INCOMING);
-    from.createRelationshipTo(to, reltype);
+    return from.createRelationshipTo(to, reltype);
   }
 
-  public void setSingleFromRelationship(Node from, Node to, RelType reltype) {
+  public Relationship setSingleFromRelationship(Node from, Node to, RelType reltype) {
     deleteRelations(from, reltype, Direction.OUTGOING);
-    from.createRelationshipTo(to, reltype);
+    return from.createRelationshipTo(to, reltype);
   }
 
-  public void createSynonymRelation(Node synonym, Node accepted) {
+  public Relationship createSynonymRelation(Node synonym, Node accepted) {
     deleteRelations(synonym, RelType.PARENT_OF, Direction.INCOMING);
     deleteRelations(synonym, RelType.SYNONYM_OF, Direction.OUTGOING);
     synonym.addLabel(Labels.SYNONYM);
     synonym.removeLabel(Labels.ROOT);
-    synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
+    return synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
   }
 
   public boolean deleteRelations(Node n, RelType type, Direction direction) {
@@ -481,14 +482,19 @@ public class NubDb {
    * @param accepted the new accepted to be linked
    */
   public void moveSynonyms(Node n, Node accepted) {
-    Map<Node, RelationshipType> synonyms = Maps.newHashMap();
-    for (Relationship rel : Traversals.SYNONYMS.traverse(n).relationships()) {
+    moveSynonyms(n, accepted, RelType.SYNONYM_OF);
+    moveSynonyms(n, accepted, RelType.PROPARTE_SYNONYM_OF);
+  }
+
+  private void moveSynonyms(Node n, Node accepted, RelType type) {
+    Set<Node> synonyms = Sets.newHashSet();
+    for (Relationship rel : n.getRelationships(type, Direction.INCOMING)) {
       Node syn = rel.getOtherNode(n);
       rel.delete();
-      synonyms.put(syn, rel.getType());
+      synonyms.add(syn);
     }
-    for (Map.Entry<Node, RelationshipType> syn : synonyms.entrySet()) {
-      syn.getKey().createRelationshipTo(accepted, syn.getValue());
+    for (Node syn : synonyms) {
+      syn.createRelationshipTo(accepted, type);
     }
   }
 

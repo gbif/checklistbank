@@ -18,7 +18,7 @@ This project provides the checklistbank solr index, it provides two main impleme
 Builds an index using embedded Solr servers, this class is mainly used for Unit/Integration testing. However, this class can be used to build a fully functional Solr index by executing the jar file and providing a properties file with the configuration settings:
   
   ```bash
-    java -Xmx4g -jar checklistbank-solr.jar ./checklistbank.properties
+    java -Xmx4g -cp checklistbank-solr.jar org.gbif.checklistbank.index.NameUsageIndexer ./checklistbank.properties
   ```
     
 The properties file must contain the following settings:

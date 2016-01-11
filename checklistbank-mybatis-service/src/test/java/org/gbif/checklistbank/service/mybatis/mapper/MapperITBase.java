@@ -63,7 +63,7 @@ public class MapperITBase<T> {
 
   @Before
   public void init() throws Exception {
-    Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(sbSetup.getProperties()), 500);
+    Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(sbSetup.getProperties()), 500, 2);
     injector = Guice.createInjector(module);
     mapper = injector.getInstance(mapperClass);
     if (initData) {

@@ -1131,7 +1131,7 @@ public class NubBuilder implements Runnable {
       if (u.rank != Rank.KINGDOM) {
         u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
         db.dao.update(entry.getKey(), u);
-        // for pro parte synonyms we need to assigne extra keys, one per relation!
+        // for pro parte synonyms we need to assign extra keys, one per relation!
         // http://dev.gbif.org/issues/browse/POR-2872
         if (u.status == TaxonomicStatus.PROPARTE_SYNONYM) {
           try (Transaction tx = db.beginTx()) {

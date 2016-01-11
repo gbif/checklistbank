@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.checklistbank.concurrent.NamedThreadFactory;
 import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.FutureIterator;
+import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.util.Iterator;
 import java.util.List;

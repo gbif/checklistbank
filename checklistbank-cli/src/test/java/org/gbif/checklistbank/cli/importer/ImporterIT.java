@@ -10,12 +10,12 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
-import org.gbif.checklistbank.index.NameUsageIndexService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
+import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.DatasetImportServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.sql.Connection;
@@ -36,7 +36,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
-import com.yammer.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -59,7 +58,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private ImporterConfiguration iCfg;
   private NameUsageService nameUsageService;
   private UsageService usageService;
-  private DatasetImportServiceCombined importService;
+  private DatasetImportService sqlService;
+  private DatasetImportService solrService;
   private HikariDataSource hds;
 
   @Rule
@@ -71,9 +71,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
    * @param poolSize poolSize of the importer cli. Used as guidance to configure internal thread pools updating solr and postgres
    */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey, int poolSize) throws SQLException {
-    MetricRegistry registry = new MetricRegistry("normalizer");
     initGuice(cfg, poolSize);
-    return Importer.create(cfg, datasetKey, registry, importService, nameUsageService, usageService);
+    return Importer.create(cfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
   }
 
   private void initGuice(ImporterConfiguration cfg, int poolSize) {
@@ -84,7 +83,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       hds = (HikariDataSource) inj.getInstance(dsKey);
       nameUsageService = inj.getInstance(NameUsageService.class);
       usageService = inj.getInstance(UsageService.class);
-      importService = new DatasetImportServiceCombined((DatasetImportServiceMyBatis) inj.getInstance(DatasetImportService.class), inj.getInstance(NameUsageIndexService.class), poolSize);
+      sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+      solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
     }
   }
 
@@ -107,8 +107,11 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
   @After
   public void close() throws Exception {
-    if (importService != null) {
-      importService.close();
+    if (sqlService != null) {
+      sqlService.close();
+    }
+    if (solrService != null) {
+      solrService.close();
     }
     if (hds != null) {
       hds.close();

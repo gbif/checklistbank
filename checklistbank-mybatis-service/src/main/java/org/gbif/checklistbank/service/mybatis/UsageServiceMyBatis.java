@@ -7,6 +7,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
 
 import java.sql.Connection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -64,6 +65,11 @@ public class UsageServiceMyBatis implements UsageService {
   @Override
   public List<Integer> listParents(int usageKey) {
     return usageMapper.listParents(usageKey);
+  }
+
+  @Override
+  public List<Integer> listOldUsages(UUID datasetKey, Date before) {
+    return usageMapper.listByDatasetAndDate(datasetKey, before);
   }
 
 }

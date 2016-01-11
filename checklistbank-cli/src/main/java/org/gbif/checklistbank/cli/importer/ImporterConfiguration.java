@@ -53,13 +53,14 @@ public class ImporterConfiguration {
   @NotNull
   public SolrConfig solr = new SolrConfig();
 
+  @Parameter(names = "--solr-sync-threads")
+  @Min(1)
+  public int solrSyncThreads = 1;
+
   @Parameter(names = "--pool-size")
   @Min(1)
-  public int poolSize = 3;
+  public int poolSize = 1;
 
-  @Parameter(names = "--import-threads")
-  @Min(1)
-  public int importThreads = 3;
 
   @Parameter(names = "--chunk-size")
   @Min(1)

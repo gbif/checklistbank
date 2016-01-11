@@ -16,6 +16,7 @@ import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.nameparser.NameParser;
@@ -42,7 +43,9 @@ import java.util.Properties;
 public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
   private static final String PREFIX = "checklistbank.db.";
   public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
+  public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
   private final int parserTimeout;
+  private final int importThreads;
 
   /**
    * Uses the given properties to configure the service.
@@ -52,19 +55,19 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
   public ChecklistBankServiceMyBatisModule(Properties properties) {
     super(PREFIX, properties);
     parserTimeout = Integer.parseInt(properties.getProperty(PARSER_TIMEOUT_PROP, "500"));
+    importThreads = Integer.parseInt(properties.getProperty(IMPORT_THREADS_PROP, "2"));
   }
 
   @Override
   protected void configureService() {
-    // there is no validation happening currently
-    //install(new ValidationModule());
 
     // default parser timeout is 500ms
     // install mybatis module
-    MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule(getProperties(), parserTimeout);
+    MyBatisModule mybatModule = new InternalChecklistBankServiceMyBatisModule(getProperties(), parserTimeout, importThreads);
     install(mybatModule);
-    // expose a named datasource binding
+    // expose a named datasource binding and session manager for transactions
     expose(mybatModule.getDatasourceKey());
+    expose(mybatModule.getSessionManagerKey());
 
     expose(NameUsageService.class);
     expose(VernacularNameService.class);
@@ -80,11 +83,13 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     expose(UsageService.class);
     expose(ParsedNameService.class);
     expose(NameParser.class);
-    expose(DatasetImportService.class);
     expose(CitationService.class);
     expose(ColAnnotationService.class);
     expose(DatasetAnalysisService.class);
     expose(UsageCountMapper.class);
+
+    expose(DatasetImportService.class).annotatedWith(Mybatis.class);
+    expose(UsageSyncService.class);
 
   }
 
