@@ -34,24 +34,19 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.IntIntMap;
-import com.carrotsearch.hppc.IntObjectHashMap;
-import com.carrotsearch.hppc.IntObjectMap;
-import com.carrotsearch.hppc.cursors.IntObjectCursor;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -73,15 +68,18 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private static final Logger LOG = LoggerFactory.getLogger(Importer.class);
   private final static int SELF_ID = -1;
   private final ImporterConfiguration cfg;
+  private int syncCounterMain;
+  private int syncCounterBatches;
+  private int syncCounterProParte;
   private int delCounter;
   private final DatasetImportService sqlService;
   private final DatasetImportService solrService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
-  private IntIntMap clbKeys = new IntIntHashMap();
+  private ConcurrentHashMap<Integer, Integer> clbKeys = new ConcurrentHashMap<Integer, Integer>();
   // map based around internal neo4j node ids:
-  private IntObjectMap<Integer[]> postKeys = new IntObjectHashMap<Integer[]>();
+  private ConcurrentHashMap<Integer, UsageForeignKeys> postKeys = new ConcurrentHashMap<Integer, UsageForeignKeys>();
   // list of pro parte synonym neo node ids
   private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
@@ -128,7 +126,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       LOG.info("Waiting for threads to finish {} sql and {} solr jobs", sqlFutures.size(), otherFutures.size());
       awaitFutures(sqlFutures);
       awaitFutures(otherFutures);
-      LOG.info("Importing of {} succeeded.", datasetKey);
+      LOG.info("Importing of {} succeeded. {} main, {} subtree chunk and {} pro parte usages synced", datasetKey, syncCounterMain, syncCounterBatches, syncCounterProParte);
 
     } catch (InterruptedException e) {
       Throwables.propagate(e);
@@ -176,16 +174,19 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       List<Integer> batch = Lists.newArrayList();
       for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
-          LOG.debug("import chunk node {}", n.getId());
+          LOG.debug("chunk node {} found", n.getId());
           if (!batch.isEmpty()) {
             Future<Boolean> f = sqlService.sync(datasetKey,this, batch);
-            addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+            LOG.debug("submit {} main nodes for concurrent syncing", batch.size());
             // wait for main future to finish...
             f.get();
+            LOG.debug("main nodes synced. Update solr and process subtree");
+            addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           }
           // now we can submit a sync task for the subtree
           batch = subtreeBatch(n);
-          LOG.debug("found subtree batch {}", Joiner.on(",").join(batch));
+          syncCounterBatches = syncCounterBatches + batch.size();
+          LOG.debug("submit subtree chunk starting with {}", n.getId());
           addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
           addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           // reset batch for new usages
@@ -193,20 +194,23 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
         } else {
           // add to main batch
-          LOG.debug("import main node {}", n.getId());
+          LOG.debug("collect main node {}", n.getId());
           batch.add((int)n.getId());
           if (isProParteNode(n)) {
             proParteNodes.add(n.getId());
           }
+          syncCounterMain++;
         }
       }
       if (!batch.isEmpty()) {
+        LOG.debug("submit final {} main nodes for concurrent syncing", batch.size());
         addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
         addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
       }
     }
 
     // wait for main sql usage imports to be done so we dont break foreign key constraints
+    LOG.info("Wait for  import completed. {} chunk jobs synced", chunks);
     awaitFutures(sqlFutures);
     LOG.info("Initial import completed. {} chunk jobs synced", chunks);
 
@@ -228,18 +232,14 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   private void updateForeignKeys() {
     if (!postKeys.isEmpty()) {
-      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
-      List<UsageForeignKeys> fks = Lists.newArrayList();
-      for (IntObjectCursor<Integer[]> c : postKeys) {
-        // update usage by usage doing both potential updates in one statement
-        Optional<Integer> parentKey = Optional.fromNullable(c.value[KeyType.ACCEPTED.ordinal()])
-            .or(Optional.fromNullable(c.value[KeyType.PARENT.ordinal()]));
-        fks.add(new UsageForeignKeys(
-            clbKey(c.key),
-            clbKey(parentKey.orNull()),
-            clbKey(c.value[KeyType.BASIONYM.ordinal()]))
-        );
+      // update neo ids to clb usage keys
+      for (UsageForeignKeys fk : postKeys.values()) {
+        fk.setUsageKey(clbKey(fk.getUsageKey()));
+        fk.setParentKey(clbKey(fk.getParentKey()));
+        fk.setBasionymKey(clbKey(fk.getBasionymKey()));
       }
+      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
+      List<UsageForeignKeys> fks = ImmutableList.copyOf(postKeys.values());
       sqlService.updateForeignKeys(fks);
       solrService.updateForeignKeys(fks);
     }
@@ -273,6 +273,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         // submit sync job
         addFuture(sqlService.sync(datasetKey, batch), sqlFutures);
         addFuture(solrService.sync(datasetKey, batch), otherFutures);
+        syncCounterProParte = syncCounterProParte + batch.size();
       }
     }
   }
@@ -318,6 +319,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
     addFuture(sqlService.deleteUsages(datasetKey, ids), sqlFutures);
     addFuture(solrService.deleteUsages(datasetKey, ids), otherFutures);
+    delCounter = ids.size();
   }
 
   /**
@@ -385,17 +387,29 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     } else {
       // remember non classification keys for update after all records have been synced once
       int nid = (int) nodeId;
-      synchronized (postKeys) {
-        if (postKeys.containsKey(nid)) {
-          postKeys.get(nid)[type.ordinal()] = nodeFk;
-        } else {
-          Integer[] keys = new Integer[keyTypeSize];
-          keys[type.ordinal()] = nodeFk;
-          postKeys.put(nid, keys);
-        }
+      if (!postKeys.containsKey(nid)) {
+        postKeys.put(nid, new UsageForeignKeys(nid));
       }
+      setFK(postKeys.get(nid), nodeFk, type);
       return null;
     }
+  }
+
+  private UsageForeignKeys setFK(UsageForeignKeys fk, Integer key, KeyType type) {
+    if (key != null && type != null) {
+      switch (type) {
+        case BASIONYM:
+          fk.setBasionymKey(key);
+          break;
+        case PARENT:
+        case ACCEPTED:
+          fk.setParentKey(key);
+          break;
+        case CLASSIFICATION:
+          throw new IllegalArgumentException();
+      }
+    }
+    return fk;
   }
 
   private NameUsage clone(NameUsage u) {
@@ -499,11 +513,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   @Override
-  public void reportNewUsageKey(long nodeId, int usageKey) {
+  public void reportUsageKey(long nodeId, int usageKey) {
     // keep map of node ids to clb usage keys
-    synchronized (clbKeys) {
-      clbKeys.put((int)nodeId, usageKey);
-    }
+    clbKeys.put((int)nodeId, usageKey);
     if (firstUsageKey < 0) {
       firstUsageKey = usageKey;
       LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
@@ -523,7 +535,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   public int getSyncCounter() {
-    return 0;//syncCounter.get();
+    return syncCounterMain + syncCounterBatches + syncCounterProParte;
   }
 
   public int getDelCounter() {

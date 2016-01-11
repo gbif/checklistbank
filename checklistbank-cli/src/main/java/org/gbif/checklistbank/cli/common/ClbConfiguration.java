@@ -67,6 +67,7 @@ public class ClbConfiguration {
     props.put(prefix + "dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
     if (withPrefix) {
       props.put(ChecklistBankServiceMyBatisModule.PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
+      props.put(ChecklistBankServiceMyBatisModule.IMPORT_THREADS_PROP, String.valueOf(syncThreads));
     }
 
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {

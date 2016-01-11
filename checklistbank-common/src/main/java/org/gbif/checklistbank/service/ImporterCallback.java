@@ -29,7 +29,7 @@ public interface ImporterCallback {
 
   List<Integer> readParentKeys(long id);
 
-  void reportNewUsageKey(long id, int usageKey);
+  void reportUsageKey(long id, int usageKey);
 
   void reportNewFuture(Future<Boolean> future);
 }

@@ -84,17 +84,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         NameUsage u = dao.readUsage(id);
         NameUsageMetrics m = dao.readMetrics(id);
 
-        boolean noKey = u.getKey() == null;
         boolean insert = dao.isInsert(u);
         if (insert) {
           inserts.add(id);
         }
         syncService.syncUsage(insert, u, m);
+
         counter++;
         usageKeys.put(id, u.getKey());
-        if (noKey) {
-          dao.reportNewUsageKey(id, u.getKey());
-        }
+        dao.reportUsageKey(id, u.getKey());
       }
       LOG.debug("Completed batch of {} usages for dataset {}.", counter, datasetKey);
 

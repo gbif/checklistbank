@@ -8,6 +8,13 @@ public class UsageForeignKeys {
   private Integer parentKey;
   private Integer basionymKey;
 
+  public UsageForeignKeys() {
+  }
+
+  public UsageForeignKeys(int usageKey) {
+    this.usageKey = usageKey;
+  }
+
   public UsageForeignKeys(int usageKey, Integer parentKey, Integer basionymKey) {
     this.basionymKey = basionymKey;
     this.parentKey = parentKey;
