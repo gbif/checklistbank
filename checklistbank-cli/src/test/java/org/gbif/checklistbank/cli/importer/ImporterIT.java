@@ -22,14 +22,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import javax.sql.DataSource;
 
-import com.beust.jcommander.internal.Sets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
@@ -323,14 +320,21 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     assertEquals(20, resp.getResults().size());
     int sources = 0;
     int proparte = 0;
-    Set<String> proParteAcceptedNames = Sets.newHashSet();
-    proParteAcceptedNames.addAll(Lists.newArrayList("Quertuga occidentalis", "Crepis occidentalis Nutt.")); //"Leontodon taraxacoides (Vill.) Mérat" is the first SOURCE record
+    Map<String, String> proParteAcceptedNameGenusMap = Maps.newHashMap();
+    proParteAcceptedNameGenusMap.put("Quertuga occidentalis", "Quertuga");
+    proParteAcceptedNameGenusMap.put("Crepis occidentalis Nutt.", "Crepis");
     for (NameUsage u : resp.getResults()) {
       switch (u.getOrigin()) {
         case PROPARTE:
           proparte++;
           assertEquals("Leontodon occidentalis", u.getScientificName());
-          assertTrue(proParteAcceptedNames.remove(u.getAccepted()));
+          assertNotNull(u.getGenusKey());
+          assertNotNull(u.getAcceptedKey());
+          assertTrue(u.isSynonym());
+          assertNotNull(u.getFamilyKey());
+          assertEquals("Asteraceae", u.getFamily());
+          assertTrue(proParteAcceptedNameGenusMap.containsKey(u.getAccepted()));
+          assertEquals(proParteAcceptedNameGenusMap.remove(u.getAccepted()), u.getGenus());
           break;
         case SOURCE:
           sources++;
@@ -338,19 +342,23 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         default:
           fail("Bad origin " + u.getOrigin());
       }
+      assertNotNull(u.toString(), u.getKingdomKey());
+      assertNotNull(u.toString(), u.getKingdom());
       if (Rank.KINGDOM != u.getRank()) {
+        assertNotNull(u.toString(), u.getFamilyKey());
+        assertNotNull(u.toString(), u.getFamily());
         if (u.isSynonym()) {
-          assertNotNull(u.getAcceptedKey());
-          assertNotNull(u.getAccepted());
+          assertNotNull(u.toString(), u.getAcceptedKey());
+          assertNotNull(u.toString(), u.getAccepted());
         } else {
-          assertNotNull(u.getParentKey());
-          assertNotNull(u.getParent());
+          assertNotNull(u.toString(), u.getParentKey());
+          assertNotNull(u.toString(), u.getParent());
         }
       }
     }
     assertEquals(18, sources);
     assertEquals(2, proparte);
-    assertTrue(proParteAcceptedNames.isEmpty());
+    assertTrue(proParteAcceptedNameGenusMap.isEmpty());
 
     NameUsage u = getUsageByTaxonID(datasetKey, "1001");
     assertNotNull(u.getBasionymKey());
@@ -359,6 +367,16 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     u = getUsageByTaxonID(datasetKey, "1002");
     assertNotNull(u.getBasionymKey());
     assertEquals("Leontodon occidentalis", u.getBasionym());
+    assertEquals("Crepis", u.getParent());
+    assertEquals("Crepis", u.getGenus());
+    assertEquals("Asteraceae", u.getFamily());
+
+    u = getUsageByTaxonID(datasetKey, "1006-s1");
+    assertTrue(u.isSynonym());
+    assertNotNull(u.getAcceptedKey());
+    assertEquals("Leontodon taraxacoides (Vill.) Mérat", u.getAccepted());
+    assertEquals("Leontodon", u.getGenus());
+    assertEquals("Asteraceae", u.getFamily());
   }
 
   private NameUsage getUsageByTaxonID(UUID datasetKey, String taxonID) {

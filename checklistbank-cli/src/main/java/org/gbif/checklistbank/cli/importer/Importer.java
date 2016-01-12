@@ -11,7 +11,6 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
-import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.neo.ImportDb;
@@ -258,6 +257,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
             primary.setProParteKey(primary.getKey());
             primary.setOrigin(Origin.PROPARTE);
             primary.setTaxonID(null); // if we keep the original id we will do an update, not an insert
+            primary.setParentKey(null);
             for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
               // pro parte synonyms keep their id in the relation, read it
               // http://dev.gbif.org/issues/browse/POR-2872
@@ -266,6 +266,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
               Node accN = rel.getEndNode();
               // all nodes should be synced by now, so clb keys must be known
               u.setAcceptedKey(clbKeys.get((int) accN.getId()));
+              // use accepted taxon classification for this synonym record
+              applyClbClassification(u, accN.getId());
               batch.add(u);
             }
           }
@@ -275,6 +277,24 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         addFuture(solrService.sync(datasetKey, batch), otherFutures);
         syncCounterProParte = syncCounterProParte + batch.size();
       }
+    }
+  }
+
+  /**
+   * Applies the classification from another node, transforming the neo node ids into existing clb usage keys
+   * @param u
+   * @param classificationNodeId
+   */
+  private void applyClbClassification(NameUsage u, long classificationNodeId) {
+    UsageFacts facts = dao.readFacts(classificationNodeId);
+    // apply classification if existing
+    if (facts != null && facts.classification != null) {
+      ClassificationUtils.copyLinneanClassificationKeys(facts.classification, u);
+      ClassificationUtils.copyLinneanClassification(facts.classification, u);
+    }
+    // convert to clb keys
+    for (Rank r : Rank.DWC_RANKS) {
+      ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
     }
   }
 
@@ -444,18 +464,20 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     NameUsage u = dao.readUsage(n, true);
     Preconditions.checkNotNull(u, "Node %s not found in kvp store", n.getId());
 
-    UsageFacts facts = dao.readFacts(n.getId());
-    Classification classification = facts == null ? null : facts.classification;
-    if (classification != null) {
-      ClassificationUtils.copyLinneanClassificationKeys(classification, u);
-      ClassificationUtils.copyLinneanClassification(classification, u);
-    }
+    UsageFacts facts;
     if (n.hasLabel(Labels.SYNONYM)) {
+      // use the classification of the parent in case of synonyms
+      facts = dao.readFacts(u.getAcceptedKey());
       u.setSynonym(true);
       u.setAcceptedKey(clbForeignKey(n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
     } else {
+      facts = dao.readFacts(n.getId());
       u.setSynonym(false);
       u.setParentKey(clbForeignKey(n.getId(), u.getParentKey(), KeyType.PARENT));
+    }
+    if (facts != null && facts.classification != null) {
+      ClassificationUtils.copyLinneanClassificationKeys(facts.classification, u);
+      ClassificationUtils.copyLinneanClassification(facts.classification, u);
     }
     u.setBasionymKey(clbForeignKey(n.getId(), u.getBasionymKey(), KeyType.BASIONYM));
     for (Rank r : Rank.DWC_RANKS) {
