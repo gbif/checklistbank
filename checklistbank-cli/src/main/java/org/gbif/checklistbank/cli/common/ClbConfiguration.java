@@ -28,7 +28,8 @@ public class ClbConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
   private static final String PROPERTY_PREFIX = "checklistbank.db.";
   private static final Set<String> DATASOURCE_SET = Sets.newHashSet("serverName", "databaseName", "user", "password");
-  private static final Set<String> IGNORE = Sets.newHashSet("parserTimeout", "syncThreads");
+  private static final Set<String> IGNORE = Sets.newHashSet("parserTimeout", "syncThreads", "workMem");
+  private static final String CONNECTION_INIT_SQL_PROP = "connectionInitSql";
 
   @NotNull
   @Parameter(names = "--clb-host")
@@ -46,20 +47,71 @@ public class ClbConfiguration {
   @Parameter(names = "--clb-password", password = true)
   public String password;
 
-  @Parameter(names = "--clb-maximumPoolSize")
+  @Parameter(names = "--clb-maximum-pool-size")
   @Min(3)
-  public int maximumPoolSize = 12;
+  public int maximumPoolSize = 8;
 
-  @Parameter(names = "--clb-connectionTimeout")
-  public int connectionTimeout = 5000;
+  /**
+   * TThe minimum number of idle connections that the pool tries to maintain.
+   * If the idle connections dip below this value, the pool will make a best effort to add additional connections quickly and efficiently.
+   * However, for maximum performance and responsiveness to spike demands, it is recommended to set this value not too low.
+   * Beware that postgres statically allocates the work_mem for each session which can eat up memory a lot.
+   */
+  @Parameter(names = "--clb-minimum-idle")
+  @Min(3)
+  public int minimumIdle = 1;
+
+  /**
+   * This property controls the maximum amount of time that a connection is allowed to sit idle in the pool.
+   * A connection will never be retired as idle before this timeout.
+   * A value of 0 means that idle connections are never removed from the pool.
+   */
+  @Parameter(names = "--clb-idle-timeout")
+  @Min(0)
+  public int idleTimeout = min(1);
+
+  /**
+   * This property controls the maximum lifetime of a connection in the pool.
+   * When a connection reaches this timeout it will be retired from the pool.
+   * An in-use connection will never be retired, only when it is closed will it then be removed.
+   * A value of 0 indicates no maximum lifetime (infinite lifetime), subject of course to the idleTimeout setting.
+   */
+  @Parameter(names = "--clb-max-lifetime")
+  @Min(0)
+  public int maxLifetime = min(15);
+
+  /**
+   * The postgres work_mem session setting in MB that should be used for each connection.
+   * A value of zero or below does not set anything and thus uses the global postgres settings
+   */
+  @Parameter(names = "--clb-work-mem")
+  public int workMem = 0;
+
+  @Parameter(names = "--clb-connection-timeout")
+  @Min(1000)
+  public int connectionTimeout = sec(5);
 
   @Parameter(names = "--parser-timeout")
   @Min(100)
-  public int parserTimeout = 1000;
+  public int parserTimeout = sec(1);
 
   @Parameter(names = "--sync-threads")
   @Min(0)
-  public int syncThreads = 2;
+  public int syncThreads = 1;
+
+  /**
+   * @return converted minutes in milliseconds
+   */
+  private static int min(int minutes) {
+    return minutes*60000;
+  }
+
+  /**
+   * @return converted seconds in milliseconds
+   */
+  private static int sec(int seconds) {
+    return seconds*1000;
+  }
 
   private Properties toProps(boolean withPrefix) {
     final String prefix = withPrefix ? PROPERTY_PREFIX : "";
@@ -69,7 +121,9 @@ public class ClbConfiguration {
       props.put(ChecklistBankServiceMyBatisModule.PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
       props.put(ChecklistBankServiceMyBatisModule.IMPORT_THREADS_PROP, String.valueOf(syncThreads));
     }
-
+    if (workMem > 0) {
+      props.put(prefix + CONNECTION_INIT_SQL_PROP, "SET work_mem='"+workMem+"MB'");
+    }
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers())) {
         try {

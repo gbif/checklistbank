@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
@@ -23,7 +24,7 @@ public class NameUsageIndexServicePassThru implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages) {
+  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     return Futures.immediateFuture(true);
   }
 

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 
 import java.util.List;
@@ -17,7 +18,13 @@ public interface DatasetImportService extends AutoCloseable {
 
   Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages);
 
-  Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages);
+  /**
+   * @param datasetKey
+   * @param usages list of usages
+   * @param names list of names, same order and length as usages
+   * @return
+   */
+  Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
 
   Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks);
 

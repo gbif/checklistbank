@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
@@ -132,7 +133,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages) {
+  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     return addTask(new SolrUpdateProParte(usages));
   }
 

@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.carrotsearch.hppc.LongHashSet;
 import com.carrotsearch.hppc.LongSet;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -103,13 +105,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     private void write(List<Integer> batch) throws Exception {
       for (Integer id : batch) {
         NameUsage u = dao.readUsage(id);
+        ParsedName pn = dao.readName(id);
         NameUsageMetrics m = dao.readMetrics(id);
 
         boolean insert = dao.isInsert(u);
         if (insert) {
           inserts.add(id);
         }
-        syncService.syncUsage(insert, u, m);
+        syncService.syncUsage(insert, u, pn, m);
 
         usageKeys.put(id, u.getKey());
         dao.reportUsageKey(id, u.getKey());
@@ -120,10 +123,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   class ProParteSync implements Callable<Boolean> {
     final UUID datasetKey;
     final List<NameUsage> usages;
+    final List<ParsedName> names;
 
-    public ProParteSync(UUID datasetKey, List<NameUsage> usages) {
+    public ProParteSync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
       this.datasetKey = datasetKey;
       this.usages = usages;
+      this.names = names;
+      Preconditions.checkArgument(usages.size() == names.size());
     }
 
     @Override
@@ -133,13 +139,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     )
     public Boolean call() throws Exception {
       LOG.debug("Starting usage sync with {} usages from dataset {}.", usages.size(), datasetKey);
+      Iterator<ParsedName> nIter = names.iterator();
       for (NameUsage u : usages) {
         // pro parte usages are synonyms and do not have any descendants, synonyms, etc
         NameUsageMetrics m = new NameUsageMetrics();
+        ParsedName pn = nIter.next();
         m.setKey(u.getKey());
         m.setNumDescendants(0);
 
-        syncService.syncUsage(true, u, m);
+        syncService.syncUsage(true, u, pn, m);
       }
       LOG.debug("Completed batch of {} pro parte usages for dataset {}.", usages.size(), datasetKey);
       return true;
@@ -256,8 +264,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages) {
-    return addTask(new ProParteSync(datasetKey, usages));
+  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+    return addTask(new ProParteSync(datasetKey, usages, names));
   }
 
   @Override

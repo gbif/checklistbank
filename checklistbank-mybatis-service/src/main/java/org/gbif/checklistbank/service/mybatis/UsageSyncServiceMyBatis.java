@@ -127,8 +127,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
    * This DOES NOT update the solr index or anything else but postgres!
    */
   @Override
-  public int syncUsage(boolean insert, NameUsage usage, NameUsageMetrics metrics) {
+  public int syncUsage(boolean insert, NameUsage usage, ParsedName pn, NameUsageMetrics metrics) {
     Preconditions.checkNotNull(usage);
+    Preconditions.checkNotNull(pn);
     Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
     Preconditions.checkNotNull(metrics);
 
@@ -138,10 +139,10 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     }
 
     if (usage.getKey() == null || insert) {
-      usage.setKey(insertNewUsage(usage, metrics));
+      usage.setKey(insertNewUsage(usage, pn, metrics));
       LOG.debug("inserted usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
     } else {
-      updateUsage(usage, metrics);
+      updateUsage(usage, pn, metrics);
       LOG.debug("updated usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
     }
 
@@ -187,11 +188,11 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
   /**
    * @return the usage key for the inserted record
    */
-  private int insertNewUsage(NameUsage u, NameUsageMetrics metrics) {
+  private int insertNewUsage(NameUsage u, ParsedName pn, NameUsageMetrics metrics) {
     final UUID datasetKey = u.getDatasetKey();
 
     // insert main usage, creating name and citation records before
-    NameUsageWritable uw = toWritable(datasetKey, u, metrics);
+    NameUsageWritable uw = toWritable(datasetKey, u, pn, metrics);
     nameUsageMapper.insert(uw);
     u.setKey(uw.getKey());
 
@@ -324,13 +325,13 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
    *
    * @param u updated usage
    */
-  private void updateUsage(NameUsage u, NameUsageMetrics metrics) {
+  private void updateUsage(NameUsage u, ParsedName pn, NameUsageMetrics metrics) {
     final UUID datasetKey = u.getDatasetKey();
 
     // update self references indicated by -1
     updateSelfReferences(u);
     // insert main usage, creating name and citation records before
-    NameUsageWritable uw = toWritable(datasetKey, u, metrics);
+    NameUsageWritable uw = toWritable(datasetKey, u, pn, metrics);
     nameUsageMapper.update(uw);
 
     // update usage metrics
@@ -370,7 +371,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
    * Converts a name usage into a writable name usage by looking up or inserting name and citation records
    * and populating the writable instance with these keys.
    */
-  private NameUsageWritable toWritable(UUID datasetKey, NameUsage u, NameUsageMetrics metrics) {
+  private NameUsageWritable toWritable(UUID datasetKey, NameUsage u, ParsedName pn, NameUsageMetrics metrics) {
     NameUsageWritable uw = new NameUsageWritable();
 
     uw.setKey(u.getKey());
@@ -400,7 +401,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     uw.setIssues(u.getIssues());
 
     // lookup or insert name record
-    ParsedName pn = nameService.createOrGet(u.getScientificName(), u.getRank());
+    pn = nameService.createOrGet(pn);
     uw.setNameKey(pn.getKey());
 
     // lookup or insert citation records

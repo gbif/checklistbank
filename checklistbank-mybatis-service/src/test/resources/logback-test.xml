@@ -13,7 +13,7 @@
 
   <logger name="org.dbunit" level="WARN"/>
   <logger name="java.sql" level="INFO"/>
-  <logger name="org.gbif.checklistbank" level="DEBUG"/>
+  <logger name="org.gbif.checklistbank" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>

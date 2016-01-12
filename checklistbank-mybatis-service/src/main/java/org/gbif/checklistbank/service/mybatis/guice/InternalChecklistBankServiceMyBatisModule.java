@@ -109,6 +109,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
   @Override
   protected void bindMappers() {
+
     // mybatis config
     addAlias("Usage").to(Usage.class);
     addAlias("RawUsage").to(RawUsage.class);

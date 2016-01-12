@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.normalizer;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.ClassificationUtils;
@@ -25,6 +26,9 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
+import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -33,6 +37,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -63,6 +72,7 @@ public class Normalizer extends ImportDb implements Runnable {
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
   private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.INFORMAL);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
+  private static final NamedThreadFactory THREAD_FACTORY = new NamedThreadFactory("normalizer-parser");
 
   static {
     for (char del : "[|;, ]".toCharArray()) {
@@ -71,6 +81,7 @@ public class Normalizer extends ImportDb implements Runnable {
   }
 
   private final IdLookup lookup;
+  private final ExecutorService exec;
 
   private final Map<String, UUID> constituents;
   private final File dwca;
@@ -94,6 +105,7 @@ public class Normalizer extends ImportDb implements Runnable {
     this.dwca = dwca;
     this.lookup = lookup;
     this.batchSize = batchSize;
+    exec = Executors.newFixedThreadPool(1, THREAD_FACTORY);
   }
 
 
@@ -130,6 +142,32 @@ public class Normalizer extends ImportDb implements Runnable {
     }
   }
 
+  private class NameParsingJob implements Callable<Integer> {
+    private final NameParser parser = new NameParser();
+
+    @Override
+    public Integer call() throws Exception {
+      int counter = 0;
+      try (Transaction tx = dao.beginTx()) {
+        for (Node n : dao.allNodes()) {
+          String sciname = NeoProperties.getScientificName(n);
+          ParsedName pn;
+          try {
+            pn = parser.parse(sciname, NeoProperties.getRank(n, null));
+          } catch (UnparsableException e) {
+            // allow any name at least as a scientific name string
+            pn = new ParsedName();
+            pn.setScientificName(sciname);
+            pn.setType(e.type);
+          }
+          dao.store(n.getId(), pn);
+          counter++;
+        }
+      }
+      return counter;
+    }
+  }
+
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
     try {
@@ -137,14 +175,33 @@ public class Normalizer extends ImportDb implements Runnable {
       batchInsertData();
       // insert regular neo db for further processing
       setupRelations();
+      // start name processing job
+      Future<Integer> f = parseNames();
+      // while parsing match to nub and build metrics
       buildMetricsAndMatchBackbone();
+      // now wait for name parsing to finish
+      LOG.info("Wait for name parsing of {} to finish.", datasetKey);
+      Integer parserCount = f.get();
+      LOG.info("Finish to parse all {} names of {}.", parserCount, datasetKey);
       LOG.info("Normalization of {} succeeded.", datasetKey);
+
+    } catch (InterruptedException e) {
+      LOG.error("Name parsing thread interrupted.", datasetKey);
+      throw new NormalizationFailedException("Name parsing interrupted", e);
+
+    } catch (ExecutionException e) {
+      LOG.error("Name parsing of {} failed: {}.", datasetKey, e.getMessage());
+      throw new NormalizationFailedException("Name parsing failed", e);
 
     } finally {
       dao.close();
       LOG.info("Neo database {} shut down.", datasetKey);
     }
     ignored = meta.getIgnored();
+  }
+
+  private Future<Integer> parseNames() {
+    return exec.submit(new NameParsingJob());
   }
 
   public NormalizerStats getStats() {

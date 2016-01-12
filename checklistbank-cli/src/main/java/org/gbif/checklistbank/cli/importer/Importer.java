@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.importer;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
@@ -83,14 +84,12 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
-  private Queue<Future<Boolean>> usageFutures = new ConcurrentLinkedQueue();
-  private Queue<Future<Boolean>> otherFutures = new ConcurrentLinkedQueue();
+  private Queue<Future<Boolean>> usageFutures = new ConcurrentLinkedQueue<Future<Boolean>>();
+  private Queue<Future<Boolean>> otherFutures = new ConcurrentLinkedQueue<Future<Boolean>>();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
-
-  private final int keyTypeSize = KeyType.values().length;
 
   @Inject
   private Importer(UUID datasetKey, UsageDao dao,
@@ -251,11 +250,13 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (!proParteNodes.isEmpty()) {
       LOG.info("Syncing {} pro parte usages from dataset {}", proParteNodes.size(), datasetKey);
       for (List<Long> ids : Iterables.partition(proParteNodes, cfg.chunkSize)) {
-        List<NameUsage> batch = Lists.newArrayList();
+        List<NameUsage> usages = Lists.newArrayList();
+        List<ParsedName> names = Lists.newArrayList();
         try (Transaction tx = dao.getNeo().beginTx()) {
           for (Long id : ids) {
             Node n = dao.getNeo().getNodeById(id);
             NameUsage primary = readUsage(n);
+            ParsedName pn = readName(id);
             // modify as a template for all cloned pro parte usages
             primary.setProParteKey(primary.getKey());
             primary.setOrigin(Origin.PROPARTE);
@@ -271,14 +272,15 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
               u.setAcceptedKey(clbKeys.get((int) accN.getId()));
               // use accepted taxon classification for this synonym record
               applyClbClassification(u, accN.getId());
-              batch.add(u);
+              usages.add(u);
+              names.add(pn);
             }
           }
         }
         // submit sync job
-        addFuture(sqlService.sync(datasetKey, batch), usageFutures);
-        addFuture(solrService.sync(datasetKey, batch), otherFutures);
-        syncCounterProParte = syncCounterProParte + batch.size();
+        addFuture(sqlService.sync(datasetKey, usages, names), usageFutures);
+        addFuture(solrService.sync(datasetKey, usages, names), otherFutures);
+        syncCounterProParte = syncCounterProParte + usages.size();
       }
     }
   }
@@ -456,6 +458,15 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     try (Transaction tx = dao.beginTx()) {
       Node n = dao.getNeo().getNodeById(id);
       return readUsage(n);
+    }
+  }
+
+  @Override
+  public ParsedName readName(long id) {
+    if (Constants.NUB_DATASET_KEY.equals(datasetKey)) {
+      return dao.readNubName(id);
+    } else {
+      return dao.readName(id);
     }
   }
 

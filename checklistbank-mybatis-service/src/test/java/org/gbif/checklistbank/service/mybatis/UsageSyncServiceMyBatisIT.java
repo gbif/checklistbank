@@ -26,6 +26,8 @@ import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
 
 import java.net.URI;
 import java.util.Date;
@@ -46,6 +48,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
   }
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
+  private static final NameParser PARSER = new NameParser();
 
   @Test
   public void testDeleteDataset() throws Exception {
@@ -112,7 +115,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     u.setGenusKey(g.getKey());
     u.setSpeciesKey(u.getKey());
 
-    int k1 = service.syncUsage(false, u, m);
+    int k1 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
 
     // verify props
     NameUsage u2 = uService.get(k1, null);
@@ -148,7 +151,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    int k2 = service.syncUsage(false, u, m);
+    int k2 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
     service.syncUsageExtras(false, CHECKLIST_KEY, u.getKey(), v, e);
     assertEquals(k1, k2);
 
@@ -167,7 +170,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
   }
 
 
-  private NameUsage addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) {
+  private NameUsage addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) throws UnparsableException {
     NameUsage p = new NameUsage();
     p.setDatasetKey(CHECKLIST_KEY);
     p.setKey(key);
@@ -190,7 +193,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     NameUsageMetrics m = new NameUsageMetrics();
     m.setKey(key);
 
-    service.syncUsage(false, p, m);
+    service.syncUsage(false, p, PARSER.parse(p.getScientificName(), p.getRank()), m);
 
     return p;
   }

@@ -49,6 +49,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
@@ -71,6 +72,7 @@ public class UsageDao {
   private GraphDatabaseService neo;
   private final GraphDatabaseBuilder neoFactory;
   private final DB kvp;
+  private final Map<Long, ParsedName> names;
   private final Map<Long, UsageFacts> facts;
   private final Map<Long, VerbatimNameUsage> verbatim;
   private final Map<Long, NameUsage> usages;
@@ -100,6 +102,7 @@ public class UsageDao {
       pool = new KryoPool.Builder(new CliKryoFactory())
           .softReferences()
           .build();
+      names = createKvpMap("names", ParsedName.class, 128);
       facts = createKvpMap("facts", UsageFacts.class, 128);
       verbatim = createKvpMap("verbatim", VerbatimNameUsage.class, 512);
       usages = createKvpMap("usages", NameUsage.class, 256);
@@ -443,6 +446,22 @@ public class UsageDao {
     return nub;
   }
 
+  public ParsedName readNubName(long id) {
+    NubUsage nub = nubUsages.get(id);
+    if (nub != null) {
+      return nub.parsedName;
+    }
+    return null;
+  }
+
+  public ParsedName readName(long key) {
+    return names.get(key);
+  }
+
+  public void store(long key, ParsedName pn) {
+    this.names.put(key, pn);
+  }
+
   /**
    * Reads a node into a name usage instance with keys being the node ids long values based on the neo relations.
    * The bulk of the usage data comes from the KVP store and neo properties are overlayed.
@@ -628,6 +647,10 @@ public class UsageDao {
 
   public ResourceIterator<Node> allTaxa() {
     return getNeo().findNodes(Labels.TAXON);
+  }
+
+  public ResourceIterable<Node> allNodes() {
+    return GlobalGraphOperations.at(getNeo()).getAllNodes();
   }
 
   public ResourceIterator<Node> allRootTaxa() {

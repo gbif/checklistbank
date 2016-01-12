@@ -44,6 +44,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
   private static final String PREFIX = "checklistbank.db.";
   public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
   public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
+
   private final int parserTimeout;
   private final int importThreads;
 

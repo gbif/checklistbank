@@ -22,7 +22,6 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
 
     private static final Logger LOG = LoggerFactory.getLogger(NormalizerService.class);
 
-
     private final NormalizerConfiguration cfg;
     private final ZookeeperUtils zkUtils;
     private final IdLookup lookup;
