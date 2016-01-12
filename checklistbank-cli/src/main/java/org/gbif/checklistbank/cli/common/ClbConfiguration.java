@@ -58,7 +58,7 @@ public class ClbConfiguration {
    * Beware that postgres statically allocates the work_mem for each session which can eat up memory a lot.
    */
   @Parameter(names = "--clb-minimum-idle")
-  @Min(3)
+  @Min(0)
   public int minimumIdle = 1;
 
   /**
