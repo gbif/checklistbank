@@ -83,7 +83,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
-  private Queue<Future<Boolean>> sqlFutures = new ConcurrentLinkedQueue();
+  private Queue<Future<Boolean>> usageFutures = new ConcurrentLinkedQueue();
   private Queue<Future<Boolean>> otherFutures = new ConcurrentLinkedQueue();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
@@ -122,8 +122,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     LOG.info("Start importing checklist {}", datasetKey);
     try {
       syncDataset();
-      LOG.info("Waiting for threads to finish {} sql and {} solr jobs", sqlFutures.size(), otherFutures.size());
-      awaitFutures(sqlFutures);
+      LOG.info("Waiting for threads to finish {} sql and {} solr jobs", usageFutures.size(), otherFutures.size());
+      awaitFutures(usageFutures);
       awaitFutures(otherFutures);
       LOG.info("Importing of {} succeeded. {} main, {} subtree chunk and {} pro parte usages synced", datasetKey, syncCounterMain, syncCounterBatches, syncCounterProParte);
 
@@ -174,26 +174,29 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
           LOG.debug("chunk node {} found", n.getId());
+          Future<Boolean> f = null;
           if (!batch.isEmpty()) {
-            Future<Boolean> f = sqlService.sync(datasetKey,this, batch);
+            f = sqlService.sync(datasetKey,this, batch);
+            syncCounterBatches = syncCounterBatches + batch.size();
             LOG.debug("submit {} main nodes for concurrent syncing", batch.size());
-            // wait for main future to finish...
-            f.get();
-            LOG.debug("main nodes synced. Update solr and process subtree");
             addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           }
-          // now we can submit a sync task for the subtree
+          // while main nodes sync we can read in the new subtree already
           batch = subtreeBatch(n);
-          syncCounterBatches = syncCounterBatches + batch.size();
+          // wait for main future to finish...
+          if (f != null) {
+            f.get();
+            LOG.debug("main nodes synced. Update solr and process subtree");
+          }
+          // main nodes are in postgres. Now we can submit the sync task for the subtree
           LOG.debug("submit subtree chunk starting with {}", n.getId());
-          addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
+          addFuture(sqlService.sync(datasetKey,this, batch), usageFutures);
           addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
-          // reset batch for new usages
+          // reset main batch for new usages
           batch = Lists.newArrayList();
 
         } else {
           // add to main batch
-          LOG.debug("collect main node {}", n.getId());
           batch.add((int)n.getId());
           if (isProParteNode(n)) {
             proParteNodes.add(n.getId());
@@ -203,15 +206,15 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       }
       if (!batch.isEmpty()) {
         LOG.debug("submit final {} main nodes for concurrent syncing", batch.size());
-        addFuture(sqlService.sync(datasetKey,this, batch), sqlFutures);
+        addFuture(sqlService.sync(datasetKey,this, batch), usageFutures);
         addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
       }
     }
 
     // wait for main sql usage imports to be done so we dont break foreign key constraints
-    LOG.info("Wait for  import completed. {} chunk jobs synced", chunks);
-    awaitFutures(sqlFutures);
-    LOG.info("Initial import completed. {} chunk jobs synced", chunks);
+    LOG.info("Wait for usage import tasks to finish.");
+    awaitFutures(usageFutures);
+    LOG.info("Core usage import completed. {} chunk jobs synced", chunks);
 
     // finally update foreign keys that did not exist during initial inserts
     updateForeignKeys();
@@ -273,7 +276,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           }
         }
         // submit sync job
-        addFuture(sqlService.sync(datasetKey, batch), sqlFutures);
+        addFuture(sqlService.sync(datasetKey, batch), usageFutures);
         addFuture(solrService.sync(datasetKey, batch), otherFutures);
         syncCounterProParte = syncCounterProParte + batch.size();
       }
@@ -299,7 +302,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   private List<Integer> subtreeBatch(Node startNode) {
-    LOG.debug("Create new batch from subtree starting from node {}.", startNode.getId());
+    LOG.debug("Create new batch from subtree starting from {}.", startNode);
     List<Integer> ids = Lists.newArrayList();
     try (Transaction tx = dao.beginTx()) {
       // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
@@ -310,7 +313,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         }
       }
     }
-    LOG.debug("Created batch of {} nodes starting with node {}", ids.size(), startNode);
+    LOG.debug("Created batch of {} nodes starting with {}", ids.size(), startNode);
     return ids;
   }
 
@@ -337,7 +340,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    addFuture(sqlService.deleteUsages(datasetKey, ids), sqlFutures);
+    addFuture(sqlService.deleteUsages(datasetKey, ids), usageFutures);
     addFuture(solrService.deleteUsages(datasetKey, ids), otherFutures);
     delCounter = ids.size();
   }

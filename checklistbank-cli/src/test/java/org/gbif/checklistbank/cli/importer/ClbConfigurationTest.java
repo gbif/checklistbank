@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class ClbConfigurationTest {
 
-    @Test(expected = CreationException.class)
+  @Test(expected = CreationException.class)
     public void testBadTimeout() throws Exception {
         ClbConfiguration cfg = new ClbConfiguration();
         cfg.parserTimeout = 1;

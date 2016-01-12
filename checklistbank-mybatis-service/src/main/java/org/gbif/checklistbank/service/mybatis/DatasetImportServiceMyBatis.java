@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.carrotsearch.hppc.LongHashSet;
 import com.carrotsearch.hppc.LongSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
@@ -63,6 +64,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     final UUID datasetKey;
     final Iterable<Integer> usages;
     final ImporterCallback dao;
+    private Map<Integer, Integer> usageKeys;
+    private LongSet inserts;
+    private int firstId = -1;
 
     public UsageSync(ImporterCallback dao, UUID datasetKey, Iterable<Integer> usages) {
       this.dao = dao;
@@ -71,16 +75,33 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
+    public Boolean call() throws Exception {
+      int counter = 0;
+      LOG.debug("Starting usage sync from dataset {}.", datasetKey);
+      usageKeys = Maps.newHashMap();
+      inserts = new LongHashSet();
+      for (List<Integer> batch : Iterables.partition(usages, BATCH_SIZE)) {
+        if (firstId < 0) {
+          firstId = batch.get(0);
+        }
+        write(batch);
+        counter = counter + batch.size();
+      }
+      LOG.info("Completed batch of {} usages for dataset {}, starting with id {}.", counter, datasetKey, firstId);
+
+      // submit extension sync job for all usages
+      ExtensionSync eSync = new ExtensionSync(dao, datasetKey, usageKeys, inserts);
+      dao.reportNewFuture(addTask(eSync));
+
+      return true;
+    }
+
     @Transactional(
         exceptionMessage = "usage sync job failed",
         executorType = ExecutorType.REUSE
     )
-    public Boolean call() throws Exception {
-      int counter = 0;
-      LOG.debug("Starting usage sync from dataset {}.", datasetKey);
-      Map<Integer, Integer> usageKeys = Maps.newHashMap();
-      LongSet inserts = new LongHashSet();
-      for (Integer id : usages) {
+    private void write(List<Integer> batch) throws Exception {
+      for (Integer id : batch) {
         NameUsage u = dao.readUsage(id);
         NameUsageMetrics m = dao.readMetrics(id);
 
@@ -90,17 +111,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         }
         syncService.syncUsage(insert, u, m);
 
-        counter++;
         usageKeys.put(id, u.getKey());
         dao.reportUsageKey(id, u.getKey());
       }
-      LOG.debug("Completed batch of {} usages for dataset {}.", counter, datasetKey);
-
-      // submit extension sync job
-      ExtensionSync eSync = new ExtensionSync(dao, datasetKey, usageKeys, inserts);
-      dao.reportNewFuture(addTask(eSync));
-
-      return true;
     }
   }
 
@@ -138,6 +151,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     final Map<Integer, Integer> usages;
     final LongSet inserts;
     final ImporterCallback dao;
+    private int firstId = -1;
 
     public ExtensionSync(ImporterCallback dao, UUID datasetKey, Map<Integer, Integer> usages, LongSet inserts) {
       this.dao = dao;
@@ -147,19 +161,28 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
+    public Boolean call() throws Exception {
+      LOG.debug("Starting extension sync for {} usages from dataset {}.", usages.size(), datasetKey);
+      for (List<Integer> batch : Iterables.partition(usages.keySet(), BATCH_SIZE)) {
+        if (firstId < 0) {
+          firstId = batch.get(0);
+        }
+        write(batch);
+      }
+      LOG.info("Completed batch of {} usage extensions from dataset {}, starting with id {}.", usages.size(), datasetKey, firstId);
+      return true;
+    }
+
     @Transactional(
         exceptionMessage = "extension sync job failed",
         executorType = ExecutorType.REUSE
     )
-    public Boolean call() throws Exception {
-      LOG.debug("Starting extension sync for {} usages from dataset {}.", usages.size(), datasetKey);
-      for (Map.Entry<Integer, Integer> u : usages.entrySet()) {
-        VerbatimNameUsage v = dao.readVerbatim(u.getKey());
-        UsageExtensions e = dao.readExtensions(u.getKey());
-        syncService.syncUsageExtras(inserts.contains(u.getKey()), datasetKey, u.getValue(), v, e);
+    private void write(List<Integer> ids) throws Exception {
+      for (Integer id : ids) {
+        VerbatimNameUsage v = dao.readVerbatim(id);
+        UsageExtensions e = dao.readExtensions(id);
+        syncService.syncUsageExtras(inserts.contains(id), datasetKey, usages.get(id), v, e);
       }
-      LOG.debug("Completed batch of {} usage extensions from dataset {}.", usages.size(), datasetKey);
-      return true;
     }
   }
 
