@@ -23,6 +23,7 @@ import org.gbif.checklistbank.neo.traverse.ChunkingEvaluator;
 import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageService;
@@ -182,6 +183,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           }
           // while main nodes sync we can read in the new subtree already
           batch = subtreeBatch(n);
+          chunks++;
           // wait for main future to finish...
           if (f != null) {
             f.get();
@@ -213,7 +215,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // wait for main sql usage imports to be done so we dont break foreign key constraints
     LOG.info("Wait for usage import tasks to finish.");
     awaitFutures(usageFutures);
-    LOG.info("Core usage import completed. {} chunk jobs synced", chunks);
+    LOG.info("Core usage import completed. {} chunk jobs synced with {} main usages, {} subtree batch usages and {} pro parte usages.", chunks, syncCounterMain, syncCounterBatches, syncCounterProParte);
+    if (clbKeys.size() != syncCounterMain + syncCounterBatches) {
+      LOG.warn("{} clb usage keys known for {} neo nodes ({} main, {} chunk). Expecting \"NodeId not in CLB exceptions\" ...", chunks, clbKeys.size(), syncCounterMain+syncCounterBatches, syncCounterMain, syncCounterBatches);
+    }
 
     // finally update foreign keys that did not exist during initial inserts
     updateForeignKeys();
@@ -234,12 +239,12 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void updateForeignKeys() {
     if (!postKeys.isEmpty()) {
       // update neo ids to clb usage keys
+      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
       for (UsageForeignKeys fk : postKeys.values()) {
         fk.setUsageKey(clbKey(fk.getUsageKey()));
         fk.setParentKey(clbKey(fk.getParentKey()));
         fk.setBasionymKey(clbKey(fk.getBasionymKey()));
       }
-      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
       List<UsageForeignKeys> fks = ImmutableList.copyOf(postKeys.values());
       sqlService.updateForeignKeys(fks);
       solrService.updateForeignKeys(fks);
@@ -381,9 +386,22 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (nodeId == null) {
       return null;
     }
+
     if (clbKeys.containsKey(nodeId)) {
       return clbKeys.get(nodeId);
     } else {
+      try (Transaction tx = dao.getNeo().beginTx()) {
+        Node n = dao.getNeo().getNodeById(nodeId);
+        LOG.error("Clb usage key missing for {}: {}", n, NeoProperties.getScientificName(n));
+        NubUsage nub = dao.readNub(n);
+        if (nub != null) {
+          LOG.info("Nub usage for missing key: {}", nub.toStringComplete());
+        } else {
+          LOG.warn("Nub usage for missing key {} not found", nodeId);
+        }
+      } catch (Exception e) {
+        // ignore
+      }
       throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
     }
   }
@@ -550,6 +568,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   @Override
   public void reportUsageKey(long nodeId, int usageKey) {
+    Preconditions.checkArgument(usageKey < Constants.NUB_MAXIMUM_KEY, "New usage key {} for node {} is larger than allowed maximum {}", usageKey, nodeId, Constants.NUB_MAXIMUM_KEY);
     // keep map of node ids to clb usage keys
     clbKeys.put((int)nodeId, usageKey);
     if (firstUsageKey < 0) {
