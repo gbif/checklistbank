@@ -1063,7 +1063,7 @@ public class NubBuilder implements Runnable {
                     u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                 );
               }
-              convertToSynonymOf(u, accepted, synStatus);
+              convertToSynonymOf(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
             }
           }
           counterModified = counterModified + modified;
@@ -1078,7 +1078,7 @@ public class NubBuilder implements Runnable {
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
   }
 
-  private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus) {
+  private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus, NameUsageIssue issue) {
     // convert to synonym, removing old parent relation
     // See http://dev.gbif.org/issues/browse/POR-398
     LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
@@ -1087,7 +1087,7 @@ public class NubBuilder implements Runnable {
     // add synonymOf relation and delete existing parentOf or synonymOf relations
     db.createSynonymRelation(u.node, accepted.node);
     // flag issue
-    u.issues.add(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+    u.issues.add(issue);
     // move any accepted children to new accepted parent
     db.moveChildren(u.node, accepted);
     // move any synonyms to new accepted parent

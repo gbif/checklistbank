@@ -435,6 +435,12 @@ public class NubDb {
   public Relationship createSynonymRelation(Node synonym, Node accepted) {
     deleteRelations(synonym, RelType.PARENT_OF, Direction.INCOMING);
     deleteRelations(synonym, RelType.SYNONYM_OF, Direction.OUTGOING);
+    // delete pro parte rel if it also links to the same accepted
+    for (Relationship rel : synonym.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+      if (rel.getOtherNode(synonym).equals(accepted)) {
+        rel.delete();
+      }
+    }
     synonym.addLabel(Labels.SYNONYM);
     synonym.removeLabel(Labels.ROOT);
     return synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);

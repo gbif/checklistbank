@@ -92,7 +92,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       LOG.info("Completed batch of {} usages for dataset {}, starting with id {}.", counter, datasetKey, firstId);
 
       // submit extension sync job for all usages
-      ExtensionSync eSync = new ExtensionSync(dao, datasetKey, usageKeys, inserts);
+      ExtensionSync eSync = new ExtensionSync(dao, datasetKey, firstId, usageKeys, inserts);
       dao.reportNewFuture(addTask(eSync));
 
       return true;
@@ -161,20 +161,18 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     final ImporterCallback dao;
     private int firstId = -1;
 
-    public ExtensionSync(ImporterCallback dao, UUID datasetKey, Map<Integer, Integer> usages, LongSet inserts) {
+    public ExtensionSync(ImporterCallback dao, UUID datasetKey, int firstId, Map<Integer, Integer> usages, LongSet inserts) {
       this.dao = dao;
       this.datasetKey = datasetKey;
       this.usages = usages;
       this.inserts = inserts;
+      this.firstId = firstId;
     }
 
     @Override
     public Boolean call() throws Exception {
       LOG.debug("Starting extension sync for {} usages from dataset {}.", usages.size(), datasetKey);
       for (List<Integer> batch : Iterables.partition(usages.keySet(), BATCH_SIZE)) {
-        if (firstId < 0) {
-          firstId = batch.get(0);
-        }
         write(batch);
       }
       LOG.info("Completed batch of {} usage extensions from dataset {}, starting with id {}.", usages.size(), datasetKey, firstId);

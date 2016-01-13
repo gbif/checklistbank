@@ -178,7 +178,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           if (!batch.isEmpty()) {
             f = sqlService.sync(datasetKey,this, batch);
             syncCounterBatches = syncCounterBatches + batch.size();
-            LOG.debug("submit {} main nodes for concurrent syncing", batch.size());
+            LOG.debug("submit {} main nodes for concurrent syncing starting with node {}", batch.size(), batch.get(0));
             addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           }
           // while main nodes sync we can read in the new subtree already
@@ -187,10 +187,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           // wait for main future to finish...
           if (f != null) {
             f.get();
-            LOG.debug("main nodes synced. Update solr and process subtree");
+            LOG.debug("main nodes synced");
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
-          LOG.debug("submit subtree chunk starting with {}", n.getId());
+          LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
           addFuture(sqlService.sync(datasetKey,this, batch), usageFutures);
           addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           // reset main batch for new usages
@@ -309,7 +309,6 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   private List<Integer> subtreeBatch(Node startNode) {
-    LOG.debug("Create new batch from subtree starting from {}.", startNode);
     List<Integer> ids = Lists.newArrayList();
     try (Transaction tx = dao.beginTx()) {
       // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
@@ -568,7 +567,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   @Override
   public void reportUsageKey(long nodeId, int usageKey) {
-    Preconditions.checkArgument(usageKey < Constants.NUB_MAXIMUM_KEY, "New usage key {} for node {} is larger than allowed maximum {}", usageKey, nodeId, Constants.NUB_MAXIMUM_KEY);
+    if (datasetKey.equals(Constants.NUB_DATASET_KEY)) {
+      Preconditions.checkArgument(usageKey < Constants.NUB_MAXIMUM_KEY, "New usage key {} for node {} is larger than allowed maximum {}", usageKey, nodeId, Constants.NUB_MAXIMUM_KEY);
+    }
     // keep map of node ids to clb usage keys
     clbKeys.put((int)nodeId, usageKey);
     if (firstUsageKey < 0) {
