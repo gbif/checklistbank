@@ -6,6 +6,7 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
 
 import org.junit.Test;
 
@@ -14,6 +15,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameService> {
+
+  private NameParser parser = new NameParser();
 
   public ParsedNameServiceMyBatisIT() {
     super(ParsedNameService.class);
@@ -37,15 +40,14 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals("alba", pn2.getSpecificEpithet());
     assertEquals("Mill.", pn2.getAuthorship());
 
-    final NameParser parser = new NameParser();
-    pn = service.createOrGet(parser.parse("Abies alba Mill.", null));
+    pn = service.createOrGet(parse("Abies alba Mill."));
     assertEquals("Abies alba Mill.", pn.getScientificName());
     assertEquals("Abies alba", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
     assertEquals("alba", pn.getSpecificEpithet());
     assertEquals("Mill.", pn.getAuthorship());
 
-    pn = service.createOrGet(parser.parse("Abies sp.", null));
+    pn = service.createOrGet(parse("Abies sp."));
     assertEquals("Abies sp.", pn.getScientificName());
     assertEquals("Abies spec.", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
@@ -53,7 +55,7 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals(Rank.SPECIES, pn.getRank());
     assertNull(pn.getSpecificEpithet());
 
-    pn = service.createOrGet(parser.parse("×Abies Mill.", null));
+    pn = service.createOrGet(parse("×Abies Mill."));
     assertEquals("×Abies Mill.", pn.getScientificName());
     assertEquals("Abies", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
@@ -62,7 +64,7 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertNull(pn.getSpecificEpithet());
     assertEquals(NamePart.GENERIC, pn.getNotho());
 
-    pn = service.createOrGet(parser.parse("? hostilis Gravenhorst, 1829", null));
+    pn = service.createOrGet(parse("? hostilis Gravenhorst, 1829"));
     assertEquals("? hostilis Gravenhorst, 1829", pn.getScientificName());
     assertNull(pn.canonicalName());
     assertNull(pn.getGenusOrAbove());
@@ -71,6 +73,16 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertNull(pn.getSpecificEpithet());
   }
 
+  private ParsedName parse(String x) {
+    try {
+      return parser.parse(x, null);
+    } catch (UnparsableException e) {
+      ParsedName pn = new ParsedName();
+      pn.setScientificName(x);
+      pn.setType(e.type);
+      return pn;
+    }
+  }
   @Test
   public void testReparse() throws Exception {
     assertEquals(1150, service.reparseAll());
