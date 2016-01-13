@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -10,9 +11,13 @@ import org.gbif.api.service.registry.NodeService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
+import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.nub.NubAssertions;
+import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
@@ -54,7 +59,14 @@ import org.slf4j.LoggerFactory;
 public class AdminCommand extends BaseCommand {
   private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
   private static final String DWCA_SUFFIX = ".dwca";
-  private static final Set<AdminOperation> SINE_COMMANDS = Sets.newHashSet(AdminOperation.REPARSE, AdminOperation.CLEAN_ORPHANS, AdminOperation.SYNC_DATASETS, AdminOperation.UPDATE_VERBATIM, AdminOperation.DUMP);
+  private static final Set<AdminOperation> SINE_COMMANDS = Sets.newHashSet(
+      AdminOperation.REPARSE,
+      AdminOperation.CLEAN_ORPHANS,
+      AdminOperation.SYNC_DATASETS,
+      AdminOperation.UPDATE_VERBATIM,
+      AdminOperation.DUMP,
+      AdminOperation.VERIFY_NUB
+  );
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
   private ZookeeperUtils zkUtils;
@@ -135,6 +147,10 @@ public class AdminCommand extends BaseCommand {
 
       case DUMP:
         dumpToNeo();
+        break;
+
+      case VERIFY_NUB:
+        verifyNub();
         break;
 
       default:
@@ -259,6 +275,17 @@ public class AdminCommand extends BaseCommand {
     src.init(true, cfg.nubRanksOnly);
   }
 
+  private void verifyNub() throws Exception {
+    UsageDao dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
+    NubDb db = NubDb.open(dao, AuthorComparator.createWithoutAuthormap());
+
+    NubAssertions assertions = new NubAssertions(db);
+    if (assertions.verify()) {
+      LOG.info("Nub assertions passed successfully!");
+    } else {
+      LOG.error("Nub assertions failed!");
+    }
+  }
 
   private String title(Dataset d) {
     return d.getKey() + ": " + d.getTitle().replaceAll("\n", " ");

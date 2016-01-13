@@ -446,6 +446,10 @@ public class UsageDao {
     return nub;
   }
 
+  public NubUsage readNub(long id) {
+    return nubUsages.get(id);
+  }
+
   public ParsedName readNubName(long id) {
     NubUsage nub = nubUsages.get(id);
     if (nub != null) {
