@@ -103,7 +103,7 @@ public class NubBuilder implements Runnable {
   private final boolean closeDao;
   private final NubSourceList sources;
   private final NameParser parser;
-  private final boolean verifyBackbone;
+  private final NubConfiguration cfg;
   private NubSource currSrc;
   private ParentStack parents;
   private int sourceUsageCounter = 0;
@@ -114,7 +114,6 @@ public class NubBuilder implements Runnable {
   private final Map<UUID, Integer> priorities = Maps.newHashMap();
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
-  private final int batchSize;
 
   private final Ordering<NubUsage> priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
     @Nullable
@@ -128,23 +127,21 @@ public class NubBuilder implements Runnable {
   });
 
   private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart,
-                     boolean closeDao, boolean verifyBackbone, int batchSize, int parserTimeout) {
+                     boolean closeDao, NubConfiguration cfg) {
     db = NubDb.create(dao, authorComparator);
     this.sources = sources;
     this.authorComparator = authorComparator;
     idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
-    this.verifyBackbone = verifyBackbone;
-    this.batchSize = batchSize;
-    this.parser = new NameParser(parserTimeout);
+    this.cfg = cfg;
+    this.parser = new NameParser(cfg.parserTimeout);
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
     try {
       IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
-      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true,
-          cfg.autoImport, cfg.neo.batchSize, cfg.parserTimeout);
+      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true, cfg);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
     }
@@ -154,7 +151,13 @@ public class NubBuilder implements Runnable {
    * @param dao the dao to create the nub. Will be left open after run() is called.
    */
   public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, int parserTimeout) {
-    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, false, false, 10000, parserTimeout);
+    NubConfiguration cfg = new NubConfiguration();
+    cfg.groupBasionyms = true;
+    cfg.validate = false;
+    cfg.autoImport = false;
+    cfg.neo.batchSize = 10000;
+    cfg.parserTimeout = parserTimeout;
+    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, false, cfg);
   }
 
   /**
@@ -361,7 +364,7 @@ public class NubBuilder implements Runnable {
 
 
   private void validate(TreeValidation validator) throws AssertionError {
-    if (verifyBackbone) {
+    if (cfg.validate) {
       try (Transaction tx = db.beginTx()) {
         boolean valid = validator.validate();
         if (!valid) {
@@ -667,7 +670,7 @@ public class NubBuilder implements Runnable {
     int batchCounter = 1;
     // makes sure to close the iterator - important for releasing neo resources, slows down considerably otherwise!
     try (CloseableIterator<SrcUsage> iter = source.iterator()) {
-      UnmodifiableIterator<List<SrcUsage>> batchIter = Iterators.partition(iter, batchSize);
+      UnmodifiableIterator<List<SrcUsage>> batchIter = Iterators.partition(iter, cfg.neo.batchSize);
       while (batchIter.hasNext()) {
         try (Transaction tx = db.beginTx()) {
           List<SrcUsage> batch = batchIter.next();
@@ -1031,9 +1034,13 @@ public class NubBuilder implements Runnable {
   }
 
   private void groupByBasionym() {
-    LOG.info("Start basionym consolidation");
-    detectBasionyms();
-    consolidateBasionymGroups();
+    if (cfg.groupBasionyms) {
+      LOG.info("Start basionym consolidation");
+      detectBasionyms();
+      consolidateBasionymGroups();
+    } else {
+      LOG.info("Skip basionym consolidation");
+    }
   }
 
   /**

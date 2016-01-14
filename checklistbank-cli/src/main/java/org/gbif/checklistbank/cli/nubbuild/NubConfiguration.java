@@ -45,10 +45,22 @@ public class NubConfiguration {
   public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
 
   /**
+   * If true algorithmic detecting and grouping of basionyms is executed.
+   */
+  @Valid
+  public boolean groupBasionyms = false;
+
+  /**
    * If true an import message is being send once the build is done and basic backbone assertions have passed successfully.
    */
   @Valid
   public boolean autoImport = false;
+
+  /**
+   * If true run validation routines at the end of the nub build.
+   */
+  @Valid
+  public boolean validate = false;
 
   /**
    * If true some explicit debugging and logging is enabled, e.g. the neo4j mapped memory stats and number of open files and threads.
@@ -62,4 +74,5 @@ public class NubConfiguration {
    */
   @Min(100)
   public int parserTimeout = 1000;
+
 }
