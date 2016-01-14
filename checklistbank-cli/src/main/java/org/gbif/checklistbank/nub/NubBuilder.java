@@ -191,7 +191,7 @@ public class NubBuilder implements Runnable {
       } else {
         LOG.warn("Assertions not passed, metrics not build and no usages converted!");
       }
-      LOG.info("New backbone built");
+      LOG.info("New backbone built successfully!");
 
     } catch (Exception e){
       LOG.error("Fatal error. Backbone build failed!", e);

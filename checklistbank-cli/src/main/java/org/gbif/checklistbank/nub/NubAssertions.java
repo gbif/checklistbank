@@ -92,7 +92,7 @@ public class NubAssertions {
    */
   private void oldEcatVerifications() {
     LOG.info("Test kingdoms");
-    assertUsage(0, Rank.KINGDOM, "", true, Kingdom.INCERTAE_SEDIS);
+    assertUsage(0, Rank.KINGDOM, "incertae sedis", true, Kingdom.INCERTAE_SEDIS);
     assertUsage(1, Rank.KINGDOM, "Animalia", true, Kingdom.ANIMALIA);
     assertUsage(2, Rank.KINGDOM, "Archaea", true, Kingdom.ARCHAEA);
     assertUsage(3, Rank.KINGDOM, "Bacteria", true, Kingdom.BACTERIA);
@@ -311,7 +311,7 @@ public class NubAssertions {
     try {
       matches = findUsagesByCanonical(name, rank);
       assertEquals(expectedSearchMatches, matches.size());
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       valid = false;
       LOG.error("Expected {} matches, but found {} for name {} with rank {}", expectedSearchMatches, matches.size(), name, rank);
     }
@@ -332,7 +332,7 @@ public class NubAssertions {
       } else {
         assertEquals(kingdom.nubUsageID(), kid);
       }
-    } catch (AssertionError e) {
+    } catch (Exception e) {
       LOG.error("Usage {}, {} wrong: {}", usageKey, name, e);
       valid = false;
     }
