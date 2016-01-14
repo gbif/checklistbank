@@ -28,9 +28,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Production backbone assertions that have to pass before we can replace the backbone with a newer version
+ * Production backbone assertions that have to pass before we can replace the backbone with a newer version.
+ * This acts on name usage used as input to the postgres importer
  */
-public class NubAssertions {
+public class NubAssertions implements TreeValidation {
   private static final Logger LOG = LoggerFactory.getLogger(NubAssertions.class);
 
   private final NubDb db;
@@ -55,7 +56,11 @@ public class NubAssertions {
     }
   }
 
-  public boolean verify() {
+  @Override
+  /**
+   * This requires an open neo4j transaction!
+   */
+  public boolean validate() {
     // populate the reverse key map
     LOG.info("Start nub assertions. Populate the reverse key map first");
     for (Map.Entry<Long, NubUsage> nub : db.dao.nubUsages()) {
@@ -64,9 +69,6 @@ public class NubAssertions {
       Preconditions.checkArgument(!usage2NubKey.containsKey(usageKey), "usageKey " + usageKey + " not unique");
       usage2NubKey.put(usageKey, nubKey);
     }
-
-    // no basionym exists without an accepted or parent node
-    notExists("Orphaned basionym found", "MATCH (b:TAXON) WHERE (b)<-[:BASIONYM_OF]-() and not (b)-[:SYNONYM_OF]->() and not (b)<-[:PARENT_OF]-() RETURN distinct b LIMIT 2");
 
     // TODO: num accepted in expected range
 

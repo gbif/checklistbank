@@ -35,7 +35,7 @@ public class NubBuildCommand extends BaseCommand {
     builder.run();
     builder.report(cfg.reportDir);
 
-    if (cfg.autoImport && builder.assertionsPassed()) {
+    if (cfg.autoImport) {
       try {
         MessagePublisher publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
         publisher.send(new ChecklistNormalizedMessage(Constants.NUB_DATASET_KEY));
@@ -44,9 +44,6 @@ public class NubBuildCommand extends BaseCommand {
       } catch (IOException e) {
         Throwables.propagate(e);
       }
-
-    } else if (!builder.assertionsPassed()) {
-      LOG.warn("Backbone failed basic validations, check logs!");
     }
   }
 

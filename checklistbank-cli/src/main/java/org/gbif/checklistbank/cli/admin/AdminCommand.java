@@ -18,6 +18,8 @@ import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
+import org.gbif.checklistbank.nub.NubTreeValidation;
+import org.gbif.checklistbank.nub.TreeValidation;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
@@ -49,6 +51,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.kohsuke.MetaInfServices;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,14 +279,29 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void verifyNub() throws Exception {
-    UsageDao dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
-    NubDb db = NubDb.open(dao, AuthorComparator.createWithoutAuthormap());
+    UsageDao dao = null;
+    try {
+      dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
+      NubDb db = NubDb.open(dao, AuthorComparator.createWithoutAuthormap());
 
-    NubAssertions assertions = new NubAssertions(db);
-    if (assertions.verify()) {
-      LOG.info("Nub assertions passed successfully!");
-    } else {
-      LOG.error("Nub assertions failed!");
+      validate(dao, new NubTreeValidation(db));
+      LOG.info("Tree validation passed!");
+
+      validate(dao, new NubAssertions(db));
+      LOG.info("Nub assertions passed!");
+
+    } finally {
+      dao.close();
+    }
+  }
+
+  private void validate(UsageDao dao, TreeValidation validator) throws AssertionError {
+    try (Transaction tx = dao.beginTx()) {
+      boolean valid = validator.validate();
+      if (!valid) {
+        LOG.error("Backbone is not valid!");
+        throw new AssertionError("Backbone is not valid!");
+      }
     }
   }
 

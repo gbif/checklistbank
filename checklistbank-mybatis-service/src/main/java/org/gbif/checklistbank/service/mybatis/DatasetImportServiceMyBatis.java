@@ -109,12 +109,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         NameUsageMetrics m = dao.readMetrics(id);
 
         boolean insert = dao.isInsert(u);
+        syncService.syncUsage(insert, u, pn, m);
+
+        // remember usageKey and things about this record
         if (insert) {
           inserts.add(id);
         }
-        syncService.syncUsage(insert, u, pn, m);
-
         usageKeys.put(id, u.getKey());
+        // tell main importer about the new usageKey so we can prepare usages with good foreign keys
         dao.reportUsageKey(id, u.getKey());
       }
     }

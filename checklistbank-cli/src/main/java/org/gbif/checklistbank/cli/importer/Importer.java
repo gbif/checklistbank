@@ -177,13 +177,13 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           Future<Boolean> f = null;
           if (!batch.isEmpty()) {
             f = sqlService.sync(datasetKey,this, batch);
-            syncCounterBatches = syncCounterBatches + batch.size();
             LOG.debug("submit {} main nodes for concurrent syncing starting with node {}", batch.size(), batch.get(0));
             addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
           }
           // while main nodes sync we can read in the new subtree already
           batch = subtreeBatch(n);
           chunks++;
+          syncCounterBatches = syncCounterBatches + batch.size();
           // wait for main future to finish...
           if (f != null) {
             f.get();
@@ -215,9 +215,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // wait for main sql usage imports to be done so we dont break foreign key constraints
     LOG.info("Wait for usage import tasks to finish.");
     awaitFutures(usageFutures);
-    LOG.info("Core usage import completed. {} chunk jobs synced with {} main usages, {} subtree batch usages and {} pro parte usages.", chunks, syncCounterMain, syncCounterBatches, syncCounterProParte);
+    LOG.info("Core usage import completed. {} chunk jobs synced with {} main usages and {} subtree batch usages usages.", chunks, syncCounterMain, syncCounterBatches);
     if (clbKeys.size() != syncCounterMain + syncCounterBatches) {
-      LOG.warn("{} clb usage keys known for {} neo nodes ({} main, {} chunk). Expecting \"NodeId not in CLB exceptions\" ...", chunks, clbKeys.size(), syncCounterMain+syncCounterBatches, syncCounterMain, syncCounterBatches);
+      LOG.warn("{} clb usage keys known for {} neo nodes ({} main, {} chunk). Expecting \"NodeId not in CLB exceptions\" ...", clbKeys.size(), syncCounterMain+syncCounterBatches, syncCounterMain, syncCounterBatches);
     }
 
     // finally update foreign keys that did not exist during initial inserts
@@ -283,9 +283,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           }
         }
         // submit sync job
+        syncCounterProParte = syncCounterProParte + usages.size();
         addFuture(sqlService.sync(datasetKey, usages, names), usageFutures);
         addFuture(solrService.sync(datasetKey, usages, names), otherFutures);
-        syncCounterProParte = syncCounterProParte + usages.size();
       }
     }
   }
@@ -389,6 +389,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (clbKeys.containsKey(nodeId)) {
       return clbKeys.get(nodeId);
     } else {
+      // missing key
       try (Transaction tx = dao.getNeo().beginTx()) {
         Node n = dao.getNeo().getNodeById(nodeId);
         LOG.error("Clb usage key missing for {}: {}", n, NeoProperties.getScientificName(n));
@@ -401,7 +402,15 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       } catch (Exception e) {
         // ignore
       }
-      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+      //TODO: remove this syncing, its for debugging ONLY
+      try {
+        sync(nodeId);
+        LOG.info("Resynced node {} with usageKey {}", nodeId, clbKeys.get(nodeId));
+      } catch (Exception e) {
+        LOG.error("Failed to re-sync node {}", nodeId, e);
+        throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+      }
+      return clbKeys.get(nodeId);
     }
   }
 
@@ -571,7 +580,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       Preconditions.checkArgument(usageKey < Constants.NUB_MAXIMUM_KEY, "New usage key {} for node {} is larger than allowed maximum {}", usageKey, nodeId, Constants.NUB_MAXIMUM_KEY);
     }
     // keep map of node ids to clb usage keys
-    clbKeys.put((int)nodeId, usageKey);
+    clbKeys.put( (int) nodeId, usageKey);
+    // keep reference to first synced record in the db to get the modified timestamp from the db later.
+    // this doesnt have to be exact so we do not need to worry about concurrent access much
     if (firstUsageKey < 0) {
       firstUsageKey = usageKey;
       LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
@@ -596,5 +607,18 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   public int getDelCounter() {
     return delCounter;
+  }
+
+
+  /**
+   * THis method is for debugging only - to be rmeoved!!!
+   * @param neoId
+   *
+   */
+  @Deprecated
+  private void sync(long neoId) throws ExecutionException, InterruptedException {
+    Future<?> f = sqlService.sync(datasetKey,this, Lists.<Integer>newArrayList((int)neoId));
+    LOG.debug("submit node {} for syncing", neoId);
+    f.get();
   }
 }

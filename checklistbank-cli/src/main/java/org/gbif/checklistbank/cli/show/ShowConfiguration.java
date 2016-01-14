@@ -22,7 +22,7 @@ public class ShowConfiguration {
   @ParametersDelegate
   @NotNull
   @Valid
-  public NeoConfiguration neo;
+  public NeoConfiguration neo = new NeoConfiguration();
 
   @Parameter(names = {"-k", "--key"}, required = false)
   @Nullable

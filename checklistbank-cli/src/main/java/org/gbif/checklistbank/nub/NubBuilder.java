@@ -103,7 +103,6 @@ public class NubBuilder implements Runnable {
   private final boolean closeDao;
   private final NubSourceList sources;
   private final NameParser parser;
-  private boolean assertionsPassed = true;
   private final boolean verifyBackbone;
   private NubSource currSrc;
   private ParentStack parents;
@@ -167,7 +166,11 @@ public class NubBuilder implements Runnable {
     try {
       addKingdoms();
       parents = new ParentStack(db.getKingdom(Kingdom.INCERTAE_SEDIS));
+
+      // main work importing all source checklists
       addDatasets();
+
+      // detect and group basionyms
       groupByBasionym();
 
       // flagging of suspicous usages
@@ -177,20 +180,25 @@ public class NubBuilder implements Runnable {
       flagSimilarNames();
       flagDoubtfulOriginalNames();
 
+      // create missign autonyms
       createAutonyms();
+
+      // basic neo tree checks, fail fast
+      validate(new NubTreeValidation(db));
+
+      // add extra data
       addPublicationDois();
       addExtensionData();
+
+      // match to old nub and assign (stable) usage keys for postgres
       assignUsageKeys();
-      if (verifyBackbone) {
-        verifyBackbone();
-      }
-      // only convert usages and build metrics if nub passed assertions
-      if (assertionsPassed) {
-        db.dao.convertNubUsages();
-        builtUsageMetrics();
-      } else {
-        LOG.warn("Assertions not passed, metrics not build and no usages converted!");
-      }
+
+      // final validation with often reported issues
+      validate(new NubAssertions(db));
+
+      // convert usages for the importer and build metrics
+      db.dao.convertNubUsages();
+      builtUsageMetrics();
       LOG.info("New backbone built successfully!");
 
     } catch (Exception e){
@@ -351,10 +359,16 @@ public class NubBuilder implements Runnable {
 
   }
 
-  private void verifyBackbone() {
-    try (Transaction tx = db.beginTx()) {
-      NubAssertions assertions = new NubAssertions(db);
-      this.assertionsPassed = assertions.verify();
+
+  private void validate(TreeValidation validator) throws AssertionError {
+    if (verifyBackbone) {
+      try (Transaction tx = db.beginTx()) {
+        boolean valid = validator.validate();
+        if (!valid) {
+          LOG.error("Backbone is not valid!");
+          throw new AssertionError("Backbone is not valid!");
+        }
+      }
     }
   }
 
@@ -1157,10 +1171,4 @@ public class NubBuilder implements Runnable {
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }
 
-  /**
-   * @return true if basic backbone assertions have passed sucessfully.
-   */
-  public boolean assertionsPassed() {
-    return assertionsPassed;
-  }
 }
