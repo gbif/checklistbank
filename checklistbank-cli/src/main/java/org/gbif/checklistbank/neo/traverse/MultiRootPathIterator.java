@@ -1,10 +1,10 @@
 package org.gbif.checklistbank.neo.traverse;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
@@ -21,10 +21,10 @@ public class MultiRootPathIterator extends MultiRooIterator<Path> {
     prefetch();
   }
 
-  public static Iterable<Path> create(final List<Node> roots, final TraversalDescription td) {
-    return new Iterable<Path>() {
+  public static ResourceIterable<Path> create(final List<Node> roots, final TraversalDescription td) {
+    return new ResourceIterable<Path>() {
       @Override
-      public Iterator<Path> iterator() {
+      public ResourceIterator<Path> iterator() {
         return new MultiRootPathIterator(roots, td);
       }
     };

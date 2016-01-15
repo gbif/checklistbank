@@ -76,6 +76,20 @@ public class AdminConfiguration {
   public boolean nubRanksOnly = false;
 
   /**
+   * If true sets the Backbone dataset key in the key config
+   */
+  @Valid
+  @Parameter(names = {"--nub"}, required = false)
+  public boolean nub = false;
+
+  /**
+   * If true sets the Catalog of Life dataset key in the key config
+   */
+  @Valid
+  @Parameter(names = {"--col"}, required = false)
+  public boolean col = false;
+
+  /**
    * Returns the directory with the decompressed archive folder created by the dwca downloader.
    */
   public File archiveDir(UUID datasetKey) {

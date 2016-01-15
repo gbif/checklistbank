@@ -153,9 +153,10 @@ public class NubBuilder implements Runnable {
   public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, int parserTimeout) {
     NubConfiguration cfg = new NubConfiguration();
     cfg.groupBasionyms = true;
-    cfg.validate = false;
+    cfg.validate = true;
+    cfg.runAssertions = false;
     cfg.autoImport = false;
-    cfg.neo.batchSize = 10000;
+    cfg.neo.batchSize = 5000;
     cfg.parserTimeout = parserTimeout;
     return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, false, cfg);
   }
@@ -187,7 +188,9 @@ public class NubBuilder implements Runnable {
       createAutonyms();
 
       // basic neo tree checks, fail fast
-      validate(new NubTreeValidation(db));
+      if (cfg.validate) {
+        validate(new NubTreeValidation(db));
+      }
 
       // add extra data
       addPublicationDois();
@@ -197,7 +200,9 @@ public class NubBuilder implements Runnable {
       assignUsageKeys();
 
       // final validation with often reported issues
-      validate(new NubAssertions(db));
+      if (cfg.runAssertions) {
+        validate(new NubAssertions(db));
+      }
 
       // convert usages for the importer and build metrics
       db.dao.convertNubUsages();
@@ -364,13 +369,13 @@ public class NubBuilder implements Runnable {
 
 
   private void validate(TreeValidation validator) throws AssertionError {
-    if (cfg.validate) {
-      try (Transaction tx = db.beginTx()) {
-        boolean valid = validator.validate();
-        if (!valid) {
-          LOG.error("Backbone is not valid!");
-          throw new AssertionError("Backbone is not valid!");
-        }
+    try (Transaction tx = db.beginTx()) {
+      boolean valid = validator.validate();
+      if (valid) {
+        LOG.info("{} passed", validator.getClass().getSimpleName());
+      } else {
+        LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
+        throw new AssertionError("Backbone is not valid!");
       }
     }
   }

@@ -12,6 +12,8 @@ import com.yammer.metrics.Meter;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +57,12 @@ public class TreeWalker {
   }
 
 
-  private static void walkTree(Iterable<Path> paths, @Nullable Meter meter, StartEndHandler ... handler) {
+  private static void walkTree(ResourceIterable<Path> paths, @Nullable Meter meter, StartEndHandler ... handler) {
     Path lastPath = null;
     long counter = 0;
-      for (Path p : paths) {
+    try (ResourceIterator<Path> iter = paths.iterator()){
+      while (iter.hasNext()) {
+        Path p = iter.next();
         //logPath(p);
         if (counter % reportingSize == 0) {
           LOG.debug("Processed {}. Rate = {}", counter, meter == null ? "unknown" : meter.getMeanRate());
@@ -98,6 +102,7 @@ public class TreeWalker {
           handleEnd(n, handler);
         }
       }
+    }
   }
 
   private static void handleStart(Node n, StartEndHandler ... handler) {

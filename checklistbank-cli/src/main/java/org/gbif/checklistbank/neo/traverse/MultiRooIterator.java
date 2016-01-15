@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Path iterator that traverses multiple start nodes in a given traversal description.
  */
-public abstract class MultiRooIterator<T> implements AutoCloseable, Iterator<T> {
+public abstract class MultiRooIterator<T> implements AutoCloseable, ResourceIterator<T> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MultiRooIterator.class);
 
@@ -64,7 +64,7 @@ public abstract class MultiRooIterator<T> implements AutoCloseable, Iterator<T> 
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     if (rootPaths != null) {
       rootPaths.close();
     }

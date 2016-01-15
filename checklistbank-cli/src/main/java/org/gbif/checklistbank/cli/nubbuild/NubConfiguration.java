@@ -57,10 +57,16 @@ public class NubConfiguration {
   public boolean autoImport = false;
 
   /**
-   * If true run validation routines at the end of the nub build.
+   * If true run validation routines at the end of the nub build, see NubTreeValidation.
    */
   @Valid
   public boolean validate = false;
+
+  /**
+   * If true run assertions for a complete production backbone, see NubAssertions.
+   */
+  @Valid
+  public boolean runAssertions = false;
 
   /**
    * If true some explicit debugging and logging is enabled, e.g. the neo4j mapped memory stats and number of open files and threads.

@@ -48,6 +48,7 @@ import org.mapdb.Serializer;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
@@ -779,7 +780,9 @@ public class UsageDao {
       int kvpCounter = 0;
       for (long id : nubUsages.keySet()) {
         kvpCounter++;
-        if (neo.getNodeById(id) == null) {
+        try {
+          neo.getNodeById(id);
+        } catch (NotFoundException e) {
           NubUsage u = nubUsages.get(id);
           LOG.warn("Missing neo4j node for usage {}", u);
         }

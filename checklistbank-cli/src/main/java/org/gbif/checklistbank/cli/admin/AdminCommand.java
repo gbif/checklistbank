@@ -98,6 +98,23 @@ public class AdminCommand extends BaseCommand {
     nodeService = inj.getInstance(NodeService.class);
   }
 
+  private void initCfg() {
+    if (cfg.col) {
+      if (cfg.key != null) {
+        LOG.warn("Explicit dataset key given, ignore col flag");
+      } else {
+        cfg.key = Constants.COL_DATASET_KEY;
+      }
+    }
+    if (cfg.nub) {
+      if (cfg.key != null) {
+        LOG.warn("Explicit dataset key given, ignore nub flag");
+      } else {
+        cfg.key = Constants.NUB_DATASET_KEY;
+      }
+    }
+  }
+
   private ZookeeperUtils zk() {
     if (zkUtils == null) {
       try {
@@ -118,11 +135,12 @@ public class AdminCommand extends BaseCommand {
 
   @Override
   protected void doRun() {
+    initCfg();
     try {
-      initRegistry();
       if (SINE_COMMANDS.contains(cfg.operation)) {
         runSineDatasets();
       } else {
+        initRegistry();
         runDatasetComamnds();
       }
     } catch (Exception e) {
@@ -141,6 +159,7 @@ public class AdminCommand extends BaseCommand {
         break;
 
       case SYNC_DATASETS:
+        initRegistry();
         syncDatasets();
         break;
 

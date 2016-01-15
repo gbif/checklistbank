@@ -15,7 +15,6 @@ import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -40,20 +39,6 @@ public class NubAssertions implements TreeValidation {
 
   public NubAssertions(NubDb db) {
     this.db = db;
-  }
-
-  private Result query(String cypher) {
-    return db.dao.getNeo().execute(cypher);
-  }
-
-  private void notExists(String errorMessage, String cypher) {
-    try (Transaction tx = db.beginTx()) {
-      Result res = query(cypher);
-      if (res.hasNext()) {
-        valid = false;
-        LOG.error(errorMessage);
-      }
-    }
   }
 
   @Override

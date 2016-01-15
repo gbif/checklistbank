@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.checklistbank.neo.traverse.TreeWalker;
+
 import java.util.Map;
 
 import org.neo4j.graphdb.Result;
@@ -36,12 +38,25 @@ public class NubTreeValidation implements TreeValidation {
     }
   }
 
+  private void assertCount(String errorMessage, String cypher, long expected) {
+    try (Transaction tx = db.beginTx()) {
+      Result res = query(cypher);
+      Map<String, Object> row = res.next();
+      long count = (long) row.values().iterator().next();
+      if (expected != count) {
+        valid = false;
+        LOG.error(errorMessage, count);
+      }
+    }
+  }
+
   @Override
   public boolean validate() {
     // no self loops whatsoever
     notExists("Self loops in {}", "MATCH (n:TAXON) WHERE (n)--(n) RETURN n LIMIT 1");
 
     // just kingdom roots
+    assertCount("Too many roots {}", "MATCH (n:ROOT) RETURN count(n)", 9);
 
     // no basionym exists without an accepted or parent node
     notExists("Orphaned basionym found {}", "MATCH (b:TAXON) WHERE (b)<-[:BASIONYM_OF]-() and not (b)-[:SYNONYM_OF]->() and not (b)<-[:PARENT_OF]-() RETURN b LIMIT 1");
@@ -52,7 +67,16 @@ public class NubTreeValidation implements TreeValidation {
     // no basionyms without basionym relation
     notExists("Basionym without basionym relation {}", "MATCH (b:BASIONYM) WHERE not (b)<-[:BASIONYM_OF]-() RETURN b LIMIT 1");
 
-    // TODO: accepted tree has ranks in proper order
+    // verify accepted tree has ranks in proper order
+    try {
+      TreeRankValidation rankVal = new TreeRankValidation();
+      TreeWalker.walkAcceptedTree(db.dao.getNeo(), rankVal);
+      if (!rankVal.isValid()) {
+        valid = false;
+      }
+    } catch (AssertionError e) {
+      valid = false;
+    }
 
     return valid;
   }
