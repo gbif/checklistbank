@@ -42,20 +42,20 @@
 
     <!-- dependency versions -->
     <dwc-api.version>1.13</dwc-api.version>
-    <gbif-api.version>0.32-SNAPSHOT</gbif-api.version>
+    <gbif-api.version>0.33</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
-    <gbif-common.version>0.22-SNAPSHOT</gbif-common.version>
-    <gbif-common-mybatis.version>0.23-SNAPSHOT</gbif-common-mybatis.version>
+    <gbif-common.version>0.22</gbif-common.version>
+    <gbif-common-mybatis.version>0.23</gbif-common-mybatis.version>
     <gbif-common-search.version>0.26</gbif-common-search.version>
     <gbif-common-service.version>0.14</gbif-common-service.version>
     <gbif-common-ws.version>0.26</gbif-common-ws.version>
     <gbif-httputils.version>0.8</gbif-httputils.version>
     <gbif-microservice.version>0.4</gbif-microservice.version>
-    <gbif-postal-service.version>0.18-SNAPSHOT</gbif-postal-service.version>
+    <gbif-postal-service.version>0.18</gbif-postal-service.version>
     <registry-client.version>2.42</registry-client.version>
-    <name-parser.version>2.11-SNAPSHOT</name-parser.version>
+    <name-parser.version>2.12</name-parser.version>
     <gbif-parser.version>0.17</gbif-parser.version>
-    <dwca-io.version>1.25-SNAPSHOT</dwca-io.version>
+    <dwca-io.version>1.25</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
