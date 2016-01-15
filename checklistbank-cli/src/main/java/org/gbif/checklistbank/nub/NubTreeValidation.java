@@ -58,14 +58,14 @@ public class NubTreeValidation implements TreeValidation {
     // just kingdom roots
     assertCount("Too many roots {}", "MATCH (n:ROOT) RETURN count(n)", 9);
 
+    // no basionyms without basionym relation
+    notExists("Basionym without basionym relation {}", "MATCH (b:BASIONYM) WHERE not (b)-[:BASIONYM_OF]->() RETURN b LIMIT 1");
+
     // no basionym exists without an accepted or parent node
-    notExists("Orphaned basionym found {}", "MATCH (b:TAXON) WHERE (b)<-[:BASIONYM_OF]-() and not (b)-[:SYNONYM_OF]->() and not (b)<-[:PARENT_OF]-() RETURN b LIMIT 1");
+    notExists("Orphaned basionym found {}", "MATCH (b:BASIONYM) WHERE not (b)-[:SYNONYM_OF]->() and not (b)<-[:PARENT_OF]-() RETURN b LIMIT 1");
 
     // no synonyms without synonym relation
     notExists("Synonym without synonym relation {}", "MATCH (s:SYNONYM) WHERE not (s)-[:SYNONYM_OF]->() RETURN s LIMIT 1");
-
-    // no basionyms without basionym relation
-    notExists("Basionym without basionym relation {}", "MATCH (b:BASIONYM) WHERE not (b)<-[:BASIONYM_OF]-() RETURN b LIMIT 1");
 
     // verify accepted tree has ranks in proper order
     try {
