@@ -25,6 +25,7 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
+import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
@@ -50,6 +51,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
 import org.apache.commons.lang3.ObjectUtils;
@@ -116,6 +118,21 @@ public class Normalizer extends ImportDb implements Runnable {
         cfg.archiveDir(datasetKey),
         cfg.neo.batchSize,
         registry, constituents, lookup);
+  }
+
+  /**
+   * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher.
+   */
+  public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey) {
+    MetricRegistry registry = new MetricRegistry("normalizer");
+    return Normalizer.create(cfg, registry, datasetKey);
+  }
+
+  /**
+   * Creates a dataset specific normalizer with a pass thru nub matcher.
+   */
+  public static Normalizer create(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
+    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
   }
 
   /**

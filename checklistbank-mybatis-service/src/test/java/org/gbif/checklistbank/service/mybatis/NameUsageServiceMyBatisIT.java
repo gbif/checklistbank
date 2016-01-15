@@ -155,7 +155,6 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     public void testArraySet() {
         // test nomenclatoral status set
         NameUsage syn = service.get(100000026, Locale.FRENCH);
-        //TODO: get the array mapper working
         assertEquals(2, syn.getNomenclaturalStatus().size());
     }
 

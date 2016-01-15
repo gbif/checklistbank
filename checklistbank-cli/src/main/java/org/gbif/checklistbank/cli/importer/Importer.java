@@ -400,17 +400,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           LOG.warn("Nub usage for missing key {} not found", nodeId);
         }
       } catch (Exception e) {
-        // ignore
+        // ignore, we throw anyways
       }
-      //TODO: remove this syncing, its for debugging ONLY
-      try {
-        sync(nodeId);
-        LOG.info("Resynced node {} with usageKey {}", nodeId, clbKeys.get(nodeId));
-      } catch (Exception e) {
-        LOG.error("Failed to re-sync node {}", nodeId, e);
-        throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
-      }
-      return clbKeys.get(nodeId);
+      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
     }
   }
 

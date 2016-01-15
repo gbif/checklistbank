@@ -2,14 +2,16 @@ package org.gbif.checklistbank.nub.source;
 
 import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.FutureIterator;
+import org.gbif.checklistbank.utils.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -20,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NubSourceList implements CloseableIterable<NubSource> {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
-  protected final Executor exec;
+  protected final ExecutorService exec;
   protected List<Future<NubSource>> futures = Lists.newArrayList();
 
   public NubSourceList() {
@@ -53,6 +55,6 @@ public class NubSourceList implements CloseableIterable<NubSource> {
 
   @Override
   public void close() {
-    //exec.shutdownNow();
+    ExecutorUtils.stop(exec, "nub source loader", 10, TimeUnit.SECONDS);
   }
 }

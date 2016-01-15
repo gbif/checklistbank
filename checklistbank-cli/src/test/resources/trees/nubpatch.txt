@@ -1,0 +1,51 @@
+Animalia
+  Amastridae
+    Amastra
+      Amastra affinis (Newcomb, 1854)
+        *Achatinella goniostoma
+        *Achatinella pupoidea
+        *Amastra abberans
+        *Amastra bigener
+        *Amastra cinderella
+        *Amastra goniostoma
+        *Amastra pupoidea
+        *Amastra rustica
+        *Amastra subpulla
+        *Amastra affinis subsp. subpulla
+        *Amastra affinis var. bigener
+        *Amastra affinis var. cinderella
+        *Amastra bigener var. abberans
+  Hydraenidae
+    Hydraena
+      Hydraena truncata Rey, 1885
+  Pyramidellidae
+    Belonidium Cossmann, 1892
+      *Anisocycla Cossmann, 1888
+  Vespidae
+    Hypodynerus
+      Hypodynerus anae Barerra, 2011
+    Vespula
+      Vespula alascensis (Packard, 1870)
+  Dacnusa Haliday, 1833
+    *Radiolaria Provancher, 1886
+  Monticola
+    Monticola erythronotus
+      *Monticola erythronota
+Archaea
+Bacteria
+Chromista
+Fungi
+  Helotiaceae
+    Hymenoscyphus
+      Hymenoscyphus pseudoalbidus V. Queloz, C.R. Grünig, R. Berndt, T. Kowalski, T.N. Sieber & O. Holdenrieder
+  Acantharia
+  Coccoidea
+Plantae
+  Ulvaceae
+    Lobata
+  Stigmaria
+    Stigmaria ficoides
+      *Stigmaria fucoides
+Protozoa
+Viruses
+incertae sedis

@@ -19,6 +19,9 @@ import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
+import org.gbif.checklistbank.nub.source.DwcaSource;
+import org.gbif.checklistbank.nub.source.DwcaSourceTest;
+import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
 
@@ -200,6 +203,21 @@ public class NubBuilderIT {
 
     u = getUsage(getCanonical("Cellophania markusa", Rank.SPECIES).node);
     assertNull(u.getBasionym());
+  }
+
+  /**
+   * Verifies that the backbone patch file in github is in good shape!
+   * https://github.com/gbif/backbone-patch
+   */
+  @Test
+  public void testBackbonePatch() throws Exception {
+    List<NubSource> sources = Lists.newArrayList();
+    sources.add(new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA));
+    NubSourceList src = new NubSourceList(sources);
+    build(src);
+
+    // commented out as the patch file changes all the time
+    //assertTree("nubpatch.txt");
   }
 
   /**

@@ -5,7 +5,6 @@ import org.gbif.checklistbank.cli.importer.Importer;
 import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
-import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -104,7 +103,7 @@ public class MultiThreadingCliTest {
       File dwca = cfgN.archiveDir(dk);
       CompressionUtil.decompressFile(dwca, this.zip);
 
-      Normalizer normalizer = NormalizerTest.buildNormalizer(cfgN, registry, dk);
+      Normalizer normalizer = Normalizer.create(cfgN, registry, dk);
       System.out.println("Submit normalizer " + i);
       futures.add(ecs.submit(Executors.callable(normalizer)));
     }
@@ -158,7 +157,7 @@ public class MultiThreadingCliTest {
       // copy dwca
       File dwca = cfgN.archiveDir(dk);
       CompressionUtil.decompressFile(dwca, this.zip);
-      normalizers.add(NormalizerTest.buildNormalizer(cfgN, registry, dk));
+      normalizers.add(Normalizer.create(cfgN, registry, dk));
     }
 
     log.println("Submitted tasks ...");

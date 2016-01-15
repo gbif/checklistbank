@@ -7,7 +7,6 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
-import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
@@ -89,7 +88,7 @@ public abstract class BaseTest {
   }
 
   public NormalizerStats insertNeo(UUID datasetKey) {
-    Normalizer norm = NormalizerTest.buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
 

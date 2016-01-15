@@ -13,7 +13,6 @@ import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 
 import java.net.URI;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.UUID;
 
 import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
-import com.yammer.metrics.MetricRegistry;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -46,18 +44,6 @@ import static org.junit.Assert.fail;
 public class NormalizerTest extends BaseTest {
 
   private static final String INCERTAE_SEDIS = "Incertae sedis";
-
-  /**
-   * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher for tests.
-   */
-  public static Normalizer buildNormalizer(NormalizerConfiguration cfg, UUID datasetKey) {
-    MetricRegistry registry = new MetricRegistry("normalizer");
-    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
-  }
-
-  public static Normalizer buildNormalizer(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
-    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
-  }
 
   @Test
   public void testgetLowestExistingRank() throws Exception {
@@ -87,7 +73,7 @@ public class NormalizerTest extends BaseTest {
   public void testNeoIndices() throws Exception {
     final UUID datasetKey = datasetKey(1);
 
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
 
     openDb(datasetKey);
@@ -119,7 +105,7 @@ public class NormalizerTest extends BaseTest {
   public void testIdList() throws Exception {
     final UUID datasetKey = datasetKey(1);
 
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -893,7 +879,7 @@ public class NormalizerTest extends BaseTest {
   public void testVerbatimAccepted() throws Exception {
     final UUID datasetKey = datasetKey(14);
 
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -956,7 +942,7 @@ public class NormalizerTest extends BaseTest {
   public void testExtensions() throws Exception {
     final UUID datasetKey = datasetKey(15);
 
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -1012,7 +998,7 @@ public class NormalizerTest extends BaseTest {
   public void testFloraBrazilIncertaeSedis() throws Exception {
     final UUID datasetKey = datasetKey(18);
     cfg.neo.batchSize = 5;
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -1075,7 +1061,7 @@ public class NormalizerTest extends BaseTest {
   public void testWormsSubgenus() throws Exception {
     final UUID datasetKey = datasetKey(21);
 
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -1110,7 +1096,7 @@ public class NormalizerTest extends BaseTest {
 
   private NormalizerStats normalize(Integer dKey) throws NormalizationFailedException {
     UUID datasetKey = datasetKey(dKey);
-    Normalizer norm = buildNormalizer(cfg, datasetKey);
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
 

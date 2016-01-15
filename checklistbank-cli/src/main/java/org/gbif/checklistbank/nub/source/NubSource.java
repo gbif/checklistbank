@@ -241,7 +241,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     }
 
     // TODO: implement {NOM, NOM} parsing
-    private NomenclaturalStatus[] toNomStatus(String x) {
+    protected NomenclaturalStatus[] toNomStatus(String x) {
       return null;
     }
 

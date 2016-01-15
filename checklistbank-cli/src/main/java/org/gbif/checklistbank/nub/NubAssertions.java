@@ -63,10 +63,6 @@ public class NubAssertions implements TreeValidation {
 
     // TODO: num accepted families, genera
 
-    // TODO: Oenanthes
-
-    // TODO: Vertebrata
-
     // TODO: Jungermanniopsida
 
     oldEcatVerifications();
