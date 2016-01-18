@@ -18,6 +18,7 @@ public interface DatasetImportService extends AutoCloseable {
 
   /**
    * @param usageNeoIds neo4j node ids as ints
+   * @return list of clb usage keys that were synced
    */
   Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds);
 
@@ -25,10 +26,13 @@ public interface DatasetImportService extends AutoCloseable {
    * @param datasetKey
    * @param usages list of usages
    * @param names list of names, same order and length as usages
-   * @return
+   * @return list of clb usages that were synced
    */
-  Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
+  Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
 
+  /**
+   * @return list of clb usage keys that were updated
+   */
   Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks);
 
   /**
@@ -51,6 +55,7 @@ public interface DatasetImportService extends AutoCloseable {
 
   /**
    * @param usageKeys clb usage keys
+   * @return same list of clb usage keys as input
    */
   Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys);
 

@@ -81,8 +81,8 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     exec = Executors.newFixedThreadPool(syncThreads, new NamedThreadFactory(NAME));
   }
 
-  private Future<List<Integer>> addTask(Callable<List<Integer>> task) {
-    Future<List<Integer>> f = exec.submit(task);
+  private <T> Future<T> addTask(Callable<T> task) {
+    Future<T> f = exec.submit(task);
     tasks.add(f);
     return f;
   }
@@ -131,8 +131,11 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     return addTask(new SolrUpdateCallback(dao, usageNeoIds));
   }
 
+  /**
+   * @param names list of names being ignored. Can be null!
+   */
   @Override
-  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, @Nullable List<ParsedName> names) {
     return addTask(new SolrUpdateProParte(usages));
   }
 
@@ -177,7 +180,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
 
-  class SolrUpdateProParte implements Callable<List<Integer>> {
+  class SolrUpdateProParte implements Callable<List<NameUsage>> {
     private final List<NameUsage> usages;
 
     public SolrUpdateProParte(List<NameUsage> usages) {
@@ -185,8 +188,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
 
     @Override
-    public List<Integer> call() throws Exception {
-      List<Integer> ids = Lists.newArrayList();
+    public List<NameUsage> call() throws Exception {
       for (NameUsage u : usages) {
         // the pro parte usage itself might not yet be synced...
         // so we get list of parent ids from parent which must exist in postgres already!
@@ -199,9 +201,8 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
           parents.addAll(usageService.listParents(u.getParentKey()));
         }
         insertOrUpdate(u, parents, null);
-        ids.add(u.getKey());
       }
-      return ids;
+      return usages;
     }
   }
 

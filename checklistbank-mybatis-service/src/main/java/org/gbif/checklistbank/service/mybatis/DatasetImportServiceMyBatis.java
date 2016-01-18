@@ -56,8 +56,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     exec = Executors.newFixedThreadPool(threads, new NamedThreadFactory(NAME));
   }
 
-  private Future<List<Integer>> addTask(Callable<List<Integer>> task) {
-    Future<List<Integer>> f = exec.submit(task);
+  private <T> Future<T> addTask(Callable<T> task) {
+    Future<T> f = exec.submit(task);
     tasks.add(f);
     return f;
   }
@@ -70,6 +70,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     private LongSet inserts;
     private int firstId = -1;
 
+    /**
+     * @param dao callback to importer neo4j dao to resolve neo4j ids
+     * @param datasetKey
+     * @param usages list of neo4j node ids to sync from callback
+     */
     public UsageSync(ImporterCallback dao, UUID datasetKey, Iterable<Integer> usages) {
       this.dao = dao;
       this.datasetKey = datasetKey;
@@ -82,12 +87,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       LOG.debug("Starting usage sync from dataset {}.", datasetKey);
       usageKeys = Maps.newHashMap();
       inserts = new LongHashSet();
-      for (List<Integer> batch : Iterables.partition(usages, BATCH_SIZE)) {
+      List<Integer> neoKeys = Lists.newArrayList();
+      for (List<Integer> neoBatch : Iterables.partition(usages, BATCH_SIZE)) {
         if (firstId < 0) {
-          firstId = batch.get(0);
+          firstId = neoBatch.get(0);
         }
-        write(batch);
-        counter = counter + batch.size();
+        neoKeys.addAll(neoBatch);
+        write(neoBatch);
+        counter = counter + neoBatch.size();
       }
       LOG.info("Completed batch of {} usages for dataset {}, starting with id {}.", counter, datasetKey, firstId);
 
@@ -95,15 +102,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       ExtensionSync eSync = new ExtensionSync(dao, datasetKey, firstId, usageKeys, inserts);
       dao.reportNewFuture(addTask(eSync));
 
-      return Lists.newArrayList(usageKeys.keySet());
+      return neoKeys;
     }
 
     @Transactional(
         exceptionMessage = "usage sync job failed",
         executorType = ExecutorType.REUSE
     )
-    private void write(List<Integer> batch) throws Exception {
-      for (Integer id : batch) {
+    private void write(List<Integer> neoNodeIdbatch) throws Exception {
+      for (Integer id : neoNodeIdbatch) {
         NameUsage u = dao.readUsage(id);
         ParsedName pn = dao.readName(id);
         NameUsageMetrics m = dao.readMetrics(id);
@@ -122,7 +129,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
   }
 
-  class ProParteSync implements Callable<List<Integer>> {
+  class ProParteSync implements Callable<List<NameUsage>> {
     final UUID datasetKey;
     final List<NameUsage> usages;
     final List<ParsedName> names;
@@ -139,9 +146,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         exceptionMessage = "usage sync job failed",
         executorType = ExecutorType.REUSE
     )
-    public List<Integer> call() throws Exception {
+    public List<NameUsage> call() throws Exception {
       LOG.debug("Starting usage sync with {} usages from dataset {}.", usages.size(), datasetKey);
-      List<Integer> ids = Lists.newArrayList();
       Iterator<ParsedName> nIter = names.iterator();
       for (NameUsage u : usages) {
         // pro parte usages are synonyms and do not have any descendants, synonyms, etc
@@ -151,10 +157,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         m.setNumDescendants(0);
 
         syncService.syncUsage(true, u, pn, m);
-        ids.add(u.getKey());
       }
       LOG.debug("Completed batch of {} pro parte usages for dataset {}.", usages.size(), datasetKey);
-      return ids;
+      return usages;
     }
   }
 
@@ -272,7 +277,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   @Override
-  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     return addTask(new ProParteSync(datasetKey, usages, names));
   }
 

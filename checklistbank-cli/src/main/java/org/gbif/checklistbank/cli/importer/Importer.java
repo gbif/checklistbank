@@ -85,8 +85,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
+  private Future<List<NameUsage>> proParteFuture;
   private Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<Future<List<Integer>>>();
-  private Queue<Future<List<Integer>>> otherFutures = new ConcurrentLinkedQueue<Future<List<Integer>>>();
+  private Queue<Future<?>> otherFutures = new ConcurrentLinkedQueue<Future<?>>();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 
@@ -124,6 +125,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       syncDataset();
       LOG.info("Waiting for threads to finish {} sql and {} solr jobs", usageFutures.size(), otherFutures.size());
       awaitUsageFutures();
+      awaitProParteFuture();
+      // wait for extensions and solr jobs to finish
       awaitOtherFutures();
       LOG.info("Importing of {} succeeded. {} main, {} subtree chunk and {} pro parte usages synced", datasetKey, syncCounterMain, syncCounterBatches, syncCounterProParte);
 
@@ -282,7 +285,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         }
         // submit sync job
         syncCounterProParte = syncCounterProParte + usages.size();
-        usageFutures.add(sqlService.sync(datasetKey, usages, names));
+        proParteFuture = sqlService.sync(datasetKey, usages, names);
       }
     }
   }
@@ -343,7 +346,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    usageFutures.add(sqlService.deleteUsages(datasetKey, ids));
+    otherFutures.add(sqlService.deleteUsages(datasetKey, ids));
     otherFutures.add(solrService.deleteUsages(datasetKey, ids));
     delCounter = ids.size();
   }
@@ -358,6 +361,13 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     otherFutures.clear();
   }
 
+  private void awaitProParteFuture() throws ExecutionException, InterruptedException {
+    if (proParteFuture != null) {
+      // wait for pro parte pg sync.
+      // solr doesnt need the parsed names
+      otherFutures.add(solrService.sync(datasetKey, proParteFuture.get(), null));
+    }
+  }
   /**
    *
    * Waits for all core usages jobs to finish and submits solr updates for all of them once completed.

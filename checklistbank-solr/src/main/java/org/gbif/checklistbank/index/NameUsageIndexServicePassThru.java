@@ -6,7 +6,6 @@ import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -25,24 +24,23 @@ public class NameUsageIndexServicePassThru implements DatasetImportService {
   @Override
   public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds) {
     for (int id : usageNeoIds) {
-      checkUsage(dao.readUsage(id), dao.readName(id));
+      checkUsage(dao.readUsage(id));
+      Preconditions.checkNotNull(dao.readName(id), "Missing parsed name for " + id);
     }
     return Futures.immediateFuture(empty);
   }
 
-  private void checkUsage(NameUsage u, ParsedName pn) {
+  private void checkUsage(NameUsage u) {
     Preconditions.checkNotNull(u.getKey(), "Missing usage key for " + u.getScientificName());
     Preconditions.checkNotNull(u.getScientificName(), "Missing name for " + u.getKey());
-    Preconditions.checkNotNull(pn, "Missing parsed name for " + u.getKey());
   }
 
   @Override
-  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
-    Iterator<ParsedName> iter = names.iterator();
+  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     for (NameUsage u : usages) {
-      checkUsage(u, iter.next());
+      checkUsage(u);
     }
-    return Futures.immediateFuture(empty);
+    return Futures.immediateFuture(usages);
   }
 
   @Override
