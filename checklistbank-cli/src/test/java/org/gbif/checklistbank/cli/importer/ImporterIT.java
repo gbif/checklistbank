@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
@@ -12,6 +13,10 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.nub.NubBuilder;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
+import org.gbif.checklistbank.nub.lookup.LookupUsage;
+import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
@@ -27,6 +32,7 @@ import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.google.inject.Guice;
@@ -290,6 +296,25 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
     // verify
     verify16(datasetKey);
+  }
+
+
+  /**
+   * Builds a small new nub and imports it, making sure the nub specific data gets through fine
+   */
+  @Test
+  public void testNubImport() throws Exception {
+    // build nub
+    ClasspathSourceList src = ClasspathSourceList.source(3, 2);
+    src.setSourceRank(3, Rank.KINGDOM);
+    openDb(Constants.NUB_DATASET_KEY);
+    NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
+    nb.run();
+    dao.close();
+
+    // import
+    Importer imp = runImport(Constants.NUB_DATASET_KEY);
+    assertEquals(55, imp.getSyncCounter());
   }
 
 
