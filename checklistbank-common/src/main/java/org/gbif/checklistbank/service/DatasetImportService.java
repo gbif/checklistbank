@@ -16,7 +16,7 @@ import java.util.concurrent.Future;
  */
 public interface DatasetImportService extends AutoCloseable {
 
-  Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages);
+  Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages);
 
   /**
    * @param datasetKey
@@ -24,9 +24,9 @@ public interface DatasetImportService extends AutoCloseable {
    * @param names list of names, same order and length as usages
    * @return
    */
-  Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
+  Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
 
-  Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks);
+  Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks);
 
   /**
    * Delete all existing nub relations and then batch insert new ones from the passed map.
@@ -46,7 +46,7 @@ public interface DatasetImportService extends AutoCloseable {
    */
   int deleteDataset(UUID datasetKey);
 
-  Future<Boolean> deleteUsages(UUID datasetKey, List<Integer> usageKeys);
+  Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys);
 
   /**
    * @return true if there is still a running import task

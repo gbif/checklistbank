@@ -30,7 +30,7 @@ import org.gbif.checklistbank.service.UsageService;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
@@ -85,8 +85,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private Set<Long> proParteNodes = Sets.newHashSet();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
-  private Queue<Future<Boolean>> usageFutures = new ConcurrentLinkedQueue<Future<Boolean>>();
-  private Queue<Future<Boolean>> otherFutures = new ConcurrentLinkedQueue<Future<Boolean>>();
+  private Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<Future<List<Integer>>>();
+  private Queue<Future<List<Integer>>> otherFutures = new ConcurrentLinkedQueue<Future<List<Integer>>>();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 
@@ -123,8 +123,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     try {
       syncDataset();
       LOG.info("Waiting for threads to finish {} sql and {} solr jobs", usageFutures.size(), otherFutures.size());
-      awaitFutures(usageFutures);
-      awaitFutures(otherFutures);
+      awaitUsageFutures();
+      awaitOtherFutures();
       LOG.info("Importing of {} succeeded. {} main, {} subtree chunk and {} pro parte usages synced", datasetKey, syncCounterMain, syncCounterBatches, syncCounterProParte);
 
     } catch (InterruptedException e) {
@@ -174,11 +174,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
           LOG.debug("chunk node {} found", n.getId());
-          Future<Boolean> f = null;
+          Future<List<Integer>> f = null;
           if (!batch.isEmpty()) {
-            f = sqlService.sync(datasetKey,this, batch);
             LOG.debug("submit {} main nodes for concurrent syncing starting with node {}", batch.size(), batch.get(0));
-            addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+            f = sqlService.sync(datasetKey,this, batch);
           }
           // while main nodes sync we can read in the new subtree already
           batch = subtreeBatch(n);
@@ -187,14 +186,15 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           // wait for main future to finish...
           if (f != null) {
             f.get();
-            LOG.debug("main nodes synced");
+            LOG.debug("main nodes synced. Submit solr update");
+            otherFutures.add(solrService.sync(datasetKey,this, batch));
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
           LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
-          addFuture(sqlService.sync(datasetKey,this, batch), usageFutures);
-          addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+          usageFutures.add(sqlService.sync(datasetKey,this, batch));
           // reset main batch for new usages
           batch = Lists.newArrayList();
+          clearFinishedUsageTasks();
 
         } else {
           // add to main batch
@@ -207,14 +207,13 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       }
       if (!batch.isEmpty()) {
         LOG.debug("submit final {} main nodes for concurrent syncing", batch.size());
-        addFuture(sqlService.sync(datasetKey,this, batch), usageFutures);
-        addFuture(solrService.sync(datasetKey,this, batch), otherFutures);
+        usageFutures.add(sqlService.sync(datasetKey,this, batch));
       }
     }
 
     // wait for main sql usage imports to be done so we dont break foreign key constraints
     LOG.info("Wait for usage import tasks to finish.");
-    awaitFutures(usageFutures);
+    awaitUsageFutures();
     LOG.info("Core usage import completed. {} chunk jobs synced with {} main usages and {} subtree batch usages usages.", chunks, syncCounterMain, syncCounterBatches);
     if (clbKeys.size() != syncCounterMain + syncCounterBatches) {
       LOG.warn("{} clb usage keys known for {} neo nodes ({} main, {} chunk). Expecting \"NodeId not in CLB exceptions\" ...", clbKeys.size(), syncCounterMain+syncCounterBatches, syncCounterMain, syncCounterBatches);
@@ -284,8 +283,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         }
         // submit sync job
         syncCounterProParte = syncCounterProParte + usages.size();
-        addFuture(sqlService.sync(datasetKey, usages, names), usageFutures);
-        addFuture(solrService.sync(datasetKey, usages, names), otherFutures);
+        usageFutures.add(sqlService.sync(datasetKey, usages, names));
       }
     }
   }
@@ -346,19 +344,43 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    addFuture(sqlService.deleteUsages(datasetKey, ids), usageFutures);
-    addFuture(solrService.deleteUsages(datasetKey, ids), otherFutures);
+    usageFutures.add(sqlService.deleteUsages(datasetKey, ids));
+    otherFutures.add(solrService.deleteUsages(datasetKey, ids));
     delCounter = ids.size();
   }
 
   /**
    * Blocks until all currently listed futures are completed.
    */
-  private void awaitFutures(Collection<Future<Boolean>> futures) throws ExecutionException, InterruptedException {
-    for (Future<Boolean> f : futures) {
+  private void awaitOtherFutures() throws ExecutionException, InterruptedException {
+    for (Future<?> f : otherFutures) {
       f.get();
     }
-    futures.clear();
+    otherFutures.clear();
+  }
+
+  /**
+   *
+   * Waits for all core usages jobs to finish and submits solr updates for all of them once completed.
+   */
+  private void awaitUsageFutures() throws ExecutionException, InterruptedException {
+    for (Future<List<Integer>> f : usageFutures) {
+      List<Integer> ids = f.get();
+      otherFutures.add(solrService.sync(datasetKey, this, ids));
+    }
+    usageFutures.clear();
+  }
+
+  private void clearFinishedUsageTasks() throws ExecutionException, InterruptedException {
+    Iterator<Future<List<Integer>>> iter = usageFutures.iterator();
+    while (iter.hasNext()) {
+      Future<List<Integer>> f = iter.next();
+      if (f.isDone()) {
+        List<Integer> ids = f.get();
+        otherFutures.add(solrService.sync(datasetKey, this, ids));
+        iter.remove();
+      }
+    }
   }
 
   /**
@@ -582,15 +604,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   @Override
-  public void reportNewFuture(Future<Boolean> future) {
-    addFuture(future, otherFutures);
-  }
-
-  private static Future<Boolean> addFuture(Future<Boolean> future, Queue<Future<Boolean>> queue) {
-    if (future != null) {
-      queue.add(future);
-    }
-    return future;
+  public void reportNewFuture(Future<List<Integer>> future) {
+    otherFutures.add(future);
   }
 
   public int getSyncCounter() {
@@ -601,16 +616,4 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     return delCounter;
   }
 
-
-  /**
-   * THis method is for debugging only - to be rmeoved!!!
-   * @param neoId
-   *
-   */
-  @Deprecated
-  private void sync(long neoId) throws ExecutionException, InterruptedException {
-    Future<?> f = sqlService.sync(datasetKey,this, Lists.<Integer>newArrayList((int)neoId));
-    LOG.debug("submit node {} for syncing", neoId);
-    f.get();
-  }
 }

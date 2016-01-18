@@ -34,5 +34,5 @@ public interface ImporterCallback {
 
   void reportUsageKey(long id, int usageKey);
 
-  void reportNewFuture(Future<Boolean> future);
+  void reportNewFuture(Future<List<Integer>> future);
 }

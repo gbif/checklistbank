@@ -11,26 +11,28 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 
 /**
  * Implementation that does nothing. Only useful for testing other parts of the system.
  */
 public class NameUsageIndexServicePassThru implements DatasetImportService {
+  private final List<Integer> empty = ImmutableList.<Integer>builder().build();
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
-    return Futures.immediateFuture(true);
+  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
+    return Futures.immediateFuture(empty);
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
-    return Futures.immediateFuture(true);
+  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+    return Futures.immediateFuture(empty);
   }
 
   @Override
-  public Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks) {
-    return Futures.immediateFuture(true);
+  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
+    return Futures.immediateFuture(empty);
   }
 
   @Override
@@ -44,8 +46,8 @@ public class NameUsageIndexServicePassThru implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
-    return Futures.immediateFuture(true);
+  public Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
+    return Futures.immediateFuture(usageKeys);
   }
 
   @Override

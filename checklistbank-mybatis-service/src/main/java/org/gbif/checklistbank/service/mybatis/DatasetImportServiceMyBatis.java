@@ -56,13 +56,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     exec = Executors.newFixedThreadPool(threads, new NamedThreadFactory(NAME));
   }
 
-  private Future<Boolean> addTask(Callable<Boolean> task) {
-    Future<Boolean> f = exec.submit(task);
+  private Future<List<Integer>> addTask(Callable<List<Integer>> task) {
+    Future<List<Integer>> f = exec.submit(task);
     tasks.add(f);
     return f;
   }
 
-  class UsageSync implements Callable<Boolean> {
+  class UsageSync implements Callable<List<Integer>> {
     final UUID datasetKey;
     final Iterable<Integer> usages;
     final ImporterCallback dao;
@@ -77,7 +77,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       int counter = 0;
       LOG.debug("Starting usage sync from dataset {}.", datasetKey);
       usageKeys = Maps.newHashMap();
@@ -95,7 +95,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       ExtensionSync eSync = new ExtensionSync(dao, datasetKey, firstId, usageKeys, inserts);
       dao.reportNewFuture(addTask(eSync));
 
-      return true;
+      return Lists.newArrayList(usageKeys.keySet());
     }
 
     @Transactional(
@@ -122,7 +122,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
   }
 
-  class ProParteSync implements Callable<Boolean> {
+  class ProParteSync implements Callable<List<Integer>> {
     final UUID datasetKey;
     final List<NameUsage> usages;
     final List<ParsedName> names;
@@ -139,8 +139,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         exceptionMessage = "usage sync job failed",
         executorType = ExecutorType.REUSE
     )
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       LOG.debug("Starting usage sync with {} usages from dataset {}.", usages.size(), datasetKey);
+      List<Integer> ids = Lists.newArrayList();
       Iterator<ParsedName> nIter = names.iterator();
       for (NameUsage u : usages) {
         // pro parte usages are synonyms and do not have any descendants, synonyms, etc
@@ -150,13 +151,14 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         m.setNumDescendants(0);
 
         syncService.syncUsage(true, u, pn, m);
+        ids.add(u.getKey());
       }
       LOG.debug("Completed batch of {} pro parte usages for dataset {}.", usages.size(), datasetKey);
-      return true;
+      return ids;
     }
   }
 
-  class ExtensionSync implements Callable<Boolean> {
+  class ExtensionSync implements Callable<List<Integer>> {
     final UUID datasetKey;
     final Map<Integer, Integer> usages;
     final LongSet inserts;
@@ -172,13 +174,15 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       LOG.debug("Starting extension sync for {} usages from dataset {}.", usages.size(), datasetKey);
+      List<Integer> ids = Lists.newArrayList();
       for (List<Integer> batch : Iterables.partition(usages.keySet(), BATCH_SIZE)) {
         write(batch);
+        ids.addAll(batch);
       }
       LOG.info("Completed batch of {} usage extensions from dataset {}, starting with id {}.", usages.size(), datasetKey, firstId);
-      return true;
+      return ids;
     }
 
     @Transactional(
@@ -194,7 +198,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
   }
 
-  class DeletionSync implements Callable<Boolean> {
+  class DeletionSync implements Callable<List<Integer>> {
     final UUID datasetKey;
     final List<Integer> usageKeys;
 
@@ -204,13 +208,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       LOG.debug("Starting usage deletion for {} usages from dataset {}.", usageKeys.size(), datasetKey);
       for (List<Integer> batch : Lists.partition(usageKeys, BATCH_SIZE)) {
         deleteBatch(batch);
       }
       LOG.debug("Completed batch of {} usage deletions from dataset {}.", usageKeys.size(), datasetKey);
-      return true;
+      return usageKeys;
     }
 
     @Transactional(
@@ -224,7 +228,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
   }
 
-  class ForeignKeySync implements Callable<Boolean> {
+  class ForeignKeySync implements Callable<List<Integer>> {
     final List<UsageForeignKeys> fks;
 
     public ForeignKeySync(List<UsageForeignKeys> fks) {
@@ -232,18 +236,19 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       LOG.debug("Starting foreign key updates for {} usages.", fks.size());
+      List<Integer> ids = Lists.newArrayList();
       for (List<UsageForeignKeys> batch : Lists.partition(fks, BATCH_SIZE)) {
-        updateForeignKeyBatch(batch);
+        ids.addAll(updateForeignKeyBatch(batch));
       }
       LOG.debug("Completed batch of {} foreign key updates.", fks.size());
-      return true;
+      return ids;
     }
   }
 
   @Override
-  public Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks) {
+  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
     return exec.submit(new ForeignKeySync(fks));
   }
 
@@ -251,20 +256,23 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       exceptionMessage = "foreign key update job failed",
       executorType = ExecutorType.REUSE
   )
-  private void updateForeignKeyBatch(List<UsageForeignKeys> fks) {
+  private List<Integer> updateForeignKeyBatch(List<UsageForeignKeys> fks) {
+    List<Integer> ids = Lists.newArrayList();
     for (UsageForeignKeys fk : fks) {
       // update usage by usage doing both potential updates in one statement
       syncService.updateForeignKeys(fk.getUsageKey(), fk.getParentKey(), fk.getBasionymKey());
+      ids.add(fk.getUsageKey());
     }
+    return ids;
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
+  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
     return addTask(new UsageSync(dao, datasetKey, usages));
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     return addTask(new ProParteSync(datasetKey, usages, names));
   }
 
@@ -279,7 +287,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   @Override
-  public Future<Boolean> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
+  public Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
     return addTask(new DeletionSync(datasetKey, usageKeys));
   }
 

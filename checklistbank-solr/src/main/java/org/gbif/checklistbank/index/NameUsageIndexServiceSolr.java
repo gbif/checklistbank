@@ -16,7 +16,6 @@ import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.utils.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +81,8 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     exec = Executors.newFixedThreadPool(syncThreads, new NamedThreadFactory(NAME));
   }
 
-  private Future<Boolean> addTask(Callable<Boolean> task) {
-    Future<Boolean> f = exec.submit(task);
+  private Future<List<Integer>> addTask(Callable<List<Integer>> task) {
+    Future<List<Integer>> f = exec.submit(task);
     tasks.add(f);
     return f;
   }
@@ -119,7 +118,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> updateForeignKeys(List<UsageForeignKeys> fks) {
+  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
     List<Integer> usageKeys = Lists.newArrayList();
     for (UsageForeignKeys fk : fks) {
       usageKeys.add(fk.getUsageKey());
@@ -128,18 +127,18 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
+  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
     return addTask(new SolrUpdateCallback(dao, usages));
   }
 
   @Override
-  public Future<Boolean> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+  public Future<List<Integer>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
     return addTask(new SolrUpdateProParte(usages));
   }
 
   @Override
   public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
-    exec.submit(new SolrUpdateMybatis(relations.keySet()));
+    exec.submit(new SolrUpdateMybatis(Lists.<Integer>newArrayList(relations.keySet())));
   }
 
   @Override
@@ -154,7 +153,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<Boolean> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
+  public Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
     return addTask(new SolrDelete(usageKeys));
   }
 
@@ -178,7 +177,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
 
-  class SolrUpdateProParte implements Callable<Boolean> {
+  class SolrUpdateProParte implements Callable<List<Integer>> {
     private final List<NameUsage> usages;
 
     public SolrUpdateProParte(List<NameUsage> usages) {
@@ -186,7 +185,8 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
+      List<Integer> ids = Lists.newArrayList();
       for (NameUsage u : usages) {
         // the pro parte usage itself might not yet be synced...
         // so we get list of parent ids from parent which must exist in postgres already!
@@ -199,12 +199,13 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
           parents.addAll(usageService.listParents(u.getParentKey()));
         }
         insertOrUpdate(u, parents, null);
+        ids.add(u.getKey());
       }
-      return true;
+      return ids;
     }
   }
 
-  class SolrUpdateCallback implements Callable<Boolean> {
+  class SolrUpdateCallback implements Callable<List<Integer>> {
     private final Iterable<Integer> usages;
     private final ImporterCallback dao;
 
@@ -214,45 +215,47 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
+      List<Integer> ids = Lists.newArrayList();
       for (Integer id : usages) {
         NameUsage u = dao.readUsage(id);
         UsageExtensions e = dao.readExtensions(id);
         insertOrUpdate(u, usageService.listParents(id), e);
+        ids.add(id);
       }
-      return true;
+      return ids;
     }
   }
 
-  class SolrUpdateMybatis implements Callable<Boolean> {
-    private final Collection<Integer> ids;
+  class SolrUpdateMybatis implements Callable<List<Integer>> {
+    private final List<Integer> ids;
 
-    public SolrUpdateMybatis(Collection<Integer> ids) {
+    public SolrUpdateMybatis(List<Integer> ids) {
       this.ids = ids;
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       for (Integer id : ids) {
         insertOrUpdate(id);
       }
-      return true;
+      return ids;
     }
   }
 
-  class SolrDelete implements Callable<Boolean> {
-    private final Collection<Integer> ids;
+  class SolrDelete implements Callable<List<Integer>> {
+    private final List<Integer> ids;
 
     public SolrDelete(List<Integer> ids) {
       this.ids = ids;
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public List<Integer> call() throws Exception {
       for (Integer id : ids) {
         solr.deleteById(String.valueOf(id), commitWithinMs);
       }
-      return true;
+      return ids;
     }
   }
 }
