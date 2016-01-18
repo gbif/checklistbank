@@ -183,11 +183,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           batch = subtreeBatch(n);
           chunks++;
           syncCounterBatches = syncCounterBatches + batch.size();
-          // wait for main future to finish...
+          // wait for main future to finish and submit solr update ...
           if (f != null) {
-            f.get();
+            otherFutures.add(solrService.sync(datasetKey,this, f.get()));
             LOG.debug("main nodes synced. Submit solr update");
-            otherFutures.add(solrService.sync(datasetKey,this, batch));
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
           LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
@@ -517,6 +516,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // this is using neo4j internal node ids as keys:
     NameUsage u = dao.readUsage(n, true);
     Preconditions.checkNotNull(u, "Node %s not found in kvp store", n.getId());
+    Integer id = (int) n.getId();
+    if (clbKeys.containsKey(id)) {
+      u.setKey(clbKeys.get(id));
+    }
 
     UsageFacts facts;
     if (n.hasLabel(Labels.SYNONYM)) {

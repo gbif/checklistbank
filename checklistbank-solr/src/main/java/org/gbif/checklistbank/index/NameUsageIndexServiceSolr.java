@@ -127,8 +127,8 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
-    return addTask(new SolrUpdateCallback(dao, usages));
+  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds) {
+    return addTask(new SolrUpdateCallback(dao, usageNeoIds));
   }
 
   @Override

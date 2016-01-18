@@ -2,12 +2,12 @@ package org.gbif.checklistbank.service.mybatis;
 
 
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -33,12 +33,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     if (preParsed == null || Strings.isNullOrEmpty(preParsed.getScientificName())) {
       return null;
     }
-    //TODO: temp code only, should throw exception in production
-    //Preconditions.checkNotNull(preParsed.getType(), preParsed.getScientificName() + " lacks name type");
-    if (preParsed.getType() == null) {
-      LOG.warn("Parsed name {} lacks name type", preParsed.getScientificName());
-      preParsed.setType(NameType.SCIENTIFIC);
-    }
+    Preconditions.checkNotNull(preParsed.getType(), preParsed.getScientificName() + " lacks name type");
 
     try {
       return createOrGetThrowing(preParsed);

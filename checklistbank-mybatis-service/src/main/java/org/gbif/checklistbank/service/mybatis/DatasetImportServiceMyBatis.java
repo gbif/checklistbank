@@ -267,8 +267,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   @Override
-  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages) {
-    return addTask(new UsageSync(dao, datasetKey, usages));
+  public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds) {
+    return addTask(new UsageSync(dao, datasetKey, usageNeoIds));
   }
 
   @Override

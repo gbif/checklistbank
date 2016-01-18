@@ -396,6 +396,7 @@ public class NubBuilder implements Runnable {
           // check for autonyms
           if (!u.parsedName.isAutonym()) {
             ParsedName pn = new ParsedName();
+            pn.setType(NameType.SCIENTIFIC);
             pn.setGenusOrAbove(u.parsedName.getGenusOrAbove());
             pn.setSpecificEpithet(u.parsedName.getSpecificEpithet());
             pn.setInfraSpecificEpithet(u.parsedName.getSpecificEpithet());

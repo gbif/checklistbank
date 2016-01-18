@@ -16,7 +16,10 @@ import java.util.concurrent.Future;
  */
 public interface DatasetImportService extends AutoCloseable {
 
-  Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usages);
+  /**
+   * @param usageNeoIds neo4j node ids as ints
+   */
+  Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds);
 
   /**
    * @param datasetKey
@@ -46,6 +49,9 @@ public interface DatasetImportService extends AutoCloseable {
    */
   int deleteDataset(UUID datasetKey);
 
+  /**
+   * @param usageKeys clb usage keys
+   */
   Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys);
 
   /**
