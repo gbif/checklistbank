@@ -9,7 +9,7 @@
 
   <groupId>org.gbif.checklistbank</groupId>
   <artifactId>checklistbank-motherpom</artifactId>
-  <version>2.32-SNAPSHOT</version>
+  <version>2.33-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ChecklistBank Mother POM</name>
