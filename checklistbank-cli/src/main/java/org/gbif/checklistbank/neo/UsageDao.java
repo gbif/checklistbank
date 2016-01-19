@@ -6,6 +6,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
@@ -204,6 +205,16 @@ public class UsageDao {
 
   public GraphDatabaseService getNeo() {
     return neo;
+  }
+
+  /**
+   * Prints all neo4j node names out to a print stream, mainly for debugging.
+   * This avoids (potentially erroneous) tree traversals missing some nodes.
+   */
+  public void logAllNodes() throws Exception {
+    for (Node n : GlobalGraphOperations.at(neo).getAllNodes()) {
+      LOG.info("{} {} [{} {}]", n.getId(), NeoProperties.getScientificName(n), (n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name()).toLowerCase(), NeoProperties.getRank(n, null));
+    }
   }
 
   /**

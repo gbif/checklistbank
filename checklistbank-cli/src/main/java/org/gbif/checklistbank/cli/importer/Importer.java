@@ -120,7 +120,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   public void run() {
-    LOG.info("Start importing checklist {}", datasetKey);
+    LOG.info("Start importing checklist");
     try {
       syncDataset();
       LOG.info("Waiting for threads to finish {} sql and {} solr jobs", usageFutures.size(), otherFutures.size());
@@ -128,7 +128,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       awaitProParteFuture();
       // wait for extensions and solr jobs to finish
       awaitOtherFutures();
-      LOG.info("Importing of {} succeeded. {} main, {} subtree chunk and {} pro parte usages synced", datasetKey, syncCounterMain, syncCounterBatches, syncCounterProParte);
+      LOG.info("Importing succeeded. {} main, {} subtree chunk and {} pro parte usages synced", syncCounterMain, syncCounterBatches, syncCounterProParte);
 
     } catch (InterruptedException e) {
       Throwables.propagate(e);
@@ -142,7 +142,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     } finally {
       LOG.debug("Shutting down graph database");
       dao.close();
-      LOG.info("Neo database {} shut down.", datasetKey);
+      LOG.info("Neo database shut down.");
     }
   }
 
@@ -229,7 +229,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
     // make sure we have imported at least one record
     if (firstUsageKey < 0) {
-      LOG.warn("No records imported for dataset {}. Keep all existing data!", datasetKey);
+      LOG.warn("No records imported. Keep all existing data!");
       throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
     }
 
@@ -240,7 +240,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void updateForeignKeys() {
     if (!postKeys.isEmpty()) {
       // update neo ids to clb usage keys
-      LOG.info("Updating foreign keys for {} usages from dataset {}", postKeys.size(), datasetKey);
+      LOG.info("Updating foreign keys for {} usages", postKeys.size());
       for (UsageForeignKeys fk : postKeys.values()) {
         fk.setUsageKey(clbKey(fk.getUsageKey()));
         fk.setParentKey(clbKey(fk.getParentKey()));
@@ -254,7 +254,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   private void syncProParte() {
     if (!proParteNodes.isEmpty()) {
-      LOG.info("Syncing {} pro parte usages from dataset {}", proParteNodes.size(), datasetKey);
+      LOG.info("Syncing {} pro parte usages", proParteNodes.size());
       for (List<Long> ids : Iterables.partition(proParteNodes, cfg.chunkSize)) {
         List<NameUsage> usages = Lists.newArrayList();
         List<ParsedName> names = Lists.newArrayList();
@@ -342,7 +342,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     cal.add(Calendar.SECOND, -2);
 
 
-    LOG.info("Deleting all usages in dataset {} before {}", datasetKey, cal.getTime());
+    LOG.info("Deleting all usages before {}", cal.getTime());
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
@@ -612,7 +612,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // this doesnt have to be exact so we do not need to worry about concurrent access much
     if (firstUsageKey < 0) {
       firstUsageKey = usageKey;
-      LOG.info("First synced usage key for dataset {} is {}", datasetKey, firstUsageKey);
+      LOG.info("First synced usage key is {}", firstUsageKey);
     }
   }
 

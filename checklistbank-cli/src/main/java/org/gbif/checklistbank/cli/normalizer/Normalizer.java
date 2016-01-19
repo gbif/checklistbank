@@ -197,22 +197,22 @@ public class Normalizer extends ImportDb implements Runnable {
       // while parsing match to nub and build metrics
       buildMetricsAndMatchBackbone();
       // now wait for name parsing to finish
-      LOG.info("Wait for name parsing of {} to finish.", datasetKey);
+      LOG.info("Wait for name parsing to finish");
       Integer parserCount = f.get();
-      LOG.info("Finish to parse all {} names of {}.", parserCount, datasetKey);
-      LOG.info("Normalization of {} succeeded.", datasetKey);
+      LOG.info("Finish to parse all {} names", parserCount);
+      LOG.info("Normalization succeeded");
 
     } catch (InterruptedException e) {
       LOG.error("Name parsing thread interrupted.", datasetKey);
       throw new NormalizationFailedException("Name parsing interrupted", e);
 
     } catch (ExecutionException e) {
-      LOG.error("Name parsing of {} failed: {}.", datasetKey, e.getMessage());
+      LOG.error("Name parsing failed: {}", datasetKey, e.getMessage());
       throw new NormalizationFailedException("Name parsing failed", e);
 
     } finally {
       dao.close();
-      LOG.info("Neo database {} shut down.", datasetKey);
+      LOG.info("Neo database shut down");
     }
     ignored = meta.getIgnored();
   }

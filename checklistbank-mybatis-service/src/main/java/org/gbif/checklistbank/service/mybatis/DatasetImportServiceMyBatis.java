@@ -84,7 +84,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     @Override
     public List<Integer> call() throws Exception {
       int counter = 0;
-      LOG.debug("Starting usage sync from dataset {}.", datasetKey);
+      LOG.debug("Starting usage sync");
       usageKeys = Maps.newHashMap();
       inserts = new LongHashSet();
       List<Integer> neoKeys = Lists.newArrayList();
@@ -96,7 +96,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         write(neoBatch);
         counter = counter + neoBatch.size();
       }
-      LOG.info("Completed batch of {} usages for dataset {}, starting with id {}.", counter, datasetKey, firstId);
+      LOG.info("Completed batch of {} usages, starting with id {}.", counter, firstId);
 
       // submit extension sync job for all usages
       ExtensionSync eSync = new ExtensionSync(dao, datasetKey, firstId, usageKeys, inserts);
@@ -147,7 +147,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         executorType = ExecutorType.REUSE
     )
     public List<NameUsage> call() throws Exception {
-      LOG.debug("Starting usage sync with {} usages from dataset {}.", usages.size(), datasetKey);
+      LOG.debug("Starting usage sync with {} usages", usages.size());
       Iterator<ParsedName> nIter = names.iterator();
       for (NameUsage u : usages) {
         // pro parte usages are synonyms and do not have any descendants, synonyms, etc
@@ -158,7 +158,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
         syncService.syncUsage(true, u, pn, m);
       }
-      LOG.debug("Completed batch of {} pro parte usages for dataset {}.", usages.size(), datasetKey);
+      LOG.debug("Completed batch of {} pro parte usages", usages.size());
       return usages;
     }
   }
@@ -180,13 +180,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
     @Override
     public List<Integer> call() throws Exception {
-      LOG.debug("Starting extension sync for {} usages from dataset {}.", usages.size(), datasetKey);
+      LOG.debug("Starting extension sync for {} usages", usages.size());
       List<Integer> ids = Lists.newArrayList();
       for (List<Integer> batch : Iterables.partition(usages.keySet(), BATCH_SIZE)) {
         write(batch);
         ids.addAll(batch);
       }
-      LOG.info("Completed batch of {} usage extensions from dataset {}, starting with id {}.", usages.size(), datasetKey, firstId);
+      LOG.info("Completed batch of {} usage extensions, starting with id {}.", usages.size(), firstId);
       return ids;
     }
 
@@ -214,11 +214,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
     @Override
     public List<Integer> call() throws Exception {
-      LOG.debug("Starting usage deletion for {} usages from dataset {}.", usageKeys.size(), datasetKey);
+      LOG.debug("Starting usage deletion for {} usages", usageKeys.size());
       for (List<Integer> batch : Lists.partition(usageKeys, BATCH_SIZE)) {
         deleteBatch(batch);
       }
-      LOG.debug("Completed batch of {} usage deletions from dataset {}.", usageKeys.size(), datasetKey);
+      LOG.debug("Completed batch of {} usage deletions", usageKeys.size());
       return usageKeys;
     }
 

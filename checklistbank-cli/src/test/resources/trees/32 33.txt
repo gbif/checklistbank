@@ -13,7 +13,6 @@ Plantae
             Acer negundo subsp. negundo
               *Negundo aceroides (L.) Moench
               *Negundo aceroides Torr.
-              *Negundo aceroides subsp. interius (Britton) T.Love & D.Love
             Acer negundo var. californicum (Torr. & Gray) Sarg.
               *$? californicum Torr. & A.Gray
               *Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.

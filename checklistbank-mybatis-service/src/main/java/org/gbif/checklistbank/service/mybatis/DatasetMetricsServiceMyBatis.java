@@ -79,7 +79,7 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
    * @param downloaded the date the dataset was last downloaded from the publisher
    */
   public DatasetMetrics create(UUID datasetKey, Date downloaded) {
-    LOG.info("Create new dataset metrics for {}", datasetKey);
+    LOG.info("Create new dataset metrics");
     mapper.insert(datasetKey, downloaded);
     return get(datasetKey);
   }

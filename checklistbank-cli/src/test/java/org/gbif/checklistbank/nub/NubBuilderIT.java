@@ -46,6 +46,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -987,6 +988,36 @@ public class NubBuilderIT {
   }
 
   /**
+   * Make sure frequent INFRASPECIES rank in col is parsed into real ranks
+   */
+  @Test
+  public void testInfraspeciesRanks() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(53);
+    build(src);
+
+    assertCanonical("Lupinus sericeus flavus", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertCanonical("Lupinus sericeus jonesii", Rank.VARIETY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+
+    assertTree("52.txt");
+  }
+
+
+  /**
+   * Avoid bad parent relationships or even loops.
+   * 52=CoL
+   * 54=ITIS
+   * 55=IPNI
+   */
+  @Test
+  public void testColItisIpniMerger() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(52, 54, 55);
+    src.setNomenclator(55);
+    build(src);
+
+    assertTree("52 54 55.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
@@ -996,6 +1027,7 @@ public class NubBuilderIT {
     log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
 
     tx = dao.beginTx();
+    dao.logAllNodes();
     printTree();
 
     // assert we have only ever 8 root taxa - the kingdoms
@@ -1256,6 +1288,13 @@ public class NubBuilderIT {
 
   private void assertTree(String filename) throws IOException {
     NubTree expected = NubTree.read("trees/" + filename);
+    // verify all nodes are walked in the tree and match the expected numbers
+    int neoCnt = IteratorUtil.count(GlobalGraphOperations.at(dao.getNeo()).getAllNodes());
+    // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
+    System.out.println("expected nodes: "+expected.getCount());
+    System.out.println("counted nodes: "+neoCnt);
+    assertTrue(expected.getCount() >= neoCnt);
+    // compare trees
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
     TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
@@ -1266,4 +1305,5 @@ public class NubBuilderIT {
     Writer writer = new PrintWriter(System.out);
     dao.printTree(writer, GraphFormat.TEXT);
   }
+
 }

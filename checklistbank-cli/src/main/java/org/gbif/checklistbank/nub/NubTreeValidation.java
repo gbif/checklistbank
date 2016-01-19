@@ -55,6 +55,9 @@ public class NubTreeValidation implements TreeValidation {
     // no self loops whatsoever
     notExists("Self loops in {}", "MATCH (n:TAXON) WHERE (n)--(n) RETURN n LIMIT 1");
 
+    // no parent_of rels in different directions on a given node
+    notExists("Contradicting parent relations in {}", "MATCH (n:TAXON) WHERE (n)-[:PARENT_OF*..6]->(n) RETURN n LIMIT 1");
+
     // just kingdom roots
     assertCount("Too many roots {}", "MATCH (n:ROOT) RETURN count(n)", 9);
 

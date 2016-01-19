@@ -217,7 +217,7 @@ public class NubDbTest {
     }
   }
 
-  private NubUsage addHierarchy(NubDb db, NubUsage parent, Rank startRank, String... taxa) {
+  private NubUsage addHierarchy(NubDb db, NubUsage parent, Rank startRank, String... taxa) throws IgnoreSourceUsageException {
     Rank rank = startRank;
     for (String name : taxa) {
       parent = db.addUsage(parent, buildNub(name, rank, TaxonomicStatus.ACCEPTED));

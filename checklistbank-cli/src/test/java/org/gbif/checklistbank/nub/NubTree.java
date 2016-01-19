@@ -21,11 +21,16 @@ import org.apache.commons.lang3.StringUtils;
  * Especially useful for larger tree snippets.
  */
 public class NubTree implements Iterable<NubNode> {
+  private int count;
   private NubNode root = new NubNode(null, false);
   private static final Pattern INDENT = Pattern.compile("^( +\\" + TxtPrinter.SYNONYM_SYMBOL + "?\\" + TxtPrinter.BASIONYM_SYMBOL + "?)");
 
   public static NubTree read(String classpathFilename) throws IOException {
     return read(FileUtils.classpathStream(classpathFilename));
+  }
+
+  public int getCount() {
+    return count;
   }
 
   public static NubTree read(InputStream stream) throws IOException {
@@ -39,6 +44,7 @@ public class NubTree implements Iterable<NubNode> {
       boolean synonym = false;
       boolean basionym = false;
       if (!StringUtils.isBlank(line)) {
+        tree.count++;
         Matcher m = INDENT.matcher(line);
         if (m.find()) {
           String prefix = m.group(1);

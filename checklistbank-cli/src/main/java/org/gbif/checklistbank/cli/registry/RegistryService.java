@@ -73,7 +73,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
         LOG.warn("Failed to delete neo data dir {}", neoDir.getAbsoluteFile());
       }
     }
-    LOG.info("Deleted dataset storage files for {}", datasetKey);
+    LOG.info("Deleted dataset storage files");
   }
 
   private void delete(UUID key) throws RuntimeException {
@@ -84,7 +84,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       solrService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset [{}] from solr", key, e);
+      LOG.error("Failed to delete dataset from solr", key, e);
     } finally {
       context.stop();
     }
@@ -94,7 +94,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       mybatisService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset [{}] from postgres", key, e);
+      LOG.error("Failed to delete dataset from postgres", key, e);
     } finally {
       context.stop();
     }

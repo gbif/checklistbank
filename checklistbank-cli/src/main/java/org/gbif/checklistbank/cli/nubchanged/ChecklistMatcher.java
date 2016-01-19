@@ -38,7 +38,7 @@ public class ChecklistMatcher implements Runnable {
   }
 
   public void run() {
-    LOG.info("Start matching checklist {}", datasetKey);
+    LOG.info("Start matching checklist");
     PagingRequest req = new PagingRequest(0, 1000);
     PagingResponse<NameUsage> resp = usageService.list(null, datasetKey, null, req);
     match(resp);
@@ -47,7 +47,7 @@ public class ChecklistMatcher implements Runnable {
       resp = usageService.list(null, datasetKey, null, req);
       match(resp);
     }
-    LOG.info("Matching of {} finished. Metrics={}", datasetKey, metrics);
+    LOG.info("Matching finished. Metrics={}", metrics);
   }
 
   private void match(PagingResponse<NameUsage> resp) {
