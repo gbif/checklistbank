@@ -1,0 +1,34 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+  Fabaceae
+    *Leguminosae
+    Lupinus L.
+      Lupinus sericeus Cooper
+      Lupinus sericeus Eschsch.
+      Lupinus sericeus Hook. & Arn.
+      Lupinus sericeus Nutt.
+      Lupinus sericeus Pursh
+        *Lupinus flexuosus J.Agardh
+        Lupinus sericeus subsp. sericeus
+          *$Lupinus marianus Rydb.
+          *Lupinus bakeri Greene
+          *Lupinus jonesii Blank.
+          *Lupinus bakeri subsp. amplus (Greene) L.S.Fleak & D.B.Dunn
+          *Lupinus sericeus subsp. marianus (Rydb.) L.S.Fleak & D.B.Dunn
+          *Lupinus sericeus var. marianus (Rydb.) S.L. Welsh
+          *Lupinus sericeus var. sericeus
+        Lupinus sericeus var. barbiger (S.Watson) S.L.Welsh
+          *$Lupinus barbiger S.Watson
+        Lupinus sericeus var. jonesii (Rydb.) S.L.Welsh ex Isely
+        Lupinus sericeus var. maximus C.P. Sm. ex Fleak & D.B. Dunn
+        Lupinus sericeus var. sericeus
+        Lupinus sericeus f. leucanthus B.Boivin
+        Lupinus sericeus f. sericeus
+      Lupinus sericeus Torr. & A.Gray
+Protozoa
+Viruses
+incertae sedis

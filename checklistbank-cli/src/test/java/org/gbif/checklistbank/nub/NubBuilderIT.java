@@ -1287,6 +1287,7 @@ public class NubBuilderIT {
   }
 
   private void assertTree(String filename) throws IOException {
+    System.out.println("assert tree from "+filename);
     NubTree expected = NubTree.read("trees/" + filename);
     // verify all nodes are walked in the tree and match the expected numbers
     int neoCnt = IteratorUtil.count(GlobalGraphOperations.at(dao.getNeo()).getAllNodes());

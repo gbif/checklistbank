@@ -514,29 +514,25 @@ public class NubBuilder implements Runnable {
               for (BasionymGroup<NubUsage> group : groups) {
                 // we only need to process groups that contain recombinations
                 if (group.hasRecombinations()) {
-                  try {
-                    // if we have a basionym creating relations is straight forward
-                    NubUsage basionym = null;
-                    if (group.hasBasionym()) {
-                      basionym = group.getBasionym();
+                  // if we have a basionym creating relations is straight forward
+                  NubUsage basionym = null;
+                  if (group.hasBasionym()) {
+                    basionym = group.getBasionym();
 
-                    } else if (group.getRecombinations().size() > 1) {
-                      // we need to create a placeholder basionym to group the 2 or more recombinations
-                      newBasionyms++;
-                      basionym = createBasionymPlaceholder(fam, group);
-                    }
-                    // create basionym relations
-                    if (basionym != null) {
-                      // there might be more original names cause our data is dirty
-                      for (NubUsage u : Iterables.concat(group.getRecombinations(), group.getBasionyms())) {
-                        if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
-                          newRelations++;
-                          u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
-                        }
+                  } else if (group.getRecombinations().size() > 1) {
+                    // we need to create a placeholder basionym to group the 2 or more recombinations
+                    newBasionyms++;
+                    basionym = createBasionymPlaceholder(fam, group);
+                  }
+                  // create basionym relations
+                  if (basionym != null) {
+                    // there might be more original names cause our data is dirty
+                    for (NubUsage u : Iterables.concat(group.getRecombinations(), group.getBasionyms())) {
+                      if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
+                        newRelations++;
+                        u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
                       }
                     }
-                  } catch (IgnoreSourceUsageException e) {
-                    LOG.error("Failed to consolidate basionym group {}", group, e);
                   }
                 }
               }
@@ -554,7 +550,7 @@ public class NubBuilder implements Runnable {
     }
   }
 
-  private NubUsage createBasionymPlaceholder(NubUsage family, BasionymGroup group) throws IgnoreSourceUsageException {
+  private NubUsage createBasionymPlaceholder(NubUsage family, BasionymGroup group) {
     NubUsage basionym = new NubUsage();
     basionym.datasetKey = null;
     basionym.origin = Origin.BASIONYM_PLACEHOLDER;
@@ -576,28 +572,23 @@ public class NubBuilder implements Runnable {
       LOG.info("Adding kingdom");
       currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
       for (Kingdom k : Kingdom.values()) {
-        try {
-          NubUsage ku = new NubUsage();
-          ku.usageKey = k.nubUsageID();
-          ku.kingdom = k;
-          ku.datasetKey = Constants.NUB_DATASET_KEY;
-          ku.origin = Origin.SOURCE;
-          ku.rank = Rank.KINGDOM;
-          ku.status = TaxonomicStatus.ACCEPTED;
-          ku.parsedName = new ParsedName();
-          ku.parsedName.setType(NameType.SCIENTIFIC);
-          ku.parsedName.setGenusOrAbove(k.scientificName());
-          ku.parsedName.setScientificName(k.scientificName());
-          // treat incertae sedis placeholder kingdom different
-          if (k == Kingdom.INCERTAE_SEDIS) {
-            ku.status = TaxonomicStatus.DOUBTFUL;
-            ku.parsedName.setType(NameType.PLACEHOLDER);
-          }
-          db.addRoot(ku);
-        } catch (IgnoreSourceUsageException e) {
-          // not happening
-          LOG.error("failed to create kingdom", e);
+        NubUsage ku = new NubUsage();
+        ku.usageKey = k.nubUsageID();
+        ku.kingdom = k;
+        ku.datasetKey = Constants.NUB_DATASET_KEY;
+        ku.origin = Origin.SOURCE;
+        ku.rank = Rank.KINGDOM;
+        ku.status = TaxonomicStatus.ACCEPTED;
+        ku.parsedName = new ParsedName();
+        ku.parsedName.setType(NameType.SCIENTIFIC);
+        ku.parsedName.setGenusOrAbove(k.scientificName());
+        ku.parsedName.setScientificName(k.scientificName());
+        // treat incertae sedis placeholder kingdom different
+        if (k == Kingdom.INCERTAE_SEDIS) {
+          ku.status = TaxonomicStatus.DOUBTFUL;
+          ku.parsedName.setType(NameType.PLACEHOLDER);
         }
+        db.addRoot(ku);
       }
       tx.success();
     }
@@ -868,18 +859,19 @@ public class NubBuilder implements Runnable {
     if (p.kingdom != Kingdom.VIRUSES && u.status.isAccepted() && u.parsedName.getGenusOrAbove() != null && p.status.isAccepted()) {
       // check if implicit species or genus parents are needed
       SrcUsage implicit = new SrcUsage();
+      NubUsage implicitParent = null;
       try {
         if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
           implicit.rank = Rank.GENUS;
           implicit.scientificName = u.parsedName.getGenusOrAbove();
           implicit.status = u.status;
-          p = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+          implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
 
         } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
           implicit.rank = Rank.SPECIES;
           implicit.scientificName = u.parsedName.canonicalSpeciesName();
           implicit.status = u.status;
-          p = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+          implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
         }
       } catch (IgnoreSourceUsageException e) {
         LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
@@ -887,10 +879,17 @@ public class NubBuilder implements Runnable {
       } catch (Exception e) {
         LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName, e);
       }
-      // in case the species is a synonym better ignore this infraspecies record
-      if (p.status.isSynonym() && p.rank == Rank.SPECIES) {
-        // http://dev.gbif.org/issues/browse/POR-2780
-        throw new IgnoreSourceUsageException("Ignoring usage as implicit species " + p.parsedName.canonicalNameComplete() + " is a synonym in the nub", u.scientificName);
+
+      if (implicitParent != null) {
+        // in case the implicit parent species is a synonym turn the infraspecies also into a synonym
+        if (implicitParent.status.isSynonym() && implicitParent.rank == Rank.SPECIES) {
+          // http://dev.gbif.org/issues/browse/POR-2780
+          u.status = TaxonomicStatus.SYNONYM;
+          p = db.getParent(implicitParent);
+        } else {
+          // use the implicit parent
+          p = implicitParent;
+        }
       }
     }
     // add to nub db
@@ -980,7 +979,7 @@ public class NubBuilder implements Runnable {
     //}
   }
 
-  private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
+  private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
     LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
     NubUsage currNubParent = db.getParent(nub);
 
@@ -992,11 +991,9 @@ public class NubBuilder implements Runnable {
       // prefer accepted version over doubtful if its coming from the same dataset!
       if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
         nub.status = u.status;
-        if (parent != null && (currNubParent.rank.higherThan(parent.rank) || currNubParent.rank == parent.rank)) {
-          if (!db.existsInClassification(currNubParent.node, parent.node)) {
-            // current classification doesnt have that parent yet, lets apply it
-            updateParent(nub, parent);
-          }
+        if (isNewParentApplicable(nub, currNubParent, parent) && !db.existsInClassification(currNubParent.node, parent.node)) {
+          // current classification doesnt have that parent yet, lets apply it
+          updateParent(nub, parent);
         }
       }
       if (origin == Origin.SOURCE) {
@@ -1022,25 +1019,27 @@ public class NubBuilder implements Runnable {
 
     } else {
       // ACCEPTED
-      if (parent != null && currNubParent.rank.higherThan(parent.rank) && parent.rank.higherThan(nub.rank)) {
-        if (db.existsInClassification(parent.node, currNubParent.node)) {
-          updateParent(nub, parent);
-        }
+      if (isNewParentApplicable(nub, currNubParent, parent) && currNubParent.rank != parent.rank && db.existsInClassification(parent.node, currNubParent.node)) {
+        updateParent(nub, parent);
       }
     }
     db.store(nub);
   }
 
-  private void updateParent(NubUsage child, NubUsage parent) throws IgnoreSourceUsageException {
+  private void updateParent(NubUsage child, NubUsage parent) {
     LOG.debug("Update {} classification with new parent {} {}", child.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
     db.updateParentRel(child, parent);
   }
 
+  private boolean isNewParentApplicable(NubUsage nub, NubUsage currParent, NubUsage newParent) {
+    return newParent != null
+        && !currParent.equals(newParent)
+        && (currParent.rank.higherThan(newParent.rank) || currParent.rank == newParent.rank)
+        && newParent.rank.higherThan(nub.rank);
+  }
+
   private boolean fromCurrentSource(NubUsage nub) {
-    if (nub.datasetKey.equals(currSrc.key)) {
-      return true;
-    }
-    return false;
+    return nub.datasetKey.equals(currSrc.key);
   }
 
   private void groupByBasionym() {

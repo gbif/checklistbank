@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.printer.TxtPrinter;
 
 import java.io.IOException;
@@ -14,12 +15,14 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class NubNode {
   public String name;
+  public Rank rank;
   public boolean basionym;
   public List<NubNode> synonyms = Lists.newArrayList();
   public LinkedList<NubNode> children = Lists.newLinkedList();
 
-  public NubNode(String name, boolean isBasionym) {
+  public NubNode(String name, Rank rank, boolean isBasionym) {
     this.name = name;
+    this.rank = rank;
     this.basionym = isBasionym;
   }
 
@@ -40,7 +43,11 @@ public class NubNode {
     if (basionym) {
       out.append(TxtPrinter.BASIONYM_SYMBOL);
     }
-    out.append(name + "\n");
+    out.append(name);
+    if (rank != null) {
+      out.append(" [" + rank.name().toLowerCase() + "]");
+    }
+    out.append("\n");
     // recursive
     for (NubNode n : synonyms) {
       n.print(out, level + 1, true);

@@ -1,0 +1,12 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Fabaceae
+102288950	10		GENUS	ACCEPTED		Lupinus L.
+102289824	102288950		SPECIES	ACCEPTED		Lupinus sericeus Pursh
+102289836	102289824		SUBSPECIES	ACCEPTED		Lupinus sericeus subsp. sericeus
+102289856	102289836		VARIETY	ACCEPTED		Lupinus sericeus var. sericeus
+102289854	102289836		VARIETY	ACCEPTED		Lupinus sericeus var. maximus C.P. Sm. ex Fleak & D.B. Dunn
+102289864	102289856		SPECIES	SYNONYM		Lupinus jonesii Blank.
+102289833	102289824		SUBSPECIES	ACCEPTED		Lupinus sericeus subsp. marianus (Rydb.) Fleak & D.B. Dunn
+102289835	102289833		SPECIES	SYNONYM		Lupinus marianus Rydb.
+102289834	102289833		VARIETY	SYNONYM		Lupinus sericeus var. marianus (Rydb.) S.L. Welsh
+

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.printer.TxtPrinter;
 import org.gbif.utils.file.FileUtils;
 
@@ -22,8 +23,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class NubTree implements Iterable<NubNode> {
   private int count;
-  private NubNode root = new NubNode(null, false);
+  private NubNode root = new NubNode(null, null, false);
   private static final Pattern INDENT = Pattern.compile("^( +\\" + TxtPrinter.SYNONYM_SYMBOL + "?\\" + TxtPrinter.BASIONYM_SYMBOL + "?)");
+  private static final Pattern RANK = Pattern.compile(" \\[([a-z]+)\\] *$");
 
   public static NubTree read(String classpathFilename) throws IOException {
     return read(FileUtils.classpathStream(classpathFilename));
@@ -59,7 +61,7 @@ public class NubTree implements Iterable<NubNode> {
             throw new IllegalArgumentException("Tree is not indented properly. Use 2 spaces only for: " + line);
           }
           level = level / 2;
-          NubNode n = new NubNode(m.replaceAll("").trim(), basionym);
+          NubNode n = node(m.replaceAll("").trim(), basionym);
           while (parents.size() > level) {
             // remove latest parents until we are at the right level
             parents.removeLast();
@@ -76,7 +78,7 @@ public class NubTree implements Iterable<NubNode> {
           parents.add(n);
 
         } else {
-          NubNode n = new NubNode(line.trim(), false);
+          NubNode n = node(line.trim(), false);
           tree.getRoot().children.add(n);
           parents.clear();
           parents.add(n);
@@ -85,6 +87,20 @@ public class NubTree implements Iterable<NubNode> {
       line = br.readLine();
     }
     return tree;
+  }
+
+  private static NubNode node(String line, boolean basionym) {
+    Matcher m = RANK.matcher(line);
+    final Rank rank;
+    final String name;
+    if (m.find()) {
+      rank = Rank.valueOf(m.group(1).toUpperCase());
+      name = m.replaceAll("");
+    } else {
+      rank = null;
+      name = line.trim();
+    }
+    return new NubNode(name, rank, basionym);
   }
 
   public NubNode getRoot() {

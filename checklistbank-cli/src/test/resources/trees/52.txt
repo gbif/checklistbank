@@ -1,0 +1,16 @@
+Animalia
+Archaea
+Bacteria
+Chromista
+Fungi
+Plantae
+  Fabaceae
+    Lupinus
+      Lupinus sericeus
+        Lupinus sericeus subsp. flavus Girault, 1913
+        Lupinus sericeus subsp. sericeus
+        Lupinus sericeus var. jonesii (Rydb.) S.
+        Lupinus sericeus var. sericeus
+Protozoa
+Viruses
+incertae sedis

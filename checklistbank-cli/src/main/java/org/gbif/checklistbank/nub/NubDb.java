@@ -335,7 +335,7 @@ public class NubDb {
     }
   }
 
-  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) throws IgnoreSourceUsageException {
+  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {
     NubUsage nub = new NubUsage(src);
     nub.datasetKey = sourceDatasetKey;
     nub.origin = origin;
@@ -351,19 +351,19 @@ public class NubDb {
   /**
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
-  public NubUsage addUsage(NubUsage parent, NubUsage nub) throws IgnoreSourceUsageException {
+  public NubUsage addUsage(NubUsage parent, NubUsage nub) {
     Preconditions.checkNotNull(parent);
     return add(parent, nub);
   }
 
-  public NubUsage addRoot(NubUsage nub) throws IgnoreSourceUsageException {
+  public NubUsage addRoot(NubUsage nub) {
     return add(null, nub);
   }
 
   /**
    * @param parent classification parent or accepted name in case the nub usage has a synonym status
    */
-  private NubUsage add(@Nullable NubUsage parent, NubUsage nub) throws IgnoreSourceUsageException {
+  private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
     if (nub.node == null) {
       // create new neo node if none exists yet (should be the regular case)
       nub.node = dao.createTaxon();
@@ -377,22 +377,16 @@ public class NubDb {
         parent == null ? "no parent" : "parent " + parent.parsedName.getScientificName()
     );
 
-    try {
-      if (parent == null) {
-        nub.node.addLabel(Labels.ROOT);
+    if (parent == null) {
+      nub.node.addLabel(Labels.ROOT);
+    } else {
+      nub.kingdom = parent.kingdom;
+      if (nub.status != null && nub.status.isSynonym()) {
+        nub.node.addLabel(Labels.SYNONYM);
+        nub.node.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
       } else {
-        nub.kingdom = parent.kingdom;
-        if (nub.status != null && nub.status.isSynonym()) {
-          nub.node.addLabel(Labels.SYNONYM);
-          nub.node.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
-        } else {
-          updateParentRel(nub, parent);
-        }
+        updateParentRel(nub, parent);
       }
-    } catch (IgnoreSourceUsageException e) {
-      // remove created node
-      nub.node.delete();
-      throw e;
     }
     // add rank specific labels so we can easily find them later
     switch (nub.rank) {
@@ -418,14 +412,20 @@ public class NubDb {
 
   /**
    * Creates a new parent relation from parent to child node and removes any previously existing parent relations of
-   * the child node
+   * the child node.
+   * Parent child relations with genus or species epithet not matching up are flagged with NameUsageIssue.NAME_PARENT_MISMATCH
    */
-  public void updateParentRel(NubUsage n, NubUsage parent) throws IgnoreSourceUsageException {
-    // check that parent rank is higher!
-    if (n.rank.higherThan(parent.rank)) {
-      throw new IgnoreSourceUsageException("Inverted rank hierarchy, " + n.rank + " with parent " + parent.rank, n.parsedName.canonicalNameComplete());
-    }
+  public void updateParentRel(NubUsage n, NubUsage parent) {
     setSingleToRelationship(parent.node, n.node, RelType.PARENT_OF);
+    // flag non matching names
+    if (n.parsedName.isBinomial() && !parent.rank.isSuprageneric()) {
+      // genus and potentiall species epithet should match - flag otherwise
+      if (!n.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())
+          || (parent.parsedName.isBinomial() && !n.parsedName.getSpecificEpithet().equals(parent.parsedName.getSpecificEpithet())))
+      {
+        n.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
+      }
+    }
   }
 
   /**
