@@ -7,6 +7,7 @@ import org.gbif.checklistbank.ws.util.Constants;
 import org.gbif.ws.client.BaseWsGetClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -21,6 +22,7 @@ public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID
   private static final String METRICS_PATH = "metrics";
 
   private final GenericType<List<DatasetMetrics>> listType = new GenericType<List<DatasetMetrics>>() {};
+  private final GenericType<Map<UUID, Integer>> countType = new GenericType<Map<UUID, Integer>>() {};
 
   @Inject
   public DatasetMetricsWsClient(@ChecklistBankWs WebResource resource) {
@@ -45,4 +47,11 @@ public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID
   public List<DatasetMetrics> list(UUID datasetKey) {
     return get(listType, datasetKey.toString(), METRICS_PATH, "history");
   }
+
+  @Nullable
+  @Override
+  public Map<UUID, Integer> constituents(UUID datasetKey) {
+    return get(countType, datasetKey.toString(), "constituents");
+  }
+
 }

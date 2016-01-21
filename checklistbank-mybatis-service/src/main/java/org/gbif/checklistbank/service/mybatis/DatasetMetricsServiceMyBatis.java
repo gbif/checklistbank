@@ -6,9 +6,11 @@ import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
@@ -89,6 +91,19 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
     return mapper.list(datasetKey);
   }
 
+  @Override
+  public Map<UUID, Integer> constituents(UUID datasetKey) {
+    Map<UUID, Integer> constituents = Maps.newHashMap();
+    for (Map<String, Object> entry : mapper.constituents(datasetKey)) {
+      UUID key = null;
+      if (entry.containsKey("constituent_key")) {
+        key = (UUID) entry.get("constituent_key");
+      }
+      Long value = (Long) entry.get("cnt");
+      constituents.put(key, value.intValue());
+    }
+    return constituents;
+  }
 
   /**
    * @return The percentage of total that count covers, or 0 should the total be 0

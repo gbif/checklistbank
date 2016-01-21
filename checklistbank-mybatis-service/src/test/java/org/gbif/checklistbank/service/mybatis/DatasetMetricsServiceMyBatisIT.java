@@ -10,6 +10,7 @@ import org.gbif.api.vocabulary.Rank;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -80,5 +81,15 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
         assertEquals(200, ds.get(1).getUsagesCount());
         assertEquals(100, ds.get(2).getUsagesCount());
     }
+
+  @Test
+  public void testConstituent() {
+    Map<UUID, Integer> constituents = service.constituents(CHECKLIST_KEY);
+    assertEquals(3, constituents.size());
+    assertEquals((Integer)8, constituents.get(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f5")));
+    assertEquals((Integer)17, constituents.get(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f4")));
+    UUID nullKey = null;
+    assertEquals((Integer)19, constituents.get(nullKey));
+  }
 
 }

@@ -56,6 +56,14 @@
     ORDER BY created DESC
   </select>
 
+  <select id="constituents" parameterType="map" resultType="hashmap">
+    SELECT constituent_key, count(*) AS cnt
+    FROM name_usage
+    WHERE dataset_key=#{uuid}
+    GROUP BY constituent_key
+    ORDER BY 2 DESC
+  </select>
+
   <!--
   creates a new dataset metrics record by doing all the aggregations needed in sql.
   Also updates the existing latest record to be not the latest anymore.

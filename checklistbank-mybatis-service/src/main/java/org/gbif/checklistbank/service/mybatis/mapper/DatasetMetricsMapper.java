@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.DatasetMetrics;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.ibatis.annotations.Param;
@@ -19,4 +20,5 @@ public interface DatasetMetricsMapper {
 
   void insert(@Param("uuid") UUID datasetKey, @Param("downloaded") Date downloaded);
 
+  List<Map<String,Object>> constituents(@Param("uuid") UUID datasetKey);
 }
