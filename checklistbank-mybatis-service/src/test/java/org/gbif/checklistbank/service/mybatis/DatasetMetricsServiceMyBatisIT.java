@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
+import org.gbif.api.model.common.Count;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
@@ -10,7 +11,6 @@ import org.gbif.api.vocabulary.Rank;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -84,12 +84,11 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
 
   @Test
   public void testConstituent() {
-    Map<UUID, Integer> constituents = service.constituents(CHECKLIST_KEY);
+    List<Count<UUID>> constituents = service.constituents(CHECKLIST_KEY);
     assertEquals(3, constituents.size());
-    assertEquals((Integer)8, constituents.get(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f5")));
-    assertEquals((Integer)17, constituents.get(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f4")));
-    UUID nullKey = null;
-    assertEquals((Integer)19, constituents.get(nullKey));
+    assertEquals(new Count<UUID>(null, null, 19), constituents.get(0));
+    assertEquals(new Count<UUID>(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f4"), null, 17), constituents.get(1));
+    assertEquals(new Count<UUID>(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f5"), null, 8), constituents.get(2));
   }
 
 }

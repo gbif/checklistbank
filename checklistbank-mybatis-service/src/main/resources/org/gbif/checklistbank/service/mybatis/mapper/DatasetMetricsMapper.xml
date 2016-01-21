@@ -33,6 +33,12 @@
     <result property="count" column="cnt" />
   </resultMap>
 
+  <resultMap id="constituentCount" type="DCount">
+    <result property="key" column="constituent_key" javaType="java.util.UUID"/>
+    <result property="title" column="title" />
+    <result property="count" column="cnt" />
+  </resultMap>
+
 
   <sql id="SELECT">
     id, dataset_key, count_usages, count_synonyms, count_names,
@@ -56,12 +62,12 @@
     ORDER BY created DESC
   </select>
 
-  <select id="constituents" parameterType="map" resultType="hashmap">
-    SELECT constituent_key, count(*) AS cnt
-    FROM name_usage
-    WHERE dataset_key=#{uuid}
-    GROUP BY constituent_key
-    ORDER BY 2 DESC
+  <select id="constituents" parameterType="map" resultMap="constituentCount">
+    SELECT u.constituent_key, d.title, count(*) AS cnt
+    FROM name_usage u left join dataset d on u.constituent_key=d.key
+    WHERE u.dataset_key=#{uuid}
+    GROUP BY u.constituent_key, d.title
+    ORDER BY 3 DESC, 2
   </select>
 
   <!--

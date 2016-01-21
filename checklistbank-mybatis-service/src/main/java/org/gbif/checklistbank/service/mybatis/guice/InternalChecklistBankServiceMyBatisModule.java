@@ -13,6 +13,7 @@ import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.common.Count;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.checklistbank.DescriptionService;
@@ -111,27 +112,28 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
   protected void bindMappers() {
 
     // mybatis config
-    addAlias("Usage").to(Usage.class);
-    addAlias("RawUsage").to(RawUsage.class);
+    addAlias("DCount").to(Count.class);
+    addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
+    addAlias("DatasetMetrics").to(DatasetMetrics.class);
+    addAlias("Description").to(Description.class);
+    addAlias("Distribution").to(Distribution.class);
+    addAlias("Identifier").to(Identifier.class);
     addAlias("NameUsage").to(NameUsage.class);
     addAlias("NameUsageContainer").to(NameUsageContainer.class);
+    addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
     addAlias("NameUsageMetrics").to(NameUsageMetrics.class);
     addAlias("NameUsageWritable").to(NameUsageWritable.class);
     addAlias("ParsedName").to(ParsedName.class);
-    addAlias("VernacularName").to(VernacularName.class);
+    addAlias("RawUsage").to(RawUsage.class);
     addAlias("Reference").to(Reference.class);
-    addAlias("Description").to(Description.class);
-    addAlias("Identifier").to(Identifier.class);
-    addAlias("Distribution").to(Distribution.class);
-    addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
     addAlias("SpeciesProfile").to(SpeciesProfile.class);
-    addAlias("TypeSpecimen").to(TypeSpecimen.class);
-    addAlias("DatasetMetrics").to(DatasetMetrics.class);
-    addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
-    addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
     addAlias("TocEntry").to(TocEntry.class);
-    addAlias("UsageRelated").to(UsageRelated.class);
+    addAlias("TypeSpecimen").to(TypeSpecimen.class);
+    addAlias("Usage").to(Usage.class);
     addAlias("UsageCount").to(UsageCount.class);
+    addAlias("UsageRelated").to(UsageRelated.class);
+    addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
+    addAlias("VernacularName").to(VernacularName.class);
 
     // mybatis mapper
     addMapperClass(UsageMapper.class);
