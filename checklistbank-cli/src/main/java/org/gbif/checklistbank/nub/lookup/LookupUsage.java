@@ -5,6 +5,9 @@ import org.gbif.api.vocabulary.Rank;
 
 import java.util.Objects;
 
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
+
 /**
  * Simple usage representing the minimal nub usage info needed to match names.
  */
@@ -113,14 +116,11 @@ public class LookupUsage implements Comparable<LookupUsage> {
     }
 
   @Override
-  public int compareTo(LookupUsage o) {
-    int res = Integer.compare(this.rank.ordinal(), o.rank.ordinal());
-    if (res == 0) {
-      res = Integer.compare(this.kingdom.ordinal(), o.kingdom.ordinal());
-    }
-    if (res == 0) {
-      res = this.canonical.compareTo(o.canonical);
-    }
-    return res;
+  public int compareTo(LookupUsage that) {
+    return ComparisonChain.start()
+        .compare(this.rank, that.rank, Ordering.natural().nullsLast())
+        .compare(this.kingdom, that.kingdom, Ordering.natural().nullsLast())
+        .compare(this.canonical, that.canonical, Ordering.natural().nullsLast())
+        .result();
   }
 }

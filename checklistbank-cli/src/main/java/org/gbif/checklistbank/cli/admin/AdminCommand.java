@@ -310,7 +310,9 @@ public class AdminCommand extends BaseCommand {
       LOG.info("Nub assertions passed!");
 
     } finally {
-      dao.close();
+      if (dao != null) {
+        dao.close();
+      }
     }
   }
 
