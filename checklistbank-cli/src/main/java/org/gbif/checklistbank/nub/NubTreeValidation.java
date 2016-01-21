@@ -24,6 +24,7 @@ public class NubTreeValidation implements TreeValidation {
   }
 
   private Result query(String cypher) {
+    LOG.debug("Execute: {}", cypher);
     return db.dao.getNeo().execute(cypher);
   }
 

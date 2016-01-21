@@ -68,7 +68,7 @@ public class AdminCommand extends BaseCommand {
       AdminOperation.SYNC_DATASETS,
       AdminOperation.UPDATE_VERBATIM,
       AdminOperation.DUMP,
-      AdminOperation.VERIFY_NUB
+      AdminOperation.VALIDATE_NEO
   );
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
@@ -171,8 +171,8 @@ public class AdminCommand extends BaseCommand {
         dumpToNeo();
         break;
 
-      case VERIFY_NUB:
-        verifyNub();
+      case VALIDATE_NEO:
+        verifyNeo();
         break;
 
       default:
@@ -297,10 +297,10 @@ public class AdminCommand extends BaseCommand {
     src.init(true, cfg.nubRanksOnly);
   }
 
-  private void verifyNub() throws Exception {
+  private void verifyNeo() throws Exception {
     UsageDao dao = null;
     try {
-      dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
+      dao = UsageDao.open(cfg.neo, cfg.key);
       NubDb db = NubDb.open(dao, AuthorComparator.createWithoutAuthormap());
 
       validate(dao, new NubTreeValidation(db));
