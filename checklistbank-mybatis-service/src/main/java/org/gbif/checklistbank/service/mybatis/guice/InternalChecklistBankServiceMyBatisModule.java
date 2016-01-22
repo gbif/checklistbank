@@ -136,25 +136,25 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addAlias("VernacularName").to(VernacularName.class);
 
     // mybatis mapper
-    addMapperClass(UsageMapper.class);
-    addMapperClass(UsageCountMapper.class);
-    addMapperClass(NameUsageMapper.class);
-    addMapperClass(VernacularNameMapper.class);
-    addMapperClass(ReferenceMapper.class);
-    addMapperClass(DescriptionMapper.class);
-    addMapperClass(IdentifierMapper.class);
-    addMapperClass(DistributionMapper.class);
-    addMapperClass(MultimediaMapper.class);
-    addMapperClass(SpeciesProfileMapper.class);
-    addMapperClass(TypeSpecimenMapper.class);
-    addMapperClass(DatasetMetricsMapper.class);
-    addMapperClass(DatasetMapper.class);
-    addMapperClass(RawUsageMapper.class);
-    addMapperClass(ParsedNameMapper.class);
     addMapperClass(CitationMapper.class);
+    addMapperClass(ColAnnotationMapper.class);
+    addMapperClass(DatasetMapper.class);
+    addMapperClass(DatasetMetricsMapper.class);
+    addMapperClass(DescriptionMapper.class);
+    addMapperClass(DistributionMapper.class);
+    addMapperClass(IdentifierMapper.class);
+    addMapperClass(MultimediaMapper.class);
+    addMapperClass(NameUsageMapper.class);
     addMapperClass(NameUsageMetricsMapper.class);
     addMapperClass(NubRelMapper.class);
-    addMapperClass(ColAnnotationMapper.class);
+    addMapperClass(ParsedNameMapper.class);
+    addMapperClass(RawUsageMapper.class);
+    addMapperClass(ReferenceMapper.class);
+    addMapperClass(SpeciesProfileMapper.class);
+    addMapperClass(TypeSpecimenMapper.class);
+    addMapperClass(UsageCountMapper.class);
+    addMapperClass(UsageMapper.class);
+    addMapperClass(VernacularNameMapper.class);
   }
 
   @Override

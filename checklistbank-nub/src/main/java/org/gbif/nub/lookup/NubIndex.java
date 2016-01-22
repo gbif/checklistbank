@@ -1,5 +1,6 @@
 package org.gbif.nub.lookup;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
@@ -7,14 +8,18 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -24,7 +29,10 @@ import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.FuzzyQuery;
@@ -34,20 +42,27 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 /**
- * A memory based lucene index keeping the core attributes of a nub name usage.
+ * A read only lucene index keeping the core attributes of a nub name usage.
  * The index exposes matching methods that allow to select usages based on their nub key or do fuzzy matches
  * on the canonical name alone.
  *
  * The index lies at the core of the nub matching service to preselect a list of potential good matches.
  *
- * For the entire nub with roughly 4.5 million usages this index requires 4GB of java memory.
+ * The index can either be purely memory based or on the filesystem using a memory mapped OS cache.
+ * For the entire nub with roughly 4.5 million usages this index requires 4GB of heap memory if the RAMDirectory is used.
+ * The memory mapped file index uses very little heap memory and instead all available memory should be given to the OS
+ * to enabling caching on the file system level.
  */
-public abstract class NubIndex implements ClassificationResolver {
+public class NubIndex implements ClassificationResolver {
+  private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
 
   /**
    * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
@@ -63,8 +78,8 @@ public abstract class NubIndex implements ClassificationResolver {
     INT_FIELD_MAX_PRECISION.freeze();
   }
 
-  protected static final String FIELD_ID = "id";
-  protected static final String FIELD_CANONICAL_NAME = "canonical";
+  private static final String FIELD_ID = "id";
+  private static final String FIELD_CANONICAL_NAME = "canonical";
   private static final String FIELD_SCIENTIFIC_NAME = "sciname";
   private static final String FIELD_RANK = "rank";
   private static final String FIELD_STATUS = "status";
@@ -87,10 +102,78 @@ public abstract class NubIndex implements ClassificationResolver {
     .put(Rank.SPECIES, "sid")
     .build();
 
+  private static final Analyzer analyzer = new ScientificNameAnalyzer();
+  private final Directory index;
+  private final IndexSearcher searcher;
+  
+  private static void load(Directory d, NameUsageMapper mapper) throws IOException {
+    LOG.info("Start building a new nub index");
+    IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
+    IndexWriter writer = new IndexWriter(d, cfg);
+    // creates initial index segments
+    writer.commit();
 
-  private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
+    IndexBuildHandler builder = new IndexBuildHandler(writer);
+    mapper.processDataset(Constants.NUB_DATASET_KEY, builder);
 
-  protected static final Analyzer analyzer = new ScientificNameAnalyzer();
+    writer.close();
+    LOG.info("Finished building nub index");
+  }
+
+  public static NubIndex newMemoryIndex(NameUsageMapper mapper) throws IOException {
+    RAMDirectory dir = new RAMDirectory();
+    load(dir, mapper);
+    return new NubIndex(dir);
+  }
+
+  public static NubIndex newMemoryIndex(Iterable<NameUsageMatch> usages) throws IOException {
+    LOG.info("Start building a new nub RAM index");
+    RAMDirectory dir = new RAMDirectory();
+    IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
+    IndexWriter writer = new IndexWriter(dir, cfg);
+    // creates initial index segments
+    writer.commit();
+    int counter = 0;
+    for (NameUsageMatch u : usages) {
+      if (u != null && u.getUsageKey() != null) {
+        writer.addDocument(toDoc(u));
+        counter++;
+      }
+    }
+    writer.close();
+    LOG.info("Finished building nub index with {} usages", counter);
+    return new NubIndex(dir);
+  }
+
+  /**
+   * Creates a nub index for the backbone by loading it from the lucene index dir if it exists.
+   * If it is not existing a new index directory will be built using the UsageService with given threads.
+   * If the indexDir is null the index is never written to the filesytem but just kept in memory.
+   * @param indexDir directory to use as the lucence index directory. If null the index is only kept in memory.
+   */
+  public static NubIndex newFileIndex(File indexDir, NameUsageMapper mapper) throws IOException {
+    MMapDirectory dir;
+    if (indexDir.exists()) {
+      Preconditions.checkArgument(indexDir.isDirectory(), "Given index directory exists but is not a directory");
+      // load existing index from disk
+      LOG.info("Loading existing nub index from disk: {}", indexDir.getAbsoluteFile());
+      dir = new MMapDirectory(indexDir.toPath());
+
+    } else {
+      // create new memory mapped file based index and then populate it
+      LOG.info("Creating new nub index directory at {}", indexDir.getAbsoluteFile());
+      FileUtils.forceMkdir(indexDir);
+      dir = new MMapDirectory(indexDir.toPath());
+      load(dir, mapper);
+    }
+    return new NubIndex(dir);
+  }
+
+  public NubIndex(Directory d) throws IOException {
+    index = d;
+    DirectoryReader reader= DirectoryReader.open(index);
+    searcher = new IndexSearcher(reader);
+  }
 
 
   public NameUsageMatch matchByUsageId(Integer usageID) {
@@ -187,7 +270,9 @@ public abstract class NubIndex implements ClassificationResolver {
     return results;
   }
 
-  abstract IndexSearcher obtainSearcher();
+  private IndexSearcher obtainSearcher() {
+    return searcher;
+  }
 
   /**
    * Builds a NameUsageMatch instance from a lucene Document and populates all fields but the matching specifics
@@ -216,14 +301,14 @@ public abstract class NubIndex implements ClassificationResolver {
     return toDoc(u.getKey(), u.getCanonicalName(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
   }
 
-  protected static Document toDoc(NameUsageMatch u) {
+  private static Document toDoc(NameUsageMatch u) {
     return toDoc(u.getUsageKey(), u.getCanonicalName(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
   }
 
   /**
    * @param status any status incl null. Will be converted to just 3 accepted, synonym & doubtful
    */
-  protected static Document toDoc(int key, String canonical, String sciname, TaxonomicStatus status, Rank rank,
+  private static Document toDoc(int key, String canonical, String sciname, TaxonomicStatus status, Rank rank,
     LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();

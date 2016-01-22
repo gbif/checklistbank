@@ -25,7 +25,7 @@ public class NubMatchingServiceImplLegacyIT {
     HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");
 
-    NubIndex index = NubIndexImmutable.newMemoryIndex(NubIndexImmutableTest.readTestNames());
+    NubIndex index = NubIndex.newMemoryIndex(NubIndexTest.readTestNames());
 
     matcher = new NubMatchingServiceImpl(index, syn, new NameParser());
   }

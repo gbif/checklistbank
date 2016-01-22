@@ -39,7 +39,7 @@ public class NubMatchingTestModule extends PrivateModule {
   @Inject
   @Singleton
   public static NubIndex provideIndex() throws IOException {
-    return NubIndexImmutable.newMemoryIndex(loadIndexJson());
+    return NubIndex.newMemoryIndex(loadIndexJson());
   }
 
   @Provides

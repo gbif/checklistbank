@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class NubIndexImmutableTest {
+public class NubIndexTest {
 
   private static NubIndex index;
 
@@ -30,7 +30,7 @@ public class NubIndexImmutableTest {
   public static void buildMatcher() throws IOException {
     HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");
-    index = NubIndexImmutable.newMemoryIndex(readTestNames());
+    index = NubIndex.newMemoryIndex(readTestNames());
   }
 
   public static List<NameUsageMatch> readTestNames() throws IOException {

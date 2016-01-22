@@ -17,6 +17,7 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.UsageSyncService;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.nameparser.NameParser;
@@ -92,6 +93,8 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     expose(DatasetImportService.class).annotatedWith(Mybatis.class);
     expose(UsageSyncService.class);
 
+    // mappers being exposed
+    expose(NameUsageMapper.class);
   }
 
 }
