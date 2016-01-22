@@ -105,7 +105,7 @@ public class NubIndex implements ClassificationResolver {
   private static final Analyzer analyzer = new ScientificNameAnalyzer();
   private final Directory index;
   private final IndexSearcher searcher;
-  
+
   private static void load(Directory d, NameUsageMapper mapper) throws IOException {
     LOG.info("Start building a new nub index");
     IndexWriterConfig cfg = new IndexWriterConfig(analyzer);

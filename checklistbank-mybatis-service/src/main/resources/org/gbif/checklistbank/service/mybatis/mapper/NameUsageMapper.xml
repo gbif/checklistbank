@@ -145,7 +145,16 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         WHERE u.deleted IS NULL AND u.id between #{start} and #{end}
     </select>
 
-    <!--  list root usages -->
+  <!--  select all name usages of a dataset -->
+  <select id="processDataset" parameterType="map" resultMap="usageResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
+  </select>
+
+  <!--  list root usages -->
     <select id="listRoot" parameterType="map" resultMap="usageResultMap">
         SELECT
         <include refid="select"/>
