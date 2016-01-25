@@ -388,6 +388,10 @@ public class NubDb {
         updateParentRel(nub, parent);
       }
     }
+    // flag autonyms
+    if (nub.parsedName != null && nub.parsedName.isAutonym()) {
+      nub.node.addLabel(Labels.AUTONYM);
+    }
     // add rank specific labels so we can easily find them later
     switch (nub.rank) {
       case FAMILY:

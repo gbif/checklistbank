@@ -387,6 +387,28 @@ public class NubBuilder implements Runnable {
    * We do this last to not create autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
    */
   private void createAutonyms() {
+    LOG.info("Delete lonely autonyms");
+    try (Transaction tx = db.beginTx()) {
+      for (Node n : IteratorUtil.loop(db.dao.allAutonyms())) {
+        Rank rank = NeoProperties.getRank(n, Rank.UNRANKED);
+        if (!n.hasLabel(Labels.SYNONYM)) {
+          Node p = db.getParent(n);
+          // count all childs of same rank
+          int count = 0;
+          for (Node c : Traversals.CHILDREN.traverse(p).nodes()) {
+            if (NeoProperties.getRank(c, Rank.UNRANKED) == rank) {
+              count++;
+            }
+          }
+          if (count == 1) {
+            // only this accepted autonym, try to remove!!!
+            LOG.info("Removing lonely {} autonym {} {}", rank, n, NeoProperties.getScientificName(n));
+            removeTaxonIfEmpty(db.dao.readNub(n));
+          }
+        }
+      }
+    }
+
     LOG.info("Start creating missing autonyms");
     try (Transaction tx = db.beginTx()) {
       int counter = 0;
@@ -438,7 +460,7 @@ public class NubBuilder implements Runnable {
 
   /**
    * Goes through all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
-   * As we often see missing brackets from author names we must code defensively and allow several original names in the datat for a single epithet.
+   * As we often see missing brackets from author names we must code defensively and allow several original names in the data for a single epithet.
    */
   private void detectBasionyms() {
     try {
@@ -463,8 +485,8 @@ public class NubBuilder implements Runnable {
             // key all names by their terminal epithet
             for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
               NubUsage nub = read(c);
-              // ignore all supra specific names
-              if (nub.rank.isSpeciesOrBelow()) {
+              // ignore all supra specific names and autonyms
+              if (nub.rank.isSpeciesOrBelow() && !c.hasLabel(Labels.AUTONYM)) {
                 String epithet = nub.parsedName.getTerminalEpithet();
                 if (!epithets.containsKey(epithet)) {
                   epithets.put(epithet, Lists.newArrayList(nub));

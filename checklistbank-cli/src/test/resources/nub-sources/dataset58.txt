@@ -1,0 +1,15 @@
+1			KINGDOM	ACCEPTED		Fungi
+2	1		PHYLUM	ACCEPTED		Ascomycota
+3	2		CLASS	ACCEPTED		Lecanoromycetes
+4	3		ORDER	ACCEPTED		Lecanorales
+10	4		FAMILY	ACCEPTED		Parmeliaceae
+112892073	10		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale
+112892078	112892073		SPECIES	SYNONYM		Lichen quercinus Willd.
+112892075	112892073	112892078	SPECIES	SYNONYM		Parmelia quercina (Willd.) Vain.
+112892077	112892073		SPECIES	SYNONYM		Parmelia tiliacea
+112906255	10		FORM	ACCEPTED		Parmelina quercina f. quercina
+112906251	10		FORM	ACCEPTED		Parmelina quercina f. caperata (Hillmann) S.Y. Kondr.
+112906253	10	112906148	FORM	ACCEPTED		Parmelina quercina f. pruinosa (Harm.) S.Y. Kondr.
+112906148	10		FORM	ACCEPTED		Parmelia tiliacea f. pruinosa Harm.
+112980410	10	112892078	SPECIES	ACCEPTED		Imbricaria quercina (Willd.) DC.
+112951973	10	112892078	SPECIES	ACCEPTED		Lobaria quercina (Willd.) P. Gaertn., G. Mey. & Scherb.

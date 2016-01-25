@@ -1,0 +1,14 @@
+1			KINGDOM	ACCEPTED		Fungi
+2	1		PHYLUM	ACCEPTED		Ascomycota
+3	2		CLASS	ACCEPTED		Lecanoromycetes
+4	3		ORDER	ACCEPTED		Lecanorales
+10	4		FAMILY	ACCEPTED		Parmeliaceae Zenker, 1827
+100	4		GENUS	ACCEPTED		Parmelina M.E. Hale, 1974
+101	100		GENUS	SYNONYM		Parmeliomyces E.A. Thomas ex Ciferri & Tomaselli, 1953
+108307193	100		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale, 1974
+108307196	108307193		SPECIES	SYNONYM		Parmelia quercina (Willd.) Vain., 1899
+108307195	108307193		SPECIES	SYNONYM		Parmelia tiliacea sensu auct. brit.p.p.
+108307197	108307193		SPECIES	SYNONYM		Lichen quercinus Willd.
+108307194	108307193		SPECIES	SYNONYM		Parmelia carporrhizans Taylor, 1847
+108307198	108307193		SPECIES	SYNONYM		Parmelina carporrhizans (Taylor) Poelt & Vezda, 1977
+108307188	100		SPECIES	ACCEPTED		Parmelina pallida Elix & Kantvilas, 2001

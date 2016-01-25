@@ -9,6 +9,7 @@ public enum Labels implements Label {
     TAXON,
     SYNONYM,
     BASIONYM,
+    AUTONYM,
     FAMILY,
     GENUS,
     SPECIES,

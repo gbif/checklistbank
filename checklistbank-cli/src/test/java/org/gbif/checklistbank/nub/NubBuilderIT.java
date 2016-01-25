@@ -66,6 +66,7 @@ public class NubBuilderIT {
 
   @Before
   public void init() {
+    // add shell port (standard is 1337, but already taken on OSX) to open the neo4j shell server for debugging!!!
     dao = UsageDao.temporaryDao(128);
   }
 
@@ -915,6 +916,8 @@ public class NubBuilderIT {
    * Eternal loop that keeps the shell up and running so one can conenct to it and issue queries.
    */
   private void runShell() throws InterruptedException {
+    System.out.println("run shell forever ...");
+
     while(true) {
       Thread.sleep(1000);
     }
@@ -1015,6 +1018,25 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("52 54 55.txt");
+  }
+
+
+  /**
+   * Test to avoid self loops in CoL autonyms, caused by bad basionym grouping.
+   * 56=CoL
+   * 57=IRMNG
+   * 58=IF
+   *
+   * Parmelia tiliacea is created as an implicit name because IRMNG uses "Parmelia tiliacea sensu auct. brit.p.p." which gets ignored as a concept name
+   *
+   */
+  @Test
+  public void testColIfAutonym() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(56, 57, 58);
+    src.setNomenclator(58);
+    build(src);
+
+    assertTree("56 57 58.txt");
   }
 
   /**

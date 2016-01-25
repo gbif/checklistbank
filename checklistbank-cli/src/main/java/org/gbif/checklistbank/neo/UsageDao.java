@@ -689,6 +689,10 @@ public class UsageDao {
     return getNeo().findNodes(Labels.INFRASPECIES);
   }
 
+  public ResourceIterator<Node> allAutonyms() {
+    return getNeo().findNodes(Labels.AUTONYM);
+  }
+
   public ResourceIterator<Node> allBasionyms() {
     return getNeo().findNodes(Labels.BASIONYM);
   }
