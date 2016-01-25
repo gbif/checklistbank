@@ -382,10 +382,9 @@ public class NubDb {
     } else {
       nub.kingdom = parent.kingdom;
       if (nub.status != null && nub.status.isSynonym()) {
-        nub.node.addLabel(Labels.SYNONYM);
-        nub.node.createRelationshipTo(parent.node, RelType.SYNONYM_OF);
+        createSynonymRelation(nub.node, parent.node);
       } else {
-        updateParentRel(nub, parent);
+        createParentRelation(nub, parent);
       }
     }
     // flag autonyms
@@ -419,17 +418,25 @@ public class NubDb {
    * the child node.
    * Parent child relations with genus or species epithet not matching up are flagged with NameUsageIssue.NAME_PARENT_MISMATCH
    */
-  public void updateParentRel(NubUsage n, NubUsage parent) {
-    setSingleToRelationship(parent.node, n.node, RelType.PARENT_OF);
-    // flag non matching names
-    if (n.parsedName.isBinomial() && !parent.rank.isSuprageneric()) {
-      // genus and potentiall species epithet should match - flag otherwise
-      if (!n.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())
-          || (parent.parsedName.isBinomial() && !n.parsedName.getSpecificEpithet().equals(parent.parsedName.getSpecificEpithet())))
-      {
-        n.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
-      }
+  public boolean createParentRelation(NubUsage n, NubUsage parent) {
+    return createParentRelation(n.node, parent.node, n.rank, parent.rank);
+  }
+
+  public boolean createParentRelation(Node n, Node parent) {
+    return createParentRelation(n, parent, NeoProperties.getRank(n, Rank.UNRANKED), NeoProperties.getRank(parent, Rank.UNRANKED));
+  }
+
+  private boolean createParentRelation(Node n, Node parent, Rank nRank, Rank parentRank) {
+    if (n.equals(parent)) {
+      LOG.warn("Avoid setting set parent rel to oneself on {} {}", n, NeoProperties.getScientificName(n));
+      return false;
     }
+    if (nRank.higherThan(parentRank)) {
+      LOG.warn("Avoid setting inverse parent rel from {} {} to {} {}", parent, NeoProperties.getScientificName(parent), n, NeoProperties.getScientificName(n));
+      return false;
+    }
+    setSingleToRelationship(parent, n, RelType.PARENT_OF);
+    return true;
   }
 
   /**
@@ -479,13 +486,9 @@ public class NubDb {
     for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
       Node child = rel.getOtherNode(n);
       rel.delete();
-      parent.node.createRelationshipTo(child, RelType.PARENT_OF);
       // read nub usage to add an issue to the child
       NubUsage cu = dao.readNub(child);
-      if (cu == null) {
-        LOG.warn("Child {} of new parent {} not existing. Ignore", child.getId(), parent.parsedName.fullName());
-        return;
-      }
+      createParentRelation(cu, parent);
       Collections.addAll(cu.issues, issues);
       if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
         cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);

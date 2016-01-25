@@ -450,15 +450,6 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Goes through all accepted species and infraspecies and makes sure the name matches the genus, species classification.
-   * For example an accepted species Picea alba with a parent genus of Abies is taxonomic nonsense.
-   * Badly classified names are assigned the doubtful status and an NameUsageIssue.NAME_PARENT_MISMATCH is flagged
-   */
-  private void flagParentMismatch() {
-
-  }
-
-  /**
    * Goes through all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
    * As we often see missing brackets from author names we must code defensively and allow several original names in the data for a single epithet.
    */
@@ -655,6 +646,51 @@ public class NubBuilder implements Runnable {
               nub.status = TaxonomicStatus.DOUBTFUL;
             }
             db.store(nub);
+          }
+        }
+      }
+      tx.success();
+    }
+  }
+
+  /**
+   * Goes through all accepted species and infraspecies and makes sure the name matches the genus, species classification.
+   * For example an accepted species Picea alba with a parent genus of Abies is taxonomic nonsense.
+   * Badly classified names are assigned the doubtful status and an NameUsageIssue.NAME_PARENT_MISMATCH is flagged
+   */
+  private void flagParentMismatch() {
+    LOG.info("flag classification name mismatches");
+    try (Transaction tx = db.beginTx()) {
+      for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
+        if (!gen.hasLabel(Labels.SYNONYM)) {
+          NubUsage nub = read(gen);
+          final String genus = nub.parsedName.getGenusOrAbove();
+
+          // flag non matching names
+          for (Node spn : Traversals.CHILDREN.traverse(gen).nodes()) {
+            NubUsage sp = db.dao.readNub(spn);
+            if (sp.rank != Rank.SPECIES) {
+              LOG.warn("Genus child is not a species: {} {}", sp.rank, NeoProperties.getScientificName(spn));
+              continue;
+            }
+            if (!genus.equals(sp.parsedName.getGenusOrAbove())){
+              sp.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
+            }
+            db.store(sp);
+
+            // check infraspecific names
+            final String species = sp.parsedName.getSpecificEpithet();
+            for (Node ispn : Traversals.CHILDREN.traverse(spn).nodes()) {
+              NubUsage isp = db.dao.readNub(ispn);
+              if (isp.parsedName.getInfraSpecificEpithet() == null) {
+                LOG.warn("Species child without an infraspecific epithet: {} {}", isp.rank, NeoProperties.getScientificName(ispn));
+                continue;
+              }
+              if (!genus.equals(isp.parsedName.getGenusOrAbove()) || !species.equals(isp.parsedName.getInfraSpecificEpithet())){
+                isp.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
+                db.store(isp);
+              }
+            }
           }
         }
       }
@@ -993,12 +1029,6 @@ public class NubBuilder implements Runnable {
     if (u.nomStatus != null && u.nomStatus.length > 0 && (nub.nomStatus.isEmpty() || currSrc.nomenclator)) {
       nub.nomStatus = Sets.newHashSet(u.nomStatus);
     }
-
-    // TODO: remember all author spelling variations we come across for better subsequent comparisons
-    //String authors = u.parsedName.authorshipComplete();
-    //if (!Strings.isBlank(authors)) {
-    //    nub.authors.add(authors);
-    //}
   }
 
   private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
@@ -1015,7 +1045,8 @@ public class NubBuilder implements Runnable {
         nub.status = u.status;
         if (isNewParentApplicable(nub, currNubParent, parent) && !db.existsInClassification(currNubParent.node, parent.node)) {
           // current classification doesnt have that parent yet, lets apply it
-          updateParent(nub, parent);
+          LOG.debug("Update doubtful {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
+          db.createParentRelation(nub, parent);
         }
       }
       if (origin == Origin.SOURCE) {
@@ -1042,15 +1073,11 @@ public class NubBuilder implements Runnable {
     } else {
       // ACCEPTED
       if (isNewParentApplicable(nub, currNubParent, parent) && currNubParent.rank != parent.rank && db.existsInClassification(parent.node, currNubParent.node)) {
-        updateParent(nub, parent);
+        LOG.debug("Update {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
+        db.createParentRelation(nub, parent);
       }
     }
     db.store(nub);
-  }
-
-  private void updateParent(NubUsage child, NubUsage parent) {
-    LOG.debug("Update {} classification with new parent {} {}", child.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
-    db.updateParentRel(child, parent);
   }
 
   private boolean isNewParentApplicable(NubUsage nub, NubUsage currParent, NubUsage newParent) {
