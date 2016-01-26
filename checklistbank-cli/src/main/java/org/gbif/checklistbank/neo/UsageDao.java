@@ -211,7 +211,7 @@ public class UsageDao {
    * Prints all neo4j node names out to a print stream, mainly for debugging.
    * This avoids (potentially erroneous) tree traversals missing some nodes.
    */
-  public void logAllNodes() throws Exception {
+  public void logAll() throws Exception {
     for (Node n : GlobalGraphOperations.at(neo).getAllNodes()) {
       LOG.info("{} {} [{} {}]", n.getId(), NeoProperties.getScientificName(n), (n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name()).toLowerCase(), NeoProperties.getRank(n, null));
     }

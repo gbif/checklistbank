@@ -260,7 +260,7 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       File conf = new File(solrHome, "conf");
       ResourcesUtil.copy(conf, "solr/default/", false, "synonyms.txt", "protwords.txt", "stopwords.txt");
       // copy specific configurations, overwriting above defaults
-      ResourcesUtil.copy(conf, "solr/collection1/conf/", false, "schema.xml", "solrconfig.xml");
+      ResourcesUtil.copy(conf, "solr/checklistbank/conf/", false, "schema.xml", "solrconfig.xml");
 
       // insert container
       CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome.getAbsolutePath(), new File(solrHome, "solr.xml"));

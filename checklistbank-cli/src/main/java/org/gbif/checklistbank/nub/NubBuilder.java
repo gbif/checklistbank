@@ -185,6 +185,7 @@ public class NubBuilder implements Runnable {
       flagDoubtfulOriginalNames();
 
       // create missign autonyms
+      fixInfraspeciesHierarchy();
       createAutonyms();
 
       // basic neo tree checks, fail fast
@@ -222,6 +223,20 @@ public class NubBuilder implements Runnable {
         LOG.warn("Backbone dao not closed!");
       }
     }
+  }
+
+  /**
+   * If there are several accepted infraspecific ranks for a given species
+   * this method makes sure the species subtree makes sense.
+   *
+   * The same epithet can be used again within a species, at whatever level, only if the names with the re-used epithet
+   * are attached to the same type. Thus there can be a form called Poa secunda f. juncifolia as well as
+   * the subspecies Poa secunda subsp. juncifolia if, and only if, the type specimen of Poa secunda f. juncifolia
+   * is the same as the type specimen of Poa secunda subsp. juncifolia.
+   * In other words, if there is a single type specimen whose classification is Poa secunda subsp. juncifolia f. juncifolia.
+   */
+  private void fixInfraspeciesHierarchy() {
+    //TODO
   }
 
   /**
@@ -664,8 +679,12 @@ public class NubBuilder implements Runnable {
       for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
         if (!gen.hasLabel(Labels.SYNONYM)) {
           NubUsage nub = read(gen);
-          final String genus = nub.parsedName.getGenusOrAbove();
+          if (nub.kingdom == Kingdom.VIRUSES) {
+            // virus names are beasts
+            continue;
+          }
 
+          final String genus = nub.parsedName.getGenusOrAbove();
           // flag non matching names
           for (Node spn : Traversals.CHILDREN.traverse(gen).nodes()) {
             NubUsage sp = db.dao.readNub(spn);
@@ -906,31 +925,46 @@ public class NubBuilder implements Runnable {
 
   private NubUsageMatch createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
     addParsedNameIfNull(u);
-
     // if this is a synonym but the parent is not part of the nub (e.g. cause its a placeholder name) ignore it!
     // http://dev.gbif.org/issues/browse/POR-2990
     if (u.status.isSynonym() && !parents.parentInNub()) {
       throw new IgnoreSourceUsageException("Ignoring synonym as accepted parent is not part of the nub", u.scientificName);
     }
+    // make sure parent is accepted
+    if (p.status.isSynonym()) {
+      LOG.warn("Parent {} of {} is a synonym", p.parsedName.canonicalNameComplete(), u.parsedName.canonicalNameComplete());
+      throw new IllegalStateException("Parent is a synonym"+u.scientificName);
+    }
 
     // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
-    if (p.kingdom != Kingdom.VIRUSES && u.status.isAccepted() && u.parsedName.getGenusOrAbove() != null && p.status.isAccepted()) {
+    if (p.kingdom != Kingdom.VIRUSES && u.status.isAccepted()) {
+
+      // we want the parent of any infraspecies ranks to be the species
+      if (p.rank.isInfraspecific()) {
+        p = findParentSpecies(p);
+      }
+
       // check if implicit species or genus parents are needed
       SrcUsage implicit = new SrcUsage();
       NubUsage implicitParent = null;
       try {
-        if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
-          implicit.rank = Rank.GENUS;
-          implicit.scientificName = u.parsedName.getGenusOrAbove();
-          implicit.status = u.status;
-          implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+        if (u.parsedName.getGenusOrAbove() != null) {
+          if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
+            implicit.rank = Rank.GENUS;
+            implicit.scientificName = u.parsedName.getGenusOrAbove();
+            implicit.status = u.status;
+            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
 
-        } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
-          implicit.rank = Rank.SPECIES;
-          implicit.scientificName = u.parsedName.canonicalSpeciesName();
-          implicit.status = u.status;
-          implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+          } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
+            implicit.rank = Rank.SPECIES;
+            implicit.scientificName = u.parsedName.canonicalSpeciesName();
+            implicit.status = u.status;
+            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+          }
+        } else {
+          LOG.warn("Missing genus in parsed name for {}", u.scientificName);
         }
+
       } catch (IgnoreSourceUsageException e) {
         LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
 
@@ -954,6 +988,17 @@ public class NubBuilder implements Runnable {
     return NubUsageMatch.match(db.addUsage(p, u, origin, currSrc.key));
   }
 
+  /**
+   * moves up the parent_of rels to the species or first taxon above.
+   * Returns original usage in case rank was at species level or above already
+   */
+  private NubUsage findParentSpecies(NubUsage p) {
+    while (p.rank.isInfraspecific()) {
+      p = db.getParent(p);
+    }
+    return p;
+  }
+
   private void addParsedNameIfNull(SrcUsage u) throws IgnoreSourceUsageException {
     if (u.parsedName == null) {
       try {
@@ -973,12 +1018,10 @@ public class NubBuilder implements Runnable {
         }
         // consider parsed rank only for bi/trinomials
         Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
-        if (pRank != null && u.rank != pRank) {
-          if (u.rank == null || u.rank.isUncomparable()) {
+        if (pRank != null && u.rank != pRank && !pRank.isUncomparable()) {
+          if (u.rank.isUncomparable()) {
             LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
             u.rank = pRank;
-          } else if (pRank.isUncomparable()) {
-            LOG.debug("Rank {} does not match parsed fuzzy rank {} for {}", u.rank, pRank, u.scientificName);
           } else {
             LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
             throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);

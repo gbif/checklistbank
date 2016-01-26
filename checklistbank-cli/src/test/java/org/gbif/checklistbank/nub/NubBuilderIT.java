@@ -1020,7 +1020,6 @@ public class NubBuilderIT {
     assertTree("52 54 55.txt");
   }
 
-
   /**
    * Test to avoid self loops in CoL autonyms, caused by bad basionym grouping.
    * 56=CoL
@@ -1040,6 +1039,19 @@ public class NubBuilderIT {
   }
 
   /**
+   * Test nexted infraspecific source taxa.
+   * In the nub we do not want nested infraspecific taxa, but attach all accepted infraspecific names to the species directly
+   *
+   */
+  @Test
+  public void testInfraspecificTrees() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(59);
+    build(src);
+
+    assertTree("59.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
@@ -1049,7 +1061,7 @@ public class NubBuilderIT {
     log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
 
     tx = dao.beginTx();
-    dao.logAllNodes();
+    dao.logAll();
     printTree();
 
     // assert we have only ever 8 root taxa - the kingdoms

@@ -9,9 +9,7 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 import com.google.common.base.Throwables;
@@ -45,7 +43,7 @@ public class SolrIndexingTestModule extends AbstractModule {
    */
   private static void removeUnUsedSolrCfg(){
     try {
-      Files.delete(Paths.get(Resources.getResource("solr/collection1/conf/hdfs_directory_factory.xml").toURI()));
+      Files.delete(Paths.get(Resources.getResource("solr/checklistbank/conf/hdfs_directory_factory.xml").toURI()));
     } catch(URISyntaxException | IOException ex){
       Throwables.propagate(ex);
     }
