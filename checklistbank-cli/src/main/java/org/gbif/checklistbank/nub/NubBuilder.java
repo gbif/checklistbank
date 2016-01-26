@@ -849,6 +849,7 @@ public class NubBuilder implements Runnable {
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && u.rank != null && allowedRanks.contains(u.rank)) {
+      // from now on a rank is guaranteed!
       if (match.isMatch()) {
         Equality authorEq = authorComparator.compare(match.usage.parsedName, u.parsedName);
 
@@ -1018,8 +1019,11 @@ public class NubBuilder implements Runnable {
         }
         // consider parsed rank only for bi/trinomials
         Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
-        if (pRank != null && u.rank != pRank && !pRank.isUncomparable()) {
-          if (u.rank.isUncomparable()) {
+        if (pRank != null && pRank != u.rank && !pRank.isUncomparable()) {
+          if (u.rank == null) {
+            LOG.debug("Use parsed rank {}", pRank);
+            u.rank = pRank;
+          } else if (u.rank.isUncomparable()) {
             LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
             u.rank = pRank;
           } else {
