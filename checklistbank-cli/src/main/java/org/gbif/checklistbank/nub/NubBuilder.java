@@ -940,6 +940,12 @@ public class NubBuilder implements Runnable {
     // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
     if (p.kingdom != Kingdom.VIRUSES && u.status.isAccepted()) {
 
+      // skip badly organized rank hierarchies
+      if (u.rank.higherThan(p.rank)) {
+        LOG.warn("Source {} {} with inversed parent {} {}", u.rank, u.scientificName, p.rank, p.parsedName.canonicalNameComplete());
+        throw new IgnoreSourceUsageException("Ignoring source with inverted rank order", u.scientificName);
+      }
+
       // we want the parent of any infraspecies ranks to be the species
       if (p.rank.isInfraspecific()) {
         p = findParentSpecies(p);
