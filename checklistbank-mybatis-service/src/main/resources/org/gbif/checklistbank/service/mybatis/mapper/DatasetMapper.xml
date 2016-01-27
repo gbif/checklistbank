@@ -13,6 +13,16 @@
     VALUES (#{uuid}, #{title})
   </insert>
 
+  <update id="update" parameterType="map">
+    UPDATE dataset SET title=#{title}
+    WHERE key=#{uuid}
+  </update>
+
+  <delete id="delete">
+    DELETE from dataset
+    WHERE key=#{uuid}
+  </delete>
+
   <delete id="truncate">
     TRUNCATE dataset;
   </delete>
