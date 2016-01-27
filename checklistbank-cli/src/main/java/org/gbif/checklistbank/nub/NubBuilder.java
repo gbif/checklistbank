@@ -676,20 +676,28 @@ public class NubBuilder implements Runnable {
   private void flagParentMismatch() {
     LOG.info("flag classification name mismatches");
     try (Transaction tx = db.beginTx()) {
-      for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
-        if (!gen.hasLabel(Labels.SYNONYM)) {
-          NubUsage nub = read(gen);
-          if (nub.kingdom == Kingdom.VIRUSES) {
-            // virus names are beasts
+      for (Node gn : IteratorUtil.loop(db.dao.allGenera())) {
+        if (!gn.hasLabel(Labels.SYNONYM)) {
+          NubUsage gen = read(gn);
+          if (gen.kingdom == Kingdom.VIRUSES) {
+            // virus names are unparsable...
             continue;
           }
+          if (gen.parsedName == null || gen.parsedName.getGenusOrAbove() == null) {
+            LOG.warn("Genus without genus name part: {} {}", gen.rank, NeoProperties.getScientificName(gn));
+            continue;
+          }
+          final String genus = gen.parsedName.getGenusOrAbove();
 
-          final String genus = nub.parsedName.getGenusOrAbove();
           // flag non matching names
-          for (Node spn : Traversals.CHILDREN.traverse(gen).nodes()) {
+          for (Node spn : Traversals.CHILDREN.traverse(gn).nodes()) {
             NubUsage sp = db.dao.readNub(spn);
             if (sp.rank != Rank.SPECIES) {
               LOG.warn("Genus child is not a species: {} {}", sp.rank, NeoProperties.getScientificName(spn));
+              continue;
+            }
+            if (sp.parsedName == null || sp.parsedName.getGenusOrAbove() == null) {
+              LOG.warn("Genus child without genus name part: {} {}", sp.rank, NeoProperties.getScientificName(spn));
               continue;
             }
             if (!genus.equals(sp.parsedName.getGenusOrAbove())){
