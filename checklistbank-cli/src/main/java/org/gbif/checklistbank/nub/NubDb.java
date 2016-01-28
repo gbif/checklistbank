@@ -473,12 +473,71 @@ public class NubDb {
   }
 
   /**
+   * Converts the given taxon to a synonym of the given accepted usage.
+   * All included descendants, both synonyms and accepted children, are also changed to become synonyms of the accepted.
+   * @param u
+   * @param accepted
+   * @param synStatus
+   * @param issue
+   */
+  public void convertToSynonym(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus, @Nullable NameUsageIssue issue) {
+    if (u.rank == Rank.GENUS || u.rank.isSuprageneric()) {
+      // pretty high ranks, warn!
+      LOG.warn("Converting {} into a {} of {}", u, synStatus, accepted);
+    } else {
+      LOG.info("Convert {} into a {} of {}", u, synStatus, accepted);
+    }
+    // convert to synonym, removing old parent relation
+    // See http://dev.gbif.org/issues/browse/POR-398
+    // change status
+    u.status = synStatus;
+    // flag issue if given
+    if (issue != null){
+      u.issues.add(issue);
+    }
+
+    // synonymize all descendants!
+    Set<Node> nodes = Sets.newHashSet(u.node);
+    for (Node d : Traversals.TREE_WITHOUT_PRO_PARTE.traverse(u.node).nodes()) {
+      nodes.add(d);
+    }
+    for (Node s : nodes) {
+      s.addLabel(Labels.SYNONYM);
+      NubUsage su = dao.readNub(s);
+      LOG.info("Also convert descendant {} into a synonym of {}", su, accepted);
+      su.status = TaxonomicStatus.SYNONYM;
+      for (Relationship rel : s.getRelationships(RelType.SYNONYM_OF, RelType.PARENT_OF)) {
+        rel.delete();
+      }
+      // delete pro parte rel if they link to one of the synonym nodes
+      for (Relationship rel : s.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+        if (nodes.contains(rel.getOtherNode(s)) || rel.getOtherNode(s).equals(accepted)) {
+          rel.delete();
+        } else {
+          su.status = TaxonomicStatus.PROPARTE_SYNONYM;
+        }
+      }
+      // if this was the accepted for another pro parte synonym, route it to the newly accepted
+      for (Relationship rel : s.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.INCOMING)) {
+        rel.getOtherNode(s).createRelationshipTo(accepted.node, RelType.PROPARTE_SYNONYM_OF);
+        rel.delete();
+      }
+      s.createRelationshipTo(accepted.node, RelType.SYNONYM_OF);
+      store(su);
+    }
+    // persist usage instance changes
+    store(u);
+  }
+
+
+  /**
    * Iterates over all direct children of a node, deletes that parentOf relation and creates a new parentOf relation to the given new parent node instead.
    *
    * @param n      the node with child nodes
    * @param parent the new parent to be linked
    */
-  public void moveChildren(Node n, NubUsage parent, NameUsageIssue... issues) {
+  @Deprecated
+  private void moveChildren(Node n, NubUsage parent, NameUsageIssue... issues) {
     for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
       Node child = rel.getOtherNode(n);
       rel.delete();
@@ -500,11 +559,13 @@ public class NubDb {
    * @param n        the node with synonym nodes
    * @param accepted the new accepted to be linked
    */
-  public void moveSynonyms(Node n, Node accepted) {
+  @Deprecated
+  private void moveSynonyms(Node n, Node accepted) {
     moveSynonyms(n, accepted, RelType.SYNONYM_OF);
     moveSynonyms(n, accepted, RelType.PROPARTE_SYNONYM_OF);
   }
 
+  @Deprecated
   private void moveSynonyms(Node n, Node accepted, RelType type) {
     Set<Node> synonyms = Sets.newHashSet();
     for (Relationship rel : n.getRelationships(type, Direction.INCOMING)) {

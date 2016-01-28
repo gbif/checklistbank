@@ -180,7 +180,7 @@ public class NubBuilder implements Runnable {
       // flagging of suspicous usages
       flagParentMismatch();
       flagEmptyGenera();
-      removeEmptyImplicitSpecies();
+      //removeEmptyImplicitSpecies();
       flagDuplicateAcceptedNames();
       flagSimilarNames();
       flagDoubtfulOriginalNames();
@@ -1235,7 +1235,7 @@ public class NubBuilder implements Runnable {
                     u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())
                 );
               }
-              convertToSynonymOf(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
+              db.convertToSynonym(u, accepted, synStatus, NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION);
             }
           }
           counterModified = counterModified + modified;
@@ -1248,35 +1248,6 @@ public class NubBuilder implements Runnable {
       }
     }
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
-  }
-
-  private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus, NameUsageIssue issue) {
-    if (!u.rank.isUncomparable() && !u.rank.isSpeciesOrBelow()) {
-      LOG.warn("No (infra)species. Cannot convert {} into a {} of {}", u, synStatus, accepted);
-      return;
-    }
-    // convert to synonym, removing old parent relation
-    // See http://dev.gbif.org/issues/browse/POR-398
-    LOG.info("Convert {} into a {} of {}", u, synStatus, accepted);
-    // change status
-    u.status = synStatus;
-    // add synonymOf relation and delete existing parentOf or synonymOf relations
-    db.createSynonymRelation(u.node, accepted.node);
-    // flag issue
-    u.issues.add(issue);
-
-    // TODO: we have chosen to synonymize all childs instead - review this decision!
-    // move any accepted children to new accepted parent
-    //db.moveChildren(u.node, accepted);
-
-    // also synonymize all children recursively
-    for (Node c : Traversals.CHILDREN.traverse(u.node).nodes()) {
-      convertToSynonymOf(db.dao.readNub(c), accepted, TaxonomicStatus.SYNONYM, issue);
-    }
-    // move any synonyms to new accepted parent
-    db.moveSynonyms(u.node, accepted.node);
-    // persist usage instance changes
-    db.store(u);
   }
 
   /**
