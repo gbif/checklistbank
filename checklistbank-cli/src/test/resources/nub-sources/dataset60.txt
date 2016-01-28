@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Asteraceae
+100	10		SPECIES	ACCEPTED		Townsendia jonesii (Beaman) Reveal
+101	10		SUBSPECIES	ACCEPTED		Townsendia jonesii subsp. arctica DC.
+102	10		VARIETY	ACCEPTED		Townsendia mensana var. jonesii Beaman
+103	10		SUBSPECIES	ACCEPTED		Townsendia sana subsp. jonesii (Beaman)

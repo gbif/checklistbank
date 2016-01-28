@@ -422,10 +422,6 @@ public class NubDb {
     return createParentRelation(n.node, parent.node, n.rank, parent.rank);
   }
 
-  public boolean createParentRelation(Node n, Node parent) {
-    return createParentRelation(n, parent, NeoProperties.getRank(n, Rank.UNRANKED), NeoProperties.getRank(parent, Rank.UNRANKED));
-  }
-
   private boolean createParentRelation(Node n, Node parent, Rank nRank, Rank parentRank) {
     if (n.equals(parent)) {
       LOG.warn("Avoid setting set parent rel to oneself on {} {}", n, NeoProperties.getScientificName(n));

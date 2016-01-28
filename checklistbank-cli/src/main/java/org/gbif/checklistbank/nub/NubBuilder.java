@@ -180,6 +180,7 @@ public class NubBuilder implements Runnable {
       // flagging of suspicous usages
       flagParentMismatch();
       flagEmptyGenera();
+      removeEmptyImplicitSpecies();
       flagDuplicateAcceptedNames();
       flagSimilarNames();
       flagDoubtfulOriginalNames();
@@ -210,9 +211,14 @@ public class NubBuilder implements Runnable {
       builtUsageMetrics();
       LOG.info("New backbone built successfully!");
 
-    } catch (Exception e){
+    } catch (AssertionError e){
+      LOG.error("Backbone invalid, build failed!", e);
+      throw e;
+
+    } catch (RuntimeException e){
       LOG.error("Fatal error. Backbone build failed!", e);
       db.dao.consistencyNubReport();
+      throw e;
 
     } finally {
       sources.close();
@@ -464,6 +470,14 @@ public class NubBuilder implements Runnable {
     }
   }
 
+  private List<Node> listFamilies() {
+    List<Node> families;
+    try (Transaction tx = db.beginTx()) {
+      families = IteratorUtil.asList(db.dao.allFamilies());
+    }
+    return families;
+  }
+
   /**
    * Goes through all usages and tries to discover basionyms by comparing the specific or infraspecific epithet and the authorships within a family.
    * As we often see missing brackets from author names we must code defensively and allow several original names in the data for a single epithet.
@@ -476,11 +490,7 @@ public class NubBuilder implements Runnable {
       final BasionymSorter basSorter = new BasionymSorter(authorComparator);
 
       // load all family nodes into list so we can process them seach in a separate transaction later on
-      List<Node> families;
-      try (Transaction tx = db.beginTx()) {
-        families = IteratorUtil.asList(db.dao.allFamilies());
-      }
-
+      List<Node> families = listFamilies();
       for (Node n : families) {
         try (Transaction tx = db.beginTx()) {
           NubUsage fam = read(n);
@@ -643,6 +653,9 @@ public class NubBuilder implements Runnable {
     //}
   }
 
+  /**
+   * Flags emtpy genera or removes them if they have an IMPLICIT origin
+   */
   private void flagEmptyGenera() {
     LOG.info("flag empty genera as doubtful");
     try (Transaction tx = db.beginTx()) {
@@ -669,6 +682,22 @@ public class NubBuilder implements Runnable {
   }
 
   /**
+   * Flags species or below that have an IMPLICIT origin and no children
+   */
+  private void removeEmptyImplicitSpecies() {
+    LOG.info("remove empty implicit species");
+    try (Transaction tx = db.beginTx()) {
+      for (Node n : IteratorUtil.loop(db.dao.allSpecies())) {
+        NubUsage sp = read(n);
+        if (sp.origin == Origin.IMPLICIT_NAME) {
+          removeTaxonIfEmpty(sp);
+        }
+      }
+      tx.success();
+    }
+  }
+
+  /**
    * Goes through all accepted species and infraspecies and makes sure the name matches the genus, species classification.
    * For example an accepted species Picea alba with a parent genus of Abies is taxonomic nonsense.
    * Badly classified names are assigned the doubtful status and an NameUsageIssue.NAME_PARENT_MISMATCH is flagged
@@ -684,20 +713,20 @@ public class NubBuilder implements Runnable {
             continue;
           }
           if (gen.parsedName == null || gen.parsedName.getGenusOrAbove() == null) {
-            LOG.warn("Genus without genus name part: {} {}", gen.rank, NeoProperties.getScientificName(gn));
+            LOG.warn("Genus {} without genus name part: {} {}", gn, gen.rank, NeoProperties.getScientificName(gn));
             continue;
           }
-          final String genus = gen.parsedName.getGenusOrAbove();
+          String genus = gen.parsedName.getGenusOrAbove();
 
           // flag non matching names
           for (Node spn : Traversals.CHILDREN.traverse(gn).nodes()) {
             NubUsage sp = db.dao.readNub(spn);
             if (sp.rank != Rank.SPECIES) {
-              LOG.warn("Genus child is not a species: {} {}", sp.rank, NeoProperties.getScientificName(spn));
+              LOG.warn("Genus child {} is not a species: {} {}", spn, sp.rank, NeoProperties.getScientificName(spn));
               continue;
             }
             if (sp.parsedName == null || sp.parsedName.getGenusOrAbove() == null) {
-              LOG.warn("Genus child without genus name part: {} {}", sp.rank, NeoProperties.getScientificName(spn));
+              LOG.warn("Genus child {} without genus name part: {} {}", spn, sp.rank, NeoProperties.getScientificName(spn));
               continue;
             }
             if (!genus.equals(sp.parsedName.getGenusOrAbove())){
@@ -706,11 +735,11 @@ public class NubBuilder implements Runnable {
             db.store(sp);
 
             // check infraspecific names
-            final String species = sp.parsedName.getSpecificEpithet();
+            String species = sp.parsedName.getSpecificEpithet();
             for (Node ispn : Traversals.CHILDREN.traverse(spn).nodes()) {
               NubUsage isp = db.dao.readNub(ispn);
               if (isp.parsedName.getInfraSpecificEpithet() == null) {
-                LOG.warn("Species child without an infraspecific epithet: {} {}", isp.rank, NeoProperties.getScientificName(ispn));
+                LOG.warn("Species child {} without an infraspecific epithet: {} {}", ispn, isp.rank, NeoProperties.getScientificName(ispn));
                 continue;
               }
               if (!genus.equals(isp.parsedName.getGenusOrAbove()) || !species.equals(isp.parsedName.getInfraSpecificEpithet())){
@@ -721,7 +750,6 @@ public class NubBuilder implements Runnable {
           }
         }
       }
-      tx.success();
     }
   }
 
@@ -859,6 +887,10 @@ public class NubBuilder implements Runnable {
     if (!match.ignore && u.rank != null && allowedRanks.contains(u.rank)) {
       // from now on a rank is guaranteed!
       if (match.isMatch()) {
+        if (origin == Origin.IMPLICIT_NAME) {
+          // do not update or change usages with implicit names
+          return match.usage;
+        }
         Equality authorEq = authorComparator.compare(match.usage.parsedName, u.parsedName);
 
         if (match.usage.status.isSynonym() == u.status.isSynonym()) {
@@ -1219,17 +1251,28 @@ public class NubBuilder implements Runnable {
   }
 
   private void convertToSynonymOf(NubUsage u, NubUsage accepted, TaxonomicStatus synStatus, NameUsageIssue issue) {
+    if (!u.rank.isUncomparable() && !u.rank.isSpeciesOrBelow()) {
+      LOG.warn("No (infra)species. Cannot convert {} into a {} of {}", u, synStatus, accepted);
+      return;
+    }
     // convert to synonym, removing old parent relation
     // See http://dev.gbif.org/issues/browse/POR-398
-    LOG.debug("Convert {} into a {} of {}", u, synStatus, accepted);
+    LOG.info("Convert {} into a {} of {}", u, synStatus, accepted);
     // change status
     u.status = synStatus;
     // add synonymOf relation and delete existing parentOf or synonymOf relations
     db.createSynonymRelation(u.node, accepted.node);
     // flag issue
     u.issues.add(issue);
+
+    // TODO: we have chosen to synonymize all childs instead - review this decision!
     // move any accepted children to new accepted parent
-    db.moveChildren(u.node, accepted);
+    //db.moveChildren(u.node, accepted);
+
+    // also synonymize all children recursively
+    for (Node c : Traversals.CHILDREN.traverse(u.node).nodes()) {
+      convertToSynonymOf(db.dao.readNub(c), accepted, TaxonomicStatus.SYNONYM, issue);
+    }
     // move any synonyms to new accepted parent
     db.moveSynonyms(u.node, accepted.node);
     // persist usage instance changes

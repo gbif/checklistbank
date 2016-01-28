@@ -1051,6 +1051,14 @@ public class NubBuilderIT {
     assertTree("59.txt");
   }
 
+  @Test
+  public void testInfraspecificBasionymGrouping() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(60);
+    build(src);
+
+    assertTree("60.txt");
+  }
+
   /**
    * builds a new nub and keeps dao open for further test queries.
    */
