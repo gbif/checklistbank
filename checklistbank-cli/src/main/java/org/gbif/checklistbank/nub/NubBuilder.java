@@ -1226,8 +1226,12 @@ public class NubBuilder implements Runnable {
           final NubUsage primary = group.remove(0);
           final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
+          LOG.debug("Consolidating basionym group with {} primary usage {}: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
           for (NubUsage u : group) {
-            if (!hasAccepted(u, accepted)) {
+            if (u==null || u.node==null) {
+              LOG.debug("usage from basionym group with primary usage {} missing", primary.parsedName.canonicalNameComplete());
+
+            } else if (!hasAccepted(u, accepted)) {
               modified++;
               NubUsage previousParent = db.getParent(u);
               if (previousParent != null) {
@@ -1239,7 +1243,6 @@ public class NubBuilder implements Runnable {
             }
           }
           counterModified = counterModified + modified;
-          LOG.debug("Consolidated {} usages from basionym group with {} primary usage {}: {}", modified, primary.status, primary.parsedName.canonicalNameComplete(), names(group));
         }
         tx.success();
 
