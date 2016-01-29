@@ -1225,13 +1225,22 @@ public class NubBuilder implements Runnable {
           int modified = 0;
           final NubUsage primary = group.remove(0);
           final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
+          // TODO: remove this check when we understand why this happens - should not be null!
+          if (accepted==null || accepted.node==null){
+            LOG.warn("Accepted basionym usage missing for primary usage {}", primary.parsedName.canonicalNameComplete());
+            continue;
+          }
+
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
           LOG.debug("Consolidating basionym group with {} primary usage {}: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
           for (NubUsage u : group) {
+            // TODO: remove this check when we understand why this happens - should not be null!
             if (u==null || u.node==null) {
               LOG.debug("usage from basionym group with primary usage {} missing", primary.parsedName.canonicalNameComplete());
+              continue;
+            }
 
-            } else if (!hasAccepted(u, accepted)) {
+            if (!hasAccepted(u, accepted)) {
               modified++;
               NubUsage previousParent = db.getParent(u);
               if (previousParent != null) {
