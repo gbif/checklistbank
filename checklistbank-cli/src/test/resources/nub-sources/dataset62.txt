@@ -1,0 +1,16 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		FAMILY	ACCEPTED		Asteraceae
+103776016	10		SUBSPECIES	ACCEPTED		Erigeron annuus subsp. strigosus (Willd.) Wagenitz in Hegi
+103600599	10		SPECIES	ACCEPTED		Erigeron annuus Pers.
+103600600	10		SPECIES	ACCEPTED		Erigeron annuus Pers.
+103600597	10		SPECIES	ACCEPTED		Erigeron annuus Sessé & Moc.
+103603817	10		SPECIES	ACCEPTED		Erigeron strigosus Muhl. ex Willd.
+103603815	10		SPECIES	ACCEPTED		Erigeron strigosus Bigelow
+103699617	10	103603817	SPECIES	ACCEPTED		Phalacroloma strigosum (Muhl. ex Willd.) Tzvelev
+103794392	10		VARIETY	ACCEPTED		Erigeron annuus var. typicus Cronquist
+103794390	10		VARIETY	ACCEPTED		Erigeron annuus var. ramosus (Walter) Hyl.
+103795104	10		VARIETY	ACCEPTED		Erigeron strigosus Muhl. ex Willd. var. beyrichii (Fisch. & E.Mey.) A.Gray
+103776013	10		SUBSPECIES	ACCEPTED		Erigeron annuus Pers. subsp. strigosus (Willd.) Wagenitz
+103776016	10		SUBSPECIES	ACCEPTED		Erigeron annuus subsp. strigosus (Willd.) Wagenitz in Hegi
+103783039	10		SUBSPECIES	ACCEPTED		Stenactis annua subsp. strigosa (Muhl. ex Willd.) Soó in Soó
+103781192	10	103603817	SUBSPECIES	ACCEPTED		Phalacroloma annuum Dumort. subsp. strigosum (Mühlenberg ex Willd.) Adema

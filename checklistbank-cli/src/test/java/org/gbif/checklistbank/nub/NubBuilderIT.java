@@ -1060,6 +1060,19 @@ public class NubBuilderIT {
   }
 
   /**
+   * 61=CoL
+   * 62=IPNI
+   */
+  @Test
+  public void testAutonymColBasionym() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(61, 62);
+    src.setNomenclator(62);
+    build(src);
+
+    assertTree("61 62.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {

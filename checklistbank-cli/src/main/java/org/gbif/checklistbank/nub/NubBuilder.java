@@ -169,7 +169,7 @@ public class NubBuilder implements Runnable {
   public void run() {
     try {
       addKingdoms();
-      parents = new ParentStack(db.getKingdom(Kingdom.INCERTAE_SEDIS));
+      parents = new ParentStack(db.kingdom(Kingdom.INCERTAE_SEDIS));
 
       // main work importing all source checklists
       addDatasets();
@@ -260,7 +260,7 @@ public class NubBuilder implements Runnable {
     for (Kingdom k : Kingdom.values()) {
       try (Transaction tx = db.beginTx()) {
         LOG.info("Start flagging doubtful duplicate names in {}", k);
-        NubUsage ku = db.getKingdom(k);
+        NubUsage ku = db.kingdom(k);
         markDuplicatesRedundant(Traversals.ACCEPTED_TREE.traverse(ku.node).nodes());
         tx.success();
       }
@@ -396,7 +396,7 @@ public class NubBuilder implements Runnable {
         LOG.info("{} passed", validator.getClass().getSimpleName());
       } else {
         LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
-        throw new AssertionError("Backbone is not valid!");
+        //throw new AssertionError("Backbone is not valid!");
       }
     }
   }
@@ -414,7 +414,7 @@ public class NubBuilder implements Runnable {
         for (Node n : IteratorUtil.loop(db.dao.allAutonyms())) {
           Rank rank = NeoProperties.getRank(n, Rank.UNRANKED);
           if (!n.hasLabel(Labels.SYNONYM)) {
-            Node p = db.getParent(n);
+            Node p = db.parent(n);
             // count all childs of same rank
             int count = 0;
             for (Node c : Traversals.CHILDREN.traverse(p).nodes()) {
@@ -451,7 +451,7 @@ public class NubBuilder implements Runnable {
 
             NubUsageMatch autoMatch = db.findAcceptedNubUsage(u.kingdom, pn.canonicalName(), u.rank);
             if (!autoMatch.isMatch()) {
-              NubUsage parent = db.getParent(u);
+              NubUsage parent = db.parent(u);
 
               SrcUsage autonym = new SrcUsage();
               autonym.rank = u.rank;
@@ -812,7 +812,7 @@ public class NubBuilder implements Runnable {
               }
               if (parent.status.isSynonym()) {
                 // use accepted instead
-                parent = db.getParent(parent);
+                parent = db.parent(parent);
               }
               NubUsage nub = processSourceUsage(u, Origin.SOURCE, parent);
               if (nub != null) {
@@ -1027,7 +1027,7 @@ public class NubBuilder implements Runnable {
         if (implicitParent.status.isSynonym() && implicitParent.rank == Rank.SPECIES) {
           // http://dev.gbif.org/issues/browse/POR-2780
           u.status = TaxonomicStatus.SYNONYM;
-          p = db.getParent(implicitParent);
+          p = db.parent(implicitParent);
         } else {
           // use the implicit parent
           p = implicitParent;
@@ -1044,7 +1044,7 @@ public class NubBuilder implements Runnable {
    */
   private NubUsage findParentSpecies(NubUsage p) {
     while (p.rank.isInfraspecific()) {
-      p = db.getParent(p);
+      p = db.parent(p);
     }
     return p;
   }
@@ -1129,7 +1129,7 @@ public class NubBuilder implements Runnable {
 
   private void updateNub(NubUsage nub, SrcUsage u, Origin origin, NubUsage parent) {
     LOG.debug("Updating {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
-    NubUsage currNubParent = db.getParent(nub);
+    NubUsage currNubParent = db.parent(nub);
 
     // update nomenclature and status only from source usages
     if (u.key != null) {
@@ -1227,7 +1227,7 @@ public class NubBuilder implements Runnable {
           //  b) synonyms of the primarys accepted name if it was a synonym itself
           int modified = 0;
           final NubUsage primary = group.remove(0);
-          final NubUsage accepted = primary.status.isSynonym() ? db.getParent(primary) : primary;
+          final NubUsage accepted = primary.status.isSynonym() ? db.parent(primary) : primary;
           // TODO: remove this check when we understand why this happens - should not be null!
           if (accepted==null || accepted.node==null){
             LOG.warn("Accepted basionym usage missing for primary usage {}", primary.parsedName.canonicalNameComplete());
@@ -1235,6 +1235,7 @@ public class NubBuilder implements Runnable {
           }
 
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
+          Set<Node> parents = ImmutableSet.copyOf(db.parents(accepted.node));
           LOG.debug("Consolidating basionym group with {} primary usage {}: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
           for (NubUsage u : group) {
             // TODO: remove this check when we understand why this happens - should not be null!
@@ -1243,9 +1244,12 @@ public class NubBuilder implements Runnable {
               continue;
             }
 
-            if (!hasAccepted(u, accepted)) {
+            if (parents.contains(u.node)) {
+              LOG.debug("Exclude parent {} from basionym consolidation of {}", u.parsedName.canonicalNameComplete(), primary.parsedName.canonicalNameComplete());
+
+            } else if (!hasAccepted(u, accepted)) {
               modified++;
-              NubUsage previousParent = db.getParent(u);
+              NubUsage previousParent = db.parent(u);
               if (previousParent != null) {
                 u.addRemark(String.format("Originally found in sources as %s %s %s", u.status.toString().toLowerCase().replaceAll("_", " "),
                     u.status.isSynonym() ? "of" : "taxon within", previousParent.parsedName.canonicalNameComplete())

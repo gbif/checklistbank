@@ -107,10 +107,10 @@ public class NubDbTest {
       db.addUsage(acc, buildNub("Oenanthe aquatica Senser.", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       db.addUsage(oenanteP, buildNub("Oenanthe carolina (Mill.)", Rank.SPECIES, TaxonomicStatus.DOUBTFUL));
 
-      assertNull(db.getParent((NubUsage) null));
-      assertNull(db.getParent(new NubUsage()));
-      assertNull(db.getParent(plantae));
-      assertNotNull(db.getParent(oenanteP));
+      assertNull(db.parent((NubUsage) null));
+      assertNull(db.parent(new NubUsage()));
+      assertNull(db.parent(plantae));
+      assertNotNull(db.parent(oenanteP));
     }
   }
 

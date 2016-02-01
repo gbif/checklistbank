@@ -84,18 +84,18 @@ public class NubDb {
   /**
    * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
    */
-  public NubUsage getParent(NubUsage child) throws NotFoundException {
-    return child == null ? null : dao.readNub(getParent(child.node));
+  public NubUsage parent(NubUsage child) throws NotFoundException {
+    return child == null ? null : dao.readNub(parent(child.node));
   }
 
-  public NubUsage getKingdom(Kingdom kingdom) {
+  public NubUsage kingdom(Kingdom kingdom) {
     return kingdoms.get(kingdom);
   }
 
   /**
    * @return the parent (or accepted) nub usage for a given node. Will be null for kingdom root nodes.
    */
-  public Node getParent(Node child) {
+  public Node parent(Node child) {
     if (child != null) {
       Relationship rel;
       if (child.hasLabel(Labels.SYNONYM)) {
@@ -108,6 +108,15 @@ public class NubDb {
       }
     }
     return null;
+  }
+
+  /**
+   * @return the parent (or accepted) nodes for a given node.
+   */
+  public List<Node> parents(Node n) {
+    return IteratorUtil.asList(Traversals.PARENTS
+        .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
+        .traverse(n).nodes());
   }
 
   /**
@@ -219,10 +228,10 @@ public class NubDb {
 
     // all synonyms pointing to the same accepted? then it wont matter much for snapping
     Iterator<NubUsage> iter = checked.iterator();
-    Node parent = getParent(iter.next().node);
+    Node parent = parent(iter.next().node);
     if (parent != null) {
       while (iter.hasNext()) {
-        Node p2 = getParent(iter.next().node);
+        Node p2 = parent(iter.next().node);
         if (!parent.equals(p2)) {
           parent = null;
           break;
@@ -601,7 +610,7 @@ public class NubDb {
       return true;
     }
     if (n.hasLabel(Labels.SYNONYM)) {
-      n = getParent(n);
+      n = parent(n);
       if (n.equals(search)) {
         return true;
       }

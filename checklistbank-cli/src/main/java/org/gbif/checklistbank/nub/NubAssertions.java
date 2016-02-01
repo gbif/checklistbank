@@ -63,7 +63,10 @@ public class NubAssertions implements TreeValidation {
 
     // TODO: num accepted families, genera
 
-    // TODO: Jungermanniopsida
+    // http://iphylo.blogspot.com/2014/03/gbif-liverwort-taxonomy-broken.html
+    assertSearchMatch(1, "Jungermanniales", Rank.ORDER);
+    assertUsage(7219205, Rank.ORDER, "Jungermanniales", true, Kingdom.PLANTAE);
+    assertClassification(7219205, "Jungermanniopsida", "Bryophyta", "Plantae");
 
     oldEcatVerifications();
 
