@@ -180,14 +180,14 @@ public class NubBuilder implements Runnable {
       // flagging of suspicous usages
       flagParentMismatch();
       flagEmptyGenera();
-      //removeEmptyImplicitSpecies();
+      removeEmptyImplicitTaxa();
       flagDuplicateAcceptedNames();
       flagSimilarNames();
       flagDoubtfulOriginalNames();
 
       // create missign autonyms
       fixInfraspeciesHierarchy();
-      createAutonyms();
+      manageAutonyms();
 
       // basic neo tree checks, fail fast
       if (cfg.validate) {
@@ -407,26 +407,29 @@ public class NubBuilder implements Runnable {
    * An autonym is an infraspecific taxon that has the same species and infraspecific epithet.
    * We do this last to not create autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
    */
-  private void createAutonyms() {
-    LOG.info("Delete lonely autonyms");
-    try (Transaction tx = db.beginTx()) {
-      for (Node n : IteratorUtil.loop(db.dao.allAutonyms())) {
-        Rank rank = NeoProperties.getRank(n, Rank.UNRANKED);
-        if (!n.hasLabel(Labels.SYNONYM)) {
-          Node p = db.getParent(n);
-          // count all childs of same rank
-          int count = 0;
-          for (Node c : Traversals.CHILDREN.traverse(p).nodes()) {
-            if (NeoProperties.getRank(c, Rank.UNRANKED) == rank) {
-              count++;
+  private void manageAutonyms() {
+    if (!cfg.keepLonelyAutonyms) {
+      LOG.info("Delete lonely autonyms");
+      try (Transaction tx = db.beginTx()) {
+        for (Node n : IteratorUtil.loop(db.dao.allAutonyms())) {
+          Rank rank = NeoProperties.getRank(n, Rank.UNRANKED);
+          if (!n.hasLabel(Labels.SYNONYM)) {
+            Node p = db.getParent(n);
+            // count all childs of same rank
+            int count = 0;
+            for (Node c : Traversals.CHILDREN.traverse(p).nodes()) {
+              if (NeoProperties.getRank(c, Rank.UNRANKED) == rank) {
+                count++;
+              }
+            }
+            if (count == 1) {
+              // only this accepted autonym, try to remove!!!
+              LOG.info("Removing lonely {} autonym {} {}", rank, n, NeoProperties.getScientificName(n));
+              removeTaxonIfEmpty(db.dao.readNub(n));
             }
           }
-          if (count == 1) {
-            // only this accepted autonym, try to remove!!!
-            LOG.info("Removing lonely {} autonym {} {}", rank, n, NeoProperties.getScientificName(n));
-            removeTaxonIfEmpty(db.dao.readNub(n));
-          }
         }
+        tx.success();
       }
     }
 
@@ -455,18 +458,18 @@ public class NubBuilder implements Runnable {
               autonym.scientificName = pn.canonicalName();
               autonym.parsedName = pn;
               autonym.status = TaxonomicStatus.ACCEPTED;
-              createNubUsage(autonym, Origin.AUTONYM, parent);
-              counter++;
+              try {
+                createNubUsage(autonym, Origin.AUTONYM, parent);
+                counter++;
+              } catch (IgnoreSourceUsageException e) {
+                LOG.warn("Fail to create missing autonym {}", pn.canonicalName());
+              }
             }
           }
         }
       }
       tx.success();
       LOG.info("Created {} missing autonyms", counter);
-
-    } catch (Exception e) {
-      //TODO: remove in final code and let a nub build fail!
-      LOG.error("Failed to create missing autonyms", e);
     }
   }
 
@@ -645,7 +648,7 @@ public class NubBuilder implements Runnable {
   private void addExtensionData() {
     LOG.warn("NOT IMPLEMENTED: Copy extension data to backbone");
     //Joiner commaJoin = Joiner.on(", ").skipNulls();
-    //for (Node n : IteratorUtil.loop(db.dao.allTaxa())) {
+    //for (Node n : IteratorUtil.loop(db.allTaxa())) {
     //    NubUsage nub = read(n);
     //    if (!nub.sourceIds.isEmpty()) {
     //        LOG.debug("Add extension data from source ids {}", commaJoin.join(nub.sourceIds));
@@ -684,16 +687,16 @@ public class NubBuilder implements Runnable {
   /**
    * Flags species or below that have an IMPLICIT origin and no children
    */
-  private void removeEmptyImplicitSpecies() {
-    LOG.info("remove empty implicit species");
-    try (Transaction tx = db.beginTx()) {
-      for (Node n : IteratorUtil.loop(db.dao.allSpecies())) {
-        NubUsage sp = read(n);
-        if (sp.origin == Origin.IMPLICIT_NAME) {
+  private void removeEmptyImplicitTaxa() {
+    if (!cfg.keepEmptyImplicitNames) {
+      LOG.info("remove empty implicit taxa");
+      try (Transaction tx = db.beginTx()) {
+        for (Node n : IteratorUtil.loop(db.dao.getNeo().findNodes(Labels.IMPLICIT))) {
+          NubUsage sp = read(n);
           removeTaxonIfEmpty(sp);
         }
+        tx.success();
       }
-      tx.success();
     }
   }
 

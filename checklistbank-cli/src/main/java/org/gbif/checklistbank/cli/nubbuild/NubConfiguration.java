@@ -51,6 +51,18 @@ public class NubConfiguration {
   public boolean groupBasionyms = false;
 
   /**
+   * If false autonyms with no other sibling are removed.
+   */
+  @Valid
+  public boolean keepLonelyAutonyms = false;
+
+  /**
+   * If false implicit names (genus, species) are removed in case they do not have any accepted children.
+   */
+  @Valid
+  public boolean keepEmptyImplicitNames = false;
+
+  /**
    * If true an import message is being send once the build is done and basic backbone assertions have passed successfully.
    */
   @Valid

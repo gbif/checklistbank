@@ -86,6 +86,22 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
   @Test
   public void testReparse() throws Exception {
     assertEquals(1150, service.reparseAll());
+
+    ParsedNameServiceMyBatis srv = (ParsedNameServiceMyBatis) service;
+
+    ParsedName pn = srv.get(100938);
+    assertEquals("Losaria", pn.getInfraGeneric());
+    assertEquals("Losaria", pn.canonicalName());
+
+    //TODO: reparse all needs to know the rank for this to work!!!
+    pn = srv.get(100939);
+    //assertNull(pn.getInfraGeneric());
+    //assertEquals("Nitschke", pn.getBracketAuthorship());
+    //assertEquals("Bolinia", pn.canonicalName());
+
+    pn = srv.get(100940);
+    assertEquals("Diconoficus", pn.getInfraGeneric());
+    assertEquals("Diconoficus", pn.canonicalName());
   }
 
   @Test

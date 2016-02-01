@@ -579,6 +579,12 @@ public class NubDb {
   }
 
   public NubUsage store(NubUsage nub) {
+    // flag implicit taxa
+    if (nub.origin != null && nub.origin == Origin.IMPLICIT_NAME) {
+      nub.node.addLabel(Labels.IMPLICIT);
+    } else {
+      nub.node.removeLabel(Labels.IMPLICIT);
+    }
     dao.store(nub);
     if (nub.rank == Rank.KINGDOM) {
       kingdoms.put(nub.kingdom, nub);

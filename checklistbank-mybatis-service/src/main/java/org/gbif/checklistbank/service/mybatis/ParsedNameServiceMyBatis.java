@@ -28,6 +28,10 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     this.parser = parser;
   }
 
+  public ParsedName get(int key) {
+    return mapper.get(key);
+  }
+
   @Override
   public ParsedName createOrGet(ParsedName preParsed) {
     if (preParsed == null || Strings.isNullOrEmpty(preParsed.getScientificName())) {
