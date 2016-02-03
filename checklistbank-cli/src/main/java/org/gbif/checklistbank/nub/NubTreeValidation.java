@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 
 import java.util.Map;
@@ -60,7 +61,7 @@ public class NubTreeValidation implements TreeValidation {
     notExists("Contradicting parent relations in {}", "MATCH (n:TAXON) WHERE (n)-[:PARENT_OF*..6]->(n) RETURN n LIMIT 1");
 
     // just kingdom roots
-    assertCount("Too many roots {}", "MATCH (n:ROOT) RETURN count(n)", 9);
+    assertCount("Too many roots {}", "MATCH (n:ROOT) RETURN count(n)", Kingdom.values().length);
 
     // no basionyms without basionym relation
     notExists("Basionym without basionym relation {}", "MATCH (b:BASIONYM) WHERE not (b)-[:BASIONYM_OF]->() RETURN b LIMIT 1");
@@ -75,10 +76,8 @@ public class NubTreeValidation implements TreeValidation {
     try {
       TreeRankValidation rankVal = new TreeRankValidation();
       TreeWalker.walkAcceptedTree(db.dao.getNeo(), rankVal);
-      if (!rankVal.isValid()) {
-        valid = false;
-      }
-    } catch (AssertionError e) {
+    } catch (IllegalStateException e) {
+      LOG.error("TreeRankValidation failed with {}", e.getMessage());
       valid = false;
     }
 

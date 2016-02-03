@@ -63,14 +63,42 @@ public class NubAssertions implements TreeValidation {
 
     // TODO: num accepted families, genera
 
+    oldEcatVerifications();
+
+    return valid;
+  }
+
+  /**
+   * Patches from Jonathan: https://github.com/OpenTreeOfLife/reference-taxonomy/blob/master/taxonomies.py#L562
+   */
+  private void assertOtolIssues() {
     // http://iphylo.blogspot.com/2014/03/gbif-liverwort-taxonomy-broken.html
     assertSearchMatch(1, "Jungermanniales", Rank.ORDER);
     assertUsage(7219205, Rank.ORDER, "Jungermanniales", true, Kingdom.PLANTAE);
     assertClassification(7219205, "Jungermanniopsida", "Bryophyta", "Plantae");
 
-    oldEcatVerifications();
+    // Joseph 2013-07-23 https://github.com/OpenTreeOfLife/opentree/issues/62
+    // GBIF has two copies of Myospalax
+    assertSearchMatch(1, "Myospalax", Rank.GENUS);
+    assertUsage(6006429, Rank.GENUS, "Myospalax Laxmann, 1769", true, Kingdom.ANIMALIA);
+    assertClassification(7219205, "Spalacidae", "Rodentia", "Mammalia", "Chordata", "Animalia");
 
-    return valid;
+    // Drake-brockmania & Drake-Brockmania
+    assertNotExisting("Drake-Brockmania", Rank.GENUS);
+    assertUsage(4120905, Rank.GENUS, "Drake-brockmania", true, Kingdom.PLANTAE);
+
+    // Saxo-Fridericia vs Saxo-fridericia (COL!) vs Saxofridericia
+    assertNotExisting("Saxo-Fridericia", Rank.GENUS);
+    assertNotExisting("Saxofridericia", Rank.GENUS);
+    assertUsage(7276512, Rank.GENUS, "Saxo-fridericia", true, Kingdom.PLANTAE);
+
+    assertNotExisting("Solms-Laubachia", Rank.GENUS);
+    assertNotExisting("Solmslaubachia", Rank.GENUS);
+    assertUsage(3044438, Rank.GENUS, "Solms-laubachia", true, Kingdom.PLANTAE);
+
+    assertNotExisting("Cyrto-Hypnum", Rank.GENUS);
+    assertNotExisting("Cyrtohypnum", Rank.GENUS);
+    assertUsage(2673193, Rank.GENUS, "Cyrto-hypnum", true, Kingdom.PLANTAE);
   }
 
   /**
@@ -300,6 +328,17 @@ public class NubAssertions implements TreeValidation {
     } catch (Exception e) {
       valid = false;
       LOG.error("Expected {} matches, but found {} for name {} with rank {}", expectedSearchMatches, matches.size(), name, rank);
+    }
+  }
+
+  private void assertNotExisting(String name, Rank rank) {
+    List<NubUsage> matches = Lists.newArrayList();
+    try {
+      matches = findUsagesByCanonical(name, rank);
+      assertTrue(matches.isEmpty());
+    } catch (Exception e) {
+      valid = false;
+      LOG.error("Found name expected to be missing: {} {} with rank {}", matches.get(0).node, name, rank);
     }
   }
 

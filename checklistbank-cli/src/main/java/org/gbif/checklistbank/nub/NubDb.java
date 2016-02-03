@@ -433,11 +433,11 @@ public class NubDb {
 
   private boolean createParentRelation(Node n, Node parent, Rank nRank, Rank parentRank) {
     if (n.equals(parent)) {
-      LOG.warn("Avoid setting set parent rel to oneself on {} {}", n, NeoProperties.getScientificName(n));
+      LOG.warn("Avoid setting set parent rel to oneself on {} {}. This will likely cause the nub validation to fail", n, NeoProperties.getScientificName(n));
       return false;
     }
     if (nRank.higherThan(parentRank)) {
-      LOG.warn("Avoid setting inverse parent rel from {} {} to {} {}", parent, NeoProperties.getScientificName(parent), n, NeoProperties.getScientificName(n));
+      LOG.warn("Avoid setting inverse parent rel from {} {} to {} {}. This will likely cause the nub validation to fail", parent, NeoProperties.getScientificName(parent), n, NeoProperties.getScientificName(n));
       return false;
     }
     setSingleToRelationship(parent, n, RelType.PARENT_OF);

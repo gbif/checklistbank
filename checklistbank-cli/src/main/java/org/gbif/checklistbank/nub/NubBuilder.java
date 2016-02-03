@@ -396,7 +396,7 @@ public class NubBuilder implements Runnable {
         LOG.info("{} passed", validator.getClass().getSimpleName());
       } else {
         LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
-        //throw new AssertionError("Backbone is not valid!");
+        throw new AssertionError("Backbone is not valid!");
       }
     }
   }
@@ -1228,22 +1228,10 @@ public class NubBuilder implements Runnable {
           int modified = 0;
           final NubUsage primary = group.remove(0);
           final NubUsage accepted = primary.status.isSynonym() ? db.parent(primary) : primary;
-          // TODO: remove this check when we understand why this happens - should not be null!
-          if (accepted==null || accepted.node==null){
-            LOG.warn("Accepted basionym usage missing for primary usage {}", primary.parsedName.canonicalNameComplete());
-            continue;
-          }
-
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
           Set<Node> parents = ImmutableSet.copyOf(db.parents(accepted.node));
           LOG.debug("Consolidating basionym group with {} primary usage {}: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
           for (NubUsage u : group) {
-            // TODO: remove this check when we understand why this happens - should not be null!
-            if (u==null || u.node==null) {
-              LOG.debug("usage from basionym group with primary usage {} missing", primary.parsedName.canonicalNameComplete());
-              continue;
-            }
-
             if (parents.contains(u.node)) {
               LOG.debug("Exclude parent {} from basionym consolidation of {}", u.parsedName.canonicalNameComplete(), primary.parsedName.canonicalNameComplete());
 

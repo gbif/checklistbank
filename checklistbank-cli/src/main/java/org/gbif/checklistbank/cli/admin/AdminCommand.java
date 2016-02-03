@@ -20,7 +20,10 @@ import org.gbif.checklistbank.nub.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.NubTreeValidation;
 import org.gbif.checklistbank.nub.TreeValidation;
+import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
+import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.nub.source.ClbSource;
+import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
@@ -211,7 +214,7 @@ public class AdminCommand extends BaseCommand {
     LOG.info("{} orphan names deleted", num);
   }
 
-  private void runDatasetComamnds() throws IOException {
+  private void runDatasetComamnds() throws Exception {
     if (cfg.keys != null) {
       datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
         @Nullable
@@ -222,6 +225,17 @@ public class AdminCommand extends BaseCommand {
       });
     } else {
       datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
+    }
+
+    NubMatchService nubMatchService = null;
+    if (cfg.operation == AdminOperation.MATCH_DATASET) {
+      try {
+        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+        nubMatchService = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), inj.getInstance(DatasetImportService.class));
+      } catch (Exception e) {
+        LOG.error("Error to init nub match service", e);
+        throw e;
+      }
     }
 
     for (Dataset d : datasets) {
@@ -271,6 +285,10 @@ public class AdminCommand extends BaseCommand {
 
         case ANALYZE:
           send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
+          break;
+
+        case MATCH_DATASET:
+          nubMatchService.matchDataset(d);
           break;
 
         default:

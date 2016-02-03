@@ -10,14 +10,14 @@ import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
 
 /**
- * throws AssertionError when problems are encountered to fail fast.
+ * throws IllegalStateException when problems are encountered to fail fast.
  */
 public class TreeRankValidation implements StartEndHandler {
   private final LinkedList<Rank> parents = Lists.newLinkedList();
   private boolean valid = true;
 
   @Override
-  public void start(Node n) {
+  public void start(Node n) throws IllegalStateException {
     Rank rank = NeoProperties.getRank(n, null);
     if (rank == null) {
       fail("Missing rank", n);
@@ -42,6 +42,6 @@ public class TreeRankValidation implements StartEndHandler {
 
   private void fail(String msg, Node n) {
     valid = false;
-    throw new AssertionError(msg + " for node " + n.getId());
+    throw new IllegalStateException(msg + " for " + n);
   }
 }

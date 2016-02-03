@@ -12,6 +12,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.atomic.AtomicValue;
 import org.apache.curator.framework.recipes.atomic.DistributedAtomicLong;
 import org.apache.curator.retry.RetryNTimes;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,8 +122,12 @@ public class ZookeeperUtils {
       dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
       return dateFormat.parse(new String(data));
 
+    } catch (KeeperException.NoNodeException e) {
+      LOG.debug("Zookeeper path {} has no date", getCrawlInfoPath(datasetKey, path));
+      return null;
+
     } catch (Exception e) {
-      LOG.error("Exception while getting date from ZooKeeper", e);
+      LOG.warn("Exception while getting date from ZooKeeper", e);
       return null;
     }
   }

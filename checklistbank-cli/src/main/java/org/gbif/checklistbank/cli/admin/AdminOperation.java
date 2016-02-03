@@ -14,5 +14,6 @@ public enum AdminOperation {
   SYNC_DATASETS,
   UPDATE_VERBATIM,
   DUMP,
-  VALIDATE_NEO
+  VALIDATE_NEO,
+  MATCH_DATASET
 }
