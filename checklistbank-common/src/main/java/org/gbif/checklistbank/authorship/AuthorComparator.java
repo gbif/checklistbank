@@ -28,7 +28,8 @@ public class AuthorComparator {
   private static final Logger LOG = LoggerFactory.getLogger(AuthorComparator.class);
 
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
-  private static final Pattern EX_IN = Pattern.compile(" (ex|in) .+$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
+  private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
   private static final Pattern INITIALS = Pattern.compile("\\b[A-Z]\\b");
   private static final Pattern INITIAL_NAME = Pattern.compile("^([a-z])\\s+[a-z]{3,}$");
   private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
@@ -80,8 +81,11 @@ public class AuthorComparator {
     // manually normalize characters not dealt with by the java Normalizer
     x = StringUtils.replaceChars(x, "ø", "o");
 
-    // remove ex authors or in publications
-    x = EX_IN.matcher(x).replaceAll("");
+    // remove in publications
+    x = IN.matcher(x).replaceAll("");
+
+    // remove ex authors
+    x = EX.matcher(x).replaceAll("");
 
     // use java unicode normalizer to remove accents and punctuation
     x = Normalizer.normalize(x, Normalizer.Form.NFD);

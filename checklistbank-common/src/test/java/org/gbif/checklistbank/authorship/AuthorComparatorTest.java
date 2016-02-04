@@ -35,7 +35,10 @@ public class AuthorComparatorTest {
     assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
     assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
 
-    assertEquals("bertero", comp.normalize("Bertero ex Colla"));
+    assertEquals("colla", comp.normalize("Bertero ex Colla"));
+    assertEquals("schult", comp.normalize("Sieber ex Schult."));
+    assertEquals("nevski", comp.normalize("Desv. ex Nevski"));
+    assertEquals("w q yin", comp.normalize("K. M. Feng ex W. Q. Yin"));
 
     assertEquals("g kirchn", comp.normalize("G.Kirchn. in Petzold & G.Kirchn."));
 
@@ -273,7 +276,7 @@ public class AuthorComparatorTest {
     assertTrue(comp.equals("K. Koch", null, "K. Koch", null));
     assertTrue(comp.equals("K.Koch", null, "K. Koch", null));
     assertTrue(comp.equals("A. Nelson", null, "A Nélson", null));
-    assertTrue(comp.equals("Bertero", null, "Bertero ex Colla", null));
+    assertTrue(comp.equals("Colla", null, "Bertero ex Colla", null));
 
     assertFalse(comp.equals("Oberholser", "1917", "Oberholser", "1919"));
     assertFalse(comp.equals("Koch", "1897", "K. Koch", null));
