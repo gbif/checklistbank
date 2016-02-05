@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.common.Count;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
@@ -81,14 +80,5 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
         assertEquals(200, ds.get(1).getUsagesCount());
         assertEquals(100, ds.get(2).getUsagesCount());
     }
-
-  @Test
-  public void testConstituent() {
-    List<Count<UUID>> constituents = service.constituents(CHECKLIST_KEY);
-    assertEquals(3, constituents.size());
-    assertEquals(new Count<UUID>(null, null, 19), constituents.get(0));
-    assertEquals(new Count<UUID>(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f4"), null, 17), constituents.get(1));
-    assertEquals(new Count<UUID>(UUID.fromString("211aea14-c252-4a85-96e2-f5f4d5d088f5"), null, 8), constituents.get(2));
-  }
 
 }

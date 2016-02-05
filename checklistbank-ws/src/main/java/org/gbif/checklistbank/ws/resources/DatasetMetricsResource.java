@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.common.Count;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
@@ -39,9 +38,4 @@ public class DatasetMetricsResource {
     return service.list(key);
   }
 
-  @GET
-  @Path("{key}/metrics/constituents")
-  public List<Count<UUID>> constituents(@PathParam("key") UUID key) {
-    return service.constituents(key);
-  }
 }

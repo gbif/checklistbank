@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.common.Count;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWs;
 import org.gbif.checklistbank.ws.util.Constants;
@@ -22,7 +21,6 @@ public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID
   private static final String METRICS_PATH = "metrics";
 
   private final GenericType<List<DatasetMetrics>> listType = new GenericType<List<DatasetMetrics>>() {};
-  private final GenericType<List<Count<UUID>>> countType = new GenericType<List<Count<UUID>>>() {};
 
   @Inject
   public DatasetMetricsWsClient(@ChecklistBankWs WebResource resource) {
@@ -46,12 +44,6 @@ public class DatasetMetricsWsClient extends BaseWsGetClient<DatasetMetrics, UUID
   @Override
   public List<DatasetMetrics> list(UUID datasetKey) {
     return get(listType, datasetKey.toString(), METRICS_PATH, "history");
-  }
-
-  @Nullable
-  @Override
-  public List<Count<UUID>> constituents(UUID datasetKey) {
-    return get(countType, datasetKey.toString(), METRICS_PATH, "constituents");
   }
 
 }

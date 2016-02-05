@@ -13,7 +13,6 @@ import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
-import org.gbif.api.model.common.Count;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.checklistbank.DescriptionService;
@@ -112,7 +111,6 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
   protected void bindMappers() {
 
     // mybatis config
-    addAlias("DCount").to(Count.class);
     addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
     addAlias("DatasetMetrics").to(DatasetMetrics.class);
     addAlias("Description").to(Description.class);

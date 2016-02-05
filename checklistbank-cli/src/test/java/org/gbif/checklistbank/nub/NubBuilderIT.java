@@ -1073,6 +1073,21 @@ public class NubBuilderIT {
   }
 
   /**
+   * Make sure names coming in from sources without a kingdom or classification still match to existing names in a proper kingdom
+   * E.g. Toxostoma rufum in PalaeoDB has no classification and "should" be merged with existing animal Toxostoma rufum (Linnaeus, 1758)
+   *
+   * Examples here use Parmelina quercina for tests
+   */
+  @Test
+  @Ignore
+  public void testInsertaeSedisDuplicates() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(58, 63);
+    build(src);
+
+    assertTree("58 63.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
