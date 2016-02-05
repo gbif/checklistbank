@@ -312,7 +312,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     return noMatch(100, null, null);
   }
 
-  private boolean equalClassification(LinneanClassificationKeys best, LinneanClassificationKeys m) {
+  private boolean equalClassificationKeys(LinneanClassificationKeys best, LinneanClassificationKeys m) {
     for (Rank r : Rank.LINNEAN_RANKS) {
       if (best.getHigherRankKey(r) == null) {
         if (m.getHigherRankKey(r) != null){
@@ -321,6 +321,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
       } else {
         if (m.getHigherRankKey(r) == null || !best.getHigherRankKey(r).equals(m.getHigherRankKey(r))){
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private boolean equalClassification(LinneanClassification best, LinneanClassification m) {
+    for (Rank r : Rank.LINNEAN_RANKS) {
+      if (best.getHigherRank(r) == null) {
+        if (m.getHigherRank(r) != null){
+          return false;
+        }
+
+      } else {
+        if (m.getHigherRank(r) == null || !best.getHigherRank(r).equals(m.getHigherRank(r))){
           return false;
         }
       }
