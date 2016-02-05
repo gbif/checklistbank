@@ -3,6 +3,7 @@ package org.gbif.nub.lookup;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
@@ -20,10 +21,12 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.inject.Inject;
@@ -50,6 +53,14 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     Rank.KINGDOM);
   public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
     ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
+  // match order by usageKey lowest to highest to preserve old ids
+  private static final Ordering<NameUsageMatch> USAGE_KEY_ORDER = Ordering.natural().nullsLast().onResultOf(new Function<NameUsageMatch, Integer>() {
+    @Nullable
+    @Override
+    public Integer apply(@Nullable NameUsageMatch m) {
+      return m.getUsageKey();
+    }
+  });
 
   /**
    * @param nubIndex
@@ -254,7 +265,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         int secondBestConfidence = matches.get(1).getConfidence();
         if (bestConfidence == secondBestConfidence) {
           // equally good matches, bummer!
-          return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
+          // this sometimes happens when there are "homonyms" in the nub as synonyms only
+          List<NameUsageMatch> equalMatches = extractEqualMatches(matches);
+          boolean sameClassification = true;
+          for (NameUsageMatch m : equalMatches) {
+            if (!equalClassification(best, m)) {
+              sameClassification = false;
+              break;
+            }
+          }
+          if (sameClassification) {
+            // if they both have the same classification pick the one with the lowest, hence oldest id!
+            best = equalMatches.get(0);
+            addNote(best, equalMatches.size() + " synonym homonyms");
+          } else {
+            return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
+          }
         }
         // boost up to 10 based on distance to next match, penalty for very close matches
         nextMatchDistance = Math.min(10, (bestConfidence - secondBestConfidence - 10) / 2);
@@ -284,6 +310,39 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     }
 
     return noMatch(100, null, null);
+  }
+
+  private boolean equalClassification(LinneanClassificationKeys best, LinneanClassificationKeys m) {
+    for (Rank r : Rank.LINNEAN_RANKS) {
+      if (best.getHigherRankKey(r) == null) {
+        if (m.getHigherRankKey(r) != null){
+          return false;
+        }
+
+      } else {
+        if (m.getHigherRankKey(r) == null || !best.getHigherRankKey(r).equals(m.getHigherRankKey(r))){
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private List<NameUsageMatch> extractEqualMatches(List<NameUsageMatch> matches) {
+    List<NameUsageMatch> equal = Lists.newArrayList();
+    if (!matches.isEmpty()) {
+      int conf = matches.get(0).getConfidence();
+      for (NameUsageMatch m : matches){
+        if (m.getConfidence().equals(conf)) {
+          equal.add(m);
+        } else {
+          // matches are sorted by confidence!
+          break;
+        }
+      }
+    }
+    // finally sort by usageKey lowest to highest to preserve old ids
+    return USAGE_KEY_ORDER.sortedCopy(matches);
   }
 
   private static void addNote(NameUsageMatch m, String note) {

@@ -277,6 +277,16 @@ public class NubMatchingServiceImplIT {
   }
 
   @Test
+  public void testHomonyms2() throws IOException {
+    // this hits 2 species synonyms with no such name being accepted
+    // nub match must pick one if the accepted name of all synonyms is the same!
+    NameUsageMatch cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("Poaceae");
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+  }
+
+  @Test
   @Ignore("not implemented yet")
   public void testHybridsAndViruses() throws IOException {
     //TODO: implement
