@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.common.Count;
 
 import java.util.Date;
 import java.util.List;
@@ -20,5 +19,4 @@ public interface DatasetMetricsMapper {
 
   void insert(@Param("uuid") UUID datasetKey, @Param("downloaded") Date downloaded);
 
-  List<Count<UUID>> constituents(@Param("uuid") UUID datasetKey);
 }

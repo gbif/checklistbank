@@ -89,11 +89,6 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
     return mapper.list(datasetKey);
   }
 
-  @Override
-  public List<org.gbif.api.model.common.Count<UUID>> constituents(UUID datasetKey) {
-    return mapper.constituents(datasetKey);
-  }
-
   /**
    * @return The percentage of total that count covers, or 0 should the total be 0
    */
