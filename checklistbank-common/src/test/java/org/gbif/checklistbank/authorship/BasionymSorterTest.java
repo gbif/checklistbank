@@ -48,7 +48,7 @@ public class BasionymSorterTest {
     names.add(parser.parse("Brickellia oblongifolia var. abbreviata A.Gray", null));
     names.add(parser.parse("Calea abbreviata Pruski & Urbatsch", null));
     names.add(parser.parse("Centaurea salicifolia subsp. abbreviata K. Koch", null));
-    names.add(parser.parse("Chabraea abbreviata Bertero ex Colla", null));
+    names.add(parser.parse("Chabraea abbreviata Colla ex Bertero", null));
     names.add(parser.parse("Chaetanthera stuebelii Hieron. var. abbreviata Cabrera", null));
     names.add(parser.parse("Conyza abbreviata Wall.", null));
     names.add(parser.parse("Cousinia abbreviata Tscherneva", null));
@@ -154,21 +154,17 @@ public class BasionymSorterTest {
     names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
-    assertEquals(3, groups.size());
+    assertEquals(2, groups.size());
     for (BasionymGroup<ParsedName> g : groups) {
       assertFalse(g.getRecombinations().isEmpty());
       switch (g.getRecombinations().get(0).getBracketAuthorship()) {
         case "Booth ex G.Kirchn.":
           assertEquals(2, g.getRecombinations().size());
-          assertNull(g.getBasionym());
-          break;
-        case "G. Kirchn.":
-          assertEquals(1, g.getRecombinations().size());
           assertNotNull(g.getBasionym());
           break;
-        case "Kirchn.":
+        case "Booth ex Kirchn.":
           // unfortunately author comparison has to be very strict so we detect this as a separate group
-          assertEquals(1, g.getRecombinations().size());
+          assertEquals(2, g.getRecombinations().size());
           assertNull(g.getBasionym());
           break;
         default:
@@ -281,7 +277,7 @@ public class BasionymSorterTest {
     assertEquals(317, testGroupBasionymFile("muridae.txt"));
     assertEquals(2840, testGroupBasionymFile("curculionidae.txt"));
     assertEquals(5899, testGroupBasionymFile("aves.txt"));
-    assertEquals(22000, testGroupBasionymFile("asteraceae.txt"));
+    assertEquals(21936, testGroupBasionymFile("asteraceae.txt"));
   }
 
   private int testGroupBasionymFile(String filename) throws Exception {

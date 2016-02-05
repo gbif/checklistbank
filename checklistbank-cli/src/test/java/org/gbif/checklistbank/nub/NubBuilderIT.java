@@ -56,6 +56,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@Ignore("work in progress")
 public class NubBuilderIT {
   private UsageDao dao;
   private Transaction tx;
@@ -1079,7 +1080,6 @@ public class NubBuilderIT {
    * Examples here use Parmelina quercina for tests
    */
   @Test
-  @Ignore
   public void testInsertaeSedisDuplicates() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(58, 63);
     build(src);
