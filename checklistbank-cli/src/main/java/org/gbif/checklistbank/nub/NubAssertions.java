@@ -1,10 +1,17 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.io.CSVReader;
+import org.gbif.io.CSVReaderFactory;
+import org.gbif.utils.file.InputStreamUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +19,11 @@ import javax.annotation.Nullable;
 
 import com.carrotsearch.hppc.IntIntHashMap;
 import com.carrotsearch.hppc.IntIntMap;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.IteratorUtil;
 import org.slf4j.Logger;
@@ -32,6 +41,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class NubAssertions implements TreeValidation {
   private static final Logger LOG = LoggerFactory.getLogger(NubAssertions.class);
+  private static final String ASSERTION_FILENAME = "backbone/assertions.tsv";
+  private static final Joiner SEMICOLON_JOIN = Joiner.on("; ");
 
   private final NubDb db;
   private final IntIntMap usage2NubKey = new IntIntHashMap();
@@ -63,9 +74,69 @@ public class NubAssertions implements TreeValidation {
 
     // TODO: num accepted families, genera
 
+    // run simple file based assertions
+    assertFileNames();
+
+    // issues spotted by the open tree of life
+    assertOtolIssues();
+
+    // old assertions from ECAT times
     oldEcatVerifications();
 
     return valid;
+  }
+
+  private void assertFileNames() {
+    InputStream tsv = new InputStreamUtils().classpathStream(ASSERTION_FILENAME);
+    try {
+      CSVReader csv = CSVReaderFactory.buildUtfTabReader(tsv);
+      for (String[] row : csv) {
+        if (row == null || row.length < 11 || row[0].startsWith("#")) {
+          continue;
+        }
+        assertRow(row);
+      }
+
+    } catch (IOException e) {
+      LOG.warn("Failed to read assertion resource {}", ASSERTION_FILENAME, e);
+    }
+  }
+
+  // ID	name	rank	synonym	kingdom	phylum	class	order	family
+  private void assertRow(String[] row) {
+    try {
+      int key = Integer.valueOf(row[0]);
+      String name = row[1];
+      Rank rank = Rank.valueOf(row[2]);
+      boolean accepted = Boolean.valueOf(row[3]);
+      Kingdom kingdom = Kingdom.valueOf(row[4].toUpperCase());
+
+      LinneanClassification classification = new Classification();
+      classification.setKingdom(row[4]);
+      classification.setPhylum(row[5]);
+      classification.setClazz(row[6]);
+      classification.setOrder(row[7]);
+      classification.setFamily(row[8]);
+      classification.setGenus(row[9]);
+      classification.setSpecies(row[10]);
+
+      NubUsage usage = assertUsage(key, rank, name, accepted, kingdom);
+      if (usage != null) {
+        Map<Rank, String> parents = db.parentsMap(usage.node);
+        for (Rank r : Rank.DWC_RANKS) {
+          if (classification.getHigherRank(r) != null) {
+            if(! parents.get(r).equalsIgnoreCase(classification.getHigherRank(r))) {
+              valid = false;
+              LOG.error("Unexpected {} {} for {} {}", r, classification.getHigherRank(r), usage.toStringComplete());
+            }
+          }
+        }
+      }
+
+    } catch (RuntimeException e) {
+      valid = false;
+      LOG.error("Failed assertion for {}", SEMICOLON_JOIN.join(row), e);
+    }
   }
 
   /**
@@ -272,7 +343,7 @@ public class NubAssertions implements TreeValidation {
     try (Transaction tx = db.beginTx()) {
       Node start = findUsageByCanonical(searchName, searchRank).node;
       assertParentsContain(start, null, parent);
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       valid = false;
       LOG.error("Classification for {} {} lacks parent {}", searchRank, searchName, parent, e);
     }
@@ -280,9 +351,9 @@ public class NubAssertions implements TreeValidation {
 
   private void assertParentsContain(Integer usageKey, Rank parentRank, String parent) {
     try (Transaction tx = db.beginTx()) {
-      Node start = db.dao.getNeo().getNodeById(usage2NubKey.get(usageKey));
+      Node start = nodeById(usageKey);
       assertParentsContain(start, parentRank, parent);
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       valid = false;
       LOG.error("Classification for usage {} missing {}", usageKey, parent, e);
     }
@@ -304,15 +375,23 @@ public class NubAssertions implements TreeValidation {
   private void assertClassification(Integer usageKey, String... classification) {
     Iterator<String> expected = Lists.newArrayList(classification).iterator();
     try (Transaction tx = db.beginTx()) {
-      Node start = db.dao.getNeo().getNodeById(usage2NubKey.get(usageKey));
+      Node start = nodeById(usageKey);
       for (Node p : Traversals.PARENTS.traverse(start).nodes()) {
         NubUsage u = db.dao.readNub(p);
         assertEquals(expected.next(), u.parsedName.canonicalName());
       }
       assertFalse(expected.hasNext());
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       valid = false;
       LOG.error("Classification for usage {} wrong", usageKey, e);
+    }
+  }
+
+  private Node nodeById(int usageKey) throws AssertionError {
+    try {
+      return db.getNode(usage2NubKey.get(usageKey));
+    } catch (NotFoundException e) {
+      throw new AssertionError("Usage "+ usageKey + " not found");
     }
   }
 
@@ -325,7 +404,7 @@ public class NubAssertions implements TreeValidation {
     try {
       matches = findUsagesByCanonical(name, rank);
       assertEquals(expectedSearchMatches, matches.size());
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       valid = false;
       LOG.error("Expected {} matches, but found {} for name {} with rank {}", expectedSearchMatches, matches.size(), name, rank);
     }
@@ -336,7 +415,7 @@ public class NubAssertions implements TreeValidation {
     try {
       matches = findUsagesByCanonical(name, rank);
       assertTrue(matches.isEmpty());
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       valid = false;
       LOG.error("Found name expected to be missing: {} {} with rank {}", matches.get(0).node, name, rank);
     }
@@ -357,7 +436,7 @@ public class NubAssertions implements TreeValidation {
       } else {
         assertEquals(kingdom.nubUsageID(), kid);
       }
-    } catch (Exception e) {
+    } catch (AssertionError e) {
       LOG.error("Usage {}, {} wrong: {}", usageKey, name, e);
       valid = false;
     }
@@ -376,9 +455,10 @@ public class NubAssertions implements TreeValidation {
 
   private NubUsage findUsageByCanonical(String name, Rank rank) {
     List<NubUsage> matches = findUsagesByCanonical(name, rank);
-    if (matches.size() != 1) {
+    if (matches.size() > 1 || matches.isEmpty()) {
       valid = false;
       LOG.error("{} matches when expecting single match for {} {}", matches.size(), rank, name);
+      throw new AssertionError("No single match for " + name);
     }
     return matches.get(0);
   }
@@ -395,5 +475,4 @@ public class NubAssertions implements TreeValidation {
     }
     return matches;
   }
-
 }

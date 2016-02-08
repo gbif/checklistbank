@@ -119,6 +119,15 @@ public class NubDb {
         .traverse(n).nodes());
   }
 
+  public Map<Rank, String> parentsMap(Node n) {
+    Map<Rank, String> parents = Maps.newHashMap();
+    for (Node pn : parents(n)) {
+      NubUsage p = dao.readNub(pn);
+      parents.put(p.rank, p.parsedName.canonicalNameComplete());
+    }
+    return parents;
+  }
+
   /**
    * @return the neo node with the given node id or throw NotFoundException if it cannot be found!
    */

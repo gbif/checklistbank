@@ -1,0 +1,22 @@
+ID	name	rank	accepted	kingdom	phylum	class	order	family	genus	species
+# ALL ENTRIES WITH KEY = -1 have to get a new key from the new nub still !!!
+
+#POR-1373
+3120060	Achillea millefolium	SPECIES	true	Plantae				Asteraceae	Achillea	
+3115755	Filago pyramidata	SPECIES	true	Plantae				Asteraceae		
+3120060	Senecio jacobaea	SPECIES	false	Plantae				Asteraceae	Jacobaea	Jacobaea vulgaris
+3106738	Senecio	GENUS	true	Plantae				Asteraceae		
+
+#PF-1998 to be completed!!!
+7483	Xenillidae	FAMILY	true	Animalia	Arthropoda	Sarcoptiformes				
+
+#PF-1959
+2499282	Convoluta roscoffensis	SPECIES	true	Animalia			Acoela		Convoluta	
+-1	Acoela	ORDER	true	Animalia			Acoela			
+
+#POR-389
+2972897	Albizia	GENUS	true	Plantae			Asterales	Asteraceae		
+
+#PF-2345
+5397022	Vernonia macrocephala A.Rich.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Baccharoides adoensis
+-1	Vernonia macrocephala Less.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Lessingianthus macrocephalus

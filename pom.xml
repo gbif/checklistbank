@@ -45,17 +45,17 @@
     <gbif-api.version>0.34-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.22</gbif-common.version>
-    <gbif-common-mybatis.version>0.23</gbif-common-mybatis.version>
+    <gbif-common-mybatis.version>0.24-SNAPSHOT</gbif-common-mybatis.version>
     <gbif-common-search.version>0.26</gbif-common-search.version>
     <gbif-common-service.version>0.14</gbif-common-service.version>
-    <gbif-common-ws.version>0.26</gbif-common-ws.version>
+    <gbif-common-ws.version>0.28-SNAPSHOT</gbif-common-ws.version>
     <gbif-httputils.version>0.8</gbif-httputils.version>
     <gbif-microservice.version>0.4</gbif-microservice.version>
     <gbif-postal-service.version>0.18</gbif-postal-service.version>
-    <registry-client.version>2.42</registry-client.version>
+    <registry-client.version>2.46</registry-client.version>
     <name-parser.version>2.12</name-parser.version>
-    <gbif-parser.version>0.17</gbif-parser.version>
-    <dwca-io.version>1.25</dwca-io.version>
+    <gbif-parser.version>0.18</gbif-parser.version>
+    <dwca-io.version>1.26-SNAPSHOT</dwca-io.version>
     <!-- external libs -->
     <assertj.version>1.6.1</assertj.version>
     <amqp-client.version>3.1.4</amqp-client.version>
@@ -95,8 +95,8 @@
     <metrics.version>3.0.0-BETA1</metrics.version>
     <mockito.version>1.9.5</mockito.version>
     <mybatis.version>3.3.0</mybatis.version>
-    <mybatis-guice.version>3.7</mybatis-guice.version>
-    <neo4j.version>2.3.1</neo4j.version>
+    <mybatis-guice.version>3.7.1</mybatis-guice.version>
+    <neo4j.version>2.3.2</neo4j.version>
     <postgresql.version>9.4-1205-jdbc41</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
