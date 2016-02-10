@@ -241,7 +241,7 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
     /**
      * Adds a vernacular name of a given language to an existing name usage.
-     * If language is null or no common name for that language exists english will be used.
+     * Nothing is added if there is no vernacular name in the given language.
      *
      * @param u        the checklist usage to add the vernacular name to
      * @param language the requested language
@@ -253,11 +253,6 @@ public class NameUsageServiceMyBatis implements NameUsageService {
 
         // first try with given language
         VernacularName v = getVernacularNameInLanguage(u, language);
-
-        // try with english if nothing found and its another language
-        if (v == null && !language.equals(DescriptionServiceMyBatis.ENGLISH)) {
-            v = getVernacularNameInLanguage(u, DescriptionServiceMyBatis.ENGLISH);
-        }
 
         if (v != null) {
             u.setVernacularName(v.getVernacularName());
