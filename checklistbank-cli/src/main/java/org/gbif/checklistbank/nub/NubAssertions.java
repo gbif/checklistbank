@@ -89,7 +89,7 @@ public class NubAssertions implements TreeValidation {
   private void assertFileNames() {
     InputStream tsv = new InputStreamUtils().classpathStream(ASSERTION_FILENAME);
     try {
-      CSVReader csv = CSVReaderFactory.buildUtfTabReader(tsv);
+      CSVReader csv = CSVReaderFactory.buildUtf8TabReader(tsv);
       for (String[] row : csv) {
         if (row == null || row.length < 11 || row[0].startsWith("#")) {
           continue;

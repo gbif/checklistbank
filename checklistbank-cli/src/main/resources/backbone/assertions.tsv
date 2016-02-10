@@ -20,3 +20,7 @@ ID	name	rank	accepted	kingdom	phylum	class	order	family	genus	species
 #PF-2345
 5397022	Vernonia macrocephala A.Rich.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Baccharoides adoensis
 -1	Vernonia macrocephala Less.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Lessingianthus macrocephalus
+
+#POR-2027
+4134299	Leersia angustifolia	SPECIES	true	Plantae			Poales	Poaceae		
+2673359	Leersia	GENUS	true	Plantae			Poales	Poaceae		
