@@ -16,4 +16,18 @@ public class SciNameNormalizerTest {
         assertEquals("Abies alba", SciNameNormalizer.normalize("Abyes  albus"));
     }
 
+  @Test
+  public void testEpithetStemming() throws Exception {
+    assertEquals(null, SciNameNormalizer.stemEpithet(""));
+    assertEquals("alb", SciNameNormalizer.stemEpithet("alba"));
+    assertEquals("alb", SciNameNormalizer.stemEpithet("albus"));
+    assertEquals("alb", SciNameNormalizer.stemEpithet("albon"));
+    assertEquals("alb", SciNameNormalizer.stemEpithet("album"));
+
+    assertEquals("allb", SciNameNormalizer.stemEpithet("allbus"));
+    assertEquals("alab", SciNameNormalizer.stemEpithet("alaba"));
+    assertEquals("ala", SciNameNormalizer.stemEpithet("alaus"));
+    assertEquals("ala", SciNameNormalizer.stemEpithet("alaa"));
+  }
+
 }

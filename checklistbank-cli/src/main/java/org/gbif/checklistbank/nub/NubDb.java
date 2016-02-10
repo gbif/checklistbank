@@ -52,6 +52,7 @@ public class NubDb {
   protected final UsageDao dao;
   private final KingdomParser kingdomParser = KingdomParser.getInstance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
+  private NubUsage incertaeSedis;
 
   private NubDb(UsageDao dao, AuthorComparator authorComparator, boolean initialize) {
     this.dao = dao;
@@ -320,12 +321,18 @@ public class NubDb {
     if (uKingdom == null || match.kingdom == null) {
       return Equality.UNKNOWN;
     }
-    return norm(uKingdom) == norm(match.kingdom) ? Equality.EQUAL : Equality.DIFFERENT;
+    Kingdom k1 = norm(uKingdom);
+    Kingdom k2 = norm(match.kingdom);
+
+    return k1 == k2 ? Equality.EQUAL :
+        k1 == Kingdom.INCERTAE_SEDIS || k2 == Kingdom.INCERTAE_SEDIS ? Equality.UNKNOWN : Equality.DIFFERENT;
   }
 
   // if authors are missing require the classification to not contradict!
   private Equality compareClassification(NubUsage currNubParent, NubUsage match) {
-    if (currNubParent != null && existsInClassification(match.node, currNubParent.node)) {
+    if (currNubParent != null &&
+        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node)))
+    {
       return Equality.EQUAL;
     }
     return Equality.DIFFERENT;
@@ -348,6 +355,10 @@ public class NubDb {
       case FUNGI:
       case CHROMISTA:
         return Kingdom.PLANTAE;
+      case ARCHAEA:
+      case BACTERIA:
+      case VIRUSES:
+        return Kingdom.BACTERIA;
       default:
         return Kingdom.INCERTAE_SEDIS;
     }
@@ -606,6 +617,9 @@ public class NubDb {
     dao.store(nub);
     if (nub.rank == Rank.KINGDOM) {
       kingdoms.put(nub.kingdom, nub);
+      if (nub.kingdom == Kingdom.INCERTAE_SEDIS) {
+        incertaeSedis = nub;
+      }
     }
     return nub;
   }

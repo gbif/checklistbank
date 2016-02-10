@@ -16,7 +16,6 @@ Plantae
       Abies pindrow Spach
       Abies taxifolia C.Presl
       Abies taxifolia Drum. ex Gordon
-      Abies taxifolia Jeffr. ex Gordon
       Abies taxifolia Raf.
 Protozoa
 Viruses

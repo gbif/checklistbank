@@ -805,4 +805,8 @@ public class UsageDao {
       LOG.info("Found {} kvp nub usages in total", kvpCounter);
     }
   }
+
+  public ResourceIterator<Relationship> listAllRelationships(RelType type) {
+    return neo.execute("match ()-[pp:"+type.name()+"]->() return pp").columnAs("pp");
+  }
 }

@@ -506,7 +506,7 @@ public class NubBuilder implements Runnable {
               NubUsage nub = read(c);
               // ignore all supra specific names and autonyms
               if (nub.rank.isSpeciesOrBelow() && !c.hasLabel(Labels.AUTONYM)) {
-                String epithet = nub.parsedName.getTerminalEpithet();
+                String epithet = SciNameNormalizer.stemEpithet(nub.parsedName.getTerminalEpithet());
                 if (!epithets.containsKey(epithet)) {
                   epithets.put(epithet, Lists.newArrayList(nub));
                 } else {
@@ -515,7 +515,7 @@ public class NubBuilder implements Runnable {
                 // now check if a basionym relation exists already that reaches out to some other epithet, e.g. due to gender changes
                 for (Node bg : Traversals.BASIONYM_GROUP.evaluator(Evaluators.excludeStartPosition()).traverse(c).nodes()) {
                   NubUsage bgu = read(bg);
-                  String epithet2 = bgu.parsedName.getTerminalEpithet();
+                  String epithet2 = SciNameNormalizer.stemEpithet(bgu.parsedName.getTerminalEpithet());
                   if (epithet2 != null && !epithet2.equals(epithet)) {
                     if (!epithetBridges.containsKey(epithet)) {
                       epithetBridges.put(epithet, Sets.newHashSet(epithet2));
@@ -1297,20 +1297,22 @@ public class NubBuilder implements Runnable {
       if (u.rank != Rank.KINGDOM) {
         u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
         db.dao.update(entry.getKey(), u);
-        // for pro parte synonyms we need to assign extra keys, one per relation!
-        // http://dev.gbif.org/issues/browse/POR-2872
-        if (u.status == TaxonomicStatus.PROPARTE_SYNONYM) {
-          try (Transaction tx = db.beginTx()) {
-            Node n = db.getNode(entry.getKey());
-            for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
-              int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, true);
-              LOG.debug("Assign extra id {} for pro parte relation of primary usage {}", ppKey, u.usageKey);
-              rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
-            }
-            tx.success();
-          }
+      }
+    }
+
+    // for pro parte synonyms we need to assign extra keys, one per relation!
+    // http://dev.gbif.org/issues/browse/POR-2872
+    try (Transaction tx = db.beginTx()) {
+      try (ResourceIterator<Relationship> rels = db.dao.listAllRelationships(RelType.PROPARTE_SYNONYM_OF)) {
+        while (rels.hasNext()) {
+          Relationship rel = rels.next();
+          NubUsage u = db.dao.readNub(rel.getStartNode());
+          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, true);
+          LOG.debug("Assign extra id {} for pro parte relation of primary usage {}", ppKey, u.usageKey);
+          rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
         }
       }
+      tx.success();
     }
   }
 
