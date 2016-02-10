@@ -1088,6 +1088,17 @@ public class NubBuilderIT {
   }
 
   /**
+   * Make sure aggregate names such as Achillea millefolium at rank INFRAGENERIC_NAME which are binomials are treated as species.
+   */
+  @Test
+  public void testAggregates() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(64);
+    build(src);
+
+    assertTree("64.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {

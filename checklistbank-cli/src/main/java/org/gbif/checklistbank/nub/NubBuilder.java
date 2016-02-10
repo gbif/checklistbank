@@ -1079,7 +1079,12 @@ public class NubBuilder implements Runnable {
             LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
             throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
           }
+        } else if (Rank.INFRAGENERIC_NAME ==  u.rank && u.parsedName.isBinomial()) {
+          // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
+          u.rank = Rank.SPECIES;
+          LOG.debug("Treat infrageneric name {} as species", u.scientificName);
         }
+
         // strip author names from higher taxa
         if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
           clearAuthorship(u.parsedName);
