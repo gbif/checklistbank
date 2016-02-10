@@ -44,7 +44,7 @@
     <dwc-api.version>1.13</dwc-api.version>
     <gbif-api.version>0.34-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
-    <gbif-common.version>0.22</gbif-common.version>
+    <gbif-common.version>0.23-SNAPSHOT</gbif-common.version>
     <gbif-common-mybatis.version>0.24-SNAPSHOT</gbif-common-mybatis.version>
     <gbif-common-search.version>0.26</gbif-common-search.version>
     <gbif-common-service.version>0.14</gbif-common-service.version>
