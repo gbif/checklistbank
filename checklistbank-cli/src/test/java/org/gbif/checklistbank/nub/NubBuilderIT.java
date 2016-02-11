@@ -1109,12 +1109,29 @@ public class NubBuilderIT {
   }
 
   /**
+   * Some plazi datasets (but also others) get indexed badly by us cause they contain bad synonymies linking a genus to a species.
+   * That corrupts the entire, normalized classification and nub builds must be able to deal with these inverted, bad classifications.
+   */
+  @Test
+  public void testBadPlaziHierarchy() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(66);
+    build(src);
+
+    assertTree("66.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
-    nb.run();
+    try {
+      nb.run();
+    } catch (AssertionError e) {
+      printTree();
+      throw e;
+    }
     log("Nub build completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
 
     tx = dao.beginTx();
@@ -1385,7 +1402,7 @@ public class NubBuilderIT {
     // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
     System.out.println("expected nodes: "+expected.getCount());
     System.out.println("counted nodes: "+neoCnt);
-//    assertTrue(expected.getCount() >= neoCnt);
+    assertTrue(expected.getCount() >= neoCnt);
     // compare trees
     assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);

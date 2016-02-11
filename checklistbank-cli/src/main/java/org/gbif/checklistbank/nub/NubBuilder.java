@@ -981,57 +981,68 @@ public class NubBuilder implements Runnable {
     }
 
     // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
-    if (p.kingdom != Kingdom.VIRUSES && u.status.isAccepted()) {
+    if (p.kingdom != Kingdom.VIRUSES) {
 
-      // skip badly organized rank hierarchies
-      if (u.rank.higherThan(p.rank)) {
-        LOG.warn("Source {} {} with inversed parent {} {}", u.rank, u.scientificName, p.rank, p.parsedName.canonicalNameComplete());
-        throw new IgnoreSourceUsageException("Ignoring source with inverted rank order", u.scientificName);
-      }
+      if (u.status.isAccepted()) {
+        // skip badly organized rank hierarchies
+        if (!p.rank.higherThan(u.rank)) {
+          LOG.warn("Source {} {} with inversed parent {} {}", u.rank, u.scientificName, p.rank, p.parsedName.canonicalNameComplete());
+          throw new IgnoreSourceUsageException("Ignoring source with inverted rank order", u.scientificName);
+        }
 
-      // we want the parent of any infraspecies ranks to be the species
-      if (p.rank.isInfraspecific()) {
-        p = findParentSpecies(p);
-      }
+        // we want the parent of any infraspecies ranks to be the species
+        if (p.rank.isInfraspecific()) {
+          p = findParentSpecies(p);
+        }
 
-      // check if implicit species or genus parents are needed
-      SrcUsage implicit = new SrcUsage();
-      NubUsage implicitParent = null;
-      try {
-        if (u.parsedName.getGenusOrAbove() != null) {
-          if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
-            implicit.rank = Rank.GENUS;
-            implicit.scientificName = u.parsedName.getGenusOrAbove();
-            implicit.status = u.status;
-            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+        // check if implicit species or genus parents are needed
+        SrcUsage implicit = new SrcUsage();
+        NubUsage implicitParent = null;
+        try {
+          if (u.parsedName.getGenusOrAbove() != null) {
+            if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
+              implicit.rank = Rank.GENUS;
+              implicit.scientificName = u.parsedName.getGenusOrAbove();
+              implicit.status = u.status;
+              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
 
-          } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
-            implicit.rank = Rank.SPECIES;
-            implicit.scientificName = u.parsedName.canonicalSpeciesName();
-            implicit.status = u.status;
-            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+            } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
+              implicit.rank = Rank.SPECIES;
+              implicit.scientificName = u.parsedName.canonicalSpeciesName();
+              implicit.status = u.status;
+              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+            }
+          } else {
+            LOG.warn("Missing genus in parsed name for {}", u.scientificName);
           }
-        } else {
-          LOG.warn("Missing genus in parsed name for {}", u.scientificName);
+
+        } catch (IgnoreSourceUsageException e) {
+          LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
+
+        } catch (Exception e) {
+          LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName, e);
         }
 
-      } catch (IgnoreSourceUsageException e) {
-        LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
-
-      } catch (Exception e) {
-        LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName, e);
-      }
-
-      if (implicitParent != null) {
-        // in case the implicit parent species is a synonym turn the infraspecies also into a synonym
-        if (implicitParent.status.isSynonym() && implicitParent.rank == Rank.SPECIES) {
-          // http://dev.gbif.org/issues/browse/POR-2780
-          u.status = TaxonomicStatus.SYNONYM;
-          p = db.parent(implicitParent);
-        } else {
-          // use the implicit parent
-          p = implicitParent;
+        if (implicitParent != null) {
+          // in case the implicit parent species is a synonym turn the infraspecies also into a synonym
+          if (implicitParent.status.isSynonym() && implicitParent.rank == Rank.SPECIES) {
+            // http://dev.gbif.org/issues/browse/POR-2780
+            u.status = TaxonomicStatus.SYNONYM;
+            p = db.parent(implicitParent);
+          } else {
+            // use the implicit parent
+            p = implicitParent;
+          }
         }
+
+      } else {
+        // a synonym
+        // avoid cases where synonyms for a binnomial are monomials of rank genus or even higher!
+        if (p.parsedName.isBinomial() && u.rank.ordinal() < Rank.INFRAGENERIC_NAME.ordinal()) {
+          LOG.warn("Source synonym {} {} with accepted binomial name {} {}", u.rank, u.scientificName, p.rank, p.parsedName.canonicalNameComplete());
+          throw new IgnoreSourceUsageException("Ignoring source with inverted rank order", u.scientificName);
+        }
+
       }
     }
     // add to nub db

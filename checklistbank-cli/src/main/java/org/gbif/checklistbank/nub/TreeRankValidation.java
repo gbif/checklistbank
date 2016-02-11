@@ -25,7 +25,7 @@ public class TreeRankValidation implements StartEndHandler {
     if (!parents.isEmpty()) {
       Rank parent = parents.getLast();
       if (!parent.higherThan(rank)) {
-        fail("Rank "+rank+" is higher than parent rank "+parent, n);
+        fail("Rank "+rank+" is not lower than parent rank "+parent, n);
       }
     }
     parents.add(rank);
