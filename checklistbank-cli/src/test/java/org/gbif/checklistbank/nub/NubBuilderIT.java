@@ -1132,6 +1132,17 @@ public class NubBuilderIT {
   }
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-2989
+   */
+  @Test
+  public void testMantodeaBasionyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(68);
+    build(src);
+
+    assertTree("68.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {

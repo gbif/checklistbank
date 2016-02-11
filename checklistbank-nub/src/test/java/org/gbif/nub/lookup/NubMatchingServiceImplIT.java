@@ -305,6 +305,21 @@ public class NubMatchingServiceImplIT {
   }
 
   /**
+   * Classification names need to be parsed if they are no monomials already
+   */
+  @Test
+  public void testClassificationWithAuthors() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Fungi Bartling, 1830");
+    cl.setPhylum("Ascomycota Caval.-Sm., 1998");
+    cl.setClazz("Lecanoromycetes, O.E. Erikss. & Winka, 1997");
+    cl.setOrder("Lecanorales, Nannf., 1932");
+    cl.setFamily("Ramalinaceae, C. Agardh, 1821");
+    cl.setGenus("Toninia");
+    assertMatch("Toninia aromatica", cl, 2608009, new IntRange(96,100));
+  }
+
+  /**
    * Non existing species should match genus Quedius
    * http://dev.gbif.org/issues/browse/POR-1712
    */

@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -61,6 +63,14 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       return m.getUsageKey();
     }
   });
+  private static final Pattern FIRST_WORD = Pattern.compile("^(.+?)\\b");
+  private static final List<Rank> HIGHER_RANKS;
+  static {
+    List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
+    ranks.remove(Rank.SPECIES);
+    HIGHER_RANKS = ImmutableList.copyOf(ranks);
+  }
+
 
   /**
    * @param nubIndex
@@ -122,6 +132,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     ParsedName pn = null;
     if (classification == null) {
       classification = new NameUsageMatch();
+    } else {
+      cleanClassification(classification);
     }
     try {
       // use name parser to make the name a canonical one
@@ -187,6 +199,17 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     // if finally we cant find anything, return empty match object - but not null!
     LOG.debug("No match for name {}", scientificName);
     return noMatch(100, match1.getNote(), verbose ? match1.getAlternatives() : null);
+  }
+
+  private void cleanClassification(LinneanClassification cl) {
+    for (Rank r : HIGHER_RANKS) {
+      if (cl.getHigherRank(r) != null) {
+        Matcher m = FIRST_WORD.matcher(cl.getHigherRank(r));
+        if (m.find()) {
+          ClassificationUtils.setHigherRank(cl, r, m.group(1));
+        }
+      }
+    }
   }
 
   /**

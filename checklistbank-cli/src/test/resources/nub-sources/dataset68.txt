@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		ORDER	ACCEPTED		Mantodea
+10	2		FAMILY	ACCEPTED		Hymenopodidae
+100	10		SPECIES	ACCEPTED		Galinthias meruensis Sjostedt, 1909
+101	100		SPECIES	SYNONYM		Galinthias usambarica Sjostedt, 1909
+110	10		SPECIES	ACCEPTED		Oxypiloidea (Catasigerpes) nigericus (Giglio-Tos, 1915)
+120	10		SPECIES	ACCEPTED		Oxypilus (Anoxypilus) meruensis (Sjostedt, 1909)
+121	120		SPECIES	SYNONYM		Oxypilus (Anoxypilus) nigericus (Beier, 1930)
+130	10		SPECIES	ACCEPTED		Pseudoharpax nigericus Giglio-Tos, 1915
