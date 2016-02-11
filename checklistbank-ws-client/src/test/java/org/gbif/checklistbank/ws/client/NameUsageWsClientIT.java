@@ -64,7 +64,7 @@ public class NameUsageWsClientIT {
     NameUsage nameUsage = wsClient.get(key, Locale.ENGLISH);
     assertEquals("Eurasian Red Squirrel", nameUsage.getVernacularName());
 
-    nameUsage = wsClient.get(key, Locale.GERMAN);
+    nameUsage = wsClient.get(key, Locale.GERMANY);
     assertEquals("Europäisches Eichhörnchen", nameUsage.getVernacularName());
   }
 
@@ -224,12 +224,15 @@ public class NameUsageWsClientIT {
     squirrel = wsClient.get(100000040, null);
     assertNull(squirrel.getVernacularName());
 
+    squirrel = wsClient.get(100000040, Locale.ENGLISH);
+    assertEquals("Caucasian Squirrel", squirrel.getVernacularName());
+
     squirrel = wsClient.get(100000040, Locale.GERMANY);
     assertEquals("Kaukasischen Eichhörnchen", squirrel.getVernacularName());
 
     // TEST non existing language VERNACULAR
     squirrel = wsClient.get(100000040, Locale.CHINESE);
-    assertEquals("Caucasian Squirrel", squirrel.getVernacularName());
+    assertNull(squirrel.getVernacularName());
 
     // TEST MULTIPLE IDENTIFIERS
     squirrel = wsClient.get(100000007, Locale.GERMANY);
