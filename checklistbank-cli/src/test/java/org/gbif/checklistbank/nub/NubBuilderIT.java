@@ -1121,6 +1121,17 @@ public class NubBuilderIT {
   }
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-2824
+   */
+  @Test
+  public void testBasionymEpithetStemming() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(67);
+    build(src);
+
+    assertTree("67.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {

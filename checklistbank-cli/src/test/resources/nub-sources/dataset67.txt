@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia
+10	1		FAMILY	ACCEPTED		Asteraceae
+100	10		SPECIES	ACCEPTED		Mulgedium sonchifolium Vis. & Pančić
+101	100		SPECIES	SYNONYM		Lactuca visianii Bornm.
+102	10		SPECIES	ACCEPTED		Cicerbita sonchifolia (Vis. & Pančić) Beauverd
+103	10		SPECIES	ACCEPTED		Mycelis sonchifolia (Vis. & Pančić) Hayek
