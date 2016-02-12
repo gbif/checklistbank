@@ -70,15 +70,13 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
   /**
    * Uses an internal metrics registry to setup the normalizer
-   *
-   * @param poolSize poolSize of the importer cli. Used as guidance to configure internal thread pools updating solr and postgres
    */
-  public Importer build(ImporterConfiguration cfg, UUID datasetKey, int poolSize) throws SQLException {
-    initGuice(cfg, poolSize);
+  public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
+    initGuice(cfg);
     return Importer.create(cfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
   }
 
-  private void initGuice(ImporterConfiguration cfg, int poolSize) {
+  private void initGuice(ImporterConfiguration cfg) {
     if (hds == null) {
       // init mybatis layer and solr from cfg instance
       Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
@@ -98,7 +96,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     iCfg.chunkSize=50;
     iCfg.neo = cfg.neo;
 
-    initGuice(iCfg, 1);
+    initGuice(iCfg);
     // truncate tables
     try (Connection con = hds.getConnection()) {
       try (Statement st = con.createStatement()) {
@@ -305,7 +303,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   @Test
   public void testNubImport() throws Exception {
     // build nub
-    ClasspathSourceList src = ClasspathSourceList.source(3, 2);
+    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
@@ -314,7 +312,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // import
     Importer imp = runImport(Constants.NUB_DATASET_KEY);
-    assertEquals(55, imp.getSyncCounter());
+    assertEquals(62, imp.getSyncCounter());
+    // make sure all usages have preassigned keys, not postgres generated ones!
+    assertTrue(usageService.maxUsageKey(Constants.NUB_DATASET_KEY) < Constants.NUB_MAXIMUM_KEY);
   }
 
 
@@ -337,6 +337,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // 1st import
     runImport(datasetKey);
+    assertTrue(usageService.maxUsageKey(datasetKey) > Constants.NUB_MAXIMUM_KEY);
   }
 
   private void verify16(UUID datasetKey) {
@@ -411,7 +412,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   }
 
   private Importer runImport(UUID datasetKey) throws SQLException {
-    Importer importer = build(iCfg, datasetKey, 2);
+    Importer importer = build(iCfg, datasetKey);
     importer.run();
     return importer;
   }

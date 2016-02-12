@@ -272,7 +272,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
               // pro parte synonyms keep their id in the relation, read it
               // http://dev.gbif.org/issues/browse/POR-2872
               NameUsage u = clone(primary);
-              u.setKey( (Integer) n.getProperty(NeoProperties.USAGE_KEY, null));
+              u.setKey( (Integer) rel.getProperty(NeoProperties.USAGE_KEY, null));
               Node accN = rel.getEndNode();
               // all nodes should be synced by now, so clb keys must be known
               u.setAcceptedKey(clbKeys.get((int) accN.getId()));

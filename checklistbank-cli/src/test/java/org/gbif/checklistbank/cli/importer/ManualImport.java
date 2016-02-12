@@ -97,7 +97,7 @@ public class ManualImport {
 
   private void sync() throws Exception {
     ImporterIT iit = new ImporterIT();
-    Importer importer = iit.build(iCfg, datasetKey, 3);
+    Importer importer = iit.build(iCfg, datasetKey);
     importer.run();
     iit.close();
   }
