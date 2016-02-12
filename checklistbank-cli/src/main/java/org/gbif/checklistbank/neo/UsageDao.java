@@ -428,20 +428,12 @@ public class UsageDao {
     }
   }
 
-  private String readCanonicalName(Node n) {
-    return (String) n.getProperty(NeoProperties.CANONICAL_NAME, null);
-  }
-
-  private String readScientificName(Node n) {
-    return (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME, null);
-  }
-
   public RankedName readRankedName(Node n) {
     RankedName rn = null;
     if (n != null) {
       rn = new RankedName();
       rn.node = n;
-      rn.name = readScientificName(n);
+      rn.name = NeoProperties.getScientificName(n);
       rn.rank = readRank(n);
     }
     return rn;
@@ -501,7 +493,7 @@ public class UsageDao {
       Node bas = getRelatedTaxon(n, RelType.BASIONYM_OF, Direction.INCOMING);
       if (bas != null) {
         u.setBasionymKey((int) bas.getId());
-        u.setBasionym(readScientificName(bas));
+        u.setBasionym(NeoProperties.getScientificName(bas));
       }
     } catch (RuntimeException e) {
       LOG.error("Unable to read basionym relation for {} with node {}", u.getScientificName(), n.getId());
@@ -515,7 +507,7 @@ public class UsageDao {
       acc = getRelatedTaxon(n, RelType.SYNONYM_OF, Direction.OUTGOING);
       if (acc != null) {
         u.setAcceptedKey((int) acc.getId());
-        u.setAccepted(readScientificName(acc));
+        u.setAccepted(NeoProperties.getScientificName(acc));
         // update synonym flag based on relations
         u.setSynonym(true);
       }
@@ -530,7 +522,7 @@ public class UsageDao {
       Node p = getRelatedTaxon(acc == null ? n : acc, RelType.PARENT_OF, Direction.INCOMING);
       if (p != null) {
         u.setParentKey((int) p.getId());
-        u.setParent(readScientificName(p));
+        u.setParent(NeoProperties.getCanonicalName(p));
       }
     } catch (RuntimeException e) {
       LOG.error("Unable to read parent relation for {} with node {}", u.getScientificName(), n.getId());
