@@ -19,6 +19,7 @@ import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.registry.metadata.EMLWriter;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +34,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
@@ -99,21 +101,47 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     final Timer.Context context = timer.time();
     try {
       LOG.info("Start rematching all checklists to changed backbone");
-      NubMatchService nubMatchService = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), importService);
-      int counter = 0;
+      ChecklistMatcher matcher = new ChecklistMatcher(new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), importService));
+
+      // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
+      matcher.match(datasetService.get(Constants.COL_DATASET_KEY));
       for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
-        try {
-          nubMatchService.matchDataset(d);
-          counter++;
-        } catch (Exception e) {
-          LOG.error("Failed to rematch checklist {} {}", d.getKey(), d.getTitle());
+        if (Constants.COL_DATASET_KEY.equals(d.getKey())) {
+          continue;
         }
+        matcher.match(d);
       }
       context.stop();
-      LOG.info("Updated all nub relations for all {} checklists", counter);
+      LOG.info("Updated all nub relations for all {} checklists", matcher.counter);
 
     } catch (Exception e) {
-      LOG.error("Failed to load backbone IdLookup", e);
+      LOG.error("Failed to handle BackboneChangedMessage", e);
+    }
+  }
+
+  class ChecklistMatcher {
+    final NubMatchService nubMatchService;
+    int counter = 0;
+
+    ChecklistMatcher(NubMatchService nubMatchService) {
+      this.nubMatchService = nubMatchService;
+    }
+
+    public void match(Dataset d) {
+      try {
+        nubMatchService.matchDataset(d);
+        counter++;
+        //ChecklistSyncedMessage triggers a new dataset analysis
+        LOG.info("Sending {} for dataset {} {}", ChecklistSyncedMessage.class.getSimpleName(), d.getKey(), d.getTitle());
+        publisher.send(new ChecklistSyncedMessage(d.getKey(), new Date(), 1, 0));
+
+      } catch (Exception e) {
+        LOG.error("Failed to rematch checklist {} {}", d.getKey(), d.getTitle());
+        if (Constants.COL_DATASET_KEY.equals(d.getKey())) {
+          // let the whole thing fail if CoL failed!
+          Throwables.propagate(e);
+        }
+      }
     }
   }
 

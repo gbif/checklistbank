@@ -9,6 +9,7 @@ public enum AdminOperation {
   NORMALIZE,
   IMPORT,
   ANALYZE,
+  NUB_CHANGED,
   REPARSE,
   CLEAN_ORPHANS,
   SYNC_DATASETS,

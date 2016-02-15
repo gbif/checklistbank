@@ -4,6 +4,7 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.InstallationService;
 import org.gbif.api.service.registry.NetworkService;
@@ -32,6 +33,7 @@ import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
+import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
@@ -71,7 +73,8 @@ public class AdminCommand extends BaseCommand {
       AdminOperation.SYNC_DATASETS,
       AdminOperation.UPDATE_VERBATIM,
       AdminOperation.DUMP,
-      AdminOperation.VALIDATE_NEO
+      AdminOperation.VALIDATE_NEO,
+      AdminOperation.NUB_CHANGED
   );
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
@@ -178,9 +181,19 @@ public class AdminCommand extends BaseCommand {
         verifyNeo();
         break;
 
+      case NUB_CHANGED:
+        sendNubChanged();
+        break;
+
       default:
         throw new UnsupportedOperationException();
     }
+  }
+
+  private void sendNubChanged() throws IOException {
+    Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+    DatasetMetricsService metricsService = inj.getInstance(DatasetMetricsService.class);
+    send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
   }
 
   private void updateVerbatim() throws Exception {
