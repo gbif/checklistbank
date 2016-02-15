@@ -180,7 +180,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           Future<List<Integer>> f = null;
           if (!batch.isEmpty()) {
             LOG.debug("submit {} main nodes for concurrent syncing starting with node {}", batch.size(), batch.get(0));
-            f = sqlService.sync(datasetKey,this, batch);
+            f = sqlService.sync(datasetKey, this, batch);
           }
           // while main nodes sync we can read in the new subtree already
           batch = subtreeBatch(n);
@@ -193,7 +193,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
           LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
-          usageFutures.add(sqlService.sync(datasetKey,this, batch));
+          usageFutures.add(sqlService.sync(datasetKey, this, batch));
           // reset main batch for new usages
           batch = Lists.newArrayList();
           clearFinishedUsageTasks();
