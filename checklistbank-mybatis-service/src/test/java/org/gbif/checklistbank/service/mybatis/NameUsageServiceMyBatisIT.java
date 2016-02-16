@@ -360,7 +360,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     // weird enough issues stop loading after 4 times, try that
     for (int x = 0; x < 6; x++) {
       u = service.get(100000040, null);
-      assertEquals(expected, u.getIssues());
+      assertEquals("Call "+x+" should be correct", expected, u.getIssues());
     }
   }
 
