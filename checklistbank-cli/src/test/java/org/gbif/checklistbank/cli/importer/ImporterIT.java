@@ -261,8 +261,24 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
 
     // check first name
-    NameUsage u = getUsageByTaxonID(datasetKey, "426221");
-    assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u.getPublishedIn());
+    NameUsage u426221 = getUsageByTaxonID(datasetKey, "426221");
+    assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u426221.getPublishedIn());
+
+
+    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 200));
+
+    NameUsage expected = null;
+    for (NameUsage u : resp.getResults()) {
+      if (u.getIssues().size() > 0) {
+        System.err.println("Found "+u.toString());
+        System.err.println("Issues are "+u.getIssues());
+        expected = u;
+        break;
+      }
+    }
+
+    NameUsage same = nameUsageService.get(expected.getKey(), null);
+    assertEquals(expected, same);
   }
 
   /**
@@ -321,8 +337,12 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     assertEquals("Neotetrastichodes flavus Girault, 1913", u.getScientificName());
     assertTrue(u.getIssues().contains(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION));
 
-  }
+    // make sure get does the same as list
+    NameUsage u2 = nameUsageService.get(u.getKey(), null);
+    assertEquals(u, u2);
+    assertTrue(u2.getIssues().contains(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION));
 
+  }
 
   /**
    * http://dev.gbif.org/issues/browse/POR-2755

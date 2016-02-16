@@ -5,6 +5,7 @@ import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
@@ -31,8 +32,12 @@ import org.gbif.nameparser.UnparsableException;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -49,6 +54,12 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
   private static final NameParser PARSER = new NameParser();
+  NameUsageService uService;
+
+  @Before
+  public void init2() {
+    uService = getInstance(NameUsageService.class);
+  }
 
   @Test
   public void testDeleteDataset() throws Exception {
@@ -58,7 +69,6 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
 
   @Test
   public void testSyncUsage() throws Exception {
-    final NameUsageService uService = getInstance(NameUsageService.class);
 
     // first add a classification to please constraints
     NameUsage k = addHigher(1, null, null, "Plantae", Rank.KINGDOM);
@@ -169,6 +179,56 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     assertEquals(p.getKey(), u2.getNubKey());
   }
 
+  /**
+   * Makes sure all db enums are matching the API enum values
+   */
+  @Test
+  public void testAllEnums() throws Exception {
+    String name = "Abies mekka Jesus";
+
+    NameUsage u = new NameUsage();
+    u.setDatasetKey(CHECKLIST_KEY);
+    u.setScientificName(name);
+    u.setOrigin(Origin.SOURCE);
+    u.setSynonym(false);
+    u.setModified(new Date());
+    // all enums
+    u.getIssues().addAll(Sets.newHashSet(NameUsageIssue.values()));
+    u.getNomenclaturalStatus().addAll(Sets.newHashSet(NomenclaturalStatus.values()));
+
+    u.setRank(Rank.SPECIES);
+    u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
+
+    NameUsageMetrics m = new NameUsageMetrics();
+
+    ParsedName pn = PARSER.parse(u.getScientificName(), u.getRank());
+
+    final int uID = service.syncUsage(false, u, pn, m);
+    List<Integer> ids = Lists.newArrayList(uID);
+
+    for (Rank r : Rank.values()) {
+      m.setKey(null);
+      u.setKey(null);
+      u.setRank(r);
+      // there are far more ranks than status values
+      if (r.ordinal() < TaxonomicStatus.values().length) {
+        u.setTaxonomicStatus(TaxonomicStatus.values()[r.ordinal()]);
+      }
+      ids.add(service.syncUsage(true, u, pn, m));
+    }
+
+    NameUsage u2 = uService.get(uID, null);
+    u2.setLastInterpreted(null);
+    u2.setCanonicalName(null);
+    u2.setNameType(null);
+    u2.setAuthorship(null);
+
+    u.setKey(uID);
+    u.setRank(Rank.SPECIES);
+    u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
+
+    assertEquals(u, u2);
+  }
 
   private NameUsage addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) throws UnparsableException {
     NameUsage p = new NameUsage();
