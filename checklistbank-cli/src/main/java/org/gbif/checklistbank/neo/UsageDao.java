@@ -212,8 +212,10 @@ public class UsageDao {
    * This avoids (potentially erroneous) tree traversals missing some nodes.
    */
   public void logAll() throws Exception {
+    Joiner joiner = Joiner.on(",").skipNulls();
     for (Node n : GlobalGraphOperations.at(neo).getAllNodes()) {
-      LOG.info("{} {} [{} {}]", n.getId(), NeoProperties.getScientificName(n), (n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name()).toLowerCase(), NeoProperties.getRank(n, null));
+      NubUsage u = readNub(n);
+      LOG.info("{} {} [{} {}] {}", n.getId(), NeoProperties.getScientificName(n), (n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name()).toLowerCase(), NeoProperties.getRank(n, null), u == null ? "" : joiner.join(u.issues));
     }
   }
 

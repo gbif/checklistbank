@@ -6,6 +6,7 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
@@ -303,7 +304,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   @Test
   public void testNubImport() throws Exception {
     // build nub
-    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16);
+    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
     NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
@@ -312,9 +313,14 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // import
     Importer imp = runImport(Constants.NUB_DATASET_KEY);
-    assertEquals(62, imp.getSyncCounter());
+    assertEquals(67, imp.getSyncCounter());
     // make sure all usages have preassigned keys, not postgres generated ones!
     assertTrue(usageService.maxUsageKey(Constants.NUB_DATASET_KEY) < Constants.NUB_MAXIMUM_KEY);
+    //test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES] CONFLICTING_BASIONYM_COMBINATION
+    NameUsage u = nameUsageService.listByCanonicalName(null, "Neotetrastichodes flavus", null, null).getResults().get(0);
+    assertEquals("Neotetrastichodes flavus Girault, 1913", u.getScientificName());
+    assertTrue(u.getIssues().contains(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION));
+
   }
 
 
