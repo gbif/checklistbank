@@ -17,13 +17,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,9 +47,7 @@ public class ConcurrentCreateOrGetIT {
     private void init() {
       // init mybatis layer and solr from cfgN instance
       inj = Guice.createInjector(new ChecklistBankServiceMyBatisModule(props));
-      Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-      hds = (HikariDataSource) inj.getInstance(dsKey);
-
+      hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     }
 
     public Connection getConnection() throws SQLException {

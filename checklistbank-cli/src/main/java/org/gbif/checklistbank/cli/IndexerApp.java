@@ -23,13 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
-import javax.sql.DataSource;
 
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
 
@@ -97,8 +95,7 @@ public class IndexerApp {
   private void sync() throws Exception {
     // init mybatis layer and solr from cfg instance
     Injector inj = Guice.createInjector(iCfg.clb.createServiceModule(), new RealTimeModule(iCfg.solr));
-    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-    hds = (HikariDataSource) inj.getInstance(dsKey);
+    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     NameUsageService nameUsageService = inj.getInstance(NameUsageService.class);
     UsageService usageService = inj.getInstance(UsageService.class);
     DatasetImportService sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

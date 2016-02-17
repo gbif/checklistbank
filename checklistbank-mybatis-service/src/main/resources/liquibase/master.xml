@@ -198,4 +198,12 @@
             ALTER TABLE raw_usage ADD COLUMN json text;
         </sql>
     </changeSet>
+  <changeSet id="36" author="markus">
+    <!--
+    replace text[] with simple text for issue sets due to a JDBC driver bug :(
+    -->
+    <sql>
+      ALTER TABLE name_usage ALTER COLUMN issues type text;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

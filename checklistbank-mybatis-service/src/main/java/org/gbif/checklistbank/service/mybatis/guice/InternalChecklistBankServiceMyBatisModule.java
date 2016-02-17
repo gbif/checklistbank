@@ -85,9 +85,12 @@ import org.gbif.nameparser.NameParser;
 import java.net.URI;
 import java.util.Properties;
 import java.util.UUID;
+import javax.sql.DataSource;
 
 import com.google.common.base.Preconditions;
+import com.google.inject.Key;
 import com.google.inject.Scopes;
+import com.google.inject.name.Names;
 
 /**
  * This Module should not be used, use the
@@ -95,7 +98,10 @@ import com.google.inject.Scopes;
  */
 public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
-  public static final String DATASOURCE_BINDING_NAME = "checklistbank";
+  private static final String DATASOURCE_BINDING_NAME = "checklistbank";
+  public static final Key<DataSource> DATASOURCE_KEY = Key.get(DataSource.class,
+      Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
+
   private final int parserTimeout;
   private final int importThreads;
 

@@ -11,13 +11,19 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.RawUsage;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
+import com.google.common.base.Joiner;
+import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -348,7 +354,6 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
    * http://dev.gbif.org/issues/browse/POR-3032
    */
   @Test
-  @Ignore("we need to find the cause and fix it!!!")
   public void testUsageIssues() {
     NameUsage u = service.get(100000040, null);
     assertNotNull(u);
@@ -357,10 +362,33 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     EnumSet expected = EnumSet.of(NameUsageIssue.RANK_INVALID);
     assertEquals(expected, u.getIssues());
 
-    // weird enough issues stop loading after 4 times, try that
-    for (int x = 0; x < 6; x++) {
+    Joiner j = Joiner.on(",").skipNulls();
+    for (int x = 0; x < 10; x++) {
       u = service.get(100000040, null);
       assertEquals(expected, u.getIssues());
+    }
+  }
+
+  /**
+   * Prepared statements in postgres jdbc have a bug when caching text[] array types.
+   * This test shows it and we circumvent this behavior by telling mybatis not to cache results.
+   * http://dev.gbif.org/issues/browse/POR-3032
+   */
+  @Test
+  @Ignore("this test is expected to not work due to a postgres jdbc bug")
+  public void testUsageIssuesJdbc() throws Exception {
+    HikariDataSource ds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
+    try (Connection cn = ds.getConnection()) {
+      PreparedStatement st = cn.prepareStatement("select issues from name_usage where id=?");
+      for (int x = 0; x < 10; x++) {
+        st.setInt(1, 100000040);
+        st.execute();
+        ResultSet rs = st.getResultSet();
+        rs.next();
+        System.out.println(rs.getString(1));
+      }
+    } finally {
+      ds.close();
     }
   }
 

@@ -80,8 +80,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="proParteKey" column="pp_synonym_fk"/>
         <result property="basionymKey" column="basionym_fk"/>
         <result property="taxonomicStatus" column="status"/>
-        <result property="nomenclaturalStatus" column="nom_status"
-                typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
+        <result property="nomenclaturalStatus" column="nom_status" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
         <result property="kingdomKey" column="kid"/>
         <result property="phylumKey" column="pid"/>
         <result property="classKey" column="cid"/>
@@ -92,14 +91,14 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="subgenusKey" column="sgid"/>
         <result property="speciesKey" column="sid"/>
         <result property="references" column="references"/>
-        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
+        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.TextIssueSetTypeHandler"/>
     </resultMap>
 
     <!--  A mapping to build a NameUsage with just the issue set and the usage key.
           We need this mapping as mybatis cannot return a typed set with a specific type handler -->
     <resultMap id="issueResultMap" type="NameUsage">
         <id property="key" column="id"/>
-        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
+        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.TextIssueSetTypeHandler"/>
     </resultMap>
 
     <!--  Get by primary key -->
@@ -264,7 +263,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     #{u.constituentKey}, #{u.nameKey}, #{u.rank}::rank,
     #{u.parentKey}, #{u.isSynonym}, #{u.taxonomicStatus}::taxonomic_status,
     #{u.nomenclaturalStatus, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler },
-    #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler },
+    #{u.issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.TextIssueSetTypeHandler},
     #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
     #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.sourceTaxonKey}, #{u.modified}, #{u.numDescendants}, now()
   </sql>

@@ -47,4 +47,11 @@ public class MyBatisServiceITBase<T> {
     return injector.getInstance(clazz);
   }
 
+  public <K> K getInstance(Class<K> clazz, Class<? extends Annotation> annotationType) {
+    return injector.getInstance(Key.get(clazz, annotationType));
+  }
+
+  public <K> K getInstance(Key<K> key) {
+    return injector.getInstance(key);
+  }
 }
