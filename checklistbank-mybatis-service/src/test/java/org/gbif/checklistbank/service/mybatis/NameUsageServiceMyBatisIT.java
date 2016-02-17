@@ -365,7 +365,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     Joiner j = Joiner.on(",").skipNulls();
     for (int x = 0; x < 10; x++) {
       u = service.get(100000040, null);
-      assertEquals(expected, u.getIssues());
+      assertEquals("Call "+x+" should be correct", expected, u.getIssues());
     }
   }
 
