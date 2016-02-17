@@ -10,12 +10,9 @@ import org.gbif.common.messaging.api.messages.ChecklistAnalyzedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
 import java.io.IOException;
-import javax.sql.DataSource;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +27,7 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
         super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze");
         Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
         analysisService = inj.getInstance(DatasetAnalysisService.class);
-        Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-        hds = (HikariDataSource) inj.getInstance(dsKey);
+        hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     }
 
     @Override

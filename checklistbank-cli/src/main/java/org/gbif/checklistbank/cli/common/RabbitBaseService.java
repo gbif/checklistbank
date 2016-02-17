@@ -6,29 +6,18 @@ import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
-import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
-import javax.sql.DataSource;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
-import com.yammer.metrics.Counter;
 import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.Timer;
 import com.yammer.metrics.jvm.FileDescriptorRatioGauge;
 import com.yammer.metrics.jvm.MemoryUsageGaugeSet;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 public abstract class RabbitBaseService<T extends Message> extends AbstractIdleService implements MessageCallback<T> {
     private static final Logger LOG = LoggerFactory.getLogger(RabbitBaseService.class);
@@ -61,9 +50,7 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
      * Make sure the injector has the ChecklistBankServiceMyBatisModule bound.
      */
     protected void initDbPool(Injector inj) {
-        Key<DataSource> dsKey = Key.get(DataSource.class,
-                Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-        hds = (HikariDataSource) inj.getInstance(dsKey);
+        hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     }
 
     @Override

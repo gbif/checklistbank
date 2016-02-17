@@ -29,7 +29,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.UUID;
-import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -39,7 +38,6 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.After;
 import org.junit.Before;
@@ -81,8 +79,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     if (hds == null) {
       // init mybatis layer and solr from cfg instance
       Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
-      Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-      hds = (HikariDataSource) inj.getInstance(dsKey);
+      hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
       nameUsageService = inj.getInstance(NameUsageService.class);
       usageService = inj.getInstance(UsageService.class);
       sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

@@ -27,7 +27,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import javax.sql.DataSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -36,7 +35,6 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 import com.yammer.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.io.FileUtils;
@@ -135,8 +133,7 @@ public class MultiThreadingCliTest {
     sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
 
-    Key<DataSource> dsKey = Key.get(DataSource.class, Names.named(InternalChecklistBankServiceMyBatisModule.DATASOURCE_BINDING_NAME));
-    hds = (HikariDataSource) inj.getInstance(dsKey);
+    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     // truncate tables
     log.println("Truncate existing data");
     Connection cn = hds.getConnection();
