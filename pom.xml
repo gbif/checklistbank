@@ -98,7 +98,7 @@
     <mybatis.version>3.3.1</mybatis.version>
     <mybatis-guice.version>3.7.1</mybatis-guice.version>
     <neo4j.version>2.3.2</neo4j.version>
-    <postgresql.version>9.4.1207.jre7</postgresql.version>
+    <postgresql.version>9.4.1208-SNAPSHOT</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
     <servlet-api.version>3.1.0</servlet-api.version>
@@ -116,6 +116,13 @@
       <id>gbif-all</id>
       <url>http://repository.gbif.org/content/groups/gbif</url>
     </repository>
+
+    <!-- postgres jdbc snapshots -->
+    <repository>
+      <id>oss-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+
     <repository>
       <id>cloudera-release</id>
       <url>http://repository.cloudera.com/artifactory/cloudera-repos/</url>

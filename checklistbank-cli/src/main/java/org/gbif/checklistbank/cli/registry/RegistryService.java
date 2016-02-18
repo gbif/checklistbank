@@ -10,6 +10,7 @@ import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
+import org.gbif.checklistbank.utils.ObjectUtils;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 
 import java.io.File;
@@ -107,8 +108,8 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   @Override
   public void handleMessage(RegistryChangeMessage msg) {
     if (Dataset.class.equals(msg.getObjectClass())) {
-      Dataset d = (Dataset) msg.getOldObject();
-      if (DatasetType.CHECKLIST == d.getType()) {
+      Dataset d = (Dataset) ObjectUtils.coalesce(msg.getNewObject(), msg.getOldObject());
+      if (d != null && DatasetType.CHECKLIST == d.getType()) {
         switch (msg.getChangeType()) {
           case DELETED:
             delete(d.getKey());

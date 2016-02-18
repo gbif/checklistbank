@@ -16,6 +16,7 @@ import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
 import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.utils.ObjectUtils;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.TaxStatusParser;
@@ -40,14 +41,13 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Lists;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.yammer.metrics.Meter;
 import com.yammer.metrics.MetricRegistry;
@@ -291,18 +291,13 @@ public class NeoInserter implements AutoCloseable {
         u.setRemarks(v.getCoreField(DwcTerm.taxonRemarks));
         u.setAuthorship(v.getCoreField(DwcTerm.scientificNameAuthorship));
 
-        u.setReferences(coalesce(
+        u.setReferences(ObjectUtils.coalesce(
                 UrlParser.parse(v.getCoreField(DcTerm.references)),
                 UrlParser.parse(v.getCoreField(AcTerm.furtherInformationURL)),
                 UrlParser.parse(v.getCoreField(DcTerm.source))
         ));
 
         return u;
-    }
-
-    private static <T> T coalesce(T... items) {
-        for (T i : items) if (i != null) return i;
-        return null;
     }
 
     @VisibleForTesting

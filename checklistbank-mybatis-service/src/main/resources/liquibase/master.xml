@@ -206,4 +206,13 @@
       ALTER TABLE name_usage ALTER COLUMN issues type text;
     </sql>
   </changeSet>
+  <changeSet id="37" author="markus">
+    <!--
+    revert and use text[] again, JDBC driver got fixed!
+    https://github.com/pgjdbc/pgjdbc/issues/517
+    -->
+    <sql>
+      ALTER TABLE name_usage ALTER COLUMN issues type text[] USING issues::text[];
+    </sql>
+  </changeSet>
 </databaseChangeLog>

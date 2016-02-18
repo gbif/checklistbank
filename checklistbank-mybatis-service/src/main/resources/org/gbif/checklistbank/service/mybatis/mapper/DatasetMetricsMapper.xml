@@ -98,7 +98,7 @@ SELECT #{uuid}, #{downloaded},
     ),
     (SELECT array_to_string(array_agg( key || '=>' || cnt), ', ')::hstore FROM
       (SELECT iss AS key, count(*)::text AS cnt FROM (
-        SELECT unnest(regexp_split_to_array(substring(issues, 2, length(issues)-2), ',')) iss from name_usage WHERE deleted IS NULL AND dataset_key=#{uuid}
+        SELECT unnest(issues) iss from name_usage WHERE deleted IS NULL AND dataset_key=#{uuid}
       ) AS dis GROUP BY key) AS issues
     ),
     (SELECT ('DESCRIPTION => ' || (SELECT count(*)::text FROM description x join name_usage u ON x.usage_fk=u.id WHERE u.dataset_key=#{uuid}))::hstore

@@ -25,7 +25,6 @@ import java.util.UUID;
 import com.google.common.base.Joiner;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -372,10 +371,12 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
   /**
    * Prepared statements in postgres jdbc have a bug when caching text[] array types.
    * This test shows it and we circumvent this behavior by telling mybatis not to cache results.
+   *
    * http://dev.gbif.org/issues/browse/POR-3032
+   *
+   * https://github.com/pgjdbc/pgjdbc/issues/517
    */
   @Test
-  @Ignore("this test is expected to not work due to a postgres jdbc bug")
   public void testUsageIssuesJdbc() throws Exception {
     HikariDataSource ds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     try (Connection cn = ds.getConnection()) {

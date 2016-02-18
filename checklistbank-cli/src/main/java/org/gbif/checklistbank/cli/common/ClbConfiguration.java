@@ -48,7 +48,7 @@ public class ClbConfiguration {
   public String password;
 
   @Parameter(names = "--clb-maximum-pool-size")
-  @Min(3)
+  @Min(2)
   public int maximumPoolSize = 8;
 
   /**

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.slf4j.Logger;
@@ -57,9 +58,15 @@ public abstract class ArraySetTypeHandler<T> extends BaseTypeHandler<Set<T>> {
       String n = array.substring(1, array.length()-1);
       if (!Strings.isNullOrEmpty(n)) {
         for (String x : n.split(",")) {
-          T val = convert(x);
-          if (val != null) {
-            set.add(val);
+          // remove potential quotes. These might even exist for non text datatypes
+          // see https://github.com/pgjdbc/pgjdbc/issues/517#issuecomment-185647055
+          try {
+            T val = convert(StringUtils.strip(x, "\""));
+            if (val != null) {
+              set.add(val);
+            }
+          } catch (IllegalArgumentException e) {
+            LOG.warn("Ignore invalid array element value {}. {}", x, e.getMessage());
           }
         }
       }
@@ -67,6 +74,6 @@ public abstract class ArraySetTypeHandler<T> extends BaseTypeHandler<Set<T>> {
     return set;
   }
 
-  protected abstract T convert(String x);
+  protected abstract T convert(String x) throws IllegalArgumentException;
 
 }
