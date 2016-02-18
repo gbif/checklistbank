@@ -10,6 +10,7 @@ import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
+import org.gbif.checklistbank.utils.ObjectUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -84,7 +85,7 @@ public class IdLookupImpl implements IdLookup {
     this();
     for (Node n : IteratorUtil.asIterable(dao.allTaxa())) {
       NubUsage u = dao.readNub(n);
-      add(new LookupUsage(u.usageKey, u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false));
+      add(new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false));
     }
     LOG.info("Use {} existing nub usages with max key {} into id lookup", usages.size(), keyMax);
   }
@@ -99,7 +100,7 @@ public class IdLookupImpl implements IdLookup {
     try (Connection c = clb.connect()) {
       final CopyManager cm = new CopyManager((BaseConnection) c);
       cm.copyOut("COPY ("
-          + "SELECT u.id, coalesce(n.canonical_name, n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
+          + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
           + " FROM name_usage u join name n ON name_fk=n.id"
           + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "')"
           + " TO STDOUT WITH NULL ''", writer);
