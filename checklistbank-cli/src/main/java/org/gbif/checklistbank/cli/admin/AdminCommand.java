@@ -14,6 +14,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.cli.datasetmatch.MatchDatasetMessage;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -21,10 +22,7 @@ import org.gbif.checklistbank.nub.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.NubTreeValidation;
 import org.gbif.checklistbank.nub.TreeValidation;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
-import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.nub.source.ClbSource;
-import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
@@ -240,17 +238,6 @@ public class AdminCommand extends BaseCommand {
       datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
     }
 
-    NubMatchService nubMatchService = null;
-    if (cfg.operation == AdminOperation.MATCH_DATASET) {
-      try {
-        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
-        nubMatchService = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), inj.getInstance(DatasetImportService.class));
-      } catch (Exception e) {
-        LOG.error("Error to init nub match service", e);
-        throw e;
-      }
-    }
-
     for (Dataset d : datasets) {
       LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
       switch (cfg.operation) {
@@ -301,7 +288,11 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case MATCH_DATASET:
-          nubMatchService.matchDataset(d);
+          if (DatasetType.CHECKLIST.equals(d.getType())) {
+            send(new MatchDatasetMessage(d.getKey()));
+          } else {
+            LOG.warn("Cannot match dataset of type {}: {} {}", d.getType(), d.getKey(), d.getTitle());
+          }
           break;
 
         default:

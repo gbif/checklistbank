@@ -8,8 +8,12 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.common.messaging.api.MessagePublisher;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -20,22 +24,29 @@ import org.slf4j.LoggerFactory;
  */
 public class NubMatchService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchService.class);
-  private final ClbConfiguration cfg;
-  private final IdLookup nubLookup;
+  protected final ClbConfiguration cfg;
+  protected IdLookup nubLookup;
   private final DatasetImportService importService;
+  private final MessagePublisher publisher;
+  private int counter = 0;
 
-  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService importService) {
+  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService importService, MessagePublisher publisher) {
     this.cfg = cfg;
     this.nubLookup = nubLookup;
     this.importService = importService;
+    this.publisher = publisher;
+  }
+
+  public int getCounter() {
+    return counter;
   }
 
   /**
    * Updates a datasets nub matches.
    * Uses the internal Lookup to generate a complete id map and then does postgres writes in a separate thread ?!
    */
-  public void matchDataset(Dataset d) {
-    LOG.info("Rematch checklist {} {} to changed backbone", d.getKey(), d.getTitle());
+  public void matchDataset(Dataset d) throws DatasetMatchFailed {
+    LOG.info("Rematch checklist {} {} to Backbone", d.getKey(), d.getTitle());
     Map<Integer, Integer> relations = Maps.newHashMap();
 
     try (ClbSource src = new ClbSource(cfg, d)){
@@ -61,6 +72,22 @@ public class NubMatchService {
       }
       LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
       importService.insertNubRelations(d.getKey(), relations);
+      counter++;
+
+      //ChecklistSyncedMessage triggers a new dataset analysis
+      LOG.info("Sending {} for dataset {} {}", ChecklistSyncedMessage.class.getSimpleName(), d.getKey(), d.getTitle());
+      publisher.send(new ChecklistSyncedMessage(d.getKey(), new Date(), 1, 0));
+
+    } catch (Exception e) {
+      LOG.error("Failed to match checklist {} {}", d.getKey(), d.getTitle());
+      throw new DatasetMatchFailed(d.getKey(), e);
     }
+  }
+
+  public void matchDataset(UUID key) throws DatasetMatchFailed {
+    Dataset d = new Dataset();
+    d.setKey(key);
+    d.setTitle("Dataset "+key);
+    matchDataset(d);
   }
 }

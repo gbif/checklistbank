@@ -29,7 +29,7 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
     protected final MetricRegistry registry;
     protected HikariDataSource hds;
     protected MessagePublisher publisher;
-    private MessageListener listener;
+    protected MessageListener listener;
 
     public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg) {
         this.mCfg = mCfg;
@@ -86,4 +86,5 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
             throw e;
         }
     }
+
 }
