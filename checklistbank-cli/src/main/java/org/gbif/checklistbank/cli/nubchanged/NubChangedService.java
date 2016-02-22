@@ -12,9 +12,11 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.datasetmatch.MatchDatasetMessage;
+import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
@@ -39,6 +41,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.yammer.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,8 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private final NubChangedConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
-  private final DatasetImportService importService;
+  private final DatasetImportService sqlImportService;
+  private final DatasetImportService solrImportService;
   private final DatasetService datasetService;
   private final NetworkService networkService;
   private final MetricRegistry registry = new MetricRegistry("matcher");
@@ -68,7 +72,8 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     networkService = regInj.getInstance(NetworkService.class);
 
     Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule());
-    importService = clbInj.getInstance(DatasetImportService.class);
+    sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
   }
 
   @Override
@@ -101,7 +106,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private void rematchChecklists() {
     try {
       LOG.info("Start rematching all checklists to changed backbone");
-      NubMatchService matcher = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), importService, publisher);
+      NubMatchService matcher = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), sqlImportService, solrImportService, publisher);
 
       // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
       publisher.send(new MatchDatasetMessage(Constants.COL_DATASET_KEY));

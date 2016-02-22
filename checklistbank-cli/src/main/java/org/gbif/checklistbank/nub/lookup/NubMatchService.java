@@ -26,14 +26,16 @@ public class NubMatchService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchService.class);
   protected final ClbConfiguration cfg;
   protected IdLookup nubLookup;
-  private final DatasetImportService importService;
+  private final DatasetImportService sqlService;
+  private final DatasetImportService solrService;
   private final MessagePublisher publisher;
   private int counter = 0;
 
-  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService importService, MessagePublisher publisher) {
+  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService solrService, MessagePublisher publisher) {
     this.cfg = cfg;
     this.nubLookup = nubLookup;
-    this.importService = importService;
+    this.sqlService = sqlService;
+    this.solrService = solrService;
     this.publisher = publisher;
   }
 
@@ -71,7 +73,8 @@ public class NubMatchService {
         }
       }
       LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
-      importService.insertNubRelations(d.getKey(), relations);
+      sqlService.insertNubRelations(d.getKey(), relations);
+      solrService.insertNubRelations(d.getKey(), relations);
       counter++;
 
       //ChecklistSyncedMessage triggers a new dataset analysis
