@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.datasetmatch;
+package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
@@ -16,7 +16,7 @@ import com.beust.jcommander.ParametersDelegate;
  *
  */
 @SuppressWarnings("PublicField")
-public class DatasetMatchConfiguration {
+public class MatcherConfiguration {
 
 
   @Parameter(names = "--pool-size")

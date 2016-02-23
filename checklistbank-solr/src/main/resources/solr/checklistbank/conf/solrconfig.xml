@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-  <luceneMatchVersion>5.3.1</luceneMatchVersion>
+  <luceneMatchVersion>5.4.1</luceneMatchVersion>
   <dataDir>${solr.data.dir:}</dataDir>
 
   <xi:include href="hdfs_directory_factory.xml" xmlns:xi="http://www.w3.org/2001/XInclude">

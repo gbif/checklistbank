@@ -263,9 +263,10 @@ public class NameUsageIndexer extends ThreadPoolRunner<Integer> {
       ResourcesUtil.copy(conf, "solr/checklistbank/conf/", false, "schema.xml", "solrconfig.xml");
 
       // insert container
-      CoreContainer coreContainer = CoreContainer.createAndLoad(solrHome.getAbsolutePath(), new File(solrHome, "solr.xml"));
-      EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "");
+      CoreContainer coreContainer = new CoreContainer(solrHome.getAbsolutePath());
+      coreContainer.load();
 
+      EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "");
       LOG.info("Created embedded solr server with solr dir {}", solrHome.getAbsolutePath());
 
       // test solr

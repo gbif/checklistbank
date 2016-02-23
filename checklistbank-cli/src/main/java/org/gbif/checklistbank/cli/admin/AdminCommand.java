@@ -14,7 +14,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.datasetmatch.MatchDatasetMessage;
+import org.gbif.checklistbank.cli.matcher.MatchDatasetMessage;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;

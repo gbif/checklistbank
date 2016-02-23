@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.datasetmatch;
+package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
@@ -9,6 +9,7 @@ import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.nub.lookup.ReloadingIdLookup;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
+import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -17,17 +18,17 @@ import com.yammer.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DatasetMatchService extends RabbitDatasetService<MatchDatasetMessage> {
+public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DatasetMatchService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MatcherService.class);
 
   private final NubMatchService matcher;
-  private static final String QUEUE = "clb-dataset-matcher";
+  private static final String QUEUE = "clb-matcher";
   private final DatasetImportService sqlImportService;
   private final DatasetImportService solrImportService;
   private final Timer timer = registry.timer("nub matcher process time");
 
-  public DatasetMatchService(DatasetMatchConfiguration cfg) {
+  public MatcherService(MatcherConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
 
     try {

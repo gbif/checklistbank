@@ -11,7 +11,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.datasetmatch.MatchDatasetMessage;
+import org.gbif.checklistbank.cli.matcher.MatchDatasetMessage;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;

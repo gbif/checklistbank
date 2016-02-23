@@ -65,7 +65,7 @@ This worflow has the capability of building Solr indexes for both cloud  and non
     hadoop.jobtracker=jobtracker:8032
     hdfs.namenode=hdfs:\/\/namenode:8020
     oozie.url=http:\/\/oozieserver:11000\/oozie
-    solr.home=\/opt\/solr-5.3.1\/
+    solr.home=\/opt\/solr-5.4.1\/
     solr.zk=zk chroot
     solr.http.url= url to one of the Solr servers in the cluster, required to access de Core admin interface
     hdfs.out.dir=HDFS directory where the produced index is stored

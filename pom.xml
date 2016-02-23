@@ -46,13 +46,13 @@
     <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.23</gbif-common.version>
     <gbif-common-mybatis.version>0.26</gbif-common-mybatis.version>
-    <!-- matches solr 5.3.1 -->
-    <gbif-common-search.version>0.26</gbif-common-search.version>
+    <!-- matches solr 5.4.x -->
+    <gbif-common-search.version>0.27</gbif-common-search.version>
     <gbif-common-service.version>0.16</gbif-common-service.version>
     <gbif-common-ws.version>0.30</gbif-common-ws.version>
     <gbif-httputils.version>0.9</gbif-httputils.version>
     <gbif-microservice.version>0.5</gbif-microservice.version>
-    <gbif-postal-service.version>0.20</gbif-postal-service.version>
+    <gbif-postal-service.version>0.21-SNAPSHOT</gbif-postal-service.version>
     <registry-client.version>2.47</registry-client.version>
     <name-parser.version>2.15</name-parser.version>
     <gbif-parser.version>0.20</gbif-parser.version>
@@ -98,13 +98,12 @@
     <mybatis.version>3.3.1</mybatis.version>
     <mybatis-guice.version>3.7.1</mybatis-guice.version>
     <neo4j.version>2.3.2</neo4j.version>
-    <!-- this is a fixed copy of the latest jdbc snapshot into GBIF nexus from 18th Feb 2016 -->
-    <postgresql.version>9.4.1208-GBIF-RC1.jre7</postgresql.version>
+    <postgresql.version>9.4.1208.jre7</postgresql.version>
     <powermock-mockito.version>1.5.4</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
     <servlet-api.version>3.1.0</servlet-api.version>
     <slf4j.version>1.7.12</slf4j.version>
-    <solr-lucene.version>5.3.1</solr-lucene.version>
+    <solr-lucene.version>5.4.1</solr-lucene.version>
     <tika.version>1.11</tika.version>
     <hadoop.version>2.6.0-cdh5.4.7</hadoop.version>
     <avro.version>1.7.7</avro.version>
