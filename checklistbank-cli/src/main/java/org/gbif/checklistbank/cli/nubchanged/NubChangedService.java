@@ -12,6 +12,7 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.datasetmatch.MatchDatasetMessage;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
@@ -71,7 +72,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     datasetService = regInj.getInstance(DatasetService.class);
     networkService = regInj.getInstance(NetworkService.class);
 
-    Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule());
+    Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
     sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
   }

@@ -2,8 +2,8 @@ package org.gbif.checklistbank.cli.datasetmatch;
 
 import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
-import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.common.search.inject.SolrConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -39,8 +39,8 @@ public class DatasetMatchConfiguration {
   public ClbConfiguration clb = new ClbConfiguration();
 
   @ParametersDelegate
-  @NotNull
   @Valid
-  public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+  @NotNull
+  public SolrConfig solr = new SolrConfig();
 
 }

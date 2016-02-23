@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.datasetmatch;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
+import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchFailed;
 import org.gbif.checklistbank.nub.lookup.IdLookup;
@@ -30,7 +31,7 @@ public class DatasetMatchService extends RabbitDatasetService<MatchDatasetMessag
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
 
     try {
-      Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule());
+      Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
       sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
       solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
       // loads all nub usages directly from clb postgres - this can take a few minutes
