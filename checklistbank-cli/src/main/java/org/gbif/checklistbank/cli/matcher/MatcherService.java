@@ -22,19 +22,25 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MatcherService.class);
 
-  private final NubMatchService matcher;
+  private NubMatchService matcher;
   private static final String QUEUE = "clb-matcher";
   private final DatasetImportService sqlImportService;
   private final DatasetImportService solrImportService;
   private final Timer timer = registry.timer("nub matcher process time");
+  private final MatcherConfiguration cfg;
 
   public MatcherService(MatcherConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
+    this.cfg = cfg;
+    Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+  }
 
+  @Override
+  protected void startUp() throws Exception {
+    super.startUp();
     try {
-      Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
-      sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-      solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
       // loads all nub usages directly from clb postgres - this can take a few minutes
       // use the reloading version that listens to nub changed messages and reinits the data itself
       IdLookup lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);

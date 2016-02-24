@@ -24,7 +24,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
 
   private final NormalizerConfiguration cfg;
   private final ZookeeperUtils zkUtils;
-  private final IdLookup lookup;
+  private IdLookup lookup;
   private static final String QUEUE = "clb-normalizer";
 
   public NormalizerService(NormalizerConfiguration cfg) {
@@ -41,13 +41,13 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
 
+  @Override
+  protected void startUp() throws Exception {
+    super.startUp();
     // loads all nub usages directly from clb postgres - this can take a few minutes
-    try {
-      lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
   }
 
   @Override
