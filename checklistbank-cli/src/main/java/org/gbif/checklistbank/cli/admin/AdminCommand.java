@@ -14,7 +14,6 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.matcher.MatchDatasetMessage;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -35,6 +34,7 @@ import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
+import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
 import java.io.File;

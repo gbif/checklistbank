@@ -11,7 +11,6 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.matcher.MatchDatasetMessage;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
@@ -23,6 +22,7 @@ import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
+import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.registry.metadata.EMLWriter;
 
 import java.io.ByteArrayInputStream;
