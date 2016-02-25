@@ -44,8 +44,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   }
 
   @Override
-  protected void startUp() throws Exception {
-    super.startUp();
+  protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
     lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
   }

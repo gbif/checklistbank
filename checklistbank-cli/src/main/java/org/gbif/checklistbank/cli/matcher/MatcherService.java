@@ -38,16 +38,11 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   }
 
   @Override
-  protected void startUp() throws Exception {
-    super.startUp();
-    try {
-      // loads all nub usages directly from clb postgres - this can take a few minutes
-      // use the reloading version that listens to nub changed messages and reinits the data itself
-      IdLookup lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
-      matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService, publisher);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+  protected void startUpBeforeListening() throws Exception {
+    // loads all nub usages directly from clb postgres - this can take a few minutes
+    // use the reloading version that listens to nub changed messages and reinits the data itself
+    IdLookup lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
+    matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService, publisher);
   }
 
   @Override
