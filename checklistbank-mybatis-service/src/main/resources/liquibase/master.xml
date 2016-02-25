@@ -215,4 +215,10 @@
       ALTER TABLE name_usage ALTER COLUMN issues type text[] USING issues::text[];
     </sql>
   </changeSet>
+  <changeSet id="38" author="markus">
+    <!-- we use the json column now since a while, lets drop the legacy data column -->
+    <sql>
+      ALTER TABLE raw_usage DROP COLUMN data;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
