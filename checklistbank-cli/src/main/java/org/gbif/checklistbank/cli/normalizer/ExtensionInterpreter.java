@@ -153,13 +153,13 @@ public class ExtensionInterpreter {
         }
         // locationID > locality
         vn.setArea(value(rec, DwcTerm.locationID, DwcTerm.locality));
-        vn.setCountry(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, countryParser, u,
+        vn.setCountry(enumify(rec, null, countryParser, u,
                               DwcTerm.countryCode, DwcTerm.country, DwcTerm.locationID, DwcTerm.locality));
         vn.setLanguage(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, languageParser, u, DcTerm.language));
         vn.setLifeStage(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, lifeStageParser, u, DwcTerm.lifeStage));
         vn.setPlural(bool(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, u, GbifTerm.isPlural));
         vn.setPreferred(bool(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, u, GbifTerm.isPreferredName));
-        vn.setSex(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, sexParser, u, GbifTerm.isPreferredName));
+        vn.setSex(enumify(rec, NameUsageIssue.VERNACULAR_NAME_INVALID, sexParser, u, DwcTerm.sex));
         vn.setSource(value(rec, DcTerm.source));
         // interpret rec
         e.vernacularNames.add(vn);

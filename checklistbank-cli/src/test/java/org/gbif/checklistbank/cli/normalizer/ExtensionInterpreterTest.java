@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Extension;
+import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.dwc.terms.AcTerm;
 import org.gbif.dwc.terms.DcTerm;
@@ -18,6 +19,7 @@ import com.google.common.collect.Maps;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExtensionInterpreterTest {
 
@@ -71,4 +73,30 @@ public class ExtensionInterpreterTest {
         assertEquals("http://creativecommons.org/licenses/by/4.0/", ext.descriptions.get(0).getLicense());
         assertEquals("Eupolybothrus cavernicolus is so far known only from the caves Miljacka", ext.descriptions.get(0).getDescription());
     }
+
+  @Test
+  public void testVernacularNames() throws Exception {
+    ExtensionInterpreter interp = new ExtensionInterpreter();
+    NameUsage u = new NameUsage();
+    VerbatimNameUsage v = new VerbatimNameUsage();
+
+    Map<Term, String> v1 = Maps.newHashMap();
+    v1.put(DwcTerm.vernacularName, "palmeirinha");
+    v1.put(DcTerm.language, "PORTUGUES");
+    v1.put(DwcTerm.locality, "Acre");
+
+    Map<Term, String> v2 = Maps.newHashMap();
+    v2.put(DwcTerm.vernacularName, "ubim");
+    v2.put(DcTerm.language, "PORTUGUES");
+    v2.put(DwcTerm.locality, "Acre");
+
+    v.getExtensions().put(Extension.VERNACULAR_NAME, Lists.newArrayList(v1, v2));
+
+    UsageExtensions ext = interp.interpret(u, v);
+    assertEquals(2, ext.vernacularNames.size());
+    assertTrue(u.getIssues().isEmpty());
+    assertEquals("palmeirinha", ext.vernacularNames.get(0).getVernacularName());
+    assertEquals(Language.PORTUGUESE, ext.vernacularNames.get(0).getLanguage());
+    assertEquals("Acre", ext.vernacularNames.get(0).getArea());
+  }
 }
