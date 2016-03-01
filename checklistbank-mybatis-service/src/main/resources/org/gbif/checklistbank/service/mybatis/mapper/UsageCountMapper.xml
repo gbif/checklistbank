@@ -28,5 +28,16 @@
       ORDER BY rank, scientific_name
   </select>
 
+  <!--  list children down to a given rank -->
+  <select id="childrenUntilRank" parameterType="map" resultMap="usageCountMap">
+    WITH child_query AS (
+    SELECT u.id, u.rank, n.scientific_name, u.num_descendants
+    FROM name_usage u JOIN name n on u.name_fk=n.id
+    WHERE u.deleted IS NULL AND u.parent_fk=#{key} and u.is_synonym=false and u.rank &lt;= #{rank, jdbcType=OTHER}
+    )
+    SELECT * FROM child_query
+    ORDER BY rank, scientific_name
+  </select>
+
 </mapper>
 

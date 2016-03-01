@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageCount;
 
 import java.util.List;
@@ -18,4 +19,9 @@ public interface UsageCountMapper {
    * @return all children sorted by rank, then name
    */
   List<UsageCount> children(@Param("key") Integer parentKey);
+
+  /**
+   * @return all children sorted by rank, then name
+   */
+  List<UsageCount> childrenUntilRank(@Param("key") Integer parentKey, @Param("rank") Rank lowerLimit);
 }

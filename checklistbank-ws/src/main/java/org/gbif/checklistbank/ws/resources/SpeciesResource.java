@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.ws.resources;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -32,6 +33,8 @@ import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
@@ -395,6 +398,29 @@ public class SpeciesResource {
   @Path("rootAll/{datasetKey}")
   public List<UsageCount> root(@PathParam("datasetKey") UUID datasetKey) {
     return usageCountMapper.root(datasetKey);
+  }
+
+  @GET
+  @Path("rootNub")
+  public TreeContainer<UsageCount, Integer> rootNub() {
+    TreeContainer<UsageCount, Integer> tree = new TreeContainer<>();
+    // kingdoms
+    tree.setRoot(usageCountMapper.root(Constants.NUB_DATASET_KEY));
+    for (UsageCount k : tree.getRoot()) {
+      // phyla
+      List<UsageCount> ps = usageCountMapper.childrenUntilRank(k.getKey(), Rank.PHYLUM);
+      if (!ps.isEmpty()) {
+        tree.getChildren().put(k.getKey(), ps);
+        for (UsageCount p : ps) {
+          // classes
+          List<UsageCount> cs = usageCountMapper.childrenUntilRank(k.getKey(), Rank.CLASS);
+          if (!cs.isEmpty()) {
+            tree.getChildren().put(p.getKey(), cs);
+          }
+        }
+      }
+    }
+    return tree;
   }
 
   @GET

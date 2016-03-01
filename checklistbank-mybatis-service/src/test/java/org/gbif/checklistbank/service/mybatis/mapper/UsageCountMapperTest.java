@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -53,5 +54,17 @@ public class UsageCountMapperTest extends MapperITBase<UsageCountMapper> {
 
     children = mapper.children(100000025);
     assertEquals(9, children.size());
+  }
+
+  @Test
+  public void testChildrenTilRank() {
+    assertTrue(mapper.childrenUntilRank(1, Rank.KINGDOM).isEmpty());
+
+    List<UsageCount> children = mapper.childrenUntilRank(1, Rank.FAMILY);
+    assertEquals(1, children.size());
+    assertEquals(10, children.get(0).getKey());
+
+    children = mapper.childrenUntilRank(100000025, Rank.SUBSPECIES);
+    assertEquals(7, children.size());
   }
 }
