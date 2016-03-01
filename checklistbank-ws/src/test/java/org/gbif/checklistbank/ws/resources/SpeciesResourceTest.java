@@ -20,6 +20,7 @@ import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.TypeStatus;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ public class SpeciesResourceTest {
   private DistributionService mockDistributionService;
   private IdentifierService mockIdentifierService;
   private NameUsageSearchService mockSearchService;
+  private UsageCountMapper mockUsageCountMapper;
 
   private SpeciesResource resource;
 
@@ -67,13 +69,14 @@ public class SpeciesResourceTest {
     mockDistributionService = mock(DistributionService.class);
     mockIdentifierService = mock(IdentifierService.class);
     mockSearchService = mock(NameUsageSearchService.class);
+    mockUsageCountMapper = mock(UsageCountMapper.class);
 
     searchResponse = new SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>(0, 20);
     searchResponse.setCount(1000L);
 
     resource = new SpeciesResource(mockNameUsageService, mockVernacularNameService, mockTypeSpecimenService,
       mockSpeciesProfileService, mockReferenceService, mockImageService, mockDescriptionService,
-      mockDistributionService, mockIdentifierService, mockSearchService);
+      mockDistributionService, mockIdentifierService, mockSearchService, mockUsageCountMapper);
 
     locale = Locale.US;
     nameUsage = new NameUsage();

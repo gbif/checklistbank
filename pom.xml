@@ -54,7 +54,7 @@
     <gbif-microservice.version>0.5</gbif-microservice.version>
     <gbif-postal-service.version>0.21</gbif-postal-service.version>
     <registry-client.version>2.47</registry-client.version>
-    <name-parser.version>2.15</name-parser.version>
+    <name-parser.version>2.16-SNAPSHOT</name-parser.version>
     <gbif-parser.version>0.23-SNAPSHOT</gbif-parser.version>
     <dwca-io.version>1.26</dwca-io.version>
     <!-- external libs -->

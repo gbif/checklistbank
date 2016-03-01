@@ -32,6 +32,8 @@ import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.checklistbank.model.UsageCount;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
 
@@ -74,6 +76,7 @@ public class SpeciesResource {
   private final DistributionService distributionService;
   private final IdentifierService identifierService;
   private final NameUsageSearchService searchService;
+  private final UsageCountMapper usageCountMapper;
 
 
   @Inject
@@ -81,8 +84,8 @@ public class SpeciesResource {
       NameUsageService nameUsageService, VernacularNameService vernacularNameService,
       TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
       ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
-      DistributionService distributionService, IdentifierService identifierService, NameUsageSearchService searchService
-  ) {
+      DistributionService distributionService, IdentifierService identifierService, NameUsageSearchService searchService,
+      UsageCountMapper usageCountMapper) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
     this.typeSpecimenService = typeSpecimenService;
@@ -93,6 +96,7 @@ public class SpeciesResource {
     this.distributionService = distributionService;
     this.identifierService = identifierService;
     this.searchService = searchService;
+    this.usageCountMapper = usageCountMapper;
   }
 
   /**
@@ -107,7 +111,6 @@ public class SpeciesResource {
   @GET
   public PagingResponse<NameUsage> list(@Context Locale locale, @QueryParam(DATASET_KEY) Set<UUID> datasetKeys,
                                         @QueryParam("sourceId") String sourceId, @QueryParam("name") String canonicalName, @Context Pageable page) {
-    LOG.debug("Request all usages: [pageSize({}) offset({})]", page.getLimit(), page.getOffset());
     if (datasetKeys == null) {
       datasetKeys = ImmutableSet.of();
     }
@@ -148,7 +151,6 @@ public class SpeciesResource {
   @Path("{id}/name")
   @NullToNotFound
   public ParsedName getParsedName(@PathParam("id") int usageKey) {
-    LOG.debug("Request ParsedName for usage [{}]:", usageKey);
     return nameUsageService.getParsedName(usageKey);
   }
 
@@ -156,7 +158,6 @@ public class SpeciesResource {
   @Path("{id}/verbatim")
   @NullToNotFound
   public VerbatimNameUsage getVerbatim(@PathParam("id") int usageKey) {
-    LOG.debug("Request VerbatimNameUsage for usage [{}]:", usageKey);
     return nameUsageService.getVerbatim(usageKey);
   }
 
@@ -173,11 +174,14 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/children")
-  public PagingResponse<NameUsage> listChildren(@PathParam("id") int parentKey, @Context Locale locale,
-                                                @Context Pageable page) {
-    LOG.debug("Request children usages for parent NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{parentKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<NameUsage> listChildren(@PathParam("id") int parentKey, @Context Locale locale, @Context Pageable page) {
     return nameUsageService.listChildren(parentKey, locale, page);
+  }
+
+  @GET
+  @Path("{id}/childrenAll")
+  public List<UsageCount> listAllChildren(@PathParam("id") int parentKey) {
+    return usageCountMapper.children(parentKey);
   }
 
   /**
@@ -193,10 +197,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/synonyms")
-  public PagingResponse<NameUsage> listSynonyms(@PathParam("id") int usageKey, @Context Locale locale,
-                                                @Context Pageable page) {
-    LOG.debug("Request synonym usages for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<NameUsage> listSynonyms(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page) {
     return nameUsageService.listSynonyms(usageKey, locale, page);
   }
 
@@ -213,10 +214,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/vernacularNames")
-  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@PathParam("id") int usageKey,
-                                                                       @Context Pageable page) {
-    LOG.debug("Request all VernacularNames for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     return vernacularNameService.listByUsage(usageKey, page);
   }
 
@@ -232,10 +230,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/typeSpecimens")
-  public PagingResponse<TypeSpecimen> listTypeSpecimensByNameUsage(@PathParam("id") int usageKey,
-                                                                   @Context Pageable page) {
-    LOG.debug("Request all TypeSpecimens for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<TypeSpecimen> listTypeSpecimensByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     return typeSpecimenService.listByUsage(usageKey, page);
   }
 
@@ -251,10 +246,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/speciesProfiles")
-  public PagingResponse<SpeciesProfile> listSpeciesProfilesByNameUsage(@PathParam("id") int usageKey,
-                                                                       @Context Pageable page) {
-    LOG.debug("Request all SpeciesProfiles for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<SpeciesProfile> listSpeciesProfilesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     return speciesProfileService.listByUsage(usageKey, page);
   }
 
@@ -271,8 +263,6 @@ public class SpeciesResource {
   @GET
   @Path("{id}/references")
   public PagingResponse<Reference> listReferencesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
-    LOG.debug("Request all References for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
     return referenceService.listByUsage(usageKey, page);
   }
 
@@ -287,8 +277,6 @@ public class SpeciesResource {
   @GET
   @Path("{id}/media")
   public PagingResponse<NameUsageMediaObject> listImagesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
-    LOG.debug("Request all Images for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
     return imageService.listByUsage(usageKey, page);
   }
 
@@ -304,10 +292,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/descriptions")
-  public PagingResponse<Description> listDescriptionsByNameUsage(@PathParam("id") int usageKey,
-                                                                 @Context Pageable page) {
-    LOG.debug("Request all Descriptions for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<Description> listDescriptionsByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     return descriptionService.listByUsage(usageKey, page);
   }
 
@@ -333,10 +318,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/distributions")
-  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathParam("id") int usageKey,
-                                                                   @Context Pageable page) {
-    LOG.debug("Request all Distributions for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
+  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
     return distributionService.listByUsage(usageKey, page);
   }
 
@@ -351,8 +333,6 @@ public class SpeciesResource {
   @GET
   @Path("{id}/identifier")
   public PagingResponse<Identifier> listIdentifierByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
-    LOG.debug("Request all Identifier for NameUsage [{}]: [pageSize({}) offset({})]",
-        new Object[]{usageKey, page.getLimit(), page.getOffset()});
     return identifierService.listByUsage(usageKey, page);
   }
 
@@ -369,14 +349,12 @@ public class SpeciesResource {
   @Path("{id}/related")
   public PagingResponse<NameUsage> listRelatedByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page,
                                                           @QueryParam(DATASET_KEY) Set<UUID> datasetKeys) {
-    LOG.debug("Request all Related usages for NameUsage [{}] in checklists {}", usageKey, datasetKeys);
     return nameUsageService.listRelated(usageKey, locale, page, datasetKeys.toArray(new UUID[datasetKeys.size()]));
   }
 
   @GET
   @Path("{id}/combinations")
   public List<NameUsage> listCombinations(@PathParam("id") int basionymKey, @Context Locale locale) {
-    LOG.debug("Request all usages sharing the basionym [{}]", basionymKey);
     return nameUsageService.listCombinations(basionymKey, locale);
   }
 
@@ -392,9 +370,7 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/parents")
-  public List<NameUsage> listParentsByNameUsage(@PathParam("id") int usageKey, @Context Locale locale,
-                                                @Context Pageable page) {
-    LOG.debug("Request all parents for a NameUsage [{}]: [pageSize({}) offset({})]", usageKey, page.getLimit(), page.getOffset());
+  public List<NameUsage> listParentsByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page) {
     return nameUsageService.listParents(usageKey, locale);
   }
 
@@ -411,18 +387,19 @@ public class SpeciesResource {
    */
   @GET
   @Path("root/{datasetKey}")
-  public PagingResponse<NameUsage> listRootUsages(@PathParam(DATASET_KEY) UUID datasetKey, @Context Locale locale,
-                                                  @Context Pageable page) {
-    LOG.debug("Request root usages for Checklist [{}]: [pageSize({}) offset({})]", datasetKey, page.getLimit(), page.getOffset());
+  public PagingResponse<NameUsage> listRootUsages(@PathParam(DATASET_KEY) UUID datasetKey, @Context Locale locale, @Context Pageable page) {
     return nameUsageService.listRoot(datasetKey, locale, page);
   }
 
   @GET
-  @Path("search")
-  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
-      @Context NameUsageSearchRequest searchRequest) {
-    LOG.debug("Search operation received {} ", searchRequest);
+  @Path("rootAll/{datasetKey}")
+  public List<UsageCount> root(@PathParam("datasetKey") UUID datasetKey) {
+    return usageCountMapper.root(datasetKey);
+  }
 
+  @GET
+  @Path("search")
+  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(@Context NameUsageSearchRequest searchRequest) {
     // POR-2801
     // protect SOLR against deep paging requests which blow heap
     checkDeepPaging(searchRequest);
@@ -432,8 +409,6 @@ public class SpeciesResource {
   @Path("suggest")
   @GET
   public List<NameUsageSuggestResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
-    LOG.debug("Suggest operation received {} ", searchSuggestRequest);
-
     // POR-2801
     // protect SOLR against deep paging requests which blow heap
     checkDeepPaging(searchSuggestRequest);

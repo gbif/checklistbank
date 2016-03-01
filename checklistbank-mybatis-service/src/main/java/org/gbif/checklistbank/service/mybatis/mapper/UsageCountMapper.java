@@ -14,5 +14,8 @@ public interface UsageCountMapper {
 
   List<UsageCount> root(@Param("key") UUID datasetKey);
 
+  /**
+   * @return all children sorted by rank, then name
+   */
   List<UsageCount> children(@Param("key") Integer parentKey);
 }
