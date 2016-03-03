@@ -416,11 +416,13 @@ public class SpeciesResource {
           List<UsageCount> cs = usageCountMapper.childrenUntilRank(p.getKey(), Rank.CLASS);
           if (!cs.isEmpty()) {
             tree.getChildren().put(p.getKey(), cs);
-            // orders, ca 1400
-            List<UsageCount> os = usageCountMapper.childrenUntilRank(p.getKey(), Rank.ORDER);
-            if (!os.isEmpty()) {
-              tree.getChildren().put(p.getKey(), os);
-              // stop here. families are over 22.000 usages ...
+            for (UsageCount c : cs) {
+              // orders, ca 1400
+              List<UsageCount> os = usageCountMapper.childrenUntilRank(c.getKey(), Rank.ORDER);
+              if (!os.isEmpty()) {
+                tree.getChildren().put(p.getKey(), os);
+                // stop here. families are over 22.000 usages ...
+              }
             }
           }
         }
