@@ -407,15 +407,21 @@ public class SpeciesResource {
     // kingdoms
     tree.setRoot(usageCountMapper.root(Constants.NUB_DATASET_KEY));
     for (UsageCount k : tree.getRoot()) {
-      // phyla
+      // phyla, ca 140
       List<UsageCount> ps = usageCountMapper.childrenUntilRank(k.getKey(), Rank.PHYLUM);
       if (!ps.isEmpty()) {
         tree.getChildren().put(k.getKey(), ps);
         for (UsageCount p : ps) {
-          // classes
+          // classes, ca 350
           List<UsageCount> cs = usageCountMapper.childrenUntilRank(p.getKey(), Rank.CLASS);
           if (!cs.isEmpty()) {
             tree.getChildren().put(p.getKey(), cs);
+            // orders, ca 1400
+            List<UsageCount> os = usageCountMapper.childrenUntilRank(p.getKey(), Rank.ORDER);
+            if (!os.isEmpty()) {
+              tree.getChildren().put(p.getKey(), os);
+              // stop here. families are over 22.000 usages ...
+            }
           }
         }
       }
