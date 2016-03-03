@@ -413,7 +413,7 @@ public class SpeciesResource {
         tree.getChildren().put(k.getKey(), ps);
         for (UsageCount p : ps) {
           // classes
-          List<UsageCount> cs = usageCountMapper.childrenUntilRank(k.getKey(), Rank.CLASS);
+          List<UsageCount> cs = usageCountMapper.childrenUntilRank(p.getKey(), Rank.CLASS);
           if (!cs.isEmpty()) {
             tree.getChildren().put(p.getKey(), cs);
           }
