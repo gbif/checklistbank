@@ -407,28 +407,22 @@ public class SpeciesResource {
     // kingdoms
     tree.setRoot(usageCountMapper.root(Constants.NUB_DATASET_KEY));
     for (UsageCount k : tree.getRoot()) {
-      // phyla, ca 140
-      List<UsageCount> ps = usageCountMapper.childrenUntilRank(k.getKey(), Rank.PHYLUM);
-      if (!ps.isEmpty()) {
-        tree.getChildren().put(k.getKey(), ps);
-        for (UsageCount p : ps) {
-          // classes, ca 350
-          List<UsageCount> cs = usageCountMapper.childrenUntilRank(p.getKey(), Rank.CLASS);
-          if (!cs.isEmpty()) {
-            tree.getChildren().put(p.getKey(), cs);
-            for (UsageCount c : cs) {
-              // orders, ca 1400
-              List<UsageCount> os = usageCountMapper.childrenUntilRank(c.getKey(), Rank.ORDER);
-              if (!os.isEmpty()) {
-                tree.getChildren().put(p.getKey(), os);
-                // stop here. families are over 22.000 usages ...
-              }
-            }
-          }
+      // phyla ~140, classes ~350, orders ~1400, families are over 22.000 skip
+      addChildrenRecursively(tree, k.getKey(), 0, Rank.PHYLUM, Rank.CLASS, Rank.ORDER);
+    }
+    return tree;
+  }
+
+  private void addChildrenRecursively(TreeContainer<UsageCount, Integer> tree, int parent, int rankIdx, Rank ... ranks) {
+    List<UsageCount> children = usageCountMapper.childrenUntilRank(parent, ranks[rankIdx]);
+    if (!children.isEmpty()) {
+      tree.getChildren().put(parent, children);
+      if (++rankIdx < ranks.length) {
+        for (UsageCount c : children) {
+          addChildrenRecursively(tree, c.getKey(), rankIdx, ranks);
         }
       }
     }
-    return tree;
   }
 
   @GET
