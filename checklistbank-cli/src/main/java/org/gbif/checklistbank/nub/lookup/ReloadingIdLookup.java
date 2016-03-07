@@ -13,6 +13,7 @@ import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -88,6 +89,11 @@ public class ReloadingIdLookup implements IdLookup, MessageCallback<BackboneChan
   @Override
   public LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom) {
     return lookup.match(canonicalName, rank, kingdom);
+  }
+
+  @Override
+  public List<LookupUsage> match(String canonicalName) {
+    return lookup.match(canonicalName);
   }
 
   @Override

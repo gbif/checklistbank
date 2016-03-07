@@ -36,34 +36,37 @@ public class StringNormalizer {
         case 'ß':
           sb.append("ss");
           break;
-        case 0xc6:
-          sb.append("Ae");
+        case 'Æ':
+          sb.append("AE");
           break;
-        case 0xe6:
+        case 'æ':
           sb.append("ae");
           break;
-        case 0xd0:
+        case 'Ð':
           sb.append("D");
           break;
-        case 0x111:
+        case 'đ':
           sb.append("d");
           break;
-        case 0xd8:
+        case 'ð':
+          sb.append("d");
+          break;
+        case 'Ø':
           sb.append("O");
           break;
-        case 0xf8:
+        case 'ø':
           sb.append("o");
           break;
-        case 0x152:
-          sb.append("Oe");
+        case 'Œ':
+          sb.append("OE");
           break;
-        case 0x153:
+        case 'œ':
           sb.append("oe");
           break;
-        case 0x166:
+        case 'Ŧ':
           sb.append("T");
           break;
-        case 0x167:
+        case 'ŧ':
           sb.append("t");
           break;
         default:
@@ -72,4 +75,5 @@ public class StringNormalizer {
     }
     return sb.toString();
   }
+
 }

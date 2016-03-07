@@ -23,5 +23,8 @@ public class StringNormalizerTest {
     assertEquals("Aeropyrum coil-shaped virus", StringNormalizer.foldToAscii("Aeropyrum coil-shaped virus"));
     assertEquals("†Lachnus bonneti", StringNormalizer.foldToAscii("†Lachnus bonneti"));
 
+    String test = "ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ";
+    assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", StringNormalizer.foldToAscii(test));
+
   }
 }
