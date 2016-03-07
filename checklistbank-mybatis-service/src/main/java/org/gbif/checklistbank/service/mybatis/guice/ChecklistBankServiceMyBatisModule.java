@@ -10,6 +10,7 @@ import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ColAnnotationService;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
@@ -24,6 +25,11 @@ import org.gbif.nameparser.NameParser;
 import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
+
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Guice Module to use the database backed ChecklistBank MyBatis layer.
@@ -42,9 +48,8 @@ import java.util.Properties;
  */
 
 public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
+  private static final Logger LOG = LoggerFactory.getLogger(ChecklistBankServiceMyBatisModule.class);
   private static final String PREFIX = "checklistbank.db.";
-  public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
-  public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
 
   private final int parserTimeout;
   private final int importThreads;
@@ -56,8 +61,39 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
    */
   public ChecklistBankServiceMyBatisModule(Properties properties) {
     super(PREFIX, properties);
-    parserTimeout = Integer.parseInt(properties.getProperty(PARSER_TIMEOUT_PROP, "500"));
-    importThreads = Integer.parseInt(properties.getProperty(IMPORT_THREADS_PROP, "2"));
+    parserTimeout = Integer.parseInt(properties.getProperty(ClbConfiguration.PARSER_TIMEOUT_PROP, "500"));
+    importThreads = Integer.parseInt(properties.getProperty(ClbConfiguration.IMPORT_THREADS_PROP, "2"));
+  }
+
+  public static ChecklistBankServiceMyBatisModule create(ClbConfiguration cfg) {
+    LOG.info("Connecting to checklistbank db {} on {} with user {}", cfg.databaseName, cfg.serverName, cfg.user);
+    return new ChecklistBankServiceMyBatisModule(cfg.toProps(true));
+  }
+
+  @Provides
+  @Singleton
+  public ClbConfiguration provideCfg() throws Exception {
+    ClbConfiguration cfg = new ClbConfiguration();
+    cfg.serverName = getProperties().getProperty("dataSource.serverName");
+    cfg.databaseName = getProperties().getProperty("dataSource.databaseName");
+    cfg.user = getProperties().getProperty("dataSource.user");
+    cfg.password = getProperties().getProperty("dataSource.password");
+    cfg.parserTimeout = parserTimeout;
+    cfg.syncThreads = importThreads;
+    cfg.maximumPoolSize = getIntProp("maximumPoolSize", cfg.maximumPoolSize);
+    cfg.minimumIdle = getIntProp("minimumIdle", cfg.minimumIdle);
+    cfg.idleTimeout = getIntProp("idleTimeout", cfg.idleTimeout);
+    cfg.maxLifetime = getIntProp("maxLifetime", cfg.maxLifetime);
+    cfg.connectionTimeout = getIntProp("connectionTimeout", cfg.connectionTimeout);
+    return cfg;
+  }
+
+  private int getIntProp(String name, int defaultVal) {
+    try {
+      return Integer.valueOf(getProperties().getProperty("maximumPoolSize", "x"));
+    } catch (NumberFormatException e) {
+      return defaultVal;
+    }
   }
 
   @Override
@@ -95,6 +131,8 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
 
     // mappers being exposed
     expose(NameUsageMapper.class);
+
+    expose(ClbConfiguration.class);
   }
 
 }

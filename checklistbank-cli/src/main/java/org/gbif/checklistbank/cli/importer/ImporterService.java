@@ -11,6 +11,7 @@ import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
@@ -46,7 +47,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       throw new RuntimeException(e);
     }
     // init mybatis layer and solr once from cfg instance
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     initDbPool(inj);
     sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));

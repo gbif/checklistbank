@@ -8,6 +8,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
@@ -128,7 +129,7 @@ public class MultiThreadingCliTest {
     // init mybatis layer and solr from cfgN instance
     cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
     cfgI.solr.serverType = SolrServerType.HTTP;
-    Injector inj = Guice.createInjector(cfgI.clb.createServiceModule(), new RealTimeModule(cfgI.solr));
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.solr));
     usageService = inj.getInstance(NameUsageService.class);
     sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));

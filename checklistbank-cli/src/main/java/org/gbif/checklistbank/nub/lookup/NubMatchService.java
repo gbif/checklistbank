@@ -2,7 +2,7 @@ package org.gbif.checklistbank.nub.lookup;
 
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.nub.ParentStack;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -10,6 +10,9 @@ import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
+import org.gbif.nub.lookup.straight.DatasetMatchFailed;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.util.Date;
 import java.util.Map;

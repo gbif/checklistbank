@@ -34,10 +34,9 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.api.vocabulary.TypeDesignationType;
 import org.gbif.api.vocabulary.TypeStatus;
-import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.dwc.terms.AcTerm;
@@ -93,7 +92,6 @@ public class CliKryoFactory implements KryoFactory {
         kryo.register(TypeSpecimen.class);
         kryo.register(VernacularName.class);
         // cli specifics
-        kryo.register(LookupUsage.class);
         kryo.register(NubUsage.class);
         kryo.register(UsageFacts.class);
         kryo.register(Classification.class);

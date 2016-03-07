@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		CLASS	ACCEPTED		Aves
+3	2		ORDER	ACCEPTED		Passeriformes
+10	3		SPECIES	ACCEPTED		Cardinalis cardinalis

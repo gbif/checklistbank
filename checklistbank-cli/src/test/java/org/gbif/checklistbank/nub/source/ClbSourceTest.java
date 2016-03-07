@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 

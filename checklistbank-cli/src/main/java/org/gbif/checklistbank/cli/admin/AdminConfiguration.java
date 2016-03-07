@@ -1,10 +1,10 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;

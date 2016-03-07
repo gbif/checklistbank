@@ -4,6 +4,7 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistAnalyzedMessage;
@@ -25,7 +26,7 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
 
     public AnalysisService(AnalysisConfiguration cfg) {
         super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze");
-        Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+        Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
         analysisService = inj.getInstance(DatasetAnalysisService.class);
         hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     }

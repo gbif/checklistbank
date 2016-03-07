@@ -10,12 +10,13 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
-import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.search.solr.SolrServerType;
+import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -94,7 +95,7 @@ public class IndexerApp {
 
   private void sync() throws Exception {
     // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(iCfg.clb.createServiceModule(), new RealTimeModule(iCfg.solr));
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(iCfg.clb), new RealTimeModule(iCfg.solr));
     hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     NameUsageService nameUsageService = inj.getInstance(NameUsageService.class);
     UsageService usageService = inj.getInstance(UsageService.class);

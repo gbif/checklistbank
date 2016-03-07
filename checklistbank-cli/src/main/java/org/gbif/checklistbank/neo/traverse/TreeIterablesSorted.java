@@ -15,7 +15,7 @@ import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.helpers.collection.IteratorUtil;
 
 /**
- * Utils to create Iterables for nodes or paths to traverse a taxonomic tree in taxonomic order with sorted leaf nodes.
+ * Utils to persistent Iterables for nodes or paths to traverse a taxonomic tree in taxonomic order with sorted leaf nodes.
  */
 public class TreeIterablesSorted {
 

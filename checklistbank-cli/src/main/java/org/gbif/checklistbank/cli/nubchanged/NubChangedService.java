@@ -13,9 +13,9 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
@@ -23,6 +23,7 @@ import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.registry.metadata.EMLWriter;
 
 import java.io.ByteArrayInputStream;
@@ -72,7 +73,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     datasetService = regInj.getInstance(DatasetService.class);
     networkService = regInj.getInstance(NetworkService.class);
 
-    Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
   }
@@ -107,7 +108,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private void rematchChecklists() {
     try {
       LOG.info("Start rematching all checklists to changed backbone");
-      NubMatchService matcher = new NubMatchService(cfg.clb, new IdLookupImpl(cfg.clb), sqlImportService, solrImportService, publisher);
+      NubMatchService matcher = new NubMatchService(cfg.clb, IdLookupImpl.temp().load(cfg.clb), sqlImportService, solrImportService, publisher);
 
       // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
       publisher.send(new MatchDatasetMessage(Constants.COL_DATASET_KEY));

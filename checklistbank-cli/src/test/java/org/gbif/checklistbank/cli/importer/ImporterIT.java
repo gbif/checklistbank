@@ -15,14 +15,15 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.NubBuilder;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -78,7 +79,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private void initGuice(ImporterConfiguration cfg) {
     if (hds == null) {
       // init mybatis layer and solr from cfg instance
-      Injector inj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+      Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
       hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
       nameUsageService = inj.getInstance(NameUsageService.class);
       usageService = inj.getInstance(UsageService.class);
@@ -320,7 +321,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
-    NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, 100);
     nb.run();
     dao.close();
 

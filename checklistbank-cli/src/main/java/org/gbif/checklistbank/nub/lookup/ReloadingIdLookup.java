@@ -3,10 +3,13 @@ package org.gbif.checklistbank.nub.lookup;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.authorship.AuthorComparator;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -49,7 +52,7 @@ public class ReloadingIdLookup implements IdLookup, MessageCallback<BackboneChan
 
   private void reload() {
     try {
-      lookup = new IdLookupImpl(cfg);
+      lookup = IdLookupImpl.temp().load(cfg);
     } catch (Exception e) {
       LOG.error("Failed to reload backbone names", e);
       Throwables.propagate(e);

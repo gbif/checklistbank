@@ -3,13 +3,14 @@ package org.gbif.checklistbank.cli.matcher;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
-import org.gbif.checklistbank.nub.lookup.DatasetMatchFailed;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.nub.lookup.ReloadingIdLookup;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
+import org.gbif.nub.lookup.straight.DatasetMatchFailed;
+import org.gbif.nub.lookup.straight.IdLookup;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -32,7 +33,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   public MatcherService(MatcherConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
     this.cfg = cfg;
-    Injector clbInj = Guice.createInjector(cfg.clb.createServiceModule(), new RealTimeModule(cfg.solr));
+    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
     solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
   }

@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.kryo.migrate;
 
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperJson;
 

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.importer;
 
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.nameparser.NameParser;
 
 import com.google.inject.CreationException;
@@ -14,7 +15,7 @@ public class ClbConfigurationTest {
     public void testBadTimeout() throws Exception {
         ClbConfiguration cfg = new ClbConfiguration();
         cfg.parserTimeout = 1;
-        Injector inj = Guice.createInjector(cfg.createServiceModule());
+        Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg));
         inj.getInstance(NameParser.class);
     }
 }

@@ -8,7 +8,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 /**
- * Utils to create Iterables for nodes to traverse a taxonomic tree in taxonomic order but with unsorted leaf nodes.
+ * Utils to persistent Iterables for nodes to traverse a taxonomic tree in taxonomic order but with unsorted leaf nodes.
  */
 public class TreeIterables {
 

@@ -1,0 +1,12 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Chordata
+3	2		CLASS	ACCEPTED		Aves
+4	3		ORDER	ACCEPTED		Passeriformes
+5	4		FAMILY	ACCEPTED		Cardinalidae
+10	5		GENUS	ACCEPTED		Cardinalis
+100	10		SPECIES	ACCEPTED		Cardinalis cardinalis (Linnaeus, 1758)
+-1			KINGDOM	ACCEPTED		Plantae
+-2	-1		PHYLUM	ACCEPTED		Tracheophyta
+-3	-2		CLASS	ACCEPTED		Magnoliopsida
+-4	-3		ORDER	ACCEPTED		Asterales
+-5	-4		FAMILY	ACCEPTED		Campanulaceae

@@ -26,6 +26,7 @@ import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.TocEntry;
@@ -91,12 +92,15 @@ import com.google.common.base.Preconditions;
 import com.google.inject.Key;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This Module should not be used, use the
  * {@link org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule} instead.
  */
 public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
+  private static final Logger LOG = LoggerFactory.getLogger(InternalChecklistBankServiceMyBatisModule.class);
 
   private static final String DATASOURCE_BINDING_NAME = "checklistbank";
   public static final Key<DataSource> DATASOURCE_KEY = Key.get(DataSource.class,
@@ -111,6 +115,11 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     this.parserTimeout = parserTimeout;
     Preconditions.checkArgument(importThreads >= 0, "Number of import threads need to be positive");
     this.importThreads = importThreads;
+  }
+
+  public static InternalChecklistBankServiceMyBatisModule create(ClbConfiguration cfg) {
+    LOG.info("Connecting to checklistbank db {} on {} with user {}", cfg.databaseName, cfg.serverName, cfg.user);
+    return new InternalChecklistBankServiceMyBatisModule(cfg.toProps(false), cfg.parserTimeout, cfg.syncThreads);
   }
 
   @Override

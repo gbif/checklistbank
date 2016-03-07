@@ -7,7 +7,6 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.common.MapDbObjectSerializer;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
@@ -26,6 +25,7 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
+import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
 import java.io.Writer;
@@ -123,7 +123,7 @@ public class UsageDao {
   private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
     return kvp.hashMapCreate(name)
         .keySerializer(Serializer.LONG)
-        .valueSerializer(new MapDbObjectSerializer<T>(clazz, pool, bufferSize))
+        .valueSerializer(new MapDbObjectSerializer(clazz, pool, bufferSize))
         .makeOrGet();
   }
 

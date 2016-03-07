@@ -4,7 +4,10 @@ import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.VocabularyUtils;
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.LookupUsageMatch;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,31 +28,25 @@ public class NubResource {
   private static final Logger LOG = LoggerFactory.getLogger(NubResource.class);
 
   private final NameUsageMatchingService matchingService;
+  private final IdLookup lookup;
 
   @Inject
-  public NubResource(NameUsageMatchingService matchingService) {
+  public NubResource(NameUsageMatchingService matchingService, IdLookup lookup) {
     this.matchingService = matchingService;
+    this.lookup = lookup;
   }
 
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("match")
-  public NameUsageMatch search(@QueryParam("name") String scientificName, @QueryParam("rank") String rank,
+  public NameUsageMatch match(@QueryParam("name") String scientificName, @QueryParam("rank") String rank,
     @QueryParam("kingdom") String kingdom, @QueryParam("phylum") String phylum,
     @QueryParam("class") String clazz, @QueryParam("order") String order, @QueryParam("family") String family,
     @QueryParam("genus") String genus, @QueryParam("subgenus") String subgenus,
     @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
 
-    Rank r = null;
-    if (!Strings.isNullOrEmpty(rank)) {
-      try {
-        r = (Rank) VocabularyUtils.lookupEnum(rank, Rank.class);
-      } catch (Exception e) {
-        // we expect badly formed ranks and catch the exception
-        LOG.debug("Bad rank given: {}", rank);
-      }
-    }
+    Rank r = parse(Rank.class, rank);
 
     LinneanClassification classification = new NameUsageMatch();
     classification.setKingdom(kingdom);
@@ -61,6 +58,37 @@ public class NubResource {
     classification.setSubgenus(subgenus);
 
     return  matchingService.match(scientificName, r, classification, bool(strict), bool(verbose));
+  }
+
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("lookup")
+  public LookupUsageMatch matchStrict(@QueryParam("name") String canonicalName, @QueryParam("authorship") String authorship,
+                                      @QueryParam("kingdom") String kingdom, @QueryParam("rank") String rank,
+                                      @QueryParam("year") String year, @QueryParam("verbose") Boolean verbose) {
+    Rank r = parse(Rank.class, rank);
+    Kingdom k = parse(Kingdom.class, kingdom);
+
+    LookupUsageMatch match = new LookupUsageMatch();
+    match.setMatch(lookup.match(canonicalName, authorship, year, r, k));
+
+    if (bool(verbose)) {
+      match.setAlternatives(lookup.match(canonicalName));
+    }
+    return match;
+  }
+
+  private <T extends Enum> T parse(Class<T> clazz, String value) {
+    if (!Strings.isNullOrEmpty(value)) {
+      try {
+        return VocabularyUtils.lookupEnum(value, clazz);
+      } catch (Exception e) {
+        // we expect badly formed enums and catch the exception
+        LOG.debug("Bad {} given: {}", clazz.getSimpleName(), value);
+      }
+    }
+    return null;
   }
 
   private boolean bool(Boolean bool) {

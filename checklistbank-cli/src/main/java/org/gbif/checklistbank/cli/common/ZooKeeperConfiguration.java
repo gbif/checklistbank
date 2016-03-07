@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A configuration class which can be used to get all the details needed to create a connection to ZooKeeper needed by
+ * A configuration class which can be used to get all the details needed to persistent a connection to ZooKeeper needed by
  * the Curator Framework.
  * It provides a convenience method ({@link #getCuratorFramework()} ()} to actually get a {@link org.apache.curator.framework.CuratorFramework}
  * object when populated fully.

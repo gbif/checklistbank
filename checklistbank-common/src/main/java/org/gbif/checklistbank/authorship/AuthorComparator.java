@@ -2,10 +2,10 @@ package org.gbif.checklistbank.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.utils.StringNormalizer;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.IOException;
-import java.text.Normalizer;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,10 +87,10 @@ public class AuthorComparator {
     // remove ex authors
     x = EX.matcher(x).replaceAll("");
 
-    // use java unicode normalizer to remove accents and punctuation
-    x = Normalizer.normalize(x, Normalizer.Form.NFD);
-    x = x.replaceAll("[^\\p{ASCII}]", "");
-    x = x.replaceAll("\\p{M}", "");
+    // fold to ascii
+    x = StringNormalizer.foldToAscii(x);
+
+    //remove punctuation
     x = x.replaceAll("\\p{Punct}+", " ");
 
     // try to remove initials if the remaining string is still large

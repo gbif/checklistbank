@@ -7,8 +7,8 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
-import org.gbif.checklistbank.nub.lookup.IdLookupImplTest;
+import org.gbif.checklistbank.nub.IdGeneratorTest;
+import org.gbif.nub.lookup.straight.IdLookup;
 
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -24,7 +24,7 @@ public class NubMatchHandlerTest {
 
     @Test
     public void testMatching() throws Exception {
-        IdLookup lookup = IdLookupImplTest.newTestLookup();
+        IdLookup lookup = IdGeneratorTest.newTestLookup();
         try (Transaction tx = dao.beginTx()) {
             Node kp = dao.create(usage("Plantae", null, Rank.KINGDOM));
             kp.addLabel(Labels.ROOT);

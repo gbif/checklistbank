@@ -54,7 +54,7 @@ public class TransactionTest {
 
     assertEquals(100, countAll());
 
-    // now iterate over those 100 nodes, create a new node and link them
+    // now iterate over those 100 nodes, persistent a new node and link them
     // expect those nodes not to be shown in the iterator which opened at the beginning of the tx.
     tx = db.beginTx();
     int counter = 0;

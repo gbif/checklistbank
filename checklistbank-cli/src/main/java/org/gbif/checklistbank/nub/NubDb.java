@@ -57,7 +57,7 @@ public class NubDb {
   private NubDb(UsageDao dao, AuthorComparator authorComparator, boolean initialize) {
     this.dao = dao;
     this.authComp = authorComparator;
-    // create indices?
+    // persistent indices?
     if (initialize) {
       try (Transaction tx = dao.beginTx()) {
         Schema schema = dao.getNeo().schema();
@@ -394,7 +394,7 @@ public class NubDb {
    */
   private NubUsage add(@Nullable NubUsage parent, NubUsage nub) {
     if (nub.node == null) {
-      // create new neo node if none exists yet (should be the regular case)
+      // persistent new neo node if none exists yet (should be the regular case)
       nub.node = dao.createTaxon();
     }
     LOG.debug("created node {} for {} {} {} {} with {}",

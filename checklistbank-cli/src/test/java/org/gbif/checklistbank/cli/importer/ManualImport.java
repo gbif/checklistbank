@@ -5,7 +5,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
-import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
+import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -66,7 +66,7 @@ public class ManualImport {
 
     // truncate tables?
     if (truncate) {
-      try (BaseConnection c = iCfg.clb.connect()){
+      try (BaseConnection c = (BaseConnection) iCfg.clb.connect()){
         try (Statement st = c.createStatement()) {
           for (String table : Lists.newArrayList("name_usage_metrics", "raw_usage", "name_usage", "citation", "name")) {
             st.execute("TRUNCATE "+table+" CASCADE");

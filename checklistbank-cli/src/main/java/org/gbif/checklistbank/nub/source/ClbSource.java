@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 
 import java.util.UUID;
 
@@ -29,7 +29,7 @@ public class ClbSource extends NubSource {
 
     @Override
     void initNeo(NeoUsageWriter writer) throws Exception {
-        try (BaseConnection c = clb.connect()) {
+        try (BaseConnection c = (BaseConnection) clb.connect()) {
             final CopyManager cm = new CopyManager(c);
             cm.copyOut("COPY ("
                     + "SELECT u.id, u.parent_fk, u.basionym_fk, u.rank,"

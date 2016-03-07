@@ -8,6 +8,7 @@ import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.checklistbank.utils.ObjectUtils;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
+
   private static final Logger LOG = LoggerFactory.getLogger(RegistryService.class);
 
   private final RegistryConfiguration cfg;
@@ -45,7 +47,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     this.cfg = cfg;
 
     // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(cfg.clb.createMapperModule(), new RealTimeModule(cfg.solr));
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     initDbPool(inj);
     solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
     mybatisService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

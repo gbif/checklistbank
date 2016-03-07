@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.cli.analysis;
 
-import org.gbif.checklistbank.cli.common.ClbConfiguration;
 import org.gbif.checklistbank.cli.common.GangliaConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import javax.validation.Valid;

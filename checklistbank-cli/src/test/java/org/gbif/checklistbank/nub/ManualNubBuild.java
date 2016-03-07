@@ -3,8 +3,8 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
+import org.gbif.nub.lookup.straight.IdLookupPassThru;
 
 import java.io.File;
 import java.net.URI;

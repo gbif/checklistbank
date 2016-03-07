@@ -2,7 +2,7 @@ package org.gbif.checklistbank.neo;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.cli.common.MapDbObjectSerializerTest;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
@@ -57,7 +57,7 @@ public class UsageDaoTest {
     dao.close();
     dao = UsageDao.persistentDao(cfg, uuid, false, reg, false);
     try (Transaction tx = dao.beginTx()) {
-      NameUsage u3 = MapDbObjectSerializerTest.usage(300, Rank.SPECIES);
+      NameUsage u3 = usage(300, Rank.SPECIES);
       Node n3 = dao.create(u3);
       assertEquals(u3, dao.readUsage(n3, false));
       // expect previous data to remain
@@ -135,9 +135,9 @@ public class UsageDaoTest {
   }
 
   private void verifyData(boolean expectRels, Node n1, Node n2) throws Exception {
-    final NameUsage u2 = MapDbObjectSerializerTest.usage(200, Rank.SPECIES);
-    assertEquals(MapDbObjectSerializerTest.usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, false), "Usage 1 missing"));
-    assertEquals(MapDbObjectSerializerTest.usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, true), "Usage 1 missing"));
+    final NameUsage u2 = usage(200, Rank.SPECIES);
+    assertEquals(usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, false), "Usage 1 missing"));
+    assertEquals(usage(112, Rank.GENUS), Preconditions.checkNotNull(dao.readUsage(n1, true), "Usage 1 missing"));
     assertEquals(u2, Preconditions.checkNotNull(dao.readUsage(n2, false), "Usage 2 missing"));
     if (expectRels) {
       u2.setParentKey((int) n1.getId());
@@ -151,8 +151,8 @@ public class UsageDaoTest {
 
   private void testDao() throws Exception {
     try (Transaction tx = dao.beginTx()) {
-      Node n1 = dao.create(MapDbObjectSerializerTest.usage(112, Rank.GENUS));
-      Node n2 = dao.create(MapDbObjectSerializerTest.usage(200, Rank.SPECIES));
+      Node n1 = dao.create(usage(112, Rank.GENUS));
+      Node n2 = dao.create(usage(200, Rank.SPECIES));
 
       verifyData(false, n1, n2);
 
@@ -162,5 +162,22 @@ public class UsageDaoTest {
       verifyData(true, n1, n2);
       tx.success();
     }
+  }
+
+  public static NameUsage usage(int key) {
+    return usage(key, Rank.SPECIES);
+  }
+
+  public static NameUsage usage(int key, Rank rank) {
+    NameUsage u = new NameUsage();
+    u.setKey(key);
+    u.setKingdomKey(key);
+    u.setParentKey(key);
+    u.setAcceptedKey(key);
+    u.setScientificName("Abies alba Mill.");
+    u.setCanonicalName("Abies alba");
+    u.setRank(rank);
+    u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
+    return u;
   }
 }

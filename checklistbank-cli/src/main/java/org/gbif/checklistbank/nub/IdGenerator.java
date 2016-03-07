@@ -3,8 +3,8 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.io.File;
 import java.io.FileWriter;

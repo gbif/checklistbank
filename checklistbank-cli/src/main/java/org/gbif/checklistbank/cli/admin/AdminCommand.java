@@ -24,6 +24,8 @@ import org.gbif.checklistbank.nub.TreeValidation;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
@@ -189,7 +191,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void sendNubChanged() throws IOException {
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
     DatasetMetricsService metricsService = inj.getInstance(DatasetMetricsService.class);
     send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
   }
@@ -201,7 +203,7 @@ public class AdminCommand extends BaseCommand {
 
   private void syncDatasets() {
     initRegistry();
-    Injector inj = Guice.createInjector(cfg.clb.createMapperModule());
+    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
     DatasetMapper mapper = inj.getInstance(DatasetMapper.class);
     LOG.info("Start syncing datasets from registry to CLB.");
     int counter = 0;
@@ -218,7 +220,7 @@ public class AdminCommand extends BaseCommand {
    * Cleans up orphan records in the postgres db.
    */
   private void cleanOrphans() {
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
     ParsedNameServiceMyBatis parsedNameService = (ParsedNameServiceMyBatis) inj.getInstance(ParsedNameService.class);
     LOG.info("Start cleaning up orphan names. This will take a while ...");
     int num = parsedNameService.deleteOrphaned();
@@ -305,7 +307,7 @@ public class AdminCommand extends BaseCommand {
    * Reparses all names
    */
   private void reparseNames() {
-    Injector inj = Guice.createInjector(cfg.clb.createServiceModule());
+    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
     ParsedNameService parsedNameService = inj.getInstance(ParsedNameService.class);
     LOG.info("Start reparsing all names. This will take a while ...");
     int num = parsedNameService.reparseAll();

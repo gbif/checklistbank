@@ -22,8 +22,6 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -34,6 +32,8 @@ import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
 
 import java.io.File;
 import java.io.IOException;
@@ -140,7 +140,7 @@ public class NubBuilder implements Runnable {
   public static NubBuilder create(NubConfiguration cfg) {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
     try {
-      IdLookupImpl idLookup = new IdLookupImpl(cfg.clb);
+      IdLookupImpl idLookup = IdLookupImpl.temp().load(cfg.clb);
       return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true, cfg);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
@@ -148,7 +148,7 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * @param dao the dao to create the nub. Will be left open after run() is called.
+   * @param dao the dao to persistent the nub. Will be left open after run() is called.
    */
   public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, int parserTimeout) {
     NubConfiguration cfg = new NubConfiguration();
@@ -185,7 +185,7 @@ public class NubBuilder implements Runnable {
       flagSimilarNames();
       flagDoubtfulOriginalNames();
 
-      // create missign autonyms
+      // persistent missign autonyms
       fixInfraspeciesHierarchy();
       manageAutonyms();
 
@@ -405,7 +405,7 @@ public class NubBuilder implements Runnable {
    * Goes through all accepted infraspecies and checks if a matching autonym exists,
    * creating missing autonyms where needed.
    * An autonym is an infraspecific taxon that has the same species and infraspecific epithet.
-   * We do this last to not create autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
+   * We do this last to not persistent autonyms that we dont need after basionyms are grouped or status has changed for some other reason.
    */
   private void manageAutonyms() {
     if (!cfg.keepLonelyAutonyms) {
@@ -462,7 +462,7 @@ public class NubBuilder implements Runnable {
                 createNubUsage(autonym, Origin.AUTONYM, parent);
                 counter++;
               } catch (IgnoreSourceUsageException e) {
-                LOG.warn("Fail to create missing autonym {}", pn.canonicalName());
+                LOG.warn("Fail to persistent missing autonym {}", pn.canonicalName());
               }
             }
           }
@@ -551,7 +551,7 @@ public class NubBuilder implements Runnable {
                   return nub.parsedName;
                 }
               });
-              // go through groups and create basionym relations where needed
+              // go through groups and persistent basionym relations where needed
               for (BasionymGroup<NubUsage> group : groups) {
                 // we only need to process groups that contain recombinations
                 if (group.hasRecombinations()) {
@@ -561,11 +561,11 @@ public class NubBuilder implements Runnable {
                     basionym = group.getBasionym();
 
                   } else if (group.getRecombinations().size() > 1) {
-                    // we need to create a placeholder basionym to group the 2 or more recombinations
+                    // we need to persistent a placeholder basionym to group the 2 or more recombinations
                     newBasionyms++;
                     basionym = createBasionymPlaceholder(fam, group);
                   }
-                  // create basionym relations
+                  // persistent basionym relations
                   if (basionym != null) {
                     // there might be more original names cause our data is dirty
                     for (NubUsage u : Iterables.concat(group.getRecombinations(), group.getBasionyms())) {
@@ -901,7 +901,7 @@ public class NubBuilder implements Runnable {
           updateNub(match.usage, u, origin, parent);
 
         } else if (Equality.DIFFERENT == authorEq) {
-          // create new nub usage with different status and authorship as before
+          // persistent new nub usage with different status and authorship as before
           match = createNubUsage(u, origin, parent);
 
         } else if (fromCurrentSource(match.usage) && !u.status.isSynonym()) {
@@ -922,7 +922,7 @@ public class NubBuilder implements Runnable {
         }
 
       } else {
-        // create new nub usage if there wasnt any yet
+        // persistent new nub usage if there wasnt any yet
         match = createNubUsage(u, origin, parent);
       }
 
@@ -1020,7 +1020,7 @@ public class NubBuilder implements Runnable {
           LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
 
         } catch (Exception e) {
-          LOG.error("Failed to create implicit {} {}", implicit.rank, implicit.scientificName, e);
+          LOG.error("Failed to persistent implicit {} {}", implicit.rank, implicit.scientificName, e);
         }
 
         if (implicitParent != null) {
@@ -1171,7 +1171,7 @@ public class NubBuilder implements Runnable {
       // maybe we have a proparte synonym from the same dataset?
       if (fromCurrentSource(nub) && !parent.node.equals(currNubParent.node)) {
         nub.status = TaxonomicStatus.PROPARTE_SYNONYM;
-        // create new pro parte relation
+        // persistent new pro parte relation
         LOG.debug("New accepted name {} found for pro parte synonym {}", parent.parsedName.getScientificName(), nub.parsedName.getScientificName());
         db.setSingleFromRelationship(nub.node, parent.node, RelType.PROPARTE_SYNONYM_OF);
 

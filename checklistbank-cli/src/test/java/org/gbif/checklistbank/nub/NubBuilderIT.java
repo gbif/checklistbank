@@ -15,8 +15,6 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
-import org.gbif.checklistbank.nub.lookup.IdLookupImpl;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.nub.source.DwcaSource;
@@ -24,6 +22,9 @@ import org.gbif.checklistbank.nub.source.DwcaSourceTest;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
+import org.gbif.checklistbank.utils.ObjectUtils;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,7 +35,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -555,7 +558,7 @@ public class NubBuilderIT {
   }
 
   /**
-   * Avoid seeing a stackoverflow error when trying to create missing genus or autonyms
+   * Avoid seeing a stackoverflow error when trying to persistent missing genus or autonyms
    * with incomplete names missing a genus but that can be parsed.
    */
   @Test
@@ -1142,12 +1145,32 @@ public class NubBuilderIT {
     assertTree("68.txt");
   }
 
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3024
+   * 70=COL
+   * 71=Official Lists and Indexes of Names in Zoology
+   * 72=ITIS
+   * 73=IRMNG
+   * 74=Clements Birds
+   * 75=IOC Birds
+   * 76=IPNI
+   */
+  @Test
+  public void testCardinalis() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(70,71,72,73,74,75,76);
+    src.setNomenclator(76);
+    build(src);
+
+    assertTree("70 etc.txt");
+  }
+
   /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
-    NubBuilder nb = NubBuilder.create(dao, src, new IdLookupImpl(Lists.<LookupUsage>newArrayList()), 10, 100);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, 100);
     try {
       nb.run();
     } catch (AssertionError e) {
@@ -1182,7 +1205,7 @@ public class NubBuilderIT {
   }
 
   private void rebuild(NubSourceList src) throws Exception {
-    IdLookupImpl previousIds = new IdLookupImpl(dao);
+    IdLookupImpl previousIds = IdLookupImpl.temp().load(allNodes(dao));
     tx.close();
     dao.close();
     // new, empty DAO
@@ -1198,6 +1221,21 @@ public class NubBuilderIT {
     // assert we have unique ids
     assertUniqueIds();
   }
+
+  /**
+   * Read old ids from existing, open DAO
+   */
+  private static Iterable<LookupUsage> allNodes(final UsageDao dao) {
+    return Iterables.transform(IteratorUtil.asIterable(dao.allTaxa()), new Function<Node, LookupUsage>() {
+      @Nullable
+      @Override
+      public LookupUsage apply(@Nullable Node n) {
+        NubUsage u = dao.readNub(n);
+        return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
+      }
+    });
+  }
+
 
   private void assertClassification(NubUsage nub, String... parentNames) {
     int idx = 0;

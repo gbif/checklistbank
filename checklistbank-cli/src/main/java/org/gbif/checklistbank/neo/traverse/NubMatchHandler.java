@@ -7,12 +7,12 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
-import org.gbif.checklistbank.nub.lookup.LookupUsage;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.util.Set;
 

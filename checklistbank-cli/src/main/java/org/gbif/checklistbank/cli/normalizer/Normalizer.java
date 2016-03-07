@@ -24,11 +24,11 @@ import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
-import org.gbif.checklistbank.nub.lookup.IdLookup;
-import org.gbif.checklistbank.nub.lookup.IdLookupPassThru;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.io.File;
@@ -364,7 +364,7 @@ public class Normalizer extends ImportDb implements Runnable {
           }
         }
         if (!found) {
-          // create new higher taxon if not found
+          // persistent new higher taxon if not found
           Node lowerParent = create(Origin.DENORMED_CLASSIFICATION, lc.getHigherRank(hr), hr, TaxonomicStatus.ACCEPTED, parent == null).node;
           // insert parent relationship?
           assignParent(parent, lowerParent);
@@ -686,7 +686,7 @@ public class Normalizer extends ImportDb implements Runnable {
             accepted = createTaxonWithClassification(Origin.MISSING_ACCEPTED, name, nn.usage.getRank(), TaxonomicStatus.DOUBTFUL, nn, id,
                 "Placeholder for the missing accepted taxonID for synonym " + nn.usage.getScientificName(), v);
           }
-          // create proparte rels if needed
+          // persistent proparte rels if needed
           Iterator<String> additionalIds = acceptedIds.listIterator(1);
           while (additionalIds.hasNext()) {
             final String id2 = additionalIds.next();
