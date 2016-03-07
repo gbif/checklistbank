@@ -46,6 +46,7 @@ public class NubMatchingModule extends PrivateModule {
   protected void configure() {
     bind(NameUsageMatchingService.class).to(NubMatchingServiceImpl.class).asEagerSingleton();
     expose(NameUsageMatchingService.class);
+    expose(IdLookup.class);
   }
 
   @Provides
