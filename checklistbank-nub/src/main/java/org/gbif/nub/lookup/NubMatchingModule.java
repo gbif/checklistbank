@@ -70,17 +70,22 @@ public class NubMatchingModule extends PrivateModule {
   public IdLookup provideStraightLookup(ClbConfiguration clb) throws Exception {
     IdLookupImpl lookup;
     boolean load = true;
-    if (indexDir == null) {
-      lookup = IdLookupImpl.temp();
-      LOG.info("Temporary IdLookup created");
-    } else {
-      File db = new File(indexDir, "idlookup");
-      load = !db.exists();
-      lookup = IdLookupImpl.persistent(db);
-      LOG.info("Persistent IdLookup created with file map at {}", db.getAbsolutePath());
-    }
-    if (load) {
-      lookup.load(clb);
+    try {
+      if (indexDir == null) {
+        lookup = IdLookupImpl.temp();
+        LOG.info("Temporary IdLookup created");
+      } else {
+        File db = new File(indexDir, "idlookup");
+        load = !db.exists();
+        lookup = IdLookupImpl.persistent(db);
+        LOG.info("Persistent IdLookup created with file map at {}", db.getAbsolutePath());
+      }
+      if (load) {
+        lookup.load(clb, false);
+      }
+    } catch (Exception e) {
+      LOG.error("Failed to create IdLookup at {}", indexDir, e);
+      throw e;
     }
     return lookup;
   }

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A IdLookup that uses the IdLookupImpl internally and registers itself as a listern for BackboneChangedMessage messages
  * that will trigger a reload of the lookup data.
+ * Only current usages are loaded, i.e. that have deleted=null
  */
 public class ReloadingIdLookup implements IdLookup, MessageCallback<BackboneChangedMessage> {
   private static final Logger LOG = LoggerFactory.getLogger(ReloadingIdLookup.class);
@@ -53,7 +54,7 @@ public class ReloadingIdLookup implements IdLookup, MessageCallback<BackboneChan
 
   private void reload() {
     try {
-      lookup = IdLookupImpl.temp().load(cfg);
+      lookup = IdLookupImpl.temp().load(cfg, false);
     } catch (Exception e) {
       LOG.error("Failed to reload backbone names", e);
       Throwables.propagate(e);
@@ -109,5 +110,10 @@ public class ReloadingIdLookup implements IdLookup, MessageCallback<BackboneChan
   @Override
   public Spliterator<LookupUsage> spliterator() {
     return lookup.spliterator();
+  }
+
+  @Override
+  public void close() throws Exception {
+    lookup.close();
   }
 }

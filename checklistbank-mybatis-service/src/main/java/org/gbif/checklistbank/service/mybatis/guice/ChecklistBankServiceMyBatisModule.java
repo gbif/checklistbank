@@ -85,12 +85,14 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     cfg.idleTimeout = getIntProp("idleTimeout", cfg.idleTimeout);
     cfg.maxLifetime = getIntProp("maxLifetime", cfg.maxLifetime);
     cfg.connectionTimeout = getIntProp("connectionTimeout", cfg.connectionTimeout);
+
+    LOG.info("Provide clb cfg {}", cfg.toString());
     return cfg;
   }
 
   private int getIntProp(String name, int defaultVal) {
     try {
-      return Integer.valueOf(getProperties().getProperty("maximumPoolSize", "x"));
+      return Integer.valueOf(getProperties().getProperty(name, "x"));
     } catch (NumberFormatException e) {
       return defaultVal;
     }

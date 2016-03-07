@@ -11,6 +11,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,4 +152,21 @@ public class ClbConfiguration {
     return DriverManager.getConnection(url, user, password);
   }
 
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+        .add("serverName", serverName)
+        .add("databaseName", databaseName)
+        .add("user", user)
+        .add("password", password)
+        .add("connectionTimeout", connectionTimeout)
+        .add("maximumPoolSize", maximumPoolSize)
+        .add("minimumIdle", minimumIdle)
+        .add("idleTimeout", idleTimeout)
+        .add("maxLifetime", maxLifetime)
+        .add("workMem", workMem)
+        .add("parserTimeout", parserTimeout)
+        .add("syncThreads", syncThreads)
+        .toString();
+  }
 }

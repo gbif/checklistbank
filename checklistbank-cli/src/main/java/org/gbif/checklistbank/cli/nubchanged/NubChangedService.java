@@ -108,7 +108,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private void rematchChecklists() {
     try {
       LOG.info("Start rematching all checklists to changed backbone");
-      NubMatchService matcher = new NubMatchService(cfg.clb, IdLookupImpl.temp().load(cfg.clb), sqlImportService, solrImportService, publisher);
+      NubMatchService matcher = new NubMatchService(cfg.clb, IdLookupImpl.temp().load(cfg.clb, false), sqlImportService, solrImportService, publisher);
 
       // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
       publisher.send(new MatchDatasetMessage(Constants.COL_DATASET_KEY));

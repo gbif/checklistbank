@@ -32,7 +32,7 @@ public class IdLookupImplIT {
         cfg.user = props.getProperty("checklistbank.db.dataSource.user");
         cfg.password = props.getProperty("checklistbank.db.dataSource.password");
 
-        IdLookup l = IdLookupImpl.temp().load(cfg);
+        IdLookup l = IdLookupImpl.temp().load(cfg, true);
         assertEquals(2, l.size());
         assertEquals(1, l.match("Animalia", Rank.KINGDOM, Kingdom.ANIMALIA).getKey());
 

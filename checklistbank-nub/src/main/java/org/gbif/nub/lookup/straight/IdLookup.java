@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 /**
  * An (nub) usage matching service that honors the authorship, year and kingdom on top of the canonical name.
  */
-public interface IdLookup extends Iterable<LookupUsage> {
+public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
 
   /**
    * Lookup a usage by the canonical name, rank and kingdom alone.

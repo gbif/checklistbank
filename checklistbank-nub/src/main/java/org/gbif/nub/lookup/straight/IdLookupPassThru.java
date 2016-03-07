@@ -53,4 +53,9 @@ public class IdLookupPassThru implements IdLookup {
   public AuthorComparator getAuthorComparator() {
     return null;
   }
+
+  @Override
+  public void close() throws Exception {
+
+  }
 }

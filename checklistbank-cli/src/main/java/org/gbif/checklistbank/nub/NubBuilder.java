@@ -140,7 +140,7 @@ public class NubBuilder implements Runnable {
   public static NubBuilder create(NubConfiguration cfg) {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
     try {
-      IdLookupImpl idLookup = IdLookupImpl.temp().load(cfg.clb);
+      IdLookupImpl idLookup = IdLookupImpl.temp().load(cfg.clb, true);
       return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true, cfg);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
