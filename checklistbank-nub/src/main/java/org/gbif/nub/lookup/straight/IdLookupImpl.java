@@ -232,7 +232,7 @@ public class IdLookupImpl implements IdLookup {
     List<LookupUsage> hits = usages.get(norm(canonicalName));
     if (hits == null) return null;
     final boolean compareAuthorship = authorship != null || year != null;
-    // filter by rank & kingdom
+    // filter by rank, kingdom & authorship
     Iterator<LookupUsage> iter = hits.iterator();
     while (iter.hasNext()) {
       LookupUsage u = iter.next();

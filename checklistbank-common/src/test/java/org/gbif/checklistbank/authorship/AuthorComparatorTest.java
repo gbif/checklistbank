@@ -98,10 +98,23 @@ public class AuthorComparatorTest {
     p2.setAuthorship("");
     assertEquals(Equality.UNKNOWN, comp.compare(p1, p2));
 
+    p2.setAuthorship("Reichen.");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p2.setAuthorship("Reichenbrg.");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p2.setAuthorship("Reichenberger");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
     p2.setAuthorship("Müller");
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
 
     p2.setAuthorship("Jenkins, Marx & Kluse");
+    assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+
+    p1.setAuthorship("Mill.");
+    p2.setAuthorship("L.");
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
   }
 

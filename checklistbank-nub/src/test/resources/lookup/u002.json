@@ -1,0 +1,13 @@
+{
+  "match": {
+    "key": 2,
+    "canonical": "Abies alba",
+    "authorship": "Mill.",
+    "year": "1768",
+    "rank": "SPECIES",
+    "kingdom": "PLANTAE",
+    "deleted": false
+  },
+  "alternatives": [
+  ]
+}

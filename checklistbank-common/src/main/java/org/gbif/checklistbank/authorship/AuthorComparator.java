@@ -38,7 +38,7 @@ public class AuthorComparator {
   private final int minCommonSubstring;
 
   private AuthorComparator(Map<String, String> authors) {
-    this.minCommonSubstring = 3;
+    this.minCommonSubstring = 4;
     for (Map.Entry<String, String> entry : authors.entrySet()) {
       String key = normalize(entry.getKey());
       String val = normalize(entry.getValue());
@@ -211,7 +211,7 @@ public class AuthorComparator {
         return Equality.EQUAL;
       } else {
         String lcs = LongestCommonSubstring.lcs(a1, a2);
-        if (lcs.length() > minCommonSubstring) {
+        if (lcs.length() >= minCommonSubstring) {
           // do both names have a single initial which is different?
           // this is often the case when authors are relatives like brothers or son & father
           if (singleInitialsDiffer(a1, a2)) {
@@ -219,8 +219,10 @@ public class AuthorComparator {
           } else {
             return Equality.EQUAL;
           }
-        } else if (a1.equals(lcs) || a2.equals(lcs)) {
-          // the smallest common substring is the same as one of the inputs. Good enough
+
+        } else if (a1.equals(lcs) && a2.startsWith(lcs) || a2.equals(lcs) && a1.startsWith(lcs)) {
+          // the smallest common substring is the same as one of the inputs and also the start of the other one.
+          // Good enough, likey a short abbreviation
           return Equality.EQUAL;
         }
         return Equality.DIFFERENT;

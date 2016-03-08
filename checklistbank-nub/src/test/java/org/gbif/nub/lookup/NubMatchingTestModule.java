@@ -116,9 +116,9 @@ public class NubMatchingTestModule extends PrivateModule {
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    int id = 0;
+    int id = 1;
     while (id < 100) {
-      String file = "lookup/u"+id+".json";
+      String file = String.format("lookup/u%03d.json", id);
       InputStream json = isu.classpathStream(file);
       if (json != null) {
         try {
