@@ -2,7 +2,6 @@ package org.gbif.checklistbank.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.Equality;
-import org.gbif.checklistbank.utils.StringNormalizer;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.IOException;
@@ -88,7 +87,7 @@ public class AuthorComparator {
     x = EX.matcher(x).replaceAll("");
 
     // fold to ascii
-    x = StringNormalizer.foldToAscii(x);
+    x = org.gbif.utils.text.StringUtils.foldToAscii(x);
 
     //remove punctuation
     x = x.replaceAll("\\p{Punct}+", " ");

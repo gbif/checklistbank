@@ -7,7 +7,6 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.postgres.TabMapperBase;
-import org.gbif.checklistbank.utils.StringNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
@@ -94,7 +93,7 @@ public class IdLookupImpl implements IdLookup {
    */
   public IdLookupImpl load(ClbConfiguration clb, boolean includeDeleted) throws SQLException, IOException {
     UsageWriter writer = new UsageWriter();
-    LOG.info("Reading existing nub usages from postgres...");
+    LOG.info("Reading existing nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
     try (Connection c = clb.connect()) {
       final CopyManager cm = new CopyManager((BaseConnection) c);
       final String delClause = includeDeleted ? "" : " AND deleted is null";
@@ -156,7 +155,7 @@ public class IdLookupImpl implements IdLookup {
     if (StringUtils.isBlank(x)) {
       return null;
     }
-    return StringNormalizer.foldToAscii(x).toLowerCase();
+    return org.gbif.utils.text.StringUtils.foldToAscii(x).toLowerCase();
   }
 
   /**

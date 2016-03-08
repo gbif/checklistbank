@@ -3,12 +3,15 @@ package org.gbif.nub.lookup.straight;
 import java.util.List;
 import java.util.Objects;
 
+import com.google.common.collect.Lists;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * Simple usage representing the minimal nub usage info needed to match names.
  */
 public class LookupUsageMatch {
     private LookupUsage match;
-    private List<LookupUsage> alternatives;
+    private List<LookupUsage> alternatives = Lists.newArrayList();
 
     public List<LookupUsage> getAlternatives() {
         return alternatives;
@@ -29,15 +32,9 @@ public class LookupUsageMatch {
     /**
      * @return true if a match was found
      */
+    @JsonIgnore
     public boolean hasMatch() {
         return match != null;
-    }
-
-    /**
-     * @return true if there was no match because of multiple, ambigous options
-     */
-    public boolean isAmbigous() {
-        return match != null && alternatives.size() > 1;
     }
 
     @Override

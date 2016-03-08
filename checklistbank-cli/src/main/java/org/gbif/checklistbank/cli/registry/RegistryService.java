@@ -11,8 +11,8 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
-import org.gbif.checklistbank.utils.ObjectUtils;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
+import org.gbif.utils.ObjectUtils;
 
 import java.io.File;
 import java.io.IOException;

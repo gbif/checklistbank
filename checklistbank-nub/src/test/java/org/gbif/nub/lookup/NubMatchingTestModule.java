@@ -6,6 +6,10 @@ import org.gbif.nameparser.NameParser;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
+import org.gbif.nub.lookup.straight.LookupUsage;
+import org.gbif.nub.lookup.straight.LookupUsageMatch;
 import org.gbif.utils.file.InputStreamUtils;
 
 import java.io.IOException;
@@ -15,7 +19,6 @@ import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -39,10 +42,15 @@ public class NubMatchingTestModule extends PrivateModule {
   }
 
   @Provides
-  @Inject
   @Singleton
   public static NubIndex provideIndex() throws IOException {
     return NubIndex.newMemoryIndex(loadIndexJson());
+  }
+
+  @Provides
+  @Singleton
+  public static IdLookup provideLookup() throws IOException {
+    return IdLookupImpl.temp().load(loadLookupJson());
   }
 
   @Provides
@@ -96,9 +104,53 @@ public class NubMatchingTestModule extends PrivateModule {
     return Lists.newArrayList(usages.values());
   }
 
+  /**
+   * Load all uXX.json files from the lookup resources into a distinct list of LookupUsage instances.
+   * The individual uXX.json files are regular results of a LookupUsageMatch and can be added to the folder
+   * to be picked up here.
+   */
+  private static List<LookupUsage> loadLookupJson() {
+    Map<Integer, LookupUsage> usages = Maps.newHashMap();
+
+    InputStreamUtils isu = new InputStreamUtils();
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+    int id = 0;
+    while (id < 100) {
+      String file = "lookup/u"+id+".json";
+      InputStream json = isu.classpathStream(file);
+      if (json != null) {
+        try {
+          int before = usages.size();
+          LookupUsageMatch m = mapper.readValue(json, LookupUsageMatch.class);
+          for (LookupUsage u : extractUsages(m)) {
+            if (u != null) {
+              usages.put(u.getKey(), u);
+            }
+          }
+          System.out.println("Loaded " + (usages.size() - before) + " new usage(s) from " + file);
+        } catch (IOException e) {
+          Assert.fail("Failed to read " + file + ": " + e.getMessage());
+        }
+      }
+      id++;
+    }
+    return Lists.newArrayList(usages.values());
+  }
+
   private static List<NameUsageMatch> extractUsages(NameUsageMatch m) {
     List<NameUsageMatch> usages = Lists.newArrayList();
     usages.add(m);
+    if (m.getAlternatives() != null) {
+      usages.addAll(m.getAlternatives());
+    }
+    return usages;
+  }
+
+  private static List<LookupUsage> extractUsages(LookupUsageMatch m) {
+    List<LookupUsage> usages = Lists.newArrayList();
+    usages.add(m.getMatch());
     if (m.getAlternatives() != null) {
       usages.addAll(m.getAlternatives());
     }

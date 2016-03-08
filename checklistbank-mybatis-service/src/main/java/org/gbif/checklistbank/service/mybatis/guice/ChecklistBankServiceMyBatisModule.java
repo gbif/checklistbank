@@ -24,6 +24,8 @@ import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.nameparser.NameParser;
 import org.gbif.service.guice.PrivateServiceModule;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Properties;
 
 import com.google.inject.Provides;
@@ -47,7 +49,7 @@ import org.slf4j.LoggerFactory;
  * See https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby
  */
 
-public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
+public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(ChecklistBankServiceMyBatisModule.class);
   private static final String PREFIX = "checklistbank.db.";
 
@@ -137,4 +139,8 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule {
     expose(ClbConfiguration.class);
   }
 
+  @Override
+  public void close() throws IOException {
+
+  }
 }

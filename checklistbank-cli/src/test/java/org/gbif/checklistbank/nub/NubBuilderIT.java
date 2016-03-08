@@ -22,9 +22,9 @@ import org.gbif.checklistbank.nub.source.DwcaSourceTest;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
-import org.gbif.checklistbank.utils.ObjectUtils;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
+import org.gbif.utils.ObjectUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;

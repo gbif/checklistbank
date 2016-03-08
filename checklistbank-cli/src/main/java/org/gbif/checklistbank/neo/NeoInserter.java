@@ -16,7 +16,6 @@ import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
 import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.utils.ObjectUtils;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.TaxStatusParser;
@@ -35,6 +34,7 @@ import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.utils.ObjectUtils;
 
 import java.io.File;
 import java.io.IOException;

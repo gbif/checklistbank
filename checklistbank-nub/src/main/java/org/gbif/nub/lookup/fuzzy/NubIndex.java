@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
  * The memory mapped file index uses very little heap memory and instead all available memory should be given to the OS
  * to enabling caching on the file system level.
  */
-public class NubIndex implements ClassificationResolver {
+public class NubIndex implements ClassificationResolver, AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
 
   /**
@@ -377,5 +377,10 @@ public class NubIndex implements ClassificationResolver {
   @Override
   public LinneanClassification getClassification(int usageKey) {
     return matchByUsageId(usageKey);
+  }
+
+  @Override
+  public void close() throws Exception {
+    index.close();
   }
 }

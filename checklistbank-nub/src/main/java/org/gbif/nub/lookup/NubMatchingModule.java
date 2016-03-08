@@ -3,15 +3,19 @@ package org.gbif.nub.lookup;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.utils.CloseableUtils;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
@@ -23,23 +27,27 @@ import org.slf4j.LoggerFactory;
  * Guice module setting up all dependencies to expose the NubMatching service.
  * Requires a NameUsageMapper and a ClbConfiguration instance to be injectable
  */
-public class NubMatchingModule extends PrivateModule {
+public class NubMatchingModule extends PrivateModule implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingModule.class);
   private final File indexDir;
+  private final boolean incDeleted;
+  private List<AutoCloseable> toBeClosed = Lists.newArrayList();
 
   /**
    * Creates a memory based nub index which is built from scratch every time the webservice starts up.
    */
   public NubMatchingModule() {
     this.indexDir = null;
+    this.incDeleted = false;
   }
 
   /**
    * Creates a file based nub index which is built in case the index does not yet exist.
    * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
    */
-  public NubMatchingModule(File indexDir) {
+  public NubMatchingModule(File indexDir, boolean incDeleted) {
     this.indexDir = indexDir;
+    this.incDeleted = incDeleted;
   }
 
   @Override
@@ -61,6 +69,7 @@ public class NubMatchingModule extends PrivateModule {
       index = NubIndex.newFileIndex(indexDir, mapper);
       LOG.info("Lucene file index initialized at {}", indexDir.getAbsolutePath());
     }
+    toBeClosed.add(index);
     return index;
   }
 
@@ -81,12 +90,13 @@ public class NubMatchingModule extends PrivateModule {
         LOG.info("Persistent IdLookup created with file map at {}", db.getAbsolutePath());
       }
       if (load) {
-        lookup.load(clb, false);
+        lookup.load(clb, incDeleted);
       }
     } catch (Exception e) {
       LOG.error("Failed to create IdLookup at {}", indexDir, e);
       throw e;
     }
+    toBeClosed.add(lookup);
     return lookup;
   }
 
@@ -100,4 +110,8 @@ public class NubMatchingModule extends PrivateModule {
     return comp;
   }
 
+  @Override
+  public void close() throws IOException {
+    CloseableUtils.close(toBeClosed);
+  }
 }
