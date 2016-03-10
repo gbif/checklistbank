@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -250,10 +251,17 @@ public class IdLookupImpl implements IdLookup {
     // if no authorship was requested and we got 1 result, a hit!
     if (hits.size() == 1) {
       return hits.get(0);
+
     } else if (hits.size() > 1) {
+      // try a very exact match first to see if we only get 1 hit
+      LookupUsage exact = exactMatch(canonicalName, authorship, year, hits);
+      if (exact != null) {
+        LOG.debug("{} matches, but only 1 exact match {} for {} {} {} {} {}", hits.size(), exact.getKey(), kingdom, rank, canonicalName, authorship, year);
+        return exact;
+      }
+
       // if we ever had too many bad usages they might block forever a stable id.
       // If only one current id is matched use that!
-      //TODO: review if this decision is correct!!!
       LookupUsage curr = null;
       int currCounter = 0;
       for (LookupUsage u : hits) {
@@ -262,16 +270,44 @@ public class IdLookupImpl implements IdLookup {
           curr = u;
         }
       }
-      if (currCounter == 0) {
-        LOG.debug("Ambiguous match with {} deleted hits for {} {} {}", hits.size(), kingdom, rank, canonicalName);
-      } else if (currCounter == 1) {
-        LOG.debug("{} matches, but only 1 current usage {} for {} {} {}", hits.size(), curr.getKey(), kingdom, rank, canonicalName);
+      if (currCounter == 1) {
+        LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), curr.getKey(), kingdom, rank, canonicalName, authorship, year);
         return curr;
+
       } else {
-        LOG.debug("Ambiguous match with multiple current usages in {} hits for {} {} {}", hits.size(), kingdom, rank, canonicalName);
+        // use usage with lowest key
+        for (LookupUsage u : hits) {
+          if (curr == null || curr.getKey() > u.getKey()) {
+            curr = u;
+          }
+        }
+        LOG.debug("Use lowest usage key {} for ambiguous match with {} hits for {} {} {} {} {}", curr.getKey(), hits.size(), kingdom, rank, canonicalName, authorship, year);
+        return curr;
       }
     }
     return null;
+  }
+
+  /**
+   * Checks candidates for a single unambigous exact match
+   */
+  private LookupUsage exactMatch(String canonicalName, String authorship, String year, List<LookupUsage> candidates) {
+    LookupUsage match = null;
+    for (LookupUsage u : candidates) {
+      if (Objects.equals(canonicalName, u.getCanonical())
+        && Objects.equals(authorship, u.getAuthorship())
+        && Objects.equals(year, u.getYear()))
+      {
+        // did we have a match already?
+        if (match != null) {
+          return null;
+        }
+        // no, keep it
+        match = u;
+      }
+
+    }
+    return match;
   }
 
   /**

@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 public class IdGenerator {
   private static final Logger LOG = LoggerFactory.getLogger(IdGenerator.class);
   private IdLookup lookup;
-  private final int idStart;
   private int nextId;
   private IntSet resurrected = new IntHashSet();
   private IntSet reissued = new IntHashSet();
@@ -44,7 +43,6 @@ public class IdGenerator {
   public IdGenerator(IdLookup lookup, int idStart) {
     this.lookup = lookup;
     Preconditions.checkArgument(idStart < Constants.NUB_MAXIMUM_KEY, "Lowest current backbone id exceeds maximum nub id limit");
-    this.idStart = idStart;
     nextId = idStart;
   }
 

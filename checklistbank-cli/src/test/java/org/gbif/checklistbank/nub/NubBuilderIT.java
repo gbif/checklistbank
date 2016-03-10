@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -22,6 +23,8 @@ import org.gbif.checklistbank.nub.source.DwcaSourceTest;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
+import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
@@ -62,6 +65,7 @@ import static org.junit.Assert.fail;
 public class NubBuilderIT {
   private UsageDao dao;
   private Transaction tx;
+  private static final NameParser PARSER = new NameParser();
 
   private static void log(String msg, Object ... args) {
     System.out.println(String.format(msg, args));
@@ -1162,7 +1166,57 @@ public class NubBuilderIT {
     src.setNomenclator(76);
     build(src);
 
-    assertTree("70 etc.txt");
+    assertTree("70 71 72 73 74 75 76.txt");
+  }
+
+  private NubUsage create(int id, Rank rank, Kingdom kingdom, String sciname) {
+    NubUsage u = new NubUsage();
+    u.node = dao.createTaxon();
+    u.usageKey = id;
+    u.rank = rank;
+    u.kingdom = kingdom;
+    try {
+      u.parsedName = PARSER.parse(sciname, rank);
+    } catch (UnparsableException e) {
+      u.parsedName = new ParsedName();
+      u.parsedName.setScientificName(sciname);
+      u.parsedName.setType(e.type);
+    }
+    dao.store(u);
+    return u;
+  }
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3060
+   * 70=COL
+   * 71=Official Lists and Indexes of Names in Zoology
+   * 72=ITIS
+   * 73=IRMNG
+   * 74=Clements Birds
+   * 75=IOC Birds
+   * 76=IPNI
+   */
+  @Test
+  public void testCardinalisWithExistingNub() throws Exception {
+    // create existing genus & species from 2013 backbone
+    tx = dao.beginTx();
+    create(3241527, Rank.GENUS, Kingdom.ANIMALIA, "Cardinalis Bonaparte, 1838");
+    create(2490383, Rank.GENUS, Kingdom.ANIMALIA, "Cardinalis Bonaparte, 1831");
+    create(3232102, Rank.GENUS, Kingdom.PLANTAE, "Cardinalis Fabricius, 1759");
+    create(2490384, Rank.SPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis (Linnaeus, 1758)");
+    create(4846779, Rank.SPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis (Linnaeus, 1758)");
+    create(7191770, Rank.SUBSPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis subsp. cardinalis");
+    create(5230886, Rank.SUBSPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis clintoni (Banks, 1963)");
+
+    // rebuild nub
+    ClasspathSourceList src = ClasspathSourceList.source(70,71,72,73,74,75,76);
+    src.setNomenclator(76);
+    rebuild(src);
+
+    assertTree("70 71 72 73 74 75 76.txt");
+    assertKey("Cardinalis Fabr.", Rank.GENUS, Kingdom.PLANTAE, 3232102);
+    assertKey("Cardinalis Bonaparte, 1838", Rank.GENUS, Kingdom.ANIMALIA, 3241527);
+    assertKey("Cardinalis cardinalis (Linnaeus, 1758)", Rank.SPECIES, Kingdom.ANIMALIA, 2490384);
   }
 
   /**
@@ -1288,6 +1342,15 @@ public class NubBuilderIT {
     return u;
   }
 
+  private NubUsage assertKey(String sciname, Rank rank, Kingdom kingdom, int key) {
+    NubUsage u = getScientific(sciname, rank, kingdom);
+    assertEquals("wrong key for " + sciname, key, u.usageKey);
+    assertEquals("wrong scientific name for " + sciname, sciname, UsageDao.canonicalOrScientificName(u.parsedName, true));
+    assertEquals("wrong kingdom for " + sciname, kingdom, u.kingdom);
+    assertEquals("wrong rank for " + sciname, rank, u.rank);
+    return u;
+  }
+
   private void assertNotExisting(String sciname, Rank rank) {
     NubUsage u = getScientific(sciname, rank);
     assertNull("name wrongly exists: " + sciname, u);
@@ -1365,6 +1428,10 @@ public class NubBuilderIT {
       usages.add(get(n));
     }
     return usages;
+  }
+
+  private NubUsage getScientific(String sciname, Rank rank, Kingdom kingdom) {
+    return getOne(listScientific(sciname), rank, kingdom, sciname);
   }
 
   private NubUsage getScientific(String sciname, Rank rank) {
