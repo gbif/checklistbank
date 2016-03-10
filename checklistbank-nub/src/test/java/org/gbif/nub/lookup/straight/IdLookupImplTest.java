@@ -92,7 +92,7 @@ public class IdLookupImplTest {
     assertNull(l.match("Oenanthe", "Camelot", null, Rank.GENUS, Kingdom.ANIMALIA));
 
     assertEquals(4, l.match("Oenanthe aquatica", "Poir", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertNull(l.match("Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.PLANTAE));
+    assertEquals(6, l.match("Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
     assertNull(l.match("Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.FUNGI));
 
     // it is allowed to add an author to the single current canonical name if it doesnt have an author yet!
@@ -100,8 +100,8 @@ public class IdLookupImplTest {
     assertEquals(9, l.match("Abies alba", null, "1789", Rank.SPECIES, Kingdom.PLANTAE).getKey());
     assertEquals(9, l.match("Abies alba", "Mill.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
     assertEquals(9, l.match("Abies alba", "Miller", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
     assertEquals(9, l.match("Abies alba", "Döring", "1778", Rank.SPECIES, Kingdom.PLANTAE).getKey());
+    assertEquals(10, l.match("Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
 
     // try unparsable names
     assertEquals(14, l.match("Carex cayouettei", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());

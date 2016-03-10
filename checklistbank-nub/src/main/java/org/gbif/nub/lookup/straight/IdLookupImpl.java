@@ -274,8 +274,8 @@ public class IdLookupImpl implements IdLookup {
         LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), curr.getKey(), kingdom, rank, canonicalName, authorship, year);
         return curr;
 
-      } else {
-        // use usage with lowest key
+      } else if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
+        // if requested rank & kingdom was clear, use usage with lowest key
         for (LookupUsage u : hits) {
           if (curr == null || curr.getKey() > u.getKey()) {
             curr = u;
