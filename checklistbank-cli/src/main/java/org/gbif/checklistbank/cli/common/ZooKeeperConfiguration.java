@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -67,7 +67,7 @@ public class ZooKeeperConfiguration {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this).add("connectionString", connectionString).add("namespace", namespace)
+    return MoreObjects.toStringHelper(this).add("connectionString", connectionString).add("namespace", namespace)
       .add("baseSleepTime", baseSleepTime).add("maxRetries", maxRetries).toString();
 
   }

@@ -3,6 +3,7 @@ package org.gbif.checklistbank.model;
 import java.util.Date;
 import java.util.UUID;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
@@ -65,7 +66,7 @@ public class RawUsage {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("usageKey", usageKey)
                 .add("datasetKey", datasetKey)
                 .add("json", json)

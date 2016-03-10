@@ -3,7 +3,7 @@ package org.gbif.checklistbank.cli.common;
 import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.Parameter;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.yammer.metrics.MetricRegistry;
 import com.yammer.metrics.ganglia.GangliaReporter;
 import info.ganglia.gmetric4j.gmetric.GMetric;
@@ -45,7 +45,7 @@ public class GangliaConfiguration {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("host", host)
       .add("port", port)
       .add("name", name)

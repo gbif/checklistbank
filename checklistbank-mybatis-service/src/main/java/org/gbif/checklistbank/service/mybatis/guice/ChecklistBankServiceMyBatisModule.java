@@ -88,7 +88,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule impl
     cfg.maxLifetime = getIntProp("maxLifetime", cfg.maxLifetime);
     cfg.connectionTimeout = getIntProp("connectionTimeout", cfg.connectionTimeout);
 
-    LOG.info("Provide clb cfg {}", cfg.toString());
+    LOG.info("Provide {}", cfg.toString());
     return cfg;
   }
 

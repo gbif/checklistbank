@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Rank;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 public class Classification implements LinneanClassificationKeys, LinneanClassification {
@@ -261,7 +262,7 @@ public class Classification implements LinneanClassificationKeys, LinneanClassif
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
                 .add("kingdomKey", kingdomKey)
                 .add("phylumKey", phylumKey)
                 .add("classKey", classKey)

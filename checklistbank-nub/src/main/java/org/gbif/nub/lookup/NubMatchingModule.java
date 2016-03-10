@@ -50,9 +50,19 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
     this.incDeleted = incDeleted;
   }
 
+  /**
+   * Dummy class to force the idlookup to be eagerly created
+   * Otherwise a new index is not built on webservice startup but only when a request is made
+   */
+  static class EagerIdLookupLoader {
+    @Inject
+    IdLookup lookup;
+  }
+
   @Override
   protected void configure() {
     bind(NameUsageMatchingService.class).to(NubMatchingServiceImpl.class).asEagerSingleton();
+    bind(EagerIdLookupLoader.class).to(EagerIdLookupLoader.class).asEagerSingleton();
     expose(NameUsageMatchingService.class);
     expose(IdLookup.class);
   }
