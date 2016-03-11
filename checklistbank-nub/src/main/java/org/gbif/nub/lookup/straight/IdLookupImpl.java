@@ -72,7 +72,7 @@ public class IdLookupImpl implements IdLookup {
     usages = db.hashMapCreate("usages")
         .keySerializer(Serializer.STRING_ASCII)
         .valueSerializer(new MapDbObjectSerializer<ArrayList>(ArrayList.class, new LookupKryoFactory()))
-        .make();
+        .makeOrGet();
     authComp = AuthorComparator.createWithAuthormap();
   }
 
