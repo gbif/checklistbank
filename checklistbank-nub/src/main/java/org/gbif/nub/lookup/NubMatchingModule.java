@@ -62,7 +62,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
   @Override
   protected void configure() {
     bind(NameUsageMatchingService.class).to(NubMatchingServiceImpl.class).asEagerSingleton();
-    bind(EagerIdLookupLoader.class).to(EagerIdLookupLoader.class).asEagerSingleton();
+    bind(EagerIdLookupLoader.class).asEagerSingleton();
     expose(NameUsageMatchingService.class);
     expose(IdLookup.class);
   }
