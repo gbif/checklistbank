@@ -113,13 +113,6 @@ public class AuthorComparator {
     //remove punctuation
     x = x.replaceAll("\\p{Punct}+", " ");
 
-    // try to remove initials if the remaining string is still large
-//    if (x.length() > 10) {
-//      String withoutInitials = INITIALS.matcher(x).replaceAll(" ");
-//      if (withoutInitials.length() > 10 && withoutInitials.trim().contains(" ")) {
-//        x = withoutInitials;
-//      }
-//    }
     x = StringUtils.normalizeSpace(x);
     if (StringUtils.isBlank(x)) {
       return null;
