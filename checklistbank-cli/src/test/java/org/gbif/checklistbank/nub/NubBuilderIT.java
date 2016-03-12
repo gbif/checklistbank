@@ -548,7 +548,7 @@ public class NubBuilderIT {
       assertEquals("Fontinalis antipyretica", c.parsedName.canonicalName());
       counter++;
     }
-    assertEquals(4, counter);
+    assertEquals(3, counter);
 
     assertScientific("Abies pindrow (Royle ex D. Don) Royle", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertScientific("Abies pindrow Spach", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);

@@ -6,10 +6,11 @@ Fungi
 Plantae
   Fontinalaceae
     Fontinalis
-      Fontinalis antipyretica (C. Müller) W. H. Welch in Grout, 1934
-      Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916
-      Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891
-      Fontinalis antipyretica Hedwig, 1801
+      Fontinalis antipyretica (C. Müller) W. H. Welch in Grout, 1934 [species]
+      Fontinalis antipyretica (Cardot in Coppey) Warnstorf, 1916 [species]
+        *$? antipyretica Renauld & Cardot [unranked]
+        *Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891 [species]
+      Fontinalis antipyretica Hedwig, 1801 [species]
   Pinaceae
     Abies
       Abies pindrow (Royle ex D. Don) Royle
