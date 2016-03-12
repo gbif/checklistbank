@@ -166,7 +166,7 @@ public class SuffixArray {
 
   /**
    * Returns the number of suffixes strictly less than the <tt>query</tt> string.
-   * We note that <tt>rank(select(i))</tt> equals <tt>i</tt> for each <tt>i</tt>
+   * We note that <tt>rank(select(i))</tt> compareStrict <tt>i</tt> for each <tt>i</tt>
    * between 0 and <em>N</em>-1.
    *
    * @param query the query string

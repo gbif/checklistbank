@@ -31,9 +31,9 @@ public class AuthorComparatorTest {
     assertEquals("a j white", comp.normalize("A-J-White"));
     assertEquals("a j white", comp.normalize("(A.J. White)"));
 
-    assertEquals("white herbert harvey", comp.normalize("A. J. White, Herbert  &  P. J. Harvey"));
-    assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
-    assertEquals("white herbert harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A. J. White, Herbert  &  P. J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert et P.J. Harvey"));
+    assertEquals("a j white herbert p j harvey", comp.normalize("A.J. White, Herbert and P.J. Harvey"));
 
     assertEquals("colla", comp.normalize("Bertero ex Colla"));
     assertEquals("schult", comp.normalize("Sieber ex Schult."));
@@ -42,13 +42,64 @@ public class AuthorComparatorTest {
 
     assertEquals("g kirchn", comp.normalize("G.Kirchn. in Petzold & G.Kirchn."));
 
-    assertEquals("torr gray", comp.normalize("Torr. & A.Gray"));
+    assertEquals("torr a gray", comp.normalize("Torr. & A.Gray"));
     assertEquals("c chr", comp.normalize("C. Chr."));
     assertEquals("h christ", comp.normalize("H. Christ"));
+
+    assertEquals("l", comp.normalize("L."));
+    assertEquals("rchb", comp.normalize("Rchb."));
+    assertEquals("rchb", comp.normalize("Abasicarpon Andrz. ex Rchb."));
   }
 
   @Test
-  public void testEquals() throws Exception {
+  public void testLookup() throws Exception {
+    assertNull(comp.lookup(null));
+    assertEquals(" ", comp.lookup(" "));
+    assertEquals(".", comp.lookup("."));
+    assertEquals("-", comp.lookup("-"));
+
+    assertEquals("Döring", comp.lookup("Döring"));
+    assertEquals("desireno", comp.lookup("desireno"));
+
+    assertEquals("a j white", comp.lookup("a j white"));
+
+    assertEquals("l a colla", comp.lookup("colla"));
+    assertEquals("j a schultes", comp.lookup("schult"));
+    assertEquals("s a nevski", comp.lookup("nevski"));
+    assertEquals("w q yin", comp.lookup("w q yin"));
+
+    assertEquals("g kirchner", comp.lookup("g kirchn"));
+
+    assertEquals("c f a christensen", comp.lookup("c chr"));
+    assertEquals("h christ", comp.lookup("h christ"));
+
+    assertEquals("c linnaeus", comp.lookup("l"));
+    assertEquals("h g l reichenbach", comp.lookup("rchb"));
+    assertEquals("a p de candolle", comp.lookup("dc"));
+  }
+
+  @Test
+  public void extractFirstSurname() throws Exception {
+    assertEquals("doring", comp.removeFirstInitials("doring"));
+    assertEquals("white", comp.removeFirstInitials("a j white"));
+    assertEquals("white herbert harvey", comp.removeFirstInitials("white herbert harvey"));
+    assertEquals("colla", comp.removeFirstInitials("l a colla"));
+    assertEquals("yin", comp.removeFirstInitials("w q yin"));
+    assertEquals("kirchner", comp.removeFirstInitials("g kirchner"));
+    assertEquals("reichenbach", comp.removeFirstInitials("h g l reichenbach"));
+  }
+
+  @Test
+  public void longestWordStart() throws Exception {
+    assertEquals("dorin", comp.longestWordStart("doring", "dorinth"));
+    assertEquals("", comp.longestWordStart("", "dorinth"));
+    assertEquals("", comp.longestWordStart("ginger", "white herbert harvey"));
+    assertEquals("herb", comp.longestWordStart("ginger herby", "white herbert harvey"));
+    assertEquals("he", comp.longestWordStart("ginger hear", "white herbert harvey"));
+  }
+
+  @Test
+  public void testCompareParsedName() throws Exception {
     ParsedName p1 = new ParsedName();
     ParsedName p2 = new ParsedName();
 
@@ -72,29 +123,13 @@ public class AuthorComparatorTest {
 
     p2.setYear("1847");
     assertEquals(Equality.EQUAL, comp.compare(p1, p2));
-  }
 
-  @Test
-  public void testEquals2() throws Exception {
-    assertAuth(null, null, Equality.UNKNOWN, null, null);
-    assertAuth("", "  ", Equality.UNKNOWN, " ", "   ");
-    assertAuth("L.", null, Equality.UNKNOWN, null, null);
 
-    assertAuth("Bluff & Fingerh.", null, Equality.DIFFERENT, "Lindl.", null);
-    assertAuth("Lindl.", null, Equality.EQUAL, "Lindl.", null);
 
-    assertAuth(null, "1978", Equality.DIFFERENT, null, "1934");
-    assertAuth(null, "1978", Equality.EQUAL, null, "1978");
-
-    assertAuth("H. Christ", null, Equality.DIFFERENT, "C. Chr.", null);
-  }
-
-  @Test
-  public void testDiffer() throws Exception {
-    ParsedName p1 = new ParsedName();
+    p1 = new ParsedName();
     p1.setAuthorship("Reich.");
 
-    ParsedName p2 = new ParsedName();
+    p2 = new ParsedName();
     p2.setAuthorship("");
     assertEquals(Equality.UNKNOWN, comp.compare(p1, p2));
 
@@ -119,26 +154,117 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testEqualsWithBasionym() throws Exception {
-    assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A.Murray bis.", null, null, null);
+  public void testCompare() throws Exception {
+    assertAuth(null, null, Equality.UNKNOWN, null, null);
+    assertAuth("", "  ", Equality.UNKNOWN, " ", "   ");
+    assertAuth("L.", null, Equality.UNKNOWN, null, null);
+
+    assertAuth("Bluff & Fingerh.", null, Equality.DIFFERENT, "Lindl.", null);
+    assertAuth("Lindl.", null, Equality.EQUAL, "Lindl.", null);
+
+    assertAuth(null, "1978", Equality.DIFFERENT, null, "1934");
+    assertAuth(null, "1978", Equality.EQUAL, null, "1978");
+
+    assertAuth("H. Christ", null, Equality.DIFFERENT, "C. Chr.", null);
+    assertAuth("Reichenbach", "1837", Equality.EQUAL, "Abasicarpon Andrz. ex Rchb.", null);
+
+    assertAuth("Torr et Gray", null, Equality.EQUAL, "Torr. & A.Gray", null);
+    assertAuth("A.Murr", "1863", Equality.EQUAL, "A.Murray bis.", null);
     assertAuth("Maxim.", null, Equality.EQUAL, "Max.", null);
+
+    assertAuth("A.Murr", "1863", Equality.EQUAL, "A. Murray", null);
+    assertAuth("A.Murr", "1863", Equality.EQUAL, "A.Murray bis.", null);
+    assertAuth("A.Murr", "1863", Equality.EQUAL, "A. Murr.", null);
+    assertAuth("A.Murr", "1863", Equality.DIFFERENT, "B. Murr.", null);
+
+    assertAuth("Debreczy & I. Rácz", null, Equality.EQUAL, "Rácz", null);
+    assertAuth("Debreczy & I. Rácz", null, Equality.EQUAL, "Debreczy", null);
+
+    assertAuth("White, Herbert & Harvey", null, Equality.EQUAL, "A.J. White, Herbert et P.J. Harvey", null);
+    assertAuth("A.J.White", null, Equality.EQUAL, "A.J. White, Herbert et P.J. Harvey", null);
+    assertAuth("Harvey", null, Equality.EQUAL, "A.J. White, Herbert et P.J. Harvey", null);
+
+    assertAuth("R.H.Roberts", null, Equality.EQUAL, "R.J.Roberts", null);
+    assertAuth("V.J.Chapm.", null, Equality.DIFFERENT, "F.R.Chapm.", null);
+    assertAuth("V.J.Chapm.", null, Equality.DIFFERENT, "F.Chapm.", null);
+    assertAuth("Chapm.", null, Equality.EQUAL, "F.R.Chapm.", null);
+
+    assertAuth("A.Bruggen.", null, Equality.EQUAL, "Brug.", null);
+  }
+
+  @Test
+  public void testCompareStrict() throws Exception {
+    assertFalse(comp.compareStrict(null, null, null, null));
+    assertFalse(comp.compareStrict("", "", "", ""));
+    assertFalse(comp.compareStrict("", null, "", null));
+    assertAuthStrict("", "  ", false, " ", "   ");
+    assertAuthStrict("L.", null, false, null, null);
+
+    assertAuthStrict("Bluff & Fingerh.", null, false, "Lindl.", null);
+    assertAuthStrict("Lindl.", null, true, "Lindl.", null);
+
+    assertAuthStrict(null, "1978", false, null, "1934");
+    assertAuthStrict(null, "1978", false, null, "1978");
+
+    assertAuthStrict("H. Christ", null, false, "C. Chr.", null);
+    assertAuthStrict("Reichenbach", "1837", false, "Abasicarpon Andrz. ex Rchb.", null);
+    assertAuthStrict("Reichenbach", null, true, "Abasicarpon Andrz. ex Rchb.", null);
+    assertAuthStrict("Reichenbach", "1837", true, "Abasicarpon Andrz. ex Rchb.", "1837");
+
+    assertAuthStrict("Torr et Gray", null, true, "Torr. & A.Gray", null);
+
+    assertAuthStrict("Boed.", null, true, "Boed.", null);
+    assertAuthStrict("Boed.", null, false, "F.Boos", null);
+    assertAuthStrict("Boed.", null, false, "Boott", null);
+    assertAuthStrict("Boed.", null, false, "F.Bolus", null);
+    assertAuthStrict("Boed.", null, false, "Borchs.", null);
+
+    assertAuthStrict("Hett.", null, false, "Scheffers", null);
+    assertAuthStrict("Hett.", null, false, "Schew.", null);
+    assertAuthStrict("Hett.", null, false, "Schemmann", null);
+    assertAuthStrict("Hett.", null, false, "W.Mast.", null);
+    assertAuthStrict("Hett.", null, false, "Kirschst.", null);
+
+
+    /**
+     * http://dev.gbif.org/issues/browse/POR-398
+     */
+    assertTrue(comp.compareStrict("Ridgway", "1893", "Ridgway", "1893"));
+    assertTrue(comp.compareStrict("K. Koch", null, "K. Koch", null));
+    assertTrue(comp.compareStrict("K.Koch", null, "K. Koch", null));
+    assertTrue(comp.compareStrict("A. Nelson", null, "A Nélson", null));
+    assertTrue(comp.compareStrict("Colla", null, "Bertero ex Colla", null));
+
+    assertFalse(comp.compareStrict("Oberholser", "1917", "Oberholser", "1919"));
+    assertFalse(comp.compareStrict("Koch", "1897", "K. Koch", null));
+    assertFalse(comp.compareStrict("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1884"));
+    assertFalse(comp.compareStrict("Gould", "1860", "Gould", "1861"));
+    assertFalse(comp.compareStrict("Gould", "1860", "Gould", "1863"));
+    assertFalse(comp.compareStrict("A. Nelson", null, "E.E. Nelson", null));
+
+    assertTrue(comp.compareStrict("Koch", null, "K. Koch", null));
+    assertTrue(comp.compareStrict("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1885"));
+  }
+
+  @Test
+  public void testEqualsWithBasionym() throws Exception {
     assertAuth("Maxim.", null, "Trautv. ex Maxim.", null, Equality.EQUAL, "Maxim.", null, null, null);
     assertAuth("Maxim.", null, "Trautv. ex Karl Johann Maximowicz", null, Equality.EQUAL, "Max.", null, null, null);
     assertAuth("Maxim.", null, null, null, Equality.EQUAL, "Karl Johann Maximowicz", null, null, null);
 
     assertAuth("Bluff & Fingerh.", null, "L.", null, Equality.DIFFERENT, "Mill.", "1768", null, null);
-
-    assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A. Murray", null, null, null);
-    assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A.Murray bis.", null, null, null);
-    assertAuth("A.Murr", "1863", null, null, Equality.EQUAL, "A. Murr.", null, null, null);
-    assertAuth("A.Murr", "1863", null, null, Equality.DIFFERENT, "B. Murr.", null, null, null);
+    assertAuth("Mill.", null, "L.", null, Equality.EQUAL, "Mill.", "1768", null, null);
 
     assertAuth("Debreczy & I. Rácz", null, null, null, Equality.EQUAL, "Debreczy & Rácz", null, null, null);
-    assertAuth("Debreczy & I.Rácz", null, null, null, Equality.DIFFERENT, "Silba", "Debreczy & I.Rácz", null, null);
+    assertAuth("Debreczy & I.Rácz", null, null, null, Equality.DIFFERENT, "Silba", null, "Debreczy & I.Rácz", null);
   }
 
   private void assertAuth(String a1, String y1, Equality eq, String a2, String y2) {
     assertEquals(eq, comp.compare(a1, y1, a2, y2));
+  }
+
+  private void assertAuthStrict(String a1, String y1, boolean eq, String a2, String y2) {
+    assertEquals(eq, comp.compareStrict(a1, y1, a2, y2));
   }
 
   private void assertAuth(String a1, String y1, String a1b, String y1b, Equality eq, String a2, String y2, String a2b, String y2b) {
@@ -173,7 +299,7 @@ public class AuthorComparatorTest {
 
     p1.setAuthorship("DC.");
     p2.setAuthorship("De Candolle");
-    assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
 
     p2.setAuthorship("DCandolle");
     assertEquals(Equality.EQUAL, comp.compare(p1, p2));
@@ -274,32 +400,5 @@ public class AuthorComparatorTest {
     p2.setAuthorship("Vellington");
 
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
-  }
-
-  /**
-   * http://dev.gbif.org/issues/browse/POR-398
-   */
-  @Test
-  public void testEqualsProper() throws Exception {
-    assertFalse(comp.equals(null, null, null, null));
-    assertFalse(comp.equals("", "", "", ""));
-    assertFalse(comp.equals("", null, "", null));
-
-    assertTrue(comp.equals("Ridgway", "1893", "Ridgway", "1893"));
-    assertTrue(comp.equals("K. Koch", null, "K. Koch", null));
-    assertTrue(comp.equals("K.Koch", null, "K. Koch", null));
-    assertTrue(comp.equals("A. Nelson", null, "A Nélson", null));
-    assertTrue(comp.equals("Colla", null, "Bertero ex Colla", null));
-
-    assertFalse(comp.equals("Oberholser", "1917", "Oberholser", "1919"));
-    assertFalse(comp.equals("Koch", "1897", "K. Koch", null));
-    assertFalse(comp.equals("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1884"));
-    assertFalse(comp.equals("Gould", "1860", "Gould", "1861"));
-    assertFalse(comp.equals("Gould", "1860", "Gould", "1863"));
-    assertFalse(comp.equals("A. Nelson", null, "E.E. Nelson", null));
-
-    //TODO: improve author comparator to deal with these cases which should be a positiv match:
-    //assertTrue(comp.equals("Koch", null, "K. Koch", null));
-    //assertTrue(comp.equals("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1885"));
   }
 }

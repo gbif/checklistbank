@@ -2,16 +2,29 @@ package org.gbif.checklistbank.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.utils.ObjectUtils;
 import org.gbif.utils.file.FileUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,24 +42,30 @@ public class AuthorComparator {
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
   private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
-  private static final Pattern INITIALS = Pattern.compile("\\b[A-Z]\\b");
-  private static final Pattern INITIAL_NAME = Pattern.compile("^([a-z])\\s+[a-z]{3,}$");
+  private static final Pattern INITIALS = Pattern.compile("\\b[a-y]\\s+");
+  private static final Pattern FIRST_INITIAL = Pattern.compile("^([a-z])\\s");
+  private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s+)+");
   private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
   private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
-  private final Map<String, String> authorMap = Maps.newHashMap();
+  private static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings();
+  private final Map<String, String> authorMap;
 
   private final int minCommonSubstring;
 
   private AuthorComparator(Map<String, String> authors) {
+    Map<String, String> map = Maps.newHashMap();
     this.minCommonSubstring = 4;
+    int counter=0;
     for (Map.Entry<String, String> entry : authors.entrySet()) {
       String key = normalize(entry.getKey());
       String val = normalize(entry.getValue());
       if (key != null && val != null) {
-        authorMap.put(key, val);
+        map.put(key, val);
+        counter++;
       }
     }
-    LOG.info("Created author comparator with {} abbreviation entries", authorMap.size());
+    this.authorMap = ImmutableMap.copyOf(map);
+    LOG.info("Created author comparator with {} abbreviation entries", counter);
   }
 
   public static AuthorComparator createWithoutAuthormap() {
@@ -56,7 +75,8 @@ public class AuthorComparator {
   public static AuthorComparator createWithAuthormap() {
     try {
       AuthorComparator ac = new AuthorComparator(
-          FileUtils.streamToMap(Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME)).openStream())
+          FileUtils.streamToMap(Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME)).openStream(),
+              Maps.<String, String>newHashMap(), 0, 2, true)
       );
       return ac;
     } catch (IOException e) {
@@ -71,7 +91,8 @@ public class AuthorComparator {
   /**
    * @return ascii only, lower cased string without punctuation. Empty string instead of null
    */
-  protected String normalize(String x) {
+  @VisibleForTesting
+  protected static String normalize(String x) {
     if (StringUtils.isBlank(x)) {
       return null;
     }
@@ -93,21 +114,25 @@ public class AuthorComparator {
     x = x.replaceAll("\\p{Punct}+", " ");
 
     // try to remove initials if the remaining string is still large
-    if (x.length() > 10) {
-      String withoutInitials = INITIALS.matcher(x).replaceAll(" ");
-      if (withoutInitials.length() > 10 && withoutInitials.trim().contains(" ")) {
-        x = withoutInitials;
-      }
-    }
+//    if (x.length() > 10) {
+//      String withoutInitials = INITIALS.matcher(x).replaceAll(" ");
+//      if (withoutInitials.length() > 10 && withoutInitials.trim().contains(" ")) {
+//        x = withoutInitials;
+//      }
+//    }
     x = StringUtils.normalizeSpace(x);
     if (StringUtils.isBlank(x)) {
       return null;
     }
-    x = x.toLowerCase();
-    if (authorMap.containsKey(x)) {
-      return authorMap.get(x);
+    return x.toLowerCase();
+  }
+
+  @VisibleForTesting
+  protected String lookup(String normalizedAuthor) {
+    if (normalizedAuthor != null && authorMap.containsKey(normalizedAuthor)) {
+      return authorMap.get(normalizedAuthor);
     }
-    return x;
+    return normalizedAuthor;
   }
 
   public Equality compare(String author1, String year1, String author2, String year2) {
@@ -140,24 +165,10 @@ public class AuthorComparator {
    *
    * @return true if both sets match
    */
-  public boolean equals(String author1, @Nullable String year1, String author2, @Nullable String year2) {
+  public boolean compareStrict(String author1, @Nullable String year1, String author2, @Nullable String year2) {
     // strictly compare authors first
-    author1 = normalize(author1);
-    author2 = normalize(author2);
-    if (author1 == null || !author1.equals(author2)) {
-      return false;
-    }
-    // now also compare the year
-    if (year1 == null && year2 == null) {
-      return true;
-    }
-    return Equality.EQUAL == compareYear(year1, year2);
-  }
-
-  public boolean equals(String author1, @Nullable String year1, String author2, @Nullable String year2, int minCommonSubstring) {
-    // strictly compare authors first
-    Equality authorEq = compareAuthor(author1, author2, minCommonSubstring);
-    if (authorEq != Equality.EQUAL) {
+    Equality result = compareAuthor(author1, author2, minCommonSubstring);
+    if (result != Equality.EQUAL) {
       return false;
     }
     // now also compare the year
@@ -172,7 +183,7 @@ public class AuthorComparator {
    */
   private void parseAuthorship(ParsedName pn) {
     // try to use full sciname minus the epithets
-    String lastEpithet = coalesce(pn.getInfraSpecificEpithet(), pn.getSpecificEpithet(), pn.getGenusOrAbove());
+    String lastEpithet = ObjectUtils.coalesce(pn.getInfraSpecificEpithet(), pn.getSpecificEpithet(), pn.getGenusOrAbove());
     if (lastEpithet != null && pn.getScientificName() != null) {
       int idx = pn.getScientificName().lastIndexOf(lastEpithet);
       if (idx >= 0) {
@@ -202,38 +213,131 @@ public class AuthorComparator {
     return normalize(y);
   }
 
+  /**
+   * Does an author comparison, normalizing the strings and try 3 comparisons:
+   * 1) checks regular string equality
+   * 2) checks for equality of the longest common substring
+   * 3) do an author lookup and then check for common substring
+   *
+   * @param a1
+   * @param a2
+   * @param minCommonSubstring
+   * @return
+   */
   private Equality compareAuthor(String a1, String a2, int minCommonSubstring) {
+    // all lower case now, no punctuation and normed whitespace
     a1 = normalize(a1);
     a2 = normalize(a2);
     if (a1 != null && a2 != null) {
-      if (a1.equalsIgnoreCase(a2)) {
-        // we can stop here, authors are equal, thats enough
-        return Equality.EQUAL;
-      } else {
-        String lcs = LongestCommonSubstring.lcs(a1, a2);
-        if (lcs.length() >= minCommonSubstring) {
-          // do both names have a single initial which is different?
-          // this is often the case when authors are relatives like brothers or son & father
-          if (singleInitialsDiffer(a1, a2)) {
-            return Equality.DIFFERENT;
-          } else {
-            return Equality.EQUAL;
-          }
-
-        } else if (a1.equals(lcs) && a2.startsWith(lcs) || a2.equals(lcs) && a1.startsWith(lcs)) {
-          // the smallest common substring is the same as one of the inputs and also the start of the other one.
-          // Good enough, likey a short abbreviation
-          return Equality.EQUAL;
+      // 1: test for shared name prefix
+      Equality equality = compareSurnamesOverlap(a1, a2, minCommonSubstring);
+      if (equality != Equality.EQUAL) {
+        // 2: test for shared prefix after lookups
+        String lookup1 = lookup(a1);
+        String lookup2 = lookup(a2);
+        if (!lookup1.equals(a1) || !lookup2.equals(a2)) {
+          equality = compareSurnamesOverlap(lookup1, lookup2, minCommonSubstring+1);
         }
-        return Equality.DIFFERENT;
       }
+      return equality;
     }
     return Equality.UNKNOWN;
   }
 
+  private Equality compareLongestCommonSubstring(final String a1, final String a2, final int minCommonSubstring) {
+    if (a1.equalsIgnoreCase(a2)) {
+      // we can stop here, authors are equal, thats enough
+      return Equality.EQUAL;
+
+    } else {
+      final String noInitials1 = INITIALS.matcher(a1).replaceAll("");
+      final String noInitials2 = INITIALS.matcher(a2).replaceAll("");
+
+      String lcs = LongestCommonSubstring.lcs(noInitials1, noInitials2);
+      if (lcs.length() >= minCommonSubstring) {
+        // do both names have a single initial which is different?
+        // this is often the case when authors are relatives like brothers or son & father
+        if (singleInitialsDiffer(a1, a2)) {
+          return Equality.DIFFERENT;
+        } else {
+          return Equality.EQUAL;
+        }
+
+      } else if (a1.equals(lcs) && (noInitials2.startsWith(lcs))
+          || a2.equals(lcs) && (noInitials1.startsWith(lcs))) {
+        // the smallest common substring is the same as one of the inputs
+        // if it also matches the start of the first longer surname then we are ok as the entire string is the best match we can have
+        // likey a short abbreviation
+        return Equality.EQUAL;
+      }
+    }
+    return Equality.DIFFERENT;
+  }
+
+  @VisibleForTesting
+  protected String longestWordStart(final String a1, final String a2) {
+    List<String> names1 = SPACE_SPLITTER.splitToList(a1);
+    List<String> names2 = SPACE_SPLITTER.splitToList(a2);
+    String longest = "";
+    for (String n1 : names1) {
+      for (String n2 : names2) {
+        String common = StringUtils.getCommonPrefix(n1, n2);
+        if (common != null && common.length()>longest.length()) {
+          longest = common;
+        }
+      }
+    }
+    return longest;
+  }
+
+  private Equality compareSurnamesOverlap(final String a1, final String a2, final int minCommonStart) {
+    if (a1.equals(a2)) {
+      // we can stop here, authors are equal, thats enough
+      return Equality.EQUAL;
+
+    } else {
+      final String noInitials1 = INITIALS.matcher(a1).replaceAll("");
+      final String noInitials2 = INITIALS.matcher(a2).replaceAll("");
+
+      String longest = longestWordStart(noInitials1, noInitials2);
+      if (longest.length() >= minCommonStart) {
+        // do both names have a single initial which is different?
+        // this is often the case when authors are relatives like brothers or son & father
+        if (singleInitialsDiffer(a1, a2)) {
+          return Equality.DIFFERENT;
+        } else {
+          return Equality.EQUAL;
+        }
+
+      } else if (a1.equals(longest) && (noInitials2.startsWith(longest))
+          || a2.equals(longest) && (noInitials1.startsWith(longest))) {
+        // the smallest common substring is the same as one of the inputs
+        // if it also matches the start of the first longer surname then we are ok as the entire string is the best match we can have
+        // likey a short abbreviation
+        return Equality.EQUAL;
+      }
+    }
+    return Equality.DIFFERENT;
+  }
+
+  /**
+   * Removes initials and sorts surnames
+   * @return
+   */
+  private List<String> sortedSurnames(String normed) {
+    List<String> names = SPACE_SPLITTER.splitToList(normed);
+    Collections.sort(names);
+    return names;
+  }
+
+  @VisibleForTesting
+  protected static String removeFirstInitials(String normedName) {
+    return FIRST_INITIALS.matcher(normedName).replaceAll("");
+  }
+
   private boolean singleInitialsDiffer(String a1, String a2) {
-    Matcher m1 = INITIAL_NAME.matcher(a1);
-    Matcher m2 = INITIAL_NAME.matcher(a2);
+    Matcher m1 = FIRST_INITIAL.matcher(a1);
+    Matcher m2 = FIRST_INITIAL.matcher(a2);
     if (m1.find() && m2.find()) {
       if (!m1.group(1).equals(m2.group(1))) {
         return true;
@@ -242,29 +346,49 @@ public class AuthorComparator {
     return false;
   }
 
-  private Equality compareAuthor2(String a1, String a2) {
-    a1 = normalize(a1);
-    a2 = normalize(a2);
-    if (a1 != null && a2 != null) {
-      if (a1.equalsIgnoreCase(a2)) {
-        // we can stop here, authors are equal, thats enough
-        return Equality.EQUAL;
-      } else {
-        String lcs = LongestCommonSubstring.lcs(a1, a2);
-        if (lcs.length() > 3) {
-          return Equality.EQUAL;
-        } else if (a1.equals(lcs) || a2.equals(lcs)) {
-          // the smallest common substring is the same as one of the inputs. Good enough
-          return Equality.EQUAL;
+  public static void main(String[] args) throws Exception {
+    File f = new File("/Users/markus/Desktop/authormap2.txt");
+    try (
+        Writer w = FileUtils.startNewUtf8File(f);
+        InputStream in = Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME)).openStream();
+    ) {
+      LineIterator iter = new LineIterator(FileUtils.getInputStreamReader(in));
+      Joiner TABj = Joiner.on("\t");
+      Splitter TABs = Splitter.on("\t");
+      Splitter WHITE = Splitter.on(" ");
+      while (iter.hasNext()) {
+        String line = iter.next();
+        if (!Strings.isNullOrEmpty(line)) {
+          List<String> row = TABs.splitToList(line);
+          w.write(TABj.join(row));
+
+          StringBuilder name = new StringBuilder();
+          Iterator<String> nameIter = WHITE.split(row.get(1).trim()).iterator();
+          boolean prefixed = false;
+          while (nameIter.hasNext()) {
+            String part = nameIter.next();
+            if (!StringUtils.isBlank(part)) {
+              if (nameIter.hasNext()) {
+                if (Character.isUpperCase(part.charAt(0)) && !prefixed) {
+                  name.append(part.charAt(0));
+                  name.append(" ");
+                  prefixed = false;
+                } else {
+                  prefixed = true;
+                }
+              } else {
+                // this is the surname or some prefix
+                name.append(part);
+              }
+            }
+          }
+
+          w.write("\t");
+          w.write(name.toString());
+          w.write("\n");
         }
-        return Equality.DIFFERENT;
       }
     }
-    return Equality.UNKNOWN;
-  }
 
-  private static <T> T coalesce(T... items) {
-    for (T i : items) if (i != null) return i;
-    return null;
   }
 }

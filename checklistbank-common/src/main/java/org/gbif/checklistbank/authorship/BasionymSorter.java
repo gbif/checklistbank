@@ -32,7 +32,7 @@ public class BasionymSorter {
     ParsedName pn = func.apply(p);
     for (BasionymGroup<T> g : groups) {
       ParsedName representative = func.apply(g.getRecombinations().get(0));
-      if (authorComp.equals(pn.getBracketAuthorship(), pn.getBracketYear(), representative.getBracketAuthorship(), representative.getBracketYear())) {
+      if (authorComp.compareStrict(pn.getBracketAuthorship(), pn.getBracketYear(), representative.getBracketAuthorship(), representative.getBracketYear())) {
         return g;
       }
     }
@@ -43,7 +43,7 @@ public class BasionymSorter {
     List<T> basionyms = Lists.newArrayList();
     for (T obj : originals) {
       ParsedName b = func.apply(obj);
-      if (authorComp.equals(authorship, year, b.getAuthorship(), b.getYear())) {
+      if (authorComp.compareStrict(authorship, year, b.getAuthorship(), b.getYear())) {
         basionyms.add(obj);
       }
     }
@@ -52,7 +52,7 @@ public class BasionymSorter {
       if (authorship != null) {
         for (T obj : originals) {
           ParsedName b = func.apply(obj);
-          if (authorComp.equals(authorship, null, b.getAuthorship(), null)) {
+          if (authorComp.compareStrict(authorship, null, b.getAuthorship(), null)) {
             if (!basionyms.isEmpty()) {
               // we have more than one match, dont use it!
               basionyms.clear();
