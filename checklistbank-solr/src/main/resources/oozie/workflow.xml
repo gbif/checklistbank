@@ -67,7 +67,7 @@
 
 
   <kill name="kill">
-    <message>Occurrence index building failed:[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    <message>Checklistbank index building failed:[${wf:errorMessage(wf:lastErrorNode())}]</message>
   </kill>
 
   <end name="end" />

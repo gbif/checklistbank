@@ -62,7 +62,7 @@
   </property>
   <property>
     <name>hive.exec.scratchdir</name>
-    <value>/tmp/hive-occurrence-index</value>
+    <value>/tmp/hive-checklistbank-index</value>
     <description>Scratch space for Hive jobs</description>
   </property>
 </configuration>
