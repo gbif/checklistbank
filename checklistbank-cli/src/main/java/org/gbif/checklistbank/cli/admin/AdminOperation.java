@@ -16,5 +16,6 @@ public enum AdminOperation {
   UPDATE_VERBATIM,
   DUMP,
   VALIDATE_NEO,
-  MATCH_DATASET
+  MATCH_DATASET,
+  UPDATE_NUB_NAMES
 }

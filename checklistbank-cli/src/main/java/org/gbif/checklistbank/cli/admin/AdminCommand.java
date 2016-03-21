@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.Constants;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -21,12 +22,14 @@ import org.gbif.checklistbank.nub.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.NubTreeValidation;
 import org.gbif.checklistbank.nub.TreeValidation;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -43,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -74,7 +78,8 @@ public class AdminCommand extends BaseCommand {
       AdminOperation.UPDATE_VERBATIM,
       AdminOperation.DUMP,
       AdminOperation.VALIDATE_NEO,
-      AdminOperation.NUB_CHANGED
+      AdminOperation.NUB_CHANGED,
+      AdminOperation.UPDATE_NUB_NAMES
   );
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
@@ -183,6 +188,10 @@ public class AdminCommand extends BaseCommand {
 
       case NUB_CHANGED:
         sendNubChanged();
+        break;
+
+      case UPDATE_NUB_NAMES:
+        updateNubNames();
         break;
 
       default:
@@ -319,6 +328,37 @@ public class AdminCommand extends BaseCommand {
     ClbSource src = new ClbSource(cfg.clb, cfg.key, "Checklist " + cfg.key);
     src.setNeoRepository(cfg.neo.neoRepository);
     src.init(true, cfg.nubRanksOnly);
+  }
+
+  private void updateNubNames() {
+    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
+    ParsedNameService pNameService = inj.getInstance(ParsedNameService.class);
+    NameUsageMapper usageMapper = inj.getInstance(NameUsageMapper.class);
+
+    UsageDao dao = null;
+    try {
+      dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
+      LOG.info("update all inconsistent names");
+      int updCounter = 0;
+      for (Map.Entry<Long, NubUsage> nub : dao.nubUsages()) {
+        NubUsage u = nub.getValue();
+        if (!u.parsedName.getScientificName().equalsIgnoreCase(u.parsedName.canonicalNameComplete())) {
+          // update the name table
+          u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
+          ParsedName pn = pNameService.createOrGet(u.parsedName);
+          // rewire usage
+          usageMapper.updateName(u.usageKey, pn.getKey());
+          updCounter++;
+        }
+      }
+      LOG.info("Updated {} inconsistent names", updCounter);
+
+    } finally {
+      if (dao != null) {
+        dao.close();
+      }
+    }
+
   }
 
   private void verifyNeo() throws Exception {

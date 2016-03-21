@@ -336,5 +336,12 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         SET issues = #{issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler}
         WHERE id=#{key}
     </update>
+
+  <update id="updateName" parameterType="map">
+    UPDATE name_usage
+    SET name_fk = #{nkey}, modified=now()
+    WHERE id=#{key}
+  </update>
+
 </mapper>
 
