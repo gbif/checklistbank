@@ -342,16 +342,23 @@ public class AdminCommand extends BaseCommand {
       int updCounter = 0;
       for (Map.Entry<Long, NubUsage> nub : dao.nubUsages()) {
         NubUsage u = nub.getValue();
-        if (!u.parsedName.getScientificName().equalsIgnoreCase(u.parsedName.canonicalNameComplete())) {
+        if (u.parsedName.isParsableType() && !u.parsedName.getScientificName().equalsIgnoreCase(u.parsedName.canonicalNameComplete())) {
           // update the name table
           u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
           ParsedName pn = pNameService.createOrGet(u.parsedName);
           // rewire usage
-          usageMapper.updateName(u.usageKey, pn.getKey());
-          updCounter++;
+          if (pn == null) {
+            LOG.warn("Empty parsed name for usage {}: {}", u.usageKey, u.parsedName);
+          } else {
+            usageMapper.updateName(u.usageKey, pn.getKey());
+            updCounter++;
+            if (updCounter % 1000 == 0) {
+              LOG.info("Updated {} inconsistent names", updCounter);
+            }
+          }
         }
       }
-      LOG.info("Updated {} inconsistent names", updCounter);
+      LOG.info("Finished updating {} inconsistent names", updCounter);
 
     } finally {
       if (dao != null) {
