@@ -238,8 +238,15 @@ public class NubBuilderIT {
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
-    int o1 = getScientific("Oenanthe Vieillot, 1816", Rank.GENUS).usageKey;
-    int o2 = getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS).usageKey;
+    NubUsage u = getScientific("Oenanthe Vieillot, 1816", Rank.GENUS);
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.getScientificName());
+    int o1 = u.usageKey;
+
+    u = getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS);
+    assertEquals("Oenanthe Linnaeus, 1753", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe Linnaeus, 1753", u.parsedName.getScientificName());
+    int o2 = u.usageKey;
 
     int t1 = getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).usageKey;
     int t2 = getScientific("Trichoneura hirtella Napper", Rank.SPECIES).usageKey;
@@ -259,8 +266,15 @@ public class NubBuilderIT {
     assertTree("3 2 8 11.txt");
 
     // assert ids havent changed!
-    assertEquals(o1, getScientific("Oenanthe Vieillot, 1816", Rank.GENUS).usageKey);
-    assertEquals(o2, getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS).usageKey);
+    u = getScientific("Oenanthe Vieillot, 1816", Rank.GENUS);
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.getScientificName());
+    assertEquals(o1, u.usageKey);
+
+    u = getScientific("Oenanthe Linnaeus, 1753", Rank.GENUS);
+    assertEquals("Oenanthe Linnaeus, 1753", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe Linnaeus, 1753", u.parsedName.getScientificName());
+    assertEquals(o2, u.usageKey);
 
     assertEquals(t1, getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).usageKey);
     assertEquals(t2, getScientific("Trichoneura hirtella Napper", Rank.SPECIES).usageKey);
@@ -271,6 +285,32 @@ public class NubBuilderIT {
     assertEquals(b2, getScientific("Blattaria O. Kuntze, 1891", Rank.GENUS).usageKey);
     assertEquals(b3, getScientific("Blattaria Voet, 1806", Rank.GENUS).usageKey);
     assertEquals(b4, getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey);
+  }
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3024
+   * 77=CoL
+   * 78=IRMNG
+   * 79=IOC Birds
+   * 80=TAXREF
+   * 81=IPNI
+   */
+  @Test
+  public void testUpdateAuthors() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(77, 78, 79, 80, 81);
+    src.setSourceRank(77, Rank.KINGDOM);
+    src.setNomenclator(81);
+    build(src);
+
+    NubUsage u = getScientific("Oenanthe Vieillot, 1816", Rank.GENUS);
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe Vieillot, 1816", u.parsedName.getScientificName());
+
+    u = getScientific("Oenanthe L.", Rank.GENUS);
+    assertEquals("Oenanthe L.", u.parsedName.canonicalNameComplete());
+    assertEquals("Oenanthe L.", u.parsedName.getScientificName());
+
+    assertTree("77 78 79 80 81.txt");
   }
 
   @Test

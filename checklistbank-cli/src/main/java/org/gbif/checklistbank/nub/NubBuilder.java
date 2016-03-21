@@ -1130,6 +1130,7 @@ public class NubBuilder implements Runnable {
       nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
       nub.parsedName.setBracketYear(u.parsedName.getBracketYear());
       nub.parsedName.setAuthorsParsed(true);
+      nub.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
     }
 
     // publishedIn

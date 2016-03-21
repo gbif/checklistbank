@@ -1,0 +1,13 @@
+1			KINGDOM	ACCEPTED		Animalia
+12	1		PHYLUM	ACCEPTED		Chordata
+50	12		CLASS	ACCEPTED		Aves
+51	50		FAMILY	ACCEPTED		Muscicapidae
+52	51		GENUS	ACCEPTED		Oenanthe
+53	52		SPECIES	ACCEPTED		Oenanthe dubia (Blundell & Lovat, 1899)
+2			KINGDOM	ACCEPTED		Plantae
+16	2		PHYLUM	ACCEPTED		Tracheophyta
+60	16		CLASS	ACCEPTED		Magnoliopsida
+61	60		FAMILY	ACCEPTED		Apiaceae
+62	61		GENUS	ACCEPTED		Oenanthe
+63	62		SPECIES	ACCEPTED		Oenanthe aquatica (L.) Poir.
+
