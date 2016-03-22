@@ -190,6 +190,8 @@ public class AuthorComparatorTest {
     assertAuth("Chapm.", null, Equality.EQUAL, "F.R.Chapm.", null);
 
     assertAuth("A.Bruggen.", null, Equality.EQUAL, "Brug.", null);
+
+    assertAuth("Presl ex DC.", null, Equality.EQUAL, "C. Presl ex de Candolle", null);
   }
 
   @Test
