@@ -7,8 +7,8 @@ import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
@@ -120,7 +120,7 @@ public class IdGenerator {
   }
 
   private void print(List<LookupUsage> usages, File f) throws IOException {
-    try (FileWriter writer = new FileWriter(f)){
+    try (Writer writer = org.gbif.utils.file.FileUtils.startNewUtf8File(f)){
       // sort and write
       Collections.sort(usages);
       for (LookupUsage u : usages) {

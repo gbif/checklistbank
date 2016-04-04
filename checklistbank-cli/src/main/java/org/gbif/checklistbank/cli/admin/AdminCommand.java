@@ -339,9 +339,11 @@ public class AdminCommand extends BaseCommand {
     try {
       dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
       LOG.info("update all inconsistent names");
+      int counter = 0;
       int updCounter = 0;
       for (Map.Entry<Long, NubUsage> nub : dao.nubUsages()) {
         NubUsage u = nub.getValue();
+        counter++;
         if (u.parsedName.isParsableType() && !u.parsedName.getScientificName().equalsIgnoreCase(u.parsedName.canonicalNameComplete())) {
           // update the name table
           u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
@@ -353,7 +355,7 @@ public class AdminCommand extends BaseCommand {
             usageMapper.updateName(u.usageKey, pn.getKey());
             updCounter++;
             if (updCounter % 1000 == 0) {
-              LOG.info("Updated {} inconsistent names", updCounter);
+              LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
             }
           }
         }

@@ -1101,6 +1101,10 @@ public class NubBuilder implements Runnable {
           clearAuthorship(u.parsedName);
         }
 
+        //TODO: rebuild name in canonical form - e.g. removes subgenus references
+        //u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
+
+
       } catch (UnparsableException e) {
         // allow virus names in the nub
         if (e.type == NameType.VIRUS) {
