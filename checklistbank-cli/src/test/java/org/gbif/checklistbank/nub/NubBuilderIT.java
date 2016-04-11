@@ -1271,6 +1271,7 @@ public class NubBuilderIT {
   public void testNameDuplication() throws Exception {
     // rebuild nub
     ClasspathSourceList src = ClasspathSourceList.source(82,83,84,85);
+    src.setSourceRank(82, Rank.KINGDOM);
     build(src);
 
     assertTree("82 83 84 85.txt");
@@ -1292,6 +1293,27 @@ public class NubBuilderIT {
 
     assertTree("86 87.txt");
   }
+
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3070
+   *
+   * 88=CoL
+   * 89=Orthoptera SPecies File
+   * 90=IRMNG
+   */
+  @Test
+  public void testRedundantHomonyms() throws Exception {
+    // rebuild nub
+    ClasspathSourceList src = ClasspathSourceList.source(88,89,90);
+    src.setSourceRank(88, Rank.KINGDOM);
+    build(src);
+
+    assertTree("88 89 90.txt");
+  }
+
+
+
 
   /**
    * builds a new nub and keeps dao open for further test queries.

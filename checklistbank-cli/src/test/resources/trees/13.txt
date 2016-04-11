@@ -5,19 +5,17 @@ Chromista
 Fungi
 Plantae
   Asteraceae
+  Fabaceae
     Albi
+      Albi minki W. Wight
       Albi tomentosa (Micheli) Standl.
         *$? tomentosa Micheli
         *Albizia tomentosa (Micheli) Standl.
-  Fabaceae
-    Albi
     Albizia
       Albizia adianthifolia (Schum.) W.Wight
         *$? adianthifolia Schum.
         *Albi adianthifolia (Schum.) W.Wight
   Gentianaceae
-    Albi
-      Albi minki W. Wight
 Protozoa
 Viruses
 incertae sedis

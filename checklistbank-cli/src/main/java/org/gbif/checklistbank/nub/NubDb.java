@@ -331,7 +331,7 @@ public class NubDb {
   // if authors are missing require the classification to not contradict!
   private Equality compareClassification(NubUsage currNubParent, NubUsage match) {
     if (currNubParent != null &&
-        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node)))
+        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node, true)))
     {
       return Equality.EQUAL;
     }
@@ -628,18 +628,37 @@ public class NubDb {
    * @param n      the node to start the parental hierarchy search from
    * @param search the node to find in the hierarchy
    */
-  public boolean existsInClassification(Node n, Node search) {
-    if (n.equals(search)) {
+  public boolean existsInClassification(Node n, Node search, boolean fuzzyFamily) {
+    Set<Node> searchNodes = Sets.newHashSet();
+    searchNodes.add(search);
+
+    // families often differ - allow to also search for the next higher parent in that case
+    if (fuzzyFamily) {
+      Rank sr = NeoProperties.getRank(search, null);
+      if (sr != null && Rank.FAMILY == sr) {
+        searchNodes.add(parent(search));
+      }
+    }
+
+    return existsInClassificationInternal(n, searchNodes);
+  }
+
+  /**
+   * @param n           the node to start the parental hierarchy search from
+   * @param searchNodes the nodes to find at least one in the hierarchy
+   */
+  private boolean existsInClassificationInternal(Node n, Set<Node>searchNodes) {
+    if (searchNodes.contains(n)) {
       return true;
     }
     if (n.hasLabel(Labels.SYNONYM)) {
       n = parent(n);
-      if (n.equals(search)) {
+      if (searchNodes.contains(n)) {
         return true;
       }
     }
     for (Node p : Traversals.PARENTS.traverse(n).nodes()) {
-      if (p.equals(search)) {
+      if (searchNodes.contains(p)) {
         return true;
       }
     }

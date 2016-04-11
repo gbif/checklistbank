@@ -1164,7 +1164,7 @@ public class NubBuilder implements Runnable {
       // prefer accepted version over doubtful if its coming from the same dataset!
       if (nub.status == TaxonomicStatus.DOUBTFUL && u.status == TaxonomicStatus.ACCEPTED && fromCurrentSource(nub)) {
         nub.status = u.status;
-        if (isNewParentApplicable(nub, currNubParent, parent) && !db.existsInClassification(currNubParent.node, parent.node)) {
+        if (isNewParentApplicable(nub, currNubParent, parent) && !db.existsInClassification(currNubParent.node, parent.node, false)) {
           // current classification doesnt have that parent yet, lets apply it
           LOG.debug("Update doubtful {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
           db.createParentRelation(nub, parent);
@@ -1193,7 +1193,7 @@ public class NubBuilder implements Runnable {
 
     } else {
       // ACCEPTED
-      if (isNewParentApplicable(nub, currNubParent, parent) && currNubParent.rank != parent.rank && db.existsInClassification(parent.node, currNubParent.node)) {
+      if (isNewParentApplicable(nub, currNubParent, parent) && currNubParent.rank != parent.rank && db.existsInClassification(parent.node, currNubParent.node, false)) {
         LOG.debug("Update {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
         db.createParentRelation(nub, parent);
       }

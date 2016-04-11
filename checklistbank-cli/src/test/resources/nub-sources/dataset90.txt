@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Arthropoda
+3	2		CLASS	ACCEPTED		Insecta
+4	3		ORDER	ACCEPTED		Orthoptera
+5	4		FAMILY	ACCEPTED		Tettigoniidae
+10	5		GENUS	ACCEPTED		Abaxisotima Gorochov, 2005
