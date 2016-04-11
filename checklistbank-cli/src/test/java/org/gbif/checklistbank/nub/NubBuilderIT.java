@@ -1259,6 +1259,23 @@ public class NubBuilderIT {
     assertKey("Cardinalis cardinalis (Linnaeus, 1758)", Rank.SPECIES, Kingdom.ANIMALIA, 2490384);
   }
 
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3063
+   * 82=COL
+   * 83=ITIS
+   * 84=DynTaxa
+   * 85=IRMNG
+   */
+  @Test
+  public void testNameDuplication() throws Exception {
+    // rebuild nub
+    ClasspathSourceList src = ClasspathSourceList.source(82,83,84,85);
+    build(src);
+
+    assertTree("82 83 84 85.txt");
+  }
+
   /**
    * builds a new nub and keeps dao open for further test queries.
    */

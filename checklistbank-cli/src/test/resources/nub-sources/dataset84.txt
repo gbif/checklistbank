@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Arthropoda
+3	2		CLASS	ACCEPTED		Insecta
+4	3		ORDER	ACCEPTED		Coleoptera
+5	4		FAMILY	ACCEPTED		Staphylinidae
+10	5		GENUS	ACCEPTED		Trimium
+11	10		SPECIES	ACCEPTED		Trimium brevicorne (Reichenbach, 1816)
+20	5		GENUS	ACCEPTED		Trimium Aubé, 1833
+

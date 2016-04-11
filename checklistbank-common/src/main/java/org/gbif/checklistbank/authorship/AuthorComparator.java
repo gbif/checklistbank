@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -21,9 +22,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -143,12 +146,28 @@ public class AuthorComparator {
 
   public Equality compare(ParsedName n1, ParsedName n2) {
     if (!n1.isAuthorsParsed()) {
+      // copy parsed name to not alter the original
+      n1 = clone(n1);
       parseAuthorship(n1);
     }
     if (!n2.isAuthorsParsed()) {
+      // copy parsed name to not alter the original
+      n2 = clone(n2);
       parseAuthorship(n2);
     }
     return compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
+  }
+
+  private ParsedName clone(ParsedName pn) {
+    ParsedName pn2 = new ParsedName();
+    try {
+      BeanUtils.copyProperties(pn, pn2);
+    } catch (IllegalAccessException e) {
+      Throwables.propagate(e);
+    } catch (InvocationTargetException e) {
+      Throwables.propagate(e);
+    }
+    return pn2;
   }
 
   /**
@@ -185,6 +204,7 @@ public class AuthorComparator {
     }
     // copy full name to year, will be extracted/normalized in year comparison
     pn.setYear(pn.getScientificName());
+    pn.setAuthorsParsed(true);
   }
 
   //TODO: allow ? and brackets in year comparisons ...
