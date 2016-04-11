@@ -161,7 +161,7 @@ public class AuthorComparator {
   private ParsedName clone(ParsedName pn) {
     ParsedName pn2 = new ParsedName();
     try {
-      BeanUtils.copyProperties(pn, pn2);
+      BeanUtils.copyProperties(pn2, pn);
     } catch (IllegalAccessException e) {
       Throwables.propagate(e);
     } catch (InvocationTargetException e) {
