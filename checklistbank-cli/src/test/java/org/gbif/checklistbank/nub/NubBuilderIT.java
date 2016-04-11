@@ -1277,6 +1277,23 @@ public class NubBuilderIT {
   }
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-3069
+   * Austrorhynchus pectatus pectatus f. Sporn looks already wrong in WoRMS but even worse in GBIF as: Austrorhynchus pectatus null pectatus
+   * http://www.marinespecies.org/aphia.php?p=taxdetails&id=154959
+   *
+   * 86=WoRMS
+   * 87=TAXREF
+   */
+  @Test
+  public void testNullNames() throws Exception {
+    // rebuild nub
+    ClasspathSourceList src = ClasspathSourceList.source(86,87);
+    build(src);
+
+    assertTree("86 87.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src) throws Exception {

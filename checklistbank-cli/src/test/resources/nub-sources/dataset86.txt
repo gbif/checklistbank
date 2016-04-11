@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		FAMILY	ACCEPTED		Polycystididae
+10	2		GENUS	ACCEPTED		Austrorhynchus
+11	10		SPECIES	ACCEPTED		Austrorhynchus calcareus Karling, 1977
+12	11		FORM	SYNONYM		Austrorhynchus pectatus null pectatus
+13	11		SUBSPECIES	SYNONYM		Austrorhynchus pectatus subsp. sporn Karling, 1952
+14	10		SPECIES	ACCEPTED		Austrorhynchus null
+

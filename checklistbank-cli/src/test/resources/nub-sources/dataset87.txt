@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Animalia
+5	1		FAMILY	ACCEPTED		Poaceae
+10	5		SPECIES	ACCEPTED		Poa pratensis L.
+11	5		SPECIES	ACCEPTED		Poa anceps (Gaudin) Hegetschw. & Heer, 1839
+12	11		SPECIES	SYNONYM		Poa pratensis null proles Rouy, 1913
+13	11		SPECIES	SYNONYM		Poa pratensis subsp. anceps (Gaudin) Dumort., 1824
+
