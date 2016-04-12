@@ -572,6 +572,7 @@ public class NubBuilder implements Runnable {
                       if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
                         newRelations++;
                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);
+                        db.store(u);
                       }
                     }
                   }
