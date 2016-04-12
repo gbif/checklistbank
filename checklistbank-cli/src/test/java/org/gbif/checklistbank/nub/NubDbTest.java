@@ -139,13 +139,14 @@ public class NubDbTest {
       final NubUsage vacc = db.addUsage(verrillactis, buildNub("Verrillactis accepturi (Verrill, 1870)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
       final NubUsage vv = db.addUsage(vacc, buildNub("Verrillactis vagguri (Verrill)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       db.addUsage(vacc, buildNub("Verrillactis vagguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.HETEROTYPIC_SYNONYM));
-      db.addUsage(vacc, buildNub("Verrillactis vagguri (Verrill, 1896*a*)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
+      db.addUsage(vacc, buildNub("Verrillactis vagguri (Verrill, 1896)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
 
       final NubUsage vacc2 = db.addUsage(verrillactis, buildNub("Verrillactis accepturissimo (Verrill, 1870)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
       db.addUsage(vacc, buildNub("Verrillactis laguri (Verrill)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       final NubUsage vl = db.addUsage(vacc2, buildNub("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.HETEROTYPIC_SYNONYM));
       db.addUsage(vacc2, buildNub("Verrillactis laguri (Verrill, 1896*a*)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       tx.success();
+
 
 
       // full name matches
