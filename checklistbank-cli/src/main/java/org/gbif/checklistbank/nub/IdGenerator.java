@@ -124,7 +124,7 @@ public class IdGenerator {
       // sort and write
       Collections.sort(usages);
       for (LookupUsage u : usages) {
-        writer.write(u.getKey());
+        writer.write(Integer.toString(u.getKey()));
         writer.write('\t');
         writer.write(u.getRank().name());
         writer.write('\t');
