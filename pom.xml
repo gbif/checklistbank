@@ -44,7 +44,7 @@
     <dwc-api.version>1.13</dwc-api.version>
     <gbif-api.version>0.38</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
-    <gbif-common.version>0.64</gbif-common.version>
+    <gbif-common.version>0.26</gbif-common.version>
     <gbif-common-mybatis.version>0.26</gbif-common-mybatis.version>
     <!-- matches solr 5.4.x -->
     <gbif-common-search.version>0.28</gbif-common-search.version>
