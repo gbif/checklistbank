@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.lookup;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -51,6 +52,11 @@ public class NubMatchService {
    * Uses the internal Lookup to generate a complete id map and then does postgres writes in a separate thread ?!
    */
   public void matchDataset(Dataset d) throws DatasetMatchFailed {
+    if (Constants.NUB_DATASET_KEY.equals(d.getKey())) {
+      LOG.warn("Cannot match backbone to itself. Ignore");
+      return;
+    }
+
     LOG.info("Rematch checklist {} to Backbone", d.getKey());
     Map<Integer, Integer> relations = Maps.newHashMap();
 
