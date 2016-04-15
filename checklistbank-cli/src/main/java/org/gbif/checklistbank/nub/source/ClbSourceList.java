@@ -57,7 +57,7 @@ public class ClbSourceList extends NubSourceList {
   }
 
   public ClbSourceList(NubConfiguration cfg, List<NubSource> sources) {
-    super();
+    super(false);
     this.cfg = cfg;
     this.datasetService = null;
     this.organizationService = null;
@@ -66,7 +66,7 @@ public class ClbSourceList extends NubSourceList {
   }
 
   public ClbSourceList(DatasetService datasetService, OrganizationService organizationService, InstallationService installationService, NubConfiguration cfg) {
-    super();
+    super(false);
     this.cfg = cfg;
     this.datasetService = datasetService;
     this.organizationService = organizationService;

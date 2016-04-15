@@ -48,11 +48,11 @@ public class ClasspathSourceList extends NubSourceList {
     }
 
     private ClasspathSourceList() {
-        super();
+        super(false);
     }
 
     public ClasspathSourceList(List<ClasspathSource> sources) {
-        super();
+        super(false);
         for (ClasspathSource src : sources) {
             sourceById.put(src.id, src);
         }

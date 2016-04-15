@@ -12,7 +12,7 @@ public class RandomSourceTest {
     @Test
     public void testUsages() throws Exception {
         RandomSource src = new RandomSource(100, Kingdom.ANIMALIA);
-        src.init(false, false);
+        src.init(false, false, false);
 
         int counter = 0;
         for (SrcUsage u : src) {

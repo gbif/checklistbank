@@ -222,7 +222,7 @@ public class NubBuilderIT {
   public void testBackbonePatch() throws Exception {
     List<NubSource> sources = Lists.newArrayList();
     sources.add(new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA));
-    NubSourceList src = new NubSourceList(sources);
+    NubSourceList src = new NubSourceList(sources, false);
     build(src);
 
     // commented out as the patch file changes all the time
@@ -798,7 +798,7 @@ public class NubBuilderIT {
         new RandomSource(100, Kingdom.BACTERIA),
         new RandomSource(100, Kingdom.ARCHAEA),
         new RandomSource(20000, Kingdom.FUNGI),
-        new RandomSource(50000, Kingdom.PLANTAE)));
+        new RandomSource(50000, Kingdom.PLANTAE)), false);
     build(src);
   }
 

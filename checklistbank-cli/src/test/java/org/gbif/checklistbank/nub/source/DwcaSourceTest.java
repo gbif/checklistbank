@@ -28,7 +28,7 @@ public class DwcaSourceTest {
     DwcaSource src = new DwcaSource("patch checklist", BACKBONE_PATCH_DWCA);
     assertNotNull(src);
 
-    src.init(true, false);
+    src.init(true, false, false);
     int counter = 0;
     for (SrcUsage u : src) {
       assertNotNull(u.key);

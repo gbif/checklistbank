@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -15,6 +16,7 @@ import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,8 +92,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    * Make sure to call this method once before the usage iterator is used!
    *
    * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
+   * @param nubRanksOnly if true skip non nub ranks
+   * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
    */
-  public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
+  public void init(boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames) throws Exception {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
     watch.reset().start();
@@ -103,7 +107,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     } else {
       initDao = open(false, true);
     }
-    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly)) {
+    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames)) {
       initNeo(writer);
       LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getSkipped());
     }
@@ -125,17 +129,24 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private final UsageDao dao;
     private final boolean writeNeoProperties;
     private final boolean nubRanksOnly;
+    private final boolean parseNames;
     private final NameParser parser;
 
 
-    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly) {
+    /**
+     * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
+     * @param nubRanksOnly if true skip non nub ranks
+     * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
+     */
+    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames) {
       // the number of columns in our query to consume
       super(7);
       this.dao = dao;
       this.writeNeoProperties = writeNeoProperties;
       this.nubRanksOnly = nubRanksOnly;
-      // we only need a parser in case we need to write neo properties
-      parser = writeNeoProperties ? new NameParser() : null;
+      this.parseNames = parseNames;
+      // we only need a parser in case we need to write neo properties or parse names
+      parser = writeNeoProperties || parseNames ? new NameParser() : null;
       tx = dao.beginTx();
     }
 
@@ -149,6 +160,15 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
+      if (parseNames) {
+        try {
+          u.parsedName = parser.parse(u.scientificName, u.rank);
+        } catch (UnparsableException e) {
+          u.parsedName = new ParsedName();
+          u.parsedName.setType(e.type);
+          u.parsedName.setScientificName(u.scientificName);
+        }
+      }
 
       if (nubRanksOnly) {
         if ((u.rank == null || !NubBuilder.NUB_RANKS.contains(u.rank))) {

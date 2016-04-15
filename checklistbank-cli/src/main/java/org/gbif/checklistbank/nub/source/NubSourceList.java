@@ -24,19 +24,21 @@ public class NubSourceList implements CloseableIterable<NubSource> {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
   protected final ExecutorService exec;
   protected List<Future<NubSource>> futures = Lists.newArrayList();
+  private final boolean parseNames;
 
-  public NubSourceList() {
+  public NubSourceList(boolean parseNames) {
+    this.parseNames = parseNames;
     //exec = new DirectExecutor();
     exec = Executors.newSingleThreadExecutor(new NamedThreadFactory("source-loader"));
   }
 
-  public NubSourceList(List<? extends NubSource> sources) {
-    this();
+  public NubSourceList(List<? extends NubSource> sources, boolean parseNames) {
+    this(parseNames);
     submitSources(sources);
   }
 
   /**
-   * Call this method from sublcassese once to submit all nub resources to this list.
+   * Call this method from subclasses once to submit all nub resources to this list.
    * The list will be submitted to a background loaders that calls init() on each NubSource asynchroneously.
    */
   protected void submitSources(List<? extends NubSource> sources) {
@@ -44,7 +46,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
     // submit loader jobs
     ExecutorCompletionService ecs = new ExecutorCompletionService(exec);
     for (NubSource src : sources) {
-      futures.add(ecs.submit(new LoadSource(src)));
+      futures.add(ecs.submit(new LoadSource(src, parseNames)));
     }
   }
 
