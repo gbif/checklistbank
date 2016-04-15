@@ -97,9 +97,10 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
         File db = new File(indexDir, "idlookup");
         load = !db.exists();
         lookup = IdLookupImpl.persistent(db);
-        LOG.info("Persistent IdLookup created with file map at {}", db.getAbsolutePath());
+        LOG.info("New empty, persistent IdLookup created with file map at {}", db.getAbsolutePath());
       }
       if (load) {
+        LOG.info("Loading usages into IdLookup ...");
         lookup.load(clb, incDeleted);
       }
     } catch (Exception e) {

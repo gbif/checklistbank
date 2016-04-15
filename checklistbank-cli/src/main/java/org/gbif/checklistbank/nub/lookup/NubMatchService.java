@@ -51,10 +51,14 @@ public class NubMatchService {
    * Uses the internal Lookup to generate a complete id map and then does postgres writes in a separate thread ?!
    */
   public void matchDataset(Dataset d) throws DatasetMatchFailed {
-    LOG.info("Rematch checklist {} {} to Backbone", d.getKey(), d.getTitle());
+    LOG.info("Rematch checklist {} to Backbone", d.getKey());
     Map<Integer, Integer> relations = Maps.newHashMap();
 
     try (ClbSource src = new ClbSource(cfg, d)){
+      // read in postgres usages
+      LOG.info("Copy usages for {} from pg into neo", d.getKey());
+      src.init(false, false);
+
       NubUsage unknown = new NubUsage();
       unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
       unknown.kingdom = Kingdom.INCERTAE_SEDIS;
