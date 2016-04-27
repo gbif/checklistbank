@@ -288,6 +288,38 @@ public class NubMatchingServiceImplIT {
   }
 
   @Test
+  public void testAuthorshipMatching() throws IOException {
+    // this hits 2 species synonyms with no such name being accepted
+    // nub match must pick one if the accepted name of all synonyms is the same!
+    NameUsageMatch cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+    cl.setFamily("Poaceae");
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+  }
+
+  @Test
+  public void testAuthorshipMatching2() throws IOException {
+    NameUsageMatch cl = new NameUsageMatch();
+    assertMatch("Prunella alba", cl, 5608009, new IntRange(98, 100));
+
+    assertMatch("Prunella alba Pall. ex M.Bieb.", cl, 5608009, new IntRange(100, 100));
+    assertMatch("Prunella alba M.Bieb.", cl, 5608009, new IntRange(100, 100));
+
+    assertMatch("Prunella alba Pall.", cl, 5608009, new IntRange(90, 95));
+    assertMatch("Prunella alba Döring", cl, 5608009, new IntRange(90, 95));
+
+    // 2 homonyms exist
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+    assertMatch("Elytrigia repens Desv.", cl, 7522774, new IntRange(98, 100));
+    assertMatch("Elytrigia repens Nevski", cl, 2706649, new IntRange(98, 100));
+    assertMatch("Elytrigia repens (L.) Desv.", cl, 7522774, new IntRange(100, 100));
+    assertMatch("Elytrigia repens (L.) Nevski", cl, 2706649, new IntRange(100, 100));
+
+    assertMatch("Elytrigia repens Karimba", cl, 2706649, new IntRange(80, 90));
+    assertMatch("Elytrigia repens (L.) Karimba", cl, 2706649, new IntRange(85, 92));
+  }
+
+  @Test
   @Ignore("not implemented yet")
   public void testHybridsAndViruses() throws IOException {
     //TODO: implement

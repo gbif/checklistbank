@@ -4,9 +4,6 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.nameparser.NameParser;
-import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
-import org.gbif.nub.lookup.fuzzy.NubIndex;
-import org.gbif.nub.lookup.fuzzy.NubIndexTest;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,19 +38,19 @@ public class NubMatchingServiceImplLegacyIT {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom(null);
     cl.setPhylum(".");
-    matcher.match("---", null, cl, false, 50, true);
+    matcher.match(null, "---", null, cl, false, 50, true);
 
     // blacklisted names turn into nulls via the synonym lookup!
     cl = new NameUsageMatch();
     cl.setKingdom(null);
     cl.setPhylum("Unknown");
-    matcher.match("FAMILY", null, cl, true, 50, true);
+    matcher.match(null, "FAMILY", null, cl, true, 50, true);
   }
 
    @Test
    public void testNoMatch() throws IOException {
      LinneanClassification cl = new NameUsageMatch();
-     NameUsageMatch m = matcher.match("", null, cl, false, 50, true);
+     NameUsageMatch m = matcher.match(null, "", null, cl, false, 50, true);
      assertEquals(NameUsageMatch.MatchType.NONE, m.getMatchType());
    }
 
