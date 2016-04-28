@@ -319,6 +319,24 @@ public class NubMatchingServiceImplIT {
     assertMatch("Elytrigia repens (L.) Karimba", cl, 2706649, new IntRange(85, 92));
   }
 
+  /**
+   * Testing matches of names that were different between classic species match and the author aware "lookup"
+
+   Bromus sterilis
+   Daphnia
+   Carpobrotus edulis
+   Celastrus orbiculatus
+   Python molurus subsp. bivittatus
+   Ziziphus mauritiana orthacantha
+   Solanum verbascifolium auriculatum
+
+   */
+  @Test
+  public void testAuthorshipMatchingGIASIP() throws IOException {
+    NameUsageMatch cl = new NameUsageMatch();
+    assertMatch("Bromus sterilis", cl, 5608009, new IntRange(98, 100));
+  }
+
   @Test
   @Ignore("not implemented yet")
   public void testHybridsAndViruses() throws IOException {
