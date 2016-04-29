@@ -17,6 +17,7 @@ import org.gbif.nub.lookup.similarity.StringSimilarity;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -117,8 +118,13 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
    */
   private static void setAlternatives(NameUsageMatch match, List<NameUsageMatch> alts) {
     if (alts != null) {
-      for (NameUsageMatch m : alts) {
-        if (m.getAlternatives() != null && !m.getAlternatives().isEmpty()) {
+      ListIterator<NameUsageMatch> iter = alts.listIterator();
+      while (iter.hasNext()) {
+        NameUsageMatch m = iter.next();
+        if (m.getUsageKey().equals(match.getUsageKey())) {
+          // same usage, remove!
+          iter.remove();
+        } else if (m.getAlternatives() != null && !m.getAlternatives().isEmpty()) {
           m.setAlternatives(Lists.<NameUsageMatch>newArrayList());
         }
       }
