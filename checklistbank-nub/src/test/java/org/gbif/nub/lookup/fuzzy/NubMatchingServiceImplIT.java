@@ -284,7 +284,7 @@ public class NubMatchingServiceImplIT {
     NameUsageMatch cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
     cl.setFamily("Poaceae");
-    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(95, 100));
   }
 
   @Test
