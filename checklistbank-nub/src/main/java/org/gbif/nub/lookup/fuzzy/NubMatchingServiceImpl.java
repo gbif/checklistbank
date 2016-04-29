@@ -108,8 +108,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   private static NameUsageMatch higherMatch(NameUsageMatch match, NameUsageMatch firstMatch) {
     match.setMatchType(NameUsageMatch.MatchType.HIGHERRANK);
-    match.setAlternatives(firstMatch.getAlternatives());
+    setAlternatives(match, firstMatch.getAlternatives());
     return match;
+  }
+
+  /**
+   * Sets the alternative on a match making sure we dont get infinite recursions my clearing all alternate matches on the arguments
+   */
+  private static void setAlternatives(NameUsageMatch match, List<NameUsageMatch> alts) {
+    if (alts != null) {
+      for (NameUsageMatch m : alts) {
+        if (m.getAlternatives() != null && !m.getAlternatives().isEmpty()) {
+          m.setAlternatives(Lists.<NameUsageMatch>newArrayList());
+        }
+      }
+    }
+    match.setAlternatives(alts);
   }
 
   // Wrapper method doing the time tracking and logging only.
@@ -323,7 +337,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       if (verbose && matches.size() > 1) {
         // the first match is best
         matches.remove(0);
-        best.setAlternatives(matches);
+        setAlternatives(best, matches);
         for (NameUsageMatch alt : matches) {
           alt.setConfidence(normConfidence(alt.getConfidence()));
         }
@@ -396,7 +410,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     no.setMatchType(NameUsageMatch.MatchType.NONE);
     no.setConfidence(confidence);
     no.setNote(note);
-    no.setAlternatives(alternatives);
+    setAlternatives(no, alternatives);
     return no;
   }
 
