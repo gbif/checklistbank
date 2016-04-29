@@ -65,7 +65,7 @@ public class NubMatchingServiceImplIT {
     }
   }
 
-  private void assertMatchConsistency(NameUsageMatch match){
+  protected static void assertMatchConsistency(NameUsageMatch match){
     assertNotNull(match.getConfidence());
     assertNotNull(match.getMatchType());
     if (NameUsageMatch.MatchType.NONE == match.getMatchType()){
@@ -481,7 +481,10 @@ public class NubMatchingServiceImplIT {
     cl.setKingdom("Plantae");
     cl.setFamily("XYRIDACEAE");
     cl.setGenus("Xyris");
-    assertMatch("Xyris kralii Wand.", cl, 2692599, new IntRange(98, 100));
+
+    // only to the genus 2692599
+    // Xyris jolyi Wand. & Cerati 2692999
+    assertMatch("Xyris kralii Wand.", cl, 2692599, new IntRange(95, 100));
 
     // http://www.gbif.org/occurrence/144904719/verbatim
     cl = new NameUsageMatch();
