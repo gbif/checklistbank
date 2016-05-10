@@ -8,6 +8,8 @@ import org.gbif.nub.lookup.NubMatchingTestModule;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.IntRange;
 import org.junit.BeforeClass;
@@ -31,13 +33,26 @@ public class NubMatchingServiceImplIT {
     matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new NameParser());
   }
 
+  private void assertMatch(String name, LinneanClassification query, Integer expectedKey) {
+    assertMatch(name, query, expectedKey, null, new IntRange(1,100));
+  }
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
+    assertMatch(name, query, expectedKey, null, confidence);
+  }
+  private void assertMatch(String name, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
+    assertMatch(name, query, expectedKey, type, new IntRange(1,100));
+  }
+  private void assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
     System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
     System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
     System.out.println("  " + best.getNote());
 
-    assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
+    if (type == null) {
+      assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
+    } else {
+      assertEquals("Wrong match type", type, best.getMatchType());
+    }
     if (best.getAlternatives() != null) {
       for (NameUsageMatch m : best.getAlternatives()) {
         System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
@@ -140,8 +155,8 @@ public class NubMatchingServiceImplIT {
   @Test
   public void testMatching() throws IOException, InterruptedException {
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Anephlus", cl, 1100135, new IntRange(90,95));
-    assertMatch("Aneplus", cl, 1100050, new IntRange(90,94));
+    assertMatch("Anephlus", cl, 1100135, new IntRange(92,95));
+    assertMatch("Aneplus", cl, 1100050, new IntRange(90,95));
 
     cl.setKingdom("Animalia");
     cl.setClazz("Insecta");
@@ -168,7 +183,7 @@ public class NubMatchingServiceImplIT {
   public void testBadPlantKingdom() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     // without kingdom snap to the bad animal record
-    assertMatch("Sabia parviflora", cl, 7268473, new IntRange(99,100));
+    assertMatch("Sabia parviflora", cl, 7268473, new IntRange(96,100));
 
     // hit the plant family
     assertMatch("Sabiaceae", cl, 2409, new IntRange(90,100));
@@ -182,7 +197,7 @@ public class NubMatchingServiceImplIT {
 
     // without kingdom snap to the bad animal record
     cl = new NameUsageMatch();
-    assertMatch("Tibetia tongolensis", cl, 7301567, new IntRange(99,100));
+    assertMatch("Tibetia tongolensis", cl, 7301567, new IntRange(96,100));
 
     // hit the plant family
     assertMatch("Fabaceae", cl, 5386, new IntRange(90,100));
@@ -214,7 +229,7 @@ public class NubMatchingServiceImplIT {
     // there are 3 genera in animalia, 2 synonyms and 1 accepted.
     // We prefer to match to the single accepted in this case
     cl.setKingdom("Animalia");
-    assertMatch("Acanthophora", cl, 3251480, new IntRange(92, 99));
+    assertMatch("Acanthophora", cl, 3251480, new IntRange(90, 96));
 
     // now try with molluscs to just get the doubtful one
     cl.setPhylum("Porifera");
@@ -253,7 +268,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Puma concolor", cl, 6, new IntRange(95, 100));
 
     // Picea concolor is a plant, but this fuzzy match is too far off
-    assertMatch("Pima concolor", cl, 6, null);
+    assertMatch("Pima concolor", cl, 6);
     // this one should match though
     assertMatch("Pica concolor", cl, 5284657, new IntRange(85, 90));
 
@@ -284,7 +299,7 @@ public class NubMatchingServiceImplIT {
     NameUsageMatch cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
     cl.setFamily("Poaceae");
-    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 100));
   }
 
   @Test
@@ -294,7 +309,7 @@ public class NubMatchingServiceImplIT {
     NameUsageMatch cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
     cl.setFamily("Poaceae");
-    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 100));
   }
 
   @Test
@@ -305,18 +320,21 @@ public class NubMatchingServiceImplIT {
     assertMatch("Prunella alba Pall. ex M.Bieb.", cl, 5608009, new IntRange(100, 100));
     assertMatch("Prunella alba M.Bieb.", cl, 5608009, new IntRange(100, 100));
 
-    assertMatch("Prunella alba Pall.", cl, 5608009, new IntRange(90, 95));
-    assertMatch("Prunella alba Döring", cl, 5608009, new IntRange(90, 95));
+    assertMatch("Prunella alba Pall.", cl, 5608009, new IntRange(80, 90));
+    assertMatch("Prunella alba Döring", cl, 5608009, new IntRange(80, 90));
 
     // 2 homonyms exist
-    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 95));
+    assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 98));
     assertMatch("Elytrigia repens Desv.", cl, 7522774, new IntRange(98, 100));
     assertMatch("Elytrigia repens Nevski", cl, 2706649, new IntRange(98, 100));
     assertMatch("Elytrigia repens (L.) Desv.", cl, 7522774, new IntRange(100, 100));
     assertMatch("Elytrigia repens (L.) Nevski", cl, 2706649, new IntRange(100, 100));
 
-    assertMatch("Elytrigia repens Karimba", cl, 2706649, new IntRange(80, 90));
-    assertMatch("Elytrigia repens (L.) Karimba", cl, 2706649, new IntRange(85, 92));
+    // very different author, match to genus only
+    assertMatch("Elytrigia repens Karimba", cl, 7826764, NameUsageMatch.MatchType.HIGHERRANK);
+
+    // basionym author is right, now match the accepted species. Or shouldnt we?
+    assertMatch("Elytrigia repens (L.) Karimba", cl, 2706649, new IntRange(80, 90));
   }
 
   /**
@@ -334,7 +352,78 @@ public class NubMatchingServiceImplIT {
   @Test
   public void testAuthorshipMatchingGIASIP() throws IOException {
     NameUsageMatch cl = new NameUsageMatch();
-    assertMatch("Bromus sterilis", cl, 5608009, new IntRange(98, 100));
+    assertMatch("Bromus sterilis", cl, 8341523, new IntRange(95, 99));
+    assertMatch("Bromus sterilis Guss.", cl, 8341523, new IntRange(99, 100));
+    assertMatch("Bromus sterilis Gus", cl, 8341523, new IntRange(98, 100));
+
+    assertMatch("Bromus sterilis L.", cl, 2703647, new IntRange(98, 100));
+    assertMatch("Bromus sterilis Linne", cl, 2703647, new IntRange(98, 100));
+
+    assertMatch("Bromus sterilis Kumm. & Sendtn.", cl, 7874095, new IntRange(98, 100));
+    assertMatch("Bromus sterilis Kumm", cl, 7874095, new IntRange(98, 100));
+    assertMatch("Bromus sterilis Sendtn.", cl, 7874095, new IntRange(98, 100));
+
+
+    assertMatch("Daphnia", cl, 2234785, new IntRange(90, 95));
+    assertMatch("Daphnia Müller, 1785", cl, 2234785, new IntRange(96, 100));
+    assertMatch("Daphnia Müller", cl, 2234785, new IntRange(94, 98));
+
+    assertMatch("Daphne Müller, 1785", cl, 2234879, new IntRange(95, 98));
+    assertMatch("Daphne Müller, 1776", cl, 2234879, new IntRange(96, 100));
+
+    assertMatch("Daphnia Korth", cl, 7956551, new IntRange(82, 90));
+    cl.setKingdom("Plantae");
+    cl.setFamily("Oxalidaceae");
+    assertMatch("Daphnia Korth", cl, 3626852, new IntRange(95, 100));
+    cl = new NameUsageMatch();
+
+    assertMatch("Daphnia Rafinesque", cl, 7956551, new IntRange(85, 89));
+    cl.setKingdom("Animalia");
+    cl.setFamily("Calanidae");
+    assertMatch("Daphnia Rafinesque", cl, 4333792, new IntRange(96, 100));
+    cl = new NameUsageMatch();
+
+
+    assertMatch("Carpobrotus edulis", cl, 3084842, new IntRange(95, 99));
+    assertMatch("Carpobrotus edulis N. E. Br.", cl, 3084842, new IntRange(98, 100));
+    assertMatch("Carpobrotus edulis L.Bolus", cl, 7475472, new IntRange(95, 100));
+    assertMatch("Carpobrotus edulis Bolus", cl, 7475472, new IntRange(95, 100));
+    assertMatch("Carpobrotus dulcis Bolus", cl, 3703510, new IntRange(95, 100));
+    // once again with classification given
+    cl.setKingdom("Plantae");
+    cl.setFamily("Celastraceae");
+    assertMatch("Carpobrotus edulis", cl, 3084842, new IntRange(92, 98));
+    assertMatch("Carpobrotus edulis N. E. Br.", cl, 3084842, new IntRange(98, 100));
+    assertMatch("Carpobrotus edulis L.Bolus", cl, 7475472, new IntRange(95, 100));
+    assertMatch("Carpobrotus edulis Bolus", cl, 7475472, new IntRange(95, 100));
+    assertMatch("Carpobrotus dulcis Bolus", cl, 3703510, new IntRange(95, 100));
+    cl = new NameUsageMatch();
+
+
+    assertMatch("Celastrus orbiculatus", cl, 8104460, new IntRange(95, 99));
+    assertMatch("Celastrus orbiculatus Murray", cl, 8104460, new IntRange(98, 100));
+    assertMatch("Celastrus orbiculatus Thunb", cl, 3169169, new IntRange(98, 100));
+    assertMatch("Celastrus orbiculatus Lam", cl, 7884995, new IntRange(98, 100));
+
+
+    assertMatch("Python molurus subsp. bivittatus", cl, 6162891, new IntRange(98, 100));
+    assertMatch("Python molurus bivittatus", cl, 6162891, new IntRange(98, 100));
+    assertMatch("Python molurus bivittatus Kuhl", cl, 6162891, new IntRange(98, 100));
+    assertMatch("Python molurus subsp. bibittatus", cl, 4287608, new IntRange(98, 100));
+
+
+    assertMatch("Ziziphus mauritiana orthacantha", cl, 7786586, new IntRange(95, 98));
+    assertMatch("Ziziphus mauritiana ssp. orthacantha", cl, 7786586, new IntRange(97, 100));
+    assertMatch("Ziziphus mauritiana ssp. orthacantha Chev.", cl, 7786586, new IntRange(98, 100));
+    assertMatch("Ziziphus mauritiana var. orthacantha", cl, 8068734, new IntRange(97, 100));
+    assertMatch("Ziziphus mauritiana var. orthacantha Chev.", cl, 8068734, new IntRange(98, 100));
+
+
+    assertMatch("Solanum verbascifolium auriculatum", cl, 2930718, new IntRange(95, 98));
+    assertMatch("Solanum verbascifolium ssp. auriculatum", cl, 2930718, new IntRange(95, 99));
+    assertMatch("Solanum verbascifolium var. auriculatum Kuntze", cl, 8363606, new IntRange(98, 100));
+    assertMatch("Solanum verbascifolium var. auriculatum Maiden", cl, 6290014, new IntRange(98, 100));
+    assertMatch("Solanum verbascifolium var. auriculatum", cl, 6290014, new IntRange(94, 98));
   }
 
   @Test
@@ -456,7 +545,7 @@ public class NubMatchingServiceImplIT {
     cl.setClazz("Insecta");
     cl.setOrder("Coleoptera");
     assertMatch("Oreina", cl, 6757727, new IntRange(98, 100));
-    assertMatch("Oreina elegans", cl, 6757727, new IntRange(90, 100));
+    assertMatch("Oreina elegans", cl, 6757727, NameUsageMatch.MatchType.HIGHERRANK);
   }
 
 
@@ -467,14 +556,14 @@ public class NubMatchingServiceImplIT {
   public void testBlogNames() throws IOException {
     // http://www.gbif.org/occurrence/164267402/verbatim
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Xysticus sp.", cl, 2164999, new IntRange(94, 100));
-    assertMatch("Xysticus spec.", cl, 2164999, new IntRange(94, 100));
+    assertMatch("Xysticus sp.", cl, 2164999, NameUsageMatch.MatchType.HIGHERRANK);
+    assertMatch("Xysticus spec.", cl, 2164999, NameUsageMatch.MatchType.HIGHERRANK);
 
     // http://www.gbif.org/occurrence/1061576151/verbatim
     cl = new NameUsageMatch();
     cl.setFamily("Poaceae");
     cl.setGenus("Triodia");
-    assertMatch("Triodia sp.", cl, 2702695, new IntRange(98, 100));
+    assertMatch("Triodia sp.", cl, 2702695);
 
     // http://www.gbif.org/occurrence/1037140379/verbatim
     cl = new NameUsageMatch();
@@ -484,7 +573,7 @@ public class NubMatchingServiceImplIT {
 
     // only to the genus 2692599
     // Xyris jolyi Wand. & Cerati 2692999
-    assertMatch("Xyris kralii Wand.", cl, 2692599, new IntRange(95, 100));
+    assertMatch("Xyris kralii Wand.", cl, 2692599, NameUsageMatch.MatchType.HIGHERRANK);
 
     // http://www.gbif.org/occurrence/144904719/verbatim
     cl = new NameUsageMatch();
@@ -503,7 +592,7 @@ public class NubMatchingServiceImplIT {
     cl.setFamily("Ephippidae");
     assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
     assertMatch("Zabideus novemaculeatus", cl, 2394331, new IntRange(90, 98));
-    assertMatch("Zabidius novaemaculeatus", cl, 2394331, new IntRange(90, 98));
+    assertMatch("Zabidius novaemaculeatus", cl, 2394331, new IntRange(90, 100));
 
     cl = new NameUsageMatch();
     cl.setKingdom("Animalia");
@@ -513,20 +602,20 @@ public class NubMatchingServiceImplIT {
 
     cl.setFamily("Nuculanidae");
     // genus match only
-    assertMatch("Yoldia frater", cl, 2285488, new IntRange(92, 95));
+    assertMatch("Yoldia frater", cl, 2285488, new IntRange(90, 95));
   }
 
 
   /**
-   * Names that ideally would fuzzy match, but do not currently
+   * Names that fuzzy match to higher species "Iberus gualtieranus"
    */
   @Test
   public void testIberusGualtieranus() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Iberus gualterianus minor Serradell", cl, 4406508, new IntRange(70, 100));
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(80, 90));
 
     cl.setFamily("Helicidae");
-    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258,  new IntRange(85, 98));
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258,  new IntRange(90, 98));
   }
 
 

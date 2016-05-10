@@ -3,7 +3,6 @@ package org.gbif.nub.lookup.fuzzy;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
@@ -20,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -30,6 +30,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
@@ -44,6 +45,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingServiceImpl.class);
   private static final int MIN_CONFIDENCE = 80;
   private static final int MIN_CONFIDENCE_FOR_HIGHER_MATCHES = 90;
+  private static final Set<Kingdom> VAGUE_KINGDOMS = ImmutableSet.of(Kingdom.ARCHAEA, Kingdom.BACTERIA, Kingdom.FUNGI, Kingdom.CHROMISTA, Kingdom.PROTOZOA, Kingdom.INCERTAE_SEDIS);
   private static ConfidenceOrder CONFIDENCE_ORDER = new ConfidenceOrder();
   private final NubIndex nubIndex;
   private final HigherTaxaComparator htComp;
@@ -52,8 +54,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private Map<String, NameUsageMatch> hackMap = Maps.newHashMap();
   private final StringSimilarity sim = new ModifiedDamerauLevenshtein(3);
 
-  private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM,
-    Rank.KINGDOM);
+  private static final List<Rank> PARSED_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS);
+  private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
   public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
     ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
   // match order by usageKey lowest to highest to preserve old ids
@@ -74,6 +76,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   private final AuthorComparator authComp;
 
+  protected enum MatchingMode {FUZZY, STRICT, HIGHER};
 
   /**
    * @param nubIndex
@@ -137,13 +140,17 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       pn = parser.parse(scientificName, rank);
       interpretGenus(pn, classification.getGenus());
       scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
+      // used parsed rank if not given explicitly
+      if (rank == null) {
+        rank = pn.getRank();
+      }
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
       LOG.debug("Unparsable [{}] name [{}]", e.type, scientificName);
     }
 
-    NameUsageMatch match1 = match(pn, scientificName, rank, classification, strict, MIN_CONFIDENCE, verbose);
+    NameUsageMatch match1 = match(pn, scientificName, rank, classification, strict ? MatchingMode.STRICT : MatchingMode.FUZZY, verbose);
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
       return match1;
@@ -154,11 +161,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     // include species or genus only matches ?
     NameUsageMatch match;
     if (pn != null && pn.getGenusOrAbove() != null) {
-      if (pn.getSpecificEpithet() != null) {
-        if (pn.getInfraSpecificEpithet() != null) {
+      if (pn.getSpecificEpithet() != null || (rank != null && rank.isSpeciesOrBelow())) {
+        if (pn.getInfraSpecificEpithet() != null || (rank != null && rank.isInfraspecific())) {
           // try with species
           String species = pn.canonicalSpeciesName();
-          match = match(null, species, Rank.SPECIES, classification, false, MIN_CONFIDENCE_FOR_HIGHER_MATCHES, false);
+          match = match(null, species, Rank.SPECIES, classification, MatchingMode.FUZZY, verbose);
           if (isMatch(match)) {
             return higherMatch(match, match1);
           }
@@ -168,17 +175,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         // we're not sure if this is really a genus, so dont set the rank
         // we get non species names sometimes like "Chaetognatha eyecount" that refer to a phylum called
         // "Chaetognatha"
-        match = match(null, pn.getGenusOrAbove(), null, classification, true, MIN_CONFIDENCE_FOR_HIGHER_MATCHES, false);
+        match = match(null, pn.getGenusOrAbove(), null, classification, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
       }
 
-    } else if (!Strings.isNullOrEmpty(classification.getGenus())) {
-      // no parsed name, try genus if given
-      match = match(null, classification.getGenus(), Rank.GENUS, classification, true, MIN_CONFIDENCE_FOR_HIGHER_MATCHES, false);
-      if (isMatch(match)) {
-        return higherMatch(match, match1);
+    } else {
+      // use classification strings instead
+      for (Rank qr : PARSED_QUERY_RANK) {
+        String name = ClassificationUtils.getHigherRank(classification, qr);
+        if (!StringUtils.isEmpty(name)) {
+          match = match(null, name, qr, classification, MatchingMode.HIGHER, verbose);
+          if (isMatch(match)) {
+            return higherMatch(match, match1);
+          }
+        }
       }
     }
 
@@ -186,7 +198,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     for (Rank qr : HIGHER_QUERY_RANK) {
       String name = ClassificationUtils.getHigherRank(classification, qr);
       if (!StringUtils.isEmpty(name)) {
-        match = match(null, name, qr, classification, true, MIN_CONFIDENCE_FOR_HIGHER_MATCHES, false);
+        match = match(null, name, qr, classification, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
@@ -227,45 +239,21 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     }
   }
 
-  private NameUsageMatch bestMatch(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc) {
-
-  }
-  private NameUsageMatch bestMatchStrict(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc) {
-
-  }
-  /**
-   * Use our custom similarity algorithm and compare the higher classifications to select the best match
-   * @return the best match, might contain no usageKey
-   */
-  @VisibleForTesting
-  protected NameUsageMatch match(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean strict, int minConfidence, boolean verbose){
-    if (Strings.isNullOrEmpty(canonicalName)) {
-      return noMatch(100, "No name given", null);
-    }
-
-    // first try our manual hackmap
-    if (hackMap.containsKey(canonicalName.toLowerCase())) {
-      return hackMap.get(canonicalName.toLowerCase());
-    }
-
-    // do the matching
-    NameUsageMatch best = strict ? bestMatchStrict(pn, canonicalName, rank, lc) : bestMatch(pn, canonicalName, rank, lc);
-
-
-
+  private List<NameUsageMatch> queryFuzzy(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, !strict, 50);
+    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
     for (NameUsageMatch m : matches) {
       // 0 - +100
       final int nameSimilarity = nameSimilarity(canonicalName, m);
-      // -20 - +40
-      final int authorSimilarity = authorSimilarity(pn, m, strict);
+      // -28 - +40
+      final int authorSimilarity = incNegScore(authorSimilarity(pn, m)*2, 2);
       // -50 - +50
-      final int classificationSimilarity = classificationSimilarity(lc, m, strict);
+      final int classificationSimilarity = classificationSimilarity(lc, m);
       // -10 - +5
       final int rankSimilarity = rankSimilarity(rank, m.getRank());
       // -5 - +1
       final int statusScore = STATUS_SCORE.get(m.getStatus());
+
       // preliminary total score, -5 - 20 distance to next best match coming below!
       m.setConfidence(nameSimilarity + authorSimilarity + classificationSimilarity + rankSimilarity + statusScore);
 
@@ -278,17 +266,113 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       }
     }
 
+    return matches;
+  }
+
+
+  private List<NameUsageMatch> queryHigher(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
+    // do a lucene matching
+    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    for (NameUsageMatch m : matches) {
+      // 0 - +100
+      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      // -50 - +50
+      final int classificationSimilarity = classificationSimilarity(lc, m);
+      // -10 - +5
+      final int rankSimilarity = rankSimilarity(rank, m.getRank()) * 2;
+      // -5 - +1
+      final int statusScore = STATUS_SCORE.get(m.getStatus());
+
+      // preliminary total score, -5 - 20 distance to next best match coming below!
+      m.setConfidence(nameSimilarity + classificationSimilarity + rankSimilarity + statusScore);
+
+      if (verbose) {
+        addNote(m, "Similarity: name="+nameSimilarity);
+        addNote(m, "classification="+classificationSimilarity);
+        addNote(m, "rank="+rankSimilarity);
+        addNote(m, "status="+statusScore);
+      }
+    }
+
+    return matches;
+  }
+
+  private List<NameUsageMatch> queryStrict(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
+    // do a lucene matching
+    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    for (NameUsageMatch m : matches) {
+      // 0 - +120
+      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      // -28 - +40
+      final int authorSimilarity = incNegScore( authorSimilarity(pn, m)*4, 8);
+      // -50 - +50
+      final int kingdomSimilarity = incNegScore( kingdomSimilarity(htComp.toKingdom(lc.getKingdom()), htComp.toKingdom(m.getKingdom())), 10);
+      // -10 - +5
+      final int rankSimilarity = incNegScore( rankSimilarity(rank, m.getRank()), 10);
+      // -5 - +1
+      final int statusScore = STATUS_SCORE.get(m.getStatus());
+
+      // preliminary total score, -5 - 20 distance to next best match coming below!
+      m.setConfidence(nameSimilarity + authorSimilarity + kingdomSimilarity + rankSimilarity + statusScore);
+
+      if (verbose) {
+        addNote(m, "Similarity: name="+nameSimilarity);
+        addNote(m, "authorship="+authorSimilarity);
+        addNote(m, "kingdom="+kingdomSimilarity);
+        addNote(m, "rank="+rankSimilarity);
+        addNote(m, "status="+statusScore);
+      }
+    }
+
+    return matches;
+  }
+
+  private int incNegScore(int score, int factor) {
+    return score < 0 ? score * factor : score;
+  }
+
+
+  /**
+   * Use our custom similarity algorithm and compare the higher classifications to select the best match
+   * @return the best match, might contain no usageKey
+   */
+  @VisibleForTesting
+  protected NameUsageMatch match(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose){
+    if (Strings.isNullOrEmpty(canonicalName)) {
+      return noMatch(100, "No name given", null);
+    }
+
+    // first try our manual hackmap
+    if (hackMap.containsKey(canonicalName.toLowerCase())) {
+      return hackMap.get(canonicalName.toLowerCase());
+    }
+
+    // do the matching
+    List<NameUsageMatch> matches = null;
+    switch (mode) {
+      case FUZZY:
+        matches = queryFuzzy(pn, canonicalName, rank, lc, verbose);
+        break;
+      case STRICT:
+        matches = queryStrict(pn, canonicalName, rank, lc, verbose);
+        break;
+      case HIGHER:
+        matches = queryHigher(pn, canonicalName, rank, lc, verbose);
+        break;
+    }
+
     // order by confidence
     Collections.sort(matches, CONFIDENCE_ORDER);
+
     if (matches.size() > 0) {
-      // add -5 - 20 confidence based on distance to next best match
+      // add -5 - 5 confidence based on distance to next best match
       NameUsageMatch best = matches.get(0);
       int bestConfidence = best.getConfidence();
       int nextMatchDistance;
 
       if (matches.size() == 1) {
         // boost results with a single match to pick from
-        nextMatchDistance = 10;
+        nextMatchDistance = 5;
         if (verbose) {
           addNote(best, "singleMatch=" + nextMatchDistance);
         }
@@ -309,30 +393,30 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
           }
           if (sameClassification) {
             // if they both have the same classification pick the one with the lowest, hence oldest id!
+            Collections.sort(equalMatches, USAGE_KEY_ORDER);
             best = equalMatches.get(0);
             addNote(best, equalMatches.size() + " synonym homonyms");
           } else {
             return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
           }
         }
-        // boost up to 10 based on distance to next match, penalty for very close matches
-        nextMatchDistance = Math.min(10, (bestConfidence - secondBestConfidence - 10) / 2);
+        // boost up to 5 based on distance to next match, penalty for very close matches
+        nextMatchDistance = Math.min(5, (bestConfidence - secondBestConfidence - 10) / 2);
         if (verbose) {
           addNote(best, "nextMatch=" + nextMatchDistance);
         }
       }
-      best.setConfidence(bestConfidence + nextMatchDistance);
-
       // normalize confidence values into the range of 0 to 100
-      best.setConfidence(normConfidence(best.getConfidence()));
+      best.setConfidence(normConfidence(bestConfidence + nextMatchDistance));
 
       // finally check if match is good enough
-      if (best.getConfidence() < minConfidence) {
+      if (best.getConfidence() < (mode == MatchingMode.HIGHER ? MIN_CONFIDENCE_FOR_HIGHER_MATCHES : MIN_CONFIDENCE)) {
         return noMatch(99, "No match because of too little confidence", verbose ? matches : null);
       }
+      // verbose and alternatives?
       if (verbose && matches.size() > 1) {
-        // the first match is best
-        matches.remove(0);
+        // remove best match
+        matches.remove(best);
         best.setAlternatives(matches);
         for (NameUsageMatch alt : matches) {
           alt.setConfidence(normConfidence(alt.getConfidence()));
@@ -345,7 +429,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     return noMatch(100, null, null);
   }
 
-  private int authorSimilarity(@Nullable ParsedName pn, NameUsageMatch m, boolean strict) {
+  // -12 to 8
+  private int authorSimilarity(@Nullable ParsedName pn, NameUsageMatch m) {
     int similarity = 0;
     if (pn != null) {
       try {
@@ -369,26 +454,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   private int equality2Similarity(Equality eq, int factor) {
     switch (eq) {
-      case EQUAL: return 10*factor;
-      case DIFFERENT: return -7*factor;
+      case EQUAL: return 2*factor;
+      case DIFFERENT: return -3*factor;
     }
     return 0;
-  }
-
-  private boolean equalClassificationKeys(LinneanClassificationKeys best, LinneanClassificationKeys m) {
-    for (Rank r : Rank.LINNEAN_RANKS) {
-      if (best.getHigherRankKey(r) == null) {
-        if (m.getHigherRankKey(r) != null){
-          return false;
-        }
-
-      } else {
-        if (m.getHigherRankKey(r) == null || !best.getHigherRankKey(r).equals(m.getHigherRankKey(r))){
-          return false;
-        }
-      }
-    }
-    return true;
   }
 
   private boolean equalClassification(LinneanClassification best, LinneanClassification m) {
@@ -410,7 +479,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private List<NameUsageMatch> extractEqualMatches(List<NameUsageMatch> matches) {
     List<NameUsageMatch> equal = Lists.newArrayList();
     if (!matches.isEmpty()) {
-      int conf = matches.get(0).getConfidence();
+      final int conf = matches.get(0).getConfidence();
       for (NameUsageMatch m : matches){
         if (m.getConfidence().equals(conf)) {
           equal.add(m);
@@ -420,8 +489,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         }
       }
     }
-    // finally sort by usageKey lowest to highest to preserve old ids
-    return USAGE_KEY_ORDER.sortedCopy(matches);
+    return equal;
   }
 
   private static void addNote(NameUsageMatch m, String note) {
@@ -448,7 +516,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       confidence = 100;
       // binomial straight match? That is pretty trustworthy
       if (canonicalName.contains(" ")) {
-        confidence += 20;
+        confidence += 10;
       }
 
     } else {
@@ -470,7 +538,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   }
 
   @VisibleForTesting
-  protected int classificationSimilarity(LinneanClassification query, LinneanClassification reference, boolean strict) {
+  protected int classificationSimilarity(LinneanClassification query, LinneanClassification reference) {
     // kingdom is super important
     int rate = htComp.compareHigherRank(Rank.KINGDOM, query, reference, 5, -10, -1);
     // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
@@ -489,18 +557,19 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   }
 
 
-  // rate ranks from -10 to +5, zero if nothing is know
+  // rate ranks from -25 to +5, zero if nothing is know
   private int rankSimilarity(Rank query, Rank ref) {
     int similarity = 0;
     if (ref != null) {
         // rate ranks lower that are not represented in the canonical, e.g. cultivars
       if (Rank.CULTIVAR == ref || Rank.CULTIVAR_GROUP == ref){
         similarity -= 7;
-      }else if (Rank.STRAIN == ref){
+      } else if (Rank.STRAIN == ref){
         similarity -= 7;
-      }else if (Rank.INFORMAL == ref){
+      } else if (Rank.INFORMAL == ref){
         similarity -= 5;
       }
+
       if (ref.isUncomparable()){
         // this also includes informal again
         similarity -= 3;
@@ -510,12 +579,29 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         // both ranks exist. Compare directly
         if (query.equals(ref)) {
           similarity += 10;
+
+        } else if (Rank.INFRASPECIFIC_NAME == query && ref.isInfraspecific()
+               ||  Rank.INFRASPECIFIC_NAME == ref && query.isInfraspecific()) {
+          // unspecific infraspecific rank
+          similarity += 5;
+
+        } else if (Rank.INFRASUBSPECIFIC_NAME == query && ref.isInfraspecific() &&   ref != Rank.SUBSPECIES
+               ||  Rank.INFRASUBSPECIFIC_NAME == ref && query.isInfraspecific() && query != Rank.SUBSPECIES ) {
+          // unspecific infrasubspecific rank
+          similarity += 5;
+
         } else if (Rank.UNCOMPARABLE_RANKS.contains(query)) {
           // uncomparable query ranks
           similarity -= 5;
+
+        } else if (ref == Rank.SPECIES && query.isInfraspecific() ||   ref.isSupraspecific() && query.isSpeciesOrBelow()
+              || query == Rank.SPECIES && ref.isInfraspecific()   || query.isSupraspecific() && ref.isSpeciesOrBelow() ) {
+          // not good, different number of epithets means rather unalike
+          similarity -= 25;
+
         } else {
           // rate lower the further away the ranks are
-          similarity -= 1 * Math.abs(ref.ordinal() - query.ordinal());
+          similarity -= Math.abs(ref.ordinal() - query.ordinal());
         }
       }
 
@@ -523,8 +609,27 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       // reference has no rank, rate it lower
       similarity -= 1;
     }
-    return minMax(-10, 5, similarity);
+    return minMax(-25, 5, similarity);
   }
+
+  // rate kingdoms from -10 to +10, zero if nothing is know
+  private int kingdomSimilarity(@Nullable Kingdom k1, @Nullable Kingdom k2) {
+    if (k1 == null || k2 == null) {
+      return 0;
+    }
+    if (k1 == Kingdom.INCERTAE_SEDIS || k2 == Kingdom.INCERTAE_SEDIS) {
+      return 7;
+    }
+
+    if (k1 == k2) {
+      return 10;
+    }
+    if (VAGUE_KINGDOMS.contains(k1) && VAGUE_KINGDOMS.contains(k2)) {
+      return 8;
+    }
+    return -10;
+  }
+
 
   /**
    * Produces a value between 0 and 100 by taking the not properly normalized confidence in the expected range of
