@@ -321,6 +321,13 @@
         <groupId>org.gbif.registry</groupId>
         <artifactId>registry-metadata</artifactId>
         <version>${registry.version}</version>
+        <exclusions>
+          <exclusion>
+            <!-- digester via cglib brings in an old asm version, conflicting with kryo -->
+            <artifactId>asm</artifactId>
+            <groupId>asm</groupId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.gbif</groupId>
