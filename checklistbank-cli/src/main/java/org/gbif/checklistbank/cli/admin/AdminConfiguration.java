@@ -55,6 +55,10 @@ public class AdminConfiguration {
   @NotNull
   public File archiveRepository;
 
+  @Parameter(names = "--export-repository")
+  @NotNull
+  public File exportRepository = new File("./exports");
+
   @Parameter(names = {"-k", "--key"}, required = false)
   @Nullable
   public UUID key;

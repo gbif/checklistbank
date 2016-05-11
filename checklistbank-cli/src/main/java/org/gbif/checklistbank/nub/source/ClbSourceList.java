@@ -12,8 +12,9 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.InputStream;
 import java.util.List;
@@ -96,7 +97,7 @@ public class ClbSourceList extends NubSourceList {
       } else {
         stream = FileUtils.classpathStream(cfg.sourceList.toString());
       }
-      CSVReader reader = new CSVReader(stream, "UTF-8", "\t", null, 0);
+      CSVReader reader = CSVReaderFactory.build(stream, "UTF-8", "\t", null, 0);
       for (String[] row : reader) {
         if (row.length < 1) continue;
         UUID key = UUID.fromString(row[0]);

@@ -63,6 +63,14 @@ public interface NameUsageMapper {
   void processDataset(@Param("uuid") UUID datasetKey, ResultHandler<NameUsage> handler);
 
   /**
+   * Iterates over all not deleted name usages and processes them with the supplied handler.
+   * This allows a single query to efficiently stream all its values without keeping them in memory.
+   *
+   * @param handler to process each name usage with
+   */
+  void processAll(ResultHandler<NameUsage> handler);
+
+  /**
    * List all related name usages that have a given nubKey.
    */
   List<NameUsage> listRelated(@Param("key") int nubKey, @Param("uuids") UUID[] datasetKeys, @Param("page") Pageable page);

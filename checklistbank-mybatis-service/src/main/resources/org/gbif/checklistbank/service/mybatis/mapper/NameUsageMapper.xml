@@ -144,13 +144,26 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         WHERE u.deleted IS NULL AND u.id between #{start} and #{end}
     </select>
 
-  <!--  select all name usages of a dataset -->
-  <select id="processDataset" parameterType="map" resultMap="usageResultMap">
+  <!--  select all name usages of a dataset
+   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+  -->
+  <select id="processDataset" parameterType="map" resultMap="usageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
     SELECT
     <include refid="select"/>
     FROM
     <include refid="from"/>
     WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
+  </select>
+
+  <!--  select all name usages of a dataset
+   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+  -->
+  <select id="processAll" resultMap="usageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE u.deleted IS NULL
   </select>
 
   <!--  list root usages -->

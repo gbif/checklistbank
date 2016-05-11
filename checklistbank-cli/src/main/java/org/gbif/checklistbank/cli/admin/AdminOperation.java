@@ -17,5 +17,6 @@ public enum AdminOperation {
   DUMP,
   VALIDATE_NEO,
   MATCH_DATASET,
-  UPDATE_NUB_NAMES
+  UPDATE_NUB_NAMES,
+  EXPORT
 }

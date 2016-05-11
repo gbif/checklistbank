@@ -15,6 +15,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
+import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -90,6 +91,7 @@ public class AdminCommand extends BaseCommand {
   private NetworkService networkService;
   private NodeService nodeService;
   private Iterable<Dataset> datasets;
+  private Exporter exporter;
 
   public AdminCommand() {
     super("admin");
@@ -306,10 +308,27 @@ public class AdminCommand extends BaseCommand {
           }
           break;
 
+        case EXPORT:
+          if (DatasetType.CHECKLIST.equals(d.getType())) {
+            export(d);
+          } else {
+            LOG.warn("Cannot export dataset of type {}: {} {}", d.getType(), d.getKey(), d.getTitle());
+          }
+          break;
+
         default:
           throw new UnsupportedOperationException();
       }
     }
+  }
+
+  private void export(Dataset d) {
+    if (exporter == null) {
+      // lazily init exporter
+      exporter = Exporter.create(cfg.exportRepository, cfg.clb);
+    }
+    // now export the dataset
+    exporter.export(d);
   }
 
   /**

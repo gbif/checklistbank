@@ -6,9 +6,9 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
-import org.gbif.io.CSVReader;
-import org.gbif.io.CSVReaderFactory;
 import org.gbif.utils.file.InputStreamUtils;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;

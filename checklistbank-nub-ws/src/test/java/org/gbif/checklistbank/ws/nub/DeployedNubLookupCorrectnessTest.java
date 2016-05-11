@@ -5,8 +5,9 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
-import org.gbif.io.CSVReader;
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +44,7 @@ public class DeployedNubLookupCorrectnessTest {
   }
 
   private void testNubLookup() throws IOException {
-    CSVReader reader = CSVReader.build(FileUtils.getClasspathFile("lookup_checks.txt"), "UTF-8", ",", '"', 1);
+    CSVReader reader = CSVReaderFactory.build(FileUtils.getClasspathFile("lookup_checks.txt"), "UTF-8", ",", '"', 1);
 
     while (reader.hasNext()) {
       String[] row = reader.next();

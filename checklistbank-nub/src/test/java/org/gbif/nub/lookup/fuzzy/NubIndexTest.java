@@ -4,11 +4,9 @@ import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.io.CSVReader;
-import org.gbif.io.CSVReaderFactory;
 import org.gbif.nameparser.NameParser;
-import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
-import org.gbif.nub.lookup.fuzzy.NubIndex;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;

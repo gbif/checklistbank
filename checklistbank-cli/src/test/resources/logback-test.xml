@@ -7,10 +7,9 @@
   <!-- Always good to have it in here for debugging -->
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+      <pattern>%-5relative [%thread] %-5level %logger{35} - %msg %n</pattern>
     </encoder>
   </appender>
-
   <logger name="org.dbunit" level="WARN"/>
   <logger name="org.apache.ibatis" level="WARN"/>
   <logger name="java.sql" level="WARN"/>

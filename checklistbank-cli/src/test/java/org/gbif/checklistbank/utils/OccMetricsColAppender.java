@@ -1,7 +1,8 @@
 package org.gbif.checklistbank.utils;
 
-import org.gbif.io.CSVReader;
 import org.gbif.io.TabWriter;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -26,7 +27,7 @@ public class OccMetricsColAppender {
   }
 
   private void addMetrics(String fn) throws IOException {
-    CSVReader reader = new CSVReader(new File(reports, fn), "utf8", "\t", null, 0);
+    CSVReader reader = CSVReaderFactory.build(new File(reports, fn), "utf8", "\t", null, 0);
     try (Writer writer = new FileWriter(new File(reports, "2-"+fn))) {
       TabWriter tab = new TabWriter(writer);
       for (String[] row : reader) {
