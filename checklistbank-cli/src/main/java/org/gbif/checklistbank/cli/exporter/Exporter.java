@@ -8,8 +8,10 @@ import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
+import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
@@ -33,9 +35,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -57,8 +62,9 @@ public class Exporter {
   private final DistributionMapper distributionMapper;
   private final MultimediaMapper mediaMapper;
   private final ReferenceMapper referenceMapper;
+  private final DatasetService datasetService;
 
-  private Exporter(File repository, ClbConfiguration cfg) {
+  private Exporter(File repository, ClbConfiguration cfg, DatasetService datasetService) {
     this.repository = repository;
     // init postgres mappers
     Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg));
@@ -67,10 +73,18 @@ public class Exporter {
     distributionMapper = inj.getInstance(DistributionMapper.class);
     mediaMapper = inj.getInstance(MultimediaMapper.class);
     referenceMapper = inj.getInstance(ReferenceMapper.class);
+
+    this.datasetService = datasetService;
   }
 
-  public static Exporter create(File repository, ClbConfiguration cfg) {
-    return new Exporter(repository, cfg);
+  /**
+   * @param registryWs base URL of the registry API, e.g. http://api.gbif.org/v1
+   */
+  public static Exporter create(File repository, ClbConfiguration cfg, String registryWs) {
+    RegistryServiceConfiguration regCfg = new RegistryServiceConfiguration();
+    regCfg.wsUrl = registryWs;
+    Injector inj = regCfg.createRegistryInjector();
+    return new Exporter(repository, cfg, inj.getInstance(DatasetService.class));
   }
 
   /**
@@ -83,10 +97,15 @@ public class Exporter {
     return exporter.dwca;
   }
 
+  public File export(UUID datasetKey) {
+    return export(datasetService.get(datasetKey));
+  }
+
   private class DwcaExport implements Runnable, ResultHandler<NameUsage> {
     private final Dataset dataset;
     private final File dwca;
     private DwcaWriter writer;
+    private Set<UUID> constituents = Sets.newHashSet();
     private int counter;
     private int extCounter;
 
@@ -106,6 +125,13 @@ public class Exporter {
         // add EML
         writer.setEml(dataset);
 
+        // add constituents
+        for (UUID dkey : constituents) {
+          Dataset constituent = datasetService.get(dkey);
+          if (constituent != null) {
+            writer.addConstituent(constituent);
+          }
+        }
         try {
           // finish dwca
           writer.close();
@@ -137,20 +163,26 @@ public class Exporter {
       try {
         writer.newRecord(u.getKey().toString());
         writer.addCoreColumn(DwcTerm.taxonID, u.getKey());
+        writer.addCoreColumn(DwcTerm.datasetID, u.getConstituentKey());
+        if (u.getConstituentKey() != null && !u.getConstituentKey().equals(dataset.getKey())) {
+          constituents.add(u.getConstituentKey());
+        }
         writer.addCoreColumn(DwcTerm.parentNameUsageID, u.getParentKey());
         writer.addCoreColumn(DwcTerm.acceptedNameUsageID, u.getAcceptedKey());
         writer.addCoreColumn(DwcTerm.originalNameUsageID, u.getBasionymKey());
         writer.addCoreColumn(DwcTerm.scientificName, u.getScientificName());
         writer.addCoreColumn(DwcTerm.taxonRank, u.getRank());
-        writer.addCoreColumn(DwcTerm.taxonomicStatus, u.getTaxonomicStatus());
-        writer.addCoreColumn(DwcTerm.nomenclaturalStatus, enum2Str(u.getNomenclaturalStatus()));
         writer.addCoreColumn(DwcTerm.nameAccordingTo, u.getAccordingTo());
         writer.addCoreColumn(DwcTerm.namePublishedIn, u.getPublishedIn());
+        writer.addCoreColumn(DwcTerm.taxonomicStatus, u.getTaxonomicStatus());
+        writer.addCoreColumn(DwcTerm.nomenclaturalStatus, enum2Str(u.getNomenclaturalStatus()));
         writer.addCoreColumn(DwcTerm.kingdom, u.getKingdom());
         writer.addCoreColumn(DwcTerm.phylum, u.getPhylum());
         writer.addCoreColumn(DwcTerm.class_, u.getClazz());
         writer.addCoreColumn(DwcTerm.order, u.getOrder());
         writer.addCoreColumn(DwcTerm.family, u.getFamily());
+        writer.addCoreColumn(DwcTerm.genus, u.getGenus());
+        writer.addCoreColumn(DwcTerm.taxonRemarks, u.getRemarks());
         addExtensionData(u);
         if (counter++ % 10000 == 0) {
           LOG.info("{} usages with {} extension added to dwca", counter, extCounter);

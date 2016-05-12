@@ -325,7 +325,7 @@ public class AdminCommand extends BaseCommand {
   private void export(Dataset d) {
     if (exporter == null) {
       // lazily init exporter
-      exporter = Exporter.create(cfg.exportRepository, cfg.clb);
+      exporter = Exporter.create(cfg.exportRepository, cfg.clb, cfg.registry.wsUrl);
     }
     // now export the dataset
     exporter.export(d);
