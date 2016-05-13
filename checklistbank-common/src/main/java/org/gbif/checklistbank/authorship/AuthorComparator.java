@@ -45,6 +45,7 @@ public class AuthorComparator {
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
   private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
+  private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
   private static final Pattern INITIALS = Pattern.compile("\\b[a-y]\\s+");
   private static final Pattern FIRST_INITIAL = Pattern.compile("^([a-z])\\s");
   private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s+)+");
@@ -92,7 +93,8 @@ public class AuthorComparator {
   }
 
   /**
-   * @return ascii only, lower cased string without punctuation. Empty string instead of null
+   * @return ascii only, lower cased string without punctuation. Empty string instead of null.
+   * Umlaut transliterations reduced to single letter
    */
   @VisibleForTesting
   protected static String normalize(String x) {
@@ -109,6 +111,9 @@ public class AuthorComparator {
 
     // remove ex authors
     x = EX.matcher(x).replaceAll("");
+
+    // remove ex authors
+    x = TRANSLITERATIONS.matcher(x).replaceAll("$1");
 
     // fold to ascii
     x = org.gbif.utils.text.StringUtils.foldToAscii(x);

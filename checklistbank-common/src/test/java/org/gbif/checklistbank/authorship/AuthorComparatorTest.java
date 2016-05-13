@@ -49,6 +49,10 @@ public class AuthorComparatorTest {
     assertEquals("l", comp.normalize("L."));
     assertEquals("rchb", comp.normalize("Rchb."));
     assertEquals("rchb", comp.normalize("Abasicarpon Andrz. ex Rchb."));
+
+    assertEquals("muller", comp.normalize("Müller"));
+    assertEquals("muller", comp.normalize("Mueller"));
+    assertEquals("moller", comp.normalize("Moeller"));
   }
 
   @Test
@@ -73,7 +77,7 @@ public class AuthorComparatorTest {
     assertEquals("c f a christensen", comp.lookup("c chr"));
     assertEquals("h christ", comp.lookup("h christ"));
 
-    assertEquals("c linnaeus", comp.lookup("l"));
+    assertEquals("c linnaus", comp.lookup("l"));
     assertEquals("h g l reichenbach", comp.lookup("rchb"));
     assertEquals("a p de candolle", comp.lookup("dc"));
   }
@@ -261,32 +265,6 @@ public class AuthorComparatorTest {
     assertAuth("Debreczy & I.Rácz", null, null, null, Equality.DIFFERENT, "Silba", null, "Debreczy & I.Rácz", null);
   }
 
-  private void assertAuth(String a1, String y1, Equality eq, String a2, String y2) {
-    assertEquals(eq, comp.compare(a1, y1, a2, y2));
-  }
-
-  private void assertAuthStrict(String a1, String y1, boolean eq, String a2, String y2) {
-    assertEquals(eq, comp.compareStrict(a1, y1, a2, y2));
-  }
-
-  private void assertAuth(String a1, String y1, String a1b, String y1b, Equality eq, String a2, String y2, String a2b, String y2b) {
-    ParsedName p1 = new ParsedName();
-    p1.setAuthorsParsed(true);
-    p1.setAuthorship(a1);
-    p1.setYear(y1);
-    p1.setBracketAuthorship(a1b);
-    p1.setBracketYear(y1b);
-
-    ParsedName p2 = new ParsedName();
-    p2.setAuthorsParsed(true);
-    p2.setAuthorship(a2);
-    p2.setYear(y2);
-    p2.setBracketAuthorship(a2b);
-    p2.setBracketYear(y2b);
-
-    assertEquals(eq, comp.compare(p1, p2));
-  }
-
   @Test
   public void testEqualsSubstring() throws Exception {
     ParsedName p1 = new ParsedName();
@@ -402,5 +380,62 @@ public class AuthorComparatorTest {
     p2.setAuthorship("Vellington");
 
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+  }
+
+  /**
+   * see http://dev.gbif.org/issues/browse/PF-2445
+   */
+  @Test
+  public void testTransliterations() throws Exception {
+    ParsedName p1 = new ParsedName();
+    p1.setAuthorsParsed(true);
+    p1.setAuthorship("Müller");
+
+    ParsedName p2 = new ParsedName();
+    p2.setAuthorsParsed(true);
+    p2.setAuthorship("Muller");
+
+    ParsedName p3 = new ParsedName();
+    p3.setAuthorsParsed(true);
+    p3.setAuthorship("Mueller");
+
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+    assertEquals(Equality.EQUAL, comp.compare(p1, p3));
+    assertEquals(Equality.EQUAL, comp.compare(p2, p3));
+
+
+    p1.setAuthorship("Müll.");
+    p2.setAuthorship("Mull");
+    p3.setAuthorship("Muell");
+
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+    assertEquals(Equality.EQUAL, comp.compare(p1, p3));
+    assertEquals(Equality.EQUAL, comp.compare(p2, p3));
+  }
+
+  private void assertAuth(String a1, String y1, Equality eq, String a2, String y2) {
+    assertEquals(eq, comp.compare(a1, y1, a2, y2));
+  }
+
+  private void assertAuthStrict(String a1, String y1, boolean eq, String a2, String y2) {
+    assertEquals(eq, comp.compareStrict(a1, y1, a2, y2));
+  }
+
+  private void assertAuth(String a1, String y1, String a1b, String y1b, Equality eq, String a2, String y2, String a2b, String y2b) {
+    ParsedName p1 = new ParsedName();
+    p1.setAuthorsParsed(true);
+    p1.setAuthorship(a1);
+    p1.setYear(y1);
+    p1.setBracketAuthorship(a1b);
+    p1.setBracketYear(y1b);
+
+    ParsedName p2 = new ParsedName();
+    p2.setAuthorsParsed(true);
+    p2.setAuthorship(a2);
+    p2.setYear(y2);
+    p2.setBracketAuthorship(a2b);
+    p2.setBracketYear(y2b);
+
+    assertEquals(eq, comp.compare(p1, p2));
   }
 }
