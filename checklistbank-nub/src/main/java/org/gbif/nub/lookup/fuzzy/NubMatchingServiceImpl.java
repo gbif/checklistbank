@@ -12,7 +12,7 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
-import org.gbif.nub.lookup.similarity.ModifiedDamerauLevenshtein;
+import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private final NameParser parser;
   // name string to usageId
   private Map<String, NameUsageMatch> hackMap = Maps.newHashMap();
-  private final StringSimilarity sim = new ModifiedDamerauLevenshtein(3);
+  private final StringSimilarity sim = new ScientificNameSimilarity();
 
   private static final List<Rank> PARSED_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS);
   private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
@@ -97,6 +97,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     LOG.debug("Add entries to hackmap ...");
     try {
       hackMap.put("radiolaria", nubIndex.matchByUsageId(7));
+      hackMap.put("hepatic", nubIndex.matchByUsageId(9));
     } catch (Exception e) {
       LOG.debug("Hackmap entry not existing, skip", e.getMessage());
     }
@@ -192,7 +193,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
         }
 
         // try with genus
-        // we're not sure if this is really a genus, so dont set the rank
+        // we're not sure if this is really a genus, so don't set the rank
         // we get non species names sometimes like "Chaetognatha eyecount" that refer to a phylum called
         // "Chaetognatha"
         match = match(null, pn.getGenusOrAbove(), null, classification, MatchingMode.HIGHER, verbose);
@@ -543,7 +544,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       // fuzzy - be careful!
       confidence = (int) sim.getSimilarity(canonicalName, m.getCanonicalName()) - 5;
       // modify confidence according to genus comparison in bionomials.
-      // slightly trust binomials with a matching genus more, and truss less if we matched a different genus name
+      // slightly trust binomials with a matching genus more, and trust less if we matched a different genus name
       int spaceIdx = m.getCanonicalName().indexOf(" ");
       if (spaceIdx > 0) {
         String genus = m.getCanonicalName().substring(0, spaceIdx);
