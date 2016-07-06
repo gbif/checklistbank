@@ -247,8 +247,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         fk.setBasionymKey(clbKey(fk.getBasionymKey()));
       }
       List<UsageForeignKeys> fks = ImmutableList.copyOf(postKeys.values());
-      sqlService.updateForeignKeys(fks);
-      solrService.updateForeignKeys(fks);
+      sqlService.updateForeignKeys(datasetKey, fks);
+      solrService.updateForeignKeys(datasetKey, fks);
     }
   }
 

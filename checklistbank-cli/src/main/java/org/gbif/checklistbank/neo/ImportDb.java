@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.cli.common.LogContext;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.neo.traverse.Traversals;

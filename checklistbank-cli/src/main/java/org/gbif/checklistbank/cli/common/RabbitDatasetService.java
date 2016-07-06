@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 

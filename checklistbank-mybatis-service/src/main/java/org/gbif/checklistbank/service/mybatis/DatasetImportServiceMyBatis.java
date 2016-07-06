@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -83,6 +84,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
     @Override
     public List<Integer> call() throws Exception {
+      LogContext.startDataset(datasetKey);
       int counter = 0;
       LOG.debug("Starting usage sync");
       usageKeys = Maps.newHashMap();
@@ -97,6 +99,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         counter = counter + neoBatch.size();
       }
       LOG.info("Completed batch of {} usages, starting with id {}.", counter, firstId);
+      LogContext.endDataset();
 
       // submit extension sync job for all usages
       ExtensionSync eSync = new ExtensionSync(dao, datasetKey, firstId, usageKeys, inserts);
@@ -147,6 +150,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         executorType = ExecutorType.REUSE
     )
     public List<NameUsage> call() throws Exception {
+      LogContext.startDataset(datasetKey);
       LOG.debug("Starting usage sync with {} usages", usages.size());
       Iterator<ParsedName> nIter = names.iterator();
       for (NameUsage u : usages) {
@@ -159,6 +163,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         syncService.syncUsage(true, u, pn, m);
       }
       LOG.debug("Completed batch of {} pro parte usages", usages.size());
+      LogContext.endDataset();
       return usages;
     }
   }
@@ -180,6 +185,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
     @Override
     public List<Integer> call() throws Exception {
+      LogContext.startDataset(datasetKey);
       LOG.debug("Starting extension sync for {} usages", usages.size());
       List<Integer> ids = Lists.newArrayList();
       for (List<Integer> batch : Iterables.partition(usages.keySet(), BATCH_SIZE)) {
@@ -187,6 +193,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         ids.addAll(batch);
       }
       LOG.info("Completed batch of {} usage extensions, starting with id {}.", usages.size(), firstId);
+      LogContext.endDataset();
       return ids;
     }
 
@@ -214,11 +221,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
     @Override
     public List<Integer> call() throws Exception {
+      LogContext.startDataset(datasetKey);
       LOG.debug("Starting usage deletion for {} usages", usageKeys.size());
       for (List<Integer> batch : Lists.partition(usageKeys, BATCH_SIZE)) {
         deleteBatch(batch);
       }
       LOG.debug("Completed batch of {} usage deletions", usageKeys.size());
+      LogContext.endDataset();
       return usageKeys;
     }
 
@@ -235,26 +244,30 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
   class ForeignKeySync implements Callable<List<Integer>> {
     final List<UsageForeignKeys> fks;
+    final UUID datasetKey;
 
-    public ForeignKeySync(List<UsageForeignKeys> fks) {
+    public ForeignKeySync(UUID datasetKey, List<UsageForeignKeys> fks) {
       this.fks = fks;
+      this.datasetKey = datasetKey;
     }
 
     @Override
     public List<Integer> call() throws Exception {
+      LogContext.startDataset(datasetKey);
       LOG.debug("Starting foreign key updates for {} usages.", fks.size());
       List<Integer> ids = Lists.newArrayList();
       for (List<UsageForeignKeys> batch : Lists.partition(fks, BATCH_SIZE)) {
         ids.addAll(updateForeignKeyBatch(batch));
       }
       LOG.debug("Completed batch of {} foreign key updates.", fks.size());
+      LogContext.endDataset();
       return ids;
     }
   }
 
   @Override
-  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
-    return exec.submit(new ForeignKeySync(fks));
+  public Future<List<Integer>> updateForeignKeys(UUID datasetKey, List<UsageForeignKeys> fks) {
+    return exec.submit(new ForeignKeySync(datasetKey, fks));
   }
 
   @Transactional(

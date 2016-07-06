@@ -44,7 +44,7 @@ public class NameUsageIndexServicePassThru implements DatasetImportService {
   }
 
   @Override
-  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
+  public Future<List<Integer>> updateForeignKeys(UUID datasetKey, List<UsageForeignKeys> fks) {
     for (UsageForeignKeys fk : fks) {
       Preconditions.checkNotNull(fk.getUsageKey());
     }

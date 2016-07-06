@@ -33,7 +33,7 @@ public interface DatasetImportService extends AutoCloseable {
   /**
    * @return list of clb usage keys that were updated
    */
-  Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks);
+  Future<List<Integer>> updateForeignKeys(UUID datasetKey, List<UsageForeignKeys> fks);
 
   /**
    * Delete all existing nub relations and then batch insert new ones from the passed map.

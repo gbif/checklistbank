@@ -2,7 +2,7 @@ package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.checklistbank.cli.common.LogContext;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;

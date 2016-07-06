@@ -8,6 +8,7 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -110,7 +111,9 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
       updMeter.mark();
       int cnt = updCounter.incrementAndGet();
       if (cnt % 10000 == 0) {
+        LogContext.startDataset(usage.getDatasetKey());
         LOG.info("Synced {} usages, mean rate={}", cnt, updMeter.getMeanRate());
+        LogContext.endDataset();
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -118,7 +121,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   }
 
   @Override
-  public Future<List<Integer>> updateForeignKeys(List<UsageForeignKeys> fks) {
+  public Future<List<Integer>> updateForeignKeys(UUID datasetKey, List<UsageForeignKeys> fks) {
     List<Integer> usageKeys = Lists.newArrayList();
     for (UsageForeignKeys fk : fks) {
       usageKeys.add(fk.getUsageKey());

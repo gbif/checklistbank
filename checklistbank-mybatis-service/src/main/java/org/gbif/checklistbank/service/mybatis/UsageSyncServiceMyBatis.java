@@ -17,6 +17,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.UsageExtensions;
@@ -150,7 +151,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     meterUsages.mark();
     int cnt = counterUsages.incrementAndGet();
     if (cnt % 10000 == 0) {
+      LogContext.startDataset(usage.getDatasetKey());
       LOG.info("Synced {} usages, mean rate={}", cnt, meterUsages.getMeanRate());
+      LogContext.endDataset();
     }
     return usage.getKey();
   }
@@ -176,7 +179,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     meterExtensions.mark();
     int cnt = counterExtensions.incrementAndGet();
     if (cnt % 10000 == 0) {
+      LogContext.startDataset(datasetKey);
       LOG.info("Synced {} usage supplements, mean rate={}", cnt, meterExtensions.getMeanRate());
+      LogContext.endDataset();
     }
   }
 
@@ -448,7 +453,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     if (Constants.NUB_DATASET_KEY.equals(datasetKey)) {
       throw new IllegalArgumentException("The GBIF backbone cannot be deleted!");
     }
+    LogContext.startDataset(datasetKey);
     LOG.info("Deleting entire dataset {}", datasetKey);
+    LogContext.endDataset();
     int numDeleted = usageMapper.deleteByDataset(datasetKey);
     // we do not remove old dataset metrics, just add a new, empty one as the most recent
     datasetMetricsMapper.insert(datasetKey, new Date());

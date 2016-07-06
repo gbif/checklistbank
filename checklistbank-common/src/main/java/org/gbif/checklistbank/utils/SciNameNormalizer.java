@@ -15,6 +15,7 @@ public class SciNameNormalizer {
     private static final Pattern suffix_oi = Pattern.compile("ioi$");
     private static final Pattern suffix_if = Pattern.compile("aef");
     private static final Pattern suffix_iana = Pattern.compile("(?<=[^i])ana$");
+    private static final Pattern suffix_ensis = Pattern.compile("ens(e|is)$");
     private static final Pattern i = Pattern.compile("[jyi]+");
     private static final Pattern white = Pattern.compile("\\s{2,}");
     private static final Pattern empty = Pattern.compile("['_-]");

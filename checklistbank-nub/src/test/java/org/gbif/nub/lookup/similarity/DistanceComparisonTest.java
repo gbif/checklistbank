@@ -73,7 +73,7 @@ public class DistanceComparisonTest {
   @Test
   public void testGetSimilarity() throws Exception {
     for (String[] ns : names) {
-      LOG.debug(ns[0] + "  x  " + ns[1]);
+      LOG.info(ns[0] + "  x  " + ns[1]);
       doitTime("DL  ", DL, ns[0], ns[1]);
       doitTime("MDL2", MDL2, ns[0], ns[1]);
       doitTime("MDL3", MDL3, ns[0], ns[1]);
@@ -107,7 +107,7 @@ public class DistanceComparisonTest {
       sim.getSimilarity(x1, x2);
       repeat--;
     }
-    LOG.debug(" {}={}   1000x in {} microsec", name, s, watch.getNanoTime() / 1000);
+    LOG.info(" {}={}   1000x in {} microsec", name, s, watch.getNanoTime() / 1000);
     return s;
   }
 
