@@ -7,14 +7,15 @@ import static org.junit.Assert.assertEquals;
 
 public class SciNameNormalizerTest {
 
-    @Test
-    public void testNormalize() throws Exception {
-        assertEquals(null, SciNameNormalizer.normalize(""));
-        assertEquals("Abies", SciNameNormalizer.normalize("Abies "));
-        assertEquals("Abies", SciNameNormalizer.normalize("Abiies "));
-        assertEquals("Abies", SciNameNormalizer.normalize("Abyes "));
-        assertEquals("Abies alba", SciNameNormalizer.normalize("Abyes  albus"));
-    }
+  @Test
+  public void testNormalize() throws Exception {
+    assertEquals(null, SciNameNormalizer.normalize(""));
+    assertEquals("Abies", SciNameNormalizer.normalize("Abies "));
+    assertEquals("Abies", SciNameNormalizer.normalize("Abiies "));
+    assertEquals("Abies", SciNameNormalizer.normalize("Abyes "));
+    assertEquals("Abies alba", SciNameNormalizer.normalize("Abyes  albus"));
+    assertEquals("Abies alba", SciNameNormalizer.normalize(" \txAbies × ållbbus\t"));
+  }
 
   @Test
   public void testEpithetStemming() throws Exception {
@@ -29,5 +30,4 @@ public class SciNameNormalizerTest {
     assertEquals("ala", SciNameNormalizer.stemEpithet("alaus"));
     assertEquals("ala", SciNameNormalizer.stemEpithet("alaa"));
   }
-
 }
