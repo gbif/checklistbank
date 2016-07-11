@@ -170,9 +170,9 @@ public class NubMatchingServiceImplIT {
     cl.setFamily("Atopetholidae");
     assertMatch("Aneplus", cl, 1027792, new IntRange(98, 100));
     // too far off
-    assertMatch("Annepluss", cl, 1, new IntRange(90,100));
+    assertMatch("Anmeplues", cl, 1, new IntRange(90,100));
 
-    assertNoMatch("Annepluss", new NameUsageMatch(), new IntRange(30,80));
+    assertNoMatch("Anmeplues", new NameUsageMatch(), new IntRange(-10,80));
   }
 
   /**
@@ -240,7 +240,7 @@ public class NubMatchingServiceImplIT {
 
     cl.setFamily("Araliaceae");
     assertMatch("Acanthophora", cl, 3036337, new IntRange(98, 100));
-    assertMatch("Acantophora", cl, 3036337, new IntRange(96,100)); // fuzzy match
+    assertMatch("Acantophora", cl, 3036337, new IntRange(90,95)); // fuzzy match
     // try matching with authors
     assertMatch("Acantophora Merrill", cl, 3036337, new IntRange(95, 100)); // fuzzy match
 
@@ -271,9 +271,9 @@ public class NubMatchingServiceImplIT {
     assertMatch("Pima concolor", cl, 6);
     // this one should match though
     assertMatch("Pica concolor", cl, 5284657, new IntRange(85, 90));
-
+    // and this will go to the family
     cl.setFamily("Pinaceae");
-    assertMatch("Pima concolor", cl, 5284657, new IntRange(90, 95));
+    assertMatch("Pima concolor", cl, 3925, new IntRange(90, 100));
 
 
     // Amphibia is a homonym genus, but also and most prominently a class!
@@ -409,7 +409,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Python molurus subsp. bivittatus", cl, 6162891, new IntRange(98, 100));
     assertMatch("Python molurus bivittatus", cl, 6162891, new IntRange(98, 100));
     assertMatch("Python molurus bivittatus Kuhl", cl, 6162891, new IntRange(98, 100));
-    assertMatch("Python molurus subsp. bibittatus", cl, 4287608, new IntRange(98, 100));
+    assertMatch("Python molurus subsp. bibittatus", cl, 4287608, new IntRange(97, 100));
 
 
     assertMatch("Ziziphus mauritiana orthacantha", cl, 7786586, new IntRange(95, 98));
@@ -602,7 +602,7 @@ public class NubMatchingServiceImplIT {
 
     cl.setFamily("Nuculanidae");
     // genus match only
-    assertMatch("Yoldia frater", cl, 2285488, new IntRange(90, 95));
+    assertMatch("Yoldia frate", cl, 2285488, new IntRange(90, 95));
   }
 
 
@@ -612,10 +612,10 @@ public class NubMatchingServiceImplIT {
   @Test
   public void testIberusGualtieranus() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
-    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(80, 90));
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(90, 99));
 
     cl.setFamily("Helicidae");
-    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258,  new IntRange(90, 98));
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258,  new IntRange(90, 99));
   }
 
 
