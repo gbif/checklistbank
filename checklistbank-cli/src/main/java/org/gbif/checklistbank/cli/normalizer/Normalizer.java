@@ -557,14 +557,16 @@ public class Normalizer extends ImportDb implements Runnable {
 
   /**
    * Matches every node to the backbone and calculates a usage metric.
-   * This is done jointly as both needs the full linnean classification for every node.
+   * This is done jointly as both needs the full Linnean classification for every node.
    */
   private void buildMetricsAndMatchBackbone() {
     LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
     metricsHandler = new UsageMetricsHandler(dao);
     matchHandler = new NubMatchHandler(lookup, dao);
+    final long before = metricsMeter.getCount();
     TreeWalker.walkAcceptedTree(dao.getNeo(), null, null, metricsMeter, metricsHandler, matchHandler);
-    LOG.info("Walked all accepted taxa and built metrics");
+    final long after = metricsMeter.getCount();
+    LOG.info("Walked all {} accepted taxa and built metrics", after-before);
   }
 
   /**
