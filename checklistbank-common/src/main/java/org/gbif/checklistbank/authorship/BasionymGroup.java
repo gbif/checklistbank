@@ -8,34 +8,25 @@ import com.google.common.collect.Lists;
 
 
 /**
- * As we often see missing brackets from author names we must code defensively and allow several original names
- * in the data for a single epithet.
+ * A group of recombined names and their original basionym with the epithet and original publication author.
  */
 public class BasionymGroup<T> {
   private static final Joiner joiner = Joiner.on("; ").skipNulls();
   private String epithet;
   private String authorship;
   private String year;
-  private List<T> basionyms = Lists.newArrayList();
+  private T basionym;
   private List<T> recombinations = Lists.newArrayList();
 
   public BasionymGroup() {
   }
 
   public T getBasionym() {
-    return basionyms.isEmpty() ? null : basionyms.get(0);
+    return basionym;
   }
 
-  public List<T> getBasionyms() {
-    return basionyms;
-  }
-
-  public void setBasionyms(List<T> basionyms) {
-    this.basionyms = basionyms;
-  }
-
-  public void addBasionym(T basionym) {
-    this.basionyms.add(basionym);
+  public void setBasionym(T basionym) {
+    this.basionym = basionym;
   }
 
   public List<T> getRecombinations() {
@@ -43,7 +34,7 @@ public class BasionymGroup<T> {
   }
 
   public boolean hasBasionym() {
-    return !basionyms.isEmpty();
+    return basionym != null;
   }
 
   public boolean hasRecombinations() {
@@ -70,7 +61,7 @@ public class BasionymGroup<T> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(basionyms, recombinations);
+    return Objects.hash(basionym, recombinations, epithet, authorship, year);
   }
 
   @Override
@@ -82,13 +73,16 @@ public class BasionymGroup<T> {
       return false;
     }
     final BasionymGroup other = (BasionymGroup) obj;
-    return Objects.equals(this.basionyms, other.basionyms)
-        && Objects.equals(this.recombinations, other.recombinations);
+    return Objects.equals(this.basionym, other.basionym)
+        && Objects.equals(this.recombinations, other.recombinations)
+        && Objects.equals(this.epithet, other.epithet)
+        && Objects.equals(this.authorship, other.authorship)
+        && Objects.equals(this.year, other.year);
   }
 
   @Override
   public String toString() {
     return "BasionymGroup{" + epithet + ' ' + authorship + ' ' + year + " | " +
-        basionyms + ": " + joiner.join(recombinations) + '}';
+        basionym + ": " + joiner.join(recombinations) + '}';
   }
 }

@@ -31,6 +31,7 @@ import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.io.Files;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -160,6 +161,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
+
       if (parseNames) {
         try {
           u.parsedName = parser.parse(u.scientificName, u.rank);
@@ -266,7 +268,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     }
 
     private Integer toInt(String x) {
-      return x == null ? null : Integer.valueOf(x);
+      return Strings.isNullOrEmpty(x) ? null : Integer.valueOf(x);
     }
 
     @Override

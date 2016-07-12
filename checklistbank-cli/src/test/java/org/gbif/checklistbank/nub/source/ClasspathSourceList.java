@@ -20,11 +20,13 @@ import com.google.common.collect.Maps;
  * <li>parentKey</li>
  * <li>basionymKey</li>
  * <li>rank (enum)</li>
- * <li>isSynonym (f/t)</li>
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
  * </ul>
+ *
+ * The source files can be generated from a CLB postgres db with the following SQL:
+ * SELECT u.id, u.parent_fk, u.basionym_fk, u.rank, u.status, u.nom_status, n.scientific_name from name_usage u join name n on u.name_fk=n.id WHERE ...
  */
 public class ClasspathSourceList extends NubSourceList {
     Map<Integer, NubSource> sourceById = Maps.newHashMap();

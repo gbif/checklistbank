@@ -567,8 +567,7 @@ public class NubBuilder implements Runnable {
                   }
                   // persistent basionym relations
                   if (basionym != null) {
-                    // there might be more original names cause our data is dirty
-                    for (NubUsage u : Iterables.concat(group.getRecombinations(), group.getBasionyms())) {
+                    for (NubUsage u : group.getRecombinations()) {
                       if (createBasionymRelationIfNotExisting(basionym.node, u.node)) {
                         newRelations++;
                         u.issues.add(NameUsageIssue.ORIGINAL_NAME_DERIVED);

@@ -4,24 +4,24 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -250,12 +250,7 @@ public class BasionymSorterTest {
     names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
-    assertEquals(1, groups.size());
-    BasionymGroup<ParsedName> g = groups.iterator().next();
-    assertEquals(2, g.getRecombinations().size());
-    assertNotNull(g.getBasionym());
-    assertEquals("Negundo violaceum G.Kirchn.", g.getBasionym().getScientificName());
-    assertEquals(2, g.getBasionyms().size());
+    assertTrue(groups.isEmpty());
   }
 
   @Test
@@ -284,20 +279,25 @@ public class BasionymSorterTest {
     names.add(parser.parse("Campylopterus largipennis aequatorialis Gould, 1861", null));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
-    assertEquals(1, groups.size());
-    BasionymGroup<ParsedName> g = groups.iterator().next();
-    assertEquals(1, g.getRecombinations().size());
-    assertNull(g.getBasionym());
-    assertEquals("1860", g.getRecombinations().get(0).getBracketYear());
+    // multiple basionyms, no clear group!
+    assertEquals(0, groups.size());
   }
 
   @Test
+  /**
+   * create test files from current nub with this SQL:
+   * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5386 order by 1,2) to 'fabaceae.txt'
+   * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=3065 order by 1,2) to 'asteraceae.txt'
+   * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=212 order by 1,2) to 'aves.txt'
+   * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5719 order by 1,2) to 'molossidae.txt'
+   * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5510 order by 1,2) to 'muridae.txt'
+   */
   public void testGroupBasionymFiles() throws Exception {
-    assertEquals(51, testGroupBasionymFile("molossidae.txt"));
-    assertEquals(317, testGroupBasionymFile("muridae.txt"));
-    assertEquals(2805, testGroupBasionymFile("curculionidae.txt"));
-    assertEquals(5877, testGroupBasionymFile("aves.txt"));
-    assertEquals(21375, testGroupBasionymFile("asteraceae.txt"));
+    assertEquals(80, testGroupBasionymFile("names/molossidae.txt"));
+    assertEquals(460, testGroupBasionymFile("names/muridae.txt"));
+    assertEquals(10188, testGroupBasionymFile("names/aves.txt"));
+    assertEquals(14523, testGroupBasionymFile("names/fabaceae.txt"));
+    assertEquals(22352, testGroupBasionymFile("names/asteraceae.txt"));
   }
 
   private int testGroupBasionymFile(String filename) throws Exception {
@@ -318,11 +318,12 @@ public class BasionymSorterTest {
   }
 
   class EpithetGroupIterator implements Iterator<List<ParsedName>> {
-    private final BufferedReader br;
+    private final CSVReader reader;
     private List<ParsedName> next;
+    private String[] lastRow = null;
 
-    EpithetGroupIterator(InputStream names) {
-      br = new BufferedReader(new InputStreamReader(names));
+    EpithetGroupIterator(InputStream names) throws IOException {
+      reader = CSVReaderFactory.buildTabReader(names, "UTF8", 0);
       next = readNextGroup();
     }
 
@@ -345,30 +346,41 @@ public class BasionymSorterTest {
 
     private List<ParsedName> readNextGroup() {
       List<ParsedName> names = Lists.newArrayList();
-      try {
-        String line;
-        while ((line = br.readLine()) != null) {
-          if (StringUtils.isBlank(line)) {
-            continue;
+      String epithet = null;
+
+      while (reader.hasNext() || lastRow != null) {
+        String[] row;
+        if (lastRow != null) {
+          row = lastRow;
+          lastRow = null;
+        } else {
+          row = reader.next();
+        }
+        if (row == null || row.length < 2 || row[1].startsWith("?")) {
+          // ignore basionym placeholders (?)
+          continue;
+        }
+
+        try {
+          ParsedName p = parser.parse(row[1], null);
+          if (epithet != null && !epithet.trim().equalsIgnoreCase(row[0])) {
+            // a new group, store this row for next call
+            lastRow = row;
+            return names.isEmpty() ? null : names;
           }
-          if (line.startsWith("#")) {
-            if (names.isEmpty()) {
-              continue;
-            }
-            return names;
+          if (epithet == null) {
+            epithet = row[0];
           }
-          try {
-            ParsedName p = parser.parse(line, null);
-            names.add(p);
-          } catch (UnparsableException e) {
+          names.add(p);
+
+        } catch (UnparsableException e) {
+          if (e.type.isParsable()) {
             throw new RuntimeException(e);
           }
         }
-        return names.isEmpty() ? null : names;
-      } catch (IOException e) {
-        throw new RuntimeException(e);
+
       }
+      return null;
     }
   }
-
 }

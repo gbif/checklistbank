@@ -29,6 +29,8 @@ import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -154,6 +156,16 @@ public class NubBuilderIT {
     assertCanonical("Hyalonema grandancora", "Lendenfeld, 1915", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
 
     assertTree("43.txt");
+  }
+
+  /**
+   * Test using real asteraceae data from the current backbone.
+   * For manual test only
+   */
+  @Test
+  @Ignore
+  public void testAsteraceae() throws Exception {
+    build(ClasspathSourceList.source(92));
   }
 
   /**
@@ -1331,7 +1343,7 @@ public class NubBuilderIT {
 
     tx = dao.beginTx();
     dao.logAll();
-    printTree();
+    printTree(new File("/Users/markus/fabaceae-nub.txt"));
 
     // assert we have only ever 8 root taxa - the kingdoms
     assertEquals(Kingdom.values().length, countRoot());
@@ -1605,7 +1617,7 @@ public class NubBuilderIT {
       NubNode expected = treeIter.next();
       String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
       assertEquals(expected.name, name);
-      assertEquals(expected.basionym, n.hasLabel(Labels.BASIONYM));
+      assertEquals("Basionym flag wrong for "+name, expected.basionym, n.hasLabel(Labels.BASIONYM));
     }
 
     @Override
@@ -1635,6 +1647,11 @@ public class NubBuilderIT {
 
   private void printTree() throws Exception {
     Writer writer = new PrintWriter(System.out);
+    dao.printTree(writer, GraphFormat.TEXT);
+  }
+
+  private void printTree(File f) throws Exception {
+    Writer writer = new FileWriter(f);
     dao.printTree(writer, GraphFormat.TEXT);
   }
 

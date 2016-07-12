@@ -1,0 +1,440 @@
+abrasus	? abrasus Temminck, 1827
+abrasus	Cynomops abrasus (Temminck, 1827)
+abrasus	Cynomops abrasus subsp. abrasus
+abrasus	Molossops abrasus (Temminck, 1827)
+acetabulosus	Mormopterus acetabulosus (Hermann, 1804)
+acetabulosus	Vespertilio acetabulosus Hermann, 1804
+aegyptiaca	Tadarida aegyptiaca (E. Geoffroy, 1818)
+aegyptiaca	Tadarida aegyptiaca subsp. aegyptiaca
+aequatorianus	Cabreramops aequatorianus
+aequatorianus	Molossops (Cabreramops) aequatorianus Cabrera, 1917
+africana	Tadarida ventralis subsp. africana Dobson 1876
+africanus	Nyctinomus africanus Dobson, 1876
+albatus	Myopterus albatus Thomas, 1915
+albatus	Myopterus daubentonii subsp. albatus Thomas 1915
+aloysiisabaudiae	Chaerephon aloysiisabaudiae (Festa, 1907)
+aloysiisabaudiae	Chaerophon aloysiisabaudiae
+aloysiisabaudiae	Nyctinomus aloysiisabaudiae Festa, 1907
+aloysiisabaudiae	Tadarida aloysiisabaudiae (Festa, 1907)
+alvarezi	Molossus alvarezi González-Ruiz, Ramírez-Pulido and Arroyo-Cabrales, 2011
+ancilla	Promops nasutus subsp. ancilla Thomas 1915
+angolensis	Mops angolensis Peters, 1870
+ansorgei	Chaerephon ansorgei (Thomas, 1913)
+ansorgei	Chaerophon ansorgei
+ansorgei	Nyctinomus ansorgei Thomas, 1913
+ansorgei	Tadarida ansorgei (Thomas, 1913)
+antillularum	Tadarida brasiliensis subsp. antillularum Miller 1902
+astrolabiensis	Mormopterus beccarii subsp. astrolabiensis Meyer 1899
+ater	Molossus ater E. Geoffroy, 1805
+atsinanana	Chaerephon atsinanana Goodman, Buccas, Naidoo, Ratrimomanarivo, Taylor and Lamb, 2010
+auripendulus	Eumops auripendulus (Shaw, 1800)
+auripendulus	Eumops auripendulus subsp. auripendulus
+aurispinosus	Dysopes aurispinosus Peale, 1848
+aurispinosus	Nyctinomops aurispinosus (Peale, 1848)
+australis	Molossus australis Gray, 1839
+australis	Tadarida australis (Gray, 1839)
+aztecus	Molossus aztecus Saussure, 1860
+bahamensis	Tadarida brasiliensis subsp. bahamensis Rhen 1902
+bakarii	Mops (Xiphonycteris) bakarii Stanley, 2008
+barbatogularis	Platymops barbatogularis Harrison, 1956
+barnesi	Molossus barnesi Thomas, 1905
+beccarii	Mormopterus beccarii Peters, 1881
+beccarii	Mormopterus beccarii subsp. beccarii
+beckeri	Eumops patagonicus subsp. beckeri Sanborn 1932
+bemmeleni	Chaerephon bemmeleni (Jentink, 1879)
+bemmeleni	Chaerephon bemmeleni subsp. bemmeleni
+bemmeleni	Chaerophon bemmeleni
+bemmeleni	Tadarida bemmeleni (Jentink, 1879)
+bengalensis	Nyctinomus bengalensis Desmarest, 1820
+bivittata	Chaerephon bivittata (Heuglin, 1861)
+bivittata	Chaerophon bivittata
+bivittata	Tadarida bivittata (Heuglin, 1861)
+bivittatus	Chaerephon bivittatus (Heuglin, 1861)
+bivittatus	Nyctinomus bivittatus Heuglin, 1861
+bocagei	Tadarida aegyptiaca subsp. bocagei Seabra 1900
+bonariensis	Eumops bonariensis (Peters, 1874)
+bonariensis	Eumops bonariensis subsp. bonariensis
+bonariensis	Promops bonariensis Peters, 1874
+bondae	Molossus bondae J. A. Allen, 1904
+bondae	Molossus currentium subsp. bondae J. A. Allen 1904
+brachymeles	Cynomops abrasus subsp. brachymeles Peters 1865
+brachyptera	Tadarida brachyptera (Peters, 1852)
+brachypterus	Mops (Xiphonycteris) brachypterus (Peters, 1852)
+brachypterus	Mops brachypterus subsp. brachypterus
+brasiliensis	Tadarida brasiliensis (I. Geoffroy, 1824)
+brasiliensis	Tadarida brasiliensis subsp. brasiliensis
+bregullae	Chaerephon bregullae (Felten, 1964)
+bregullae	Tadarida bregullae (Felten, 1964)
+calabarensis	Mops calabarensis Hayman, 1940
+californicus	Eumops perotis subsp. californicus Merriam 1890
+caudatus	Cheiromeles torquatus subsp. caudatus Temminck 1841
+centralis	Promops centralis Thomas, 1915
+centralis	Promops centralis subsp. centralis
+cerastes	Cynomops abrasus subsp. cerastes Thomas 1901
+cestoni	Tadarida cestoni
+chapini	Chaerephon chapini J. A. Allen, 1917
+chapini	Chaerephon chapini subsp. chapini
+chapini	Chaerophon chapini
+chapini	Tadarida chapini (J.A. Allen, 1917)
+chitauensis	Mops chitauensis Hill, 1937
+cistura	Chaerephon bemmeleni subsp. cistura Thomas 1903
+cobourgiana	Mormopterus loriae subsp. cobourgiana Johnson 1959
+coibensis	Molossus coibensis J. A. Allen, 1904
+colibensis	Molossus colibensis
+colonicus	Chaerephon jobensis subsp. colonicus Thomas 1906
+condylura	Tadarida condylura (A. Smith, 1833)
+condylurus	Mops (Mops) condylurus (A. Smith, 1833)
+condylurus	Mops condylurus subsp. condylurus
+congica	Tadarida congica (J.A. Allen, 1917)
+congicus	Mops (Mops) congicus J. A. Allen, 1917
+constantinei	Tadarida constantinei
+constanzae	Tadarida brasiliensis subsp. constanzae Shamel 1931
+currentium	Molossus currentium Thomas, 1901
+currentium	Molossus currentium subsp. currentium
+cyclotis	Chaerephon cyclotis Brosset, 1966
+cynocephala	Tadarida brasiliensis subsp. cynocephala Le Conte 1831
+dabbenei	Eumops dabbenei Thomas, 1914
+daubentonii	Myopterus daubentonii Desmarest, 1820
+daubentonii	Myopterus daubentonii subsp. daubentonii
+davisoni	Promops centralis subsp. davisoni Thomas 1921
+debilis	Molossus molossus subsp. debilis Miller 1913
+delticus	Eumops bonariensis subsp. delticus Thomas 1923
+delticus	Eumops delticus Thomas, 1923
+demonstrator	Mops (Mops) demonstrator (Thomas, 1903)
+demonstrator	Nyctinomus demonstrator Thomas, 1903
+demonstrator	Tadarida demonstrator (Thomas, 1903)
+dilatatus	Chaerephon plicatus subsp. dilatatus Horsfield 1822
+doriae	Mormopterus doriae K. Andersen, 1907
+downsi	Promops nasutus subsp. downsi Goodwin 1962
+eleryi	Mormopterus eleryi Reardon and McKenzie, 2008
+engesseri	Tadarida engesseri
+erogensis	Sauromys petrophilis subsp. erogensis
+erongensis	Sauromys petrophilus subsp. erongensis Roberts 1946
+europs	Nyctinomops laticaudatus subsp. europs H. Allen 1889
+europs	Tadarida europs (H. Allen, 1889)
+femorosaccus	Nyctinomops femorosaccus (Merriam, 1889)
+femorosaccus	Nyctinomus femorosaccus Merriam, 1889
+ferruginea	Nyctinomops laticaudatus subsp. ferruginea Goodwin 1954
+fitzsimonsi	Sauromys petrophilus subsp. fitzsimonsi Roberts 1946
+fitzsomonsi	Sauromys petrophilis subsp. fitzsomonsi
+floridanus	Eumops floridanus G.M. Allen, 1932
+floridanus	Eumops glaucinus subsp. floridanus G. M. Allen 1932
+formosus	Otomops formosus Chasen, 1939
+fortis	Molossus molossus subsp. fortis Miller 1913
+fosteri	Promops nasutus subsp. fosteri Miller 1907
+francoismoutoui	Mormopterus francoismoutoui Goodman, van Vuuren, Ratrimomanarivo, Probst and Bowie, 2008
+fulminans	Tadarida fulminans (Thomas, 1903)
+fulminans	Tadarida fulminans subsp. fulminans
+fulva	Mops fulva Thomas, 1908
+gallagheri	Chaerephon gallagheri (Harrison, 1975)
+gallagheri	Chaerophon gallagheri
+gallagheri	Tadarida gallagheri Harrison, 1975
+geijskesi	Eumops geijskesi Husson, 1962
+gigas	Eumops perotis subsp. gigas Peters 1864
+glaucinus	Eumops glaucinus (Wagner, 1843)
+glaucinus	Eumops glaucinus subsp. glaucinus
+greenhalli	Cynomops greenhalli Goodwin, 1958
+greenhalli	Molossops greenhalli (Goodwin, 1958)
+griseiventer	Molossops temminckii subsp. griseiventer Sanborn 1941
+haagneri	Sauromys petrophilis subsp. haagneri
+haagneri	Sauromys petrophilus subsp. haagneri Roberts 1917
+hansae	Eumops hansae Sanborn, 1932
+helveticus	Mormopterus (Hydromops) helveticus
+helveticus	Nyctinomus helveticus
+icarus	Otomops martiensseni subsp. icarus Chubb 1917
+insignis	Nyctinomus insignis Blyth, 1862
+insignis	Tadarida insignis (Blyth, 1862)
+insularis	Chaerephon plicatus subsp. insularis Phillips 1932
+insularis	Tadarida plicata subsp. insularis
+intermedia	Tadarida brasiliensis subsp. intermedia Shamel 1931
+jacobsoni	Cheiromeles torquatus subsp. jacobsoni Thomas 1923
+jobensis	Chaerephon jobensis (Miller, 1902)
+jobensis	Chaerephon jobensis subsp. jobensis
+jobensis	Chaerophon jobensis
+jobensis	Nyctinomus jobensis Miller, 1902
+jobensis	Tadarida jobensis (Miller, 1902)
+jobimena	Chaerephon jobimena Goodman and Cardiff, 2004
+jobimena	Tadarida jobimena (Goodman & Cardiff, 2004)
+johnstonei	Otomops johnstonei Kitchener, How and Maryanto, 1992
+johorenis	Molossus johorenis Dobson, 1873
+johorensis	Chaerephon johorensis (Dobson, 1873)
+johorensis	Chaerophon johorensis
+johorensis	Tadarida johorensis (Dobson, 1873)
+jugularis	Mormopterus jugularis (Peters, 1865)
+jugularis	Nyctinomus jugularis Peters, 1865
+kalinowskii	Mormopterus kalinowskii (Thomas, 1893)
+kalinowskii	Nyctinomus kalinowskii Thomas, 1893
+kuboriensis	Tadarida kuboriensis McKean and Calaby, 1968
+lancasteri	Chaerephon chapini subsp. lancasteri Hayman 1938
+lancasteri	Chaerephon lancasteri Hayman, 1938
+lanei	Mops sarasinorum subsp. lanei Taylor 1934
+laticaudatus	Nyctinomops laticaudatus (E. Geoffroy, 1805)
+laticaudatus	Nyctinomops laticaudatus subsp. laticaudatus
+laticaudatus	Nyctonomops laticaudatus (E. Geoffroy Saint-Hilaire, 1805)
+latouchei	Tadarida latouchei Thomas, 1920
+leonis	Mops brachypterus subsp. leonis Thomas 1908
+leonis	Mops leonis Thomas, 1908
+leptognatha	Tadarida leptognatha
+leucogaster	Chaerephon leucogaster (A. Grandidier, 1869)
+leucogaster	Nyctinomus leucogaster A. Grandidier, 1869
+leucogaster	Tadarida leucogaster (Grandidier, 1869)
+leucostigma	Chaerephon leucostigma G. M. Allen, 1918
+leucostigma	Mops (Mops) leucostigma (G. M. Allen, 1918)
+leucostigma	Tadarida leucostigma (G.M. Allen, 1918)
+lobata	Tadarida lobata (Thomas, 1891)
+lobatus	Nyctinomus lobatus Thomas, 1891
+loriae	Mormopterus loriae Thomas, 1897
+loriae	Mormopterus loriae subsp. loriae
+luzonus	Chaerephon luzonus (Hill, 1961)
+luzonus	Chaerephon plicatus subsp. luzonus Hollister 1913
+macarenensis	Nyctinomops laticaudatus subsp. macarenensis Barriga-Bonilla 1965
+macmillani	Platymops setiger subsp. macmillani Thomas 1906
+macrotis	Nyctinomops macrotis (Gray, 1840)
+macrotis	Nyctinomus macrotis Gray, 1840
+madagascariensis	Otomops madagascariensis Dorst, 1953
+major	Chaerephon major (Trouessart, 1897)
+major	Chaerophon major
+major	Eumops auripendulus subsp. major Eger 1974
+major	Tadarida major (Trouessart, 1897)
+martiensseni	Otomops martiensseni (Matschie, 1897)
+martiensseni	Otomops martiensseni subsp. martiensseni
+mastersoni	Tadarida fulminans subsp. mastersoni Roberts 1946
+mastersoni	Tadarida mastersoni Roberts, 1946
+mastivus	Cynomops abrasus subsp. mastivus Thomas 1911
+mattogrossensis	Molossops (Neoplatymops) mattogrossensis Vieira, 1942
+mattogrossensis	Neomplatymops mattogrossensis
+mattogrossensis	Neoplatymops mattogrossensis (Vieira, 1942)
+maurus	Eumops maurus (Thomas, 1901)
+maurus	Molossus maurus Thomas, 1901
+mexicana	Tadarida brasiliensis subsp. mexicana Saussure 1860
+mexicanus	Cynomops mexicanus (Jones and Genoways, 1967)
+miarensi	Mops midas subsp. miarensi
+miarensis	Mops midas subsp. miarensis A. Grandidier 1869
+midas	Mops (Mops) midas (Sundevall, 1843)
+midas	Mops midas subsp. midas
+midas	Tadarida midas Schulze
+milleri	Molossus molossus subsp. milleri Johnson 1952
+minutus	Mormopterus minutus (Miller, 1899)
+minutus	Nyctinomus minutus Miller, 1899
+molossus	Molossus molossus (Pallas, 1766)
+molossus	Molossus molossus subsp. molossus
+mops	Dysopes mops de Blainville, 1840
+mops	Mops (Mops) mops (de Blainville, 1840)
+mops	Tadarida mops de Blainville, 1840
+murina	Tadarida brasiliensis subsp. murina Gray 1827
+murinus	Dysopes murinus Gray, 1830
+muscula	Tadarida brasiliensis subsp. muscula Gundlach 1861
+nanula	Tadarida nanula (J.A. Allen, 1917)
+nanulus	Mops (Xiphonycteris) nanulus J. A. Allen, 1917
+nanus	Eumops bonariensis subsp. nanus Miller 1900
+nanus	Eumops nanus (Miller, 1900)
+nanus	Promops nanus Miller, 1900
+nasutus	Promops nasutus (Spix, 1823)
+nasutus	Promops nasutus subsp. nasutus
+neglectus	Molossops (Molossops) neglectus Williams and Genoways, 1980
+niangarae	Mops (Mops) niangarae J. A. Allen, 1917
+niangarae	Tadarida niangarae (J.A. Allen, 1917)
+nigeriae	Chaerephon nigeriae Thomas, 1913
+nigeriae	Chaerephon nigeriae subsp. nigeriae
+nigeriae	Chaerophon nigeriae
+nigeriae	Tadarida nigeriae (Thomas, 1913)
+nigrogriseus	Tadarida nigrogriseus
+niveiventer	Mops (Mops) niveiventer Cabrera and Ruxton, 1926
+niveiventer	Mops angolensis subsp. niveiventer
+niveiventer	Tadarida niveiventer (Cabrera & Ruxton, 1926)
+nonghensis	Mormopterus nonghensis
+norfolkensis	Molossus norfolkensis Gray, 1840
+norfolkensis	Mormopterus norfolkensis (Gray, 1840)
+occidentalis	Mops occidentalis Monard, 1939
+occipitalis	Mops occipitalis J.A. Allen, 1917
+occultus	Promops centralis subsp. occultus Thomas 1915
+ochraceus	Mops ochraceus J.A. Allen, 1917
+orientis	Mops condylurus subsp. orientis G. M. Allen and Loveridge 1942
+orientis	Mops orientis G.M. Allen & Loveridge, 1942
+osborni	Mops condylurus subsp. osborni J. A. Allen 1917
+osborni	Mops osborni J.A. Allen, 1917
+pamana	Promops nasutus subsp. pamana Miller 1913
+papuensis	Otomops papuensis Lawrence, 1948
+paranus	? paranus Thomas, 1901
+paranus	Cynomops paranus (Thomas, 1901)
+paranus	Molossops paranus (Thomas, 1901)
+parkeri	Platymops parkeri Harrison & Fleetwood, 1960
+parvidens	Cheiromeles parvidens Miller and Hollister, 1921
+patagonicus	Eumops patagonicus Thomas, 1924
+patagonicus	Eumops patagonicus subsp. patagonicus
+perotis	Eumops perotis (Schinz, 1821)
+perotis	Eumops perotis subsp. perotis
+petersi	Nyctinomus petersi Leche, 1884
+petersoni	Mops (Xiphonycteris) petersoni (El Rayah, 1981)
+petersoni	Tadarida petersoni El Rayah, 1981
+petrophilus	? petrophilus Roberts, 1917
+petrophilus	Mormopterus petrophilus (Roberts, 1917)
+petrophilus	Sauromys petrophilus (Roberts, 1917)
+petrophilus	Sauromys petrophilus subsp. petrophilus
+phrudus	Mormopterus phrudus Handley, 1956
+planiceps	Mormopterus planiceps (Peters, 1866)
+planiceps	Nyctinomus planiceps Peters, 1866
+planirostris	Cynomops planirostris (Peters, 1866)
+planirostris	Molossops planirostris (Peters, 1866)
+planirostris	Molossus planirostris Peters, 1866
+plicata	? plicata Buchanan, 1800
+plicata	Chaerephon plicata (Buchanan, 1800)
+plicata	Chaerophon plicata
+plicata	Tadarida plicata (Buchanan, 1800)
+plicatus	Chaerephon plicatus (Buchannan, 1800)
+plicatus	Chaerephon plicatus subsp. plicatus
+plicatus	Vespertilio plicatus Buchannan, 1800
+pretiosus	Molossus pretiosus Miller, 1902
+pumila	Chaerephon pumila (Cretzschmar, 1826)
+pumila	Chaerophon pumila
+pumila	Tadarida pumila (Cretzschmar, 1830)
+pumilus	Chaerephon pumilus (Cretzschmar, 1826)
+pumilus	Dysopes pumilus Cretzschmar, 1826
+pumilus	Nyctinomus pumilus Gunther, 1879
+pusilla	Tadarida pusilla (Miller, 1902)
+pusillus	Chaerephon pusillus (Miller, 1902)
+pusillus	Nyctinomus pusillus Miller, 1902
+pygmaeus	Molossus molossus subsp. pygmaeus Miller 1900
+ravus	Tomopeas ravus Miller, 1900
+rhodesiae	Chaerephon rhodesiae Roberts, 1946
+ridei	Mormopterus loriae subsp. ridei Felten 1964
+robustus	Molossus currentium subsp. robustus López-González and Presley 2001
+rueppelli	Tadarida teniotis subsp. rueppelli Temminck 1826
+rufus	Molossus rufus E. Geoffroy, 1805
+rusingae	Tadarida rusingae
+russata	Chaerephon russata J. A. Allen, 1917
+russata	Chaerophon russata
+russata	Tadarida russata (J.A. Allen, 1917)
+russatus	Chaerephon russatus J. A. Allen, 1917
+sarasinorum	Mops (Mops) sarasinorum (A. Meyer, 1899)
+sarasinorum	Mops sarasinorum subsp. sarasinorum
+sarasinorum	Tadarida sarasinorum (Meyer, 1899)
+savii	Tadarida savii
+scalopidens	Wallia scalopidens
+secundus	Otomops secundus Hayman, 1952
+setiger	Mormopterus setiger Peters, 1878
+setiger	Platymops setiger (Peters, 1878)
+setiger	Platymops setiger subsp. setiger
+shortridgei	Chaerephon shortridgei Thomas, 1926
+shortridgei	Tadarida shortridgei Thomas, 1926
+sinaloae	Molossus sinaloae J. A. Allen, 1906
+sinaloae	Molossus sinaloae subsp. sinaloae
+sindica	Tadarida aegyptiaca subsp. sindica Wroughton 1919
+solomonis	Chaerephon solomonis Troughton, 1931
+solomonis	Tadarida solomonis Troughton, 1931
+sonoriensis	Eumops underwoodi subsp. sonoriensis Benson 1947
+spillmani	Chaerephon nigeriae subsp. spillmani Monard 1933
+spillmani	Tadarida nigeriae subsp. spillmani
+spurrelli	Mops (Xiphonycteris) spurrelli (Dollman, 1911)
+spurrelli	Tadarida spurrelli (Dollman, 1911)
+spurrelli	Xiphonycteris spurrelli Dollman, 1911
+stehlini	Mormopterus (Hydromops) stehlini
+stehlini	Nyctinomus stehlini
+sylvia	Molossops temminckii subsp. sylvia Thomas 1924
+temminckii	Molossops (Molossops) temminckii (Burmeister, 1854)
+temminckii	Molossops temminckii subsp. temminckii
+temminickii	Molossops temminickii
+teniotis	Cephalotes teniotis Rafinesque, 1814
+teniotis	Tadarida teniotis (Rafinesque, 1814)
+teniotis	Tadarida teniotis subsp. teniotis
+teniotis	Tadarida teniotis teniotis
+tenuis	Chaerephon plicatus subsp. tenuis Horsfield 1822
+thersites	Mops (Xiphonycteris) thersites (Thomas, 1903)
+thersites	Nyctinomus thersites Thomas, 1903
+thersites	Tadarida thersites (Thomas, 1903)
+thomasi	Tadarida aegyptiaca subsp. thomasi Wroughton 1919
+tomensis	Chaerephon tomensis (Juste and Ibañez, 1993)
+tomensis	Chaerophon tomensis
+tomensis	Tadarida tomensis Juste and Ibañez, 1993
+torquatus	Cheiromeles torquatus Horsfield, 1824
+torquatus	Cheiromeles torquatus subsp. torquatus
+tragatus	Tadarida aegyptiaca subsp. tragatus Dobson 1874
+trevori	Mops (Mops) trevori J. A. Allen, 1917
+trevori	Tadarida trevori (J.A. Allen, 1917)
+trinitatus	Molossus sinaloae subsp. trinitatus Goodwin 1959
+trinitatus	Molossus trinitatus Goodwin, 1959
+tropidorhynchus	Molossus molossus subsp. tropidorhynchus Gray 1839
+trumbulli	Eumops trumbulli (Thomas, 1901)
+trumbulli	Promops trumbulli Thomas, 1901
+umbratus	Sauromys petrophilis subsp. umbratus
+umbratus	Sauromys petrophilus subsp. umbratus Shortridge and Carter 1938
+underwoodi	Eumops underwoodi Goodwin, 1940
+underwoodi	Eumops underwoodi subsp. underwoodi
+unicolor	Mops unicolor (A. Grandidier, 1870)
+ventralis	Nyctinomus ventralis Heuglin, 1861
+ventralis	Tadarida ventralis (Heuglin, 1861)
+ventralis	Tadarida ventralis subsp. ventralis
+verrilli	Molossus molossus subsp. verrilli J. A. Allen 1908
+whitleyi	Mormopterus whitleyi Scharff, 1900
+whitleyi	Myopterus whitleyi (Scharff, 1900)
+wilcoxii	Molossus wilcoxii Krefft, 1873
+wilsoni	Eumops wilsoni Baker, McDonough, Swier, Larsen, Carrera and Ammerman, 2009
+wonderi	Mops condylurus subsp. wonderi Sanbron 1936
+wonderi	Mops wonderi Sanbron, 1936
+wroughtoni	Nyctinomus wroughtoni Thomas, 1913
+wroughtoni	Otomops wroughtoni (Thomas, 1913)
+yucatanicus	Nyctinomops laticaudatus subsp. yucatanicus Miller 1902
+\N	Allomops Allen, 1917
+\N	Austronomus Troughton, 1941
+\N	Cabreramops Ibanez, 1980
+\N	Chaerephon Dobson, 1874
+\N	Chaerophon
+\N	Cheiromeles Horsfield, 1824
+\N	Chiromeles Agassiz, 1846
+\N	Chiropetes Gloger, 1841
+\N	Chiropotes Gloger, 1841
+\N	Choerephon Dobson, 1874
+\N	Cuvierimops Legendre & Sigé, 1983
+\N	Cynomops Thomas, 1920
+\N	Dinops Savi, 1825
+\N	Disopes Gervais & Ameghino, 1880
+\N	Dynops Lesson, 1830
+\N	Dysopes Burmeister, 1854
+\N	Dysopes Illiger, 1811
+\N	Dysops Cretzschmar, 1830-1831
+\N	Dysopus Billberg, 1827
+\N	Eomops Thomas, 1905
+\N	Eumops Miller, 1906
+\N	Kiotomops Takai, Setoguchi, Villarroel, Cadena & Shigehara, 1991
+\N	Lophomops Allen, 1917
+\N	Micronomus Iredale & Troughton, 1934
+\N	Mollossus Weithofer, 1887
+\N	Mollosus
+\N	Molossidae
+\N	Molossops Peters, 1866
+\N	Molossus E. Geoffroy, 1805
+\N	Mops Lesson, 1842
+\N	Mormopterus Peters, 1865
+\N	Myctonome Anonymous, 1845
+\N	Myopteris Desmarest, 1820
+\N	Myopterus E. Geoffroy, 1818
+\N	Myopterus Oken, 1816
+\N	Myopterus Peters, 1869
+\N	Neomplatymops
+\N	Neoplatymops Peterson, 1965
+\N	Niclonomus Brehm, 1842
+\N	Nictinomes Gray, 1821
+\N	Nolossus Mina-Palumbo, 1868
+\N	Nyctimones Gray, 1821
+\N	Nyctinoma Bowdich, 1821
+\N	Nyctinome Billberg, 1828
+\N	Nyctinomia Fleming, 1822
+\N	Nyctinomops Miller, 1902
+\N	Nyctinomus E. Geoffroy, 1818
+\N	Nyctinomus Oken, 1816
+\N	Nyctonomops Miller, 1902
+\N	Nyctynomus Fischer-Waldheim, 1817
+\N	Otomops Thomas, 1913
+\N	Petramops Hand, 1990
+\N	Philippinopterus Taylor, 1934
+\N	Platymops Thomas, 1906
+\N	Promops Gervais, 1856
+\N	Rhizomops Legendre, 1984
+\N	Sauromys Roberts, 1917
+\N	Tadarida Rafinesque, 1814
+\N	Tadarida r¸ppellii
+\N	Tadarina Gray, 1843
+\N	Tadaris Rafinesque, 1815
+\N	Tomopeas Miller, 1900
+\N	Wallia Storer, 1984
+\N	Xiphonycteris Dollman, 1911

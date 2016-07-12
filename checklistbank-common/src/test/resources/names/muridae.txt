@@ -1,0 +1,2909 @@
+abbotti	Mus abbotti Waterhouse, 1837
+abbreviatus	Pseudomeriones abbreviatus
+ablutus	Acomys ablutus Dollman, 1911
+abrae	Apomys abrae (Sanborn, 1952)
+abyssinicus	Arvicanthis abyssinicus (Rüppell, 1842)
+abyssinicus	Arvicanthis abyssinicus abyssinicus
+acomyoides	Uranomys acomyoides Ingoldby, 1929
+acticola	Gerbillus (Gerbillus) acticola Thomas, 1918
+adroveri	Occitanomys (Rhodomys) adroveri
+adroveri	Pseudocricetodon adroveri
+adspersus	Rattus adspersus Miller and Hollister, 1921
+adustus	Rattus adustus Sody, 1940
+adustus	Tryphomys adustus Miller, 1910
+aegyptius	Gerbillus aegyptius Desmarest, 1804
+aemuli	Mus aemuli Thomas, 1896
+aequicaudalis	Rattus aequicaudalis (Hodgson, 1849)
+aerosus	Melomys aerosus (Thomas, 1920)
+aerosus	Uromys aerosus Thomas, 1920
+aeta	Hylomyscus aeta (Thomas, 1911)
+afer	Lasiomys afer Peters, 1866
+afer	Lophuromys afer Tullberg, 1893
+affinis	Democricetodon affinis
+affinis	Mus affinis Gray, 1843
+afghanus	Microtus afghanus (Thomas, 1912)
+afra	? afra Gray, 1830
+afra	Gerbilliscus (Taterona) afra (Gray, 1830)
+afra	Tatera afra (Gray, 1830)
+africanus	Gerbillus africanus F. Cuvier, 1838
+africanus	Ruscinomys africanus
+aga	Microtus brandtii subsp. aga
+agag	Gerbillus (Gerbillus) agag Thomas, 1903
+agilis	Micromys agilis Dehne, 1841
+agrarius	Apodemus agrarius (Pallas, 1771)
+agrestis	Microtus agrestis subsp. agrestis
+agrestis	Mus agrestis Linnaeus, 1761
+aguti	Mus aguti Linnaeus, 1766
+ainu	Micromys speciosus subsp. ainu
+airensis	Acomys (Acomys) airensis Thomas and Hinton, 1921
+aistoni	Podanomalus aistoni Brazenor, 1934
+albanensis	Cricetodon albanensis
+albidens	Brassomys albidens (Tate, 1951)
+albidens	Coccymys albidens (Tate, 1951)
+albidens	Cocrymys albidens
+albidens	Melomys albidens Tate, 1951
+albidiventris	Mus albidiventris Blyth, 1852
+albigularis	Mus albigularis Mearns, 1905
+albipes	? albipes Rüppell, 1842
+albipes	Conilurus albipes (Lichtenstein, 1829)
+albipes	Hapalotis albipes Lichtenstein, 1829
+albipes	Meriones albipes Lataste, 1882
+albipes	Myomys albipes (Rüppell, 1842)
+albipes	Stenocephalemys albipes (Rüppell, 1842)
+albocaudata	Stenocephalemys albocaudata Frick, 1914
+albocinereus	Pseudomys albocinereus (Gould, 1845)
+alexandrinorattus	Mus alexandrinorattus Fatio, 1902
+alexandrinus	Mus alexandrinus Desmarest, 1819
+alexandrinus	Mus alexandrinus E. Geoffroy, 1803
+alexis	Notomys alexis Thomas, 1922
+algiricus	Psammomys algiricus Thomas, 1902
+algirus	Mus algirus Pomel, 1856
+alicae	Leidymys alicae
+aliveriensis	Anomalomys aliveriensis
+aliveriensis	Cricetodon aliveriensis
+allenbyi	Gerbillus allenbyi Thomas, 1918
+alleni	Alticola alleni Argyropulo, 1933
+alleni	Dasymys alleni Lawrence and Loveridge, 1953
+alleni	Hylomyscus alleni (Waterhouse, 1838)
+alpani	Meteamys alpani
+alpicola	Apodemus alpicola Heinrich, 1952
+alpinus	Apodemus alpinus Burg
+alpinus	Apodemus alpinus Heinrich, 1952
+alticola	Maxomys alticola (Thomas, 1888)
+alticuspis	Paronychomys alticuspis
+ambarrensis	Neocricetodon ambarrensis
+ambiguus	Scottimus ambiguus
+ambrosius	Meriones ambrosius Thomas, 1919
+amoenus	Gerbillus (Hendecapleura) amoenus (de Winton, 1902)
+amphibius	Arvicola terrestris amphibius (Linnaeus, 1758)
+amphibius	Mus amphibius Linnaeus, 1758
+amplus	Notomys amplus Brazenor, 1936
+anacuao	Musseromys anacuao Heaney, Balete, Rickart, Veluz and Jansa, 2014
+anak	Uromys (Uromys) anak Thomas, 1907
+anambae	Mus anambae Miller, 1900
+anatolica	Mirabella anatolica
+anatolicus	Deperetomys anatolicus
+anchietae	Otomys anchietae (Bocage, 1882)
+andamanensis	Rattus andamanensis (Blyth, 1860)
+andersoni	Gerbillus (Gerbillus) andersoni De Winton, 1902
+andersoni	Niviventer andersoni (Thomas, 1911)
+andrewsi	Bunomys andrewsi (J. A. Allen, 1911)
+andrewsi	Megacricetodon andrewsi
+andrewsi	Mus andrewsi Allen, 1911
+angolae	Mastomys angolae (Bocage, 1890)
+angolensis	? angolensis Bocage, 1890
+angolensis	Lophuromys (Lophuromys) angolensis W. Verheyen, Dierckx and Hulselmans, 2000
+angolensis	Mastomys angolensis (Bocage, 1890)
+angolensis	Myomyscus angolensis (Bocage, 1890)
+angoniensis	Otomys angoniensis Wroughton, 1906
+anitae	Phyllotis anitae Jayat, D'Elia, Pardiñas & Namen, 2007
+annandalei	Rattus annandalei (Bonhote, 1903)
+anomalus	Occitanomys anomalus
+ansorgei	Arvicanthis ansorgei Thomas, 1910
+ansorgei	Lophuromys (Lophuromys) ansorgei De Winton, 1896
+antiquitatis	Coelodonta antiquitatis (Blumenbach, 1799)
+antiquus	Pappocricetodon antiquus
+antiquus	Pliolemmus antiquus
+apicalis	Hapalotis apicalis Gould, 1853
+apicalis	Leporillus apicalis (Gould, 1853)
+apodemoides	Gyomys apodemoides Campbell
+apodemoides	Pseudomys apodemoides Finlayson, 1932
+apoensis	Tarsomys apoensis Mearns, 1905
+aquilo	Notomys aquilo Thomas, 1921
+aquilus	Gerbillus (Gerbillus) aquilus Schlitter and Setzer, 1972
+aquilus	Lophuromys (Lophuromys) aquilus (True, 1892)
+aquitanicus	Eucricetodon aquitanicus
+arabium	Dipodillus arabium Thomas, 1918
+aragonensis	Cricetodon (Hispanomys) aragonensis
+arambourgi	Melissiodon arambourgi
+arborarius	Mus arborarius Peters, 1852
+arborarius	Mus arborarius True, 1892
+arboreus	Mus arboreus Horsfield, 1851
+arboricola	Hapalotis arboricola Gould, 1863
+arcium	Melomys arcium (Thomas, 1913)
+arcuatus	Taeromys arcuatus (Tate and Archbold, 1935)
+arduus	Gerbillus arduus Cheesman and Hinton, 1924
+arenarius	Taterillus arenarius Robbins, 1974
+arenicola	Microtus oeconomus arenicola (de Selys-Longchamps, 1841)
+arenicolor	Gerbillus arenicolor Miller, 1900
+arfakensis	Leptomys arfakensis Musser, Helgen and Lunde, 2008
+arfakienis	Rattus arfakienis Rümmler, 1935
+arfakiensis	Rattus arfakiensis Rümmler, 1935
+argenteus	Apodemus argenteus (Temminck, 1845)
+argenteus	Microhydromys argenteus Helgen, Leary and Aplin, 2010
+argenteus	Mus argenteus Swinhoe, 1870
+argentiventer	Rattus argentiventer (Robinson and Kloss, 1916)
+argurus	Mesembriomys argurus
+argurus	Mus argurus Thomas, 1889
+argurus	Zyzomys argurus (Thomas, 1889)
+arianus	Apodemus arianus (Blanford, 1881)
+arianus	Mus arianus Blanford, 1881
+aridulus	Grammomys aridulus Thomas and Hinton, 1923
+arimalius	Meriones (Pallasiomys) arimalius Cheesman and Hinton, 1924
+arizonae	Calomys (Bensonomys) arizonae
+arizonensis	Repomys arizonensis
+armandvillei	Papagomys armandvillei (Jentink, 1892)
+armoricanus	Microtus agrestis armoricanus Balsac & Beaufort, 1966
+aroaensis	Mallomys aroaensis (De Vis, 1907)
+arrogans	Rattus arrogans (Thomas, 1922)
+arrogans	Stenomys arrogans Thomas, 1922
+aruensis	Uromys aruensis Gray, 1873
+arundinaceus	Mus arundinaceus Petenyi, 1882
+arvalis	Mus arvalis Pallas, 1778
+arvensis	Mus arvensis Leach, 1816
+asiaticus	Mus asiaticus Gray, 1837
+asper	Mus asper Miller, 1900
+asper	Parahydromys asper (Thomas, 1906)
+aspinatus	Rattus aspinatus Tate and Archbold, 1935
+assimilis	Mus assimilis Gould, 1858
+atavoides	Atavocricetodon atavoides
+atavus	Atavocricetodon atavus
+atchinus	Rattus atchinus Miller, 1942
+atratus	Mus atratus Miller, 1902
+atridorsum	Mus atridorsum Miller, 1903
+auceps	Meriones auceps Thomas, 1908
+aureus	Cricetodon aureus
+auricomis	Mus auricomis de Winton, 1897
+auricularis	Desmodillus auricularis (A. Smith, 1834)
+auritus	Pseudomys auritus Thomas, 1910
+australis	Crateromys australis Musser, Heaney and Rabor, 1985
+australis	Cremnomys australis Thomas, 1916
+australis	Pelomys australis Roberts, 1913
+australis	Pseudomys australis Gray, 1832
+australis	Rattus cutchicus subsp. australis
+australius	Melomys australius Thomas, 1924
+austriacus	Epimeriones austriacus
+auziensis	Meriones auziensis Lataste, 1882
+avarillus	Mus avarillus Thomas and Wroughton, 1908
+avenarius	Mus avenarius Wolf, 1794
+awashensis	Mastomys awashensis Lavrenchenko, Likhnova and Baskevich, 1998
+azybaevi	Leidymys azybaevi
+bacheri	Nesokia bacheri Nehring, 1897
+bactrianus	Mus musculus subsp. bactrianus Blyth 1846
+badius	Hybomys (Hybomys) badius Osgood, 1936
+badius	Mus badius Blyth, 1859
+badius	Mus badius Swinhoe, 1870
+baeodon	Maxomys baeodon (Thomas, 1894)
+baeri	Hylomyscus baeri Heim de Balsac and Aellen, 1965
+bagobus	Bullimus bagobus Mearns, 1905
+bahadur	Leggada bahadur Wroughton and Ryley, 1913
+baicalensis	Alticola baicalensis Litvinov, 1961
+baicalensis	Microtus arvalis subsp. baicalensis
+bailwardi	Nesokia bailwardi Thomas, 1907
+bailwardi	Tatera bailwardi Wroughton, 1906
+bakeri	Reithrodontomys bakeri Bradley, Mendez-Harclerode, Hamilton & Ceballos, 2004
+balae	Mus balae Miller, 1903
+balmasus	Rattus balmasus Lyon, 1916
+baluensis	Rattus baluensis (Thomas, 1894)
+banahao	Rhynchomys banahao Balete, Rickart, Rosell-Ambal, Jansa & Heaney, 2007
+bandicota	Mus bandicota Bechstein, 1800
+bandiculus	Rattus bandiculus Thomas, 1922
+banfieldi	Uromys banfieldi De Vis, 1907
+bannisteri	Melomys bannisteri Kitchener and Maryanto, 1993
+baoulei	Mus (Nannomys) baoulei (Vermeiren and Verheyen, 1980)
+barbarae	Parapodemus gaudryi barbarae
+barbarus	Lemniscomys barbarus (Linnaeus, 1767)
+barbatus	Xenuromys barbatus (Milne-Edwards, 1900)
+barbouri	Otomys barbouri Lawrence and Loveridge, 1953
+barclayanus	Mus barclayanus Anderson, 1878
+bardus	Apomys bardus Miller, 1910
+barstowensis	Copemys barstowensis
+bartelsii	Maxomys bartelsii (Jentink, 1910)
+barussanus	Epimys barussanus Miller, 1911
+basilanus	Epimys basilanus Hollister, 1913
+basilii	Hybomys (Hybomys) basilii Eisentraut, 1965
+baskini	Calomys (Bensonomys) baskini
+batamanus	Mus batamanus Lyon, 1907
+batus	Epimys batus Miller, 1911
+bavaricus	Megacricetodon bavaricus
+bavaricus	Pitymys bavaricus Konig, 1962
+baynesi	Pseudomys baynesi
+bayraktepensis	Byzantinia bayraktepensis
+beaba	Nesokia beaba Wroughton, 1908
+beavanii	Mus beavanii Peters, 1866
+beccarii	Hydromys beccarii Peters, 1874
+beccarii	Margaretamys beccarii (Jentink, 1880)
+beckensis	Symmetrodontomys beckensis
+beckerplateni	Enginia beckerplateni
+bedfordi	Microtus bedfordi (Thomas, 1911)
+bedfordiae	Phodopus bedfordiae (Thomas, 1908)
+beetsi	Hattomys beetsi
+bella	Leggada bella Thomas, 1910
+bellieri	Lemniscomys bellieri Van der Straeten, 1975
+bendai	Micromys bendai
+beneficus	Musseromys beneficus Heaney, Balete, Rickart, Veluz and Jansa, 2014
+benericettii	Centralomys benericettii
+bengalensis	Bandicota bengalensis (Gray, 1835)
+benguetensis	Epimys benguetensis Hollister, 1913
+bentincanus	Mus bentincanus Miller, 1903
+berdmorei	Berylmys berdmorei (Blyth, 1851)
+bergensis	Apodemus bergensis
+berneyi	Gyomys berneyi Troughton, 1936
+berneyi	Leggadina berneyi Troughton, 1936
+berniceae	Pseudohydromys berniceae Helgen and L. Helgen, 2009
+bernlochensis	Melissiodon bernlochensis
+biakensis	Rattus biakensis Troughton, 1945
+bicolor	Coelomys bicolor Thomas, 1915
+bifidus	Cotimus bifidus
+bifidus	Eumyarion bifidus
+biformatus	Rattus biformatus Sody, 1941
+bijugatus	Cricetodon (Hispanomys) bijugatus
+bilensis	Gerbillus bilensis Frick, 1914
+bilikeensis	Aratomys bilikeensis
+bilikeensis	Chardinomys bilikeensis
+bisulcatus	Otomys bisulcatus F. Cuvier, 1829
+blacki	Leidymys blacki
+blackleri	Meriones blackleri Thomas, 1903
+blanfordi	? blanfordi Thomas, 1881
+blanfordi	Cremnomys blanfordi (Thomas, 1881)
+blanfordi	Madromys blanfordi (Thomas, 1881)
+blanfordi	Mus blanfordi Thomas, 1881
+blanfordi	Rattus blanfordi (Thomas, 1881)
+blangorum	Rattus blangorum Miller, 1942
+blicki	Arvicanthis blicki Frick, 1914
+blythi	Rattus blythi Kloss, 1917
+blythianus	Mus blythianus Anderson, 1878
+bocagei	Aethomys bocagei (Thomas, 1904)
+bocourti	Mus bocourti Milne-Edwards, 1872
+boeadii	Uromys (Uromys) boeadii Groves and Flannery, 1994
+boehmi	? boehmi Noack, 1887
+boehmi	Gerbilliscus (Gerbilliscus) boehmi (Noack, 1887)
+boehmi	Tatera boehmi (Noack, 1887)
+boettgeri	Nesokia boettgeri Radde and Walter, 1889
+bogdanovi	Meriones bogdanovi Heptner, 1931
+bogdanovi	Microtus bogdanovi Martino, 1922
+bokimekot	Halmaheramys bokimekot Fabre, Pagès, Musser, Fitriana, Semiadi and Helgen, 2013
+bolami	Pseudomys bolami Troughton, 1932
+bonhotei	Gerbillus bonhotei Thomas, 1919
+bontanus	Rattus bontanus Thomas, 1921
+booduga	Mus (Mus) booduga (Gray, 1837)
+borneanus	Epimys borneanus Miller, 1913
+bottai	Dipodillus (Petteromys) bottai (Lataste, 1882)
+bottai	Gerbillus bottai Lataste, 1882
+bougainville	Melomys bougainville Troughton, 1936
+bourgeoisi	Megacricetodon bourgeoisi
+boweri	Hapalotis boweri Ramsay, 1887
+bowersi	Berylmys bowersi (Anderson, 1879)
+brachycerus	Microtus savii brachycerus von Lehman, 1961
+brachyodus	Eumys brachyodus
+brachyrhinus	Rattus brachyrhinus Tate and Archbold, 1935
+brachyura	Nesokia brachyura Büchner, 1889
+brahma	Epimys brahma Thomas, 1914
+brahma	Niviventer brahma (Thomas, 1914)
+brahma	Rattus fulvescens subsp. brahma
+brailloni	Occitanomys brailloni
+brantsii	? brantsii A. Smith, 1836
+brantsii	Gerbilliscus (Taterona) brantsii (A. Smith, 1836)
+brantsii	Parotomys brantsii (A. Smith, 1834)
+brantsii	Tatera brantsii (A. Smith, 1836)
+brassi	Pogonomelomys brassi Tate & Archbold, 1941
+braueri	Desmodilliscus braueri Wettstein, 1916
+brauneri	Apodemus brauneri
+bressanus	Rotundomys bressanus
+bressanus	Rotundomys bressanus subsp. bressanus
+brevicaudatus	Gerbillus brevicaudatus F. Cuvier, 1838
+brevicaudatus	Gerbillus brevicaudatus Milne-Edwards, 1867
+brevicaudus	Lophuromys (Lophuromys) brevicaudus Osgood, 1936
+brevicula	Echiothrix brevicula Miller and Hollister, 1921
+brevimolaris	Rattus brevimolaris Tate and Archbold, 1935
+brevis	Democricetodon brevis
+brevis	Democricetodon brevis brevis
+breyeri	Mus breyeri Roberts, 1915
+breyeri	Tatera breyeri Roberts, 1926
+brockmani	Gerbillus (Hendecapleura) brockmani (Thomas, 1910)
+brockmani	Myomyscus brockmani (Thomas, 1908)
+broomi	Boltimys broomi
+broomi	Otomys broomi Thomas, 1902
+browni	Kowalskia browni
+browni	Mus browni Alston, 1877
+bruijni	Pogonomelomys bruijni (Peters and Doria, 1876)
+bruijni	Pogonomezomys bruijni
+bruijnii	Pogonomelomys bruijnii (Peters & Doria, 1876)
+brunneus	Lophuromys (Lophuromys) brunneus Thomas, 1906
+brunneus	Mus brunneus Hodgson, 1845
+brunneusculus	Mus brunneusculus Hodgson, 1845
+bryophilus	Limnomys bryophilus Rickart, Heaney and Tabaranza, 2003
+buchanani	Desmodilliscus buchanani Thomas and Hinton, 1920
+buechneri	Meriones buechneri Thomas, 1909
+buehleri	Coryphomys buehleri Schaub, 1937
+buettneri	Leimacomys buettneri Matschie, 1893
+bufo	Mus (Nannomys) bufo (Thomas, 1906)
+buhleri	Coryphomys buhleri Schaub, 1937 [orth. error]
+bukit	Mus bukit Bonhote, 1903
+bullatus	Mus bullatus Lyon, 1908
+bunnii	Erythronesokia bunnii
+bunnii	Nesokia bunnii (Khajuria, 1981)
+buntingi	Grammomys buntingi (Thomas, 1911)
+burrescens	Mus burrescens Miller, 1902
+burrulus	Mus burrulus Miller, 1902
+burrus	Mus burrus Miller, 1902
+burrus	Rattus burrus (Miller, 1902)
+burtoni	Gerbillus burtoni F. Cuvier, 1838
+burtoni	Melomys burtoni (Ramsay, 1887)
+burtoni	Mus burtoni Ramsay, 1887
+burtoni	Mus burtoni Thomas, 1892
+burtoni	Otomys burtoni Thomas, 1918
+buruensis	Mus buruensis J. A. Allen, 1911
+buryi	Meriones buryi Thomas, 1902
+butei	Apodemus butei
+butleri	Mastomys butleri
+buxtoni	Nesokia buxtoni Thomas, 1919
+büttneri	Leimacomys büttneri Matschie, 1893
+cabrali	Dasymys cabrali W. Verheyen, Hulselmans, Dierckx, Colyn, Leirs and E. Verheyen, 2003
+cadurcensis	Paracricetodon cadurcensis
+caenosa	Cremnomys medius subsp. caenosa
+caenosus	Cremnomys medius subsp. caenosus
+caffer	Meriones caffer Wagner, 1842
+caffer	Mus caffer A. Smith, 1834
+cahirinus	Acomys (Acomys) cahirinus (E. Geoffroy, 1803)
+cahirinus	Acomys cahirinus (Desmarest, 1819)
+calabyi	Pseudomys calabyi Kitchener and Humphreys, 1987
+calamianensis	Chiropodomys calamianensis (Taylor, 1934)
+calcis	Epimys calcis Hollister, 1911
+calidus	Gerbillus calidus Thomas, 1918
+callewaerti	Leggada callewaerti (Thomas, 1925)
+callewaerti	Mus (Nannomys) callewaerti (Thomas, 1925)
+callipides	Apodemus callipides
+callitrichus	Taeromys callitrichus (Jentink, 1879)
+callopes	Melomys callopes Finlayson, 1943
+calopus	Mus calopus Cabrera, 1906
+calurus	Sekeetamys calurus (Thomas, 1892)
+cameroni	Niviventer cameroni (Chasen, 1940)
+camiguinensis	Apomys camiguinensis Heaney & Tabaranza Jr., 2006
+campanae	Pelomys campanae (Huet, 1888)
+campestris	Dipodillus (Petteromys) campestris (Levaillant, 1857)
+campestris	Gerbillus campestris (Loche, 1867)
+campestris	Mus campestris Desmarest, 1822
+canescens	Cricetus cricetus canescens Nehring, 1899
+canguru	Mus canguru Statius Müller, 1776
+caniceps	Grammomys caniceps Hutterer and Dieterlen, 1984
+canna	Mus canna Swinhoe, 1871
+cansdalei	Malacomys cansdalei Ansell, 1958
+cantabriae	Arvicola terrestris cantabriae Ventura & Gosalbez, 1989
+canterranensis	Trilophomys canterranensis
+canus	Eropeplus canus Miller and Hollister, 1921
+canus	Lenothrix canus Miller, 1903
+capensis	Melomys capensis Tate, 1951
+capensis	Otomys capensis G. Cuvier, 1829
+caraco	Mus caraco Pallas, 1779
+caraco	Rattus caraco Pallas, 1779
+carillus	Hylomyscus carillus (Thomas, 1904)
+carimatae	Mus carimatae Miller, 1906
+carlae	Pseudohydromys carlae Helgen and L. Helgen, 2009
+caroli	Mus (Mus) caroli Bonhote, 1902
+carpentarius	Notomys carpentarius Johnson, 1959
+casensis	Mus casensis Miller, 1903
+caspius	Mus caspius Oken, 1816
+caspius	Rattus caspius Oken, 1816
+castaneus	Mus musculus subsp. castaneus Waterhouse 1843
+catellifer	Mus catellifer Miller, 1903
+cathalai	Progonomys cathalai
+caucasicus	Cricetodon caucasicus
+caucasicus	Gerbillus caucasicus Satunin, 1896
+caucasius	Meriones caucasius Brandt, 1855
+caudatior	Mus caudatior Hodgson, 1849
+caudimaculatus	Hapalotis caudimaculatus Krefft, 1867
+caudimaculatus	Uromys (Uromys) caudimaculatus (Krefft, 1867)
+caurinus	Melomys caurinus (Thomas, 1921)
+celebensis	Crunomys celebensis Musser, 1982
+celebensis	Taeromys celebensis (Gray, 1867)
+cellarius	Apodemus cellarius
+cellarius	Mus cellarius Fischer, 1866
+celticus	Apodemus celticus
+centrosa	Echiothrix centrosa Miller and Hollister, 1921
+ceramicus	Nesoromys ceramicus (Thomas, 1920)
+ceramicus	Stenomys ceramicus Thomas, 1920
+cerasus	Leidymys cerasus
+cerradensis	Wiedomys cerradensis Gonçalves, Almeida & Bonvicino, 2005
+cervicolor	Mus (Mus) cervicolor Hodgson, 1845
+cervinipes	Melomys cervinipes (Gould, 1852)
+cervinipes	Mus cervinipes Gould, 1852
+cervinus	Hapalotis cervinus Gould, 1853
+cervinus	Notomys cervinus (Gould, 1853)
+ceylonica	Tatera ceylonica Wroughton, 1906
+ceylonus	Mus ceylonus Kelaart, 1850
+chamaeropsis	Mus chamaeropsis Levaillant, 1857
+championi	Pogonomys championi Flannery, 1988
+chanleri	Arvicanthis chanleri Dollman, 1911
+chapmani	Pseudomys chapmani Kitchener, 1980
+charlottensis	Clethrionomys charlottensis Baker 1898
+charon	Meriones charon Thomas, 1919
+chatticum	Melissiodon chatticum
+cheesmani	Gerbillus (Gerbillus) cheesmani Thomas, 1919
+cheesmani	Otomys cheesmani Taylor, Lavrenchenko, Carleton, Verheyen, Bennett, Oosthuizen and Maree, 2011
+chengi	Meriones (Pallasiomys) chengi Wang, 1964
+cherifiensis	Myocricetodon cherifiensis
+chevrieri	Apodemus chevrieri (Milne-Edwards, 1868)
+chihfengensis	Meriones chihfengensis Mori, 1939
+chihuahuensis	Prosigmodon chihuahuensis
+chionogaster	Epimys chionogaster Lönnberg, 1916
+chiropus	Chiromyscus chiropus (Thomas, 1891)
+chombolis	Mus chombolis Lyon, 1909
+christinae	Margaretamys christinae Mortelliti, Castiglia, Amori, Maryanto and Musser, 2012
+chrysocomus	Bunomys chrysocomus (Hoffmann, 1887)
+chrysocomus	Mus chrysocomus Hoffmann, 1887
+chrysogaster	Hydromys chrysogaster É. Geoffroy, 1804
+chrysophilus	Aethomys chrysophilus (de Winton, 1897)
+chrysopus	Lophuromys (Lophuromys) chrysopus Osgood, 1936
+chudeaui	Acomys (Acomys) chudeaui Kollman, 1911
+ciliatus	Leopoldamys ciliatus (Bonhote, 1900)
+cilicicus	Acomys (Acomys) cilicicus Spitzenberger, 1978
+cinderella	Leggada cinderella Wroughton, 1912
+cindrella	Leggada cindrella Wroughton, 1912
+cineraceus	Acomys (Acomys) cineraceus Fitzinger and Heuglin, 1866
+cinerascens	Acomys cinerascens Heuglin, 1877
+cinerasceus	Acomys cinerasceus
+cineraseus	Acomys cineraseus Fitzinger and Heuglin, 1866
+cinereus	Lophuromys cinereus Dieterlen and Gelmroth, 1974
+cinnamomeus	Mus cinnamomeus Blyth, 1859
+circassicus	Microtus roberti subsp. circassicus
+ciscaucasicus	Gerbillus ciscaucasicus Satunin, 1907
+clabatus	Mus clabatus Lyon, 1906
+clanceyi	Apodemus sylvaticus clanceyi
+coelestis	Bunomys coelestis (Thomas, 1896)
+coelestis	Mus coelestis Thomas, 1896
+coenorum	Rattus coenorum Thomas, 1922
+coffaeus	Golunda coffaeus Kelaart, 1850
+coffeyi	Bensonomys coffeyi
+colchicus	Microtus schidlovskii subsp. colchicus
+collatus	Eucricetodon collatus
+colletti	Mus colletti Thomas, 1904
+colletti	Rattus colletti (Thomas, 1904)
+collium	Meriones collium Severtzov, 1873
+collongensis	Megacricetodon collongensis
+coloratus	Epimys coloratus Hollister, 1913
+comberi	Mus comberi Wroughton, 1907
+cometes	Grammomys cometes (Thomas and Wroughton, 1908)
+conatus	Rattus conatus Thomas, 1923
+concolor	Mus concolor Blyth, 1859
+conditor	Leporillus conditor (Sturt, 1848)
+conditor	Mus conditor Sturt, 1848
+confinii	Eothenomys confinii Hinton, 1923
+confluens	Paracricetodon confluens
+confucianus	Niviventer confucianus (Milne-Edwards, 1871)
+congicus	Taterillus congicus Thomas, 1915
+coninga	Niviventer coninga (Swinhoe, 1864)
+constructor	Conilurus constructor Ogilby, 1838
+constructor	Conylurus constructor Ogilby, 1837
+cookii	Mus (Mus) cookii Ryley, 1914
+cooperae	Melomys cooperae Kitchener, in Kitchener and Maryanto, 1995
+cornelii	Allocricetodon cornelii
+coronensis	Parapodemus coronensis
+cosensi	Gerbillus cosensi Dollman, 1914
+cosensis	Gerbillus cosensis Dollman, 1914
+coucha	Mastomys coucha (A. Smith, 1834)
+coxinga	Mus coxinga Swinhoe, 1871
+coxinga	Niviventer coxinga (Swinhoe, 1871)
+coxingi	Niviventer coxingi (Swinhoe, 1864)
+crassipes	Mus crassipes Blyth, 1859
+crassus	Democricetodon brevis subsp. crassus Freudenthal, 1969
+crassus	Democricetodon crassus
+crassus	Epimys crassus Lyon, 1911
+crassus	Meriones (Pallasiomys) crassus Sundevall, 1842
+cremoriventer	Niviventer cremoriventer (Miller, 1900)
+crenulata	Mirabella crenulata
+creticus	Apodemus creticus
+cricetus	Cricetus cricetus cricetus (Linnaeus, 1758)
+cricetus	Mus cricetus Linnaeus, 1758
+crociduroides	Mus (Coelomys) crociduroides (Robinson and Kloss, 1916)
+crumpi	Diomys crumpi Thomas, 1917
+crusafonti	Castillomys crusafonti
+crusafonti	Megacricetodon crusafonti
+cryptorhinus	Gerbillus cryptorhinus Blanford, 1875
+cuanzensis	Otomys cuanzensis Hill and Carter, 1937
+culionensis	Rattus culionensis Sanborn, 1952
+culmorum	Mus culmorum Thomas and Dollman, 1909
+culmorum	Rattus culmorum
+culturatus	Niviventer culturatus (Thomas, 1917)
+cumbrae	Apodemus cumbrae
+cumingi	Phloeomys cumingi (Waterhouse, 1839)
+cunicularis	Mus cunicularis Blyth, 1855
+cutchicus	Cremnomys cutchicus Wroughton, 1912
+cutchicus	Rattus cutchicus (Wroughton, 1912)
+cutchicus	Rattus cutchicus subsp. cutchicus
+cuvieri	Gerbillus cuvieri Waterhouse, 1838
+cypriacus	Mus cypriacus Cucchi, Orth, Auffray, Renaud, Fabre, Catalan, Hadjisterkotis, Bonhomme & Vigne, 2006
+daamsi	Hispanomys daamsi
+daamsi	Symmetrodontomys daamsi
+daccaensis	Mus daccaensis Tytler, 1854
+dahli	Meriones (Pallasiomys) dahli Shidlovsky, 1962
+dakotaensis	Mimomys dakotaensis
+dalloni	Gerbillus dalloni Heim de Balsac, 1936
+daltoni	? daltoni Thomas, 1892
+daltoni	Mastomys daltoni
+daltoni	Myomys daltoni (Thomas, 1892)
+daltoni	Praomys daltoni (Thomas, 1892)
+damarensis	Mus damarensis de Winton, 1897
+dammermani	Hyomys dammermani Stein, 1933
+dammermani	Rattus dammermani Thomas, 1921
+daovantieni	Tonkinomys daovantieni Musser, Lunde and Nguyen Truong Son, 2006
+dardanellensis	Byzantinia dardanellensis
+darjilingensis	Mus darjilingensis Hodgson, 1849
+darocensis	Democricetodon darocensis
+darocensis	Fahlbuschia darocensis
+dartmouthi	Otomys dartmouthi Thomas, 1906
+dasyroides	Dipodillus dasyroides Nehring, 1901
+dasyurus	? dasyurus Wagner, 1842
+dasyurus	Dipodillus (Petteromys) dasyurus (Wagner, 1842)
+dasyurus	Gerbillus dasyurus (Wagner, 1842)
+datae	Apomys datae (Meyer, 1899)
+davakosi	Mimomys davakosi
+davidi	Protatera davidi
+davisi	Thallomys davisi Lundholm, 1955
+debruijni	Megacricetodon debruijni
+debruijni	Occitanomys (Rhodomys) debruijni
+decedens	Cricetodon (Hispanomys) decedens
+decimallus	Rattus decimallus Pallas, 1779
+decipiens	Clethrionomys decipiens Rothschild 1915
+decumanoides	Mus decumanoides Hodgson, 1841
+decumanus	Mus decumanus Pallas, 1779
+defua	Dephomys defua (Miller, 1900)
+degeni	Otomys degeni Thomas, 1902
+degraaffi	Praomys degraaffi Van der Straeten and Kerbis Peterhans, 1999
+dehmi	Paracricetodon dehmi
+delacouri	Hapalomys delacouri Thomas, 1927
+delectorum	Praomys delectorum (Thomas, 1910)
+delicatulus	Pseudomys delicatulus (Gould, 1842)
+delticola	Oryzomys delticola Thomas, 1917
+denniae	Hylomyscus denniae (Thomas, 1906)
+dentalis	Copemys dentalis
+dentatus	Batomys dentatus Miller, 1911
+denti	Otomys denti Thomas, 1906
+depereti	Trilophomys depereti
+depressus	Alticola strelzowi subsp. depressus
+derooi	Mastomys derooi
+derooi	Myomys derooi Van der Straeten and Verheyen, 1978
+derooi	Praomys derooi (Van der Straeten and Verheyen, 1978)
+desertor	Pseudomys desertor Troughton, 1932
+desertorum	Alticola strelzowi subsp. desertorum
+destructor	Conilurus destructor Palmer, 1897
+diardii	Mus diardii Jentink, 1880
+dichrurus	Musculus dichrurus Rafinesque, 1814
+dieterleni	Lophuromys (Lophuromys) dieterleni W. Verheyen, Hulselmans, Colyn and Hutterer, 1997
+dilectus	Rhabdomys dilectus (de Winton, 1897)
+dimidiatus	Acomys (Acomys) dimidiatus (Cretzschmar, 1826)
+dimidiatus	Acomys cahirinus subsp. dimidiatus
+dimidiatus	Mus dimidiatus Cretzschmar, 1826
+diminutus	Gerbillus diminutus Dollman, 1911
+discolor	Mus discolor Wagner, 1842
+discolor	Thamnomys discolor Thomas, 1910
+disjunctus	Goniodontomys disjunctus
+dispectus	Hispanomys dispectus
+dixonensis	Pliophenacomys dixonensis
+djanpolati	Enginia djanpolati
+dodsoni	Dipodillus dodsoni Thomas, 1902
+dolichurus	Grammomys dolichurus (Smuts, 1832)
+dolichutus	Grammomys dolichutus
+dollmani	Maxomys dollmani (Ellerman, 1941)
+dollmani	Melomys dollmani Rümmler, 1935
+dollmani	Otomys dollmani Heller, 1912
+domelicus	Mus domelicus Miller, 1903
+domesticus	Mus domesticus Rutty, 1772
+domesticus	Mus musculus subsp. domesticus Schwarz & Schwarz, 1943
+domesticus	Rattus domesticus Fitzinger, 1867
+dominans	Melissiodon dominans
+dominator	Paruromys dominator (Thomas, 1921)
+domitor	Mus domitor Miller, 1903
+donavani	Mus donavani Lesson, 1827
+dongolanus	Gerbillus (Gerbillus) dongolanus (Heuglin, 1877)
+dorothea	Microtus dorothea (Ellerman, 1948)
+dorsalis	Mus dorsalis A. Smith, 1845
+downsi	Huaxiamys downsi
+draco	Apodemus draco (Barrett-Hamilton, 1900)
+draco	Tatera draco Wroughton, 1906
+dryas	Grammomys dryas (Thomas, 1907)
+dryas	Pogonomys dryas Thomas, 1904
+dubius	Eucricetodon dubius
+dubius	Mus dubius Kelaart, 1850
+ductor	Uromys ductor Thomas, 1913
+dudui	Lophuromys (Lophuromys) dudui W. Verheyen, Hulselmans, Dierckx and E. Verheyen, 2002
+dukelskiana	Nesokia dukelskiana Heptner, 1928
+dumecolus	Vandeleuria dumecolus (Hodgson, 1841)
+dumeticola	Mus dumeticola Hodgson, 1845
+dundasi	Tatera dundasi Wroughton, 1909
+dunni	Gerbillus (Gerbillus) dunni Thomas, 1904
+dunni	Leggada dunni Wroughton, 1912
+dunni	Millardia meltada subsp. dunni
+dunni	Tatera dunni Wroughton, 1917
+duprasi	Pachyuromys duprasi Lataste, 1880
+dybowski	Mylomys dybowski
+dybowskii	Mylomys dybowskii (Pousargues, 1893)
+eatoni	Gerbillus eatoni Thomas, 1902
+eburnea	Dephomys eburnea (Heim de Balsac and Bellier, 1967)
+eburneae	Dephomys eburneae (Heim de Balsac and Bellier, 1967)
+echinatus	Tarsomys echinatus Musser and Heaney, 1992
+edwardsi	Leopoldamys edwardsi (Thomas, 1882)
+edwardsi	Malacomys edwardsi Rochebrune, 1885
+edwardsi	Yatkolamys edwardsi
+eeyimma	Arrujaomys eeyimma Shean
+eha	Niviventer eha (Wroughton, 1916)
+eisentrauti	Hybomys eisentrauti Van der Straeten and Hutterer, 1986
+eisentrauti	Lophuromys (Lophuromys) eisentrauti Dieterlen, 1978
+elachys	Calomys (Bensonomys) elachys
+elaphinus	Rattus elaphinus Sody, 1941
+eleanorae	Pseudohydromys eleanorae Helgen and L. Helgen, 2009
+elegans	Capromys elegans Cabrera, 1901
+elegans	Eumys elegans
+elegans	Leptomys elegans Thomas, 1897
+elegans	Macruromys elegans Stein, 1933
+elegans	Margaretamys elegans Musser, 1981
+elegans	Rattus elegans Shih, 1931
+eliasi	Calomys (Bensonomys) eliasi
+ellermani	Mayermys ellermani Laurie and Hill, 1954
+ellermani	Pseudohydromys ellermani (Laurie and Hill, 1954)
+elliotanus	Mus elliotanus Anderson, 1878
+ellioti	Golunda ellioti Gray, 1837
+eloquens	Rattus eloquens Kishida, 1926
+elvira	Cremnomys elvira (Ellerman, 1947)
+elvira	Rattus elvira Ellerman, 1947
+emesi	Mus emesi Heller, 1911
+emini	Taterillus emini (Thomas, 1892)
+emmae	Uromys (Uromys) emmae Groves and Flannery, 1994
+emmerichi	Melissiodon emmerichi
+endorobae	Epimys endorobae Heller, 1910
+enganus	Rattus enganus (Miller, 1906)
+engesseri	Allorattus engesseri
+ephippium	Mus ephippium Jentink, 1880
+epimelas	Apodemus epimelas (Nehring, 1902)
+epiroticus	Microtus epiroticus Ondrias, 1966
+ernstmayri	Leptomys ernstmayri Rümmler, 1932
+erythroleucus	Mastomys erythroleucus (Temminck, 1853)
+erythronotus	Mus erythronotus Blanford, 1875
+erythronotus	Mus erythronotus Temminck, 1845
+erythrotis	Mus erythrotis Blyth, 1856
+erythrourus	Gerbillus erythrourus Gray, 1842
+erythrourus	Meriones erythrourus (Gray, 1842)
+esmeraldensis	Copemys esmeraldensis
+esox	Hydromys esox Thomas, 1906
+estiae	Microtus agrestis estiae Reinwaldt, 1927
+europaeus	Ruscinomys europaeus
+europeus	Pelomys europeus
+everetti	Rattus everetti (Günther, 1879)
+eversmanni	Cricetulus eversmanni Brandt, 1859
+eversmanni	Gerbillus eversmanni Bogdanov, 1889
+eviensis	Heramys eviensis
+excelsior	Niviventer excelsior (Thomas, 1911)
+exiguus	Scottimus exiguus
+exitus	Arvicola terrestris exitus Miller, 1910
+exulans	Mus exulans Peale, 1848
+exulans	Rattus exulans (Peale, 1848)
+faberi	Mus faberi Jentink, 1883
+facetus	Rattus facetus Miller and Hollister, 1921
+fahlbuschi	Neocricetodon fahlbuschi
+fallax	Crunomys fallax Thomas, 1897
+fallax	Pelomys fallax (Peters, 1852)
+famulus	Gerbillus (Hendecapleura) famulus Yerbury and Thomas, 1895
+famulus	Mus (Mus) famulus Bonhote, 1898
+fasciatus	Arvicanthis fasciatus Wroughton, 1906
+fayae	Hibbardomys fayae
+fecundus	Calomys fecundus (Thomas, 1926)
+feliceus	Rattus feliceus Thomas, 1920
+fellowsi	Melomys fellowsi Hinton, 1943
+fellowsi	Protochromys fellowsi (Hinton, 1943)
+ferculinus	Mus ferculinus Thomas, 1902
+fergussoni	Apodemus fergussoni Thomas, 1911
+fergussoniensis	Pogonomys fergussoniensis Laurie, 1952
+fernandoni	Leggadilla fernandoni Phillips, 1932
+fernandoni	Mus (Pyromys) fernandoni (Phillips, 1932)
+ferreirai	Neusticomys ferreirai Percequillo, Carmignotto & Silva, 2005
+ferreocanus	Mus ferreocanus Miller, 1900
+ferrugineus	Arvicola terrestris ferrugineus Ognev, 1933
+ferrugineus	Deomys ferrugineus Thomas, 1888
+ferrusquiai	Prosigmodon ferrusquiai
+fieldi	Mus fieldi Waite, 1896
+fieldi	Pseudomys fieldi (Waite, 1896)
+filmeri	Notomys filmeri Mack, 1961
+finmarchicus	Microtus oeconomus finmarchicus Siivonen, 1967
+finneyi	Pliophenacomys finneyi
+fiolagan	Apodemus fiolagan
+firmus	Mus firmus Miller, 1902
+flava	Witenia flava
+flavescens	Mus flavescens Elliot, 1839
+flavicollis	Apodemus flavicollis (Melchior, 1834)
+flavidus	Acomys flavidus Thomas, 1917
+flavipectus	Mus flavipectus Milne-Edwards, 1872
+flavipilis	Rattus flavipilis (Shih, 1930)
+flaviventer	Mus flaviventer Miller, 1900
+flaviventris	Apodemus flaviventris
+flaviventris	Mus flaviventris Brants, 1827
+flavopunctatus	Lophuromys (Lophuromys) flavopunctatus Thomas, 1888
+flebilis	Mus flebilis Miller, 1902
+florensis	Spelaeomys florensis Hooijer, 1957
+floweri	Gerbillus (Gerbillus) floweri Thomas, 1919
+foleyi	Gerbillus foleyi Heim de Balsac, 1936
+foramineus	Rattus foramineus Sody, 1941
+forbesi	Chiruromys forbesi Thomas, 1888
+formosanus	Mus formosanus Kuroda, 1925
+forresti	Leggadina forresti (Thomas, 1906)
+forresti	Mus forresti Thomas, 1906
+fortior	Otomys fortior Thomas, 1906
+foxi	Dasymys foxi Thomas, 1912
+foxi	Uranomys foxi Thomas, 1912
+fragilicauda	Mus (Mus) fragilicauda Auffray, Orth, Catalan, Gonzalez, Desmarais and Bonhomme, 2003
+franconicus	Democricetodon franconicus
+fraterculus	Melomys fraterculus (Thomas, 1920)
+fraterculus	Uromys fraterculus Thomas, 1920
+fraternus	Niviventer fraternus (Robinson and Kloss, 1916)
+fratrorum	Bunomys fratrorum (Thomas, 1896)
+fratrorum	Mus fratrorum Thomas, 1896
+freiriensis	Rotundomys freiriensis
+freisingensis	Democricetodon freisingensis
+fremens	Mus fremens Miller, 1902
+freudenthali	Hispanomys freudenthali
+fricki	Ophiomys fricki
+frigicola	Melomys frigicola Tate, 1951
+frugivorus	Musculus frugivorus Rafinesque, 1814
+fulgens	Melomys fulgens (Thomas, 1920)
+fulgens	Uromys fulgens Thomas, 1920
+fuliginosus	Hydromys fuliginosus Gould, 1853
+fulva	Vernaya fulva (G. M. Allen, 1927)
+fulvescens	Niviventer fulvescens (Gray, 1847)
+fulvidiventris	Mus fulvidiventris Blyth, 1852
+fulvipectus	Apodemus fulvipectus (Ognev, 1924)
+fulvogaster	Hydromys fulvogaster Jourdan, 1837
+fulvolavatus	Hydromys fulvolavatus Gould, 1853
+fulvoventer	Hydromys fulvoventer F. Cuvier, 1837
+fulvus	Meriones fulvus Eversmann, 1848
+fumatus	Mastomys fumatus
+fumatus	Mus fumatus Peters, 1878
+fumatus	Myomys fumatus (Peters, 1878)
+fumeus	Pseudomys fumeus Brazenor, 1934
+fumosus	Heimyscus fumosus (Brosset, Dubost and Heim de Balsac, 1965)
+furvus	Palawanomys furvus Musser and Newcomb, 1983
+fusca	Mus fusca Bocage, 1890
+fusca	Witenia fusca
+fuscipes	Rattus fuscipes (Waterhouse, 1839)
+fuscus	Ascopharynx fuscus Jones, 1925
+fuscus	Mastacomys fuscus Thomas, 1882
+fuscus	Neohydromys fuscus Laurie, 1952
+fuscus	Notomys fuscus (Wood Jones, 1925)
+fuscus	Pseudohydromys fuscus (Laurie, 1952)
+fuscus	Pseudomys fuscus (Thomas, 1882)
+gaetulus	Meriones gaetulus Lataste, 1882
+gaillardi	Anomalomys gaillardi
+gaillardi	Democricetodon gaillardi
+gala	Epimys gala Miller, 1910
+galapagoensis	Mus galapagoensis Waterhouse, 1839
+galbreathi	Coloradoeumys galbreathi
+gamay	Bullimus gamay Rickart, Heaney and Tabaranza Jr., 2002
+gambiana	Gerbilliscus gambiana (Thomas, 1910)
+gambiana	Tatera gambiana Thomas, 1910
+gambianus	Epimys gambianus Thomas, 1911
+gansunica	Kowalskia gansunica
+garamantis	Gerbillus (Hendecapleura) garamantis Lataste, 1881
+gargantua	Hattomys gargantua
+gaudryi	Anomalomys gaudryi
+gaudryi	Parapodemus gaudryi
+gaudryi	Parapodemus gaudryi gaudryi
+gedeedus	Gerbillus gedeedus Osborn and Helmy, 1980
+geisha	Micromys geisha Thomas, 1905
+gentilulus	Mus musculus subsp. gentilulus Thomas 1919
+gerandianus	Eucricetodon gerandianus
+gerbei	Arvicola gerbei Gerbe, 1879
+gerbillus	Gerbillus (Gerbillus) gerbillus (Olivier, 1800)
+germaini	Rattus germaini Milne-Edwards, 1872
+germani	Mayermys germani Helgen, 2005
+germani	Pseudohydromys germani (Helgen, 2005)
+gernoti	Anomalomys gernoti
+gertcheki	Enginia gertcheki
+ghia	Apodemus ghia
+gidleyi	Calomys (Bensonomys) gidleyi
+giffardi	Tatera giffardi Wroughton, 1906
+giganteus	Gerbillus giganteus Büchner, 1889
+giganteus	Mus giganteus Hardwicke, 1804
+gigas	Grammomys gigas (Dollman, 1911)
+gilbiventer	Mus gilbiventer Miller, 1903
+giliacus	Apodemus giliacus (Thomas, 1907)
+giluwensis	Rattus giluwensis Hill, 1960
+glareolus	Mus glareolus Schreber, 1780
+glaucus	Pseudomys glaucus Thomas, 1910
+glauerti	Rattus glauerti Thomas, 1926
+gleadowi	Gerbillus (Gerbillus) gleadowi Murray, 1886
+gleadowi	Millardia gleadowi (Murray, 1886)
+gleadowi	Mus gleadowi Murray, 1885
+gliroides	Chiropodomys gliroides (Blyth, 1856)
+gloveri	Geringia gloveri
+goliath	Hyomys goliath (Milne-Edwards, 1900)
+gonzalesi	Chrotomys gonzalesi Rickart and Heaney, 1991
+goriensis	Microtus schidlovskii subsp. goriensis
+goslingi	Colomys goslingi Thomas and Wroughton, 1907
+gotschobi	Microtus nivalis subsp. gotschobi
+gouldi	Hapalotis gouldi Gould, 1863
+gouldii	Mesembriomys gouldii (Gray, 1843)
+gouldii	Mus gouldii Waterhouse, 1839
+gouldii	Pseudomys gouldii (Waterhouse, 1839)
+goundae	Mus (Nannomys) goundae F. Petter and Genest, 1970
+gracilicaudatus	Mus gracilicaudatus Gould, 1845
+gracilicaudatus	Pseudomys gracilicaudatus (Gould, 1845)
+gracilicaudatus	Thetomys gracilicaudatus
+gracilirostris	Apomys gracilirostris Ruedas, 1995
+gracilis	Castillomys gracilis
+gracilis	Democricetodon minor gracilis
+gracilis	Epimys gracilis Miller, 1913
+gracilis	Melomys gracilis (Thomas, 1906)
+gracilis	Nesokia gracilis Nehring, 1902
+gracilis	Taterillus gracilis (Thomas, 1892)
+gracilis	Thetomys gracilis
+graecus	Spalax graecus graecus Nehring, 1898
+grahami	Leggada grahami Ryley, 1913
+grandis	Hylomyscus grandis Eisentraut, 1969
+grandis	Meriones (Pallasiomys) grandis Cabrera, 1907
+grandis	Nectomys grandis Thomas, 1897
+granti	? granti Wroughton, 1908
+granti	Aethomys granti (Wroughton, 1908)
+granti	Batomys granti Thomas, 1895
+granti	Micaelamys granti (Wroughton, 1908)
+grata	Leggada grata Thomas and Wroughton, 1910
+gregalis	Mus gregalis Pallas, 1779
+gregarius	Megacricetodon gregarius
+gregarius	Microtus agrestis gregarius (Linnaeus, 1766)
+gressitti	Paramelomys gressitti Menzies, 1996
+greyii	Mus greyii Gray, 1841
+greyii	Rattus greyii
+griffithi	Nesokia griffithi Horsfield, 1851
+griseicauda	Stenocephalemys griseicauda F. Petter, 1972
+griseipectus	Mus griseipectus Milne-Edwards, 1872
+griselda	Lemniscomys griselda (Thomas, 1904)
+griseocaeruleus	Mus griseocaeruleus Higgins and Petterd, 1883
+grobbeni	Gerbillus (Hendecapleura) grobbeni Klaptocz, 1909
+gromovi	Eolaurus gromovi Topatchevski, 1963
+grootensis	Hydromys grootensis Troughton, 1935
+gudrunae	Apodemus gudrunae
+gueinzii	Dasymys gueinzii Peters, 1875
+guentheri	Mus guentheri Danford & Alston, 1880
+guhai	Mus guhai Nath, 1952
+guildayi	Proneofiber guildayi
+guineae	Gerbilliscus (Taterona) guineae (Thomas, 1910)
+guineae	Tatera guineae Thomas, 1910
+gulantang	Musseromys gulantang Heaney, Balete, Rickart, Veluz and Jansa, 2009
+gunung	Mallomys gunung Flannery, Aplin and Groves, 1989
+gurkha	Apodemus flavicollis subsp. gurkha
+gurkha	Apodemus gurkha Thomas, 1924
+gurkha	Leggadilla gurkha Thomas, 1914
+gurkha	Mus platythrix subsp. gurkha
+gustelyi	Repomys gustelyi
+guyonii	Gerbillus guyonii Loche, 1867
+habbema	Baiyankamys habbema (Tate and Archbold, 1941)
+habbema	Hydromys habbema Tate and Archbold, 1941
+hadrourus	Melomys hadrourus Winter, 1984
+hadrourus	Uromys (Uromys) hadrourus (Winter, 1984)
+hagni	Deperetomys hagni
+hainaldi	Rattus hainaldi Kitchener, How and Maharadatunkamsi, 1991
+hamatus	Rattus hamatus Miller and Hollister, 1921
+hamatus	Taeromys hamatus (Miller and Hollister, 1921)
+hamiltoni	Clethrionomys hamiltoni Traub 1944
+hangaicus	Lasiopodomys brandtii subsp. hangaicus
+hannygtoni	Leggada hannygtoni Ryley, 1913
+hannyngtoni	Leggada hannyngtoni Ryley, 1913
+hardwickei	Gerbillus hardwickei Gray, 1843
+hardwickei	Mus hardwickei Gray, 1837
+harringtoni	Dasmomys harringtoni
+harringtoni	Desmomys harringtoni (Thomas, 1902)
+harringtoni	Taterillus harringtoni (Thomas, 1906)
+harti	Mus harti Thomas, 1898
+hartwigi	Praomys hartwigi Eisentraut, 1968
+harwoodi	Dipodillus (Petteromys) harwoodi (Thomas, 1901)
+harwoodi	Gerbillus harwoodi Thomas, 1901
+hausi	Heterocricetodon hausi
+haussa	Mus (Nannomys) haussa (Thomas and Hinton, 1920)
+hayi	Mus hayi Waterhouse, 1838
+heaneyi	Crateromys heaneyi Gonzales and Kennedy, 1996
+hebridensis	Apodemus hebridensis
+hebridensis	Mus hebridensis de Winton, 1895
+heinrichi	Bunomys heinrichi (Tate and Archbold, 1935)
+helbingi	Heterocricetodon helbingi
+hellenicus	Ruscinomys hellenicus
+helleri	Aethomys helleri
+helleri	Otomys helleri Frick, 1914
+helleri	Rattus helleri Hollister, 1918
+hellwaldii	Maxomys hellwaldii (Jentink, 1878)
+helukus	Dasymys helukus Heller, 1910
+helveticus	Eumyarion helveticus
+hemileucurus	Hapalotis hemileucurus Gould, 1858
+henleyi	Gerbillus (Hendecapleura) henleyi (de Winton, 1903)
+herero	Thallomys herero Thomas, 1926
+hermannsburgensi	Leggadinas hermannsburgensi
+hermannsburgensis	Leggadina hermannsburgensis
+hermannsburgensis	Mus hermannsburgensis Waite, 1896
+hermannsburgensis	Pseudomys hermannsburgensis (Waite, 1896)
+hermonensis	Apodemus hermonensis Filippucci, Simson and Nevo, 1989
+hershkovitzi	Bensonomys hershkovitzi
+hesperinus	Gerbillus (Gerbillus) hesperinus Cabrera, 1936
+hibbardi	Guildayomys hibbardi
+hibbardi	Paramicrotoscoptes hibbardi
+hibernicus	Mus hibernicus Thompson, 1837
+higginsi	Mus higginsi Trouessart, 1897
+higginsi	Pseudomys higginsi (Trouessart, 1897)
+hilda	Dipodillus hilda Thomas, 1918
+hildebrandtii	Mastomys hildebrandtii (Peters, 1878)
+hildebrandtii	Mus hildebrandtii Peters, 1878
+hildegardeae	Zelotomys hildegardeae (Thomas, 1902)
+hindei	Aethomys hindei (Thomas, 1902)
+hinpoon	Niviventer hinpoon (J. T. Marshall Jr., 1976)
+hipparionum	Mus hipparionum
+hirsutus	Mus hirsutus Elliot, 1839
+hirsutus	Mus hirsutus Gould, 1842
+hirtensis	Apodemus hirtensis
+hirtensis	Mus hirtensis Barrett-Hamilton, 1899
+hirtipes	Gerbillus hirtipes Lataste, 1881
+hispanicus	Democricetodon hispanicus
+hispanicus	Progonomys hispanicus
+hispidus	Mus hispidus Brants, 1827
+hoffmanni	Rattus hoffmanni (Matschie, 1901)
+hollisteri	Apomys hollisteri (Ellerman, 1949)
+holocuspis	Prosigmodon holocuspis
+hoogerwerfi	Rattus hoogerwerfi Chasen, 1939
+hoogstraali	Gerbillus (Gerbillus) hoogstraali Lay, 1975
+hoogstraali	Lemniscomys hoogstraali Dieterlen, 1991
+hopkinsi	Pelomys hopkinsi Hayman, 1955
+hopkinsi	Predicrostonyx hopkinsi
+hopkinsoni	Tatera hopkinsoni Thomas, 1911
+horeites	Mus horeites Hodgson, 1845
+howi	Melomys howi Kitchener, in Kitchener and Suyanto, 1996
+hoxaensis	Rattus hoxaensis Dao, 1960
+huang	Mus huang Bonhote, 1905
+huberi	Atavocricetodon huberi
+huberti	Mastomys huberti (Wroughton, 1909)
+hugueneyae	Atavocricetodon hugueneyae
+humei	Hadromys humei (Thomas, 1886)
+humei	Mus humei Thomas, 1886
+humiliatus	Mus humiliatus Milne-Edwards, 1868
+humilis	Reithrodontomys humilis (Audubon and Bachman, 1941) [orth. error]
+hungaricus	Cricetodon hungaricus
+hungaricus	Pliomys hungaricus
+hunteri	Acomys hunteri de Winton, 1901
+hurrianae	Meriones (Cheliones) hurrianae Jordon, 1867
+hussoni	Hydromys hussoni Musser and Piik, 1982
+huttereri	Lophuromys (Lophuromys) huttereri W. Verheyen, Colyn and Hulselmans, 1996
+huttoni	Mus huttoni Blyth, 1846
+hylocetes	Apomys hylocetes Mearns, 1905
+hylocoetes	Apomys hylocoetes Mearns, 1905
+hylomyoides	Maxomys hylomyoides (Robinson and Kloss, 1916)
+hypoleucus	Mus hypoleucus Pucheran, 1855
+hypoxanthus	Oenomys hypoxanthus (Pucheran, 1855)
+hyrcanicus	Apodemus hyrcanicus Vorontsov, Boyeskorov and Mezhzherin, 1992
+hystrella	Acomys hystrella Heller, 1911
+ibeanus	Grammomys ibeanus (Osgood, 1910)
+ibericus	Megacricetodon ibericus
+iconica	Tatera iconica Dollman, 1911
+iconicus	Apodemus sylvaticus iconicus
+idjibudoo	Leggadina idjibudoo
+ignitus	Acomys (Acomys) ignitus Dollman, 1910
+ilex	Apodemus ilex Thomas, 1922
+illovoensis	Mus illovoensis Jentink, 1909
+imbellis	Ammodillus imbellis (de Winton, 1898)
+imberbis	Muriculus imberbis (Rüppell, 1842)
+imitator	Anisomys imitator Thomas, 1904
+imperator	Uromys (Cyromys) imperator (Thomas, 1888)
+inas	Maxomys inas (Bonhote, 1906)
+inclusa	Tatera inclusa Thomas and Wroughton, 1908
+inclusus	Gerbilliscus (Taterona) inclusus (Thomas and Wroughton, 1908)
+incomtus	Dasymys incomtus (Sundevall, 1847)
+indica	Bandicota indica (Bechstein, 1800)
+indica	Nesokia indica (Gray, 1830)
+indica	Tatera indica (Hardwicke, 1807)
+indosinicus	Rattus indosinicus Osgood, 1932
+indus	Dipodillus indus Thomas, 1920
+indutus	Mus (Nannomys) indutus (Thomas, 1910)
+ineptus	Aethomys ineptus (Thomas and Wroughton, 1908)
+inflatus	Castromys inflatus
+inflatus	Maxomys inflatus (Robinson and Kloss, 1916)
+infralactorensis	Eucricetodon infralactorensis
+infralineatus	Mus infralineatus Blyth, 1863
+infraluteus	Sundamys infraluteus (Thomas, 1888)
+inopinatus	Musseromys inopinatus Heaney, Balete, Rickart, Veluz and Jansa, 2014
+insignis	Apomys insignis Mearns, 1905
+insolitus	Paciculus insolitus
+insularis	Malpaisomys insularis Hutterer, Lopez-Martinez and Michaux, 1988
+insularis	Mus insularis Waterhouse, 1839
+insularis	Nesokia insularis Goodwin, 1940
+integer	Mus integer Miller, 1901
+intermedia	Deperetomys intermedia
+intermedia	Kowalskia intermedia
+intermedius	Apodemus intermedius
+intermedius	Deperetomys intermedius
+intermedius	Mus intermedius Bellamy, 1839
+ique	Mus ique
+iranensis	Meriones iranensis Goodwin, 1939
+irroratus	Otomys irroratus (Brants, 1827)
+isarogensis	Rhynchomys isarogensis Musser and Freeman, 1981
+isis	Meriones isis Thomas, 1919
+islandicus	Apodemus islandicus
+islandicus	Mus islandicus Thienemann, 1824
+ismahelis	Meriones ismahelis Cheesman and Hinton, 1924
+isseli	Pelomys isseli (De Beaux, 1924)
+istapantap	Mallomys istapantap Flannery, Aplin and Groves, 1989
+istricus	Spalax graecus istricus (Mehely, 1909)
+italicus	Arvicola terrestris italicus Savi, 1839
+ition	Pithecheirops ition
+jabouillei	Bandicota jabouillei Thomas, 1927
+jacksoni	Otomys jacksoni Thomas, 1891
+jacksoni	Praomys jacksoni (de Winton, 1897)
+jacksoniae	Leggada jacksoniae Thomas, 1921
+jacksoniae	Mus pahari subsp. jacksoniae
+jaculus	Mus jaculus Linnaeus, 1758
+jalorensis	Mus jalorensis Bonhote, 1903
+jamesi	Dipodillus (Petteromys) jamesi (Harrison, 1967)
+jamesi	Gerbillus jamesi Harrison, 1967
+jarak	Mus jarak Bonhote, 1905
+javanus	Mus javanus Hermann, 1804
+jebelae	Arvicanthis jebelae Heller, 1911
+jerdoni	Leggada jerdoni Blyth, 1863
+jingdongensis	Chiropodomys jingdongensis Wu and Deng, 1984
+jobiensis	Rattus jobiensis Rümmler, 1935
+johannis	Acomys (Acomys) johannis Thomas, 1912
+johnsoni	Pseudomys johnsoni Kitchener, 1985
+jonesi	Leporillus jonesi Thomas, 1921
+jordani	Dipodillus jordani Thomas, 1918
+jotae	Cricetodon jotae
+jujensis	Mus jujensis Lönnberg, 1916
+juliani	Gerbillus juliani (St. Leger, 1935)
+julianus	Mus julianus Miller, 1903
+jumaensis	Cricetodon jumaensis
+juniensis	Castromys juniensis
+kaiseri	Aethomys kaiseri (Noack, 1887)
+kaiseri	Dipodillus kaiseri Setzer, 1958
+kalinga	Archboldomys kalinga Balete, Rickart and Heaney, 2006
+kalinga	Soricomys kalinga (Balete, Rickart and Heaney, 2006)
+kandianus	Mus kandianus Kelaart, 1850
+kandiyanus	Mus kandiyanus Kelaart, 1887
+karlkoopmani	Chiropodomys karlkoopmani Musser, 1979
+karoensis	Otomys karoensis Roberts, 1931
+karokophilus	Bunomys karokophilus Musser, 2014
+kasaica	Mus kasaica (Cabrera, 1924)
+kasaicus	Mus kasaicus (Cabrera, 1924)
+kasapligili	Cricetodon kasapligili
+kathleenae	Millardia kathleenae Thomas, 1914
+kavakderensis	Paracricetodon kavakderensis
+kazakstanicus	Pappocricetodon kazakstanicus
+kelaarti	Epimys kelaarti Wroughton, 1915
+kellamorum	Scottimus kellamorum
+kelleri	Mus kelleri Mearns, 1905
+kempeni	Edirnella kempeni
+kempi	Acomys (Acomys) kempi Dollman, 1911
+kempi	Gerbilliscus kempi (Wroughton, 1906)
+kempi	Otomys kempi Dollman, 1915
+kempi	Tatera kempi Wroughton, 1906
+kempi	Thamnomys kempi Dollman, 1911
+kempii	Gerbilliscus (Taterona) kempii (Wroughton, 1906)
+kempii	Tatera kempii Wroughton, 1906
+kennethi	Rattus kennethi Kloss, 1919
+kerbispeterhansi	Hylomyscus kerbispeterhansi Demos, Agwanda and Hickerson, 2014
+khubsugulensis	Alticola khubsugulensis Litvinov, 1973
+kijabius	Mus kijabius J. A. Allen, 1909
+kilikiae	Apodemus sylvaticus kilikiae
+kina	Mus kina Bonhote, 1903
+kirrhos	Coccymys kirrhos Musser and Lunde, 2009
+klossi	Rattus klossi Bonhote, 1906
+kodjayarmensis	Paracricetodon kodjayarmensis
+koenigswaldi	Fahlbuschia koenigswaldi
+koenigswaldi	Pliophenacomys koenigswaldi
+kok	Mus kok Gray, 1837
+kokonorensis	Tachyoryctoides kokonorensis
+kollmannspergeri	Mastomys kollmannspergeri (F. Petter, 1957)
+kondana	Millardia kondana Mishra and Dhanda, 1975
+koopmani	Rattus koopmani Musser and Holden, 1991
+korinchi	Rattus korinchi (Robinson and Kloss, 1916)
+korthi	Leidymys korthi
+koslovi	Gerbillus koslovi Satunin, 1903
+koslovi	Meriones koslovi (Satunin, 1903)
+kosogol	Alticola kosogol Litvinov, 1973
+kozaniensis	Micromys kozaniensis
+kozhantschikovi	Cricetulus kozhantschikovi Vinogradov, 1927
+krkensis	Apodemus krkensis
+kurauchii	Meriones kurauchii Mori, 1930
+kurilensis	Mus kurilensis Kuroda, 1924
+kurthi	Eucricetodon (Atavocricetodon) kurthi
+kuru	Grammomys kuru (Thomas and Wroughton, 1907)
+laborifex	Pseudomys laborifex Kitchener and Humphreys, 1986
+lacus	Rattus lacus Tate, 1951
+lacustris	Otomys lacustris G. M. Allen and Loveridge, 1933
+lacustris	Taterillus lacustris (Thomas and Wroughton, 1907)
+lakedownensis	Leggadina lakedownensis Watts, 1976
+lalolis	Rattus lalolis Tate and Archbold, 1935
+lamia	Chiruromys lamia (Thomas, 1897)
+laminatus	Otomys laminatus Thomas and Schwann, 1905
+lamington	Uromys lamington Troughton, 1937
+landroveri	Heterocricetodon landroveri
+langbianis	Niviventer langbianis (Robinson and Kloss, 1922)
+lanosus	Mammelomys lanosus (Thomas, 1922)
+lanosus	Melomys lanosus Thomas, 1922
+lanuginosus	Mus lanuginosus Elliot, 1839
+lappi	Megacricetodon (Collongomys) lappi
+larteti	Fahlbuschia larteti
+larus	Apodemus larus
+lasallei	Ruscinomys lasallei
+latastei	Gerbillus (Gerbillus) latastei Thomas and Trouessart, 1903
+latidens	Abditomys latidens (Sanborn, 1952)
+latidens	Pseudomeriones latidens
+latior	Eumyarion latior
+latipes	Melomys latipes Tate and Archbold, 1935
+latipes	Mus latipes Bennett, 1835
+latouchei	Mus latouchei Thomas, 1897
+latronum	Apodemus latronum Thomas, 1911
+latycranius	Cricetus cricetus latycranius Ognev, 1922
+lavocati	Cricetodon (Pseudoruscinomys) lavocati
+lavocati	Neocricetodon lavocati
+lawnensis	Hydromys lawnensis Troughton, 1935
+leechi	Cremnomys cutchicus subsp. leechi
+leei	Plesiodipus leei
+leemanni	Eumyarion leemanni
+legata	? legata Thomas, 1906
+legata	Diplothrix legata (Thomas, 1906)
+legatus	Diplothrix legatus (Thomas, 1906)
+legendrei	Nesokia legendrei Goodwin, 1939
+lehocla	Mus lehocla A. Smith, 1836
+lemminus	Eothenomys lemminus Miller, 1898
+lemmus	Mus lemmus
+lemredfieldi	Paronychomys lemredfieldi
+leonardocoi	Soricomys leonardocoi Balete, Rickart, Heaney, Alviola, M. V. Duya, M. R. M. Duya, Sosa and Jansa, 2012
+lepcha	Epimys lepcha Wroughton, 1916
+lepidoides	Leggada lepidoides Fry, 1931
+lepidus	Epimys lepidus Miller, 1913
+lepidus	Pogonomys lepidus Thomas, 1897
+leporinus	Mus leporinus
+lepturus	Gerbillus lepturus Büchner, 1889
+lepturus	Niviventer lepturus (Jentink, 1879)
+leucogaster	? leucogaster Peters, 1852
+leucogaster	Gerbilliscus (Taterona) leucogaster (Peters, 1852)
+leucogaster	Hydromys leucogaster É. Geoffroy, 1804
+leucogaster	Melomys leucogaster (Jentink, 1908)
+leucogaster	Mus leucogaster Pictet, 1841
+leucogaster	Tatera leucogaster (Peters, 1852)
+leuconoe	Thallomys leuconoe Thomas, 1926
+leucophaetus	Epimys leucophaetus Hollister, 1913
+leucopus	Mus leucopus Higgins and Petterd, 1881
+leucopus	Mus leucopus Jentink, 1879
+leucopus	Rattus leucopus (Gray, 1867)
+leucorhynchus	Steatomys leucorhynchus Hill & Carter, 1937
+leucura	Echiothrix leucura Gray, 1867
+levernedii	Microtus agrestis levernedii (Crespon, 1844)
+levipes	? levipes Thomas, 1897
+levipes	Melomys levipes (Thomas, 1897)
+levipes	Paramelomys levipes (Thomas, 1897)
+lewisi	Acomys lewisi Atallah, 1967
+lghescicus	Microtus nivalis subsp. lghescicus
+liangshanensis	Proedromys liangshanensis Liu, Sun, Zeng & Zhao, 2007
+libycus	Meriones (Pallasiomys) libycus Lichtenstein, 1823
+licenti	Prosiphneus licenti
+lii	Apodemus lii
+limicauda	Melomys limicauda Troughton, 1935
+limpopoensis	Mus limpopoensis Roberts, 1914
+lindsayi	Bensonomys lindsayi
+lindsayi	Copemys lindsayi
+lineatus	Mus lineatus F. Cuvier, 1829
+lineolatus	Mus lineolatus Gould, 1845
+ling	Mus ling Bonhote, 1905
+lingensis	Mus lingensis Miller, 1900
+linulus	Lemniscomys linulus (Thomas, 1910)
+lissasfensis	Paraethomys lissasfensis
+listeri	Epimys listeri Thomas, 1916
+listoni	Mus listoni Wroughton, 1907
+littledalei	Parotomys littledalei Thomas, 1918
+littoralis	Apomys littoralis (Sanborn, 1952)
+littoralis	Castromys littoralis
+littoralis	Melomys littoralis
+littoralis	Uromys littoralis (Lönnberg, 1916)
+lixa	Gerbillus lixa Yerbury and Thomas, 1895
+llittledalei	Parotomys llittledalei
+lobengulae	Gerbillus lobengulae de Winton, 1898
+lockingtonianus	Leidymys lockingtonianus
+longicaudata	Hapalotis longicaudata Gould, 1844
+longicaudatus	Hapalomys longicaudatus Blyth, 1859
+longicaudatus	Mystromys longicaudatus Noack, 1887
+longicaudatus	Notomys longicaudatus (Gould, 1844)
+longicaudatus	Stochomys longicaudatus (Tullberg, 1893)
+longicaudus	Lenomys longicaudus Miller and Hollister, 1921
+longicaudus	Meriones longicaudus Wagner, 1843
+longidens	Copemys longidens
+longidens	Eucricetodon longidens
+longifrons	Meriones longifrons Lataste, 1884
+longipes	Malacomys longipes Milne-Edwards, 1877
+longipes	Mus longipes
+longipilis	Mus longipilis Gould, 1854
+longiquus	Scottimus longiquus
+longmani	Hydromys longmani Thomas, 1923
+lopezae	Megacricetodon lopezae
+lophatus	Scottimus lophatus
+lordi	Gunomys lordi Wroughton, 1908
+lorentzi	Melomys lorentzi
+lorentzii	? lorentzii Jentink, 1908
+lorentzii	Melomys lorentzii (Jentink, 1908)
+lorentzii	Paramelomys lorentzii (Jentink, 1908)
+loriae	Pogonomys loriae Thomas, 1897
+loringi	Thallomys loringi (Heller, 1909)
+losea	Rattus losea (Swinhoe, 1871)
+louisae	Acomys (Peracomys) louisae Thomas, 1896
+louiseae	Mirzamys louiseae Helgen and L. Helgen, 2009
+louisi	Chardinomys louisi
+lowei	? lowei Thomas & Hinton, 1923
+lowei	Dipodillus (Petteromys) lowei (Thomas and Hinton, 1923)
+lowei	Gerbillus lowei (Thomas and Hinton, 1923)
+lowei	Mylomys lowei Hayman, 1936
+loxodon	Copemys loxodon
+lucas	Mus lucas Miller, 1903
+luciana	Neotoma fuscipes subsp. luciana
+lugdunensis	Parapodemus lugdunensis
+lugens	Rattus lugens (Miller, 1903)
+lukolelae	? lukolelae Hatt, 1934
+lukolelae	Malacomys lukolelae (Hatt, 1934)
+lukolelae	Praomys lukolelae (Hatt, 1934)
+lunaris	Hybomys (Hybomys) lunaris (Thomas, 1906)
+lusitanicus	Arvicola lusitanicus Gerbe, 1879
+lusitanicus	Cricetodon (Hispanomys) lusitanicus
+luta	Epimys luta Miller, 1913
+luteiventris	Mus luteiventris J. A. Allen, 1910
+luteogaster	Lophuromys (Kivumys) luteogaster Hatt, 1934
+luteolus	Mus luteolus Miller, 1903
+luteus	Dipodillus luteus Dollman, 1914
+lutillus	Melomys lutillus (Thomas, 1913)
+lutillus	Uromys lutillus Thomas, 1913
+lutreolus	Rattus lutreolus (J. E. Gray, 1841)
+lutrilla	Hydromys lutrilla Gould, 1863
+luzonensis	Archboldomys luzonensis Musser, 1982
+luzonicus	Bullimus luzonicus (Thomas, 1895)
+maccalinus	Meriones maccalinus Sundevall, 1847
+macculus	Lemniscomys macculus (Thomas and Wroughton, 1910)
+macedonicus	Mus (Mus) macedonicus Petrov and Ruzic, 1983
+macgillivraii	Microtus agrestis macgillivraii Barrett-Hamilton & Hinton, 1913
+mackenziei	Berylmys mackenziei (Thomas, 1916)
+mackilligini	Dipodillus (Petteromys) mackilligini Thomas, 1904
+mackillingini	Gerbillus mackillingini (Thomas, 1904)
+macleari	Rattus macleari (Thomas, 1887)
+macmillani	Grammomys macmillani (Wroughton, 1907)
+macmillani	Rattus macmillani Hinton, 1919
+macoveii	Pliospalax macoveii
+macrocercus	Tateomys macrocercus Musser, 1982
+macropus	Mus macropus Gray, 1866
+macropus	Mus macropus Hodgson, 1845
+macrorhinos	Sommeromys macrorhinos Musser and Durden, 2002
+macrotis	Notomys macrotis Thomas, 1921
+macrourus	Pogonomys macrourus (Milne-Edwards, 1877)
+macrura	Hapalotis macrura Peters, 1876
+macrurus	Mesembriomys macrurus (Peters, 1876)
+maculipilis	Rattus maculipilis Laurie and Hill, 1954
+maerens	Epimys maerens Miller, 1911
+maghrebi	Dipodillus (Dipodillus) maghrebi (Schlitter and Setzer, 1972)
+maghrebi	Gerbillus maghrebi Schlitter and Setzer, 1972
+magilli	Ophiomys magilli
+magna	Kowalskia magna
+magna	Microtia magna
+magnirostris	Mus magnirostris Mearns, 1905
+magnus	Centralomys magnus
+mahomet	Mus (Nannomys) mahomet Rhoads, 1896
+maini	Zyzomys maini Kitchener, 1989
+maiuscula	Microtia maiuscula
+major	Apomys major Miller, 1910
+major	Chiropodomys major Thomas, 1893
+major	Macruromys major Rümmler, 1935
+major	Mus major Severtsov, 1873
+major	Thamnomys major Hatt, 1934
+majusculus	Apodemus majusculus (Turov, 1924)
+makrami	Sekeetamys makrami Setzer, 1961
+malabarica	Mus malabarica Shaw, 1801
+mamasae	Waiomys mamasae Rowe, Achmadi and Esselstyn, 2014
+mandus	Mus mandus Lyon, 1908
+manicatus	Mus manicatus Gould, 1858
+maniculatus	Mus maniculatus Wagner, 1848
+manipulus	Berylmys manipulus (Thomas, 1916)
+manteufeli	Mus manteufeli Matschie, 1911
+manuselae	Rattus manuselae Thomas, 1920
+mara	Epimys mara Miller, 1913
+margarettae	Haeromys margarettae (Thomas, 1893)
+margaritae	Castillomys margaritae
+mariae	Copemys mariae
+mariae	Dipodillus mariae Bonhote, 1910
+mariae	Meriones mariae Cabrera, 1907
+marikquensis	Mus marikquensis A. Smith, 1836
+marmosa	Hapalomys marmosa G. M. Allen, 1927
+marmosurus	Rattus marmosurus Thomas, 1921
+marthae	Hibbardomys marthae
+martinensis	Eucricetodon martinensis
+masae	Mus masae Miller, 1903
+masaretes	Rattus masaretes Sody, 1937
+mashona	Otomys mashona Thomas, 1918
+massaicus	Mus massaicus Pagenstecher, 1885
+matambuai	Melomys matambuai Flannery, Colgan and Trimble, 1994
+mattensis	Nectomys mattensis Thomas, 1903
+matthaeus	Mus matthaeus Miller, 1903
+matthewsi	Guildayomys matthewsi
+mattheyi	Mus (Nannomys) mattheyi F. Petter, 1969
+maura	Mus maura Gray, 1862
+mauritaniae	Gerbillus mauritaniae (Heim de Balsac, 1943)
+maurus	Mus maurus Waterhouse, 1837
+maxi	Sundamys maxi (Sody, 1932)
+maximus	Archboldomys maximus Balete, Rickart, Heaney, Alviola, M. V. Duya, M. R. M. Duya, Sosa and Jansa, 2012
+maximus	Otomys maximus Roberts, 1924
+maxumi	Repomys maxumi
+mayeri	Pogonomelomys mayeri (Rothschild and Dollman, 1932)
+mayeri	Pogonomezomys mayeri
+mayonicus	Epimys mayonicus Hollister, 1913
+mayori	Coelomys mayori Thomas, 1915
+mayori	Mus (Coelomys) mayori (Thomas, 1915)
+mayori	Mus mayori subsp. mayori
+mcgregori	Geringia mcgregori
+mcgrewi	Nebraskomys mcgrewi
+mcknighti	Ophiomys mcknighti
+meadensis	Calomys (Bensonomys) meadensis
+meadensis	Ophiomys meadensis
+medicatus	Mus medicatus Wroughton, 1909
+medicaudatus	Lophuromys (Kivumys) medicaudatus Dieterlen, 1975
+medius	Cremnomys cutchicus subsp. medius
+medius	Cremnomys medius Thomas, 1916
+medius	Dasymys medius Thomas, 1906
+medius	Eumyarion medius
+medius	Microtus oeconomus medius (Nilsson, 1844)
+megalotis	Mus megalotis Lichtenstein, 1829
+megalotis	Notomys megalotis Iredale and Troughton, 1934
+mehelyi	Microtus oeconomus mehelyi Ehik, 1928
+meini	Cricetodon meini
+meini	Parapodemus meini
+melanius	Crunomys melanius Thomas, 1907
+melanoderma	Togomys melanoderma Dieterlen, 1986
+melanonyx	Lophuromys (Lophuromys) melanonyx F. Petter, 1972
+melanura	Hapalotis melanura Gray, 1844
+melanurus	Carpomys melanurus Thomas, 1895
+melanurus	Meriones melanurus Rüppell, 1842
+melanurus	Pithecheir melanurus F. G. Cuvier, 1833
+melanurus	Pithecheir melanurus Lesson, 1840
+melanurus	Rattus melanurus Shamel, 1940
+melibius	Conilurus melibius Thomas, 1921
+melicertes	Hydromys melicertes Thomas, 1921
+melicus	Uromys melicus Thomas, 1913
+melinogaster	Rattus melinogaster Cabrera, 1920
+melli	Mus melli Matschie, 1922
+meltada	Golunda meltada Gray, 1837
+meltada	Millardia meltada (Gray, 1837)
+meltada	Rattus meltada subsp. meltada
+melvilleus	Rattus melvilleus Thomas, 1921
+mengurus	Epimys mengurus Miller, 1911
+mentosus	Rattus mentosus Thomas, 1916
+meridianus	Meriones (Pallasiomys) meridianus (Pallas, 1773)
+meridionalis	Arvicola terrestris meridionalis Ognev, 1922
+meridionalis	Mus meridionalis Costa, 1844
+mesopotamiae	Gerbillus (Hendecapleura) mesopotamiae Harrison, 1956
+messorius	Mus messorius Kerr, 1792
+messorius	Pseudomys messorius Thomas, 1925
+meyeri	Lenomys meyeri (Jentink, 1879)
+microbullatus	Taeromys microbullatus (Tate and Archbold, 1935)
+microdon	Apomys microdon Hollister, 1913
+microdon	Mus microdon Peters, 1852
+microtis	Apodemus microtis Miller, 1912
+middendorffi	Arvicola middendorffi Poliakov, 1881
+migratorius	Mus migratorius Pallas, 1773
+millardi	Dacnomys millardi Thomas, 1916
+milleti	Leopoldamys milleti (Robinson and Kloss, 1922)
+millicens	Microtus millicens Thomas, 1991
+mimulus	Dipodillus mimulus Thomas, 1902
+mimus	Prosomys mimus
+minahassae	Haeromys minahassae (Thomas, 1896)
+minatus	Mus minatus Schinz, 1840
+mindanensis	Mus mindanensis Mearns, 1905
+mindorensis	Anonymomys mindorensis Musser, 1981
+mindorensis	Chrotomys mindorensis Kellogg, 1945
+mindorensis	Rattus mindorensis (Thomas, 1898)
+minimus	Mus minimus Peters, 1852
+minimus	Mus minimus White, 1789
+minnae	Grammomys minnae Hutterer and Dieterlen, 1984
+minnie	Pseudomys minnie Troughton, 1932
+minor	Anomalomys minor
+minor	Democricetodon minor
+minor	Democricetodon minor minor
+minor	Huerzelerimys minor
+minor	Megacricetodon minor
+minor	Pelomys minor Cabrera and Ruxton, 1926
+minor	Praomys minor Hatt, 1934
+minous	Acomys (Acomys) minous Bate, 1906
+minusculus	Atavocricetodon minusculus
+minutoides	Mus (Nannomys) minutoides A. Smith, 1834
+minutus	Anomalomys minutus
+minutus	Megacricetodon minutus
+minutus	Micromys minutus (Pallas, 1771)
+mirabilis	Lartetomys mirabilis
+misonnei	Praomys misonnei Van der Straeten and Dieterlen, 1987
+mitchellii	Dipus mitchellii Ogilby, 1838
+mitchellii	Notomys mitchellii (Ogilby, 1838)
+mittendofi	Lemniscomys mittendofi
+mittendorfi	Lemniscomys mittendorfi Eisentraut, 1968
+mixtus	Melomys mixtus Troughton, 1935
+moae	Hydromys moae Troughton, 1935
+moggi	Mus moggi Roberts, 1913
+moguntiacus	Pseudocricetodon moguntiacus
+moguntiacus	Pseudocricetodon moguntiacus moguntiacus
+moi	Maxomys moi (Robinson and Kloss, 1922)
+molassicus	Microtocricetus molassicus
+moldavica	Kowalskia moldavica
+mollicomulus	Rattus mollicomulus Tate and Archbold, 1935
+mollicomus	Rattus mollicomus Miller and Hollister, 1921
+molliculus	Rattus molliculus Robinson and Kloss, 1922
+mollipilosus	Mus mollipilosus Peters and Doria, 1881
+mollipilosus	Pogonomys mollipilosus (Peters & Doria, 1881)
+mollis	? mollis Thomas, 1913
+mollis	Melomys mollis (Thomas, 1913)
+mollis	Paramelomys mollis (Thomas, 1913)
+molossinus	Mus molossinus Temminck, 1845
+mombasae	Tatera mombasae Wroughton, 1906
+monahani	Loupomys monahani
+moncktoni	Crossomys moncktoni Thomas, 1907
+moncktoni	Melomys moncktoni (Thomas, 1904)
+moncktoni	Paramelomys moncktoni (Thomas, 1904)
+mongolicus	Nannocricetus mongolicus
+montalbensis	Pseudocricetodon montalbensis
+montanus	Dasymys montanus Thomas, 1906
+montanus	Meriones montanus A. Smith, 1842
+montanus	Paciculus montanus
+montanus	Rattus montanus Phillips, 1932
+montanus	Soricomys montanus Balete, Rickart, Heaney, Alviola, M. V. Duya, M. R. M. Duya, Sosa and Jansa, 2012
+montheleni	Occitanomys montheleni
+monticola	Arvicola terrestris monticola de Selys-Longchamps, 1838
+montis	Praomys montis
+montisrotundi	Rotundomys montisrotundi
+moojeni	Oligoryzomys moojeni (Weksler & Bonvicino, 2005)
+mordax	Arvicanthis mordax Thomas, 1911
+mordax	Bandicota mordax Thomas, 1916
+mordax	Notomys mordax Thomas, 1922
+mordax	Rattus mordax (Thomas, 1904)
+mordicus	Mastacomys mordicus Thomas, 1922
+morio	Praomys morio (Trouessart, 1881)
+morotaiensis	Rattus morotaiensis Kellogg, 1945
+morungensis	Mus morungensis Hodgson in Horsfield, 1855
+muansae	Mus muansae Matschie, 1911
+muelleri	Sundamys muelleri (Jentink, 1879)
+muennicki	Tokudaia muennicki
+muenninki	Tokudaia muenninki (Johnson, 1946)
+mullah	Acomys (Acomys) mullah Thomas, 1904
+multifidus	Aratomys multifidus
+multiplex	Arvicola multiplex Fatio, 1905
+mundi	Rotundomys mundi
+muriculus	Gerbillus (Hendecapleura) muriculus (Thomas and Hinton, 1923)
+murinus	Atavocricetodon murinus
+murinus	Hapalotis murinus Gould, 1845
+murinus	Pseudohydromys murinus Rümmler, 1934
+murinus	Uromys murinus Thomas, 1913
+muroides	Chiropodomys muroides Medway, 1965
+murrayi	Mus murrayi Thomas, 1923
+muscardinus	Mus muscardinus Wagner, 1843
+musculoides	Mus (Nannomys) musculoides Temminck, 1853
+musculus	Apomys musculus Miller, 1911
+musculus	Mus (Mus) musculus Linnaeus, 1758
+musculus	Mus musculus sp. domesticus Rutty, 1772
+musculus	Mus musculus sp. musculus
+musculus	Mus musculus subsp. musculus
+musignanus	Arvicola terrestris musignanus de Selys-Longchamps, 1839
+musschenbroekii	Maxomys musschenbroekii (Jentink, 1879)
+musseri	Archboldomys musseri Rickart, Heaney, Tabaranza Jr. and Balete, 1998
+musseri	Microhydromys musseri Flannery, 1989
+musseri	Microtus musseri Lawrence, 1982
+musseri	Pseudohydromys musseri (Flannery, 1989)
+musseri	Soricomys musseri (Rickart, Heaney, Tabaranza Jr. and Balete, 1998)
+mutilus	Democricetodon mutilus
+mutoni	Praomys mutoni Van der Straeten and Dudu, 1990
+muzei	Acomys (Acomys) muzei Verheyen, Hulselmans, Wendelen, Leirs, Corti, Backeljau and Verheyen, 2011
+myoides	Xeromys myoides Thomas, 1889
+myosurus	Meriones myosurus Wagner, 1845
+myothrix	Mus myothrix Hodgson, 1845
+mystacinus	Apodemus mystacinus (Danford and Alston, 1877)
+nagarum	Leggada nagarum Thomas, 1921
+nairobae	Arvicanthis nairobae J. A. Allen, 1909
+naivashae	Leggada naivashae Heller, 1910
+namaquensis	? namaquensis A. Smith, 1834
+namaquensis	Aethomys namaquensis (A. Smith, 1834)
+namaquensis	Micaelamys namaquensis (A. Smith, 1834)
+nancillus	Gerbillus (Gerbillus) nancillus Thomas and Hinton, 1923
+nanoides	Atavocricetodon nanoides
+nanus	Atavocricetodon nanus
+nanus	Gerbillus (Hendecapleura) nanus Blanford, 1875
+nanus	Pseudomys nanus (Gould, 1858)
+narboroughi	Nesoryzomys narboroughi Heller, 1904
+nasarovi	Pitymus daghestanicus subsp. nasarovi
+naso	Melasmothrix naso Miller and Hollister, 1921
+naso	Paramelomys naso (Thomas, 1911)
+naso	Paulamys naso (Musser, 1981)
+nasutus	Epimys nasutus Lyon, 1911
+natalensis	Mastomys natalensis (A. Smith, 1834)
+nativitatis	Rattus nativitatis (Thomas, 1889)
+nauticus	Hydromys nauticus Thomas, 1921
+nawabi	Pseudocricetodon nawabi
+nazarii	Hattomys nazarii
+neavei	Mus (Nannomys) neavei (Thomas, 1910)
+nebraskensis	Paciculus nebraskensis
+nebrodensis	Microtus savii nebrodensis (Mina-Palumbo, 1868)
+neglectus	Microtus agrestis neglectus (Jenyns, 1841)
+neglectus	Mus neglectus Jentink, 1880
+neilli	Leopoldamys neilli (J. T. Marshall Jr., 1976)
+nematodon	Leidymys nematodon
+nemoralis	Mus nemoralis Blyth, 1851
+nemoralis	Mus nemoralis Selys-Longchamps, 1841
+nemorivagus	Mus nemorivagus Hodgson, 1836
+nenjukovi	Chionomys nivalis subsp. nenjukovi
+neobritanicus	Uromys neobritanicus Tate and Archbold, 1935
+neobritannicus	Hydromys neobritannicus Tate and Archbold, 1935
+neobritannicus	Uromys (Uromys) neobritannicus Tate and Archbold, 1935
+neobrittanicus	Hydromys neobrittanicus Tate and Archbold, 1935
+nero	Uromys nero Thomas, 1913
+nesiotes	Acomys (Acomys) nesiotes Bate, 1903
+nestori	Kowalskia nestori
+neumanni	Arvicanthis neumanni (Matschie, 1894)
+neutrum	Occitanomys neutrum
+newara	Mus newara Kelaart, 1850
+newtoni	Cricetus newtoni Nehring, 1898
+ngurui	Acomys (Acomys) ngurui Verheyen, Hulselmans, Wendelen, Leirs, Corti, Backeljau and Verheyen, 2011
+niadis	Chiropodomys niadis Miller, 1903
+nicefori	Thomasomys nicefori Thomas, 1921
+nigellus	Rattus nigellus Miller and Hollister, 1921
+nigeriae	Gerbillus (Gerbillus) nigeriae Thomas and Hinton, 1920
+nigeriae	Taterillus nigeriae Thomas, 1911
+nigra	Microtus agrestis nigra (Fatio, 1869)
+nigrescens	Cricetulus nigrescens G.M. Allen, 1925
+nigricauda	Tatera nigricauda (Peters, 1878)
+nigricauda	Thallomys nigricauda (Thomas, 1882)
+nigricaudus	? nigricaudus Peters, 1878
+nigricaudus	Gerbilliscus (Taterona) nigricaudus (Peters, 1878)
+nigrita	Tatera nigrita Wroughton, 1906
+nigritalus	Apodemus nigritalus Hollister, 1913
+nikosi	Byzantinia nikosi
+nilagirica	Vandeleuria nilagirica (Jerdon, 1867)
+nilagiricus	Mus nilagiricus Jerdon, 1867
+niloticus	Arvicanthis niloticus (Desmarest, 1822)
+niloticus	Arvicanthis niloticus (E. Geoffroy, 1803)
+ningensis	Spanocricetodon ningensis
+ningpoensis	Mus ningpoensis Swinhoe, 1870
+niobe	? niobe Thomas, 1906
+niobe	Rattus niobe (Thomas, 1906)
+niobe	Stenomys niobe (Thomas, 1906)
+nitidulus	Mus (Mus) nitidulus Blyth, 1859
+nitidus	Rattus nitidus (Hodgson, 1845)
+nivalis	Arvicola nivalis Martins, 1842
+niveiventris	Mus niveiventris Osgood, 1910
+niviventer	Niviventer niviventer (Hodgson, 1836)
+nolthenii	Vandeleuria nilagirica subsp. nolthenii
+nolthenii	Vandeleuria nolthenii Phillips, 1929
+nolthenii	Vandeleuria oleracea subsp. nolthenii
+nombrevillae	Cricetodon (Hispanomys) nombrevillae
+norae	Mus norae Wroughton, 1909
+norahae	Mirzamys norahae Helgen and L. Helgen, 2009
+nordmanni	Mus nordmanni Keyserling and Blasius, 1840
+norvegicus	Mus norvegicus Berkenhout, 1769
+norvegicus	Rattus norvegicus (Berkenhout, 1769)
+nouhuysi	Lorentzimys nouhuysi Jentink, 1911
+novaeguineae	Rattus novaeguineae Taylor and Calaby, 1982
+novaehollandiae	Mus novaehollandiae Waterhouse, 1843
+novaehollandiae	Pseudomys novaehollandiae (Waterhouse, 1843)
+novaezelandiae	Mus novaezelandiae Buller, 1871
+novarae	Mus novarae Fitzinger, 1861
+nudicaudus	Lophuromys (Lophuromys) nudicaudus Heller, 1911
+nudipes	Dasymys nudipes (Peters, 1870)
+nyikae	Aethomys nyikae (Thomas, 1897)
+obesus	Psammomys obesus Cretzschmar, 1828
+obiensis	Melomys obiensis (Thomas, 1911)
+oblitus	Thamnomys oblitus Osgood, 1910
+obscura	Euyotis obscura Lichtenstein, 1842
+obscurus	Mus obscurus Eversmann, 1841
+obscurus	Mus obscurus Miller, 1900
+obscurus	Praomys obscurus Hutterer and Dieterlen, 1992
+occidentalis	Arvicanthis occidentalis Wroughton, 1906
+occidentalis	Microtus roberti subsp. occidentalis
+occidentalis	Neocricetodon occidentalis
+occidentalis	Otomys occidentalis Dieterlen and Van der Straeten, 1992
+occidentalis	Pseudohydromys occidentalis Tate, 1951
+occidentalis	Pseudomys occidentalis Tate, 1951
+occidiuus	Gerbillus occidiuus
+occiduus	Gerbillus (Gerbillus) occiduus Lay, 1975
+occitanus	Mimomys occitanus
+occitanus	Mimomys occitanus occitanus
+ochraceiventer	Maxomys ochraceiventer (Thomas, 1894)
+octomammis	Mus octomammis Gray, 1863
+oeconomus	Microtus oeconomus subsp. oeconomus
+oeconomus	Mus oeconomus Pallas, 1776
+ognevi	Ellobius ognevi Dukelsky, 1927
+ognevi	Lemmus amurensis subsp. ognevi
+ohiensis	Rattus ohiensis Phillips, 1929
+ohiensis	Srilankamys ohiensis (Phillips, 1929)
+okuensis	Lamottemys okuensis F. Petter, 1986
+oleracea	Vandeleuria oleracea (Bennett, 1832)
+omichlodes	Rattus omichlodes (Misonne, 1979)
+opimus	Rhombomys opimus (Lichtenstein, 1823)
+oralis	Pseudomys oralis Thomas, 1921
+orangiae	Leggada orangiae Roberts, 1926
+orangiae	Mus (Nannomys) orangiae (Roberts, 1926)
+orbus	Epimys orbus Robinson and Kloss, 1914
+oreopitheci	Huerzelerimys oreopitheci
+orestes	Apodemus orestes
+orestes	Otomys orestes Thomas, 1900
+orhani	Eumyarion orhani
+oriens	Hydromys oriens Troughton, 1937
+orientalis	Progonomys orientalis
+orientalis	Pseudocricetodon moguntiacus orientalis
+ornatulus	Epimys ornatulus Hollister, 1913
+ornatus	Oenomys ornatus Thomas, 1911
+oroscoi	Prosigmodon oroscoi
+orthodon	Rhagamys orthodon (Hensel, 1856)
+orthos	Dasymys orthos Heller, 1911
+oryzivorus	Mus oryzivorus Selys-Longchamps, 1841
+osborni	Pliophenacomys osborni
+osgoodi	Rattus osgoodi Musser and Newcomb, 1985
+osimensis	Tokudaia osimensis (Abe, 1933)
+otarius	Gerbillus otarius F. Cuvier, 1838
+otion	Pithecheirops otion Emmons, 1993
+ouangthomae	Mus ouangthomae Milne-Edwards, 1872
+ouangthomae	Mus ouangthomae Milne-Edwards, 1872
+oubanguii	Mus (Nannomys) oubanguii F. Petter and Genest, 1970
+oweni	Arvicanthis oweni Thomas, 1911
+oweni	Uranomys oweni Thomas, 1910
+owiensis	Rattus owiensis Troughton, 1946
+ozansoyi	Byzantinia ozansoyi
+paaliensis	Atavocricetodon paaliensis
+paca	Mus paca Linnaeus, 1766
+paeba	Gerbillurus (Progerbillurus) paeba (A. Smith, 1836)
+paedulcus	Thallomys paedulcus (Sundevall, 1846)
+pagei	Copemys pagei
+pagensis	Maxomys pagensis (Miller, 1903)
+pahari	Mus (Coelomys) pahari Thomas, 1916
+palatalis	Zyzomys palatalis Kitchener, 1989
+palatilis	Zyzomys palatilis Kitchener, 1989
+palawanensis	Rattus palawanensis Taylor, 1934
+palelae	Rattus palelae Miller and Hollister, 1921
+pallida	Euryotis pallida Wagner, 1841
+pallidor	Millardia meltada subsp. pallidor
+pallidor	Rattus meltada subsp. pallidor
+pallidus	Phloeomys pallidus Nehring, 1890
+pallidus	Rhombomys pallidus Wagner, 1841
+pallipes	Apodemus pallipes (Barrett-Hamilton, 1900)
+palmarum	Mus palmarum Zelebor, 1869
+palmarum	Rattus palmarum (Zelebor, 1869)
+palnica	Leggada palnica Thomas, 1923
+pamfi	Hylomyscus pamfi Nicolas, Olayemi, Wendelen and Colyn, 2010
+panacaensis	Mimomys panacaensis
+panacaensis	Repomys panacaensis
+panglima	Maxomys panglima (Robinson, 1921)
+panja	Tatera panja Wroughton, 1906
+pannosus	Mus pannosus Miller, 1900
+pantarensis	Mus pantarensis Mearns, 1905
+panya	Epimys panya Heller, 1910
+paraxanthus	Taeromys paraxanthus Sody, 1941
+parkeri	Cseria parkeri
+parva	Microtia parva
+parvidens	Eumys parvidens
+parvulus	Mus parvulus Hermann, 1804
+parvus	Apodemus parvus
+parvus	Hylomyscus parvus Brosset, Dubost and Heim de Balsac, 1965
+parvus	Leidymys parvus
+parvus	Margaretamys parvus Musser, 1981
+parvus	Ophiomys parvus
+parvus	Pithecheir parvus Kloss, 1916
+pasquieri	Hapalomys pasquieri Thomas, 1927
+patriciae	Pseudohydromys patriciae Helgen and L. Helgen, 2009
+patrius	Mus patrius Thomas & Dollman, 1909
+patrius	Pseudomys patrius (Thomas and Dollman, 1909)
+paulinae	Saxatilomys paulinae Musser, Smith, Robinson and Lunde, 2005
+paulus	Crateromys paulus Musser and Gordon, 1981
+paulus	Leptomys paulus Musser, Helgen and Lunde, 2008
+paveli	Melomys paveli Helgen, 2003
+pecchioli	Mus pecchioli Pecchioli, 1844
+pedunculatus	Conilurus pedunculatus Waite, 1896
+pedunculatus	Zyzomys pedunculatus (Waite, 1896)
+peeli	Microdillus peeli (de Winton, 1898)
+peguensis	Mus peguensis Blyth, 1859
+pelerinus	Meriones pelerinus Thomas, 1919
+pellax	Mus pellax Miller, 1900
+pelurus	Rattus pelurus Sody, 1941
+pendulinus	Mus pendulinus Hermann, 1804
+penicillatus	Chiropodomys penicillatus Peters, 1868
+penicillatus	Conilurus penicillatus (Gould, 1842)
+peninsulae	Apodemus peninsulae (Thomas, 1907)
+penitus	Bunomys penitus (Miller and Hollister, 1921)
+penitus	Rattus penitus Miller and Hollister, 1921
+peralensis	Hispanomys peralensis
+perasper	Rattus perasper Shamel, 1940
+perchal	Mus perchal Shaw, 1801
+percivali	Acomys (Acomys) percivali Dollman, 1911
+percivali	Gerbillus percivali Dollman, 1914
+percivali	Otomys percivali Dollman, 1915
+perdvali	Acomys perdvali
+peregrinus	Mus peregrinus de Winton, 1898
+perflavus	Epimys perflavus Lyon, 1911
+pernanus	Mastomys pernanus (Kershaw, 1921)
+peromyscus	Praomys peromyscus
+perpallidus	Gerbillus (Gerbillus) perpallidus Setzer, 1958
+persica	Tatera persica Wroughton, 1906
+persicus	Meriones (Parameriones) persicus (Blanford, 1875)
+personata	Hapalotis personata Krefft, 1867
+pesticulus	Rattus pesticulus Thomas, 1921
+petraeus	Apomys petraeus Mearns, 1905
+petschorae	Microtus oeconomus petschorae Ognev, 1944
+petteri	Praomys petteri Van der Straeten, Lecompte and Denys, 2003
+petteri	Prospalax petteri
+petteri	Taterillus petteri Sicard, Tranier and Gautun, 1988
+phaeurus	Carpomys phaeurus Thomas, 1895
+philbyi	Tatera philbyi Morrison-Scott, 1939
+philippi	Pseudocricetodon philippi
+phillipsi	? phillipsi de Winton, 1898
+phillipsi	Gerbilliscus (Taterona) phillipsi (de Winton, 1898)
+phillipsi	Mus (Pyromys) phillipsi Wroughton, 1912
+phillipsi	Mus cervicolor subsp. phillipsi
+phillipsi	Tatera phillipsi (de Winton, 1898)
+picteti	Mus picteti Schinz, 1845
+pikermiensis	Byzantinia pikermiensis
+pilligaensis	Pseudomys pilligaensis Fox and Briscoe, 1980
+pinatus	Rattus pinatus Lyon, 1916
+pipecreekensis	Ogmodontomys pipecreekensis
+pisinnus	Copemys pisinnus
+pitmani	Tatera pitmani Cheesman, 1921
+planidens	Wilsoneumys planidens
+planifrons	Hybomys (Typomys) planifrons (Miller, 1900)
+planifrons	Typomys planifrons
+platyops	? platyops Thomas, 1906
+platyops	Melomys platyops (Thomas, 1906)
+platyops	Paramelomys platyops (Thomas, 1906)
+platythrix	Mus (Pyromys) platythrix Bennett, 1832
+pliocaenicus	Mimomys pliocaenicus
+plumbeus	Mus plumbeus Milne-Edwards, 1874
+plumbeus	Nilopegamys plumbeus Osgood, 1928
+plurimammis	Mus plurimammis Hodgson in Horsfield, 1855
+poaphagus	Ogmodontomys poaphagus
+pococki	Mus mayori subsp. pococki
+pococki	Rattus pococki (Ellerman, 1941)
+pococki	Stenomys pococki Ellerman, 1941
+podolicus	Spalax podolicus Trouessart, 1897
+poecilops	Gerbillus (Hendecapleura) poecilops Yerbury and Thomas, 1895
+poensis	Grammomys poensis (Eisentraut, 1965)
+pollens	Epimys pollens Miller, 1913
+polonicus	Neocricetodon polonicus
+ponceleti	Solomys ponceleti (Troughton, 1935)
+ponticus	Apodemus ponticus (Sviridenko, 1936)
+porcellus	Mus porcellus
+porculus	Uromys (Cyromys) porculus Thomas, 1904
+potens	Epimys potens Miller, 1913
+pothae	Tatera pothae Heller, 1910
+povensis	Mus povensis Hodgson, 1845
+praeconis	Pseudomys praeconis Thomas, 1910
+praeluteus	Eolagurus praeluteus Schevtschenko, 1965
+praetor	Apodemus praetor Miller, 1914
+praetor	Rattus praetor (Thomas, 1888)
+pratensis	Mus pratensis Ockskay, 1831
+priestlyi	Pyromys priestlyi Thomas, 1911
+primaevus	Pliophenacomys primaevus
+primitivus	Megacricetodon primitivus
+primitivus	Pliotomodon primitivus
+primus	Collimys primus
+primus	Cosomys primus
+principulus	Gerbillus (Hendecapleura) principulus (Thomas and Hinton, 1923)
+progressus	Sinocricetus progressus
+prolatus	Bunomys prolatus Musser, 1991
+prolixus	Uromys prolixus Thomas, 1913
+providens	Mus providens Elliot, 1839
+provocator	Occitanomys provocator
+przewalskii	Brachiones przewalskii (Büchner, 1889)
+przewalskii	Phodopus przewalskii Vorontsov & Kriukova, 1969
+psammophilus	Gerbillus psammophilus Milne-Edwards, 1871
+pulchella	Golunda pulchella Gray, 1864
+pulcher	Arvicanthis pulcher Wroughton, 1906
+pulliventer	Mus pulliventer Miller, 1902
+pullus	Mus pullus Miller, 1901
+pulvinatus	Gerbillus (Gerbillus) pulvinatus Rhoads, 1896
+pumehanae	Pseudohydromys pumehanae Helgen and L. Helgen, 2009
+pumilio	Rhabdomys pumilio (Sparrman, 1784)
+pumilio	Rhahdomys pumilio
+pumilus	Gyomys pumilus Troughton, 1936
+pumilus	Mus pumilus F. Cuvier, 1842
+punicans	Rattus punicans Miller and Hollister, 1921
+punicans	Taeromys punicans (Miller and Hollister, 1921)
+purdiensis	Rattus purdiensis Troughton, 1946
+pusillus	Chiropodomys pusillus Thomas, 1893
+pusillus	Gerbillus (Hendecapleura) pusillus Peters, 1878
+pusillus	Haeromys pusillus (Thomas, 1893)
+pyctoris	Rattus pyctoris (Hodgson, 1845)
+pygargus	Taterillus pygargus (F. Cuvier, 1838)
+pygmaeus	Mus pygmaeus Milne-Edwards, 1872
+pyramidum	Dipus pyramidum E. Geoffroy, 1803
+pyramidum	Gerbillus (Gerbillus) pyramidum (E. Geoffroy, 1803)
+pyrenaicus	Trilophomys pyrenaicus
+pyrrhus	Lophuromys pyrrhus Heller, 1911
+quadrimaculatus	Gerbillus quadrimaculatus Lataste, 1882
+querceti	Epimys querceti Hollister, 1911
+quercyi	Melissiodon quercyi
+rabori	Crunomys rabori Musser, 1982
+rabori	Rattus rabori Sanborn, 1952
+raddei	Cricetus nigricans subsp. raddei
+raddei	Cricetus raddei Nehring, 1894
+rafaeli	Megacricetodon rafaeli
+rahengis	Leggada rahengis Kloss, 1920
+rahmi	Lophuromys (Lophuromys) rahmi Verheyen, 1964
+rajah	Maxomys rajah (Thomas, 1894)
+rajput	Cremnomys medius subsp. rajput
+rajput	Rattus cutchicus subsp. rajput
+rallus	Rattus rallus Miller and Hollister, 1921
+ramblensis	Stephanomys ramblensis
+ramnadensis	Mus platythrix subsp. ramnadensis
+ramnadensis	Mus ramnadensis Bentham, 1908
+ranjiniae	Rattus ranjiniae Agrawal and Ghosal, 1969
+rapit	Niviventer rapit (Bonhote, 1903)
+ratticeps	Microtus oeconomus ratticeps (Keyserling & Blasius, 1841)
+rattoides	Mammelomys rattoides (Thomas, 1922)
+rattoides	Melomys rattoides Thomas, 1922
+rattoides	Mus rattoides Hodgson, 1845
+rattoides	Rattus rattoides (Hodgson, 1845)
+rattus	Mus rattus Linnaeus, 1758
+rattus	Rattus rattus (Linnaeus, 1758)
+raveni	Rattus raveni Miller and Hollister, 1921
+ravus	Epimys ravus Robinson and Kloss, 1916
+rawlinnae	Pseudomys rawlinnae Troughton, 1932
+reboudia	Mus reboudia Loche, 1867
+recunensis	Pappocricetodon recunensis
+redingtonensis	Galushamys redingtonensis
+reinhardti	Akodon reinhardti Langguth, 1975
+remotus	Rattus remotus
+renaultii	Gerbillus renaultii Loche, 1867
+reptans	Arvicanthis reptans Dollman, 1911
+rex	Meriones (Parameriones) rex Yerbury and Thomas, 1895
+rex	Mylomys rex (Thomas, 1906)
+rex	Uromys (Cyromys) rex (Thomas, 1888)
+rexroadensis	Nebraskomys rexroadensis
+rhabonensis	Mimomys occitanus rhabonensis
+rhassoulensis	Mellalomys rhassoulensis
+rhinogradoides	Tateomys rhinogradoides Musser, 1969
+rhodanicus	Cricetodon (Deperetomys) rhodanicus
+rhodanieus	Cricetodon rhodanieus
+richardii	Gerbillus richardii Loche, 1867
+richardsoni	Microhydromys richardsoni Tate and Archbold, 1941
+richardsoni	Rattus richardsoni (Tate, 1949)
+richardsoni	Stenomys richardsoni (Tate, 1949)
+richardsonii	Hapalotis richardsonii Gray, 1844
+ridicula	Mirabella ridicula
+riggenbachi	Gerbillus riggenbachi Thomas, 1903
+rintjanus	Komodomys rintjanus (Sody, 1941)
+rivas	Castillomys rivas
+roa	Epimys roa Miller, 1913
+robertsi	Myotomys robertsi Hewitt, 1927
+robertsi	Parapelomys robertsi
+robiginosus	Epimys robiginosus Hollister, 1913
+roborowskii	Gerbillus roborowskii Büchner, 1889
+robusta	Tatera robusta (Cretzschmar, 1826)
+robustulus	Mus robustulus Blyth, 1859
+robustulus	Oryzomys robustulus Thomas, 1914
+robustus	? robustus Cretzschmar, 1826
+robustus	Gerbilliscus (Taterona) robustus (Cretzschmar, 1826)
+rogersi	Mus rogersi Thomas, 1907
+rogersi	Rattus rogersi (Thomas, 1907)
+romieviensis	Democricetodon romieviensis
+roosevelti	Pelomys roosevelti Heller, 1910
+rosalia	Lemniscomys rosalia (Thomas, 1904)
+rosalinda	Gerbillus (Gerbillus) rosalinda St. Leger, 1929
+roseveari	Lemniscomys roseveari Van der Straeten, 1980
+roseveari	Lophuromys (Lophuromys) roseveari W. Verheyen, Hulselmans, Colyn and Hutterer, 1997
+rossicus	Clethrionomys rutilus rossicus (Dukelsky, 1928)
+rossicus	Meriones rossicus Heptner, 1931
+rostratus	Praomys rostratus (Miller, 1900)
+rothschildi	Mallomys rothschildi Thomas, 1898
+roudairei	Psammomys roudairei Lataste, 1881
+rowleyi	Otomys rowleyi Thomas, 1918
+rubecula	Lophuromys rubecula Dollman, 1909
+rubens	Mus rubens Oken, 1816
+ruberrimus	Gerbillus ruberrimus Rhoads, 1896
+rubex	Melomys rubex Thomas, 1922
+rubex	Paramelomys rubex (Thomas, 1922)
+rubicola	Melomys rubicola Thomas, 1924
+rubida	Vandeleuria rubida Thomas, 1914
+rubricosa	Mus rubricosa Anderson, 1879
+ruddi	Thamnomys ruddi Thomas and Wroughton, 1908
+ruddi	Uranomys ruddi Dollman, 1909
+ruemmleri	Coccymys ruemmleri (Tate and Archbold, 1941)
+ruemmleri	Cocrymys ruemmleri
+rufescens	Melomys rufescens (Alston, 1877)
+rufescens	Mus rufescens Gray, 1837
+rufifrons	Otomys rufifrons Rüppell, 1842
+rufilatus	Paraleptomys rufilatus Osgood, 1945
+rufinus	Arvicanthis rufinus (Temminck, 1853)
+rufocanus	Hypudaeus rufocanus Sundevall, 1846
+rufocanus	Mus rufocanus Tullberg, 1893
+rufulus	Apodemus rufulus (Dukelski, 1928)
+rufulus	Dasymys rufulus Miller, 1900
+rupestris	Oligoryzomys rupestris (Weksler & Bonvicino, 2005)
+rupicola	Dipodillus (Petteromys) rupicola (Granjon, Aniskin, Volobouev and Sicard, 2002)
+rupicola	Gerbillus rupicola Granjon, Aniskin, Volobouev & Sicard, 2002
+ruppi	? ruppi Van der Straeten & Dieterlen, 1983
+ruppi	Mastomys ruppi
+ruppi	Myomys ruppi (Van der Straeten and Dieterlen, 1983)
+ruppi	Stenocephalemys ruppi (Van der Straeten and Dieterlen, 1983)
+rusiges	Apodemus rusiges Miller, 1913
+russatus	Acomys (Acomys) russatus (Wagner, 1840)
+russatus	Batomys russatus Musser, Heaney and Tabaranza Jr., 1998
+russelli	Copemys russelli
+rutilans	Grammomys rutilans (Peters, 1876)
+rutilans	Mus rutilans Peters, 1876
+rutilus	Clethrionomys rutilus subsp. rutilus
+rutilus	Mus rutilus Pallas, 1779
+rwandae	Dasymys rwandae W. Verheyen, Hulselmans, Dierckx, Colyn, Leirs and E. Verheyen, 2003
+sabanus	Leopoldamys sabanus (Thomas, 1887)
+sabryi	Acomys sabryi Kershaw, 1922
+sacobianus	Apomys sacobianus Johnson, 1962
+sacramenti	Meriones (Pallasiomys) sacramenti Thomas, 1922
+sadhu	Leggada platythrix subsp. sadhu
+sadhu	Mus platythrix subsp. sadhu
+sakeratensis	Rattus sakeratensis Gyldenstolpe, 1917
+salamonis	Solomys salamonis (Ramsay, 1883)
+salebrosus	Solomys salebrosus Troughton, 1936
+salocco	Rattus salocco Tate and Archbold, 1935
+salomonseni	Batomys salomonseni (Sanborn, 1953)
+salpetrierensis	Nemausia salpetrierensis (Chaline, 1980)
+samariensis	Apodemus samariensis
+samharensis	Mus samharensis Heuglin, 1877
+sandrae	Pseudohydromys sandrae Helgen and L. Helgen, 2009
+sanila	Rattus sanila Flannery and White, 1991
+sansaniensis	Cricetodon sansaniensis
+sansapor	Rattus sansapor Troughton, 1946
+sapidus	Arvicola sapidus subsp. sapidus
+sapientis	Solomys sapientis (Thomas, 1902)
+sapoensis	Rattus sapoensis Sody, 1941
+satarae	Rattus satarae Hinton, 1918
+saturatus	Epimys saturatus Lyon, 1911
+saundersiae	Otomys saundersiae Roberts, 1929
+savannus	Dasymys savannus Heller, 1911
+savii	Arvicola savii de Selys-Longchamps, 1838
+savii	Gerbillus savii Loche, 1867
+savii	Microtus savii subsp. savii
+savilei	Bandicota savilei Thomas, 1916
+sawrockensis	Ogmodontomys sawrockensis
+saxicola	Mus (Pyromys) saxicola Elliot, 1839
+scaphax	Uromys scaphax Thomas, 1913
+schadenbergi	Crateromys schadenbergi (Meyer, 1895)
+schalki	Melissiodon schalki
+schaubi	Cricetodon (Pseudoruscinomys) schaubi
+schaubi	Melissiodon schaubi
+schaubi	Trilophomys schaubi
+schaubii	Cricetodon schaubii
+scherman	Arvicola terrestris scherman (Shaw, 1801)
+schlegelii	Meriones schlegelii Smuts, 1832
+schlosseri	Heterocricetodon schlosseri
+schlosseri	Melissiodon schlosseri
+schmidlyi	Habromys schmidlyi Romo-Vázquez, León-Paniagua & Sánchez, 2005
+schousboeii	Gerbillus schousboeii Loche, 1867
+schoutedeni	Thamnomys schoutedeni Hatt, 1934
+schroderi	Melissiodon schroderi
+schuitemakeri	Rattus schuitemakeri Sody, 1933
+sculleni	Clethrionomys sculleni Hubbard 1940
+scullyi	Nesokia scullyi Wood-Mason, 1876
+sebastianus	Mus sebastianus de Winton, 1897
+sebucus	Epimys sebucus Lyon, 1911
+selenginus	Pallasiomys unguiculatus subsp. selenginus
+sellysii	Gerbillus sellysii Pomel, 1856
+selousi	Acomys (Acomys) selousi De Winton, 1896
+semotus	Apodemus semotus Thomas, 1908
+septemvittatus	Mus septemvittatus Schinz, 1845
+sergii	Mus sergii Valch, 1927
+sericatus	Rattus sericatus Miller and Hollister, 1921
+serutus	Mus serutus Miller, 1906
+sesae	Neocricetodon sesae
+setifer	Mus setifer Horsfield, 1824
+setosus	Arvicanthis setosus Thomas, 1905
+setulosus	Mus (Nannomys) setulosus Peters, 1876
+setzeri	Gerbillurus (Gerbillurus) setzeri (Schlitter, 1973)
+setzeri	Mus (Nannomys) setzeri F. Petter, 1978
+seurati	Acomys (Acomys) seurati Heim de Balsac, 1936
+sevia	? sevia Tate & Archbold, 1935
+sevia	Abeomelomys sevia (Tate and Archbold, 1935)
+sevia	Pogonomelomys sevia (Tate and Archbold, 1935)
+sevia	Pogonomezomys sevia
+shawi	Meriones (Pallasiomys) shawi (Duvernoy, 1842)
+shawmayeri	Baiyankamys shawmayeri Hinton, 1943
+shawmayeri	Coccymys shawmayeri (Hinton, 1943)
+shawmayeri	Hydromys shawmayeri (Hinton, 1943)
+shawmayeri	Pogonomys shawmayeri Laurie, 1952
+shawmayeri	Rattus shawmayeri Hinton, 1943
+sherrini	Tatera sherrini Wroughton, 1917
+sherrini	Uromys sherrini Thomas, 1923
+shortridgei	Leggadilla shortridgei Thomas, 1914
+shortridgei	Mastomys shortridgei (St. Leger, 1933)
+shortridgei	Mus (Pyromys) shortridgei (Thomas, 1914)
+shortridgei	Pseudomys shortridgei (Thomas, 1907)
+shortridgei	Thallomys shortridgei Thomas and Hinton, 1923
+shotwelli	Copemys shotwelli
+siamensis	Bandicota siamensis Kloss, 1919
+siantanicus	Mus siantanicus Miller, 1900
+sibiricus	Mus sibiricus Kerr, 1792
+sibuanus	Limnomys sibuanus Mearns, 1905
+sibuyanensis	Chrotomys sibuyanensis Rickart, Heaney, Goodman & Jansa, 2005
+sibylla	Vandeleuria sibylla Thomas, 1914
+siculae	Myoxus siculae Lesson, 1827
+siebersi	Uromys siebersi Thomas, 1923
+signatus	Leptomys signatus Tate and Archbold, 1938
+sikapui	Lophuromys sikapui
+sikapusi	Lophuromys (Lophuromys) sikapusi (Temminck, 1853)
+sikkimensis	Rattus sikkimensis Hinton, 1919
+silaceus	? silaceus Thomas, 1895
+silaceus	Calaenomys silaceus (Thomas, 1895)
+silaceus	Celaenomys silaceus (Thomas, 1895)
+silaceus	Chrotomys silaceus (Thomas, 1895)
+silaceus	Mus silaceus Wagner, 1842
+silberbaueri	Otomys silberbaueri Roberts, 1919
+silindensis	Aethomys silindensis Roberts, 1938
+simalurensis	Rattus simalurensis (Miller, 1903)
+simiensis	Otomys simiensis Taylor, Lavrenchenko, Carleton, Verheyen, Bennett, Oosthuizen and Maree, 2011
+similis	Democricetodon similis
+similis	Epimys similis Robinson and Kloss, 1916
+similis	Kowalskia similis
+similis	Megacricetodon similis
+similis	Neocometes similis
+similis	Orientalomys similis
+simoni	Dipodillus (Dipodillus) simoni (Lataste, 1881)
+simoni	Gerbillus simoni Lataste, 1881
+simplex	Pseudocricetodon simplex
+simplicidens	Symmetrodontomys simplicidens
+simpsoni	Abelmoschomys simpsoni
+simpsoni	Rattus simpsoni Ellerman, 1949
+sinani	Edirnella sinani
+sindicus	Gunomys sindicus Wroughton, 1908
+sinensis	Megacricetodon sinensis
+sinensis	Orientalomys sinensis
+siporanus	Leopoldamys siporanus (Thomas, 1895)
+siva	Cremnomys australis subsp. siva
+siva	Leggada siva Thomas & Ryley, 1912
+siva	Mus siva (Thomas and Ryley, 1913)
+siva	Rattus cutchicus subsp. siva
+skinneri	Hibbardomys skinneri
+skofleki	Neocricetodon skofleki
+sladeni	Mus sladeni Anderson, 1879
+sloggetti	Myotomys sloggetti (Thomas, 1902)
+sloggetti	Otomys sloggetti Thomas, 1902
+smithi	Tatera smithi Wroughton, 1909
+soccatus	Mus soccatus Miller, 1903
+socialis	Mus socialis Pallas, 1773
+socialis	Mus socialis Roberts, 1913
+sodyi	Kadarsanomys sodyi (Bartels, 1937)
+solus	Epimys solus Miller, 1913
+somalicus	? somalicus Thomas, 1910
+somalicus	Arvicanthis somalicus
+somalicus	Dipodillus (Petteromys) somalicus (Thomas, 1910)
+somalicus	Gerbillus somalicus (Thomas, 1910)
+sondaari	Occitanomys (Rhodomys) sondaari
+sordidus	Mus sordidus Gould, 1858
+sordidus	Rattus sordidus (Gould, 1858)
+sorella	Mus (Nannomys) sorella (Thomas, 1909)
+soricinus	Mus soricinus Hermann, 1780
+soricoides	Rhynchomys soricoides Thomas, 1895
+spatulatus	Epimys spatulatus Lyon, 1911
+spechti	Melomys spechti Flannery and Wickler, 1990
+speciosus	Apodemus speciosus (Temminck, 1845)
+spectabilis	Paracricetodon spectabilis
+spicilegus	Mus (Mus) spicilegus Petenyi, 1882
+spinosissimus	Acomys (Acomys) spinosissimus Peters, 1852
+spinulosus	Mus spinulosus Blyth, 1854
+spodiurus	Oryzomys spodiurus (Tschudi, 1844)
+spretus	Mus (Mus) spretus Lataste, 1883
+spretus	Mus musculus spretus
+spriggsarum	Solomys spriggsarum Flannery and Wickler, 1990
+stadii	Stephanomys stadii
+stannarius	Aethomys stannarius (Thomas, 1913)
+steffensi	Micromys steffensi
+steffensi	Muhsinia steffensi
+stehlini	Heterocricetodon stehlini
+steini	Paramelomys steini (Rümmler, 1935)
+steini	Rattus steini Rümmler, 1935
+stella	Hylomyscus stella (Thomas, 1911)
+stentor	Epimys stentor Miller, 1913
+stevensoni	Dicrostonyx stevensoni Nelson, 1929
+stevensoni	Thallomys stevensoni Roberts, 1933
+stigmonyx	Dipodillus (Petteromys) stigmonyx (Heuglin, 1877)
+stigmonyx	Gerbillus stigmonyx Heuglin, 1877
+stimmingi	Microtus oeconomus stimmingi (Nehring, 1899)
+stirtoni	Calomys (Bensonomys) stirtoni
+stirtoni	Paraleporillus stirtoni Martinez and Lidicker, 1971
+stoicus	Mus stoicus Miller, 1902
+stoicus	Rattus stoicus (Miller, 1902)
+stragulum	Epimys stragulum Robinson and Kloss, 1916
+strepitans	Mus strepitans Miller, 1900
+striatus	Lemniscomys striatus (Linnaeus, 1758)
+striatus	Mus striatus
+stridens	Mus stridens Miller, 1903
+stridulus	Mus stridulus Miller, 1903
+strophiatus	Mus strophiatus Hodgson, 1845
+sturti	Notomys sturti Thomas, 1921
+sua	Dasymys sua W. Verheyen, Hulselmans, Dierckx, Colyn, Leirs and E. Verheyen, 2003
+subarvalis	Microtus subarvalis Meyer, Orlov & Skholl, 1972
+subcaeruleus	Mus subcaeruleus Lesson, 1842
+subrufus	Mus subrufus Krefft, 1862
+subspinosus	Acomys (Subacomys) subspinosus (Waterhouse, 1838)
+subterraneus	Arvicola subterraneus de Selys-Longchamps, 1836
+suemengeni	Lignitella suemengeni
+suilla	Nesokia suilla Thomas, 1907
+sulawesiensis	Musserakis sulawesiensis Hasegawa, Dewi and Asakawa, 2014
+sulcatus	Democricetodon sulcatus
+suncoides	Crunomys suncoides Rickart, Heaney, Tabaranza Jr. and Balete, 1998
+surdaster	Thamnomys surdaster Thomas and Wroughton, 1908
+surdus	Mus surdus Miller, 1903
+surfier	Maxomys surfier
+surifer	Maxomys surifer (Miller, 1900)
+surkha	Leggada surkha Wroughton and Ryley, 1913
+surmolottus	Mus surmolottus Severinus, 1779
+suschkini	Tatera suschkini Kashkarov, 1925
+swalius	Gerbillus swalius Thomas and Hinton, 1925
+swinhoei	Gerbillus swinhoei Scully, 1881
+sylvaticus	Apodemus sylvaticus (Linnaeus, 1758)
+sylvaticus	Mus sylvaticus
+sylvestris	Mus sylvestris Pictet, 1841
+sylvestris	Pogonomys sylvestris Thomas, 1920
+syrius	Meriones syrius Thomas, 1919
+syrticus	Gerbillus (Hendecapleura) syrticus Misonne, 1974
+taciturnus	Mus taciturnus Miller, 1902
+taeniurus	Meriones taeniurus Wagner, 1843
+taerae	Taeromys taerae (Sody, 1932)
+tagulayensis	Mus tagulayensis Mearns, 1905
+taitae	Epimys taitae Heller, 1912
+taitae	Praomys taitae (Heller, 1912)
+talaudium	Melomys talaudium (Thomas, 1921)
+talpinus	Mus talpinus Pallas, 1770
+tamarani	Canariomys tamarani Lopez-Martinez and Lopez-Jurado, 1987
+tamarensis	Mus tamarensis Higgins & Petterd, 1884
+tamariscinus	Meriones (Meriones) tamariscinus (Pallas, 1773)
+tambelanicus	Mus tambelanicus Miller, 1900
+tana	Mus tana True, 1893
+tanezumi	Mus tanezumi Temminck, 1845
+tanezumi	Rattus tanezumi (Temminck, 1845)
+tapulao	Rhynchomys tapulao Balete, Rickart, Rosell-Ambal, Jansa & Heaney, 2007
+tarabuli	Gerbillus (Gerbillus) tarabuli Thomas, 1902
+tarayensis	Mus tarayensis Hodgson in Horsfield, 1855
+tatei	Nectomys tatei Hershkovitz, 1948
+tatei	Rattus tatei Ellerman, 1941
+tatricus	Microtus tatricus subsp. tatricus
+tatricus	Pitymys tatricus Kratochvil, 1952
+tawitawiensis	Rattus tawitawiensis Musser and Heaney, 1985
+taylori	Ophiomys taylori
+tecpin	Clethrionomys tecpin Morrone et al. 2000
+tectorum	Mus tectorum Savi, 1825
+teilhardi	Anatolomys teilhardi
+tenaster	Niviventer tenaster (Thomas, 1916)
+tenebricus	Arvicola sapidus tenebricus Miller, 1908
+tenellus	Mus (Nannomys) tenellus (Thomas, 1903)
+tenuis	Copemys tenuis
+tenuis	Gerbillus tenuis A. Smith, 1842
+terra-reginae	Mus terra-reginae Alston, 1879
+terraereginae	Mus terraereginae Alston, 1879
+terrestris	Arvicola terrestris subsp. terrestris
+terricolor	Mus (Mus) terricolor Blyth, 1851
+testicularis	Isomys testicularis Sundevall, 1843
+tetragonurus	Mus tetragonurus Higgins and Petterd, 1884
+tetragonurus	Mus tetragonurus Kelaart, 1850
+texensis	Atopomys texensis
+thai	Tautatus thai Kloss, 1917
+thaleri	Hispanomys thaleri
+thaleri	Pseudocricetodon thaleri
+theodorverhoeveni	Papagomys theodorverhoeveni Musser, 1981
+thomas	Leggadina thomas
+thomas	Leporillus thomas
+thomasi	Aethomys thomasi (de Winton, 1897)
+thomasi	Otomys thomasi Osgood, 1910
+thysanurus	Rattus thysanurus Sody, 1932
+tibetanus	Cricetulus tibetanus Thomas, 1922
+timorensis	Rattus timorensis Kitchener, Aplin and Boeadi, 1991
+tingius	Epimys tingius Miller, 1913
+tiomanicus	Rattus tiomanicus (Miller, 1900)
+tirae	Apodemus tirae
+tobieni	Cricetodon tobieni
+todayensis	Mus todayensis Mearns, 1905
+tokmak	Mus tokmak Severtzov, 1873
+tokunoshimensis	Tokudaia tokunoshimensis Endo & Tsuchiya, 2006
+tolimae	Akodon tolimae J.A. Allen, 1913
+tompsoni	Mus tompsoni Ramsay, 1881
+tondanus	Rattus tondanus Sody, 1932
+torajae	Bunomys torajae Musser, Achmadi, Esslestyn and Rowe in Musser, 2014
+torquatus	Mus torquatus Pallas, 1778
+toxi	Rattus toxi Sody, 1941
+trachynotus	Rattus trachynotus Cabrera, 1920
+tranieri	Taterillus tranieri Dobigny, Granjon, Aniskin, Ba and Volobouev, 2003
+transvaalensis	Acomys transvaalensis Roberts, 1926
+tripolitanus	Psammomys tripolitanus Thomas, 1902
+tristrami	Meriones (Pallasiomys) tristrami Thomas, 1892
+triticeus	Mus triticeus Boddaert, 1785
+triton	Cricetus triton de Winton, 1899
+triton	Mus (Nannomys) triton (Thomas, 1909)
+trivirgatus	Hybomys (Typomys) trivirgatus (Temminck, 1853)
+trivirgatus	Typomys trivirgatus
+tropicalis	Otomys tropicalis Thomas, 1902
+trouessarti	Meriones trouessarti Lataste, 1882
+tscherga	Apodemus tscherga (Kastchenko, 1899)
+tscherga	Mus tscherga Kastschenko, 1899
+tua	Epimys tua Miller, 1913
+tuberosa	Mirabella tuberosa
+tugelensis	Otomys tugelensis Roberts, 1929
+tullbergi	Lophuromys tullbergi Matschie, 1911
+tullbergi	Praomys tullbergi (Thomas, 1894)
+tunneyi	Rattus tunneyi (Thomas, 1904)
+tural	Apodemus tural
+turfanensis	Gerbillus turfanensis Satunin, 1903
+turkestanicus	Mus turkestanicus Satunin, 1903
+turkestanicus	Rattus turkestanicus (Satunin, 1903)
+turneri	Otomys turneri Wroughton, 1907
+turoliensis	Huerzelerimys turoliensis
+turovi	Microtus roberti subsp. turovi
+tuttlei	Paronychomys tuttlei
+tuvinicus	Phodopus sungorus subsp. tuvinicus
+typicus	Euryotis typicus A. Smith, 1834
+typus	Otomys typus (Heuglin, 1877)
+tyrannus	Epimys tyrannus Miller, 1910
+tyrannus	Rattus tyrannus
+tytonis	Gerbillurus (Paratatera) tytonis (Bauer and Niethammer, 1960)
+ubecus	Epimys ubecus Lyon, 1911
+ugandae	Mus ugandae de Winton, 1897
+ugandae	Uranomys ugandae Heller, 1911
+ulae	Epimys ulae Heller, 1910
+uliginosus	Microtus uliginosus James & Johnson, 1955
+ululans	Epimys ululans Robinson and Kloss, 1916
+umbridorsum	Mus umbridorsum Miller, 1903
+unalascensis	Dicrostonyx groenlandicus subsp. unalascensis
+unguiculatus	Meriones (Pallasiomys) unguiculatus (Milne-Edwards, 1867)
+ungurensis	Microtus michnoi subsp. ungurensis
+unisulcatus	Myotomys unisulcatus (F. Cuvier, 1829)
+unisulcatus	Otomys unisulcatus F. Cuvier, 1829
+univittatus	Hybomys (Hybomys) univittatus (Peters, 1876)
+uralensis	Apodemus uralensis (Pallas, 1811)
+urianchaicus	Gerbillus urianchaicus Vinogradov, 1927
+ursinus	Paruromys ursinus (Sody, 1941)
+ursulus	Ellobius ursulus Thomas, 1912
+uzungwensis	Otomys uzungwensis Lawrence and Loveridge, 1953
+valens	Epimys valens Miller, 1913
+valida	Tatera valida (Bocage, 1890)
+validus	? validus Bocage, 1890
+validus	Gerbilliscus (Taterona) validus (Bocage, 1890)
+validus	Mus validus Miller, 1900
+validus	Uromys validus Peters and Doria, 1881
+vallinus	Gerbillurus (Gerbillurus) vallinus (Thomas, 1918)
+van	Blancomys van de Weerd, Adrover, Mein & Soria, 1977
+vandeuseni	? vandeuseni Taylor & Calaby, 1982
+vandeuseni	Rattus vandeuseni (Taylor and Calaby, 1982)
+vandeuseni	Stenomys vandeuseni (Taylor and Calaby, 1982)
+varia	Tatera varia Heller, 1910
+variabilis	Mus variabilis Higgins and Petterd, 1883
+variegatus	Hypudaeus variegatus Lichtenstein, 1823
+varillus	Gunomys varillus Thomas, 1907
+varius	Gunomys varius Thomas, 1907
+vates	Chiruromys vates (Thomas, 1908)
+vellerosus	Mus vellerosus Gray, 1847
+velutinus	Mus velutinus Thomas, 1882
+venustus	Thamnomys venustus Thomas, 1907
+verdensis	Jacobsomys verdensis
+verecundus	? verecundus Thomas, 1904
+verecundus	Rattus verecundus (Thomas, 1904)
+verecundus	Stenomys verecundus (Thomas, 1904)
+verhageni	Lophuromys (Lophuromys) verhageni W. Verheyen, Hulselmans, Dierckx and E. Verheyen, 2002
+verheyeni	Mastomys verheyeni Robbins and Van der Straeten, 1989
+verheyni	Mastomys verheyni
+verhoeveni	Papagomys verhoeveni Hooijer, 1957
+vermidax	Paucidentomys vermidax Esselstyn, Achmadi and Rowe, 2012
+verreauxi	Mus verreauxi Sclater, 1901
+verreauxii	? verreauxii A. Smith, 1834
+verreauxii	Mastomys verreauxii
+verreauxii	Myomys verreauxii (A. Smith, 1834)
+verreauxii	Myomyscus verreauxii (A. Smith, 1834)
+verschureni	Malacomys verschureni Verheyen and Van der Straeten, 1977
+verschureni	Praomys verschureni (Verheyen and Van der Straeten, 1977)
+versteegi	Cricetodon versteegi
+vetus	Eoeumys vetus
+vexillaris	Psammomys vexillaris Thomas, 1925
+viator	Acomys viator Thomas, 1902
+vicerex	Mus vicerex Bonhote, 1903
+vicina	Alticola macrotis subsp. vicina
+vicinus	Gerbillus vicinus Peters, 1878
+victor	Rattus victor Miller, 1913
+viduus	Scottimus viduus
+vigoratus	Epimys vigoratus Hollister, 1913
+villosissimus	Mus villosissimus Waite, 1898
+villosissimus	Rattus villosissimus (Waite, 1898)
+villosus	Mus villosus Lyon, 1908
+vindoboniensis	Democricetodon vindoboniensis
+vinogradovi	Meriones (Pallasiomys) vinogradovi Heptner, 1931
+virescens	Arvicanthis abyssinicus virescens
+vireti	Adelomyarion vireti
+vireti	Huerzelerimys vireti
+virginianus	Mimomys virginianus
+virtus	Rattus virtus Lyon, 1916
+vittatus	Mus vittatus Wagner, 1842
+vivax	Dipodillus vivax Thomas, 1902
+vivax	Gerbillus (Hendecapleura) vivax (Thomas, 1902)
+vociferans	Mus vociferans Miller, 1900
+voi	Mus voi Osgood, 1910
+volgensis	Eolagurus volgensis Alexandrova, 1976
+voorhiesi	Hibbardomys voorhiesi
+vulcani	Mus (Coelomys) vulcani (Robinson and Kloss, 1919)
+vulgaris	Apodemus vulgaris
+waigeuensis	Uromys waigeuensis Frechkop, 1932
+waitei	Pseudomys waitei Troughton, 1932
+walambae	Mus walambae Wroughton, 1907
+walgeri	Paracricetodon walgeri
+wamae	Mus wamae Heller, 1911
+wardi	Apodemus wardi (Wroughton, 1908)
+wardi	Gunomys wardi Wroughton, 1908
+watersi	Gerbillus (Hendecapleura) watersi de Winton, 1901
+watsoni	Pelomys watsoni Blanford, 1876
+wattsi	Maxomys wattsi Musser, 1991
+weinfurteri	Eumyarion weinfurteri
+wellsi	Rattus wellsi Thomas, 1921
+welmani	Tatera welmani St. Leger, 1929
+wentgesi	Paracricetodon wentgesi
+whiteheadi	Chrotomys whiteheadi Thomas, 1895
+whiteheadi	Maxomys whiteheadi (Thomas, 1894)
+wichmanni	Mus wichmanni Jentink, 1890
+wilhelmina	Paraleptomys wilhelmina Tate and Archbold, 1941
+wilsoni	Acomys (Acomys) wilsoni Thomas, 1892
+wilsoni	Pliophenacomys wilsoni
+winklerorum	Calomys (Bensonomys) winklerorum
+wintoni	Apodemus wintoni
+witherbyi	Acomys witherbyi de Winton, 1901
+witherbyi	Apodemus witherbyi (Thomas, 1902)
+woelferi	Progonomys woelferi
+wombeyensis	Mastacomys wombeyensis Ride, 1956
+wongi	Rattus wongi Shih, 1931
+woodi	Paciculus woodi
+woodwardi	Laomys woodwardi Thomas, 1909
+woodwardi	Mus woodwardi Thomas, 1908
+woodwardi	Zyzomys woodwardi (Thomas, 1909)
+woosnami	Lophuromys (Kivumys) woosnami Thomas, 1906
+woosnami	Zelotomys woosnami (Schwann, 1906)
+wroughtoni	Dacnomys wroughtoni Thomas, 1922
+wroughtoni	Vandeleuria wroughtoni Ryley, 1914
+xanthurus	Rattus xanthurus (Gray, 1867)
+yaldeni	Desmomys yaldeni Lavrenchenko, 2003
+yaldeni	Otomys yaldeni Taylor, Lavrenchenko, Carleton, Verheyen, Bennett, Oosthuizen and Maree, 2011
+yazhi	Calomys (Bensonomys) yazhi
+yemeni	Mastomys yemeni
+yemeni	Myomys yemeni Sanborn and Hoogstraal, 1953
+yemeni	Myomyscus yemeni (Sanborn and Hoogstraal, 1953)
+yinanensis	Kowalskia yinanensis
+youhenicus	Mimomys youhenicus
+youngi	Eucricetodon youngi
+youngi	Rattus youngi Thomas, 1926
+yunnanensis	Hadromys yunnanensis Yang and Wang, 1987
+yunnanensis	Mus yunnanensis Anderson, 1879
+yusheensis	Chardinomys yusheensis
+zakariai	Dipodillus (Dipodillus) zakariai Cockrum, Vaughn and Vaughn, 1976
+zakariai	Gerbillus zakariai
+zakrzewskii	Hibbardomys zakrzewskii
+zambesiana	Thallomys zambesiana Lundholm, 1955
+zamboangae	Mus zamboangae Mearns, 1905
+zapfei	Lartetomys zapfei
+zappeyi	Epimys zappeyi G. M. Allen, 1912
+zarudnyi	Meriones (Pallasiomys) zarudnyi Heptner, 1937
+zdanskyi	Sinocricetus zdanskyi
+zebra	Lemniscomys zebra (Heuglin, 1864)
+zena	Lophuromys (Lophuromys) zena Dollman, 1909
+zhengi	Kowalskia zhengi
+ziegleri	Hydromys ziegleri Helgen, 2005
+zinki	Otomys zinki Bohmann, 1943
+zonae	Pogonomys zonae
+zunigae	Oryzomys zunigae Sanborn, 1949
+zykovi	Microtus tatricus zykovi (Zagorodnyuk, 1989)
+\N	Abditomys Musser, 1982
+\N	Abelmoschomys Baskin, 1986
+\N	Abeomelomys Menzies, 1990
+\N	Abudhabia de Bruijn & Whybrow, 1994
+\N	Acanthomys Gray, 1867
+\N	Acanthomys Lesson, 1842
+\N	Acanthomys Tokuda, 1941
+\N	Acomys I. Geoffroy, 1838
+\N	Acosminthus Gloger, 1841
+\N	Acromys Trouessart, 1881
+\N	Adelomyarion Hugueney, 1969
+\N	Aenomys Kershaw, 1923
+\N	Aethomys Thomas, 1915
+\N	Afrocricetodon Lavocat, 1973
+\N	Akomys Baird in Heck, 1851
+\N	Allocricetodon Freudenthal, 1994
+\N	Allorattus Qiu & Storch, 2000
+\N	Alsomys Dukelski, 1928
+\N	Amblycricetus Zheng, 1993
+\N	Ammodillus Thomas, 1904
+\N	Ammomys Thomas, 1906
+\N	Amphiaulacomys Lataste, 1882
+\N	Anatolomys Schaub, 1934
+\N	Anchotomys Thomas, 1918
+\N	Anepsirhizomys Flynn, 1982
+\N	Anisomys Thomas, 1904
+\N	Anomalomys Gaillard, 1900
+\N	Anomalospalax Kordos, 1985
+\N	Anonymomys Musser, 1981
+\N	Antemus Jacobs, 1977
+\N	Anthracomys Schaub, 1938
+\N	Apodemus Kaup, 1829
+\N	Apomys Mearns, 1905
+\N	Aralocricetodon Bendukidze, 1993
+\N	Aratomys Zazhigin in Gromov & Polyakov, 1977
+\N	Archboldomys Musser, 1982
+\N	Arcuomys Sody, 1941
+\N	Argyromys
+\N	Arrujaomys
+\N	Arviacanthis Beddard in Harmer & Shipley, 1902
+\N	Arvicanthis Lesson, 1842
+\N	Ascopharynx Waite, 1900
+\N	Atavocricetodon Freudenthal, 1996
+\N	Atopomys Patton, 1965
+\N	Baiyankamys
+\N	Baiyankamys Hinton, 1943
+\N	Bandicota Gray, 1873
+\N	Baranomys Kormos, 1934
+\N	Batomys Thomas, 1895
+\N	Bensonomys Gazin, 1942
+\N	Berberomys Jaeger, 1975
+\N	Beremendimys Kretzoi, 1956
+\N	Berylmys Ellerman, 1947
+\N	Bihorimys Terzea, 1994
+\N	Bjornkurtenia Kowalski, 1992
+\N	Bolomys Thomas, 1916
+\N	Boltimys Senegas & Michaux, 2000
+\N	Brachiones Thomas, 1925
+\N	Brassomys
+\N	Budamys Kretzoi & Vertes, 1967
+\N	Bullimus Mearns, 1905
+\N	Bunomys Grandidier, 1905
+\N	Bunomys Thomas, 1910
+\N	Byzantinia de Bruijn, 1976
+\N	Callimys Agassiz, 1846
+\N	Canariomys Crusafont-Pairo & Petter, 1964
+\N	Carletonomys Pardinas, 2008
+\N	Carpomys Thomas, 1895
+\N	Castillomys Michaux, 1969
+\N	Castromys Martín Suárez & Freudenthal, 1994
+\N	Celaenomys Thomas, 1898
+\N	Centralomys de Giuli, 1989
+\N	Chardinomys Jacobs & Chuan-Kuei, 1982
+\N	Cheliones Thomas, 1919
+\N	Chiromyscus Thomas, 1925
+\N	Chiropodomys Peters, 1869
+\N	Chiruromys Thomas, 1888
+\N	Cholomys Reig, 1980
+\N	Christomys Sody, 1941
+\N	Chroeomys Thomas, 1916
+\N	Chrotomys Thomas, 1895
+\N	Chuanocricetus Zheng, 1993
+\N	Cimarronomys Hibbard, 1953
+\N	Cincamyarion Agusti & Arbiol, 1989
+\N	Cironomys Sody, 1941
+\N	Clethrionomys Tilesius, 1850
+\N	Coccymys Menzies, 1990
+\N	Cocrymys
+\N	Coelodonta
+\N	Coelomys Thomas, 1915
+\N	Collimys Daxner-Hock, 1972
+\N	Colomys Thomas & Wroughton, 1907
+\N	Coloradoeumys Martin, 1980
+\N	Conilurus Ogilby, 1838
+\N	Conylurus Ogilby, 1837
+\N	Copemys Wood, 1936
+\N	Coryphomys Schaub, 1937
+\N	Cosomys Wilson, 1932
+\N	Crateromys Thomas, 1895
+\N	Craurothrix Thomas, 1896
+\N	Cremnomys Wroughton, 1912
+\N	Cricetodon Lartet, 1851
+\N	Cricetops Matthew & Granger, 1923
+\N	Cromeromys Zazhigin, 1980
+\N	Crossomys Thomas, 1907
+\N	Crunomys Thomas, 1897
+\N	Cyromys Thomas, 1910
+\N	Dacnomys Thomas, 1916
+\N	Dakkamyoides Lindsay, 1988
+\N	Dakkamys Jaeger, 1977
+\N	Dankomys Reig, 1978
+\N	Dasmomys
+\N	Dasymys Peters, 1875
+\N	Democricetodon Fahlbusch, 1964
+\N	Dendrosminthus De Vis, 1907
+\N	Deomys Thomas, 1888
+\N	Deperetomys Mein & Freudenthal, 1971
+\N	Dephomys Thomas, 1926
+\N	Desmodilliscus Wettstein, 1916
+\N	Desmodillus Thomas & Schwann, 1904
+\N	Desmomys Thomas, 1910
+\N	Dilatomys Sen, 1983
+\N	Diomys Thomas, 1917
+\N	Diplothrix Thomas, 1916
+\N	Dipodillus Lataste, 1881
+\N	Dolomys Nehring, 1898
+\N	Drosomys Thomas, 1906
+\N	Drymomys Tschudi, 1844
+\N	Echinothrix Alston, 1876
+\N	Echiothrix Gray, 1867
+\N	Edirnella Unay-Bayraktar, 1989
+\N	Eicooryctes Flynn, 1982
+\N	Endecapleura Lataste, 1882
+\N	Enginia de Bruijn & von Königswald, 1994
+\N	Eoeumys Martin, 1980
+\N	Epicricetodon Kretzoi, 1941
+\N	Epimeriones Daxner-Hock, 1972
+\N	Epimys Trouessart, 1881
+\N	Eropeplus Miller & Hollister, 1921
+\N	Erythronesokia Khajuria, 1981
+\N	Eucricetodon Thaler, 1966
+\N	Eulmus Ameur-Chehbeur, 1991
+\N	Eumyarion Thaler, 1966
+\N	Eumys Leidy, 1856
+\N	Eumysodon Argyropulo, 1939
+\N	Euphaiomys Ruiz Bustos, 1988
+\N	Euryotis Brants, 1827
+\N	Euryotomys Pocock, 1976
+\N	Fahlbuschia Mein & Freudenthal, 1971
+\N	Floresomys Musser, 1981
+\N	Frateromys Sody, 1941
+\N	Freudenthalia Kretzoi & Kretzoi, 2000
+\N	Galushamys Jacobs, 1977
+\N	Gatamiya Deraniyagala, 1965
+\N	Gatimiya
+\N	Georychus Fleming, 1822
+\N	Gerbellus Gray, 1821
+\N	Gerbilliscus Thomas, 1897
+\N	Gerbillurus Shortridge, 1942
+\N	Gerbillus Desmarest, 1804
+\N	Geringia Martin, 1980
+\N	Geromys Sody, 1941
+\N	Gobicricetodon Qiu, 1996
+\N	Golunda Gray, 1837
+\N	Goniodontomys Wilson, 1937
+\N	Grammomys Thomas, 1915
+\N	Grypomys Thomas, 1911
+\N	Guildayomys Zakrzewski, 1984
+\N	Gunomys Thomas, 1907
+\N	Guyia Thomas, 1917
+\N	Gymnomys Gray, 1867
+\N	Gyomys Thomas, 1910
+\N	Hadromys Thomas, 1911
+\N	Haeromys Thomas, 1911
+\N	Halmaheramys
+\N	Hapalomys Blyth, 1859
+\N	Hapalotis Lichtenstein, 1830-34
+\N	Hattomys Freudenthal, 1985
+\N	Heimyscus Misonne, 1969
+\N	Hendecapleura Lataste, 1884
+\N	Heramys Hofmeijer & de Bruijn, 1985
+\N	Heterocricetodon Schaub, 1926
+\N	Hibbardomys Zakrzewski, 1984
+\N	Hispanomys Mein & Freudenthal, 1971
+\N	Hooijeromys Musser, 1981
+\N	Huananomys Zheng Shaohua, 1992
+\N	Huaxiamys Wu & Flynn, 1992
+\N	Huerzelerimys Mein, Martin Suarez & Agusti, 1993
+\N	Hybomys Thomas, 1910
+\N	Hydromis Geoffroy, 1805
+\N	Hydromys E. Geoffroy, 1804
+\N	Hylenomys Thomas, 1925
+\N	Hylomyscus Thomas, 1926
+\N	Hyomys Thomas, 1904
+\N	Hypsocricetus Daxner-Höck, 1992
+\N	Idomeneus Schulze, 1900
+\N	Insulaemus Taylor, 1934
+\N	Ischymomys Zazhigin in Gromov & Polyakov, 1977
+\N	Isomys Sundevall, 1843
+\N	Jacobsomys Czaplewski, 1987
+\N	Jordanomys Haas, 1966
+\N	Kadarsanomys Musser, 1981
+\N	Kalymnomys von Königswald, Fejfar & Tchernov, 1992
+\N	Kanisamys Wood, 1937
+\N	Karnimata Jacobs, 1978
+\N	Karstocricetus Kordos, 1987
+\N	Karstomys Martino, 1939
+\N	Kerosinia Unay-Bayraktar, 1989
+\N	Kilarcola Sahni & Kotlia, 1985
+\N	Kivumys Dieterlen, 1987
+\N	Komemys De Beaux, 1923
+\N	Komodomys Musser & Boeadi, 1980
+\N	Kowalskia Fahlbusch, 1969
+\N	Kritimys Kuss & Misonne, 1968
+\N	Laggade Gray, 1847
+\N	Lamotomys Thomas, 1918
+\N	Lamottemys F. Petter, 1986
+\N	Laomys Thomas, 1909
+\N	Lartetomys Mein & Freudenthal, 1971
+\N	Lasiomys Peters, 1866
+\N	Leakeymys Lavocat, 1964
+\N	Leggada Gray, 1837
+\N	Leggadilla Thomas, 1914
+\N	Leggadina Thomas, 1910
+\N	Leggadinas
+\N	Leidymys Wood, 1936
+\N	Leimacomys Matschie, 1893
+\N	Lemniscomys Trouessart, 1881
+\N	Lenomys Thomas, 1898
+\N	Lenothrix Miller, 1903
+\N	Leopoldamys Ellerman, 1947
+\N	Leporillus Thomas, 1906
+\N	Leptomys Thomas, 1897
+\N	Lignitella Unay-Bayraktar, 1989
+\N	Limacomys Lydekker, 1894
+\N	Limnomys Mearns, 1905
+\N	Limnomys Thomas, 1906
+\N	Liotomys Thomas, 1918
+\N	Lophiomys Depéret, 1890
+\N	Lophuromys Peters, 1874
+\N	Lophyromys Rye, 1876
+\N	Lorentzimys Jentink, 1911
+\N	Loupomys Königswald & Martin, 1984
+\N	Macruromys Stein, 1933
+\N	Madromys Sody, 1941
+\N	Malacomys Milne-Edwards, 1877
+\N	Mallomys Thomas, 1898
+\N	Malpaisomys Hutterer, Lopez-Martinez & Michaux, 1988
+\N	Mammelomys Menzies, 1996
+\N	Margaretamys Musser, 1981
+\N	Mascaramys Tong, 1986
+\N	Mastacomys Thomas, 1882
+\N	Mastomys Thomas, 1915
+\N	Maxomys Sody, 1936
+\N	Mayermys Laurie and Hill, 1954
+\N	Megacricetodon Fahlbusch, 1964
+\N	Melanomys Winter, 1983
+\N	Melasmothrix Miller & Hollister, 1921
+\N	Melissiodon
+\N	Mellalomys Jaeger, 1977
+\N	Melomys Thomas, 1922
+\N	Meraeus Billberg, 1828
+\N	Meriaeus Billberg, 1827
+\N	Meriones Illiger, 1811
+\N	Mesembriomys Palmer, 1906
+\N	Meteamys de Bruijn, Unay, van den Hoek Ostende & Sarac, 1992
+\N	Metotomys Broom, 1937
+\N	Micaelamys Ellerman, 1941
+\N	Micaëlamys Ellerman, 1941
+\N	Microdillus Thomas, 1910
+\N	Microhydromys Tate & Archbold, 1941
+\N	Microlophiomys Topacevski & Skorik, 1984
+\N	Micromys Dehne, 1841
+\N	Microtia Freudenthal, 1976
+\N	Microtocricetus Fahlbusch & Mayr, 1975
+\N	Microtodon Miller, 1928
+\N	Microtoscoptes Schaub, 1934
+\N	Mikrotia
+\N	Millardia Thomas, 1911
+\N	Millardomys Sody, 1941
+\N	Mimomys Forsyth Major, 1902
+\N	Mindanaomys Sanborn, 1953
+\N	Mirabella de Bruijn, Unay, Sarac & Hofmeijer, 1987
+\N	Mirzamys
+\N	Mollicomys Sody, 1941
+\N	Monodia de Balsac, 1943
+\N	Muhsinia de Bruijn, Unay, van den Hoek Ostende & Sarac, 1992
+\N	Muriculus Thomas, 1903
+\N	Muridae
+\N	Mus Linnaeus, 1758
+\N	Musculus Linnaeus, 1758
+\N	Musculus Rafinesque, 1814
+\N	Musserakis
+\N	Musseromys
+\N	Mycteromys Robinson & Kloss, 1918
+\N	Mylomys Thomas, 1906
+\N	Myocricetodon Lavocat, 1952
+\N	Myomys Thomas, 1915
+\N	Myomyscus Shortridge, 1942
+\N	Myopus Link, 1795
+\N	Myotomys Thomas, 1918
+\N	Nakalimys Flynn & Sabatier, 1984
+\N	Nannocricetus Schaub, 1931
+\N	Nannomys Peters, 1876
+\N	Nannospalax Palmer, 1903
+\N	Neanthomys Toschi, 1947
+\N	Nebraskomys Hibbard, 1957
+\N	Nemausia Chaline & Laborier, 1981
+\N	Nemomys Thomas, 1924
+\N	Neocometes Schaub & Zapfe, 1953
+\N	Neocricetodon Schaub, 1934
+\N	Neohydromys Laurie, 1952
+\N	Neomys Gray, 1873
+\N	Nesocia Blanford, 1891
+\N	Nesokia Gray, 1842
+\N	Nesoromys Thomas, 1922
+\N	Nilopegamys Osgood, 1928
+\N	Niviventer J. T. Marshall, Jr., 1976
+\N	Notocricetodon Lavocat, 1973
+\N	Notomys Lesson, 1842
+\N	Occitanomys Michaux, 1969
+\N	Ochromys Thomas, 1920
+\N	Octomys Sody, 1941
+\N	Octopodomys Sody, 1941
+\N	Odessamys Topachevskii & Skorik, 1992
+\N	Oenomys Thomas, 1904
+\N	Ogmodontomys Hibbard, 1941
+\N	Ophiomys Hibbard & Zakrzewski, 1967
+\N	Oreinomys Trouessart, 1881
+\N	Oreomys Heuglin, 1877
+\N	Orientalomys de Bruijn & van der Meulen, 1975
+\N	Oromys Robinson & Kloss, 1916
+\N	Otomis Bonaparte, 1831
+\N	Otomys F. Cuvier, 1824
+\N	Pachyuromys Lataste, 1880
+\N	Paciculus Cope, 1879
+\N	Palaeotomys Broom, 1937
+\N	Palasiomys Tong, 1997
+\N	Palawanomys Musser & Newcomb, 1983
+\N	Pallasiomys Heptner, 1933
+\N	Pannonicola Kretzoi, 1965
+\N	Papagomys Sody, 1941
+\N	Pappocricetodon Tong Yongsheng, 1992
+\N	Paracricetodon
+\N	Paracricetulus Young, 1927
+\N	Paradakkamys Lindsay, 1988
+\N	Paraethomys Petter, 1968
+\N	Parahydromys Poche, 1906
+\N	Paraleporillus Martinez & Lidicker, 1971
+\N	Paraleptomys Tate & Archbold, 1941
+\N	Paramelomys Rümmler, 1936
+\N	Parameriones Heptner, 1937
+\N	Parameriones Tchernov & Chetboun, 1984
+\N	Paramicrotoscoptes Martin, 1975
+\N	Parapelomys Jacobs, 1978
+\N	Parapodemus Schaub, 1938
+\N	Pararhizomys Teilhard de Chardin & Young, 1931
+\N	Paratatera Petter, 1983
+\N	Paronychomys Jacobs, 1977
+\N	Parotomys Thomas, 1918
+\N	Paruromys Ellerman, 1954
+\N	Paucidentomys
+\N	Paulamys Musser, 1986
+\N	Pelomys Peters, 1852
+\N	Peracomys Petter & Roche in Petter, 1983
+\N	Petromys Martino, 1935
+\N	Petteromys Pavlinov, 1982
+\N	Phaulomys Thomas, 1905
+\N	Phlaeomys Gray, 1849
+\N	Phloeomys Waterhouse, 1839
+\N	Pithecheir F. G. Cuvier, 1833
+\N	Pithecheir Lesson, 1840
+\N	Pithecheirops Emmons, 1993
+\N	Pithechir Müller, 1840
+\N	Plesiodipus Young, 1929
+\N	Pliolemmus Hibbard, 1937
+\N	Pliomys Méhely, 1914
+\N	Pliophenacomys Hibbard, 1938
+\N	Pliopotamys Hibbard, 1938
+\N	Pliorhombomys Fokanov, 1964
+\N	Pliospalax Kormos, 1932
+\N	Pliotomodon Hoffmeister, 1945
+\N	Ploeomys Gervais in Eydoux & Souleyet, 1841
+\N	Poamys
+\N	Podanomalus Waite, 1898
+\N	Pogonomelomys Rümmler, 1936
+\N	Pogonomezomys
+\N	Pogonomys Milne-Edwards, 1877
+\N	Potwarmus Lindsay, 1988
+\N	Praedicrostonyx
+\N	Praomys Thomas, 1915
+\N	Predicrostonyx Guthrie & Matthews, 1971
+\N	Primus de Bruijn, Hussain & Leinders, 1981
+\N	Proceromys Brandy, 1979
+\N	Progerbillurus Pavlinov, 1982
+\N	Progonomys Schaub, 1938
+\N	Prokanisamys de Bruijn, Hussain & Leinders, 1981
+\N	Pronakalimys Tong & Jaeger, 1993
+\N	Proneofiber Hibbard & Dalquest, 1973
+\N	Proodontomys Pocock, 1987
+\N	Prosigmodon Jacobs & Lindsay, 1981
+\N	Prosiphneus Teilhard, 1926
+\N	Prosomys Shotwell, 1956
+\N	Prospalax Méhely, 1908
+\N	Protachyoryctes Hinton, 1933
+\N	Protarsomys Lavocat, 1973
+\N	Protatera Jaeger, 1977
+\N	Protochromys Menzies, 1996
+\N	Protolophiomys Aguilar & Thaler, 1987
+\N	Prototomys Broom, 1948
+\N	Psammomys Cretzschmar, 1828
+\N	Pseudoconomys Rhoads, 1896
+\N	Pseudocricetodon Thaler, 1969
+\N	Pseudoericetus Topachevskii & Skorik, 1992
+\N	Pseudofahlbuschia Freudenthal & Daams, 1988
+\N	Pseudohydromys Rümmler, 1934
+\N	Pseudomeriones Schaub, 1934
+\N	Pseudomys Gray, 1832
+\N	Pullomys Sody, 1941
+\N	Punjabemys Lindsay, 1988
+\N	Pyromys Thomas, 1911
+\N	Qianomys Zheng, 1993
+\N	Ratchaburimys Chaimanee, Suteethorn, Triamwichanon & Jaeger, 1996
+\N	Rattus Fischer, 1803
+\N	Rattus Frisch, 1775
+\N	Rattus Gray, 1821
+\N	Renzimys
+\N	Repomys May, 1981
+\N	Rhabdomys Thomas, 1916
+\N	Rhagamys Major, 1905
+\N	Rhagapodemus Kretzoi, 1959
+\N	Rhahdomys
+\N	Rhinocricetus Kretzoi, 1956
+\N	Rhipodomys Tschudi, 1845
+\N	Rhizomyides Bohlin, 1946
+\N	Rhodomys Martin Suarez & Mein, 1991
+\N	Rhombomys Wagner, 1841
+\N	Rhynchomys Thomas, 1895
+\N	Rotundomys Mein, 1965
+\N	Ruscinomys Depéret, 1890
+\N	Saidomys James & Slaughter, 1974
+\N	Sarmatomys Topachevsky & Skorik, 1988
+\N	Saxatilomys Musser, Smith, Robinson & Lunde, 2005
+\N	Scottimus Wood, 1937
+\N	Sekeetamys Ellerman, 1947
+\N	Selenomys Matthew & Granger, 1923
+\N	Senoussimys Ameur, 1984
+\N	Shamalina Whybrow, Collinson, Daams, Gentry & McClure, 1982
+\N	Sinocricetus Schaub, 1930
+\N	Solomys Thomas, 1922
+\N	Sommeromys Musser & Durden, 2002
+\N	Soricomys
+\N	Spalacomys Peters, 1861
+\N	Spanocricetodon Li, 1977
+\N	Spelaeomys Hooijer, 1957
+\N	Srilankamys Musser, 1981
+\N	Stachomys Kowalski, 1960
+\N	Stenocephalemys Frick, 1914
+\N	Stenodontomys Pocock, 1987
+\N	Stenomys Thomas, 1910
+\N	Stephanomys Schaub, 1938
+\N	Stochomys Thomas, 1926
+\N	Stylocricetus Topachevskii & Skorik, 1992
+\N	Subacomys Denys, Gautun, Tranier & Volobouev, 1994
+\N	Sundamys Musser & Newcomb, 1983
+\N	Sylvaemus Ognev & Worobiev, 1923
+\N	Sylvimus Dukelski, 1928
+\N	Symmetrodontomys Hibbard, 1941
+\N	Tachyoryctoides Bohlin, 1937
+\N	Taeromys Sody, 1941
+\N	Tarsomys Mearns, 1905
+\N	Tateomys Musser, 1969
+\N	Tatera Lataste, 1882
+\N	Taterillus Thomas, 1910
+\N	Taterina Wettstein, 1916
+\N	Taterona Wroughton, 1917
+\N	Tautatus Kloss, 1917
+\N	Tcharinomys Savinov & Tutkova in Kojamkulova, Savinov, Tyutkova & Pat, 1987
+\N	Ternania Tong & Jaeger, 1993
+\N	Thallomys Thomas, 1920
+\N	Thamnomys Thomas, 1907
+\N	Thetamys
+\N	Thetomys Thomas, 1910
+\N	Thylacomys Waite, 1898
+\N	Tibericola Königswald, Fejfar & Tchernov, 1992
+\N	Togomys Dieterlen, 1989
+\N	Tokudaia Kuroda, 1943
+\N	Tokudamys Johnson, 1946
+\N	Tonkinomys Musser, Lunde & Son, 2006
+\N	Trakymys Unay-Bayraktar, 1989
+\N	Trilophomys Depéret, 1892
+\N	Tryphomys Miller, 1910
+\N	Tsaganocricetus Topachevsky & Skorik, 1988
+\N	Typomys Thomas, 1911
+\N	Ungaromys Kormos, 1933
+\N	Unicomys Troughton, 1935
+\N	Uranomys Dollman, 1909
+\N	Uromys Peters, 1867
+\N	Valerimys
+\N	Vallaris Wessels, Theocharopoulos, de Bruijn & Unay, 2001
+\N	Vandeleuria Gray, 1842
+\N	Vernaya Anthony, 1941
+\N	Villanyia Kretzoi, 1955
+\N	Visternomys Radulesco & Samson, 1986
+\N	Waiomys
+\N	Wilsoneumys Martin, 1980
+\N	Witenia de Bruijn, Unay, Sarac & Yilmaz, 2003
+\N	Wushanomys Zheng, 1993
+\N	Xenuromys Tate & Archbold, 1941
+\N	Xeromys Thomas, 1889
+\N	Yatkolamys Martin & Corner, 1980
+\N	Yunomys Qui & Storch, 1990
+\N	Zelotomys Osgood, 1910
+\N	Zhungaromys Emry, Tyutkova, Lucas & Wang, 1998
+\N	Zramys
+\N	Zyzomys Thomas, 1909
