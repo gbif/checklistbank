@@ -159,13 +159,17 @@ public class NubBuilderIT {
   }
 
   /**
-   * Test using real asteraceae data from the current backbone.
-   * For manual test only
+   * Test using real backbone names to verify synonymization of large families.
+   * 91=Asteraceae
+   * 92=Fabaceae
+   * 93=Aves
    */
   @Test
-  @Ignore
-  public void testAsteraceae() throws Exception {
-    build(ClasspathSourceList.source(92));
+  @Ignore("manual verification only")
+  public void testFullFamilies() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(91,92,93);
+    src.setSourceRank(93, Rank.CLASS);
+    build(src, new File("/Users/markus/nub-synonyms.txt"));
   }
 
   /**
@@ -1330,7 +1334,7 @@ public class NubBuilderIT {
   /**
    * builds a new nub and keeps dao open for further test queries.
    */
-  private void build(NubSourceList src) throws Exception {
+  private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
     NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, 100);
     try {
@@ -1343,7 +1347,11 @@ public class NubBuilderIT {
 
     tx = dao.beginTx();
     dao.logAll();
-    printTree(new File("/Users/markus/fabaceae-nub.txt"));
+    if (treeOutput != null) {
+      printTree(treeOutput);
+    } else {
+      printTree();
+    }
 
     // assert we have only ever 8 root taxa - the kingdoms
     assertEquals(Kingdom.values().length, countRoot());
@@ -1351,6 +1359,10 @@ public class NubBuilderIT {
     // assert we have unique ids
     assertUniqueIds();
     log("Core test completed in %sms", watch.elapsed(TimeUnit.MILLISECONDS));
+  }
+
+  private void build(NubSourceList src) throws Exception {
+    build(src, null);
   }
 
   private void assertUniqueIds() {

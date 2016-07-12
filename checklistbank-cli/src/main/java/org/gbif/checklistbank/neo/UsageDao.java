@@ -121,10 +121,10 @@ public class UsageDao {
   }
 
   private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
-    return kvp.hashMapCreate(name)
+    return kvp.hashMap(name)
         .keySerializer(Serializer.LONG)
         .valueSerializer(new MapDbObjectSerializer(clazz, pool, bufferSize))
-        .makeOrGet();
+        .createOrOpen();
   }
 
   /**
@@ -136,7 +136,6 @@ public class UsageDao {
   public static UsageDao temporaryDao(int mappedMemory, Integer shellPort) {
     LOG.debug("Create new in memory dao");
     DB kvp = DBMaker.memoryDB()
-        .transactionDisable()
         .make();
 
     File storeDir = Files.createTempDir();
@@ -190,7 +189,6 @@ public class UsageDao {
       LOG.debug("Use KVP store {}", kvpF.getAbsolutePath());
       kvp = DBMaker.fileDB(kvpF)
           .fileMmapEnableIfSupported()
-          .transactionDisable()
           .make();
       GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, readOnly, eraseExisting);
       return new UsageDao(kvp, storeDir, kvpF, builder, registry);
@@ -756,14 +754,14 @@ public class UsageDao {
    */
   public void logStats() {
     LOG.info("KVP store: " + kvpStore.getAbsolutePath());
-    kvp.checkNotClosed();
-    LOG.info("KVP facts: " + facts.size());
-    LOG.info("KVP verbatim: " + verbatim.size());
-    LOG.info("KVP usages: " + usages.size());
-    LOG.info("KVP extensions: " + extensions.size());
-    LOG.info("KVP srcUsages: " + srcUsages.size());
-    LOG.info("KVP nubUsages: " + nubUsages.size());
-
+    if (!kvp.isClosed()) {
+      LOG.info("KVP facts: " + facts.size());
+      LOG.info("KVP verbatim: " + verbatim.size());
+      LOG.info("KVP usages: " + usages.size());
+      LOG.info("KVP extensions: " + extensions.size());
+      LOG.info("KVP srcUsages: " + srcUsages.size());
+      LOG.info("KVP nubUsages: " + nubUsages.size());
+    }
     LOG.info("neoDir: " + neoDir.getAbsolutePath());
     LOG.info("roots: " + IteratorUtil.count(allRootTaxa()));
     LOG.info("families: " + IteratorUtil.count(allFamilies()));

@@ -5,14 +5,14 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.nub.lookup.straight.LookupKryoFactory;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
-import java.io.File;
 import java.util.Map;
+import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
+import org.mapdb.serializer.SerializerJava;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,11 +22,13 @@ public class MapDbObjectSerializerTest {
 
   @Test
   public void testObjs() throws Exception {
-    final File dbf = File.createTempFile("clb", "x");
+    //final File dbf = File.createTempFile("clb", "x");
+    final String dbf = "/tmp/clb-"+ UUID.randomUUID()+".db";
     final DBMaker.Maker dbm = DBMaker
         .fileDB(dbf)
-        .fileMmapEnableIfSupported()
-        .transactionDisable();
+        .fileMmapEnableIfSupported() // Only enable mmap on supported (64bit) platforms
+        .cleanerHackEnable()         // Make mmap file faster
+       ;
     // warmup db & kryo
     DB db = dbm.make();
     Map<Long, LookupUsage> kvp = getMap(db);
@@ -54,7 +56,6 @@ public class MapDbObjectSerializerTest {
     logRate("read", start);
     db.close();
 
-    FileUtils.deleteQuietly(dbf);
   }
 
   private void logRate(String name, long start) {
@@ -65,10 +66,17 @@ public class MapDbObjectSerializerTest {
   }
 
   private Map<Long, LookupUsage> getMap(DB db) {
-    return db.hashMapCreate("usages")
+    return db.hashMap("usages")
         .keySerializer(Serializer.LONG)
         .valueSerializer(new MapDbObjectSerializer<LookupUsage>(LookupUsage.class, new LookupKryoFactory()))
-        .makeOrGet();
+        .createOrOpen();
+  }
+
+  private Map<Long, LookupUsage> getMapNative(DB db) {
+    return db.hashMap("usages")
+        .keySerializer(Serializer.LONG)
+        .valueSerializer(new SerializerJava())
+        .createOrOpen();
   }
 
   public static LookupUsage usage(int key) {

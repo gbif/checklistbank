@@ -53,7 +53,6 @@ public class IdLookupImpl implements IdLookup {
   public static IdLookupImpl persistent(File db) {
     return new IdLookupImpl(DBMaker.fileDB(db)
         .fileMmapEnableIfSupported()
-        .transactionDisable()
         .make());
   }
 
@@ -63,16 +62,15 @@ public class IdLookupImpl implements IdLookup {
   public static IdLookupImpl temp() {
     return new IdLookupImpl(DBMaker.tempFileDB()
         .fileMmapEnableIfSupported()
-        .transactionDisable()
         .make());
   }
 
   private IdLookupImpl(DB db) {
     this.db = db;
-    usages = db.hashMapCreate("usages")
+    usages = db.hashMap("usages")
         .keySerializer(Serializer.STRING_ASCII)
-        .valueSerializer(new MapDbObjectSerializer<ArrayList>(ArrayList.class, new LookupKryoFactory()))
-        .makeOrGet();
+        .valueSerializer(new MapDbObjectSerializer(ArrayList.class, new LookupKryoFactory()))
+        .createOrOpen();
     authComp = AuthorComparator.createWithAuthormap();
   }
 
@@ -229,9 +227,13 @@ public class IdLookupImpl implements IdLookup {
   }
 
   @Override
-  public LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom) {
-    List<LookupUsage> hits = usages.get(norm(canonicalName));
+  public LookupUsage match(final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom) {
+    final String canonicalNameNormed = norm(canonicalName);
+    if (canonicalNameNormed == null) return null;
+
+    List<LookupUsage> hits = usages.get(canonicalNameNormed);
     if (hits == null) return null;
+
     final boolean compareAuthorship = authorship != null || year != null;
     // filter by rank, kingdom & authorship
     Iterator<LookupUsage> iter = hits.iterator();
