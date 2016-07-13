@@ -11,3 +11,6 @@
 19	6		SPECIES	ACCEPTED		Isolona perrieri Diels
 20	6		SPECIES	ACCEPTED		Isolona perrierii Diels
 21	6		SPECIES	ACCEPTED		Marka platyrhachis Odenthal
+22	6		SPECIES	ACCEPTED		Platanus hispanica Ten.
+23	6		SPECIES	ACCEPTED		Platanus x hispanica Mill. ex Münch., 1770
+24	6		VARIETY	ACCEPTED		Platanus ×hispanica var. pyramidata (Wesm.) Vigouroux ex Geerinck

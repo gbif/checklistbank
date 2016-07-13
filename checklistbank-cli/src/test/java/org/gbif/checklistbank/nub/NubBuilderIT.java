@@ -195,13 +195,14 @@ public class NubBuilderIT {
 
   /**
    * http://dev.gbif.org/issues/browse/POR-2812
+   * http://dev.gbif.org/issues/browse/POR-3140
    */
   @Test
   public void testOrthographicVariants() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(92, 93);
     build(src);
 
-    assertTree("92.txt");
+    assertTree("92 93.txt");
   }
 
   /**

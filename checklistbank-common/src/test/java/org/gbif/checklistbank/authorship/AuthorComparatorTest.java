@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.authorship;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.NamePart;
 import org.gbif.checklistbank.model.Equality;
 
 import java.util.List;
@@ -155,6 +156,26 @@ public class AuthorComparatorTest {
     p1.setAuthorship("Mill.");
     p2.setAuthorship("L.");
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+  }
+
+  @Test
+  public void testCompareUnparsedName() throws Exception {
+    ParsedName p1 = new ParsedName();
+    p1.setScientificName("Platanus x hispanica Mill. ex Münch., 1770");
+    p1.setGenusOrAbove("Platanus");
+    p1.setSpecificEpithet("hispanica");
+    p1.setNotho(NamePart.SPECIFIC);
+    p1.setAuthorsParsed(false);
+
+    ParsedName p2 = new ParsedName();
+    p2.setScientificName("Platanus hispanica Mill. ex Münch.");
+    p2.setGenusOrAbove("Platanus");
+    p2.setSpecificEpithet("hispanica");
+    p2.setNotho(NamePart.SPECIFIC);
+    p2.setAuthorship("Mill. ex Münch.");
+    p2.setAuthorsParsed(true);
+
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
   }
 
   @Test

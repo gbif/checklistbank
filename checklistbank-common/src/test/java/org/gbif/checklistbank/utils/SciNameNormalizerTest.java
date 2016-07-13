@@ -33,13 +33,14 @@ public class SciNameNormalizerTest {
     assertEquals("Isolona perieri", SciNameNormalizer.normalize("Isolona perrierii"));
 
     assertEquals("Carex caiouetei", SciNameNormalizer.normalize("Carex ×cayouettei"));
+    assertEquals("Platanus hispanica", SciNameNormalizer.normalize("Platanus x hispanica"));
 
   }
 
   @Test
   public void testHybridCross() throws Exception {
     assertEquals("xcayouettei", SciNameNormalizer.removeHybridCross("xcayouettei"));
-    assertEquals("cayouettei", SciNameNormalizer.removeHybridCross("×cayouettei"));
+    assertEquals(" cayouettei", SciNameNormalizer.removeHybridCross("×cayouettei"));
 
     assertEquals("Carex xcayouettei", SciNameNormalizer.removeHybridCross("Carex xcayouettei"));
     assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("Carex ×cayouettei"));
@@ -47,6 +48,9 @@ public class SciNameNormalizerTest {
     assertEquals("Carex xcayouettei", SciNameNormalizer.removeHybridCross("xCarex xcayouettei"));
     assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("XCarex cayouettei"));
     assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("xCarex ×cayouettei"));
+
+    assertEquals("Platanus hispanica", SciNameNormalizer.removeHybridCross("Platanus x hispanica"));
+
   }
 
   @Test

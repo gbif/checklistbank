@@ -5,3 +5,5 @@
 16	6		SPECIES	ACCEPTED		Cycas circinalis L.
 19	6		SPECIES	ACCEPTED		Isolona perrieri Diels
 21	6		SPECIES	ACCEPTED		Marka platyrachis Owen
+22	6		SPECIES	ACCEPTED		Platanus hispanica Mill. ex Münch.
+23	6		VARIETY	ACCEPTED		Platanus hispanica var. pyramidata Vigouroux ex Geerinck

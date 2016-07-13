@@ -15,8 +15,8 @@ public class SciNameNormalizer {
   private static final Pattern white = Pattern.compile("\\s{2,}");
   private static final Pattern empty = Pattern.compile("['_-]");
   private static final Pattern removeRepeatedLetter = Pattern.compile("(\\p{L})\\1+");
-  private static final Pattern removeHybridSign2 = Pattern.compile("×");
-  private static final Pattern removeHybridSign = Pattern.compile("(^|\\s)(?:×|[xX]([A-Z]))");
+  private static final Pattern removeHybridSignGenus   = Pattern.compile("^\\s*[×xX]\\s*([A-Z])");
+  private static final Pattern removeHybridSignEpithet = Pattern.compile("(?:^|\\s)(?:×\\s*|[xX]\\s+)([^A-Z])");
 
   public static String normalize(String s) {
     if (Strings.isNullOrEmpty(s)) return null;
@@ -61,6 +61,8 @@ public class SciNameNormalizer {
    * Remove a hybrid cross, or a likely hybrid cross.
    */
   public static String removeHybridCross(String s) {
-    return removeHybridSign.matcher(s).replaceAll("$1$2");
+    s = removeHybridSignGenus.matcher(s).replaceAll("$1");
+    s = removeHybridSignEpithet.matcher(s).replaceAll(" $1");
+    return s;
   }
 }
