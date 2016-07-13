@@ -295,7 +295,7 @@ public class NubBuilder implements Runnable {
 
   /**
    * Goes through all accepted species and infraspcecies and flags suspicous similar names.
-   * Adds a NameUsageIssue.POTENTIAL_DUPLICATE to all similar names.
+   * Adds a NameUsageIssue.ORTHOGRAPHIC_VARIANT to all similar names.
    */
   private void flagSimilarNames() {
     LOG.info("Start flagging similar species");
@@ -324,17 +324,18 @@ public class NubBuilder implements Runnable {
   }
 
   private void flagSimilarNames(ResourceIterator<Node> iter) {
-    Set<String> names = Sets.newHashSet();
+    Map<String, String> names = Maps.newHashMap();
     for (Node n : IteratorUtil.loop(iter)) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
-        String name = SciNameNormalizer.normalize(db.dao.canonicalOrScientificName(u.parsedName, false));
-        if (!Strings.isBlank(name)) {
-          if (names.contains(name)) {
+        String normedName = db.dao.canonicalOrScientificName(u.parsedName, false);
+        if (!Strings.isBlank(normedName)) {
+          if (names.containsKey(normedName)) {
             u.issues.add(NameUsageIssue.ORTHOGRAPHIC_VARIANT);
+            u.addRemark("Possible variant of "+names.get(normedName));
             db.store(u);
           } else {
-            names.add(name);
+            names.put(normedName, u.parsedName.canonicalNameComplete());
           }
         }
       }

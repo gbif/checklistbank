@@ -10,6 +10,14 @@
       <pattern>%-5relative [%thread] %-5level %logger{35} - %msg %n</pattern>
     </encoder>
   </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>checklistbank.log</file>
+    <encoder>
+      <pattern>%msg %n</pattern>
+    </encoder>
+  </appender>
+
   <logger name="org.dbunit" level="WARN"/>
   <logger name="org.apache.ibatis" level="WARN"/>
   <logger name="java.sql" level="WARN"/>
@@ -25,6 +33,9 @@
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>
+    <!--
+    <appender-ref ref="FILE"/>
+    -->
   </root>
 
 </configuration>

@@ -23,6 +23,7 @@ import org.gbif.checklistbank.nub.source.DwcaSourceTest;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
@@ -160,15 +161,12 @@ public class NubBuilderIT {
 
   /**
    * Test using real backbone names to verify synonymization of large families.
-   * 91=Asteraceae
-   * 92=Fabaceae
-   * 93=Aves
    */
   @Test
   @Ignore("manual verification only")
   public void testFullFamilies() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(91,92,93);
-    src.setSourceRank(93, Rank.CLASS);
+    ClasspathSourceList src = ClasspathSourceList.source(91);
+    src.setSourceRank(91, Rank.CLASS);
     build(src, new File("/Users/markus/nub-synonyms.txt"));
   }
 
@@ -193,6 +191,17 @@ public class NubBuilderIT {
     assertCanonical("Apargia umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
     assertCanonical("Picris umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
     assertCanonical("Picris hieracioides sonchoides", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, umbella);
+  }
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-2812
+   */
+  @Test
+  public void testOrthographicVariants() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(92, 93);
+    build(src);
+
+    assertTree("92.txt");
   }
 
   /**
@@ -1443,6 +1452,7 @@ public class NubBuilderIT {
   }
 
   private NubUsage assertCanonical(String canonical, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Kingdom k, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent, NameUsageIssue... issues) {
+    canonical = SciNameNormalizer.normalize(canonical);
     NubUsage u = getCanonical(canonical, rank, k);
     assertNub(u, canonical, authorship, notho, rank, origin, status, parent);
     if (k != null) {
@@ -1518,6 +1528,8 @@ public class NubBuilderIT {
   }
 
   private List<NubUsage> listCanonical(String canonical) {
+    canonical = SciNameNormalizer.normalize(canonical);
+
     List<NubUsage> usages = Lists.newArrayList();
     for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
       usages.add(get(n));
@@ -1582,14 +1594,6 @@ public class NubBuilderIT {
       return usages.get(0);
     }
     throw new IllegalStateException("Too many usages for " + rank + " " + name);
-  }
-
-  private NubUsage get(String canonical) {
-    return get(dao.getNeo().findNode(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
-  }
-
-  private NubUsage get(int key) {
-    return get(dao.getNeo().getNodeById(key));
   }
 
   private NubUsage get(Node n) {

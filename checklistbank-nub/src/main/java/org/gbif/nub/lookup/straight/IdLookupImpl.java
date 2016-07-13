@@ -7,6 +7,7 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.postgres.TabMapperBase;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
@@ -150,11 +151,8 @@ public class IdLookupImpl implements IdLookup {
 
   @VisibleForTesting
   protected static String norm(String x) {
-    x = StringUtils.normalizeSpace(x);
-    if (StringUtils.isBlank(x)) {
-      return null;
-    }
-    return org.gbif.utils.text.StringUtils.foldToAscii(x).toLowerCase();
+    x = SciNameNormalizer.normalize(x);
+    return StringUtils.isBlank(x) ? null : x.toLowerCase();
   }
 
   /**

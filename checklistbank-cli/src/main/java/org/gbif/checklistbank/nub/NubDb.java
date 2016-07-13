@@ -15,6 +15,7 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 
@@ -140,6 +141,8 @@ public class NubDb {
    * Returns the matching accepted nub usage for that canonical name at the given rank.
    */
   public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, String canonical, Rank rank) {
+    canonical = SciNameNormalizer.normalize(canonical);
+
     List<NubUsage> usages = Lists.newArrayList();
     for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
       NubUsage rn = dao.readNub(n);

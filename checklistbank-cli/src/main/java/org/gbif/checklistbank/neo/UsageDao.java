@@ -25,6 +25,7 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
@@ -611,7 +612,7 @@ public class UsageDao {
    * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
    */
   public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
-    String name = withAuthors ? pn.canonicalNameComplete() : pn.canonicalName();
+    String name = withAuthors ? pn.canonicalNameComplete() : SciNameNormalizer.normalize(pn.canonicalName());
     if (Strings.isBlank(name)) {
       // this should only ever happen for virus names, log otherwise
       if (pn.isParsableType()) {

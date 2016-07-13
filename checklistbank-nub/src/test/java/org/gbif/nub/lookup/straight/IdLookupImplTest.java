@@ -53,14 +53,14 @@ public class IdLookupImplTest {
     assertEquals("abies", IdLookupImpl.norm("ABiES"));
     assertEquals("abies alba", IdLookupImpl.norm("Abiés  alba"));
     assertEquals("albino", IdLookupImpl.norm("Albiño"));
-    assertEquals("donatia novae-zelandiae", IdLookupImpl.norm("Donatia novae-zelandiæ"));
+    assertEquals("donatia novaezelandiae", IdLookupImpl.norm("Donatia novae-zelandiæ"));
     assertEquals("abies olsen", IdLookupImpl.norm("Abies ölsen"));
     assertEquals("abies oeftaen", IdLookupImpl.norm("Abies œftæn"));
-    assertEquals("carex ×cayouettei", IdLookupImpl.norm("Carex ×cayouettei"));
-    assertEquals("carex comosa × carex lupulina", IdLookupImpl.norm("Carex comosa × Carex lupulina"));
-    assertEquals("aeropyrum coil-shaped virus", IdLookupImpl.norm("Aeropyrum coil-shaped virus"));
-    assertEquals("†lachnus bonneti", IdLookupImpl.norm("†Lachnus bonneti"));
-    assertEquals("malvastrum yellow vein virus satellite dna ss", IdLookupImpl.norm("Malvastrum yellow vein virus satellite DNA ß"));
+    assertEquals("carex caiouetei", IdLookupImpl.norm("Carex ×cayouettei"));
+    assertEquals("carex comosa carex lupulina", IdLookupImpl.norm("Carex comosa × Carex lupulina"));
+    assertEquals("aeropyrum coilshaped vira", IdLookupImpl.norm("Aeropyrum coil-shaped virus"));
+    assertEquals("†lachnus boneti", IdLookupImpl.norm("†Lachnus bonneti"));
+    assertEquals("malvastrum yelow vein virus satelite dna s", IdLookupImpl.norm("Malvastrum yellow vein virus satellite DNA ß"));
   }
 
   @Test

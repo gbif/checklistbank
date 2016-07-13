@@ -10,16 +10,13 @@ import com.google.common.base.Strings;
 public class SciNameNormalizer {
 
   private static final Pattern suffix_a = Pattern.compile("(on|um|us|a)$");
-  private static final Pattern suffix_i = Pattern.compile("(ei|ae|iae|ii)$");
-  private static final Pattern suffix_oi = Pattern.compile("ioi$");
-  private static final Pattern suffix_if = Pattern.compile("aef");
-  private static final Pattern suffix_iana = Pattern.compile("(?<=[^i])ana$");
-  private static final Pattern suffix_ensis = Pattern.compile("ens(e|is)$");
-  private static final Pattern i = Pattern.compile("[jyi]+");
+  private static final Pattern i = Pattern.compile(" ([^ jyi]+)[jyi]+");
+  private static final Pattern trh = Pattern.compile(" ([^ ]+[tr])h");
   private static final Pattern white = Pattern.compile("\\s{2,}");
   private static final Pattern empty = Pattern.compile("['_-]");
   private static final Pattern removeRepeatedLetter = Pattern.compile("(\\p{L})\\1+");
-  private static final Pattern fakeHybridSign = Pattern.compile("x([A-Z])");
+  private static final Pattern removeHybridSign2 = Pattern.compile("×");
+  private static final Pattern removeHybridSign = Pattern.compile("(^|\\s)(?:×|[xX]([A-Z]))");
 
   public static String normalize(String s) {
     if (Strings.isNullOrEmpty(s)) return null;
@@ -30,54 +27,40 @@ public class SciNameNormalizer {
 
     s = normalizeLetters(s);
 
-    // Only for bi/trinomials, otherwise we mix up ranks.
-    if (s.indexOf(' ') > 2) {
-      //s = suffix_iana.matcher(s).replaceFirst("iana");
-      //s = suffix_if.matcher(s).replaceFirst("if");
-      //s = suffix_oi.matcher(s).replaceFirst("oi");
-      //s = suffix_i.matcher(s).replaceFirst("i");
-      s = suffix_a.matcher(s).replaceFirst("a");
-    }
-
-    s = i.matcher(s).replaceAll("i");
     s = empty.matcher(s).replaceAll("");
     s = white.matcher(s).replaceAll(" ");
+
+    // Only for bi/trinomials, otherwise we mix up ranks.
+    if (s.indexOf(' ') > 2) {
+      s = stemEpithet(s);
+      // normalize frequent variations of i in epithets only
+      s = i.matcher(s).replaceAll(" $1i");
+      // normalize frequent variations of characters sometimes followed by an 'h' in epithets only
+      s = trh.matcher(s).replaceAll(" $1");
+    }
 
     return s.trim();
   }
 
   /**
-   * Does a simple gender neutral stemming of a latin epithet.
+   * Does a stemming of a latin epithet and return the female version ending with 'a'.
    */
   public static String stemEpithet(String epithet) {
     if (Strings.isNullOrEmpty(epithet)) return null;
-    return suffix_a.matcher(epithet).replaceFirst("");
+    return suffix_a.matcher(epithet).replaceFirst("a");
   }
 
-
   /**
-   * Normalize equivalent letters like Æ→æ and remove repeated letters→leters.
+   * Normalize letters and ligatures to their ASCII equivalent and remove repeated letters→leters.
    */
   public static String normalizeLetters(String s) {
-    return removeRepeatedLetter.matcher(s).replaceAll("$1")
-            .replace("ä", "ae")
-            .replace("ö", "oe")
-            .replace("ü", "ue")
-            .replace("æ", "ae")
-            .replace("ø", "oe")
-            .replace("å", "a") // an aa would have been transformed to a.
-            .replace("œ", "oe")
-            .replace("đ", "d")
-            .replace("ł", "l");
+    return removeRepeatedLetter.matcher(org.gbif.utils.text.StringUtils.foldToAscii(s)).replaceAll("$1");
   }
 
   /**
    * Remove a hybrid cross, or a likely hybrid cross.
    */
   public static String removeHybridCross(String s) {
-    return fakeHybridSign.matcher(s).replaceAll("$1")
-            .replace("X ", "")
-            .replace("x ", "")
-            .replace("×", "");
+    return removeHybridSign.matcher(s).replaceAll("$1$2");
   }
 }
