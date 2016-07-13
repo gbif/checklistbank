@@ -296,8 +296,8 @@ public class BasionymSorterTest {
     assertEquals(80, testGroupBasionymFile("names/molossidae.txt"));
     assertEquals(460, testGroupBasionymFile("names/muridae.txt"));
     assertEquals(10188, testGroupBasionymFile("names/aves.txt"));
-    assertEquals(14523, testGroupBasionymFile("names/fabaceae.txt"));
-    assertEquals(22352, testGroupBasionymFile("names/asteraceae.txt"));
+    assertEquals(14521, testGroupBasionymFile("names/fabaceae.txt"));
+    assertEquals(22331, testGroupBasionymFile("names/asteraceae.txt"));
   }
 
   private int testGroupBasionymFile(String filename) throws Exception {
