@@ -5,21 +5,17 @@ import org.gbif.checklistbank.model.Equality;
 import org.gbif.utils.ObjectUtils;
 import org.gbif.utils.file.FileUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -27,17 +23,18 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility to compare scientific name authorships, i.e. the (recombination) author and the publishing year.
- * Original name (bracket) authorship is not used in the comparison.
+ * Utility to compare scientific name authorships, i.e. the recombination and basionym author and publishing year.
  * Author strings are normalized to ASCII and then compared. As authors are often abbreviated in all kind of ways a shared common substring is accepted
  * as a positive equality.
  * If any of the names given has an empty author & year the results will always be Equality.UNKNOWN.
+ *
+ * The class exposes two kind of compare methods. A strict one always requiring both year and author to match
+ * and a more lax default comparison that only looks at years when the authors differ (as it is quite hard to compare authors)
  */
 public class AuthorComparator {
   private static final Logger LOG = LoggerFactory.getLogger(AuthorComparator.class);
@@ -93,6 +90,77 @@ public class AuthorComparator {
   }
 
   /**
+   * Compares the author and year of two names by first evaluating equivalence of the authors.
+   * Only if they appear to differ also a year comparison is done which can still yield an overall EQUAL in case years match.
+   */
+  public Equality compare(@Nullable String author1, @Nullable String year1, @Nullable String author2, @Nullable String year2) {
+    // compare recombination authors first
+    Equality result = compareAuthor(author1, author2, minCommonSubstring);
+    if (result != Equality.EQUAL) {
+      // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
+      Equality yresult = compareYear(year1, year2);
+      if (yresult != Equality.UNKNOWN) {
+        result = yresult;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Does a comparison of recombination and basionym authorship using the author compare method once for the recombination authorship and once for the basionym.
+   */
+  public Equality compare(ParsedName n1, ParsedName n2) {
+    if (!n1.isAuthorsParsed()) {
+      // copy parsed name to not alter the original
+      n1 = clone(n1);
+      parseAuthorship(n1);
+    }
+    if (!n2.isAuthorsParsed()) {
+      // copy parsed name to not alter the original
+      n2 = clone(n2);
+      parseAuthorship(n2);
+    }
+
+    Equality recomb = compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
+    if (recomb == Equality.DIFFERENT) {
+      // in case the recomb author differs we are done, no need for basionym authorship comparison
+      return recomb;
+    }
+    Equality original = compare(n1.getBracketAuthorship(), n1.getBracketYear(), n2.getBracketAuthorship(), n2.getBracketYear());
+    if (recomb == Equality.UNKNOWN && original == Equality.UNKNOWN) {
+      // a common error is missing brackets, so if all is unknown we compare authorship across brackets and return a possible match
+      Equality across = Equality.UNKNOWN;
+      if (Strings.isNullOrEmpty(n1.getAuthorship()) && Strings.isNullOrEmpty(n1.getYear())) {
+        across = compare(n1.getBracketAuthorship(), n1.getBracketYear(), n2.getAuthorship(), n2.getYear());
+      } else if (Strings.isNullOrEmpty(n1.getBracketAuthorship()) && Strings.isNullOrEmpty(n1.getBracketYear())) {
+        across = compare(n1.getAuthorship(), n1.getYear(), n2.getBracketAuthorship(), n2.getBracketYear());
+      }
+      return across == Equality.EQUAL ? Equality.EQUAL : Equality.UNKNOWN;
+    }
+    return recomb.and(original);
+  }
+
+  /**
+   * Compares two sets of author & year for equality.
+   * This is more strict than the normal compare method and requires both authors and year to match.
+   * Author matching is still done fuzzily
+   *
+   * @return true if both sets match
+   */
+  public boolean compareStrict(String author1, @Nullable String year1, String author2, @Nullable String year2) {
+    // strictly compare authors first
+    Equality result = compareAuthor(author1, author2, minCommonSubstring);
+    if (result != Equality.EQUAL) {
+      return false;
+    }
+    // now also compare the year
+    if (year1 == null && year2 == null) {
+      return true;
+    }
+    return Equality.EQUAL == compareYear(year1, year2);
+  }
+
+  /**
    * @return ascii only, lower cased string without punctuation. Empty string instead of null.
    * Umlaut transliterations reduced to single letter
    */
@@ -103,14 +171,12 @@ public class AuthorComparator {
     }
     // normalize and
     x = AND.matcher(x).replaceAll(" ");
-    // manually normalize characters not dealt with by the java Normalizer
-    x = StringUtils.replaceChars(x, "ø", "o");
 
     // remove in publications
-    x = IN.matcher(x).replaceAll("");
+    x = IN.matcher(x).replaceFirst("");
 
     // remove ex authors
-    x = EX.matcher(x).replaceAll("");
+    x = EX.matcher(x).replaceFirst("");
 
     // remove ex authors
     x = TRANSLITERATIONS.matcher(x).replaceAll("$1");
@@ -136,33 +202,6 @@ public class AuthorComparator {
     return normalizedAuthor;
   }
 
-  public Equality compare(String author1, String year1, String author2, String year2) {
-    // compare recombination authors first
-    Equality result = compareAuthor(author1, author2, minCommonSubstring);
-    if (result != Equality.EQUAL) {
-      // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
-      Equality yresult = compareYear(year1, year2);
-      if (yresult != Equality.UNKNOWN) {
-        result = yresult;
-      }
-    }
-    return result;
-  }
-
-  public Equality compare(ParsedName n1, ParsedName n2) {
-    if (!n1.isAuthorsParsed()) {
-      // copy parsed name to not alter the original
-      n1 = clone(n1);
-      parseAuthorship(n1);
-    }
-    if (!n2.isAuthorsParsed()) {
-      // copy parsed name to not alter the original
-      n2 = clone(n2);
-      parseAuthorship(n2);
-    }
-    return compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
-  }
-
   private ParsedName clone(ParsedName pn) {
     ParsedName pn2 = new ParsedName();
     try {
@@ -173,26 +212,6 @@ public class AuthorComparator {
       Throwables.propagate(e);
     }
     return pn2;
-  }
-
-  /**
-   * Compares two sets of author & year for equality.
-   * This is more strict than the normal compare method and requires both authors and year to match.
-   * Author matching is still done fuzzily
-   *
-   * @return true if both sets match
-   */
-  public boolean compareStrict(String author1, @Nullable String year1, String author2, @Nullable String year2) {
-    // strictly compare authors first
-    Equality result = compareAuthor(author1, author2, minCommonSubstring);
-    if (result != Equality.EQUAL) {
-      return false;
-    }
-    // now also compare the year
-    if (year1 == null && year2 == null) {
-      return true;
-    }
-    return Equality.EQUAL == compareYear(year1, year2);
   }
 
   /**
@@ -242,7 +261,7 @@ public class AuthorComparator {
    * @param minCommonSubstring
    * @return
    */
-  private Equality compareAuthor(String a1, String a2, int minCommonSubstring) {
+  private Equality compareAuthor(@Nullable String a1, @Nullable String a2, int minCommonSubstring) {
     // all lower case now, no punctuation and normed whitespace
     a1 = normalize(a1);
     a2 = normalize(a2);
@@ -362,51 +381,5 @@ public class AuthorComparator {
       }
     }
     return false;
-  }
-
-  public static void main(String[] args) throws Exception {
-    File f = new File("/Users/markus/Desktop/authormap2.txt");
-    try (
-        Writer w = FileUtils.startNewUtf8File(f);
-        InputStream in = Resources.asByteSource(AuthorComparator.class.getResource(AUTHOR_MAP_FILENAME)).openStream();
-    ) {
-      LineIterator iter = new LineIterator(FileUtils.getInputStreamReader(in));
-      Joiner TABj = Joiner.on("\t");
-      Splitter TABs = Splitter.on("\t");
-      Splitter WHITE = Splitter.on(" ");
-      while (iter.hasNext()) {
-        String line = iter.next();
-        if (!Strings.isNullOrEmpty(line)) {
-          List<String> row = TABs.splitToList(line);
-          w.write(TABj.join(row));
-
-          StringBuilder name = new StringBuilder();
-          Iterator<String> nameIter = WHITE.split(row.get(1).trim()).iterator();
-          boolean prefixed = false;
-          while (nameIter.hasNext()) {
-            String part = nameIter.next();
-            if (!StringUtils.isBlank(part)) {
-              if (nameIter.hasNext()) {
-                if (Character.isUpperCase(part.charAt(0)) && !prefixed) {
-                  name.append(part.charAt(0));
-                  name.append(" ");
-                  prefixed = false;
-                } else {
-                  prefixed = true;
-                }
-              } else {
-                // this is the surname or some prefix
-                name.append(part);
-              }
-            }
-          }
-
-          w.write("\t");
-          w.write(name.toString());
-          w.write("\n");
-        }
-      }
-    }
-
   }
 }

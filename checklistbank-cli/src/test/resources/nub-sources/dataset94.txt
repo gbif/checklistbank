@@ -1,0 +1,5 @@
+6			KINGDOM	ACCEPTED		Plantae
+10	6		SPECIES	ACCEPTED		Lasioglossum micheneri (Pauly, 1986)
+11	10		SPECIES	SYNONYM		Homalictus micheneri Pauly, 1986
+20	6		SPECIES	ACCEPTED		Lasioglossum micheneri (Moure, 1956)
+21	20		SPECIES	SYNONYM		Chloralictus micheneri Moure, 1956

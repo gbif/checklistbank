@@ -205,6 +205,18 @@ public class NubBuilderIT {
     assertTree("92 93.txt");
   }
 
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3106
+   */
+  @Test
+  public void testMissingRecombAuthors() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(94);
+    build(src);
+
+    assertTree("94.txt");
+  }
+
   /**
    * http://dev.gbif.org/issues/browse/POR-284
    * 4 name pairs each with a diacretic version should result in just 4 distinct nub names.

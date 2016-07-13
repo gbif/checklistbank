@@ -284,6 +284,13 @@ public class AuthorComparatorTest {
 
     assertAuth("Debreczy & I. Rácz", null, null, null, Equality.EQUAL, "Debreczy & Rácz", null, null, null);
     assertAuth("Debreczy & I.Rácz", null, null, null, Equality.DIFFERENT, "Silba", null, "Debreczy & I.Rácz", null);
+
+    assertAuth(null, null, "Pauly", "1986", Equality.EQUAL, null, null, "Pauly", "1986");
+    assertAuth(null, null, "Moure", "1956", Equality.DIFFERENT, null, null, "Pauly", "1986");
+    // missing brackets is a common error so make this a positive comparison!
+    assertAuth("Pauly", "1986", null, null, Equality.EQUAL, null, null, "Pauly", "1986");
+
+    assertAuth("Erichson", "1847", null, null, Equality.UNKNOWN, null, null, "Linnaeus", "1758");
   }
 
   @Test
