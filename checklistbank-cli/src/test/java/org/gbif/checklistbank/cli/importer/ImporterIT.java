@@ -6,7 +6,6 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
@@ -333,12 +332,17 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     //test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES] CONFLICTING_BASIONYM_COMBINATION
     NameUsage u = nameUsageService.listByCanonicalName(null, "Neotetrastichodes flavus", null, null).getResults().get(0);
     assertEquals("Neotetrastichodes flavus Girault, 1913", u.getScientificName());
-    assertTrue(u.getIssues().contains(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION));
+    assertTrue(u.isSynonym());
+    assertEquals("Aprostocetus rieki (De Santis, 1979)", u.getAccepted());
+
+    NameUsage u2 = nameUsageService.listByCanonicalName(null, "Aprostocetus flavus", null, null).getResults().get(0);
+    assertEquals("Aprostocetus flavus (Girault, 1913)", u2.getScientificName());
+    assertTrue(u2.isSynonym());
+    assertEquals(u.getAcceptedKey(), u2.getAcceptedKey());
 
     // make sure get does the same as list
-    NameUsage u2 = nameUsageService.get(u.getKey(), null);
+    u2 = nameUsageService.get(u.getKey(), null);
     assertEquals(u, u2);
-    assertTrue(u2.getIssues().contains(NameUsageIssue.CONFLICTING_BASIONYM_COMBINATION));
 
   }
 
