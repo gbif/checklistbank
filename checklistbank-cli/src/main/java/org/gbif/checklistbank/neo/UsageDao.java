@@ -694,6 +694,10 @@ public class UsageDao {
     return getNeo().findNodes(Labels.SYNONYM);
   }
 
+  public ResourceIterator<Node> allImplicitNames() {
+    return getNeo().findNodes(Labels.IMPLICIT);
+  }
+
   private void putIfNotNull(Map<String, Object> props, String property, String value) {
     if (value != null) {
       props.put(property, value);

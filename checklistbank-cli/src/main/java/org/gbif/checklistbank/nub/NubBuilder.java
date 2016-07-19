@@ -34,10 +34,13 @@ import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
+import org.gbif.utils.collection.MapUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +63,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
@@ -98,6 +102,14 @@ public class NubBuilder implements Runnable {
   private final Set<NameType> ignoredNameTypes = Sets.newHashSet(
       NameType.CANDIDATUS, NameType.CULTIVAR, NameType.INFORMAL, NameType.NO_NAME, NameType.PLACEHOLDER, NameType.NO_NAME
   );
+  private final static ImmutableMap<TaxonomicStatus, Integer> STATUS_ORDER = ImmutableMap.of(
+      TaxonomicStatus.HOMOTYPIC_SYNONYM, 1,
+      TaxonomicStatus.HETEROTYPIC_SYNONYM, 2,
+      TaxonomicStatus.SYNONYM, 3,
+      TaxonomicStatus.ACCEPTED, 4,
+      TaxonomicStatus.DOUBTFUL, 5
+      );
+  
   private final Set<Rank> allowedRanks = Sets.newHashSet();
   private final NubDb db;
   private final boolean closeDao;
@@ -121,7 +133,7 @@ public class NubBuilder implements Runnable {
     public Integer apply(@Nullable NubUsage u) {
       int doubtfulScore = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
       int statusScore = u.status == null ? 10 : u.status.ordinal();
-      int datasetPriority = priorities.containsKey(u.datasetKey) ? priorities.get(u.datasetKey) : maxPriority + 1;
+      int datasetPriority = priority(u);
       return doubtfulScore + statusScore + 10 * datasetPriority;
     }
   });
@@ -180,7 +192,7 @@ public class NubBuilder implements Runnable {
       // flagging of suspicous usages
       flagParentMismatch();
       flagEmptyGenera();
-      removeEmptyImplicitTaxa();
+      cleanImplicitTaxa();
       flagDuplicateAcceptedNames();
       flagSimilarNames();
       flagDoubtfulOriginalNames();
@@ -450,7 +462,7 @@ public class NubBuilder implements Runnable {
             pn.setScientificName(pn.canonicalName());
             pn.setRank(u.rank);
 
-            NubUsageMatch autoMatch = db.findAcceptedNubUsage(u.kingdom, pn.canonicalName(), u.rank);
+            NubUsageMatch autoMatch = db.findNubUsage(u.kingdom, pn.canonicalName(), u.rank);
             if (!autoMatch.isMatch()) {
               NubUsage parent = db.parent(u);
 
@@ -686,18 +698,27 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Flags species or below that have an IMPLICIT origin and no children
+   * Updates implicit names to be accepted (not doubtful) and removes implicit taxa with no children if configured to do so.
    */
-  private void removeEmptyImplicitTaxa() {
-    if (!cfg.keepEmptyImplicitNames) {
-      LOG.info("remove empty implicit taxa");
-      try (Transaction tx = db.beginTx()) {
-        for (Node n : IteratorUtil.loop(db.dao.getNeo().findNodes(Labels.IMPLICIT))) {
-          NubUsage sp = read(n);
-          removeTaxonIfEmpty(sp);
+  private void cleanImplicitTaxa() {
+    LOG.info("Clean implicit taxa");
+    try (Transaction tx = db.beginTx()) {
+      for (Node n : IteratorUtil.loop(db.dao.allImplicitNames())) {
+        NubUsage nub = read(n);
+        if (!cfg.keepEmptyImplicitNames) {
+          if (removeTaxonIfEmpty(nub)) {
+            nub = null;
+          }
         }
-        tx.success();
+        // update status if still existing
+        if (nub != null) {
+          if (nub.status == TaxonomicStatus.DOUBTFUL) {
+            nub.status = TaxonomicStatus.ACCEPTED;
+            db.store(nub);
+          }
+        }
       }
+      tx.success();
     }
   }
 
@@ -839,8 +860,14 @@ public class NubBuilder implements Runnable {
     }
 
     // process explicit basionym relations
+    processExplicitBasionymRels();
+
+    LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
+  }
+
+  private void processExplicitBasionymRels() {
     try (Transaction tx = db.beginTx()) {
-      LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), source.name);
+      LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), currSrc.name);
       for (LongIntCursor c : basionymRels) {
         Node n = db.getNode(c.key);
         Node bas = db.getNode(src2NubKey.get(c.value));
@@ -857,7 +884,7 @@ public class NubBuilder implements Runnable {
             continue;
           }
           if (!createBasionymRelationIfNotExisting(bas, n)) {
-            LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), source.name);
+            LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), currSrc.name);
           }
         } else {
           LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
@@ -865,8 +892,37 @@ public class NubBuilder implements Runnable {
       }
       tx.success();
     }
-    LOG.info("Processed {} source usages for {}", sourceUsageCounter - start, source.name);
   }
+
+  /**
+   * Looks for all implicit names and tries to find a match with author to replace them.
+   * This is done after we added an entire dataset so we can prefer accepted names over doubtful ones.
+   * If we instead would do this on the fly as we add new names we might prefer a doubtful name.
+   */
+  private void replaceImplicitNames() {
+    LOG.info("Replace implicit names for dataset {}", currSrc.name);
+    try (Transaction tx = db.beginTx()) {
+      for (Node n : IteratorUtil.loop(db.dao.allImplicitNames())) {
+        NubUsage nub = read(n);
+        try {
+          NubUsageMatch match = db.findNubUsage(nub.datasetKey, nub.parsedName, nub.rank, nub.status, nub.kingdom, db.parent(nub));
+          if (match.isMatch()) {
+            // replace implicit name with match
+            LOG.debug("Replace implicit name {} with {}", nub.parsedName.fullName(), match.usage.parsedName.fullName());
+            //db.store(nub);
+          }
+        } catch (IgnoreSourceUsageException e) {
+          LOG.warn(e.name, e);
+        }
+      }
+      tx.success();
+    }
+  }
+
+  private void swapName(NubUsage target, NubUsage source) {
+    db.transferChildren(target, source);
+  }
+
 
   /**
    * @return true if basionym relationship was created
@@ -887,14 +943,28 @@ public class NubBuilder implements Runnable {
     addParsedNameIfNull(u);
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
+
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && u.rank != null && allowedRanks.contains(u.rank)) {
       // from now on a rank is guaranteed!
-      if (match.isMatch()) {
+
+      if (!match.isMatch()) {
+
+        // remember if we had a doubtful match
+        NubUsage doubtful = match.doubtfulUsage;
+        // persistent new nub usage if there wasnt any yet
+        match = createNubUsage(u, origin, parent);
+        // check if we had a doubtful or implicit & accepted name match
+        if (doubtful != null && u.status == TaxonomicStatus.ACCEPTED) {
+          db.transferChildren(match.usage, doubtful);
+        }
+
+      } else {
         if (origin == Origin.IMPLICIT_NAME) {
           // do not update or change usages with implicit names
           return match.usage;
         }
+
         Equality authorEq = authorComparator.compare(match.usage.parsedName, u.parsedName);
 
         if (match.usage.status.isSynonym() == u.status.isSynonym()) {
@@ -921,10 +991,6 @@ public class NubBuilder implements Runnable {
         } else {
           LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
         }
-
-      } else {
-        // persistent new nub usage if there wasnt any yet
-        match = createNubUsage(u, origin, parent);
       }
 
       if (match.isMatch()) {
@@ -1004,13 +1070,13 @@ public class NubBuilder implements Runnable {
             if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
               implicit.rank = Rank.GENUS;
               implicit.scientificName = u.parsedName.getGenusOrAbove();
-              implicit.status = u.status;
+              implicit.status = TaxonomicStatus.DOUBTFUL;
               implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
 
             } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
               implicit.rank = Rank.SPECIES;
               implicit.scientificName = u.parsedName.canonicalSpeciesName();
-              implicit.status = u.status;
+              implicit.status = TaxonomicStatus.DOUBTFUL;
               implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
             }
           } else {
@@ -1227,6 +1293,13 @@ public class NubBuilder implements Runnable {
    * Make sure we only have at most one accepted name for each homotypical basionym group!
    * An entire group can consist of synonyms without a problem, but they must all refer to the same accepted name.
    * If a previously accepted name needs to be turned into a synonym it will be of type homotypical_synonym.
+   *
+   * As we merge names from different taxonomies it is possible there are multiple accepted names (maybe via a synonym relation) in such a group.
+   * We always stick to the first combination with the highest priority and make all others
+   * a) synonyms of this if it is accepted
+   * b) synonyms of the primary's accepted name if it was a synonym itself
+   *
+   * In case of conflicting accepted names we also flag these names with CONFLICTING_BASIONYM_COMBINATION
    */
   private void consolidateBasionymGroups() {
     int counter = 0;
@@ -1246,18 +1319,22 @@ public class NubBuilder implements Runnable {
 
         counter++;
         // sort all usage by source dataset priority, placing doubtful names last
-        List<NubUsage> group = priorityStatusOrdering.sortedCopy(db.listBasionymGroup(bas));
+        List<NubUsage> group = db.listBasionymGroup(bas);
         if (group.size() > 1) {
           // we stick to the first combination with the highest priority and make all others
           //  a) synonyms of this if it is accepted
-          //  b) synonyms of the primarys accepted name if it was a synonym itself
-          int modified = 0;
-          final NubUsage primary = group.remove(0);
+          //  b) synonyms of the primary's accepted name if it was a synonym itself
+          // if there are several usages with the same priority select one according to some defined rules
+          final NubUsage primary = findPrimaryUsage(group);
+          // get the accepted usage in case of synonyms
           final NubUsage accepted = primary.status.isSynonym() ? db.parent(primary) : primary;
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
           Set<Node> parents = ImmutableSet.copyOf(db.parents(accepted.node));
+
           LOG.debug("Consolidating basionym group with {} primary usage {}: {}", primary.status, primary.parsedName.canonicalNameComplete(), names(group));
+          int modified = 0;
           for (NubUsage u : group) {
+            if (u.equals(primary)) continue;
             if (parents.contains(u.node)) {
               LOG.debug("Exclude parent {} from basionym consolidation of {}", u.parsedName.canonicalNameComplete(), primary.parsedName.canonicalNameComplete());
 
@@ -1281,6 +1358,101 @@ public class NubBuilder implements Runnable {
       }
     }
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
+  }
+
+  private int priority(NubUsage usage) {
+    return priorities.containsKey(usage.datasetKey) ? priorities.get(usage.datasetKey) : maxPriority + 1;
+  }
+
+  /**
+   * From a list of equally trusted usages of a basionym group select one primary usage to trust most.
+   * Selection follows the order:
+   * 1) the accepted usage which most usages link to (from a synonym)
+   * 2) status synonym > accepted > doubtful
+   * 3) highest rank
+   */
+  private NubUsage findPrimaryUsage(List<NubUsage> basionymGroup) {
+    if (basionymGroup == null || basionymGroup.isEmpty()) {
+      return null;
+    }
+    // a single usage only
+    if (basionymGroup.size() == 1) {
+      return basionymGroup.get(0);
+    }
+    // keep shringing this list until we get one!
+    List<NubUsage> candidates = Lists.newArrayList();
+
+    // 1. by dataset priority
+    int highestPriority = Integer.MAX_VALUE;
+    for (NubUsage u : basionymGroup) {
+      int datasetPriority = priority(u);
+      if (datasetPriority < highestPriority) {
+        highestPriority = datasetPriority;
+      }
+    }
+    for (NubUsage u : basionymGroup) {
+      if (priority(u) == highestPriority) {
+        candidates.add(u);
+      }
+    }
+
+    if (candidates.size() > 1) {
+      // 2. accepted with most usages
+      Map<NubUsage, NubUsage> u2acc= Maps.newHashMap();
+      Map<NubUsage, Integer> accCounts = Maps.newHashMap();
+      for (NubUsage u : candidates) {
+        final NubUsage accepted = u.status.isSynonym() ? db.parent(u) : u;
+        u2acc.put(u, accepted);
+        if (!accCounts.containsKey(accepted)) {
+          accCounts.put(accepted, 1);
+        } else {
+          accCounts.put(accepted, accCounts.get(accepted)+1);
+        }
+      }
+      int maxCount = MapUtils.sortByValue(accCounts, Ordering.<Integer>natural().reverse()).values().iterator().next();
+      Iterator<NubUsage> iter = candidates.iterator();
+      while (iter.hasNext()) {
+        NubUsage u = iter.next();
+        if (accCounts.get(u2acc.get(u)) != maxCount) {
+          iter.remove();
+        }
+      }
+
+      if (candidates.size() > 1) {
+        // 3. by status: syn > acc > doubtful
+        Map<NubUsage, Integer> score = Maps.newHashMap();
+        for (NubUsage u : candidates) {
+          score.put(u, MapUtils.getOrDefault(STATUS_ORDER, u.status, 10));
+        }
+        int maxScore = MapUtils.sortByValue(score).values().iterator().next();
+        iter = candidates.iterator();
+        while (iter.hasNext()) {
+          NubUsage u = iter.next();
+          if (score.get(u) != maxScore) {
+            iter.remove();
+          }
+        }
+
+        if (candidates.size() > 1) {
+          // 4. by higher rank
+          List<Rank> ranks = Lists.newArrayList();
+          for (NubUsage u : candidates) {
+            ranks.add(u.rank);
+          }
+          Collections.sort(ranks);
+          Rank minRank = ranks.get(0);
+          iter = candidates.iterator();
+          while (iter.hasNext()) {
+            NubUsage u = iter.next();
+            if (minRank != u.rank) {
+              iter.remove();
+            }
+          }
+        }
+      }
+    }
+
+    return candidates.get(0);
   }
 
   /**

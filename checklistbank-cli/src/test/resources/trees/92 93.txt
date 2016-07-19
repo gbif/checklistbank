@@ -23,6 +23,8 @@ Plantae [kingdom]
       Platanus hispanica var. hispanica [variety]
       Platanus hispanica var. pyramidata Vigouroux ex Geerinck [variety]
     Platanus hispanica Ten. [species]
+  Tephrolema
+    Tephrolema siphuloides Poelt & Grube
 Protozoa [kingdom]
 Viruses [kingdom]
 incertae sedis [kingdom]

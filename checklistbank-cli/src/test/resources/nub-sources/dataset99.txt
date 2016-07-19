@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Plantae
+10	1		SPECIES	ACCEPTED		Jacobaea vulgaris Gaertn.
+11	1		SPECIES	DOUBTFUL		Jacobaea vulgaris Moench, 1794
+16	1		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. gotlandica (Neuman) B.Nord.

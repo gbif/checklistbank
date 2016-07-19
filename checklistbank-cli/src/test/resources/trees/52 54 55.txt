@@ -25,7 +25,6 @@ Plantae
           *$Lupinus barbiger S.Watson
         Lupinus sericeus var. jonesii (Rydb.) S.L.Welsh ex Isely
         Lupinus sericeus var. maximus C.P. Sm. ex Fleak & D.B. Dunn
-        Lupinus sericeus var. sericeus
         Lupinus sericeus f. leucanthus B.Boivin
         Lupinus sericeus f. sericeus
       Lupinus sericeus Torr. & A.Gray

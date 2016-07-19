@@ -7,3 +7,4 @@
 21	6		SPECIES	ACCEPTED		Marka platyrachis Owen
 22	6		SPECIES	ACCEPTED		Platanus hispanica Mill. ex Münch.
 23	6		VARIETY	ACCEPTED		Platanus hispanica var. pyramidata Vigouroux ex Geerinck
+24	6		SPECIES	ACCEPTED		Tephrolema siphuloides Poelt & Grube

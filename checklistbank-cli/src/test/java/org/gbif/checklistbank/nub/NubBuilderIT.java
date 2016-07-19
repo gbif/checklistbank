@@ -191,6 +191,8 @@ public class NubBuilderIT {
     assertCanonical("Apargia umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
     assertCanonical("Picris umbellata", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, umbella);
     assertCanonical("Picris hieracioides sonchoides", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.SYNONYM, umbella);
+
+    assertTree("25 26.txt");
   }
 
   /**
@@ -215,6 +217,62 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("94.txt");
+  }
+
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3065
+   */
+  @Test
+  public void testSynonymizedAutonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(95);
+    build(src);
+
+    assertTree("95.txt");
+  }
+
+  @Test
+  public void testConflictingBasionyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(95, 96);
+    build(src);
+
+    assertTree("95 96.txt");
+  }
+
+  @Test
+  public void testConflictingBasionymsFlipped() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(96, 97);
+    build(src);
+
+    assertTree("96 97.txt");
+  }
+
+  @Test
+  public void testConflictingBasionymsOrder() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(97);
+    build(src);
+
+    assertTree("97.txt");
+  }
+
+  @Test
+  public void testPreferAcceptedQualifiedName() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(99);
+    build(src);
+
+    assertTree("99.txt");
+  }
+
+  /**
+   * When list of subspecific names without parents are added we immediately create an implicit name for the species and genus.
+   * When we subsequently then encounter the species name we need to make sure we select the right one if there are multiple.
+   * At least properly accepted ones should be preferred over doubtful ones.
+   */
+  @Test
+  public void testImplicitNameHomonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(98);
+    build(src);
+
+    assertTree("98.txt");
   }
 
   /**
@@ -1661,17 +1719,19 @@ public class NubBuilderIT {
   private void assertTree(String filename) throws IOException {
     System.out.println("assert tree from "+filename);
     NubTree expected = NubTree.read("trees/" + filename);
+
+    // compare trees
+    assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
+    TreeAsserter treeAssert = new TreeAsserter(expected);
+    TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
+    assertTrue("There should be more taxa", treeAssert.completed());
+
     // verify all nodes are walked in the tree and match the expected numbers
     int neoCnt = IteratorUtil.count(GlobalGraphOperations.at(dao.getNeo()).getAllNodes());
     // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
     System.out.println("expected nodes: "+expected.getCount());
     System.out.println("counted nodes: "+neoCnt);
     assertTrue(expected.getCount() >= neoCnt);
-    // compare trees
-    assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
-    TreeAsserter treeAssert = new TreeAsserter(expected);
-    TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
-    assertTrue("There should be more taxa", treeAssert.completed());
   }
 
   private void printTree() throws Exception {

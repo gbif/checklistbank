@@ -1,9 +1,9 @@
 Animalia
   Eulophidae
     Aprostocetus
-      Aprostocetus flavus (Girault, 1913)
-        *$Neotetrastichodes flavus Girault, 1913
       Aprostocetus rieki (De Santis, 1979)
+        *$Neotetrastichodes flavus Girault, 1913
+        *Aprostocetus flavus (Girault, 1913)
 Archaea
 Bacteria
 Chromista

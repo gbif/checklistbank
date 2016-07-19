@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
@@ -140,13 +141,21 @@ public class NubDb {
   /**
    * Returns the matching accepted nub usage for that canonical name at the given rank.
    */
-  public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, String canonical, Rank rank) {
-    canonical = SciNameNormalizer.normalize(canonical);
+  public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, final String canonical, Rank rank) {
+    return findNubUsage(kingdom, false, canonical, rank);
+  }
+
+  public NubUsageMatch findNubUsage(Kingdom kingdom, final String canonical, Rank rank) {
+    return findNubUsage(kingdom, true, canonical, rank);
+  }
+
+  private NubUsageMatch findNubUsage(Kingdom kingdom, boolean inclSynonyms, final String canonical, Rank rank) {
+    final String normedCanonical = SciNameNormalizer.normalize(canonical);
 
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
       NubUsage rn = dao.readNub(n);
-      if (kingdom == rn.kingdom && rank == rn.rank && rn.status.isAccepted()) {
+      if (kingdom == rn.kingdom && rank == rn.rank && (rn.status.isAccepted() || inclSynonyms)) {
         usages.add(rn);
       }
     }
@@ -170,44 +179,51 @@ public class NubDb {
     }
   }
 
+  public NubUsageMatch findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
+    return findNubUsage(currSource, u.parsedName, u.rank, u.status, uKingdom, currNubParent);
+  }
+
   /**
    * Tries to find an already existing nub usage for the given source usage.
    *
    * @return the existing usage or null if it does not exist yet.
    */
-  public NubUsageMatch findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
-    final boolean qualifiedName = u.parsedName.hasAuthorship();
+  public NubUsageMatch findNubUsage(UUID currSource, ParsedName pn, @Nullable Rank rank, TaxonomicStatus status, Kingdom kingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
+    final boolean qualifiedName = pn.hasAuthorship();
     List<NubUsage> checked = Lists.newArrayList();
     int canonMatches = 0;
-    final String name = dao.canonicalOrScientificName(u.parsedName, false);
+    NubUsage doubtful = null;
+    final String name = dao.canonicalOrScientificName(pn, false);
     for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
-      if (matchesNub(u, uKingdom, rn, currNubParent)) {
+      if (matchesNub(pn, rank, kingdom, rn, currNubParent, false)) {
         checked.add(rn);
         if (!rn.parsedName.hasAuthorship()) {
           canonMatches++;
         }
+      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true)){
+        doubtful = rn;
       }
     }
 
     if (checked.isEmpty()) {
       // try harder to match to kingdoms by name alone
-      if (u.rank != null && u.rank.higherThan(Rank.PHYLUM)) {
-        ParseResult<Kingdom> kResult = kingdomParser.parse(u.scientificName);
+      if (rank != null && rank.higherThan(Rank.PHYLUM)) {
+        ParseResult<Kingdom> kResult = kingdomParser.parse(pn.getScientificName());
         if (kResult.isSuccessful()) {
           return NubUsageMatch.snap(kingdoms.get(kResult.getPayload()));
         }
       }
-      return NubUsageMatch.empty();
+      return NubUsageMatch.empty(doubtful);
     }
 
     // first try exact single match with authorship
     if (qualifiedName) {
       NubUsage match = null;
       for (NubUsage nu : checked) {
-        if (u.parsedName.canonicalNameComplete().equals(nu.parsedName.canonicalNameComplete())) {
+        if (pn.canonicalNameComplete().equals(nu.parsedName.canonicalNameComplete())) {
           if (match != null) {
-            LOG.warn("Exact homonym encountered for {}", u.scientificName);
+            LOG.warn("Exact homonym encountered for {}", pn.getScientificName());
             match = null;
             break;
           }
@@ -220,8 +236,8 @@ public class NubDb {
     }
 
     // avoid the case when an accepted name without author is being matched against synonym names with authors from the same source
-    if (u.status.isAccepted() && !qualifiedName && currSource.equals(qualifiedSynonymsFromSingleSource(checked))) {
-      LOG.debug("{} canonical homonyms encountered for {}, but all from the same source", checked.size(), u.scientificName);
+    if (status.isAccepted() && !qualifiedName && currSource.equals(qualifiedSynonymsFromSingleSource(checked))) {
+      LOG.debug("{} canonical homonyms encountered for {}, but all from the same source", checked.size(), pn.getScientificName());
       return NubUsageMatch.empty();
     }
 
@@ -240,19 +256,29 @@ public class NubDb {
     }
 
     // all synonyms pointing to the same accepted? then it wont matter much for snapping
+    Node parent = null;
+    NubUsage synonym = null;
     Iterator<NubUsage> iter = checked.iterator();
-    Node parent = parent(iter.next().node);
-    if (parent != null) {
-      while (iter.hasNext()) {
-        Node p2 = parent(iter.next().node);
+    while (iter.hasNext()) {
+      NubUsage u = iter.next();
+      if (u.status.isAccepted()) {
+        synonym = null;
+        break;
+      }
+      if (parent == null) {
+        parent = parent(u.node);
+        synonym = u;
+      } else {
+        Node p2 = parent(u.node);
         if (!parent.equals(p2)) {
-          parent = null;
+          synonym = null;
           break;
         }
       }
-      if (parent != null) {
-        return NubUsageMatch.snap(checked.get(0));
-      }
+
+    }
+    if (synonym != null) {
+      return NubUsageMatch.snap(synonym);
     }
 
     // try to do better authorship matching, remove canonical matches
@@ -260,23 +286,51 @@ public class NubDb {
       iter = checked.iterator();
       while (iter.hasNext()) {
         NubUsage nu = iter.next();
-        Equality author = authComp.compare(u.parsedName, nu.parsedName);
+        Equality author = authComp.compare(pn, nu.parsedName);
         if (author != Equality.EQUAL) {
           iter.remove();
         }
       }
     }
+    if (checked.size() == 1) {
+      return NubUsageMatch.match(checked.get(0));
+    }
 
-    // finally pick the first accepted randomly
+    // remove doubtful usages
+    iter = checked.iterator();
+    while (iter.hasNext()) {
+      if (iter.next().status == TaxonomicStatus.DOUBTFUL) {
+        iter.remove();
+      };
+    }
+    if (checked.size() == 1) {
+      return NubUsageMatch.snap(checked.get(0));
+    }
+
+    // finally pick the first accepted with the largest subtree
+    NubUsage curr = null;
+    int maxDescendants = -1;
     for (NubUsage nu : checked) {
       if (nu.status.isAccepted()) {
-        nu.issues.add(NameUsageIssue.HOMONYM);
-        nu.addRemark("Homonym known in other sources: " + u.scientificName);
-        LOG.warn("{} ambigous homonyms encountered for {} in source {}", checked.size(), u.scientificName, currSource);
-        return NubUsageMatch.snap(nu);
+        int descendants = countDescendants(nu);
+        if (maxDescendants < descendants) {
+          maxDescendants = descendants;
+          curr = nu;
+        }
       }
     }
-    throw new IgnoreSourceUsageException("homonym " + u.scientificName, u.scientificName);
+    if (curr != null) {
+      curr.issues.add(NameUsageIssue.HOMONYM);
+      curr.addRemark("Homonym known in other sources: " + pn.getScientificName());
+      LOG.warn("{} ambigous homonyms encountered for {} in source {}, picking largest taxon", checked.size(), pn.getScientificName(), currSource);
+      return NubUsageMatch.snap(curr);
+    }
+
+    throw new IgnoreSourceUsageException("homonym " + pn.getScientificName(), pn.getScientificName());
+  }
+
+  private int countDescendants(NubUsage u) {
+    return IteratorUtil.count(Traversals.DESCENDANTS.traverse(u.node));
   }
 
   /**
@@ -298,15 +352,15 @@ public class NubDb {
     return source;
   }
 
-  private boolean matchesNub(SrcUsage u, Kingdom uKingdom, NubUsage match, NubUsage currNubParent) {
-    if (u.rank != match.rank) {
+  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, NubUsage currNubParent, boolean ignoreAuthor) {
+    if (rank != match.rank) {
       return false;
     }
     // no homonyms above genus level
-    if (u.rank.isSuprageneric()) {
+    if (rank.isSuprageneric()) {
       return true;
     }
-    Equality author = authComp.compare(u.parsedName, match.parsedName);
+    Equality author = ignoreAuthor ? Equality.UNKNOWN : authComp.compare(pn, match.parsedName);
     Equality kingdom = compareKingdom(uKingdom, match);
     if (author == Equality.DIFFERENT || kingdom == Equality.DIFFERENT) return false;
     switch (author) {
@@ -314,7 +368,7 @@ public class NubDb {
         // really force a no-match in case authors match but the name is classified under a different (normalised) kingdom?
         return true;
       case UNKNOWN:
-        return u.rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT;
+        return rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT;
     }
     return false;
   }
@@ -502,6 +556,29 @@ public class NubDb {
       deleted = true;
     }
     return deleted;
+  }
+
+  /**
+   * Move all relations from the accepted source node to the accepted target node.
+   * Using this method on synonyms (with label synonym) will raise an illegal argument exception.
+   */
+  public void transferChildren(NubUsage target, NubUsage source) {
+    if (target.node.hasLabel(Labels.SYNONYM) || source.node.hasLabel(Labels.SYNONYM)) {
+      throw new IllegalArgumentException();
+    }
+    int childCounter = 0;
+    for (Relationship rel : source.node.getRelationships(Direction.OUTGOING, RelType.PARENT_OF)) {
+      target.node.createRelationshipTo(rel.getOtherNode(source.node), RelType.PARENT_OF);
+      rel.delete();
+      childCounter++;
+    }
+    int synCounter = 0;
+    for (Relationship rel : source.node.getRelationships(Direction.INCOMING, RelType.SYNONYM_OF)) {
+      rel.getOtherNode(source.node).createRelationshipTo(target.node, RelType.SYNONYM_OF);
+      rel.delete();
+      synCounter++;
+    }
+    LOG.debug("Transfer {} children and {} synonyms from {} to {}", childCounter, synCounter, source.parsedName.fullName(), target.parsedName.fullName());
   }
 
   /**

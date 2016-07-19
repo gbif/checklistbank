@@ -14,3 +14,4 @@
 22	6		SPECIES	ACCEPTED		Platanus hispanica Ten.
 23	6		SPECIES	ACCEPTED		Platanus x hispanica Mill. ex Münch., 1770
 24	6		VARIETY	ACCEPTED		Platanus ×hispanica var. pyramidata (Wesm.) Vigouroux ex Geerinck
+25	6		SPECIES	ACCEPTED		Tephrolema siphulodes Poelt & Grube
