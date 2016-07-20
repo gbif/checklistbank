@@ -130,17 +130,6 @@ public class NubBuilder implements Runnable {
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
 
-  private final Ordering<NubUsage> priorityStatusOrdering = Ordering.natural().onResultOf(new Function<NubUsage, Integer>() {
-    @Nullable
-    @Override
-    public Integer apply(@Nullable NubUsage u) {
-      int doubtfulScore = TaxonomicStatus.DOUBTFUL == u.status ? 100000 : 0;
-      int statusScore = u.status == null ? 10 : u.status.ordinal();
-      int datasetPriority = priority(u);
-      return doubtfulScore + statusScore + 10 * datasetPriority;
-    }
-  });
-
   private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart,
                      boolean closeDao, NubConfiguration cfg) {
     db = NubDb.create(dao, authorComparator);

@@ -52,7 +52,7 @@ public class ClbSourceList extends NubSourceList {
 
     List<NubSource> sources = Lists.newArrayList();
     for (UUID dKey : sourceDatasetKeys) {
-      sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg.clb));
+      sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg.clb, false));
     }
     return new ClbSourceList(cfg, sources);
   }
@@ -75,9 +75,10 @@ public class ClbSourceList extends NubSourceList {
     loadSources();
   }
 
-  private static NubSource buildSource(Dataset d, Rank rank, ClbConfiguration cfg) {
+  private static NubSource buildSource(Dataset d, Rank rank, ClbConfiguration cfg, boolean ignoreSynonyms) {
     NubSource src = new ClbSource(cfg, d.getKey(), d.getTitle());
     src.created = d.getCreated();
+    src.ignoreSynonyms = ignoreSynonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
     if (rank != null) {
       src.ignoreRanksAbove = rank;
@@ -107,16 +108,17 @@ public class ClbSourceList extends NubSourceList {
         Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
         Dataset d = datasetService.get(key);
         if (d != null) {
-          sources.add(buildSource(d, rank, cfg.clb));
+          sources.add(buildSource(d, rank, cfg.clb, cfg.ignoreSynonyms.contains(key)));
 
         } else {
           // try if its an organization
           Organization org = organizationService.get(key);
           if (org != null) {
+            boolean ignoreSyns = cfg.ignoreSynonyms.contains(key);
             int counter = 0;
             for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
               if (!keys.contains(d2.getKey())) {
-                sources.add(buildSource(d2, rank, cfg.clb));
+                sources.add(buildSource(d2, rank, cfg.clb, ignoreSyns));
                 counter++;
               }
             }
@@ -125,10 +127,11 @@ public class ClbSourceList extends NubSourceList {
             // try an installation
             Installation inst = installationService.get(key);
             if (inst != null) {
+              boolean ignoreSyns = cfg.ignoreSynonyms.contains(key);
               int counter = 0;
               for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
                 if (!keys.contains(d2.getKey())) {
-                  sources.add(buildSource(d2, rank, cfg.clb));
+                  sources.add(buildSource(d2, rank, cfg.clb, ignoreSyns));
                   counter++;
                 }
               }

@@ -47,7 +47,7 @@ public class ManualDbDump {
     LOG.info("Dump dataset {} from postgres to local neo", datasetKey);
     ClbSource src = new ClbSource(clb, datasetKey, "Checklist " + datasetKey);
     src.setNeoRepository(neo.neoRepository);
-    src.init(true, nubRanksOnly, false);
+    src.init(true, nubRanksOnly, false, false);
     LOG.info("Postrges dumped");
   }
 

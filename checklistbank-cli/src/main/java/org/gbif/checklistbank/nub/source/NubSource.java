@@ -73,6 +73,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public Rank ignoreRanksAbove = Rank.FAMILY;
   public Date created;
   public boolean nomenclator = false;
+  public boolean ignoreSynonyms = false;
 
   private UsageDao dao;
   private final boolean useTmpDao;
@@ -96,7 +97,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    * @param nubRanksOnly if true skip non nub ranks
    * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
    */
-  public void init(boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames) throws Exception {
+  public void init(boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) throws Exception {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
     watch.reset().start();
@@ -108,7 +109,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     } else {
       initDao = open(false, true);
     }
-    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames)) {
+    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
       initNeo(writer);
       LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getSkipped());
     }
@@ -139,7 +140,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
      * @param nubRanksOnly if true skip non nub ranks
      * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
      */
-    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames) {
+    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) {
       // the number of columns in our query to consume
       super(7);
       this.dao = dao;
@@ -170,6 +171,11 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
           u.parsedName.setType(e.type);
           u.parsedName.setScientificName(u.scientificName);
         }
+      }
+
+      if (ignoreSynonyms && u.status != null && u.status.isSynonym()) {
+        skipped++;
+        return;
       }
 
       if (nubRanksOnly) {

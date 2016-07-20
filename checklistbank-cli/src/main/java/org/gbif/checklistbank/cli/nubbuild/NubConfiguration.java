@@ -7,12 +7,15 @@ import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Set;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.ParametersDelegate;
+import com.google.common.collect.Sets;
 
 /**
  *
@@ -43,6 +46,13 @@ public class NubConfiguration {
   @NotNull
   @Valid
   public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
+
+  /**
+   * Set of dataset, publisher or installation keys from which synonyms should be ignored during nub builds.
+   * Defaults to the Plazi organization due to http://dev.gbif.org/issues/browse/POR-3151
+   */
+  @Valid
+  public Set<UUID> ignoreSynonyms = Sets.newHashSet(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
 
   /**
    * If true algorithmic detecting and grouping of basionyms is executed.

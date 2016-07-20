@@ -69,7 +69,7 @@ public class UsageDaoTest {
   @Ignore("manual test to generate GML test files for rod pages forest diff tool")
   public void testTrees2() throws Exception {
     try (ClasspathSource src = new ClasspathSource(41);) {
-      src.init(true, false, false);
+      src.init(true, false, false, false);
       dao = src.getDao();
 
       // add pro parte & basionym rel
@@ -95,7 +95,7 @@ public class UsageDaoTest {
   @Test
   public void testTrees() throws Exception {
     try (ClasspathSource src = new ClasspathSource(41);) {
-      src.init(true, false, false);
+      src.init(true, false, false, false);
       dao = src.getDao();
 
       // add pro parte & basionym rel

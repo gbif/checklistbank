@@ -346,7 +346,7 @@ public class AdminCommand extends BaseCommand {
     LOG.info("Start dumping dataset {} from postgres into neo4j", cfg.key);
     ClbSource src = new ClbSource(cfg.clb, cfg.key, "Checklist " + cfg.key);
     src.setNeoRepository(cfg.neo.neoRepository);
-    src.init(true, cfg.nubRanksOnly, false);
+    src.init(true, cfg.nubRanksOnly, false, false);
   }
 
   private void updateNubNames() {

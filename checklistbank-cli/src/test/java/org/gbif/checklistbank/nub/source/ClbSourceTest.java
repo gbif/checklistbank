@@ -32,7 +32,7 @@ public class ClbSourceTest {
 
         ClbSource src = new ClbSource(clb, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels");
         src.ignoreRanksAbove = Rank.SPECIES;
-        src.init(false, false, false);
+        src.init(false, false, false, false);
         int counter = 0;
         for (SrcUsage u : src) {
             counter++;
