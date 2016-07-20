@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		CLASS	ACCEPTED		Mammalia
+3	2		FAMILY	ACCEPTED		Soricidae
+10	3		GENUS	ACCEPTED		Sorex
+11	10		SPECIES	ACCEPTED		Sorex (Sorex) yukonicus Dokuchaev, 1997
+12	10		SPECIES	ACCEPTED		Sorex (Ognevia) mirabilis Ognev, 1937
+13	10		SPECIES	ACCEPTED		Sorex sclateri Merriam, 1897
+14	10		SPECIES	ACCEPTED		Sorex thibetanus Kastschenko, 1905

@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Plantae
+2	1		FAMILY	ACCEPTED		Pinaceae Spreng. ex F. Rudolphi
+3	2		GENUS	ACCEPTED		Pinus Spreng. ex F. Rudolphi
+11	3		SPECIES	ACCEPTED		Vernonia retusa Sch.Bip. ex H.Rob.
+12	2		SPECIES	ACCEPTED		Gossypium tomentosum Nutt. ex Seem.
+13	2		SPECIES	ACCEPTED		Lilium tianschanicum N. A. Ivanova ex Grubov

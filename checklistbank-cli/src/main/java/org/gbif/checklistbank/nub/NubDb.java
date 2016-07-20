@@ -188,7 +188,7 @@ public class NubDb {
    *
    * @return the existing usage or null if it does not exist yet.
    */
-  public NubUsageMatch findNubUsage(UUID currSource, ParsedName pn, @Nullable Rank rank, TaxonomicStatus status, Kingdom kingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
+  public NubUsageMatch findNubUsage(UUID currSource, ParsedName pn, @Nullable Rank rank, TaxonomicStatus status, Kingdom kingdom, @Nullable NubUsage currNubParent) throws IgnoreSourceUsageException {
     final boolean qualifiedName = pn.hasAuthorship();
     List<NubUsage> checked = Lists.newArrayList();
     int canonMatches = 0;
@@ -352,7 +352,7 @@ public class NubDb {
     return source;
   }
 
-  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, NubUsage currNubParent, boolean ignoreAuthor) {
+  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, @Nullable NubUsage currNubParent, boolean ignoreAuthor) {
     if (rank != match.rank) {
       return false;
     }
@@ -386,7 +386,7 @@ public class NubDb {
   }
 
   // if authors are missing require the classification to not contradict!
-  private Equality compareClassification(NubUsage currNubParent, NubUsage match) {
+  private Equality compareClassification(@Nullable NubUsage currNubParent, NubUsage match) {
     if (currNubParent != null &&
         (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node, true)))
     {

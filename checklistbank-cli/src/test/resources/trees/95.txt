@@ -7,6 +7,7 @@ Plantae [kingdom]
   Asteraceae [family]
     Hippolytia [genus]
       Hippolytia tomentosa (DC.) Tzvelev [species]
+        *Senecio jacobaea var. grandiflorus Turcz.
         *Senecio jacobaea var. grandiflorus Turcz. ex DC. [variety]
     Jacobaea [genus]
       Jacobaea aquatica (Hill) G.Gaertn., B.Mey. & Scherb. [species]

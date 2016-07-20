@@ -20,8 +20,10 @@ Plantae [kingdom]
     Marka platyrhachis Odenthal [species]
   Platanus [genus]
     Platanus hispanica Mill. ex Münch. [species]
+      *Platanus hispanica Mill.
       Platanus hispanica var. hispanica [variety]
       Platanus hispanica var. pyramidata Vigouroux ex Geerinck [variety]
+        *Platanus hispanica var. pyramidata Vigouroux
     Platanus hispanica Ten. [species]
   Tephrolema
     Tephrolema siphuloides Poelt & Grube

@@ -262,6 +262,26 @@ public class NubBuilderIT {
     assertTree("99.txt");
   }
 
+  @Test
+  public void testNamesWithSubgenus() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(100);
+    build(src);
+
+    assertTree("100.txt");
+  }
+
+  /**
+   * See http://dev.gbif.org/issues/browse/POR-3147
+   * http://www.iapt-taxon.org/nomen/main.php?page=art46
+   */
+  @Test
+  public void testExAuthorSynonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(101);
+    build(src);
+
+    assertTree("101.txt");
+  }
+
   /**
    * When list of subspecific names without parents are added we immediately create an implicit name for the species and genus.
    * When we subsequently then encounter the species name we need to make sure we select the right one if there are multiple.

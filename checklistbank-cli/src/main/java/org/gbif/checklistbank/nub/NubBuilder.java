@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 import com.carrotsearch.hppc.IntLongHashMap;
@@ -109,7 +111,8 @@ public class NubBuilder implements Runnable {
       TaxonomicStatus.ACCEPTED, 4,
       TaxonomicStatus.DOUBTFUL, 5
       );
-  
+  private static final Pattern EX_AUTHOR = Pattern.compile("^(.+) ex ", Pattern.CASE_INSENSITIVE);
+
   private final Set<Rank> allowedRanks = Sets.newHashSet();
   private final NubDb db;
   private final boolean closeDao;
@@ -189,6 +192,9 @@ public class NubBuilder implements Runnable {
       // detect and group basionyms
       groupByBasionym();
 
+      // extract synonyms from ex authors
+      synonymizeExAuthors();
+
       // flagging of suspicous usages
       flagParentMismatch();
       flagEmptyGenera();
@@ -197,7 +203,7 @@ public class NubBuilder implements Runnable {
       flagSimilarNames();
       flagDoubtfulOriginalNames();
 
-      // persistent missign autonyms
+      // persist missing autonyms
       fixInfraspeciesHierarchy();
       manageAutonyms();
 
@@ -239,6 +245,58 @@ public class NubBuilder implements Runnable {
         LOG.info("Backbone dao closed orderly");
       } else {
         LOG.warn("Backbone dao not closed!");
+      }
+    }
+  }
+
+  /**
+   * Goes through all names with ex authors (99% botanical) and creates homotypic synonyms with the ex authorship.
+   * Ex authors are publications which published a name earlier than the regular author, but which are illegitimate according to the code, for example a nomen nudum.
+   *
+   * See http://dev.gbif.org/issues/browse/POR-3147
+   */
+  private void synonymizeExAuthors() {
+    LOG.info("Extract ex author species synonyms");
+    try (Transaction tx = db.beginTx()) {
+      synonymizeExAuthors(db.dao.allSpecies());
+      tx.success();
+    }
+
+    LOG.info("Extract ex author infraspecies synonyms");
+    try (Transaction tx = db.beginTx()) {
+      synonymizeExAuthors(db.dao.allInfraSpecies());
+      tx.success();
+    }
+  }
+
+  private void synonymizeExAuthors(ResourceIterator<Node> iter) {
+    for (Node n : IteratorUtil.loop(iter)) {
+      NubUsage nub = read(n);
+      if (!Strings.isBlank(nub.parsedName.getAuthorship())) {
+        Matcher m = EX_AUTHOR.matcher(nub.parsedName.getAuthorship());
+        if (m.find()) {
+          try {
+            // create synonym if not already existing
+            SrcUsage syn = new SrcUsage();
+            syn.parsedName = nub.parsedName;
+            syn.parsedName.setAuthorship(m.group(1));
+            syn.parsedName.setYear(null);
+            syn.parsedName.setScientificName(syn.parsedName.canonicalNameComplete());
+            syn.rank = nub.rank;
+            syn.status = TaxonomicStatus.HOMOTYPIC_SYNONYM;
+
+            // the parent nub does not matter as we always do a qualified author based matching
+            NubUsageMatch match = db.findNubUsage(nub.datasetKey, syn, nub.kingdom, null);
+            if (!match.isMatch() || !match.usage.parsedName.hasAuthorship()) {
+              // create a new synonym
+              NubUsage accepted = nub.status.isAccepted() ? nub : db.parent(nub);
+              LOG.debug("Create ex author synonym {}", syn.parsedName.fullName());
+              db.addUsage(accepted, syn, Origin.EX_AUTHOR_SYNONYM, currSrc.key);
+            }
+          } catch (IgnoreSourceUsageException e) {
+            // swallow
+          }
+        }
       }
     }
   }
