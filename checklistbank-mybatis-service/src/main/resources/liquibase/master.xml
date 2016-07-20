@@ -206,6 +206,7 @@
       ALTER TABLE name_usage ALTER COLUMN issues type text;
     </sql>
   </changeSet>
+
   <changeSet id="37" author="markus">
     <!--
     revert and use text[] again, JDBC driver got fixed!
@@ -215,10 +216,21 @@
       ALTER TABLE name_usage ALTER COLUMN issues type text[] USING issues::text[];
     </sql>
   </changeSet>
+
   <changeSet id="38" author="markus">
     <!-- we use the json column now since a while, lets drop the legacy data column -->
     <sql>
       ALTER TABLE raw_usage DROP COLUMN data;
     </sql>
   </changeSet>
+
+  <changeSet id="39" author="markus" runInTransaction="false">
+    <!-- adds new origin value to origin type -->
+    <sql splitStatements="false" stripComments="false">
+      <![CDATA[
+      ALTER TYPE origin_type ADD VALUE IF NOT EXISTS 'EX_AUTHOR_SYNONYM' BEFORE 'OTHER';
+      ]]>
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>
