@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		FAMILY	ACCEPTED		Buprestidae
+11	2		SPECIES	ACCEPTED		Agrilus illectus Fall 1901
+12	11		SUBSPECIES	SYNONYM		Agrilus inhabilis subsp. inhabilis Kerremans 1900

@@ -141,42 +141,47 @@ public class NubDb {
   /**
    * Returns the matching accepted nub usage for that canonical name at the given rank.
    */
-  public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, final String canonical, Rank rank) {
-    return findNubUsage(kingdom, false, canonical, rank);
+  public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, final String canonical, Rank rank) throws HomonymException {
+    return findNubUsage(canonical, rank, kingdom, false);
   }
 
-  public NubUsageMatch findNubUsage(Kingdom kingdom, final String canonical, Rank rank) {
-    return findNubUsage(kingdom, true, canonical, rank);
-  }
-
-  private NubUsageMatch findNubUsage(Kingdom kingdom, boolean inclSynonyms, final String canonical, Rank rank) {
-    final String normedCanonical = SciNameNormalizer.normalize(canonical);
-
-    List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
-      NubUsage rn = dao.readNub(n);
-      if (kingdom == rn.kingdom && rank == rn.rank && (rn.status.isAccepted() || inclSynonyms)) {
-        usages.add(rn);
-      }
-    }
-    // remove doubtful ones
-    if (usages.size() > 1) {
-      Iterator<NubUsage> iter = usages.iterator();
-      while (iter.hasNext()) {
-        if (iter.next().status == TaxonomicStatus.DOUBTFUL) {
-          iter.remove();
-        }
-      }
-    }
+  public NubUsageMatch findNubUsage(final String canonical, Rank rank, Kingdom kingdom, boolean inclSynonyms) throws HomonymException {
+    List<NubUsage> usages = listNubUsages(canonical, rank, kingdom, inclSynonyms, true);
 
     if (usages.isEmpty()) {
       return NubUsageMatch.empty();
+
     } else if (usages.size() == 1) {
       return NubUsageMatch.match(usages.get(0));
+
     } else {
-      LOG.error("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
-      throw new IllegalStateException("accepted homonym encountered for " + kingdom + " kingdom: " + rank + " " + canonical);
+      LOG.info("{} homonyms encountered for {} {}", usages.size(), rank, canonical);
+      throw new HomonymException("accepted homonym encountered for " + kingdom + " kingdom: " + rank + " " + canonical, canonical);
     }
+  }
+
+  public List<NubUsage> listNubUsages(final String canonical, @Nullable Rank rank, @Nullable Kingdom kingdom, boolean inclSynonyms, boolean excludeDoubtfulIfOtherMatches) {
+    final String normedCanonical = SciNameNormalizer.normalize(canonical);
+    List<NubUsage> usages = Lists.newArrayList();
+    List<NubUsage> doubtful = Lists.newArrayList();
+    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
+      NubUsage rn = dao.readNub(n);
+      if ( (kingdom == null || kingdom == rn.kingdom)
+          && (rank == null || rank == rn.rank)
+          && (inclSynonyms || rn.status.isAccepted())
+          )
+      {
+        if (rn.status == TaxonomicStatus.DOUBTFUL) {
+          doubtful.add(rn);
+        } else {
+          usages.add(rn);
+        }
+      }
+    }
+    if (!excludeDoubtfulIfOtherMatches || usages.isEmpty()) {
+      usages.addAll(doubtful);
+    }
+    return usages;
   }
 
   public NubUsageMatch findNubUsage(UUID currSource, SrcUsage u, Kingdom uKingdom, NubUsage currNubParent) throws IgnoreSourceUsageException {
@@ -636,55 +641,6 @@ public class NubDb {
     }
     // persist usage instance changes
     store(u);
-  }
-
-
-  /**
-   * Iterates over all direct children of a node, deletes that parentOf relation and creates a new parentOf relation to the given new parent node instead.
-   *
-   * @param n      the node with child nodes
-   * @param parent the new parent to be linked
-   */
-  @Deprecated
-  private void moveChildren(Node n, NubUsage parent, NameUsageIssue... issues) {
-    for (Relationship rel : Traversals.CHILDREN.traverse(n).relationships()) {
-      Node child = rel.getOtherNode(n);
-      rel.delete();
-      // read nub usage to add an issue to the child
-      NubUsage cu = dao.readNub(child);
-      createParentRelation(cu, parent);
-      Collections.addAll(cu.issues, issues);
-      if (!cu.parsedName.getGenusOrAbove().equals(parent.parsedName.getGenusOrAbove())) {
-        cu.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
-      }
-      store(cu);
-    }
-  }
-
-  /**
-   * Iterates over all direct synonyms (both synonymOf and proParteSynonymOf) of a node, deletes that relationship
-   * and creates a new relation of the same type to the given new accepted node instead.
-   *
-   * @param n        the node with synonym nodes
-   * @param accepted the new accepted to be linked
-   */
-  @Deprecated
-  private void moveSynonyms(Node n, Node accepted) {
-    moveSynonyms(n, accepted, RelType.SYNONYM_OF);
-    moveSynonyms(n, accepted, RelType.PROPARTE_SYNONYM_OF);
-  }
-
-  @Deprecated
-  private void moveSynonyms(Node n, Node accepted, RelType type) {
-    Set<Node> synonyms = Sets.newHashSet();
-    for (Relationship rel : n.getRelationships(type, Direction.INCOMING)) {
-      Node syn = rel.getOtherNode(n);
-      rel.delete();
-      synonyms.add(syn);
-    }
-    for (Node syn : synonyms) {
-      syn.createRelationshipTo(accepted, type);
-    }
   }
 
   public NubUsage store(NubUsage nub) {

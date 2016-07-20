@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		FAMILY	ACCEPTED		Buprestidae
+5	2		GENUS	ACCEPTED		Agrilus
+10	5		SPECIES	ACCEPTED		Agrilus (Agrilus) illectus Fall, 1901
+11	5		SPECIES	ACCEPTED		Agrilus (Engyaulus) inhabilis Kerremans, 1900
+12	11		SUBSPECIES	ACCEPTED		Agrilus (Engyaulus) inhabilis inhabilis Kerremans, 1900
+13	11		SUBSPECIES	ACCEPTED		Agrilus (Engyaulus) inhabilis cuprinus Nelson in Nelson and Westcott, 1991
+

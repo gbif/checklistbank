@@ -520,21 +520,26 @@ public class NubBuilder implements Runnable {
             pn.setScientificName(pn.canonicalName());
             pn.setRank(u.rank);
 
-            NubUsageMatch autoMatch = db.findNubUsage(u.kingdom, pn.canonicalName(), u.rank);
-            if (!autoMatch.isMatch()) {
-              NubUsage parent = db.parent(u);
+            try {
+              NubUsageMatch autoMatch = db.findNubUsage(pn.canonicalName(), u.rank, u.kingdom, true);
+              if (!autoMatch.isMatch()) {
+                NubUsage parent = db.parent(u);
 
-              SrcUsage autonym = new SrcUsage();
-              autonym.rank = u.rank;
-              autonym.scientificName = pn.canonicalName();
-              autonym.parsedName = pn;
-              autonym.status = TaxonomicStatus.ACCEPTED;
-              try {
-                createNubUsage(autonym, Origin.AUTONYM, parent);
-                counter++;
-              } catch (IgnoreSourceUsageException e) {
-                LOG.warn("Fail to persistent missing autonym {}", pn.canonicalName());
+                SrcUsage autonym = new SrcUsage();
+                autonym.rank = u.rank;
+                autonym.scientificName = pn.canonicalName();
+                autonym.parsedName = pn;
+                autonym.status = TaxonomicStatus.ACCEPTED;
+                try {
+                  createNubUsage(autonym, Origin.AUTONYM, parent);
+                  counter++;
+                } catch (IgnoreSourceUsageException e) {
+                  LOG.warn("Fail to persistent missing autonym {}", pn.canonicalName());
+                }
               }
+
+            } catch (HomonymException e) {
+              LOG.error("Homonym autonym found: {}", e.getName());
             }
           }
         }

@@ -282,6 +282,14 @@ public class NubBuilderIT {
     assertTree("101.txt");
   }
 
+  @Test
+  public void testAutonymHomonym() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(102, 103);
+    build(src);
+
+    assertTree("102 103.txt");
+  }
+
   /**
    * When list of subspecific names without parents are added we immediately create an implicit name for the species and genus.
    * When we subsequently then encounter the species name we need to make sure we select the right one if there are multiple.
