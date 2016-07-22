@@ -568,6 +568,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       //TODO: decrease this to 30 once the backbone is in a better state again !!!
       rate = -51;
     }
+    // we rarely ever have a virus name, punish these a little more to avoid false virus matches
+    if (htComp.isInKingdoms(reference, Kingdom.VIRUSES)) {
+      rate -= 10;
+    }
     // phylum to family
     rate += htComp.compareHigherRank(Rank.PHYLUM, query, reference, 10, -10, -1);
     rate += htComp.compareHigherRank(Rank.CLASS, query, reference, 15, -10, 0);
