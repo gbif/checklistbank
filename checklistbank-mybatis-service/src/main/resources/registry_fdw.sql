@@ -8,6 +8,8 @@
 ---
 -- --- requires a valid registry password!
 
+CREATE EXTENSION postgres_fdw;
+
 CREATE SCHEMA registry;
 CREATE SERVER registry FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'localhost', dbname 'prod_b_registry', port '5432');
 CREATE USER MAPPING FOR postgres SERVER registry OPTIONS (user 'registry', password 'PASSWORD');
