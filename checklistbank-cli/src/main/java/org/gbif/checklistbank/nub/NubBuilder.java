@@ -1041,7 +1041,7 @@ public class NubBuilder implements Runnable {
           updateNomenclature(match.usage, u);
 
         } else {
-          LOG.debug("Ignore source usage. Status {} is different from nub: {}", u.status, u.scientificName);
+          LOG.debug("Ignore source usage. Status {} is different from nub ({}): {}", u.status, match.usage.status, u.scientificName);
         }
       }
 

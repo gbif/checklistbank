@@ -6,9 +6,11 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.inject.SolrConfig;
 
+import java.io.File;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
 /**
@@ -42,4 +44,7 @@ public class NubChangedConfiguration {
     @Valid
     public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
 
+    @Parameter(names = "--export-repository")
+    @NotNull
+    public File exportRepository = new File("./exports");
 }

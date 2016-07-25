@@ -12,15 +12,22 @@ ID	name	rank	accepted	kingdom	phylum	class	order	family	genus	species
 
 #PF-1959
 2499282	Convoluta roscoffensis	SPECIES	true	Animalia			Acoela		Convoluta	
--1	Acoela	ORDER	true	Animalia			Acoela			
+8139547	Acoela	ORDER	true	Animalia			Acoela
 
 #POR-389
 2972897	Albizia	GENUS	true	Plantae			Asterales	Asteraceae		
 
 #PF-2345
 5397022	Vernonia macrocephala A.Rich.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Baccharoides adoensis
--1	Vernonia macrocephala Less.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Lessingianthus macrocephalus
+7552299	Vernonia macrocephala Less.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Lessingianthus macrocephalus
 
 #POR-2027
 4134299	Leersia angustifolia	SPECIES	true	Plantae			Poales	Poaceae		
 2673359	Leersia	GENUS	true	Plantae			Poales	Poaceae		
+
+#PF-2445
+7788247	Zygophyllum apiculatum	SPECIES	false	Plantae				Zygophyllaceae		
+
+#PF-2513
+2977654	Pueraria lobata	SPECIES	false	Plantae				Fabaceae		
+

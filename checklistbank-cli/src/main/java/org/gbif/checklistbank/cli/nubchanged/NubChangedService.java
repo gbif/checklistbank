@@ -11,6 +11,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
@@ -162,7 +163,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
       writer.close();
       InputStream stream = new ByteArrayInputStream(writer.getBuffer().toString().getBytes(Charsets.UTF_8));
       datasetService.insertMetadata(Constants.NUB_DATASET_KEY, stream);
-    } catch (IOException e) {
+    } catch (RuntimeException | IOException e) {
       LOG.error("Failed to update backbone dataset metadata", e);
     }
 
@@ -180,8 +181,10 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
       networkService.addConstituent(Constants.NUB_NETWORK_KEY, datasetKey);
     }
 
-    // TODO: update dwca download file
-    // http://dev.gbif.org/issues/browse/POR-2816
+    // now export the dataset
+    Exporter exporter = Exporter.create(cfg.exportRepository, cfg.clb, cfg.registry.wsUrl);
+    exporter.export(nub);
+
   }
 
   @Override

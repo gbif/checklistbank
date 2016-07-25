@@ -100,6 +100,16 @@ public class NubAssertions implements TreeValidation {
     } catch (IOException e) {
       LOG.warn("Failed to read assertion resource {}", ASSERTION_FILENAME, e);
     }
+
+    assertFileNameHomonyms();
+  }
+
+  private void assertFileNameHomonyms() {
+    // http://dev.gbif.org/issues/browse/PF-2445
+    assertSearchMatch(1, "Zygophyllum apiculatum");
+
+    // http://dev.gbif.org/issues/browse/PF-2475
+    assertSynonym(5701210, "Vernonia rosmarinifolia Less.", Rank.SPECIES, "Lessingianthus rosmarinifolius (Less.) H.Rob.", 3117819);
   }
 
   // ID	name	rank	synonym	kingdom	phylum	class	order	family
@@ -337,6 +347,22 @@ public class NubAssertions implements TreeValidation {
     assertUsage(3065, Rank.FAMILY, "Asteraceae Bercht. & J.Presl", true, Kingdom.PLANTAE);
 
     LOG.info("Nub verified!");
+  }
+
+  private void assertSynonym(int key, String searchName, Rank searchRank, String accepted, int acceptedId) {
+    try (Transaction tx = db.beginTx()) {
+      Node n = findUsageByCanonical(searchName, searchRank).node;
+      NubUsage u = db.dao.readNub(n);
+      assertEquals(key, u.usageKey);
+
+      NubUsage p = db.parent(u);
+      assertEquals(acceptedId, p.usageKey);
+      assertEquals(accepted, p.parsedName.fullName());
+
+    } catch (AssertionError e) {
+      valid = false;
+      LOG.error("Synonym assertion failed for {} {}", searchRank, searchName, e);
+    }
   }
 
   private void assertParentsContain(String searchName, Rank searchRank, String parent) {
