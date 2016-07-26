@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -17,13 +16,11 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.kryo.migrate.VerbatimUsageMigrator;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.NubTreeValidation;
 import org.gbif.checklistbank.nub.TreeValidation;
-import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
@@ -31,6 +28,7 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -47,8 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -56,7 +52,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
@@ -72,16 +67,6 @@ import org.slf4j.LoggerFactory;
 public class AdminCommand extends BaseCommand {
   private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
   private static final String DWCA_SUFFIX = ".dwca";
-  private static final Set<AdminOperation> SINE_COMMANDS = Sets.newHashSet(
-      AdminOperation.REPARSE,
-      AdminOperation.CLEAN_ORPHANS,
-      AdminOperation.SYNC_DATASETS,
-      AdminOperation.UPDATE_VERBATIM,
-      AdminOperation.DUMP,
-      AdminOperation.VALIDATE_NEO,
-      AdminOperation.NUB_CHANGED,
-      AdminOperation.UPDATE_NUB_NAMES
-  );
   private final AdminConfiguration cfg = new AdminConfiguration();
   private MessagePublisher publisher;
   private ZookeeperUtils zkUtils;
@@ -150,8 +135,8 @@ public class AdminCommand extends BaseCommand {
   protected void doRun() {
     initCfg();
     try {
-      if (SINE_COMMANDS.contains(cfg.operation)) {
-        runSineDatasets();
+      if (cfg.operation.global) {
+        runGlobalCommands();
       } else {
         initRegistry();
         runDatasetComamnds();
@@ -161,7 +146,7 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
-  private void runSineDatasets() throws Exception {
+  private void runGlobalCommands() throws Exception {
     switch (cfg.operation) {
       case REPARSE:
         reparseNames();
@@ -174,10 +159,6 @@ public class AdminCommand extends BaseCommand {
       case SYNC_DATASETS:
         initRegistry();
         syncDatasets();
-        break;
-
-      case UPDATE_VERBATIM:
-        updateVerbatim();
         break;
 
       case DUMP:
@@ -205,11 +186,6 @@ public class AdminCommand extends BaseCommand {
     Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
     DatasetMetricsService metricsService = inj.getInstance(DatasetMetricsService.class);
     send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
-  }
-
-  private void updateVerbatim() throws Exception {
-    VerbatimUsageMigrator migrator = new VerbatimUsageMigrator(cfg.clb);
-    migrator.updateAll();
   }
 
   private void syncDatasets() {
@@ -253,6 +229,14 @@ public class AdminCommand extends BaseCommand {
 
     for (Dataset d : datasets) {
       LOG.info("{} {} dataset {}: {}", cfg.operation, d.getType(), d.getKey(), d.getTitle().replaceAll("\n", " "));
+      if (cfg.operation != AdminOperation.CRAWL && cfg.operation != AdminOperation.CLEANUP) {
+        // only deal with checklists for most operations
+        if (!DatasetType.CHECKLIST.equals(d.getType())) {
+          LOG.warn("Cannot {} dataset of type {}: {} {}", cfg.operation, d.getType(), d.getKey(), d.getTitle());
+          continue;
+        }
+      }
+
       switch (cfg.operation) {
         case CLEANUP:
           zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
@@ -300,20 +284,12 @@ public class AdminCommand extends BaseCommand {
           send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
           break;
 
-        case MATCH_DATASET:
-          if (DatasetType.CHECKLIST.equals(d.getType())) {
-            send(new MatchDatasetMessage(d.getKey()));
-          } else {
-            LOG.warn("Cannot match dataset of type {}: {} {}", d.getType(), d.getKey(), d.getTitle());
-          }
+        case MATCH:
+          send(new MatchDatasetMessage(d.getKey()));
           break;
 
         case EXPORT:
-          if (DatasetType.CHECKLIST.equals(d.getType())) {
-            export(d);
-          } else {
-            LOG.warn("Cannot export dataset of type {}: {} {}", d.getType(), d.getKey(), d.getTitle());
-          }
+          export(d);
           break;
 
         default:
@@ -353,40 +329,12 @@ public class AdminCommand extends BaseCommand {
     Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
     ParsedNameService pNameService = inj.getInstance(ParsedNameService.class);
     NameUsageMapper usageMapper = inj.getInstance(NameUsageMapper.class);
+    ParsedNameMapper nameMapper = inj.getInstance(ParsedNameMapper.class);
 
-    UsageDao dao = null;
-    try {
-      dao = UsageDao.open(cfg.neo, Constants.NUB_DATASET_KEY);
-      LOG.info("update all inconsistent names");
-      int counter = 0;
-      int updCounter = 0;
-      for (Map.Entry<Long, NubUsage> nub : dao.nubUsages()) {
-        NubUsage u = nub.getValue();
-        counter++;
-        if (u.parsedName.isParsableType() && !u.parsedName.getScientificName().equalsIgnoreCase(u.parsedName.canonicalNameComplete())) {
-          // update the name table
-          u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
-          ParsedName pn = pNameService.createOrGet(u.parsedName);
-          // rewire usage
-          if (pn == null) {
-            LOG.warn("Empty parsed name for usage {}: {}", u.usageKey, u.parsedName);
-          } else {
-            usageMapper.updateName(u.usageKey, pn.getKey());
-            updCounter++;
-            if (updCounter % 1000 == 0) {
-              LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
-            }
-          }
-        }
-      }
-      LOG.info("Finished updating {} inconsistent names", updCounter);
-
-    } finally {
-      if (dao != null) {
-        dao.close();
-      }
-    }
-
+    NubNameUpdater updater = new NubNameUpdater(usageMapper, nameMapper, pNameService);
+    LOG.info("update all inconsistent names");
+    usageMapper.processDataset(Constants.NUB_DATASET_KEY, updater);
+    LOG.info("Finished updating {} inconsistent names out of {} nub names", updater.getUpdCounter(), updater.getCounter());
   }
 
   private void verifyNeo() throws Exception {
