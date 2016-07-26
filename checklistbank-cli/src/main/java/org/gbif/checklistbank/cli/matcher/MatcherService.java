@@ -4,13 +4,13 @@ import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
-import org.gbif.checklistbank.nub.lookup.ReloadingIdLookup;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -41,8 +41,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   @Override
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
-    // use the reloading version that listens to nub changed messages and reinits the data itself
-    IdLookup lookup = new ReloadingIdLookup(cfg.clb, listener, QUEUE);
+    IdLookup lookup = IdLookupImpl.temp().load(cfg.clb, false);
     matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService, publisher);
   }
 
