@@ -1,33 +1,36 @@
-ID	name	rank	accepted	kingdom	phylum	class	order	family	genus	species
+#ID	name	rank	accepted	kingdom	phylum	class	order	family	genus	species
 # ALL ENTRIES WITH KEY = -1 have to get a new key from the new nub still !!!
 
 #POR-1373
-3120060	Achillea millefolium	SPECIES	true	Plantae				Asteraceae	Achillea	
-3115755	Filago pyramidata	SPECIES	true	Plantae				Asteraceae		
-3120060	Senecio jacobaea	SPECIES	false	Plantae				Asteraceae	Jacobaea	Jacobaea vulgaris
-3106738	Senecio	GENUS	true	Plantae				Asteraceae		
+3120060	Achillea millefolium	SPECIES		Plantae				Asteraceae	Achillea	
+3115755	Filago pyramidata L	SPECIES		Plantae				Asteraceae		
+3097243	Senecio jacobaea L	SPECIES	Jacobaea vulgaris Claus	Plantae				Asteraceae	Jacobaea	Jacobaea vulgaris
+3106738	Senecio	GENUS		Plantae				Asteraceae		
 
 #PF-1998 to be completed!!!
-7483	Xenillidae	FAMILY	true	Animalia	Arthropoda	Sarcoptiformes				
+7483	Xenillidae	FAMILY		Animalia	Arthropoda		Sarcoptiformes			
 
 #PF-1959
-2499282	Convoluta roscoffensis	SPECIES	true	Animalia			Acoela		Convoluta	
-8139547	Acoela	ORDER	true	Animalia			Acoela
+2499282	Convoluta roscoffensis	SPECIES	Symsagittifera roscoffensis	Animalia	Xenacoelomorpha		Acoela			
+8139547	Acoela	ORDER		Animalia			Acoela
 
 #POR-389
-2972897	Albizia	GENUS	true	Plantae			Asterales	Asteraceae		
+2972897	Albizia	GENUS		Plantae			Fabales	Fabaceae		
 
 #PF-2345
-5397022	Vernonia macrocephala A.Rich.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Baccharoides adoensis
-7552299	Vernonia macrocephala Less.	SPECIES	false	Plantae			Asterales	Asteraceae	Baccharoides	Lessingianthus macrocephalus
+5397022	Vernonia macrocephala A.Rich.	SPECIES	Baccharoides adoensis	Plantae			Asterales	Asteraceae	Baccharoides	Baccharoides adoensis
+7552299	Vernonia macrocephala Less.	SPECIES	Lessingianthus macrocephalus (Less.) H.Rob.	Plantae			Asterales	Asteraceae		
+
+#PF-2475
+5701210	Vernonia rosmarinifolia Less.	SPECIES	Lessingianthus rosmarinifolius (Less.) H.Rob.	Plantae			Asterales	Asteraceae		
 
 #POR-2027
-4134299	Leersia angustifolia	SPECIES	true	Plantae			Poales	Poaceae		
-2673359	Leersia	GENUS	true	Plantae			Poales	Poaceae		
+4134299	Leersia angustifolia	SPECIES		Plantae			Poales	Poaceae		
+8001519	Leersia Sw.	GENUS		Plantae			Poales	Poaceae		
 
 #PF-2445
-7788247	Zygophyllum apiculatum	SPECIES	false	Plantae				Zygophyllaceae		
+7788247	Zygophyllum apiculatum	SPECIES	Roepera apiculata	Plantae				Zygophyllaceae		
 
 #PF-2513
-2977654	Pueraria lobata	SPECIES	false	Plantae				Fabaceae		
+2977654	Pueraria lobata	SPECIES	Pueraria montana var. lobata	Plantae				Fabaceae		
 

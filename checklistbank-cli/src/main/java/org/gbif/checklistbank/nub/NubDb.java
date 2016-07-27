@@ -51,7 +51,7 @@ public class NubDb {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubDb.class);
   private final AuthorComparator authComp;
-  protected final UsageDao dao;
+  private final UsageDao dao;
   private final KingdomParser kingdomParser = KingdomParser.getInstance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
   private NubUsage incertaeSedis;
@@ -78,6 +78,10 @@ public class NubDb {
    */
   public static NubDb open(UsageDao dao, AuthorComparator authorComparator) {
     return new NubDb(dao, authorComparator, false);
+  }
+
+  public UsageDao dao() {
+    return dao;
   }
 
   public Transaction beginTx() {

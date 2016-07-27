@@ -17,10 +17,10 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.NubAssertions;
+import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
-import org.gbif.checklistbank.nub.NubTreeValidation;
-import org.gbif.checklistbank.nub.TreeValidation;
+import org.gbif.checklistbank.nub.validation.NubTreeValidation;
+import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
@@ -356,7 +356,7 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
-  private void validate(UsageDao dao, TreeValidation validator) throws AssertionError {
+  private void validate(UsageDao dao, NubValidation validator) throws AssertionError {
     try (Transaction tx = dao.beginTx()) {
       boolean valid = validator.validate();
       if (!valid) {

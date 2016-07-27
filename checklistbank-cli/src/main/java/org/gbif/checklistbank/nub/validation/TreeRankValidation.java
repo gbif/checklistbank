@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.validation;
 
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;

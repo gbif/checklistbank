@@ -40,10 +40,16 @@ public class NubNameUpdater implements ResultHandler<NameUsage> {
       pn.setScientificName(pn.canonicalNameComplete());
       pn = pNameService.createOrGet(pn);
       // rewire usage
-      usageMapper.updateName(u.getKey(), pn.getKey());
-      updCounter++;
-      if (updCounter % 1000 == 0) {
-        LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
+      if (pn.getKey() == null) {
+        LOG.error("Updating usage {} {} failed", u.getKey(), u.getScientificName());
+
+      } else {
+        usageMapper.updateName(u.getKey(), pn.getKey());
+        updCounter++;
+        LOG.debug("Updating usage {}: {} -> {}", u.getKey(), u.getScientificName(), pn.getScientificName());
+        if (updCounter % 1000 == 0) {
+          LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
+        }
       }
     }
   }

@@ -237,7 +237,7 @@
     <!-- adds common backbone view for convenient debugging -->
     <sql>
       CREATE VIEW nub as
-      SELECT u.id, n.scientific_name, u.rank, u.status, u.origin, bu.id as basionym_id, b.scientific_name as basionym, pu.id as parent_id, p.scientific_name as parent, k.canonical_name as kingdom, f.canonical_name as family, u.deleted is not null as deleted, u.source_taxon_key as source_id, u.constituent_key, u.issues
+      SELECT u.id, n.id as nid, n.scientific_name, u.rank, u.status, u.origin, bu.id as basionym_id, b.scientific_name as basionym, pu.id as parent_id, p.scientific_name as parent, k.canonical_name as kingdom, f.canonical_name as family, u.deleted is not null as deleted, u.source_taxon_key as source_id, u.constituent_key, u.issues
       FROM name_usage u JOIN name n on u.name_fk=n.id
         LEFT JOIN name_usage pu on u.parent_fk=pu.id LEFT JOIN name p on pu.name_fk=p.id
         LEFT JOIN name_usage ku on u.kingdom_fk=ku.id LEFT JOIN name k on ku.name_fk=k.id

@@ -25,24 +25,6 @@ public class ManualDbDump {
     return cfg;
   }
 
-  private static ClbConfiguration local() {
-    ClbConfiguration cfg = new ClbConfiguration();
-    cfg.serverName = "localhost";
-    cfg.databaseName = "clb";
-    cfg.user = "postgres";
-    cfg.password = "pogo";
-    return cfg;
-  }
-
-  private static ClbConfiguration uat() {
-    ClbConfiguration cfg = local();
-    cfg.serverName = "pg1.gbif-uat.org";
-    cfg.databaseName = "uat_checklistbank";
-    cfg.user = "clb";
-    cfg.password = "%BBJu2MgstXJ";
-    return cfg;
-  }
-
   private static void dump2neo(NeoConfiguration neo, ClbConfiguration clb, UUID datasetKey, boolean nubRanksOnly) throws Exception {
     LOG.info("Dump dataset {} from postgres to local neo", datasetKey);
     ClbSource src = new ClbSource(clb, datasetKey, "Checklist " + datasetKey);
@@ -63,6 +45,7 @@ public class ManualDbDump {
   }
 
   public static void main(String[] args) throws Exception {
+    //ClbConfigurationUtils.uat()
     //dump2neo(neo(), uat(), UUID.fromString("99948a8b-63b2-41bf-9d10-6e007e967789"), false);
     dump2file(neo(), UUID.fromString("99948a8b-63b2-41bf-9d10-6e007e967789"), GraphFormat.TAB);
   }

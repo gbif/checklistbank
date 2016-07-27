@@ -29,6 +29,9 @@ import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
+import org.gbif.checklistbank.nub.validation.NubAssertions;
+import org.gbif.checklistbank.nub.validation.NubTreeValidation;
+import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 import org.gbif.nameparser.UnparsableException;
@@ -214,7 +217,7 @@ public class NubBuilder implements Runnable {
       }
 
       // convert usages for the importer and build metrics
-      db.dao.convertNubUsages();
+      db.dao().convertNubUsages();
       builtUsageMetrics();
       LOG.info("New backbone built successfully!");
 
@@ -224,13 +227,13 @@ public class NubBuilder implements Runnable {
 
     } catch (RuntimeException e){
       LOG.error("Fatal error. Backbone build failed!", e);
-      db.dao.consistencyNubReport();
+      db.dao().consistencyNubReport();
       throw e;
 
     } finally {
       sources.close();
       if (closeDao) {
-        db.dao.close();
+        db.dao().close();
         LOG.info("Backbone dao closed orderly");
       } else {
         LOG.warn("Backbone dao not closed!");
@@ -247,13 +250,13 @@ public class NubBuilder implements Runnable {
   private void synonymizeExAuthors() {
     LOG.info("Extract ex author species synonyms");
     try (Transaction tx = db.beginTx()) {
-      synonymizeExAuthors(db.dao.allSpecies());
+      synonymizeExAuthors(db.dao().allSpecies());
       tx.success();
     }
 
     LOG.info("Extract ex author infraspecies synonyms");
     try (Transaction tx = db.beginTx()) {
-      synonymizeExAuthors(db.dao.allInfraSpecies());
+      synonymizeExAuthors(db.dao().allInfraSpecies());
       tx.success();
     }
   }
@@ -332,7 +335,7 @@ public class NubBuilder implements Runnable {
   private void flagDoubtfulOriginalNames() {
     LOG.info("Start flagging doubtful original names");
     try (Transaction tx = db.beginTx()) {
-      for (Node gn : IteratorUtil.loop(db.dao.allGenera())) {
+      for (Node gn : IteratorUtil.loop(db.dao().allGenera())) {
         NubUsage genus = read(gn);
         Integer gYear = genus.parsedName.getYearInt();
         if (gYear != null) {
@@ -359,13 +362,13 @@ public class NubBuilder implements Runnable {
   private void flagSimilarNames() {
     LOG.info("Start flagging similar species");
     try (Transaction tx = db.beginTx()) {
-      flagSimilarNames(db.dao.allSpecies());
+      flagSimilarNames(db.dao().allSpecies());
       tx.success();
     }
 
     LOG.info("Start flagging similar infraspecies");
     try (Transaction tx = db.beginTx()) {
-      flagSimilarNames(db.dao.allInfraSpecies());
+      flagSimilarNames(db.dao().allInfraSpecies());
       tx.success();
     }
   }
@@ -374,7 +377,7 @@ public class NubBuilder implements Runnable {
    * Small null safe wrapper around our DAO that logs missing nub usages for existing nodes.
    */
   private NubUsage read(Node n) {
-    NubUsage u = db.dao.readNub(n);
+    NubUsage u = db.dao().readNub(n);
     if (u == null) {
       LOG.error("Missing kvp nub usage for node {} {}", n.getId(), NeoProperties.getScientificName(n));
       throw new IllegalStateException("Missing kvp nub usage for node " + n.getId());
@@ -387,7 +390,7 @@ public class NubBuilder implements Runnable {
     for (Node n : IteratorUtil.loop(iter)) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
-        String normedName = db.dao.canonicalOrScientificName(u.parsedName, false);
+        String normedName = db.dao().canonicalOrScientificName(u.parsedName, false);
         if (!Strings.isBlank(normedName)) {
           if (names.containsKey(normedName)) {
             u.issues.add(NameUsageIssue.ORTHOGRAPHIC_VARIANT);
@@ -449,7 +452,7 @@ public class NubBuilder implements Runnable {
   }
 
 
-  private void validate(TreeValidation validator) throws AssertionError {
+  private void validate(NubValidation validator) throws AssertionError {
     try (Transaction tx = db.beginTx()) {
       boolean valid = validator.validate();
       if (valid) {
@@ -471,7 +474,7 @@ public class NubBuilder implements Runnable {
     if (!cfg.keepLonelyAutonyms) {
       LOG.info("Delete lonely autonyms");
       try (Transaction tx = db.beginTx()) {
-        for (Node n : IteratorUtil.loop(db.dao.allAutonyms())) {
+        for (Node n : IteratorUtil.loop(db.dao().allAutonyms())) {
           Rank rank = NeoProperties.getRank(n, Rank.UNRANKED);
           if (!n.hasLabel(Labels.SYNONYM)) {
             Node p = db.parent(n);
@@ -485,7 +488,7 @@ public class NubBuilder implements Runnable {
             if (count == 1) {
               // only this accepted autonym, try to remove!!!
               LOG.info("Removing lonely {} autonym {} {}", rank, n, NeoProperties.getScientificName(n));
-              removeTaxonIfEmpty(db.dao.readNub(n));
+              removeTaxonIfEmpty(db.dao().readNub(n));
             }
           }
         }
@@ -496,7 +499,7 @@ public class NubBuilder implements Runnable {
     LOG.info("Start creating missing autonyms");
     try (Transaction tx = db.beginTx()) {
       int counter = 0;
-      for (Node n : IteratorUtil.loop(db.dao.allInfraSpecies())) {
+      for (Node n : IteratorUtil.loop(db.dao().allInfraSpecies())) {
         if (!n.hasLabel(Labels.SYNONYM)) {
           NubUsage u = read(n);
           // check for autonyms
@@ -541,7 +544,7 @@ public class NubBuilder implements Runnable {
   private List<Node> listFamilies() {
     List<Node> families;
     try (Transaction tx = db.beginTx()) {
-      families = IteratorUtil.asList(db.dao.allFamilies());
+      families = IteratorUtil.asList(db.dao().allFamilies());
     }
     return families;
   }
@@ -727,7 +730,7 @@ public class NubBuilder implements Runnable {
   private void flagEmptyGenera() {
     LOG.info("flag empty genera as doubtful");
     try (Transaction tx = db.beginTx()) {
-      for (Node gen : IteratorUtil.loop(db.dao.allGenera())) {
+      for (Node gen : IteratorUtil.loop(db.dao().allGenera())) {
         if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
           NubUsage nub = read(gen);
           if (nub.origin == Origin.IMPLICIT_NAME) {
@@ -755,7 +758,7 @@ public class NubBuilder implements Runnable {
   private void cleanImplicitTaxa() {
     LOG.info("Clean implicit taxa");
     try (Transaction tx = db.beginTx()) {
-      for (Node n : IteratorUtil.loop(db.dao.allImplicitNames())) {
+      for (Node n : IteratorUtil.loop(db.dao().allImplicitNames())) {
         NubUsage nub = read(n);
         if (!cfg.keepEmptyImplicitNames) {
           if (removeTaxonIfEmpty(nub)) {
@@ -782,7 +785,7 @@ public class NubBuilder implements Runnable {
   private void flagParentMismatch() {
     LOG.info("flag classification name mismatches");
     try (Transaction tx = db.beginTx()) {
-      for (Node gn : IteratorUtil.loop(db.dao.allGenera())) {
+      for (Node gn : IteratorUtil.loop(db.dao().allGenera())) {
         if (!gn.hasLabel(Labels.SYNONYM)) {
           NubUsage gen = read(gn);
           if (gen.kingdom == Kingdom.VIRUSES) {
@@ -797,7 +800,7 @@ public class NubBuilder implements Runnable {
 
           // flag non matching names
           for (Node spn : Traversals.CHILDREN.traverse(gn).nodes()) {
-            NubUsage sp = db.dao.readNub(spn);
+            NubUsage sp = db.dao().readNub(spn);
             if (sp.rank != Rank.SPECIES) {
               LOG.warn("Genus child {} is not a species: {} {}", spn, sp.rank, NeoProperties.getScientificName(spn));
               continue;
@@ -814,7 +817,7 @@ public class NubBuilder implements Runnable {
             // check infraspecific names
             String species = sp.parsedName.getSpecificEpithet();
             for (Node ispn : Traversals.CHILDREN.traverse(spn).nodes()) {
-              NubUsage isp = db.dao.readNub(ispn);
+              NubUsage isp = db.dao().readNub(ispn);
               if (isp.parsedName.getInfraSpecificEpithet() == null) {
                 LOG.warn("Species child {} without an infraspecific epithet: {} {}", ispn, isp.rank, NeoProperties.getScientificName(ispn));
                 continue;
@@ -954,7 +957,7 @@ public class NubBuilder implements Runnable {
   private void replaceImplicitNames() {
     LOG.info("Replace implicit names for dataset {}", currSrc.name);
     try (Transaction tx = db.beginTx()) {
-      for (Node n : IteratorUtil.loop(db.dao.allImplicitNames())) {
+      for (Node n : IteratorUtil.loop(db.dao().allImplicitNames())) {
         NubUsage nub = read(n);
         try {
           NubUsageMatch match = db.findNubUsage(nub.datasetKey, nub.parsedName, nub.rank, nub.status, nub.kingdom, db.parent(nub));
@@ -1068,7 +1071,7 @@ public class NubBuilder implements Runnable {
       src2NubKey.remove(sourceId.value);
     }
     basionymRels.remove(nub.node.getId());
-    db.dao.delete(nub);
+    db.dao().delete(nub);
   }
 
   /**
@@ -1334,11 +1337,19 @@ public class NubBuilder implements Runnable {
   private void groupByBasionym() {
     if (cfg.groupBasionyms) {
       LOG.info("Start basionym consolidation");
+      verifyBasionyms();
       detectBasionyms();
       consolidateBasionymGroups();
     } else {
       LOG.info("Skip basionym consolidation");
     }
+  }
+
+  /**
+   * Verifies existing basionyms by checking that the basionym does not have an original author
+   */
+  private void verifyBasionyms() {
+    LOG.info("Verify existing basionyms - TO BE IMPLEMENTED!");
   }
 
   /**
@@ -1359,7 +1370,7 @@ public class NubBuilder implements Runnable {
     // first load all basionym node ids into a set so we can process them individually in separate transactions
     LongHashSet basIds = new LongHashSet();
     try (Transaction tx = db.beginTx()) {
-      for (Node bas : IteratorUtil.loop(db.dao.allBasionyms())) {
+      for (Node bas : IteratorUtil.loop(db.dao().allBasionyms())) {
         basIds.add(bas.getId());
       }
       LOG.info("Found {} basionyms to consolidate", basIds.size());
@@ -1537,21 +1548,21 @@ public class NubBuilder implements Runnable {
    */
   private void assignUsageKeys() {
     LOG.info("Assigning final clb ids to all nub usages...");
-    for (Map.Entry<Long, NubUsage> entry : db.dao.nubUsages()) {
+    for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
       if (u.rank != Rank.KINGDOM) {
         u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
-        db.dao.update(entry.getKey(), u);
+        db.dao().update(entry.getKey(), u);
       }
     }
 
     // for pro parte synonyms we need to assign extra keys, one per relation!
     // http://dev.gbif.org/issues/browse/POR-2872
     try (Transaction tx = db.beginTx()) {
-      try (ResourceIterator<Relationship> rels = db.dao.listAllRelationships(RelType.PROPARTE_SYNONYM_OF)) {
+      try (ResourceIterator<Relationship> rels = db.dao().listAllRelationships(RelType.PROPARTE_SYNONYM_OF)) {
         while (rels.hasNext()) {
           Relationship rel = rels.next();
-          NubUsage u = db.dao.readNub(rel.getStartNode());
+          NubUsage u = db.dao().readNub(rel.getStartNode());
           int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, true);
           LOG.debug("Assign extra id {} for pro parte relation of primary usage {}", ppKey, u.usageKey);
           rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
@@ -1563,9 +1574,9 @@ public class NubBuilder implements Runnable {
 
   private void builtUsageMetrics() {
     LOG.info("Walk all accepted taxa and build usage metrics");
-    UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao);
+    UsageMetricsHandler metricsHandler = new UsageMetricsHandler(db.dao());
     // TaxonWalker deals with transactions
-    TreeWalker.walkAcceptedTree(db.dao.getNeo(), metricsHandler);
+    TreeWalker.walkAcceptedTree(db.dao().getNeo(), metricsHandler);
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }

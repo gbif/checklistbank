@@ -1,9 +1,9 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.validation;
 
 /**
  *
  */
-public interface TreeValidation {
+public interface NubValidation {
 
   /**
    * Implementing class can expect an open neo4j transaction to exist!

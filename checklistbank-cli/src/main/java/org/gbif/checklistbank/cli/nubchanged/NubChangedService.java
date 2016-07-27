@@ -155,6 +155,7 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     }
     description.append("</u>");
     nub.setDescription(description.toString());
+    nub.setRights("CC0 1.0");
 
     // convert to EML and send to registry
     try {

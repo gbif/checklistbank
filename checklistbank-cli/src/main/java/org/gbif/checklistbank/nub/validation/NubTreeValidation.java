@@ -1,7 +1,8 @@
-package org.gbif.checklistbank.nub;
+package org.gbif.checklistbank.nub.validation;
 
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
+import org.gbif.checklistbank.nub.NubDb;
 
 import java.util.Map;
 
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * Does some basic verifications on the neo4j nub tree
  * This does not rely on name usages or metrics to exist yet!
  */
-public class NubTreeValidation implements TreeValidation {
+public class NubTreeValidation implements NubValidation {
   private static final Logger LOG = LoggerFactory.getLogger(NubTreeValidation.class);
 
   private final NubDb db;
@@ -26,7 +27,7 @@ public class NubTreeValidation implements TreeValidation {
 
   private Result query(String cypher) {
     LOG.debug("Execute: {}", cypher);
-    return db.dao.getNeo().execute(cypher);
+    return db.dao().getNeo().execute(cypher);
   }
 
   private void notExists(String errorMessage, String cypher) {
@@ -75,7 +76,7 @@ public class NubTreeValidation implements TreeValidation {
     // verify accepted tree has ranks in proper order
     try {
       TreeRankValidation rankVal = new TreeRankValidation();
-      TreeWalker.walkAcceptedTree(db.dao.getNeo(), rankVal);
+      TreeWalker.walkAcceptedTree(db.dao().getNeo(), rankVal);
     } catch (IllegalStateException e) {
       LOG.error("TreeRankValidation failed with {}", e.getMessage());
       valid = false;
