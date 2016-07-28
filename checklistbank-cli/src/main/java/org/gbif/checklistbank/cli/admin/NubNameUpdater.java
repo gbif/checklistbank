@@ -38,7 +38,7 @@ public class NubNameUpdater implements ResultHandler<NameUsage> {
     if (pn.isParsableType() && !pn.getScientificName().equalsIgnoreCase(pn.canonicalNameComplete())) {
       // update the name table
       pn.setScientificName(pn.canonicalNameComplete());
-      pn = pNameService.createOrGet(pn);
+      pNameService.createOrGet(pn);
       // rewire usage
       if (pn.getKey() == null) {
         LOG.error("Updating usage {} {} failed", u.getKey(), u.getScientificName());
