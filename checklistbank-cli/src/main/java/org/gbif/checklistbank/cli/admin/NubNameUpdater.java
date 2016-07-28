@@ -8,6 +8,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.neo4j.helpers.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +38,24 @@ public class NubNameUpdater implements ResultHandler<NameUsage> {
     counter++;
     if (pn.isParsableType() && !pn.getScientificName().equalsIgnoreCase(pn.canonicalNameComplete())) {
       // update the name table
-      pn.setScientificName(pn.canonicalNameComplete());
-      pNameService.createOrGet(pn);
-      // rewire usage
-      if (pn.getKey() == null) {
-        LOG.error("Updating usage {} {} failed", u.getKey(), u.getScientificName());
+      String name = pn.canonicalNameComplete();
+      if (Strings.isBlank(name)) {
+        LOG.error("Empty canonical complete name for usage {} {}", u.getKey(), u.getScientificName());
 
       } else {
-        usageMapper.updateName(u.getKey(), pn.getKey());
-        updCounter++;
-        LOG.debug("Updating usage {}: {} -> {}", u.getKey(), u.getScientificName(), pn.getScientificName());
-        if (updCounter % 1000 == 0) {
-          LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
+        pn.setScientificName(name);
+        pn = pNameService.createOrGet(pn);
+        // rewire usage
+        if (pn == null || pn.getKey() == null) {
+          LOG.error("Updating usage {} {} failed", u.getKey(), u.getScientificName());
+
+        } else {
+          usageMapper.updateName(u.getKey(), pn.getKey());
+          updCounter++;
+          LOG.debug("Updating usage {}: {} -> {}", u.getKey(), u.getScientificName(), pn.getScientificName());
+          if (updCounter % 1000 == 0) {
+            LOG.info("Updated {} inconsistent names out of {}", updCounter, counter);
+          }
         }
       }
     }

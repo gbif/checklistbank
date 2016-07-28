@@ -485,11 +485,13 @@ public class NubBuilderIT {
     NubUsage var = null;
     NubUsage ssp = null;
     for (NubUsage u : nudas) {
-      assertEquals("Lepiota nuda nuda", u.parsedName.getScientificName());
       assertEquals(Origin.AUTONYM, u.origin);
+      assertEquals("Lepiota nuda nuda", u.parsedName.canonicalName());
       if (u.rank == Rank.SUBSPECIES) {
+        assertEquals("Lepiota nuda subsp. nuda", u.parsedName.getScientificName());
         ssp = u;
       } else if (u.rank == Rank.VARIETY) {
+        assertEquals("Lepiota nuda var. nuda", u.parsedName.getScientificName());
         var = u;
       } else {
         fail("bad rank");

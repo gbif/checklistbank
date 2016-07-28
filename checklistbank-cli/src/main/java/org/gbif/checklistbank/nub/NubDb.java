@@ -654,6 +654,10 @@ public class NubDb {
     } else {
       nub.node.removeLabel(Labels.IMPLICIT);
     }
+    // control the exact scientific name style
+    if (nub.parsedName != null && nub.parsedName.isParsableType()) {
+      nub.parsedName.setScientificName(nub.parsedName.canonicalNameComplete());
+    }
     dao.store(nub);
     if (nub.rank == Rank.KINGDOM) {
       kingdoms.put(nub.kingdom, nub);
