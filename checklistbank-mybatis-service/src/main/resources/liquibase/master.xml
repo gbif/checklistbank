@@ -256,4 +256,21 @@
     </sql>
   </changeSet>
 
+  <changeSet id="42" author="markus">
+    <!-- adds a convenient function to return the datasetKey of the backbone -->
+    <sql>
+      CREATE FUNCTION nubKey() RETURNS UUID AS $$
+        SELECT 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'::uuid
+      $$
+      LANGUAGE SQL
+      IMMUTABLE;
+
+      CREATE FUNCTION groupInfraspecificRanks(rnk rank) RETURNS rank AS $$
+      SELECT CASE WHEN rnk <= 'SPECIES'::rank THEN rnk
+        ELSE 'INFRASPECIFIC_NAME'::rank
+      END
+      $$
+      LANGUAGE SQL;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

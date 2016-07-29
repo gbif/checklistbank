@@ -16,6 +16,7 @@ TBLPROPERTIES (
     [{"name":"key","type":["int","null"]},
       {"name":"nubKey","type":["int", "null"]},
       {"name":"datasetKey","type":["string","null"]},
+      {"name":"constituentKey","type":["string","null"]},
       {"name":"parentKey","type":["int", "null"]},
       {"name":"parent","type":["string", "null"]},
       {"name":"acceptedKey","type":["int", "null"]},

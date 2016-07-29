@@ -61,6 +61,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 @SearchMapping(
   facets = {
     @FacetField(name = "DATASET_KEY", field = "dataset_key", method = Method.ENUM),
+    @FacetField(name = "CONSTITUENT_KEY", field = "constituent_key", method = Method.ENUM),
     @FacetField(name = "HIGHERTAXON_KEY", field = "higher_taxon_key"),
     @FacetField(name = "STATUS", field = "taxonomic_status_key", method = Method.ENUM),
     @FacetField(name = "RANK", field = "rank_key", method = Method.ENUM),
@@ -158,6 +159,11 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
   @Field("dataset_key")
   public void setDatasetKey(String datasetKey) {
     super.setDatasetKey(UUID.fromString(datasetKey));
+  }
+
+  @Field("constituent_key")
+  public void setConstituentKey(String constituentKey) {
+    super.setConstituentKey(UUID.fromString(constituentKey));
   }
 
   @Field("description")

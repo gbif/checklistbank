@@ -7,11 +7,12 @@ package org.gbif.checklistbank.index.model;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NameUsageAvro\",\"namespace\":\"org.gbif.checklistbank.index.model\",\"fields\":[{\"name\":\"key\",\"type\":[\"int\",\"null\"]},{\"name\":\"nubKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"datasetKey\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"parentKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"parent\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"acceptedKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"accepted\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"basionymKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"basionym\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"scientificName\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"canonicalName\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"nameType\",\"type\":[\"int\",\"null\"]},{\"name\":\"authorship\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"taxonomicStatusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"nomenclaturalStatusKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"threatStatusKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"rankKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"habitatKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"publishedIn\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"accordingTo\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"kingdomKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"kingdom\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"phylumKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"phylum\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"classKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"clazz\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"orderKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"order\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"familyKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"family\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"genusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"genus\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"subgenusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"subgenus\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"speciesKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"species\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"numDescendants\",\"type\":[\"int\",\"null\"]},{\"name\":\"sourceId\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"isSynonym\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"extinct\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularName\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularLang\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularNameLang\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"higherTaxonKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"issues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"NameUsageAvro\",\"namespace\":\"org.gbif.checklistbank.index.model\",\"fields\":[{\"name\":\"key\",\"type\":[\"int\",\"null\"]},{\"name\":\"nubKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"datasetKey\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"constituentKey\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"parentKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"parent\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"acceptedKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"accepted\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"basionymKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"basionym\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"scientificName\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"canonicalName\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"nameType\",\"type\":[\"int\",\"null\"]},{\"name\":\"authorship\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"taxonomicStatusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"nomenclaturalStatusKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"threatStatusKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"rankKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"habitatKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"publishedIn\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"accordingTo\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"kingdomKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"kingdom\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"phylumKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"phylum\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"classKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"clazz\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"orderKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"order\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"familyKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"family\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"genusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"genus\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"subgenusKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"subgenus\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"speciesKey\",\"type\":[\"int\",\"null\"]},{\"name\":\"species\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"numDescendants\",\"type\":[\"int\",\"null\"]},{\"name\":\"sourceId\",\"type\":[{\"type\":\"string\",\"avro.java.string\":\"String\"},\"null\"]},{\"name\":\"isSynonym\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"extinct\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"description\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularName\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularLang\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"vernacularNameLang\",\"type\":[\"null\",{\"type\":\"array\",\"items\":{\"type\":\"string\",\"avro.java.string\":\"String\"}}],\"default\":null},{\"name\":\"higherTaxonKey\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null},{\"name\":\"issues\",\"type\":[\"null\",{\"type\":\"array\",\"items\":\"int\"}],\"default\":null}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public java.lang.Integer key;
   @Deprecated public java.lang.Integer nubKey;
   @Deprecated public java.lang.String datasetKey;
+  @Deprecated public java.lang.String constituentKey;
   @Deprecated public java.lang.Integer parentKey;
   @Deprecated public java.lang.String parent;
   @Deprecated public java.lang.Integer acceptedKey;
@@ -66,10 +67,11 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
   /**
    * All-args constructor.
    */
-  public NameUsageAvro(java.lang.Integer key, java.lang.Integer nubKey, java.lang.String datasetKey, java.lang.Integer parentKey, java.lang.String parent, java.lang.Integer acceptedKey, java.lang.String accepted, java.lang.Integer basionymKey, java.lang.String basionym, java.lang.String scientificName, java.lang.String canonicalName, java.lang.Integer nameType, java.lang.String authorship, java.lang.Integer taxonomicStatusKey, java.util.List<java.lang.Integer> nomenclaturalStatusKey, java.util.List<java.lang.Integer> threatStatusKey, java.lang.Integer rankKey, java.util.List<java.lang.Integer> habitatKey, java.lang.String publishedIn, java.lang.String accordingTo, java.lang.Integer kingdomKey, java.lang.String kingdom, java.lang.Integer phylumKey, java.lang.String phylum, java.lang.Integer classKey, java.lang.String clazz, java.lang.Integer orderKey, java.lang.String order, java.lang.Integer familyKey, java.lang.String family, java.lang.Integer genusKey, java.lang.String genus, java.lang.Integer subgenusKey, java.lang.String subgenus, java.lang.Integer speciesKey, java.lang.String species, java.lang.Integer numDescendants, java.lang.String sourceId, java.lang.Boolean isSynonym, java.lang.Boolean extinct, java.util.List<java.lang.String> description, java.util.List<java.lang.String> vernacularName, java.util.List<java.lang.String> vernacularLang, java.util.List<java.lang.String> vernacularNameLang, java.util.List<java.lang.Integer> higherTaxonKey, java.util.List<java.lang.Integer> issues) {
+  public NameUsageAvro(java.lang.Integer key, java.lang.Integer nubKey, java.lang.String datasetKey, java.lang.String constituentKey, java.lang.Integer parentKey, java.lang.String parent, java.lang.Integer acceptedKey, java.lang.String accepted, java.lang.Integer basionymKey, java.lang.String basionym, java.lang.String scientificName, java.lang.String canonicalName, java.lang.Integer nameType, java.lang.String authorship, java.lang.Integer taxonomicStatusKey, java.util.List<java.lang.Integer> nomenclaturalStatusKey, java.util.List<java.lang.Integer> threatStatusKey, java.lang.Integer rankKey, java.util.List<java.lang.Integer> habitatKey, java.lang.String publishedIn, java.lang.String accordingTo, java.lang.Integer kingdomKey, java.lang.String kingdom, java.lang.Integer phylumKey, java.lang.String phylum, java.lang.Integer classKey, java.lang.String clazz, java.lang.Integer orderKey, java.lang.String order, java.lang.Integer familyKey, java.lang.String family, java.lang.Integer genusKey, java.lang.String genus, java.lang.Integer subgenusKey, java.lang.String subgenus, java.lang.Integer speciesKey, java.lang.String species, java.lang.Integer numDescendants, java.lang.String sourceId, java.lang.Boolean isSynonym, java.lang.Boolean extinct, java.util.List<java.lang.String> description, java.util.List<java.lang.String> vernacularName, java.util.List<java.lang.String> vernacularLang, java.util.List<java.lang.String> vernacularNameLang, java.util.List<java.lang.Integer> higherTaxonKey, java.util.List<java.lang.Integer> issues) {
     this.key = key;
     this.nubKey = nubKey;
     this.datasetKey = datasetKey;
+    this.constituentKey = constituentKey;
     this.parentKey = parentKey;
     this.parent = parent;
     this.acceptedKey = acceptedKey;
@@ -122,49 +124,50 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     case 0: return key;
     case 1: return nubKey;
     case 2: return datasetKey;
-    case 3: return parentKey;
-    case 4: return parent;
-    case 5: return acceptedKey;
-    case 6: return accepted;
-    case 7: return basionymKey;
-    case 8: return basionym;
-    case 9: return scientificName;
-    case 10: return canonicalName;
-    case 11: return nameType;
-    case 12: return authorship;
-    case 13: return taxonomicStatusKey;
-    case 14: return nomenclaturalStatusKey;
-    case 15: return threatStatusKey;
-    case 16: return rankKey;
-    case 17: return habitatKey;
-    case 18: return publishedIn;
-    case 19: return accordingTo;
-    case 20: return kingdomKey;
-    case 21: return kingdom;
-    case 22: return phylumKey;
-    case 23: return phylum;
-    case 24: return classKey;
-    case 25: return clazz;
-    case 26: return orderKey;
-    case 27: return order;
-    case 28: return familyKey;
-    case 29: return family;
-    case 30: return genusKey;
-    case 31: return genus;
-    case 32: return subgenusKey;
-    case 33: return subgenus;
-    case 34: return speciesKey;
-    case 35: return species;
-    case 36: return numDescendants;
-    case 37: return sourceId;
-    case 38: return isSynonym;
-    case 39: return extinct;
-    case 40: return description;
-    case 41: return vernacularName;
-    case 42: return vernacularLang;
-    case 43: return vernacularNameLang;
-    case 44: return higherTaxonKey;
-    case 45: return issues;
+    case 3: return constituentKey;
+    case 4: return parentKey;
+    case 5: return parent;
+    case 6: return acceptedKey;
+    case 7: return accepted;
+    case 8: return basionymKey;
+    case 9: return basionym;
+    case 10: return scientificName;
+    case 11: return canonicalName;
+    case 12: return nameType;
+    case 13: return authorship;
+    case 14: return taxonomicStatusKey;
+    case 15: return nomenclaturalStatusKey;
+    case 16: return threatStatusKey;
+    case 17: return rankKey;
+    case 18: return habitatKey;
+    case 19: return publishedIn;
+    case 20: return accordingTo;
+    case 21: return kingdomKey;
+    case 22: return kingdom;
+    case 23: return phylumKey;
+    case 24: return phylum;
+    case 25: return classKey;
+    case 26: return clazz;
+    case 27: return orderKey;
+    case 28: return order;
+    case 29: return familyKey;
+    case 30: return family;
+    case 31: return genusKey;
+    case 32: return genus;
+    case 33: return subgenusKey;
+    case 34: return subgenus;
+    case 35: return speciesKey;
+    case 36: return species;
+    case 37: return numDescendants;
+    case 38: return sourceId;
+    case 39: return isSynonym;
+    case 40: return extinct;
+    case 41: return description;
+    case 42: return vernacularName;
+    case 43: return vernacularLang;
+    case 44: return vernacularNameLang;
+    case 45: return higherTaxonKey;
+    case 46: return issues;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -175,49 +178,50 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     case 0: key = (java.lang.Integer)value$; break;
     case 1: nubKey = (java.lang.Integer)value$; break;
     case 2: datasetKey = (java.lang.String)value$; break;
-    case 3: parentKey = (java.lang.Integer)value$; break;
-    case 4: parent = (java.lang.String)value$; break;
-    case 5: acceptedKey = (java.lang.Integer)value$; break;
-    case 6: accepted = (java.lang.String)value$; break;
-    case 7: basionymKey = (java.lang.Integer)value$; break;
-    case 8: basionym = (java.lang.String)value$; break;
-    case 9: scientificName = (java.lang.String)value$; break;
-    case 10: canonicalName = (java.lang.String)value$; break;
-    case 11: nameType = (java.lang.Integer)value$; break;
-    case 12: authorship = (java.lang.String)value$; break;
-    case 13: taxonomicStatusKey = (java.lang.Integer)value$; break;
-    case 14: nomenclaturalStatusKey = (java.util.List<java.lang.Integer>)value$; break;
-    case 15: threatStatusKey = (java.util.List<java.lang.Integer>)value$; break;
-    case 16: rankKey = (java.lang.Integer)value$; break;
-    case 17: habitatKey = (java.util.List<java.lang.Integer>)value$; break;
-    case 18: publishedIn = (java.lang.String)value$; break;
-    case 19: accordingTo = (java.lang.String)value$; break;
-    case 20: kingdomKey = (java.lang.Integer)value$; break;
-    case 21: kingdom = (java.lang.String)value$; break;
-    case 22: phylumKey = (java.lang.Integer)value$; break;
-    case 23: phylum = (java.lang.String)value$; break;
-    case 24: classKey = (java.lang.Integer)value$; break;
-    case 25: clazz = (java.lang.String)value$; break;
-    case 26: orderKey = (java.lang.Integer)value$; break;
-    case 27: order = (java.lang.String)value$; break;
-    case 28: familyKey = (java.lang.Integer)value$; break;
-    case 29: family = (java.lang.String)value$; break;
-    case 30: genusKey = (java.lang.Integer)value$; break;
-    case 31: genus = (java.lang.String)value$; break;
-    case 32: subgenusKey = (java.lang.Integer)value$; break;
-    case 33: subgenus = (java.lang.String)value$; break;
-    case 34: speciesKey = (java.lang.Integer)value$; break;
-    case 35: species = (java.lang.String)value$; break;
-    case 36: numDescendants = (java.lang.Integer)value$; break;
-    case 37: sourceId = (java.lang.String)value$; break;
-    case 38: isSynonym = (java.lang.Boolean)value$; break;
-    case 39: extinct = (java.lang.Boolean)value$; break;
-    case 40: description = (java.util.List<java.lang.String>)value$; break;
-    case 41: vernacularName = (java.util.List<java.lang.String>)value$; break;
-    case 42: vernacularLang = (java.util.List<java.lang.String>)value$; break;
-    case 43: vernacularNameLang = (java.util.List<java.lang.String>)value$; break;
-    case 44: higherTaxonKey = (java.util.List<java.lang.Integer>)value$; break;
-    case 45: issues = (java.util.List<java.lang.Integer>)value$; break;
+    case 3: constituentKey = (java.lang.String)value$; break;
+    case 4: parentKey = (java.lang.Integer)value$; break;
+    case 5: parent = (java.lang.String)value$; break;
+    case 6: acceptedKey = (java.lang.Integer)value$; break;
+    case 7: accepted = (java.lang.String)value$; break;
+    case 8: basionymKey = (java.lang.Integer)value$; break;
+    case 9: basionym = (java.lang.String)value$; break;
+    case 10: scientificName = (java.lang.String)value$; break;
+    case 11: canonicalName = (java.lang.String)value$; break;
+    case 12: nameType = (java.lang.Integer)value$; break;
+    case 13: authorship = (java.lang.String)value$; break;
+    case 14: taxonomicStatusKey = (java.lang.Integer)value$; break;
+    case 15: nomenclaturalStatusKey = (java.util.List<java.lang.Integer>)value$; break;
+    case 16: threatStatusKey = (java.util.List<java.lang.Integer>)value$; break;
+    case 17: rankKey = (java.lang.Integer)value$; break;
+    case 18: habitatKey = (java.util.List<java.lang.Integer>)value$; break;
+    case 19: publishedIn = (java.lang.String)value$; break;
+    case 20: accordingTo = (java.lang.String)value$; break;
+    case 21: kingdomKey = (java.lang.Integer)value$; break;
+    case 22: kingdom = (java.lang.String)value$; break;
+    case 23: phylumKey = (java.lang.Integer)value$; break;
+    case 24: phylum = (java.lang.String)value$; break;
+    case 25: classKey = (java.lang.Integer)value$; break;
+    case 26: clazz = (java.lang.String)value$; break;
+    case 27: orderKey = (java.lang.Integer)value$; break;
+    case 28: order = (java.lang.String)value$; break;
+    case 29: familyKey = (java.lang.Integer)value$; break;
+    case 30: family = (java.lang.String)value$; break;
+    case 31: genusKey = (java.lang.Integer)value$; break;
+    case 32: genus = (java.lang.String)value$; break;
+    case 33: subgenusKey = (java.lang.Integer)value$; break;
+    case 34: subgenus = (java.lang.String)value$; break;
+    case 35: speciesKey = (java.lang.Integer)value$; break;
+    case 36: species = (java.lang.String)value$; break;
+    case 37: numDescendants = (java.lang.Integer)value$; break;
+    case 38: sourceId = (java.lang.String)value$; break;
+    case 39: isSynonym = (java.lang.Boolean)value$; break;
+    case 40: extinct = (java.lang.Boolean)value$; break;
+    case 41: description = (java.util.List<java.lang.String>)value$; break;
+    case 42: vernacularName = (java.util.List<java.lang.String>)value$; break;
+    case 43: vernacularLang = (java.util.List<java.lang.String>)value$; break;
+    case 44: vernacularNameLang = (java.util.List<java.lang.String>)value$; break;
+    case 45: higherTaxonKey = (java.util.List<java.lang.Integer>)value$; break;
+    case 46: issues = (java.util.List<java.lang.Integer>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -265,6 +269,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
    */
   public void setDatasetKey(java.lang.String value) {
     this.datasetKey = value;
+  }
+
+  /**
+   * Gets the value of the 'constituentKey' field.
+   */
+  public java.lang.String getConstituentKey() {
+    return constituentKey;
+  }
+
+  /**
+   * Sets the value of the 'constituentKey' field.
+   * @param value the value to set.
+   */
+  public void setConstituentKey(java.lang.String value) {
+    this.constituentKey = value;
   }
 
   /**
@@ -936,6 +955,7 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     private java.lang.Integer key;
     private java.lang.Integer nubKey;
     private java.lang.String datasetKey;
+    private java.lang.String constituentKey;
     private java.lang.Integer parentKey;
     private java.lang.String parent;
     private java.lang.Integer acceptedKey;
@@ -1000,177 +1020,181 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
         this.datasetKey = data().deepCopy(fields()[2].schema(), other.datasetKey);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.parentKey)) {
-        this.parentKey = data().deepCopy(fields()[3].schema(), other.parentKey);
+      if (isValidValue(fields()[3], other.constituentKey)) {
+        this.constituentKey = data().deepCopy(fields()[3].schema(), other.constituentKey);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.parent)) {
-        this.parent = data().deepCopy(fields()[4].schema(), other.parent);
+      if (isValidValue(fields()[4], other.parentKey)) {
+        this.parentKey = data().deepCopy(fields()[4].schema(), other.parentKey);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.acceptedKey)) {
-        this.acceptedKey = data().deepCopy(fields()[5].schema(), other.acceptedKey);
+      if (isValidValue(fields()[5], other.parent)) {
+        this.parent = data().deepCopy(fields()[5].schema(), other.parent);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.accepted)) {
-        this.accepted = data().deepCopy(fields()[6].schema(), other.accepted);
+      if (isValidValue(fields()[6], other.acceptedKey)) {
+        this.acceptedKey = data().deepCopy(fields()[6].schema(), other.acceptedKey);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.basionymKey)) {
-        this.basionymKey = data().deepCopy(fields()[7].schema(), other.basionymKey);
+      if (isValidValue(fields()[7], other.accepted)) {
+        this.accepted = data().deepCopy(fields()[7].schema(), other.accepted);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.basionym)) {
-        this.basionym = data().deepCopy(fields()[8].schema(), other.basionym);
+      if (isValidValue(fields()[8], other.basionymKey)) {
+        this.basionymKey = data().deepCopy(fields()[8].schema(), other.basionymKey);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.scientificName)) {
-        this.scientificName = data().deepCopy(fields()[9].schema(), other.scientificName);
+      if (isValidValue(fields()[9], other.basionym)) {
+        this.basionym = data().deepCopy(fields()[9].schema(), other.basionym);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.canonicalName)) {
-        this.canonicalName = data().deepCopy(fields()[10].schema(), other.canonicalName);
+      if (isValidValue(fields()[10], other.scientificName)) {
+        this.scientificName = data().deepCopy(fields()[10].schema(), other.scientificName);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.nameType)) {
-        this.nameType = data().deepCopy(fields()[11].schema(), other.nameType);
+      if (isValidValue(fields()[11], other.canonicalName)) {
+        this.canonicalName = data().deepCopy(fields()[11].schema(), other.canonicalName);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.authorship)) {
-        this.authorship = data().deepCopy(fields()[12].schema(), other.authorship);
+      if (isValidValue(fields()[12], other.nameType)) {
+        this.nameType = data().deepCopy(fields()[12].schema(), other.nameType);
         fieldSetFlags()[12] = true;
       }
-      if (isValidValue(fields()[13], other.taxonomicStatusKey)) {
-        this.taxonomicStatusKey = data().deepCopy(fields()[13].schema(), other.taxonomicStatusKey);
+      if (isValidValue(fields()[13], other.authorship)) {
+        this.authorship = data().deepCopy(fields()[13].schema(), other.authorship);
         fieldSetFlags()[13] = true;
       }
-      if (isValidValue(fields()[14], other.nomenclaturalStatusKey)) {
-        this.nomenclaturalStatusKey = data().deepCopy(fields()[14].schema(), other.nomenclaturalStatusKey);
+      if (isValidValue(fields()[14], other.taxonomicStatusKey)) {
+        this.taxonomicStatusKey = data().deepCopy(fields()[14].schema(), other.taxonomicStatusKey);
         fieldSetFlags()[14] = true;
       }
-      if (isValidValue(fields()[15], other.threatStatusKey)) {
-        this.threatStatusKey = data().deepCopy(fields()[15].schema(), other.threatStatusKey);
+      if (isValidValue(fields()[15], other.nomenclaturalStatusKey)) {
+        this.nomenclaturalStatusKey = data().deepCopy(fields()[15].schema(), other.nomenclaturalStatusKey);
         fieldSetFlags()[15] = true;
       }
-      if (isValidValue(fields()[16], other.rankKey)) {
-        this.rankKey = data().deepCopy(fields()[16].schema(), other.rankKey);
+      if (isValidValue(fields()[16], other.threatStatusKey)) {
+        this.threatStatusKey = data().deepCopy(fields()[16].schema(), other.threatStatusKey);
         fieldSetFlags()[16] = true;
       }
-      if (isValidValue(fields()[17], other.habitatKey)) {
-        this.habitatKey = data().deepCopy(fields()[17].schema(), other.habitatKey);
+      if (isValidValue(fields()[17], other.rankKey)) {
+        this.rankKey = data().deepCopy(fields()[17].schema(), other.rankKey);
         fieldSetFlags()[17] = true;
       }
-      if (isValidValue(fields()[18], other.publishedIn)) {
-        this.publishedIn = data().deepCopy(fields()[18].schema(), other.publishedIn);
+      if (isValidValue(fields()[18], other.habitatKey)) {
+        this.habitatKey = data().deepCopy(fields()[18].schema(), other.habitatKey);
         fieldSetFlags()[18] = true;
       }
-      if (isValidValue(fields()[19], other.accordingTo)) {
-        this.accordingTo = data().deepCopy(fields()[19].schema(), other.accordingTo);
+      if (isValidValue(fields()[19], other.publishedIn)) {
+        this.publishedIn = data().deepCopy(fields()[19].schema(), other.publishedIn);
         fieldSetFlags()[19] = true;
       }
-      if (isValidValue(fields()[20], other.kingdomKey)) {
-        this.kingdomKey = data().deepCopy(fields()[20].schema(), other.kingdomKey);
+      if (isValidValue(fields()[20], other.accordingTo)) {
+        this.accordingTo = data().deepCopy(fields()[20].schema(), other.accordingTo);
         fieldSetFlags()[20] = true;
       }
-      if (isValidValue(fields()[21], other.kingdom)) {
-        this.kingdom = data().deepCopy(fields()[21].schema(), other.kingdom);
+      if (isValidValue(fields()[21], other.kingdomKey)) {
+        this.kingdomKey = data().deepCopy(fields()[21].schema(), other.kingdomKey);
         fieldSetFlags()[21] = true;
       }
-      if (isValidValue(fields()[22], other.phylumKey)) {
-        this.phylumKey = data().deepCopy(fields()[22].schema(), other.phylumKey);
+      if (isValidValue(fields()[22], other.kingdom)) {
+        this.kingdom = data().deepCopy(fields()[22].schema(), other.kingdom);
         fieldSetFlags()[22] = true;
       }
-      if (isValidValue(fields()[23], other.phylum)) {
-        this.phylum = data().deepCopy(fields()[23].schema(), other.phylum);
+      if (isValidValue(fields()[23], other.phylumKey)) {
+        this.phylumKey = data().deepCopy(fields()[23].schema(), other.phylumKey);
         fieldSetFlags()[23] = true;
       }
-      if (isValidValue(fields()[24], other.classKey)) {
-        this.classKey = data().deepCopy(fields()[24].schema(), other.classKey);
+      if (isValidValue(fields()[24], other.phylum)) {
+        this.phylum = data().deepCopy(fields()[24].schema(), other.phylum);
         fieldSetFlags()[24] = true;
       }
-      if (isValidValue(fields()[25], other.clazz)) {
-        this.clazz = data().deepCopy(fields()[25].schema(), other.clazz);
+      if (isValidValue(fields()[25], other.classKey)) {
+        this.classKey = data().deepCopy(fields()[25].schema(), other.classKey);
         fieldSetFlags()[25] = true;
       }
-      if (isValidValue(fields()[26], other.orderKey)) {
-        this.orderKey = data().deepCopy(fields()[26].schema(), other.orderKey);
+      if (isValidValue(fields()[26], other.clazz)) {
+        this.clazz = data().deepCopy(fields()[26].schema(), other.clazz);
         fieldSetFlags()[26] = true;
       }
-      if (isValidValue(fields()[27], other.order)) {
-        this.order = data().deepCopy(fields()[27].schema(), other.order);
+      if (isValidValue(fields()[27], other.orderKey)) {
+        this.orderKey = data().deepCopy(fields()[27].schema(), other.orderKey);
         fieldSetFlags()[27] = true;
       }
-      if (isValidValue(fields()[28], other.familyKey)) {
-        this.familyKey = data().deepCopy(fields()[28].schema(), other.familyKey);
+      if (isValidValue(fields()[28], other.order)) {
+        this.order = data().deepCopy(fields()[28].schema(), other.order);
         fieldSetFlags()[28] = true;
       }
-      if (isValidValue(fields()[29], other.family)) {
-        this.family = data().deepCopy(fields()[29].schema(), other.family);
+      if (isValidValue(fields()[29], other.familyKey)) {
+        this.familyKey = data().deepCopy(fields()[29].schema(), other.familyKey);
         fieldSetFlags()[29] = true;
       }
-      if (isValidValue(fields()[30], other.genusKey)) {
-        this.genusKey = data().deepCopy(fields()[30].schema(), other.genusKey);
+      if (isValidValue(fields()[30], other.family)) {
+        this.family = data().deepCopy(fields()[30].schema(), other.family);
         fieldSetFlags()[30] = true;
       }
-      if (isValidValue(fields()[31], other.genus)) {
-        this.genus = data().deepCopy(fields()[31].schema(), other.genus);
+      if (isValidValue(fields()[31], other.genusKey)) {
+        this.genusKey = data().deepCopy(fields()[31].schema(), other.genusKey);
         fieldSetFlags()[31] = true;
       }
-      if (isValidValue(fields()[32], other.subgenusKey)) {
-        this.subgenusKey = data().deepCopy(fields()[32].schema(), other.subgenusKey);
+      if (isValidValue(fields()[32], other.genus)) {
+        this.genus = data().deepCopy(fields()[32].schema(), other.genus);
         fieldSetFlags()[32] = true;
       }
-      if (isValidValue(fields()[33], other.subgenus)) {
-        this.subgenus = data().deepCopy(fields()[33].schema(), other.subgenus);
+      if (isValidValue(fields()[33], other.subgenusKey)) {
+        this.subgenusKey = data().deepCopy(fields()[33].schema(), other.subgenusKey);
         fieldSetFlags()[33] = true;
       }
-      if (isValidValue(fields()[34], other.speciesKey)) {
-        this.speciesKey = data().deepCopy(fields()[34].schema(), other.speciesKey);
+      if (isValidValue(fields()[34], other.subgenus)) {
+        this.subgenus = data().deepCopy(fields()[34].schema(), other.subgenus);
         fieldSetFlags()[34] = true;
       }
-      if (isValidValue(fields()[35], other.species)) {
-        this.species = data().deepCopy(fields()[35].schema(), other.species);
+      if (isValidValue(fields()[35], other.speciesKey)) {
+        this.speciesKey = data().deepCopy(fields()[35].schema(), other.speciesKey);
         fieldSetFlags()[35] = true;
       }
-      if (isValidValue(fields()[36], other.numDescendants)) {
-        this.numDescendants = data().deepCopy(fields()[36].schema(), other.numDescendants);
+      if (isValidValue(fields()[36], other.species)) {
+        this.species = data().deepCopy(fields()[36].schema(), other.species);
         fieldSetFlags()[36] = true;
       }
-      if (isValidValue(fields()[37], other.sourceId)) {
-        this.sourceId = data().deepCopy(fields()[37].schema(), other.sourceId);
+      if (isValidValue(fields()[37], other.numDescendants)) {
+        this.numDescendants = data().deepCopy(fields()[37].schema(), other.numDescendants);
         fieldSetFlags()[37] = true;
       }
-      if (isValidValue(fields()[38], other.isSynonym)) {
-        this.isSynonym = data().deepCopy(fields()[38].schema(), other.isSynonym);
+      if (isValidValue(fields()[38], other.sourceId)) {
+        this.sourceId = data().deepCopy(fields()[38].schema(), other.sourceId);
         fieldSetFlags()[38] = true;
       }
-      if (isValidValue(fields()[39], other.extinct)) {
-        this.extinct = data().deepCopy(fields()[39].schema(), other.extinct);
+      if (isValidValue(fields()[39], other.isSynonym)) {
+        this.isSynonym = data().deepCopy(fields()[39].schema(), other.isSynonym);
         fieldSetFlags()[39] = true;
       }
-      if (isValidValue(fields()[40], other.description)) {
-        this.description = data().deepCopy(fields()[40].schema(), other.description);
+      if (isValidValue(fields()[40], other.extinct)) {
+        this.extinct = data().deepCopy(fields()[40].schema(), other.extinct);
         fieldSetFlags()[40] = true;
       }
-      if (isValidValue(fields()[41], other.vernacularName)) {
-        this.vernacularName = data().deepCopy(fields()[41].schema(), other.vernacularName);
+      if (isValidValue(fields()[41], other.description)) {
+        this.description = data().deepCopy(fields()[41].schema(), other.description);
         fieldSetFlags()[41] = true;
       }
-      if (isValidValue(fields()[42], other.vernacularLang)) {
-        this.vernacularLang = data().deepCopy(fields()[42].schema(), other.vernacularLang);
+      if (isValidValue(fields()[42], other.vernacularName)) {
+        this.vernacularName = data().deepCopy(fields()[42].schema(), other.vernacularName);
         fieldSetFlags()[42] = true;
       }
-      if (isValidValue(fields()[43], other.vernacularNameLang)) {
-        this.vernacularNameLang = data().deepCopy(fields()[43].schema(), other.vernacularNameLang);
+      if (isValidValue(fields()[43], other.vernacularLang)) {
+        this.vernacularLang = data().deepCopy(fields()[43].schema(), other.vernacularLang);
         fieldSetFlags()[43] = true;
       }
-      if (isValidValue(fields()[44], other.higherTaxonKey)) {
-        this.higherTaxonKey = data().deepCopy(fields()[44].schema(), other.higherTaxonKey);
+      if (isValidValue(fields()[44], other.vernacularNameLang)) {
+        this.vernacularNameLang = data().deepCopy(fields()[44].schema(), other.vernacularNameLang);
         fieldSetFlags()[44] = true;
       }
-      if (isValidValue(fields()[45], other.issues)) {
-        this.issues = data().deepCopy(fields()[45].schema(), other.issues);
+      if (isValidValue(fields()[45], other.higherTaxonKey)) {
+        this.higherTaxonKey = data().deepCopy(fields()[45].schema(), other.higherTaxonKey);
         fieldSetFlags()[45] = true;
+      }
+      if (isValidValue(fields()[46], other.issues)) {
+        this.issues = data().deepCopy(fields()[46].schema(), other.issues);
+        fieldSetFlags()[46] = true;
       }
     }
     
@@ -1189,177 +1213,181 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
         this.datasetKey = data().deepCopy(fields()[2].schema(), other.datasetKey);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.parentKey)) {
-        this.parentKey = data().deepCopy(fields()[3].schema(), other.parentKey);
+      if (isValidValue(fields()[3], other.constituentKey)) {
+        this.constituentKey = data().deepCopy(fields()[3].schema(), other.constituentKey);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.parent)) {
-        this.parent = data().deepCopy(fields()[4].schema(), other.parent);
+      if (isValidValue(fields()[4], other.parentKey)) {
+        this.parentKey = data().deepCopy(fields()[4].schema(), other.parentKey);
         fieldSetFlags()[4] = true;
       }
-      if (isValidValue(fields()[5], other.acceptedKey)) {
-        this.acceptedKey = data().deepCopy(fields()[5].schema(), other.acceptedKey);
+      if (isValidValue(fields()[5], other.parent)) {
+        this.parent = data().deepCopy(fields()[5].schema(), other.parent);
         fieldSetFlags()[5] = true;
       }
-      if (isValidValue(fields()[6], other.accepted)) {
-        this.accepted = data().deepCopy(fields()[6].schema(), other.accepted);
+      if (isValidValue(fields()[6], other.acceptedKey)) {
+        this.acceptedKey = data().deepCopy(fields()[6].schema(), other.acceptedKey);
         fieldSetFlags()[6] = true;
       }
-      if (isValidValue(fields()[7], other.basionymKey)) {
-        this.basionymKey = data().deepCopy(fields()[7].schema(), other.basionymKey);
+      if (isValidValue(fields()[7], other.accepted)) {
+        this.accepted = data().deepCopy(fields()[7].schema(), other.accepted);
         fieldSetFlags()[7] = true;
       }
-      if (isValidValue(fields()[8], other.basionym)) {
-        this.basionym = data().deepCopy(fields()[8].schema(), other.basionym);
+      if (isValidValue(fields()[8], other.basionymKey)) {
+        this.basionymKey = data().deepCopy(fields()[8].schema(), other.basionymKey);
         fieldSetFlags()[8] = true;
       }
-      if (isValidValue(fields()[9], other.scientificName)) {
-        this.scientificName = data().deepCopy(fields()[9].schema(), other.scientificName);
+      if (isValidValue(fields()[9], other.basionym)) {
+        this.basionym = data().deepCopy(fields()[9].schema(), other.basionym);
         fieldSetFlags()[9] = true;
       }
-      if (isValidValue(fields()[10], other.canonicalName)) {
-        this.canonicalName = data().deepCopy(fields()[10].schema(), other.canonicalName);
+      if (isValidValue(fields()[10], other.scientificName)) {
+        this.scientificName = data().deepCopy(fields()[10].schema(), other.scientificName);
         fieldSetFlags()[10] = true;
       }
-      if (isValidValue(fields()[11], other.nameType)) {
-        this.nameType = data().deepCopy(fields()[11].schema(), other.nameType);
+      if (isValidValue(fields()[11], other.canonicalName)) {
+        this.canonicalName = data().deepCopy(fields()[11].schema(), other.canonicalName);
         fieldSetFlags()[11] = true;
       }
-      if (isValidValue(fields()[12], other.authorship)) {
-        this.authorship = data().deepCopy(fields()[12].schema(), other.authorship);
+      if (isValidValue(fields()[12], other.nameType)) {
+        this.nameType = data().deepCopy(fields()[12].schema(), other.nameType);
         fieldSetFlags()[12] = true;
       }
-      if (isValidValue(fields()[13], other.taxonomicStatusKey)) {
-        this.taxonomicStatusKey = data().deepCopy(fields()[13].schema(), other.taxonomicStatusKey);
+      if (isValidValue(fields()[13], other.authorship)) {
+        this.authorship = data().deepCopy(fields()[13].schema(), other.authorship);
         fieldSetFlags()[13] = true;
       }
-      if (isValidValue(fields()[14], other.nomenclaturalStatusKey)) {
-        this.nomenclaturalStatusKey = data().deepCopy(fields()[14].schema(), other.nomenclaturalStatusKey);
+      if (isValidValue(fields()[14], other.taxonomicStatusKey)) {
+        this.taxonomicStatusKey = data().deepCopy(fields()[14].schema(), other.taxonomicStatusKey);
         fieldSetFlags()[14] = true;
       }
-      if (isValidValue(fields()[15], other.threatStatusKey)) {
-        this.threatStatusKey = data().deepCopy(fields()[15].schema(), other.threatStatusKey);
+      if (isValidValue(fields()[15], other.nomenclaturalStatusKey)) {
+        this.nomenclaturalStatusKey = data().deepCopy(fields()[15].schema(), other.nomenclaturalStatusKey);
         fieldSetFlags()[15] = true;
       }
-      if (isValidValue(fields()[16], other.rankKey)) {
-        this.rankKey = data().deepCopy(fields()[16].schema(), other.rankKey);
+      if (isValidValue(fields()[16], other.threatStatusKey)) {
+        this.threatStatusKey = data().deepCopy(fields()[16].schema(), other.threatStatusKey);
         fieldSetFlags()[16] = true;
       }
-      if (isValidValue(fields()[17], other.habitatKey)) {
-        this.habitatKey = data().deepCopy(fields()[17].schema(), other.habitatKey);
+      if (isValidValue(fields()[17], other.rankKey)) {
+        this.rankKey = data().deepCopy(fields()[17].schema(), other.rankKey);
         fieldSetFlags()[17] = true;
       }
-      if (isValidValue(fields()[18], other.publishedIn)) {
-        this.publishedIn = data().deepCopy(fields()[18].schema(), other.publishedIn);
+      if (isValidValue(fields()[18], other.habitatKey)) {
+        this.habitatKey = data().deepCopy(fields()[18].schema(), other.habitatKey);
         fieldSetFlags()[18] = true;
       }
-      if (isValidValue(fields()[19], other.accordingTo)) {
-        this.accordingTo = data().deepCopy(fields()[19].schema(), other.accordingTo);
+      if (isValidValue(fields()[19], other.publishedIn)) {
+        this.publishedIn = data().deepCopy(fields()[19].schema(), other.publishedIn);
         fieldSetFlags()[19] = true;
       }
-      if (isValidValue(fields()[20], other.kingdomKey)) {
-        this.kingdomKey = data().deepCopy(fields()[20].schema(), other.kingdomKey);
+      if (isValidValue(fields()[20], other.accordingTo)) {
+        this.accordingTo = data().deepCopy(fields()[20].schema(), other.accordingTo);
         fieldSetFlags()[20] = true;
       }
-      if (isValidValue(fields()[21], other.kingdom)) {
-        this.kingdom = data().deepCopy(fields()[21].schema(), other.kingdom);
+      if (isValidValue(fields()[21], other.kingdomKey)) {
+        this.kingdomKey = data().deepCopy(fields()[21].schema(), other.kingdomKey);
         fieldSetFlags()[21] = true;
       }
-      if (isValidValue(fields()[22], other.phylumKey)) {
-        this.phylumKey = data().deepCopy(fields()[22].schema(), other.phylumKey);
+      if (isValidValue(fields()[22], other.kingdom)) {
+        this.kingdom = data().deepCopy(fields()[22].schema(), other.kingdom);
         fieldSetFlags()[22] = true;
       }
-      if (isValidValue(fields()[23], other.phylum)) {
-        this.phylum = data().deepCopy(fields()[23].schema(), other.phylum);
+      if (isValidValue(fields()[23], other.phylumKey)) {
+        this.phylumKey = data().deepCopy(fields()[23].schema(), other.phylumKey);
         fieldSetFlags()[23] = true;
       }
-      if (isValidValue(fields()[24], other.classKey)) {
-        this.classKey = data().deepCopy(fields()[24].schema(), other.classKey);
+      if (isValidValue(fields()[24], other.phylum)) {
+        this.phylum = data().deepCopy(fields()[24].schema(), other.phylum);
         fieldSetFlags()[24] = true;
       }
-      if (isValidValue(fields()[25], other.clazz)) {
-        this.clazz = data().deepCopy(fields()[25].schema(), other.clazz);
+      if (isValidValue(fields()[25], other.classKey)) {
+        this.classKey = data().deepCopy(fields()[25].schema(), other.classKey);
         fieldSetFlags()[25] = true;
       }
-      if (isValidValue(fields()[26], other.orderKey)) {
-        this.orderKey = data().deepCopy(fields()[26].schema(), other.orderKey);
+      if (isValidValue(fields()[26], other.clazz)) {
+        this.clazz = data().deepCopy(fields()[26].schema(), other.clazz);
         fieldSetFlags()[26] = true;
       }
-      if (isValidValue(fields()[27], other.order)) {
-        this.order = data().deepCopy(fields()[27].schema(), other.order);
+      if (isValidValue(fields()[27], other.orderKey)) {
+        this.orderKey = data().deepCopy(fields()[27].schema(), other.orderKey);
         fieldSetFlags()[27] = true;
       }
-      if (isValidValue(fields()[28], other.familyKey)) {
-        this.familyKey = data().deepCopy(fields()[28].schema(), other.familyKey);
+      if (isValidValue(fields()[28], other.order)) {
+        this.order = data().deepCopy(fields()[28].schema(), other.order);
         fieldSetFlags()[28] = true;
       }
-      if (isValidValue(fields()[29], other.family)) {
-        this.family = data().deepCopy(fields()[29].schema(), other.family);
+      if (isValidValue(fields()[29], other.familyKey)) {
+        this.familyKey = data().deepCopy(fields()[29].schema(), other.familyKey);
         fieldSetFlags()[29] = true;
       }
-      if (isValidValue(fields()[30], other.genusKey)) {
-        this.genusKey = data().deepCopy(fields()[30].schema(), other.genusKey);
+      if (isValidValue(fields()[30], other.family)) {
+        this.family = data().deepCopy(fields()[30].schema(), other.family);
         fieldSetFlags()[30] = true;
       }
-      if (isValidValue(fields()[31], other.genus)) {
-        this.genus = data().deepCopy(fields()[31].schema(), other.genus);
+      if (isValidValue(fields()[31], other.genusKey)) {
+        this.genusKey = data().deepCopy(fields()[31].schema(), other.genusKey);
         fieldSetFlags()[31] = true;
       }
-      if (isValidValue(fields()[32], other.subgenusKey)) {
-        this.subgenusKey = data().deepCopy(fields()[32].schema(), other.subgenusKey);
+      if (isValidValue(fields()[32], other.genus)) {
+        this.genus = data().deepCopy(fields()[32].schema(), other.genus);
         fieldSetFlags()[32] = true;
       }
-      if (isValidValue(fields()[33], other.subgenus)) {
-        this.subgenus = data().deepCopy(fields()[33].schema(), other.subgenus);
+      if (isValidValue(fields()[33], other.subgenusKey)) {
+        this.subgenusKey = data().deepCopy(fields()[33].schema(), other.subgenusKey);
         fieldSetFlags()[33] = true;
       }
-      if (isValidValue(fields()[34], other.speciesKey)) {
-        this.speciesKey = data().deepCopy(fields()[34].schema(), other.speciesKey);
+      if (isValidValue(fields()[34], other.subgenus)) {
+        this.subgenus = data().deepCopy(fields()[34].schema(), other.subgenus);
         fieldSetFlags()[34] = true;
       }
-      if (isValidValue(fields()[35], other.species)) {
-        this.species = data().deepCopy(fields()[35].schema(), other.species);
+      if (isValidValue(fields()[35], other.speciesKey)) {
+        this.speciesKey = data().deepCopy(fields()[35].schema(), other.speciesKey);
         fieldSetFlags()[35] = true;
       }
-      if (isValidValue(fields()[36], other.numDescendants)) {
-        this.numDescendants = data().deepCopy(fields()[36].schema(), other.numDescendants);
+      if (isValidValue(fields()[36], other.species)) {
+        this.species = data().deepCopy(fields()[36].schema(), other.species);
         fieldSetFlags()[36] = true;
       }
-      if (isValidValue(fields()[37], other.sourceId)) {
-        this.sourceId = data().deepCopy(fields()[37].schema(), other.sourceId);
+      if (isValidValue(fields()[37], other.numDescendants)) {
+        this.numDescendants = data().deepCopy(fields()[37].schema(), other.numDescendants);
         fieldSetFlags()[37] = true;
       }
-      if (isValidValue(fields()[38], other.isSynonym)) {
-        this.isSynonym = data().deepCopy(fields()[38].schema(), other.isSynonym);
+      if (isValidValue(fields()[38], other.sourceId)) {
+        this.sourceId = data().deepCopy(fields()[38].schema(), other.sourceId);
         fieldSetFlags()[38] = true;
       }
-      if (isValidValue(fields()[39], other.extinct)) {
-        this.extinct = data().deepCopy(fields()[39].schema(), other.extinct);
+      if (isValidValue(fields()[39], other.isSynonym)) {
+        this.isSynonym = data().deepCopy(fields()[39].schema(), other.isSynonym);
         fieldSetFlags()[39] = true;
       }
-      if (isValidValue(fields()[40], other.description)) {
-        this.description = data().deepCopy(fields()[40].schema(), other.description);
+      if (isValidValue(fields()[40], other.extinct)) {
+        this.extinct = data().deepCopy(fields()[40].schema(), other.extinct);
         fieldSetFlags()[40] = true;
       }
-      if (isValidValue(fields()[41], other.vernacularName)) {
-        this.vernacularName = data().deepCopy(fields()[41].schema(), other.vernacularName);
+      if (isValidValue(fields()[41], other.description)) {
+        this.description = data().deepCopy(fields()[41].schema(), other.description);
         fieldSetFlags()[41] = true;
       }
-      if (isValidValue(fields()[42], other.vernacularLang)) {
-        this.vernacularLang = data().deepCopy(fields()[42].schema(), other.vernacularLang);
+      if (isValidValue(fields()[42], other.vernacularName)) {
+        this.vernacularName = data().deepCopy(fields()[42].schema(), other.vernacularName);
         fieldSetFlags()[42] = true;
       }
-      if (isValidValue(fields()[43], other.vernacularNameLang)) {
-        this.vernacularNameLang = data().deepCopy(fields()[43].schema(), other.vernacularNameLang);
+      if (isValidValue(fields()[43], other.vernacularLang)) {
+        this.vernacularLang = data().deepCopy(fields()[43].schema(), other.vernacularLang);
         fieldSetFlags()[43] = true;
       }
-      if (isValidValue(fields()[44], other.higherTaxonKey)) {
-        this.higherTaxonKey = data().deepCopy(fields()[44].schema(), other.higherTaxonKey);
+      if (isValidValue(fields()[44], other.vernacularNameLang)) {
+        this.vernacularNameLang = data().deepCopy(fields()[44].schema(), other.vernacularNameLang);
         fieldSetFlags()[44] = true;
       }
-      if (isValidValue(fields()[45], other.issues)) {
-        this.issues = data().deepCopy(fields()[45].schema(), other.issues);
+      if (isValidValue(fields()[45], other.higherTaxonKey)) {
+        this.higherTaxonKey = data().deepCopy(fields()[45].schema(), other.higherTaxonKey);
         fieldSetFlags()[45] = true;
+      }
+      if (isValidValue(fields()[46], other.issues)) {
+        this.issues = data().deepCopy(fields()[46].schema(), other.issues);
+        fieldSetFlags()[46] = true;
       }
     }
 
@@ -1438,6 +1466,31 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
       return this;
     }
 
+    /** Gets the value of the 'constituentKey' field */
+    public java.lang.String getConstituentKey() {
+      return constituentKey;
+    }
+    
+    /** Sets the value of the 'constituentKey' field */
+    public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setConstituentKey(java.lang.String value) {
+      validate(fields()[3], value);
+      this.constituentKey = value;
+      fieldSetFlags()[3] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'constituentKey' field has been set */
+    public boolean hasConstituentKey() {
+      return fieldSetFlags()[3];
+    }
+    
+    /** Clears the value of the 'constituentKey' field */
+    public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearConstituentKey() {
+      constituentKey = null;
+      fieldSetFlags()[3] = false;
+      return this;
+    }
+
     /** Gets the value of the 'parentKey' field */
     public java.lang.Integer getParentKey() {
       return parentKey;
@@ -1445,21 +1498,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'parentKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setParentKey(java.lang.Integer value) {
-      validate(fields()[3], value);
+      validate(fields()[4], value);
       this.parentKey = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'parentKey' field has been set */
     public boolean hasParentKey() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'parentKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearParentKey() {
       parentKey = null;
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -1470,21 +1523,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'parent' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setParent(java.lang.String value) {
-      validate(fields()[4], value);
+      validate(fields()[5], value);
       this.parent = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'parent' field has been set */
     public boolean hasParent() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'parent' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearParent() {
       parent = null;
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -1495,21 +1548,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'acceptedKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setAcceptedKey(java.lang.Integer value) {
-      validate(fields()[5], value);
+      validate(fields()[6], value);
       this.acceptedKey = value;
-      fieldSetFlags()[5] = true;
+      fieldSetFlags()[6] = true;
       return this; 
     }
     
     /** Checks whether the 'acceptedKey' field has been set */
     public boolean hasAcceptedKey() {
-      return fieldSetFlags()[5];
+      return fieldSetFlags()[6];
     }
     
     /** Clears the value of the 'acceptedKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearAcceptedKey() {
       acceptedKey = null;
-      fieldSetFlags()[5] = false;
+      fieldSetFlags()[6] = false;
       return this;
     }
 
@@ -1520,21 +1573,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'accepted' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setAccepted(java.lang.String value) {
-      validate(fields()[6], value);
+      validate(fields()[7], value);
       this.accepted = value;
-      fieldSetFlags()[6] = true;
+      fieldSetFlags()[7] = true;
       return this; 
     }
     
     /** Checks whether the 'accepted' field has been set */
     public boolean hasAccepted() {
-      return fieldSetFlags()[6];
+      return fieldSetFlags()[7];
     }
     
     /** Clears the value of the 'accepted' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearAccepted() {
       accepted = null;
-      fieldSetFlags()[6] = false;
+      fieldSetFlags()[7] = false;
       return this;
     }
 
@@ -1545,21 +1598,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'basionymKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setBasionymKey(java.lang.Integer value) {
-      validate(fields()[7], value);
+      validate(fields()[8], value);
       this.basionymKey = value;
-      fieldSetFlags()[7] = true;
+      fieldSetFlags()[8] = true;
       return this; 
     }
     
     /** Checks whether the 'basionymKey' field has been set */
     public boolean hasBasionymKey() {
-      return fieldSetFlags()[7];
+      return fieldSetFlags()[8];
     }
     
     /** Clears the value of the 'basionymKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearBasionymKey() {
       basionymKey = null;
-      fieldSetFlags()[7] = false;
+      fieldSetFlags()[8] = false;
       return this;
     }
 
@@ -1570,21 +1623,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'basionym' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setBasionym(java.lang.String value) {
-      validate(fields()[8], value);
+      validate(fields()[9], value);
       this.basionym = value;
-      fieldSetFlags()[8] = true;
+      fieldSetFlags()[9] = true;
       return this; 
     }
     
     /** Checks whether the 'basionym' field has been set */
     public boolean hasBasionym() {
-      return fieldSetFlags()[8];
+      return fieldSetFlags()[9];
     }
     
     /** Clears the value of the 'basionym' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearBasionym() {
       basionym = null;
-      fieldSetFlags()[8] = false;
+      fieldSetFlags()[9] = false;
       return this;
     }
 
@@ -1595,21 +1648,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'scientificName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setScientificName(java.lang.String value) {
-      validate(fields()[9], value);
+      validate(fields()[10], value);
       this.scientificName = value;
-      fieldSetFlags()[9] = true;
+      fieldSetFlags()[10] = true;
       return this; 
     }
     
     /** Checks whether the 'scientificName' field has been set */
     public boolean hasScientificName() {
-      return fieldSetFlags()[9];
+      return fieldSetFlags()[10];
     }
     
     /** Clears the value of the 'scientificName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearScientificName() {
       scientificName = null;
-      fieldSetFlags()[9] = false;
+      fieldSetFlags()[10] = false;
       return this;
     }
 
@@ -1620,21 +1673,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'canonicalName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setCanonicalName(java.lang.String value) {
-      validate(fields()[10], value);
+      validate(fields()[11], value);
       this.canonicalName = value;
-      fieldSetFlags()[10] = true;
+      fieldSetFlags()[11] = true;
       return this; 
     }
     
     /** Checks whether the 'canonicalName' field has been set */
     public boolean hasCanonicalName() {
-      return fieldSetFlags()[10];
+      return fieldSetFlags()[11];
     }
     
     /** Clears the value of the 'canonicalName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearCanonicalName() {
       canonicalName = null;
-      fieldSetFlags()[10] = false;
+      fieldSetFlags()[11] = false;
       return this;
     }
 
@@ -1645,21 +1698,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'nameType' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setNameType(java.lang.Integer value) {
-      validate(fields()[11], value);
+      validate(fields()[12], value);
       this.nameType = value;
-      fieldSetFlags()[11] = true;
+      fieldSetFlags()[12] = true;
       return this; 
     }
     
     /** Checks whether the 'nameType' field has been set */
     public boolean hasNameType() {
-      return fieldSetFlags()[11];
+      return fieldSetFlags()[12];
     }
     
     /** Clears the value of the 'nameType' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearNameType() {
       nameType = null;
-      fieldSetFlags()[11] = false;
+      fieldSetFlags()[12] = false;
       return this;
     }
 
@@ -1670,21 +1723,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'authorship' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setAuthorship(java.lang.String value) {
-      validate(fields()[12], value);
+      validate(fields()[13], value);
       this.authorship = value;
-      fieldSetFlags()[12] = true;
+      fieldSetFlags()[13] = true;
       return this; 
     }
     
     /** Checks whether the 'authorship' field has been set */
     public boolean hasAuthorship() {
-      return fieldSetFlags()[12];
+      return fieldSetFlags()[13];
     }
     
     /** Clears the value of the 'authorship' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearAuthorship() {
       authorship = null;
-      fieldSetFlags()[12] = false;
+      fieldSetFlags()[13] = false;
       return this;
     }
 
@@ -1695,21 +1748,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'taxonomicStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setTaxonomicStatusKey(java.lang.Integer value) {
-      validate(fields()[13], value);
+      validate(fields()[14], value);
       this.taxonomicStatusKey = value;
-      fieldSetFlags()[13] = true;
+      fieldSetFlags()[14] = true;
       return this; 
     }
     
     /** Checks whether the 'taxonomicStatusKey' field has been set */
     public boolean hasTaxonomicStatusKey() {
-      return fieldSetFlags()[13];
+      return fieldSetFlags()[14];
     }
     
     /** Clears the value of the 'taxonomicStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearTaxonomicStatusKey() {
       taxonomicStatusKey = null;
-      fieldSetFlags()[13] = false;
+      fieldSetFlags()[14] = false;
       return this;
     }
 
@@ -1720,21 +1773,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'nomenclaturalStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setNomenclaturalStatusKey(java.util.List<java.lang.Integer> value) {
-      validate(fields()[14], value);
+      validate(fields()[15], value);
       this.nomenclaturalStatusKey = value;
-      fieldSetFlags()[14] = true;
+      fieldSetFlags()[15] = true;
       return this; 
     }
     
     /** Checks whether the 'nomenclaturalStatusKey' field has been set */
     public boolean hasNomenclaturalStatusKey() {
-      return fieldSetFlags()[14];
+      return fieldSetFlags()[15];
     }
     
     /** Clears the value of the 'nomenclaturalStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearNomenclaturalStatusKey() {
       nomenclaturalStatusKey = null;
-      fieldSetFlags()[14] = false;
+      fieldSetFlags()[15] = false;
       return this;
     }
 
@@ -1745,21 +1798,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'threatStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setThreatStatusKey(java.util.List<java.lang.Integer> value) {
-      validate(fields()[15], value);
+      validate(fields()[16], value);
       this.threatStatusKey = value;
-      fieldSetFlags()[15] = true;
+      fieldSetFlags()[16] = true;
       return this; 
     }
     
     /** Checks whether the 'threatStatusKey' field has been set */
     public boolean hasThreatStatusKey() {
-      return fieldSetFlags()[15];
+      return fieldSetFlags()[16];
     }
     
     /** Clears the value of the 'threatStatusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearThreatStatusKey() {
       threatStatusKey = null;
-      fieldSetFlags()[15] = false;
+      fieldSetFlags()[16] = false;
       return this;
     }
 
@@ -1770,21 +1823,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'rankKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setRankKey(java.lang.Integer value) {
-      validate(fields()[16], value);
+      validate(fields()[17], value);
       this.rankKey = value;
-      fieldSetFlags()[16] = true;
+      fieldSetFlags()[17] = true;
       return this; 
     }
     
     /** Checks whether the 'rankKey' field has been set */
     public boolean hasRankKey() {
-      return fieldSetFlags()[16];
+      return fieldSetFlags()[17];
     }
     
     /** Clears the value of the 'rankKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearRankKey() {
       rankKey = null;
-      fieldSetFlags()[16] = false;
+      fieldSetFlags()[17] = false;
       return this;
     }
 
@@ -1795,21 +1848,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'habitatKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setHabitatKey(java.util.List<java.lang.Integer> value) {
-      validate(fields()[17], value);
+      validate(fields()[18], value);
       this.habitatKey = value;
-      fieldSetFlags()[17] = true;
+      fieldSetFlags()[18] = true;
       return this; 
     }
     
     /** Checks whether the 'habitatKey' field has been set */
     public boolean hasHabitatKey() {
-      return fieldSetFlags()[17];
+      return fieldSetFlags()[18];
     }
     
     /** Clears the value of the 'habitatKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearHabitatKey() {
       habitatKey = null;
-      fieldSetFlags()[17] = false;
+      fieldSetFlags()[18] = false;
       return this;
     }
 
@@ -1820,21 +1873,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'publishedIn' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setPublishedIn(java.lang.String value) {
-      validate(fields()[18], value);
+      validate(fields()[19], value);
       this.publishedIn = value;
-      fieldSetFlags()[18] = true;
+      fieldSetFlags()[19] = true;
       return this; 
     }
     
     /** Checks whether the 'publishedIn' field has been set */
     public boolean hasPublishedIn() {
-      return fieldSetFlags()[18];
+      return fieldSetFlags()[19];
     }
     
     /** Clears the value of the 'publishedIn' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearPublishedIn() {
       publishedIn = null;
-      fieldSetFlags()[18] = false;
+      fieldSetFlags()[19] = false;
       return this;
     }
 
@@ -1845,21 +1898,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'accordingTo' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setAccordingTo(java.lang.String value) {
-      validate(fields()[19], value);
+      validate(fields()[20], value);
       this.accordingTo = value;
-      fieldSetFlags()[19] = true;
+      fieldSetFlags()[20] = true;
       return this; 
     }
     
     /** Checks whether the 'accordingTo' field has been set */
     public boolean hasAccordingTo() {
-      return fieldSetFlags()[19];
+      return fieldSetFlags()[20];
     }
     
     /** Clears the value of the 'accordingTo' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearAccordingTo() {
       accordingTo = null;
-      fieldSetFlags()[19] = false;
+      fieldSetFlags()[20] = false;
       return this;
     }
 
@@ -1870,21 +1923,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'kingdomKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setKingdomKey(java.lang.Integer value) {
-      validate(fields()[20], value);
+      validate(fields()[21], value);
       this.kingdomKey = value;
-      fieldSetFlags()[20] = true;
+      fieldSetFlags()[21] = true;
       return this; 
     }
     
     /** Checks whether the 'kingdomKey' field has been set */
     public boolean hasKingdomKey() {
-      return fieldSetFlags()[20];
+      return fieldSetFlags()[21];
     }
     
     /** Clears the value of the 'kingdomKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearKingdomKey() {
       kingdomKey = null;
-      fieldSetFlags()[20] = false;
+      fieldSetFlags()[21] = false;
       return this;
     }
 
@@ -1895,21 +1948,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'kingdom' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setKingdom(java.lang.String value) {
-      validate(fields()[21], value);
+      validate(fields()[22], value);
       this.kingdom = value;
-      fieldSetFlags()[21] = true;
+      fieldSetFlags()[22] = true;
       return this; 
     }
     
     /** Checks whether the 'kingdom' field has been set */
     public boolean hasKingdom() {
-      return fieldSetFlags()[21];
+      return fieldSetFlags()[22];
     }
     
     /** Clears the value of the 'kingdom' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearKingdom() {
       kingdom = null;
-      fieldSetFlags()[21] = false;
+      fieldSetFlags()[22] = false;
       return this;
     }
 
@@ -1920,21 +1973,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'phylumKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setPhylumKey(java.lang.Integer value) {
-      validate(fields()[22], value);
+      validate(fields()[23], value);
       this.phylumKey = value;
-      fieldSetFlags()[22] = true;
+      fieldSetFlags()[23] = true;
       return this; 
     }
     
     /** Checks whether the 'phylumKey' field has been set */
     public boolean hasPhylumKey() {
-      return fieldSetFlags()[22];
+      return fieldSetFlags()[23];
     }
     
     /** Clears the value of the 'phylumKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearPhylumKey() {
       phylumKey = null;
-      fieldSetFlags()[22] = false;
+      fieldSetFlags()[23] = false;
       return this;
     }
 
@@ -1945,21 +1998,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'phylum' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setPhylum(java.lang.String value) {
-      validate(fields()[23], value);
+      validate(fields()[24], value);
       this.phylum = value;
-      fieldSetFlags()[23] = true;
+      fieldSetFlags()[24] = true;
       return this; 
     }
     
     /** Checks whether the 'phylum' field has been set */
     public boolean hasPhylum() {
-      return fieldSetFlags()[23];
+      return fieldSetFlags()[24];
     }
     
     /** Clears the value of the 'phylum' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearPhylum() {
       phylum = null;
-      fieldSetFlags()[23] = false;
+      fieldSetFlags()[24] = false;
       return this;
     }
 
@@ -1970,21 +2023,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'classKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setClassKey(java.lang.Integer value) {
-      validate(fields()[24], value);
+      validate(fields()[25], value);
       this.classKey = value;
-      fieldSetFlags()[24] = true;
+      fieldSetFlags()[25] = true;
       return this; 
     }
     
     /** Checks whether the 'classKey' field has been set */
     public boolean hasClassKey() {
-      return fieldSetFlags()[24];
+      return fieldSetFlags()[25];
     }
     
     /** Clears the value of the 'classKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearClassKey() {
       classKey = null;
-      fieldSetFlags()[24] = false;
+      fieldSetFlags()[25] = false;
       return this;
     }
 
@@ -1995,21 +2048,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'clazz' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setClazz(java.lang.String value) {
-      validate(fields()[25], value);
+      validate(fields()[26], value);
       this.clazz = value;
-      fieldSetFlags()[25] = true;
+      fieldSetFlags()[26] = true;
       return this; 
     }
     
     /** Checks whether the 'clazz' field has been set */
     public boolean hasClazz() {
-      return fieldSetFlags()[25];
+      return fieldSetFlags()[26];
     }
     
     /** Clears the value of the 'clazz' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearClazz() {
       clazz = null;
-      fieldSetFlags()[25] = false;
+      fieldSetFlags()[26] = false;
       return this;
     }
 
@@ -2020,21 +2073,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'orderKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setOrderKey(java.lang.Integer value) {
-      validate(fields()[26], value);
+      validate(fields()[27], value);
       this.orderKey = value;
-      fieldSetFlags()[26] = true;
+      fieldSetFlags()[27] = true;
       return this; 
     }
     
     /** Checks whether the 'orderKey' field has been set */
     public boolean hasOrderKey() {
-      return fieldSetFlags()[26];
+      return fieldSetFlags()[27];
     }
     
     /** Clears the value of the 'orderKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearOrderKey() {
       orderKey = null;
-      fieldSetFlags()[26] = false;
+      fieldSetFlags()[27] = false;
       return this;
     }
 
@@ -2045,21 +2098,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'order' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setOrder(java.lang.String value) {
-      validate(fields()[27], value);
+      validate(fields()[28], value);
       this.order = value;
-      fieldSetFlags()[27] = true;
+      fieldSetFlags()[28] = true;
       return this; 
     }
     
     /** Checks whether the 'order' field has been set */
     public boolean hasOrder() {
-      return fieldSetFlags()[27];
+      return fieldSetFlags()[28];
     }
     
     /** Clears the value of the 'order' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearOrder() {
       order = null;
-      fieldSetFlags()[27] = false;
+      fieldSetFlags()[28] = false;
       return this;
     }
 
@@ -2070,21 +2123,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'familyKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setFamilyKey(java.lang.Integer value) {
-      validate(fields()[28], value);
+      validate(fields()[29], value);
       this.familyKey = value;
-      fieldSetFlags()[28] = true;
+      fieldSetFlags()[29] = true;
       return this; 
     }
     
     /** Checks whether the 'familyKey' field has been set */
     public boolean hasFamilyKey() {
-      return fieldSetFlags()[28];
+      return fieldSetFlags()[29];
     }
     
     /** Clears the value of the 'familyKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearFamilyKey() {
       familyKey = null;
-      fieldSetFlags()[28] = false;
+      fieldSetFlags()[29] = false;
       return this;
     }
 
@@ -2095,21 +2148,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'family' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setFamily(java.lang.String value) {
-      validate(fields()[29], value);
+      validate(fields()[30], value);
       this.family = value;
-      fieldSetFlags()[29] = true;
+      fieldSetFlags()[30] = true;
       return this; 
     }
     
     /** Checks whether the 'family' field has been set */
     public boolean hasFamily() {
-      return fieldSetFlags()[29];
+      return fieldSetFlags()[30];
     }
     
     /** Clears the value of the 'family' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearFamily() {
       family = null;
-      fieldSetFlags()[29] = false;
+      fieldSetFlags()[30] = false;
       return this;
     }
 
@@ -2120,21 +2173,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'genusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setGenusKey(java.lang.Integer value) {
-      validate(fields()[30], value);
+      validate(fields()[31], value);
       this.genusKey = value;
-      fieldSetFlags()[30] = true;
+      fieldSetFlags()[31] = true;
       return this; 
     }
     
     /** Checks whether the 'genusKey' field has been set */
     public boolean hasGenusKey() {
-      return fieldSetFlags()[30];
+      return fieldSetFlags()[31];
     }
     
     /** Clears the value of the 'genusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearGenusKey() {
       genusKey = null;
-      fieldSetFlags()[30] = false;
+      fieldSetFlags()[31] = false;
       return this;
     }
 
@@ -2145,21 +2198,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'genus' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setGenus(java.lang.String value) {
-      validate(fields()[31], value);
+      validate(fields()[32], value);
       this.genus = value;
-      fieldSetFlags()[31] = true;
+      fieldSetFlags()[32] = true;
       return this; 
     }
     
     /** Checks whether the 'genus' field has been set */
     public boolean hasGenus() {
-      return fieldSetFlags()[31];
+      return fieldSetFlags()[32];
     }
     
     /** Clears the value of the 'genus' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearGenus() {
       genus = null;
-      fieldSetFlags()[31] = false;
+      fieldSetFlags()[32] = false;
       return this;
     }
 
@@ -2170,21 +2223,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'subgenusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setSubgenusKey(java.lang.Integer value) {
-      validate(fields()[32], value);
+      validate(fields()[33], value);
       this.subgenusKey = value;
-      fieldSetFlags()[32] = true;
+      fieldSetFlags()[33] = true;
       return this; 
     }
     
     /** Checks whether the 'subgenusKey' field has been set */
     public boolean hasSubgenusKey() {
-      return fieldSetFlags()[32];
+      return fieldSetFlags()[33];
     }
     
     /** Clears the value of the 'subgenusKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearSubgenusKey() {
       subgenusKey = null;
-      fieldSetFlags()[32] = false;
+      fieldSetFlags()[33] = false;
       return this;
     }
 
@@ -2195,21 +2248,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'subgenus' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setSubgenus(java.lang.String value) {
-      validate(fields()[33], value);
+      validate(fields()[34], value);
       this.subgenus = value;
-      fieldSetFlags()[33] = true;
+      fieldSetFlags()[34] = true;
       return this; 
     }
     
     /** Checks whether the 'subgenus' field has been set */
     public boolean hasSubgenus() {
-      return fieldSetFlags()[33];
+      return fieldSetFlags()[34];
     }
     
     /** Clears the value of the 'subgenus' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearSubgenus() {
       subgenus = null;
-      fieldSetFlags()[33] = false;
+      fieldSetFlags()[34] = false;
       return this;
     }
 
@@ -2220,21 +2273,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'speciesKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setSpeciesKey(java.lang.Integer value) {
-      validate(fields()[34], value);
+      validate(fields()[35], value);
       this.speciesKey = value;
-      fieldSetFlags()[34] = true;
+      fieldSetFlags()[35] = true;
       return this; 
     }
     
     /** Checks whether the 'speciesKey' field has been set */
     public boolean hasSpeciesKey() {
-      return fieldSetFlags()[34];
+      return fieldSetFlags()[35];
     }
     
     /** Clears the value of the 'speciesKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearSpeciesKey() {
       speciesKey = null;
-      fieldSetFlags()[34] = false;
+      fieldSetFlags()[35] = false;
       return this;
     }
 
@@ -2245,21 +2298,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'species' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setSpecies(java.lang.String value) {
-      validate(fields()[35], value);
+      validate(fields()[36], value);
       this.species = value;
-      fieldSetFlags()[35] = true;
+      fieldSetFlags()[36] = true;
       return this; 
     }
     
     /** Checks whether the 'species' field has been set */
     public boolean hasSpecies() {
-      return fieldSetFlags()[35];
+      return fieldSetFlags()[36];
     }
     
     /** Clears the value of the 'species' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearSpecies() {
       species = null;
-      fieldSetFlags()[35] = false;
+      fieldSetFlags()[36] = false;
       return this;
     }
 
@@ -2270,21 +2323,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'numDescendants' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setNumDescendants(java.lang.Integer value) {
-      validate(fields()[36], value);
+      validate(fields()[37], value);
       this.numDescendants = value;
-      fieldSetFlags()[36] = true;
+      fieldSetFlags()[37] = true;
       return this; 
     }
     
     /** Checks whether the 'numDescendants' field has been set */
     public boolean hasNumDescendants() {
-      return fieldSetFlags()[36];
+      return fieldSetFlags()[37];
     }
     
     /** Clears the value of the 'numDescendants' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearNumDescendants() {
       numDescendants = null;
-      fieldSetFlags()[36] = false;
+      fieldSetFlags()[37] = false;
       return this;
     }
 
@@ -2295,21 +2348,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'sourceId' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setSourceId(java.lang.String value) {
-      validate(fields()[37], value);
+      validate(fields()[38], value);
       this.sourceId = value;
-      fieldSetFlags()[37] = true;
+      fieldSetFlags()[38] = true;
       return this; 
     }
     
     /** Checks whether the 'sourceId' field has been set */
     public boolean hasSourceId() {
-      return fieldSetFlags()[37];
+      return fieldSetFlags()[38];
     }
     
     /** Clears the value of the 'sourceId' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearSourceId() {
       sourceId = null;
-      fieldSetFlags()[37] = false;
+      fieldSetFlags()[38] = false;
       return this;
     }
 
@@ -2320,21 +2373,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'isSynonym' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setIsSynonym(java.lang.Boolean value) {
-      validate(fields()[38], value);
+      validate(fields()[39], value);
       this.isSynonym = value;
-      fieldSetFlags()[38] = true;
+      fieldSetFlags()[39] = true;
       return this; 
     }
     
     /** Checks whether the 'isSynonym' field has been set */
     public boolean hasIsSynonym() {
-      return fieldSetFlags()[38];
+      return fieldSetFlags()[39];
     }
     
     /** Clears the value of the 'isSynonym' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearIsSynonym() {
       isSynonym = null;
-      fieldSetFlags()[38] = false;
+      fieldSetFlags()[39] = false;
       return this;
     }
 
@@ -2345,21 +2398,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'extinct' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setExtinct(java.lang.Boolean value) {
-      validate(fields()[39], value);
+      validate(fields()[40], value);
       this.extinct = value;
-      fieldSetFlags()[39] = true;
+      fieldSetFlags()[40] = true;
       return this; 
     }
     
     /** Checks whether the 'extinct' field has been set */
     public boolean hasExtinct() {
-      return fieldSetFlags()[39];
+      return fieldSetFlags()[40];
     }
     
     /** Clears the value of the 'extinct' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearExtinct() {
       extinct = null;
-      fieldSetFlags()[39] = false;
+      fieldSetFlags()[40] = false;
       return this;
     }
 
@@ -2370,21 +2423,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'description' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setDescription(java.util.List<java.lang.String> value) {
-      validate(fields()[40], value);
+      validate(fields()[41], value);
       this.description = value;
-      fieldSetFlags()[40] = true;
+      fieldSetFlags()[41] = true;
       return this; 
     }
     
     /** Checks whether the 'description' field has been set */
     public boolean hasDescription() {
-      return fieldSetFlags()[40];
+      return fieldSetFlags()[41];
     }
     
     /** Clears the value of the 'description' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearDescription() {
       description = null;
-      fieldSetFlags()[40] = false;
+      fieldSetFlags()[41] = false;
       return this;
     }
 
@@ -2395,21 +2448,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'vernacularName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setVernacularName(java.util.List<java.lang.String> value) {
-      validate(fields()[41], value);
+      validate(fields()[42], value);
       this.vernacularName = value;
-      fieldSetFlags()[41] = true;
+      fieldSetFlags()[42] = true;
       return this; 
     }
     
     /** Checks whether the 'vernacularName' field has been set */
     public boolean hasVernacularName() {
-      return fieldSetFlags()[41];
+      return fieldSetFlags()[42];
     }
     
     /** Clears the value of the 'vernacularName' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearVernacularName() {
       vernacularName = null;
-      fieldSetFlags()[41] = false;
+      fieldSetFlags()[42] = false;
       return this;
     }
 
@@ -2420,21 +2473,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'vernacularLang' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setVernacularLang(java.util.List<java.lang.String> value) {
-      validate(fields()[42], value);
+      validate(fields()[43], value);
       this.vernacularLang = value;
-      fieldSetFlags()[42] = true;
+      fieldSetFlags()[43] = true;
       return this; 
     }
     
     /** Checks whether the 'vernacularLang' field has been set */
     public boolean hasVernacularLang() {
-      return fieldSetFlags()[42];
+      return fieldSetFlags()[43];
     }
     
     /** Clears the value of the 'vernacularLang' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearVernacularLang() {
       vernacularLang = null;
-      fieldSetFlags()[42] = false;
+      fieldSetFlags()[43] = false;
       return this;
     }
 
@@ -2445,21 +2498,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'vernacularNameLang' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setVernacularNameLang(java.util.List<java.lang.String> value) {
-      validate(fields()[43], value);
+      validate(fields()[44], value);
       this.vernacularNameLang = value;
-      fieldSetFlags()[43] = true;
+      fieldSetFlags()[44] = true;
       return this; 
     }
     
     /** Checks whether the 'vernacularNameLang' field has been set */
     public boolean hasVernacularNameLang() {
-      return fieldSetFlags()[43];
+      return fieldSetFlags()[44];
     }
     
     /** Clears the value of the 'vernacularNameLang' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearVernacularNameLang() {
       vernacularNameLang = null;
-      fieldSetFlags()[43] = false;
+      fieldSetFlags()[44] = false;
       return this;
     }
 
@@ -2470,21 +2523,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'higherTaxonKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setHigherTaxonKey(java.util.List<java.lang.Integer> value) {
-      validate(fields()[44], value);
+      validate(fields()[45], value);
       this.higherTaxonKey = value;
-      fieldSetFlags()[44] = true;
+      fieldSetFlags()[45] = true;
       return this; 
     }
     
     /** Checks whether the 'higherTaxonKey' field has been set */
     public boolean hasHigherTaxonKey() {
-      return fieldSetFlags()[44];
+      return fieldSetFlags()[45];
     }
     
     /** Clears the value of the 'higherTaxonKey' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearHigherTaxonKey() {
       higherTaxonKey = null;
-      fieldSetFlags()[44] = false;
+      fieldSetFlags()[45] = false;
       return this;
     }
 
@@ -2495,21 +2548,21 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     
     /** Sets the value of the 'issues' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder setIssues(java.util.List<java.lang.Integer> value) {
-      validate(fields()[45], value);
+      validate(fields()[46], value);
       this.issues = value;
-      fieldSetFlags()[45] = true;
+      fieldSetFlags()[46] = true;
       return this; 
     }
     
     /** Checks whether the 'issues' field has been set */
     public boolean hasIssues() {
-      return fieldSetFlags()[45];
+      return fieldSetFlags()[46];
     }
     
     /** Clears the value of the 'issues' field */
     public org.gbif.checklistbank.index.model.NameUsageAvro.Builder clearIssues() {
       issues = null;
-      fieldSetFlags()[45] = false;
+      fieldSetFlags()[46] = false;
       return this;
     }
 
@@ -2520,49 +2573,50 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
         record.key = fieldSetFlags()[0] ? this.key : (java.lang.Integer) defaultValue(fields()[0]);
         record.nubKey = fieldSetFlags()[1] ? this.nubKey : (java.lang.Integer) defaultValue(fields()[1]);
         record.datasetKey = fieldSetFlags()[2] ? this.datasetKey : (java.lang.String) defaultValue(fields()[2]);
-        record.parentKey = fieldSetFlags()[3] ? this.parentKey : (java.lang.Integer) defaultValue(fields()[3]);
-        record.parent = fieldSetFlags()[4] ? this.parent : (java.lang.String) defaultValue(fields()[4]);
-        record.acceptedKey = fieldSetFlags()[5] ? this.acceptedKey : (java.lang.Integer) defaultValue(fields()[5]);
-        record.accepted = fieldSetFlags()[6] ? this.accepted : (java.lang.String) defaultValue(fields()[6]);
-        record.basionymKey = fieldSetFlags()[7] ? this.basionymKey : (java.lang.Integer) defaultValue(fields()[7]);
-        record.basionym = fieldSetFlags()[8] ? this.basionym : (java.lang.String) defaultValue(fields()[8]);
-        record.scientificName = fieldSetFlags()[9] ? this.scientificName : (java.lang.String) defaultValue(fields()[9]);
-        record.canonicalName = fieldSetFlags()[10] ? this.canonicalName : (java.lang.String) defaultValue(fields()[10]);
-        record.nameType = fieldSetFlags()[11] ? this.nameType : (java.lang.Integer) defaultValue(fields()[11]);
-        record.authorship = fieldSetFlags()[12] ? this.authorship : (java.lang.String) defaultValue(fields()[12]);
-        record.taxonomicStatusKey = fieldSetFlags()[13] ? this.taxonomicStatusKey : (java.lang.Integer) defaultValue(fields()[13]);
-        record.nomenclaturalStatusKey = fieldSetFlags()[14] ? this.nomenclaturalStatusKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[14]);
-        record.threatStatusKey = fieldSetFlags()[15] ? this.threatStatusKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[15]);
-        record.rankKey = fieldSetFlags()[16] ? this.rankKey : (java.lang.Integer) defaultValue(fields()[16]);
-        record.habitatKey = fieldSetFlags()[17] ? this.habitatKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[17]);
-        record.publishedIn = fieldSetFlags()[18] ? this.publishedIn : (java.lang.String) defaultValue(fields()[18]);
-        record.accordingTo = fieldSetFlags()[19] ? this.accordingTo : (java.lang.String) defaultValue(fields()[19]);
-        record.kingdomKey = fieldSetFlags()[20] ? this.kingdomKey : (java.lang.Integer) defaultValue(fields()[20]);
-        record.kingdom = fieldSetFlags()[21] ? this.kingdom : (java.lang.String) defaultValue(fields()[21]);
-        record.phylumKey = fieldSetFlags()[22] ? this.phylumKey : (java.lang.Integer) defaultValue(fields()[22]);
-        record.phylum = fieldSetFlags()[23] ? this.phylum : (java.lang.String) defaultValue(fields()[23]);
-        record.classKey = fieldSetFlags()[24] ? this.classKey : (java.lang.Integer) defaultValue(fields()[24]);
-        record.clazz = fieldSetFlags()[25] ? this.clazz : (java.lang.String) defaultValue(fields()[25]);
-        record.orderKey = fieldSetFlags()[26] ? this.orderKey : (java.lang.Integer) defaultValue(fields()[26]);
-        record.order = fieldSetFlags()[27] ? this.order : (java.lang.String) defaultValue(fields()[27]);
-        record.familyKey = fieldSetFlags()[28] ? this.familyKey : (java.lang.Integer) defaultValue(fields()[28]);
-        record.family = fieldSetFlags()[29] ? this.family : (java.lang.String) defaultValue(fields()[29]);
-        record.genusKey = fieldSetFlags()[30] ? this.genusKey : (java.lang.Integer) defaultValue(fields()[30]);
-        record.genus = fieldSetFlags()[31] ? this.genus : (java.lang.String) defaultValue(fields()[31]);
-        record.subgenusKey = fieldSetFlags()[32] ? this.subgenusKey : (java.lang.Integer) defaultValue(fields()[32]);
-        record.subgenus = fieldSetFlags()[33] ? this.subgenus : (java.lang.String) defaultValue(fields()[33]);
-        record.speciesKey = fieldSetFlags()[34] ? this.speciesKey : (java.lang.Integer) defaultValue(fields()[34]);
-        record.species = fieldSetFlags()[35] ? this.species : (java.lang.String) defaultValue(fields()[35]);
-        record.numDescendants = fieldSetFlags()[36] ? this.numDescendants : (java.lang.Integer) defaultValue(fields()[36]);
-        record.sourceId = fieldSetFlags()[37] ? this.sourceId : (java.lang.String) defaultValue(fields()[37]);
-        record.isSynonym = fieldSetFlags()[38] ? this.isSynonym : (java.lang.Boolean) defaultValue(fields()[38]);
-        record.extinct = fieldSetFlags()[39] ? this.extinct : (java.lang.Boolean) defaultValue(fields()[39]);
-        record.description = fieldSetFlags()[40] ? this.description : (java.util.List<java.lang.String>) defaultValue(fields()[40]);
-        record.vernacularName = fieldSetFlags()[41] ? this.vernacularName : (java.util.List<java.lang.String>) defaultValue(fields()[41]);
-        record.vernacularLang = fieldSetFlags()[42] ? this.vernacularLang : (java.util.List<java.lang.String>) defaultValue(fields()[42]);
-        record.vernacularNameLang = fieldSetFlags()[43] ? this.vernacularNameLang : (java.util.List<java.lang.String>) defaultValue(fields()[43]);
-        record.higherTaxonKey = fieldSetFlags()[44] ? this.higherTaxonKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[44]);
-        record.issues = fieldSetFlags()[45] ? this.issues : (java.util.List<java.lang.Integer>) defaultValue(fields()[45]);
+        record.constituentKey = fieldSetFlags()[3] ? this.constituentKey : (java.lang.String) defaultValue(fields()[3]);
+        record.parentKey = fieldSetFlags()[4] ? this.parentKey : (java.lang.Integer) defaultValue(fields()[4]);
+        record.parent = fieldSetFlags()[5] ? this.parent : (java.lang.String) defaultValue(fields()[5]);
+        record.acceptedKey = fieldSetFlags()[6] ? this.acceptedKey : (java.lang.Integer) defaultValue(fields()[6]);
+        record.accepted = fieldSetFlags()[7] ? this.accepted : (java.lang.String) defaultValue(fields()[7]);
+        record.basionymKey = fieldSetFlags()[8] ? this.basionymKey : (java.lang.Integer) defaultValue(fields()[8]);
+        record.basionym = fieldSetFlags()[9] ? this.basionym : (java.lang.String) defaultValue(fields()[9]);
+        record.scientificName = fieldSetFlags()[10] ? this.scientificName : (java.lang.String) defaultValue(fields()[10]);
+        record.canonicalName = fieldSetFlags()[11] ? this.canonicalName : (java.lang.String) defaultValue(fields()[11]);
+        record.nameType = fieldSetFlags()[12] ? this.nameType : (java.lang.Integer) defaultValue(fields()[12]);
+        record.authorship = fieldSetFlags()[13] ? this.authorship : (java.lang.String) defaultValue(fields()[13]);
+        record.taxonomicStatusKey = fieldSetFlags()[14] ? this.taxonomicStatusKey : (java.lang.Integer) defaultValue(fields()[14]);
+        record.nomenclaturalStatusKey = fieldSetFlags()[15] ? this.nomenclaturalStatusKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[15]);
+        record.threatStatusKey = fieldSetFlags()[16] ? this.threatStatusKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[16]);
+        record.rankKey = fieldSetFlags()[17] ? this.rankKey : (java.lang.Integer) defaultValue(fields()[17]);
+        record.habitatKey = fieldSetFlags()[18] ? this.habitatKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[18]);
+        record.publishedIn = fieldSetFlags()[19] ? this.publishedIn : (java.lang.String) defaultValue(fields()[19]);
+        record.accordingTo = fieldSetFlags()[20] ? this.accordingTo : (java.lang.String) defaultValue(fields()[20]);
+        record.kingdomKey = fieldSetFlags()[21] ? this.kingdomKey : (java.lang.Integer) defaultValue(fields()[21]);
+        record.kingdom = fieldSetFlags()[22] ? this.kingdom : (java.lang.String) defaultValue(fields()[22]);
+        record.phylumKey = fieldSetFlags()[23] ? this.phylumKey : (java.lang.Integer) defaultValue(fields()[23]);
+        record.phylum = fieldSetFlags()[24] ? this.phylum : (java.lang.String) defaultValue(fields()[24]);
+        record.classKey = fieldSetFlags()[25] ? this.classKey : (java.lang.Integer) defaultValue(fields()[25]);
+        record.clazz = fieldSetFlags()[26] ? this.clazz : (java.lang.String) defaultValue(fields()[26]);
+        record.orderKey = fieldSetFlags()[27] ? this.orderKey : (java.lang.Integer) defaultValue(fields()[27]);
+        record.order = fieldSetFlags()[28] ? this.order : (java.lang.String) defaultValue(fields()[28]);
+        record.familyKey = fieldSetFlags()[29] ? this.familyKey : (java.lang.Integer) defaultValue(fields()[29]);
+        record.family = fieldSetFlags()[30] ? this.family : (java.lang.String) defaultValue(fields()[30]);
+        record.genusKey = fieldSetFlags()[31] ? this.genusKey : (java.lang.Integer) defaultValue(fields()[31]);
+        record.genus = fieldSetFlags()[32] ? this.genus : (java.lang.String) defaultValue(fields()[32]);
+        record.subgenusKey = fieldSetFlags()[33] ? this.subgenusKey : (java.lang.Integer) defaultValue(fields()[33]);
+        record.subgenus = fieldSetFlags()[34] ? this.subgenus : (java.lang.String) defaultValue(fields()[34]);
+        record.speciesKey = fieldSetFlags()[35] ? this.speciesKey : (java.lang.Integer) defaultValue(fields()[35]);
+        record.species = fieldSetFlags()[36] ? this.species : (java.lang.String) defaultValue(fields()[36]);
+        record.numDescendants = fieldSetFlags()[37] ? this.numDescendants : (java.lang.Integer) defaultValue(fields()[37]);
+        record.sourceId = fieldSetFlags()[38] ? this.sourceId : (java.lang.String) defaultValue(fields()[38]);
+        record.isSynonym = fieldSetFlags()[39] ? this.isSynonym : (java.lang.Boolean) defaultValue(fields()[39]);
+        record.extinct = fieldSetFlags()[40] ? this.extinct : (java.lang.Boolean) defaultValue(fields()[40]);
+        record.description = fieldSetFlags()[41] ? this.description : (java.util.List<java.lang.String>) defaultValue(fields()[41]);
+        record.vernacularName = fieldSetFlags()[42] ? this.vernacularName : (java.util.List<java.lang.String>) defaultValue(fields()[42]);
+        record.vernacularLang = fieldSetFlags()[43] ? this.vernacularLang : (java.util.List<java.lang.String>) defaultValue(fields()[43]);
+        record.vernacularNameLang = fieldSetFlags()[44] ? this.vernacularNameLang : (java.util.List<java.lang.String>) defaultValue(fields()[44]);
+        record.higherTaxonKey = fieldSetFlags()[45] ? this.higherTaxonKey : (java.util.List<java.lang.Integer>) defaultValue(fields()[45]);
+        record.issues = fieldSetFlags()[46] ? this.issues : (java.util.List<java.lang.Integer>) defaultValue(fields()[46]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

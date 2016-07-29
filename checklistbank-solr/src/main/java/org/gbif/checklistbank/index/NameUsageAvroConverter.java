@@ -68,6 +68,9 @@ public class NameUsageAvroConverter {
       if(usage.getDatasetKey() != null) {
         nameUsageAvro.setDatasetKey(usage.getDatasetKey().toString());
       }
+      if(usage.getConstituentKey() != null) {
+        nameUsageAvro.setConstituentKey(usage.getConstituentKey().toString());
+      }
       nameUsageAvro.setParent(usage.getParent());
       nameUsageAvro.setParentKey(usage.getParentKey());
       nameUsageAvro.setAccepted(usage.getAccepted());

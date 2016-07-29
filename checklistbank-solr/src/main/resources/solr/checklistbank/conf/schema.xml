@@ -138,6 +138,7 @@
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
     <field name="nub_key" type="int" indexed="false" stored="true"/>
     <field name="dataset_key" type="uuid" indexed="true" stored="true" docValues="true"/>
+    <field name="constituent_key" type="uuid" indexed="true" stored="true" docValues="true"/>
     <field name="parent_key" type="int" indexed="false" stored="true"/>
     <field name="parent" type="sciname" indexed="false" stored="true"/>
     <field name="accepted_key" type="int" indexed="false" stored="true"/>
