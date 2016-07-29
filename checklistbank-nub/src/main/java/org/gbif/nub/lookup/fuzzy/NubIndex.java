@@ -316,9 +316,6 @@ public class NubIndex implements AutoCloseable {
     Document doc = new Document();
     String canonical = parser.parseToCanonicalOrScientificName(sciname, rank);
 
-    if (canonical.toLowerCase().startsWith("inac")) {
-      doc = new Document();
-    }
     // use custom precision step as we do not need range queries and prefer to save memory usage instead
     doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));
 
