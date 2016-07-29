@@ -9,6 +9,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.nameparser.NameParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,6 +104,7 @@ public class NubIndex implements AutoCloseable {
     .build();
 
   private static final Analyzer analyzer = new ScientificNameAnalyzer();
+  private static final NameParser parser = new NameParser();
   private final Directory index;
   private final IndexSearcher searcher;
 
@@ -298,21 +300,25 @@ public class NubIndex implements AutoCloseable {
   }
 
   protected static Document toDoc(NameUsage u) {
-    return toDoc(u.getKey(), u.getCanonicalName(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
+    return toDoc(u.getKey(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
   }
 
   private static Document toDoc(NameUsageMatch u) {
-    return toDoc(u.getUsageKey(), u.getCanonicalName(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
+    return toDoc(u.getUsageKey(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
   }
 
   /**
    * @param status any status incl null. Will be converted to just 3 accepted, synonym & doubtful
    */
-  private static Document toDoc(int key, String canonical, String sciname, TaxonomicStatus status, Rank rank,
+  private static Document toDoc(int key, String sciname, TaxonomicStatus status, Rank rank,
     LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
+    String canonical = parser.parseToCanonicalOrScientificName(sciname, rank);
 
+    if (canonical.toLowerCase().startsWith("inac")) {
+      doc = new Document();
+    }
     // use custom precision step as we do not need range queries and prefer to save memory usage instead
     doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));
 

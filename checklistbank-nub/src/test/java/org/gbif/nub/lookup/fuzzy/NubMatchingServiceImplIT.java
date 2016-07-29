@@ -65,7 +65,11 @@ public class NubMatchingServiceImplIT {
     assertMatchConsistency(best);
   }
 
-  private void assertNoMatch(String name, LinneanClassification query, IntRange confidence) {
+  private void assertNoMatch(String name, LinneanClassification query) {
+    assertNoMatch(name, query, null);
+  }
+
+  private void assertNoMatch(String name, LinneanClassification query, @Nullable IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
     System.out.println(best.getNote());
     assertEquals(NameUsageMatch.MatchType.NONE, best.getMatchType());
@@ -212,7 +216,7 @@ public class NubMatchingServiceImplIT {
   public void testHomonyms() throws IOException {
     // Oenanthe
     LinneanClassification cl = new NameUsageMatch();
-    assertNoMatch("Oenanthe", cl, null);
+    assertNoMatch("Oenanthe", cl);
 
     cl.setKingdom("Animalia");
     assertMatch("Oenanthe", cl, 2492483, new IntRange(96, 99));
@@ -224,7 +228,7 @@ public class NubMatchingServiceImplIT {
 
     // Acanthophora
     cl = new NameUsageMatch();
-    assertNoMatch("Acanthophora", cl, null);
+    assertNoMatch("Acanthophora", cl);
 
     // there are 3 genera in animalia, 2 synonyms and 1 accepted.
     // We prefer to match to the single accepted in this case
@@ -279,7 +283,7 @@ public class NubMatchingServiceImplIT {
     // Amphibia is a homonym genus, but also and most prominently a class!
     cl = new NameUsageMatch();
     // non existing "species" name. Amphibia could either be the genus or the class, who knows...
-    assertNoMatch("Amphibia eyecount", cl, null);
+    assertNoMatch("Amphibia eyecount", cl);
 
     // first try a match against the algae genus
     cl.setKingdom("Plantae");
@@ -428,8 +432,38 @@ public class NubMatchingServiceImplIT {
 
   @Test
   @Ignore("not implemented yet")
-  public void testHybridsAndViruses() throws IOException {
+  public void testHybrids() throws IOException {
     //TODO: implement
+  }
+
+  /**
+   * http://dev.gbif.org/issues/browse/PF-2574
+   *
+   * Inachis io (Linnaeus, 1758)
+   * Inachis io NPV
+   *
+   * Dionychopus amasis GV
+   *
+   * Hyloicus pinastri NPV
+   * Hylobius pinastri Billberg
+   * Hylobius (Hylobius) pinastri Escherich , 1923
+   *
+   * Vanessa cardui NPV
+   * Vanessa cardui (Linnaeus, 1758)
+   */
+  @Test
+  public void testViruses() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    assertMatch("Inachis io", cl, 5881450, new IntRange(92,100));
+    assertMatch("Inachis io (Linnaeus)", cl, 5881450, new IntRange(95,100));
+    assertMatch("Inachis io NPV", cl, 8562651, new IntRange(90,96)); // viruses never match very confidently
+
+    assertMatch("Dionychopus amasis GV", cl, 6876449, new IntRange(90,96));
+    // to lepidoptera genus only
+    assertMatch("Dionychopus amasis", cl, 4689754, new IntRange(90,100));
+    // with given kingdom result in no match, GV is part of the name
+    cl.setKingdom("Virus");
+    assertNoMatch("Dionychopus amasis", cl);
   }
 
   /**
