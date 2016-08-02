@@ -44,7 +44,7 @@
 
     <!-- dependency versions -->
     <dwc-api.version>1.13</dwc-api.version>
-    <gbif-api.version>0.41-SNAPSHOT</gbif-api.version>
+    <gbif-api.version>0.41</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.28</gbif-common.version>
     <gbif-common-mybatis.version>0.26</gbif-common-mybatis.version>
@@ -56,7 +56,7 @@
     <gbif-microservice.version>0.5</gbif-microservice.version>
     <gbif-postal-service.version>0.21</gbif-postal-service.version>
     <registry.version>2.53</registry.version>
-    <name-parser.version>2.18-SNAPSHOT</name-parser.version>
+    <name-parser.version>2.18</name-parser.version>
     <gbif-parser.version>0.27</gbif-parser.version>
     <dwca-io.version>1.27</dwca-io.version>
     <!-- external libs -->
