@@ -43,7 +43,7 @@
     <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
     <!-- dependency versions -->
-    <dwc-api.version>1.13</dwc-api.version>
+    <dwc-api.version>1.16</dwc-api.version>
     <gbif-api.version>0.41</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
     <gbif-common.version>0.28</gbif-common.version>
@@ -54,7 +54,7 @@
     <gbif-common-ws.version>0.33</gbif-common-ws.version>
     <gbif-httputils.version>0.10</gbif-httputils.version>
     <gbif-microservice.version>0.5</gbif-microservice.version>
-    <gbif-postal-service.version>0.21</gbif-postal-service.version>
+    <gbif-postal-service.version>0.22</gbif-postal-service.version>
     <registry.version>2.53</registry.version>
     <name-parser.version>2.18</name-parser.version>
     <gbif-parser.version>0.27</gbif-parser.version>
