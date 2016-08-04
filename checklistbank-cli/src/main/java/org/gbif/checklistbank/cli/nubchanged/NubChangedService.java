@@ -12,19 +12,12 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.exporter.Exporter;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
-import org.gbif.checklistbank.nub.lookup.NubMatchService;
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
-import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.registry.metadata.EMLWriter;
 
 import java.io.ByteArrayInputStream;
@@ -42,9 +35,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.yammer.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +51,6 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private final NubChangedConfiguration cfg;
   private MessageListener listener;
   private MessagePublisher publisher;
-  private final DatasetImportService sqlImportService;
-  private final DatasetImportService solrImportService;
   private final DatasetService datasetService;
   private final NetworkService networkService;
   private final MetricRegistry registry = new MetricRegistry("matcher");
@@ -73,10 +62,6 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
     Injector regInj = cfg.registry.createRegistryInjector();
     datasetService = regInj.getInstance(DatasetService.class);
     networkService = regInj.getInstance(NetworkService.class);
-
-    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
-    sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
   }
 
   @Override
@@ -108,9 +93,9 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
 
   private void rematchChecklists() {
     try {
-      LOG.info("Start rematching all checklists to changed backbone");
-      NubMatchService matcher = new NubMatchService(cfg.clb, IdLookupImpl.temp().load(cfg.clb, false), sqlImportService, solrImportService, publisher);
+      LOG.info("Start sending match dataset messages for all checklists, starting with CoL");
 
+      int counter = 1;
       // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
       publisher.send(new MatchDatasetMessage(Constants.COL_DATASET_KEY));
       for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
@@ -118,8 +103,9 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
           continue;
         }
         publisher.send(new MatchDatasetMessage(d.getKey()));
+        counter++;
       }
-      LOG.info("Send dataset match message for all {} checklists", matcher.getCounter());
+      LOG.info("Send dataset match message for all {} checklists", counter);
 
     } catch (Exception e) {
       LOG.error("Failed to handle BackboneChangedMessage", e);

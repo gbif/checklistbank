@@ -44,6 +44,8 @@ public class SolrIndexingTestModule extends AbstractModule {
   private static void removeUnUsedSolrCfg(){
     try {
       Files.delete(Paths.get(Resources.getResource("solr/checklistbank/conf/hdfs_directory_factory.xml").toURI()));
+    } catch(IllegalArgumentException e){
+      // already removed
     } catch(URISyntaxException | IOException ex){
       Throwables.propagate(ex);
     }

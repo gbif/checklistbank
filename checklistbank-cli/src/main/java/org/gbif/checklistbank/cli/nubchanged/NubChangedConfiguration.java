@@ -4,7 +4,6 @@ import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.common.search.inject.SolrConfig;
 
 import java.io.File;
 import javax.validation.Valid;
@@ -33,11 +32,6 @@ public class NubChangedConfiguration {
     @Valid
     @NotNull
     public ClbConfiguration clb = new ClbConfiguration();
-
-    @ParametersDelegate
-    @Valid
-    @NotNull
-    public SolrConfig solr = new SolrConfig();
 
     @ParametersDelegate
     @NotNull
