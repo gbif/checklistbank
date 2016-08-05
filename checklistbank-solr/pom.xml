@@ -24,6 +24,8 @@
   <properties>
     <!-- by default we use an embedded solr server -->
     <checklistbank.indexer.solr.server />
+    <!-- memory in mb for oozie avro exporter job -->
+    <oozie.mem.avro>4096</oozie.mem.avro>
   </properties>
 
   <build>

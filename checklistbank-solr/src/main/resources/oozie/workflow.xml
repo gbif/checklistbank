@@ -35,7 +35,7 @@
       <configuration>
         <property>
           <name>oozie.launcher.mapreduce.map.memory.mb</name>
-          <value>4096</value>
+          <value>${oozie.mem.avro}</value>
         </property>
         <property>
           <name>oozie.launcher.mapreduce.map.java.opts</name>
