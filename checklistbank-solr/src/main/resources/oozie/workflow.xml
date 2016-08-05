@@ -32,6 +32,12 @@
         <delete path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
         <mkdir path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
       </prepare>
+      <configuration>
+        <property>
+          <name>oozie.launcher.mapreduce.map.memory.mb</name>
+          <value>4096</value>
+        </property>
+      </configuration>
       <main-class>org.gbif.checklistbank.index.NameUsageAvroExporter</main-class>
       <arg>${wf:conf("environment")}.properties</arg>
     </java>
