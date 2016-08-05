@@ -37,6 +37,10 @@
           <name>oozie.launcher.mapreduce.map.memory.mb</name>
           <value>4096</value>
         </property>
+        <property>
+          <name>oozie.launcher.mapreduce.map.java.opts</name>
+          <value>-Djava.net.preferIPv4Stack=true -Xmx3G</value>
+        </property>
       </configuration>
       <main-class>org.gbif.checklistbank.index.NameUsageAvroExporter</main-class>
       <arg>${wf:conf("environment")}.properties</arg>
