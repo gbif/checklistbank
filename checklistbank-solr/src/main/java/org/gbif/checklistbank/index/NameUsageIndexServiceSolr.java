@@ -104,7 +104,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
   }
 
-  private void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, @Nullable UsageExtensions extensions) {
+  public void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, @Nullable UsageExtensions extensions) {
     SolrInputDocument doc = converter.toObject(usage, parentKeys, extensions);
     try {
       solr.add(doc, commitWithinMs);

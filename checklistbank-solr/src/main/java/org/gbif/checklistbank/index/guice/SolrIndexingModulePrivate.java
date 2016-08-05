@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.index.NameUsageIndexer;
-import org.gbif.checklistbank.index.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
 
@@ -34,11 +34,11 @@ public class SolrIndexingModulePrivate extends PrivateServiceModule {
     bind(NameUsageDocConverter.class).in(Scopes.SINGLETON);
 
     // Main indexer class
-    bind(NameUsageIndexer.class).in(Scopes.SINGLETON);
+    bind(SolrBackfill.class).in(Scopes.SINGLETON);
 
     install(new SolrModule());
 
-    expose(NameUsageIndexer.class);
+    expose(SolrBackfill.class);
     expose(SolrClient.class);
     expose(EmbeddedSolrReference.class);
   }

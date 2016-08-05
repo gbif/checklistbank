@@ -42,7 +42,7 @@
           <value>-Djava.net.preferIPv4Stack=true -Xmx3G</value>
         </property>
       </configuration>
-      <main-class>org.gbif.checklistbank.index.NameUsageAvroExporter</main-class>
+      <main-class>org.gbif.checklistbank.index.backfill.AvroExporter</main-class>
       <arg>${wf:conf("environment")}.properties</arg>
     </java>
 

@@ -23,7 +23,7 @@ import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.index.NameUsageIndexerBaseIT;
+import org.gbif.checklistbank.index.backfill.SolrBackfillBaseIT;
 import org.gbif.common.search.util.SolrConstants;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
@@ -55,7 +55,7 @@ import static org.junit.Assert.assertTrue;
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
-public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
+public class NameUsageSearchIT extends SolrBackfillBaseIT {
 
   protected final Logger log = LoggerFactory.getLogger(NameUsageSearchIT.class);
   private static final String PROPERTY_FILE = "checklistbank.properties";
@@ -72,7 +72,7 @@ public class NameUsageSearchIT extends NameUsageIndexerBaseIT {
   @BeforeClass
   public static void setup() throws IOException, SAXException, ParserConfigurationException {
     // creates squirrels db and solr index & server using its own injector
-    NameUsageIndexerBaseIT.setup();
+    SolrBackfillBaseIT.setup();
 
     // insert new injector for this test, reusing existing solr server
     Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);

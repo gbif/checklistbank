@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Executable job that creates a list of {@link org.apache.solr.common.SolrInputDocument} using a list of {@link org.gbif.api.model.checklistbank.NameUsage} objects.
  */
-public class NameUsageAvroExportJob implements Callable<Integer> {
+public class AvroExportJob implements Callable<Integer> {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -72,7 +72,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
   /**
    * Default constructor.
    */
-  public NameUsageAvroExportJob(
+  public AvroExportJob(
     final UsageService nameUsageService,
     final int startKey,
     final int endKey,
@@ -121,7 +121,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
     File file = new File(startKey+ "-" + endKey + ".avro");
     file.createNewFile();
     log.info("Creating file " + file.getAbsolutePath());
-    ClassLoader classLoader = NameUsageAvroExporter.class.getClassLoader();
+    ClassLoader classLoader = AvroExporter.class.getClassLoader();
     Schema schema = new Schema.Parser().parse(classLoader.getResource("solr.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
     try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<NameUsageAvro>(datumWriter)) {
@@ -147,7 +147,7 @@ public class NameUsageAvroExportJob implements Callable<Integer> {
           log.error("Error exporting  usage {}  extension {} to avro", usage, e);
         }
         docCount++;
-        NameUsageAvroExporter.counter.incrementAndGet();
+        NameUsageBatchProcessor.counter.incrementAndGet();
       }
     }
 

@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.ws.client.guice;
 
-import org.gbif.checklistbank.index.NameUsageIndexer;
 import org.gbif.checklistbank.index.SolrIndexingTestModule;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.search.SearchTestModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
@@ -59,7 +59,7 @@ public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
       solrRef = injector.getInstance(EmbeddedSolrReference.class);
 
       // build the solr index
-      NameUsageIndexer nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
+      SolrBackfill nameUsageIndexer = injector.getInstance(SolrBackfill.class);
       LOG.info("Build solr index");
       nameUsageIndexer.run();
 

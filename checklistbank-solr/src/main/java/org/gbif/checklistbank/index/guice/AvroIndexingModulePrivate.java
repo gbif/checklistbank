@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.guice;
 
-import org.gbif.checklistbank.index.NameUsageAvroExporter;
-import org.gbif.checklistbank.index.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.AvroExporter;
+import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
 import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
@@ -21,8 +21,8 @@ public class AvroIndexingModulePrivate extends PrivateServiceModule {
   @Override
   protected void configureService() {
     //expose the Avro exporter
-    bind(NameUsageAvroExporter.class).in(Scopes.SINGLETON);
+    bind(AvroExporter.class).in(Scopes.SINGLETON);
 
-    expose(NameUsageAvroExporter.class);
+    expose(AvroExporter.class);
   }
 }

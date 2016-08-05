@@ -1,5 +1,7 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
+import org.gbif.checklistbank.index.AvroIndexingTestModule;
+import org.gbif.checklistbank.index.HdfsTestUtil;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
@@ -24,11 +26,11 @@ import org.slf4j.LoggerFactory;
 /**
  * Test the the Avro exporter using a hdfs mini cluster.
  */
-public class NameUsageAvroExporterIT {
+public class AvroExporterIT {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NameUsageAvroExporterIT.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AvroExporterIT.class);
 
-  private static NameUsageAvroExporter nameUsageAvroExporter;
+  private static AvroExporter nameUsageAvroExporter;
 
   private static MiniDFSCluster miniDFSCluster;
 
@@ -58,7 +60,7 @@ public class NameUsageAvroExporterIT {
     miniDFSCluster.getFileSystem().mkdirs(new Path(HdfsTestUtil.TEST_HDFS_DIR));
     Injector injector = Guice.createInjector(new AvroIndexingTestModule(props));
     // Gets the exporter instance
-    nameUsageAvroExporter = injector.getInstance(NameUsageAvroExporter.class);
+    nameUsageAvroExporter = injector.getInstance(AvroExporter.class);
   }
 
   @AfterClass

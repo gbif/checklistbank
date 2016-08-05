@@ -1,10 +1,11 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
@@ -121,7 +122,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
         log.error("Error indexing document for usage {}", usage.getKey(), e);
       }
       docCount++;
-      NameUsageIndexer.counter.incrementAndGet();
+      NameUsageBatchProcessor.counter.incrementAndGet();
     }
     // job finished notice
     stopWatch.stop();

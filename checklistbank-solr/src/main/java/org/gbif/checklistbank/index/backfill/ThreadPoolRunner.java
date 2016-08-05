@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 
 import java.util.List;

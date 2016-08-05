@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 /**
  * Utility class that holds the common configuration keys for indexing modules.

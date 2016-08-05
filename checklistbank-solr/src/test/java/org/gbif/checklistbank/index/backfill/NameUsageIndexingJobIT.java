@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
@@ -7,6 +7,7 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;

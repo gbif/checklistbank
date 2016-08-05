@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
@@ -29,7 +29,7 @@ public class NameUsageAvroConverter {
   private static final String CONCAT = " # ";
 
   /**
-   * Logger for the {@link org.gbif.checklistbank.index.NameUsageAvroConverter} class
+   * Logger for the {@link NameUsageAvroConverter} class
    */
   protected static final Logger LOG = LoggerFactory.getLogger(NameUsageAvroConverter.class);
 

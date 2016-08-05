@@ -1,5 +1,6 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
+import org.gbif.checklistbank.index.SolrIndexingTestModule;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
@@ -22,11 +23,11 @@ import org.xml.sax.SAXException;
  * Base class for integration tests using the squirrels test solr index.
  * The class builds a fresh index before all tests run.
  */
-public abstract class NameUsageIndexerBaseIT {
+public abstract class SolrBackfillBaseIT {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NameUsageIndexerBaseIT.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SolrBackfillBaseIT.class);
     private static EmbeddedSolrReference solrRef;
-    private static NameUsageIndexer nameUsageIndexer;
+    private static SolrBackfill nameUsageIndexer;
 
     @BeforeClass
     public static void setup() throws IOException, SAXException, ParserConfigurationException {
@@ -51,7 +52,7 @@ public abstract class NameUsageIndexerBaseIT {
         Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
         // Gets the indexer instance
         solrRef = injector.getInstance(EmbeddedSolrReference.class);
-        nameUsageIndexer = injector.getInstance(NameUsageIndexer.class);
+        nameUsageIndexer = injector.getInstance(SolrBackfill.class);
         nameUsageIndexer.run();
     }
 
@@ -59,7 +60,7 @@ public abstract class NameUsageIndexerBaseIT {
         return solrRef.getSolr();
     }
 
-    protected static NameUsageIndexer indexer() {
+    protected static SolrBackfill indexer() {
         return nameUsageIndexer;
     }
 

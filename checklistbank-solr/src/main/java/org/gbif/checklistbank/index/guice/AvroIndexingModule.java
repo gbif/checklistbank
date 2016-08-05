@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.guice;
 
-import org.gbif.checklistbank.index.NameUsageAvroExporter;
-import org.gbif.checklistbank.index.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.AvroExporter;
+import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.service.guice.PrivateServiceModule;
@@ -45,8 +45,8 @@ public class AvroIndexingModule extends AbstractModule {
       install(new AnonymousAuthModule());
       //installs registry client
       install(new RegistryWsClientModule(getVerbatimProperties()));
-      bind(NameUsageAvroExporter.class);
-      expose(NameUsageAvroExporter.class);
+      bind(AvroExporter.class);
+      expose(AvroExporter.class);
     }
   }
 }

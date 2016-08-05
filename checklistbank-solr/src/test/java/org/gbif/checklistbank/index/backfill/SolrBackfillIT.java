@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.vocabulary.Habitat;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNull;
 /**
  * Test the index generation.
  */
-public class NameUsageIndexerIT extends NameUsageIndexerBaseIT {
+public class SolrBackfillIT extends SolrBackfillBaseIT {
 
   @Test
   public void testIndexBuild() throws IOException, SolrServerException, InterruptedException {
