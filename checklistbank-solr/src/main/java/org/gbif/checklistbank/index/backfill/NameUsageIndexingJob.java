@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.common.SolrInputDocument;
@@ -29,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class NameUsageIndexingJob implements Callable<Integer> {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
+  private static final int batchSize = 100;
 
   /**
    * SolrServer instance.
@@ -103,31 +106,36 @@ public class NameUsageIndexingJob implements Callable<Integer> {
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
 
     // now we're ready to build the solr indices quicky!
-    for (NameUsage usage : usages) {
-      if (usage==null) {
-          log.warn("Unexpected numm usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
-          continue;
-      }
+    for (Iterable<NameUsage> batch : Iterables.partition(usages, batchSize)) {
+      final List<SolrInputDocument> docs = Lists.newArrayList();
       try {
-        UsageExtensions ext = new UsageExtensions();
-        ext.speciesProfiles = speciesProfileMap.get(usage.getKey());
-        ext.vernacularNames = vernacularNameMap.get(usage.getKey());
-        ext.descriptions = descriptionMap.get(usage.getKey());
-        ext.distributions = distributionMap.get(usage.getKey());
+        for (NameUsage usage : batch) {
+          if (usage==null) {
+            log.warn("Unexpected null usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
+            continue;
+          }
+          UsageExtensions ext = new UsageExtensions();
+          ext.speciesProfiles = speciesProfileMap.get(usage.getKey());
+          ext.vernacularNames = vernacularNameMap.get(usage.getKey());
+          ext.descriptions = descriptionMap.get(usage.getKey());
+          ext.distributions = distributionMap.get(usage.getKey());
 
-        List<Integer> parents = nameUsageService.listParents(usage.getKey());
-        solrClient.add(solrDocumentConverter.toObject(usage, parents, ext));
+          List<Integer> parents = nameUsageService.listParents(usage.getKey());
+
+          docs.add(solrDocumentConverter.toObject(usage, parents, ext));
+          docCount++;
+        }
+        solrClient.add(docs);
+        NameUsageBatchProcessor.counter.addAndGet(docs.size());
 
       } catch (Exception e) {
-        log.error("Error indexing document for usage {}", usage.getKey(), e);
+        log.error("Error indexing document for usage batch", e);
       }
-      docCount++;
-      NameUsageBatchProcessor.counter.incrementAndGet();
     }
+
     // job finished notice
     stopWatch.stop();
-    log.info("Finished indexing of usages in range {}-{}. Total time: {}",
-      new Object[] {startKey, endKey, stopWatch.toString()});
+    log.info("Finished indexing of usages in range {}-{}. Total time: {}", startKey, endKey, stopWatch.toString());
 
     return docCount;
   }

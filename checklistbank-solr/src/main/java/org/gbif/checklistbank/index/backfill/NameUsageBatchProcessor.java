@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> {
 
+  // document counter
   protected static AtomicLong counter = new AtomicLong(0L);
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageBatchProcessor.class);
 
@@ -201,7 +202,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
       super.shutdownService(tasksCount);
       LOG.info("All jobs completed.");
       postprocess();
-      LOG.info("Species indexing completed!");
+      LOG.info("Indexing completed!");
     } catch (Exception e) {
       LOG.error("Error shutingdown the indexer", e);
     }

@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.index.backfill.AvroExporter;
-import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
@@ -15,7 +15,7 @@ import com.google.inject.Scopes;
 public class AvroIndexingModulePrivate extends PrivateServiceModule {
 
   public AvroIndexingModulePrivate(Properties properties) {
-    super(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX, properties);
+    super(IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX, properties);
   }
 
   @Override

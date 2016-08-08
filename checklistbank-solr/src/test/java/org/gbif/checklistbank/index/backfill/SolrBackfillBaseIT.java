@@ -46,8 +46,8 @@ public abstract class SolrBackfillBaseIT {
         }
 
         // Creates the injector, merging properties taken from default test indexing and checklistbank
-        Properties props = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_PROPERTY_FILE);
-        Properties props2 = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_INDEXING_PROPERTY_TEST_FILE);
+        Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);
+        Properties props2 = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_INDEXING_PROPERTY_TEST_FILE);
         props.putAll(props2);
         Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
         // Gets the indexer instance

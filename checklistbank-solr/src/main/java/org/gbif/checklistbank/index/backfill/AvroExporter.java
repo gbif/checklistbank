@@ -36,11 +36,11 @@ public class AvroExporter extends NameUsageBatchProcessor {
   private String targetHdfsDir;
 
   @Inject
-  public AvroExporter(@Named(NameUsageIndexingConfig.THREADS) Integer threads,
-                      @Named(NameUsageIndexingConfig.NAME_NODE) String nameNode,
-                      @Named(NameUsageIndexingConfig.TARGET_HDFS_DIR) String targetHdfsDir,
-                      @Named(NameUsageIndexingConfig.BATCH_SIZE) Integer batchSize,
-                      @Named(NameUsageIndexingConfig.LOG_INTERVAL) Integer logInterval,
+  public AvroExporter(@Named(IndexingConfigKeys.THREADS) Integer threads,
+                      @Named(IndexingConfigKeys.NAME_NODE) String nameNode,
+                      @Named(IndexingConfigKeys.TARGET_HDFS_DIR) String targetHdfsDir,
+                      @Named(IndexingConfigKeys.BATCH_SIZE) Integer batchSize,
+                      @Named(IndexingConfigKeys.LOG_INTERVAL) Integer logInterval,
                       UsageService nameUsageService,
                       VernacularNameService vernacularNameService, DescriptionService descriptionService,
                       DistributionService distributionService, SpeciesProfileService speciesProfileService) {

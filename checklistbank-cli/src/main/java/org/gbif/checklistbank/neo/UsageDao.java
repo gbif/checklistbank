@@ -543,7 +543,6 @@ public class UsageDao {
 
   public Node create(NameUsage u) {
     Node n = createTaxon();
-    ;
     // store usage in kvp store
     usages.put(n.getId(), u);
     // update neo with indexed properties

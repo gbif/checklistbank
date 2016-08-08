@@ -1,17 +1,23 @@
 package org.gbif.checklistbank.neo;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
 import org.gbif.utils.file.FileUtils;
+import org.gbif.utils.text.StringUtils;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import com.google.common.base.Throwables;
@@ -28,12 +34,14 @@ import org.neo4j.graphdb.Transaction;
 import static org.junit.Assert.assertEquals;
 
 public class UsageDaoTest {
-
+  private final static Random RND = new Random();
   UsageDao dao;
 
   @After
   public void destroy() {
-    dao.closeAndDelete();
+    if (dao != null) {
+      dao.closeAndDelete();
+    }
   }
 
   @Test
@@ -178,6 +186,29 @@ public class UsageDaoTest {
     u.setCanonicalName("Abies alba");
     u.setRank(rank);
     u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
+    return u;
+  }
+
+  public static NubUsage nubusage(int key) {
+    NubUsage u = new NubUsage();
+    u.usageKey = key;
+    u.datasetKey = UUID.randomUUID();
+    u.kingdom = Kingdom.byNubUsageId(RND.nextInt(8));
+    u.origin = Origin.SOURCE;
+    u.addRemark(StringUtils.randomSpecies());
+    u.parsedName = new ParsedName();
+    u.parsedName.setGenusOrAbove(StringUtils.randomGenus());
+    u.parsedName.setSpecificEpithet(StringUtils.randomEpithet());
+    if (key % 5 == 0) {
+      u.rank = Rank.SUBSPECIES;
+      u.parsedName.setInfraSpecificEpithet(StringUtils.randomEpithet());
+    } else {
+      u.rank = Rank.SPECIES;
+    }
+    u.parsedName.setAuthorship(StringUtils.randomAuthor());
+    u.parsedName.setYear(StringUtils.randomSpeciesYear());
+    u.parsedName.setScientificName(u.parsedName.fullName());
+    u.status = TaxonomicStatus.ACCEPTED;
     return u;
   }
 }

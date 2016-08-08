@@ -181,6 +181,9 @@ public class NubBuilder implements Runnable {
       // main work importing all source checklists
       addDatasets();
 
+      // change current datasource to nub algorithm, avoiding using the last source for algorithmically generated usages
+      currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone algorithm");
+
       // detect and group basionyms
       groupByBasionym();
 

@@ -8,6 +8,7 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.index.model.SolrUsage;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
@@ -30,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.yammer.metrics.Meter;
@@ -50,6 +53,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
   private final NameUsageDocConverter converter = new NameUsageDocConverter();
   private final SolrClient solr;
+  private final int batchSize = 25;
   private final int commitWithinMs = 60*1000;
   private final UsageService usageService;
   private final VernacularNameService vernacularNameService;
@@ -88,35 +92,58 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     return f;
   }
 
-  private void insertOrUpdate(int key) {
-    // we use the list service for just one record cause its more effective
-    // leaving out fields that we do not index in solr
-    List<NameUsage> range = usageService.listRange(key, key);
-    if (!range.isEmpty()) {
-      NameUsage u = range.get(0);
-      UsageExtensions ext = new UsageExtensions();
-      ext.distributions = distributionService.listByUsage(key, page).getResults();
-      ext.descriptions = descriptionService.listByUsage(key, page).getResults();
-      ext.vernacularNames = vernacularNameService.listByUsage(key, page).getResults();
-      ext.speciesProfiles = speciesProfileService.listByUsage(key, page).getResults();
+  private void insertOrUpdateByKey(Iterable<Integer> keys) {
+    insertOrUpdate(Iterables.transform(keys, new Function<Integer, SolrUsage>() {
+      @Nullable
+      @Override
+      public SolrUsage apply(Integer id) {
+        int key = id;
+        // we use the list service for just one record cause its more effective
+        // leaving out fields that we do not index in solr
+        List<NameUsage> range = usageService.listRange(key, key);
+        if (range.isEmpty()) {
+          return null;
 
-      insertOrUpdate(u, usageService.listParents(key), ext);
-    }
+        } else {
+          NameUsage u = range.get(0);
+          UsageExtensions ext = new UsageExtensions();
+          ext.distributions = distributionService.listByUsage(key, page).getResults();
+          ext.descriptions = descriptionService.listByUsage(key, page).getResults();
+          ext.vernacularNames = vernacularNameService.listByUsage(key, page).getResults();
+          ext.speciesProfiles = speciesProfileService.listByUsage(key, page).getResults();
+          return new SolrUsage(u, usageService.listParents(key), ext);
+        }
+      }
+    }));
   }
 
-  public void insertOrUpdate(NameUsage usage, List<Integer> parentKeys, @Nullable UsageExtensions extensions) {
-    SolrInputDocument doc = converter.toObject(usage, parentKeys, extensions);
-    try {
-      solr.add(doc, commitWithinMs);
-      updMeter.mark();
-      int cnt = updCounter.incrementAndGet();
-      if (cnt % 10000 == 0) {
-        LogContext.startDataset(usage.getDatasetKey());
-        LOG.info("Synced {} usages, mean rate={}", cnt, updMeter.getMeanRate());
-        LogContext.endDataset();
+
+  public void insertOrUpdate(Iterable<SolrUsage> usages) {
+    UUID datasetKey = null;
+    for (Iterable<SolrUsage> batch : Iterables.partition(usages, batchSize)) {
+      List<SolrInputDocument> docs = Lists.newArrayList();
+      for (SolrUsage u : batch) {
+        if (u == null) continue;
+
+        if (datasetKey==null) {
+          datasetKey=u.usage.getDatasetKey();
+        }
+        docs.add(converter.toObject(u.usage, u.parents, u.extensions));
       }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+      try {
+        if (!docs.isEmpty()) {
+          solr.add(docs, commitWithinMs);
+          updMeter.mark();
+          int cnt = updCounter.incrementAndGet();
+          if (cnt % 10000 == 0) {
+            LogContext.startDataset(datasetKey);
+            LOG.info("Synced {} usages, mean rate={}", cnt, updMeter.getMeanRate());
+            LogContext.endDataset();
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -182,7 +209,6 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     ExecutorUtils.stop(exec, NAME, 60, TimeUnit.SECONDS);
   }
 
-
   class SolrUpdateProParte implements Callable<List<NameUsage>> {
     private final List<NameUsage> usages;
 
@@ -192,19 +218,22 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
     @Override
     public List<NameUsage> call() throws Exception {
-      for (NameUsage u : usages) {
-        // the pro parte usage itself might not yet be synced...
-        // so we get list of parent ids from parent which must exist in postgres already!
-        List<Integer> parents = Lists.newArrayList();
-        if (u.getAcceptedKey() != null) {
-          parents.add(u.getAcceptedKey());
-          parents.addAll(usageService.listParents(u.getAcceptedKey()));
-        } else if (u.getParentKey() != null) {
-          parents.add(u.getParentKey());
-          parents.addAll(usageService.listParents(u.getParentKey()));
+      insertOrUpdate(Lists.transform(usages, new Function<NameUsage, SolrUsage>() {
+        @Override
+        public SolrUsage apply(NameUsage u) {
+          // the pro parte usage itself might not yet be synced...
+          // so we get list of parent ids from parent which must exist in postgres already!
+          List<Integer> parents = Lists.newArrayList();
+          if (u.getAcceptedKey() != null) {
+            parents.add(u.getAcceptedKey());
+            parents.addAll(usageService.listParents(u.getAcceptedKey()));
+          } else if (u.getParentKey() != null) {
+            parents.add(u.getParentKey());
+            parents.addAll(usageService.listParents(u.getParentKey()));
+          }
+          return new SolrUsage(u, parents,null);
         }
-        insertOrUpdate(u, parents, null);
-      }
+      }));
       return usages;
     }
   }
@@ -220,13 +249,16 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
     @Override
     public List<Integer> call() throws Exception {
-      List<Integer> ids = Lists.newArrayList();
-      for (Integer id : usages) {
-        NameUsage u = dao.readUsage(id);
-        UsageExtensions e = dao.readExtensions(id);
-        insertOrUpdate(u, usageService.listParents(id), e);
-        ids.add(id);
-      }
+      final List<Integer> ids = Lists.newArrayList();
+      insertOrUpdate(Iterables.transform(usages, new Function<Integer, SolrUsage>() {
+        @Override
+        public SolrUsage apply(Integer id) {
+          ids.add(id);
+          NameUsage u = dao.readUsage(id);
+          UsageExtensions e = dao.readExtensions(id);
+          return new SolrUsage(u, usageService.listParents(id), e);
+        }
+      }));
       return ids;
     }
   }
@@ -240,9 +272,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
     @Override
     public List<Integer> call() throws Exception {
-      for (Integer id : ids) {
-        insertOrUpdate(id);
-      }
+      insertOrUpdateByKey(ids);
       return ids;
     }
   }

@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.index.backfill.AvroExporter;
-import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.service.guice.PrivateServiceModule;
@@ -34,7 +34,7 @@ public class AvroIndexingModule extends AbstractModule {
   private static class AvroIndexingInternalModule extends PrivateServiceModule {
 
     public AvroIndexingInternalModule(Properties properties){
-      super(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX,properties);
+      super(IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX,properties);
     }
 
     @Override

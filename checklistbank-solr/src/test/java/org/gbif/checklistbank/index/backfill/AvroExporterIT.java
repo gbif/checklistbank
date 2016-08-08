@@ -52,11 +52,11 @@ public class AvroExporterIT {
 
     miniDFSCluster = HdfsTestUtil.initHdfs();
     // Creates the injector, merging properties taken from default test indexing and checklistbank
-    Properties props = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_PROPERTY_FILE);
-    Properties props2 = PropertiesUtil.loadProperties(NameUsageIndexingConfig.CLB_INDEXING_PROPERTY_TEST_FILE);
+    Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);
+    Properties props2 = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_INDEXING_PROPERTY_TEST_FILE);
     props.putAll(props2);
-    props.put(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX + NameUsageIndexingConfig.NAME_NODE, HdfsTestUtil.getNameNodeUri(miniDFSCluster));
-    props.put(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX + NameUsageIndexingConfig.TARGET_HDFS_DIR, HdfsTestUtil.TEST_HDFS_DIR);
+    props.put(IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE, HdfsTestUtil.getNameNodeUri(miniDFSCluster));
+    props.put(IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR, HdfsTestUtil.TEST_HDFS_DIR);
     miniDFSCluster.getFileSystem().mkdirs(new Path(HdfsTestUtil.TEST_HDFS_DIR));
     Injector injector = Guice.createInjector(new AvroIndexingTestModule(props));
     // Gets the exporter instance

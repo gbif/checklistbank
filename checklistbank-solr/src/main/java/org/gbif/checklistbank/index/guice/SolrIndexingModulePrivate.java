@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.index.backfill.NameUsageIndexingConfig;
+import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
@@ -23,7 +23,7 @@ import org.apache.solr.client.solrj.SolrClient;
 public class SolrIndexingModulePrivate extends PrivateServiceModule {
 
   public SolrIndexingModulePrivate(Properties properties) {
-    super(NameUsageIndexingConfig.KEYS_INDEXING_CONF_PREFIX, properties);
+    super(IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX, properties);
   }
 
   @Override

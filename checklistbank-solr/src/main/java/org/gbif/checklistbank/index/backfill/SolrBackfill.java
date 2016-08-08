@@ -60,10 +60,10 @@ public class SolrBackfill extends NameUsageBatchProcessor {
 
   @Inject
   public SolrBackfill(EmbeddedSolrReference solr,
-                      @Named(NameUsageIndexingConfig.THREADS) Integer threads,
-                      @Named(NameUsageIndexingConfig.BATCH_SIZE) Integer batchSize,
-                      @Named(NameUsageIndexingConfig.WRITERS) Integer numWriters,
-                      @Named(NameUsageIndexingConfig.LOG_INTERVAL) Integer logInterval,
+                      @Named(IndexingConfigKeys.THREADS) Integer threads,
+                      @Named(IndexingConfigKeys.BATCH_SIZE) Integer batchSize,
+                      @Named(IndexingConfigKeys.WRITERS) Integer numWriters,
+                      @Named(IndexingConfigKeys.LOG_INTERVAL) Integer logInterval,
                       UsageService nameUsageService, NameUsageDocConverter solrDocumentConverter,
                       VernacularNameService vernacularNameService, DescriptionService descriptionService,
                       DistributionService distributionService, SpeciesProfileService speciesProfileService) {

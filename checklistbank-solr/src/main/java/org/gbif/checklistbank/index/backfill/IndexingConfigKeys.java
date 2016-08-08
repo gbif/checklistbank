@@ -3,7 +3,7 @@ package org.gbif.checklistbank.index.backfill;
 /**
  * Utility class that holds the common configuration keys for indexing modules.
  */
-public class NameUsageIndexingConfig {
+public class IndexingConfigKeys {
 
   //Default properties files
   public static final String CLB_PROPERTY_FILE = "checklistbank.properties";
@@ -22,7 +22,7 @@ public class NameUsageIndexingConfig {
   public static final String TARGET_HDFS_DIR = "targetHdfsDir";
 
 
-  private NameUsageIndexingConfig(){
+  private IndexingConfigKeys(){
 
   }
 
