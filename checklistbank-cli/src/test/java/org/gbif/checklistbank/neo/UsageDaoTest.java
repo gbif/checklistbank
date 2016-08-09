@@ -23,7 +23,7 @@ import java.util.UUID;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.assertj.core.util.Preconditions;
 import org.junit.After;
 import org.junit.Ignore;
@@ -56,7 +56,7 @@ public class UsageDaoTest {
     cfg.neoRepository = Files.createTempDir();
 
     UUID uuid = UUID.randomUUID();
-    MetricRegistry reg = new MetricRegistry("daotest");
+    MetricRegistry reg = new MetricRegistry();
 
     dao = UsageDao.persistentDao(cfg, uuid, false, reg, true);
     testDao();

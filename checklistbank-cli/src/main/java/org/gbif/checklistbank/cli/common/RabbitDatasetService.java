@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -8,10 +9,11 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Sets;
-import com.yammer.metrics.Counter;
-import com.yammer.metrics.Timer;
-import com.zaxxer.hikari.HikariDataSource;
+import com.google.inject.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
@@ -20,16 +22,20 @@ import org.slf4j.MarkerFactory;
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
   private static final Logger LOG = LoggerFactory.getLogger(RabbitDatasetService.class);
   private static final Marker DOI_SMTP = MarkerFactory.getMarker("SMTP");
-  private final Timer timer;
-  private final Counter succeeded;
-  private final Counter failed;
-  protected HikariDataSource hds;
+  private Timer timer;
+  private Counter succeeded;
+  private Counter failed;
   protected Set<UUID> runningJobs = Sets.newHashSet();
   private final String action;
 
-  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action) {
-    super(queue, poolSize, mCfg, gCfg);
+  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action, Module... modules) {
+    super(queue, poolSize, mCfg, gCfg, modules);
     this.action = action;
+  }
+
+  @Override
+  protected void initMetrics(MetricRegistry registry) {
+    super.initMetrics(registry);
     timer = registry.timer(regName("time"));
     succeeded = registry.counter(regName("succeeded"));
     failed = registry.counter(regName("failed"));

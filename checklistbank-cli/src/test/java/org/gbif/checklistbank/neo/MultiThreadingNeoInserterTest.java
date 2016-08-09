@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class MultiThreadingNeoInserterTest {
         cfgN.neo.neoRepository = Files.createTempDirectory("neotest").toFile();
         cfgN.archiveRepository = Files.createTempDirectory("neotestdwca").toFile();
 
-        MetricRegistry registry = new MetricRegistry("threading-test");
+        MetricRegistry registry = new MetricRegistry();
 
         File zip = new File(getClass().getResource("/plazi.zip").getFile());
         zip = new File("/Users/markus/code/checklistbank/checklistbank-cli/src/test/resources/plazi.zip");

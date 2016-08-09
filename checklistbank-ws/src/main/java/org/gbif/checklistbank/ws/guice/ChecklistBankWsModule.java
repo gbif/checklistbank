@@ -1,12 +1,13 @@
 package org.gbif.checklistbank.ws.guice;
 
 
+import org.gbif.checklistbank.config.MetricModule;
+import org.gbif.checklistbank.search.inject.SearchModule;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.resources.SpeciesResource;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.gbif.ws.app.ConfUtils;
 import org.gbif.ws.server.guice.GbifServletListener;
-import org.gbif.checklistbank.search.inject.SearchModule;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +32,7 @@ public class ChecklistBankWsModule extends GbifServletListener {
   @Override
   protected List<Module> getModules(Properties properties) {
     List<Module> modules = Lists.newArrayList();
+    modules.add(new MetricModule(properties));
     modules.add(new ChecklistBankServiceMyBatisModule(properties));
     modules.add(new SearchModule(properties, true));
     return modules;

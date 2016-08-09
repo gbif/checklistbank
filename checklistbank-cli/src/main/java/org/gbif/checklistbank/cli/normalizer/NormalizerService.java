@@ -15,6 +15,7 @@ import org.gbif.nub.lookup.straight.IdLookupImpl;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.codahale.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,17 +31,20 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   public NormalizerService(NormalizerConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "normalize");
     this.cfg = cfg;
-
-    registry.meter(Metrics.INSERT_METER);
-    registry.meter(Metrics.RELATION_METER);
-    registry.meter(Metrics.METRICS_METER);
-    registry.meter(Metrics.DENORMED_METER);
-
     try {
       zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  protected void initMetrics(MetricRegistry registry) {
+    super.initMetrics(registry);
+    registry.meter(Metrics.INSERT_METER);
+    registry.meter(Metrics.RELATION_METER);
+    registry.meter(Metrics.METRICS_METER);
+    registry.meter(Metrics.DENORMED_METER);
   }
 
   @Override
@@ -64,7 +68,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
       LOG.warn("Refuse to normalize the GBIF backbone");
       failed(msg.getDatasetUuid());
     } else {
-      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), registry, msg.getConstituents(), lookup);
+      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), getRegistry(), msg.getConstituents(), lookup);
       normalizer.run();
       zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
       send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));

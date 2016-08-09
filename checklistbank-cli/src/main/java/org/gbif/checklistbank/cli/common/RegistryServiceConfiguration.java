@@ -4,11 +4,13 @@ import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.ws.client.guice.AnonymousAuthModule;
 import org.gbif.ws.client.guice.SingleUserAuthModule;
 
+import java.util.List;
 import java.util.Properties;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.ParametersDelegate;
+import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
@@ -32,17 +34,19 @@ public class RegistryServiceConfiguration {
 
   public String password;
 
-  public Injector createRegistryInjector() {
+  public Injector createRegistryInjector(Module ... otherModules) {
     Properties props = new Properties();
     props.put("registry.ws.url", wsUrl);
 
-    Module auth;
+    List<Module> modules = Lists.newArrayList(otherModules);
     if (!Strings.isBlank(user) && !Strings.isBlank(password)) {
-      auth = new SingleUserAuthModule(user, password);
+      modules.add( new SingleUserAuthModule(user, password) );
     } else {
-      auth = new AnonymousAuthModule();
+      modules.add( new AnonymousAuthModule() );
     }
-    Injector injClient = Guice.createInjector(auth, new RegistryWsClientModule(props));
+    modules.add(new RegistryWsClientModule(props));
+
+    Injector injClient = Guice.createInjector(modules);
     LOG.info("Connecting to registry services at {}", wsUrl);
     return injClient;
   }

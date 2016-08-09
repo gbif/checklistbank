@@ -21,8 +21,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +37,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration cfg) {
-    super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import");
+    super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import", ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     this.cfg = cfg;
     try {
       zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
@@ -47,12 +45,10 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       throw new RuntimeException(e);
     }
     // init mybatis layer and solr once from cfg instance
-    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
-    initDbPool(inj);
-    sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
-    nameUsageService = inj.getInstance(NameUsageService.class);
-    usageService = inj.getInstance(UsageService.class);
+    sqlService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
+    nameUsageService = getInstance(NameUsageService.class);
+    usageService = getInstance(UsageService.class);
   }
 
   @Override

@@ -53,7 +53,7 @@ import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.inject.Inject;
-import com.yammer.metrics.Meter;
+import com.codahale.metrics.Meter;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.mybatis.guice.transactional.Transactional;

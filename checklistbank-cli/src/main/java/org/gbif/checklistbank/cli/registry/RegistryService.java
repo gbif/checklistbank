@@ -2,11 +2,11 @@ package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
@@ -18,10 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.inject.Key;
-import com.yammer.metrics.Timer;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,19 +38,24 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private final DatasetImportService solrService;
   private final DatasetImportService mybatisService;
   private final DatasetMapper datasetMapper;
-  private final Timer timerSolr = registry.timer(regName("solr.time"));
-  private final Timer timerSql = registry.timer(regName("sql.time"));
+  private Timer timerSolr;
+  private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
-    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
+    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, InternalChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     this.cfg = cfg;
 
     // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
-    initDbPool(inj);
-    solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
-    mybatisService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    datasetMapper = inj.getInstance(DatasetMapper.class);
+    solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
+    mybatisService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    datasetMapper = getInstance(DatasetMapper.class);
+  }
+
+  @Override
+  protected void initMetrics(MetricRegistry registry) {
+    super.initMetrics(registry);
+    timerSolr = registry.timer(regName("solr.time"));
+    timerSql = registry.timer(regName("sql.time"));
   }
 
   /**

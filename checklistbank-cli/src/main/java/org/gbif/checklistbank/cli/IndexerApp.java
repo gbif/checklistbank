@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.yammer.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
 
 /**
@@ -86,7 +86,7 @@ public class IndexerApp {
   }
 
   private void normalize() {
-    MetricRegistry registry = new MetricRegistry("normalizer");
+    MetricRegistry registry = new MetricRegistry();
     Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
     norm.run();
     NormalizerStats stats = norm.getStats();

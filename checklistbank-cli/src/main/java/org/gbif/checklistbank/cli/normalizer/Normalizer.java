@@ -52,8 +52,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.yammer.metrics.Meter;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -124,7 +124,7 @@ public class Normalizer extends ImportDb implements Runnable {
    * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher.
    */
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey) {
-    MetricRegistry registry = new MetricRegistry("normalizer");
+    MetricRegistry registry = new MetricRegistry();
     return Normalizer.create(cfg, registry, datasetKey);
   }
 

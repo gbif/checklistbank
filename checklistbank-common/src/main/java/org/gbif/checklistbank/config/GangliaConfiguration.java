@@ -1,11 +1,12 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.config;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import com.beust.jcommander.Parameter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.ganglia.GangliaReporter;
 import com.google.common.base.MoreObjects;
-import com.yammer.metrics.MetricRegistry;
-import com.yammer.metrics.ganglia.GangliaReporter;
 import info.ganglia.gmetric4j.gmetric.GMetric;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
@@ -24,22 +25,23 @@ public class GangliaConfiguration {
   @Parameter(names = "--ganglia-port")
   public int port = 8649;
 
-  @Parameter(names = "--ganglia-name")
-  public String name;
-
   /**
    * Starts the GangliaReporter, pointing to the configured host and port.
    */
   @JsonIgnore
   public void start(MetricRegistry registry) {
     if (host != null && port > 0) {
-      LOG.info("Reporting to ganglia at {}:{}", host, port);
-      final GMetric ganglia = new GMetric(host, port, GMetric.UDPAddressingMode.MULTICAST, 1);
-      final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
-        .convertRatesTo(TimeUnit.SECONDS)
-        .convertDurationsTo(TimeUnit.MILLISECONDS)
-        .build(ganglia);
-      reporter.start(1, TimeUnit.MINUTES);
+      try {
+        final GMetric ganglia = new GMetric(host, port, GMetric.UDPAddressingMode.MULTICAST, 1);
+        final GangliaReporter reporter = GangliaReporter.forRegistry(registry)
+          .convertRatesTo(TimeUnit.SECONDS)
+          .convertDurationsTo(TimeUnit.MILLISECONDS)
+          .build(ganglia);
+        reporter.start(1, TimeUnit.MINUTES);
+        LOG.info("Reporting to ganglia at {}:{}", host, port);
+      } catch (IOException e) {
+        LOG.warn("Failed to setup ganglia reporting at {}:{}", host, port, e);
+      }
     }
   }
 
@@ -48,7 +50,6 @@ public class GangliaConfiguration {
     return MoreObjects.toStringHelper(this)
       .add("host", host)
       .add("port", port)
-      .add("name", name)
       .toString();
   }
 }

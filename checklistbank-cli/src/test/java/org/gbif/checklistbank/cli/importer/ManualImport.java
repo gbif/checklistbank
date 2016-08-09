@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.junit.Ignore;
 import org.postgresql.core.BaseConnection;
 
@@ -88,7 +88,7 @@ public class ManualImport {
   }
 
   private void normalize() {
-    MetricRegistry registry = new MetricRegistry("normalizer");
+    MetricRegistry registry = new MetricRegistry();
     Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
     norm.run();
     NormalizerStats stats = norm.getStats();

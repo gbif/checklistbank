@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.cli.registry;
 
-import org.gbif.checklistbank.cli.common.GangliaConfiguration;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.inject.SolrConfig;
 

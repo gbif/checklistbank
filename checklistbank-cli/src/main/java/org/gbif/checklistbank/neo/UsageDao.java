@@ -42,7 +42,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -149,7 +149,7 @@ public class UsageDao {
     GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false, false);
     CleanupUtils.registerCleanupHook(storeDir);
 
-    return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry("memory-dao"));
+    return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry());
   }
 
   /**

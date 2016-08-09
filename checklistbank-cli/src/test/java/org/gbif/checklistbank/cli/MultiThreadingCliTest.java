@@ -36,7 +36,7 @@ import com.google.common.io.Resources;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
@@ -61,7 +61,7 @@ public class MultiThreadingCliTest {
 
   @Before
   public void init() throws Exception {
-    registry = new MetricRegistry("threading-test");
+    registry = new MetricRegistry();
 
     cfgN = new NormalizerConfiguration();
     cfgN.neo.neoRepository = Files.createTempDirectory("neotest").toFile();

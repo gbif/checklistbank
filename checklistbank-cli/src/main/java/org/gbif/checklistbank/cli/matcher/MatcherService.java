@@ -12,10 +12,9 @@ import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.inject.Key;
-import com.yammer.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,15 +26,20 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   private static final String QUEUE = "clb-matcher";
   private final DatasetImportService sqlImportService;
   private final DatasetImportService solrImportService;
-  private final Timer timer = registry.timer("nub matcher process time");
   private final MatcherConfiguration cfg;
+  private Timer timer;
 
   public MatcherService(MatcherConfiguration cfg) {
-    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
+    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match", ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     this.cfg = cfg;
-    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
-    sqlImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    solrImportService = clbInj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+    sqlImportService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    solrImportService = getInstance(Key.get(DatasetImportService.class, Solr.class));
+  }
+
+  @Override
+  protected void initMetrics(MetricRegistry registry) {
+    super.initMetrics(registry);
+    timer = registry.timer("nub matcher process time");
   }
 
   @Override

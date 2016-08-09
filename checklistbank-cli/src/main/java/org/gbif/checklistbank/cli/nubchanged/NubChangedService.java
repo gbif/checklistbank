@@ -12,6 +12,7 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.exporter.Exporter;
+import org.gbif.checklistbank.config.MetricModule;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.MessageCallback;
@@ -36,7 +37,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Injector;
-import com.yammer.metrics.MetricRegistry;
+import com.codahale.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,21 +54,19 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
   private MessagePublisher publisher;
   private final DatasetService datasetService;
   private final NetworkService networkService;
-  private final MetricRegistry registry = new MetricRegistry("matcher");
+  private final MetricRegistry registry;
 
   public NubChangedService(NubChangedConfiguration configuration) {
     this.cfg = configuration;
-    registry.meter(MATCH_METER);
-
-    Injector regInj = cfg.registry.createRegistryInjector();
+    Injector regInj = cfg.registry.createRegistryInjector(new MetricModule(cfg.ganglia));
     datasetService = regInj.getInstance(DatasetService.class);
     networkService = regInj.getInstance(NetworkService.class);
+    registry = regInj.getInstance(MetricRegistry.class);
+    registry.meter(MATCH_METER);
   }
 
   @Override
   protected void startUp() throws Exception {
-    cfg.ganglia.start(registry);
-
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
 
     listener = new MessageListener(cfg.messaging.getConnectionParameters(), 1);

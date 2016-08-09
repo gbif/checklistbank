@@ -68,6 +68,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     private StopWatch stopWatch = new StopWatch();
     private final long total;
     private final DecimalFormat twoDForm = new DecimalFormat("#.##");
+    private boolean interrupted = false;
 
     CountReporter(long total) {
       this.total = total;
@@ -78,7 +79,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
       stopWatch.start();
       LOG.info("Started reporting thread with expected {} total records.", total);
       LOG.info("Logging every {} seconds. Use logInterval property to change interval.", logInterval);
-      boolean interrupted = false;
       while (!interrupted) {
         log();
         try {
@@ -88,6 +88,11 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
           interrupted = true;
         }
       }
+      LOG.info("Reporter thread stopped");
+    }
+
+    public void shutdown() {
+      interrupted = true;
     }
 
     /**
@@ -135,8 +140,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     int x = super.run();
 
     LOG.info("Time taken run and finish all jobs: {}", reporterThread.stopWatch.toString());
-    // TODO: Fix deprecation issue
-    reporterThread.stop();
+    reporterThread.shutdown();
 
     return x;
   }
