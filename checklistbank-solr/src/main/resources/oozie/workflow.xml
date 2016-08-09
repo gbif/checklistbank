@@ -35,11 +35,11 @@
       <configuration>
         <property>
           <name>oozie.launcher.mapreduce.map.memory.mb</name>
-          <value>${oozie.mem.avro}</value>
+          <value>${avro.export.map.memory.mb}</value>
         </property>
         <property>
           <name>oozie.launcher.mapreduce.map.java.opts</name>
-          <value>-Djava.net.preferIPv4Stack=true -Xmx3G</value>
+          <value>${avro.export.mapreduce.map.java.opts}</value>
         </property>
       </configuration>
       <main-class>org.gbif.checklistbank.index.backfill.AvroExporter</main-class>
