@@ -4,11 +4,13 @@ import org.gbif.checklistbank.index.SolrIndexingTestModule;
 import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.search.SearchTestModule;
+import org.gbif.checklistbank.search.inject.SearchModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -35,7 +37,13 @@ public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
     List<Module> modules = super.getModules(properties);
     // very cowboy way of getting the solr index build first and "inject" the server here
     // replace regular search module with the test one using the embedded solr server
-    modules.remove(1);
+    Iterator<Module> iter = modules.iterator();
+    while (iter.hasNext()) {
+      Module m = iter.next();
+      if (m instanceof SearchModule) {
+        iter.remove();
+      }
+    }
     modules.add(new SearchTestModule(properties, setupSolr(properties).getSolr()));
     return modules;
   }

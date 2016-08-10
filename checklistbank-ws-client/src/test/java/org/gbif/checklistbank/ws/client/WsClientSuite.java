@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 })
 public class WsClientSuite {
   private static final Logger LOG = LoggerFactory.getLogger(WsClientSuite.class);
-  protected static final String PROPERTIES_FILE = "checklistbank.properties";
+  public static final String PROPERTIES_FILE = "checklistbank.properties";
 
   //@Rule
   //public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();

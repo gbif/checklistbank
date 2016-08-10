@@ -62,7 +62,7 @@
     <!-- external libs -->
     <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
-    <assertj.version>1.6.1</assertj.version>
+    <assertj.version>3.5.2</assertj.version>
     <avro.version>1.7.7</avro.version>
     <bval.version>0.5</bval.version>
     <commmons-lang.version>3.4</commmons-lang.version>
@@ -85,30 +85,31 @@
     <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
     <jcommander.version>1.48</jcommander.version>
     <jersey.version>1.18.3</jersey.version>
-    <jsoup.version>1.8.3</jsoup.version>
-    <junit.version>4.11</junit.version>
+    <jsoup.version>1.9.2</jsoup.version>
+    <junit.version>4.12</junit.version>
     <!--
     before changing the KRYO library make sure the old format is still compatible:
      https://github.com/EsotericSoftware/kryo/blob/master/CHANGES.md
     -->
     <kryo.version>3.0.3</kryo.version>
     <liquibase.version>3.4.1</liquibase.version>
-    <logback.version>1.1.3</logback.version>
+    <logback.version>1.1.7</logback.version>
     <mapdb.version>3.0.1</mapdb.version>
     <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
     <metainf-services.version>1.6</metainf-services.version>
     <metrics.version>3.1.2</metrics.version>
-    <mockito.version>1.9.5</mockito.version>
+    <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
+    <mockito.version>1.10.19</mockito.version>
     <mybatis-guice.version>3.7.1</mybatis-guice.version>
     <mybatis.version>3.4.1</mybatis.version>
-    <neo4j.version>2.3.2</neo4j.version>
+    <neo4j.version>2.3.6</neo4j.version>
     <postgresql.version>9.4.1208.jre7</postgresql.version>
-    <powermock-mockito.version>1.5.4</powermock-mockito.version>
+    <powermock-mockito.version>1.6.5</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
     <servlet-api.version>3.1.0</servlet-api.version>
-    <slf4j.version>1.7.12</slf4j.version>
+    <slf4j.version>1.7.21</slf4j.version>
     <solr-lucene.version>5.4.1</solr-lucene.version>
-    <tika.version>1.11</tika.version>
+    <tika.version>1.13</tika.version>
 
     <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
     <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
