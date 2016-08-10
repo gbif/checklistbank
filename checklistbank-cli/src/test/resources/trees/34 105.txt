@@ -7,6 +7,12 @@ Plantae
   Plantaginaceae
     Plantago
       Plantago major
+  Sapindaceae
+    Negundo Moench
+      Negundo aceroides Moench
+        Negundo aceroides var. aceroides
+        Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.
+        Negundo aceroides var. violaceum G.Kirchn.
 Protozoa
 Viruses
 incertae sedis
@@ -16,9 +22,3 @@ incertae sedis
         Klingon aceroides var. aceroides
         Klingon aceroides var. californicum (Torr. & A.Gray) Sarg.
         Klingon aceroides var. violaceum G.Kirchn.
-  Sapindaceae
-    Negundo Moench
-      Negundo aceroides Moench
-        Negundo aceroides var. aceroides
-        Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.
-        Negundo aceroides var. violaceum G.Kirchn.

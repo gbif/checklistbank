@@ -518,13 +518,14 @@ public class NubBuilderIT {
 
   /**
    * Make sure that species not snapping to any existing higher taxon get created under the incertae sedis kingdom
+   * Also allow subsequent source to move a taxon from incertae sedis to somewhere else
    */
   @Test
   public void testIncertaeSedis() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(34);
+    ClasspathSourceList src = ClasspathSourceList.source(34, 105);
     build(src);
 
-    assertTree("34.txt");
+    assertTree("34 105.txt");
   }
 
   /**

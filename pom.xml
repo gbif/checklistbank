@@ -102,7 +102,7 @@
     <mockito.version>1.10.19</mockito.version>
     <mybatis-guice.version>3.7.1</mybatis-guice.version>
     <mybatis.version>3.4.1</mybatis.version>
-    <neo4j.version>2.3.6</neo4j.version>
+    <neo4j.version>3.0.4</neo4j.version>
     <postgresql.version>9.4.1208.jre7</postgresql.version>
     <powermock-mockito.version>1.6.5</powermock-mockito.version>
     <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->

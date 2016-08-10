@@ -24,6 +24,7 @@
 
   <logger name="org.gbif.dwc" level="ERROR"/>
   <logger name="ch.qos.logback" level="WARN"/>
+  <logger name="org.gbif.nameparser" level="WARN"/>
   <logger name="org.gbif.checklistbank.service.mybatis" level="WARN"/>
   <logger name="org.gbif.checklistbank.cli" level="INFO"/>
   <logger name="org.gbif.checklistbank.cli.importer" level="INFO"/>

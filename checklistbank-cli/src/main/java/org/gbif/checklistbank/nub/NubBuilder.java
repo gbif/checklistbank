@@ -1324,7 +1324,11 @@ public class NubBuilder implements Runnable {
 
     } else {
       // ACCEPTED
-      if (isNewParentApplicable(nub, currNubParent, parent) && currNubParent.rank != parent.rank && db.existsInClassification(parent.node, currNubParent.node, false)) {
+      if (isNewParentApplicable(nub, currNubParent, parent) &&
+          (currNubParent.kingdom == Kingdom.INCERTAE_SEDIS
+            || db.existsInClassification(parent.node, currNubParent.node, false)  && currNubParent.rank != parent.rank
+          )
+        ) {
         LOG.debug("Update {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
         db.createParentRelation(nub, parent);
       }
