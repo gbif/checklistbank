@@ -1099,6 +1099,12 @@ public class NubBuilder implements Runnable {
     if (u.status.isSynonym() && !parents.parentInNub()) {
       throw new IgnoreSourceUsageException("Ignoring synonym as accepted parent is not part of the nub", u.scientificName);
     }
+    // ignore synonyms of low rank for higher taxa
+    // http://dev.gbif.org/issues/browse/POR-3169
+    if (u.status.isSynonym() && !u.rank.higherThan(Rank.GENUS) && p.rank.higherThan(Rank.FAMILY)) {
+      String message = String.format("Ignoring %s synonym %s for %s %s", u.rank, u.scientificName, p.rank, p.parsedName.fullName());
+      throw new IgnoreSourceUsageException(message, u.scientificName);
+    }
     // make sure parent is accepted
     if (p.status.isSynonym()) {
       LOG.warn("Parent {} of {} is a synonym", p.parsedName.canonicalNameComplete(), u.parsedName.canonicalNameComplete());

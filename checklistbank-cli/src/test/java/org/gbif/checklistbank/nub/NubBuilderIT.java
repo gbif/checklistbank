@@ -1430,7 +1430,6 @@ public class NubBuilderIT {
    */
   @Test
   public void testRedundantHomonyms() throws Exception {
-    // rebuild nub
     ClasspathSourceList src = ClasspathSourceList.source(88,89,90);
     src.setSourceRank(88, Rank.KINGDOM);
     build(src);
@@ -1438,7 +1437,18 @@ public class NubBuilderIT {
     assertTree("88 89 90.txt");
   }
 
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3169
+   *
+   * 104=Palaeodb
+   */
+  @Test
+  public void avoidKingdomSpeciesSynonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(104);
+    build(src);
 
+    assertTree("104.txt");
+  }
 
 
   /**
