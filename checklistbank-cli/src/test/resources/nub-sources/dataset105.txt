@@ -1,0 +1,3 @@
+0			KINGDOM	ACCEPTED		Plantae
+10	0		FAMILY	ACCEPTED		Sapindaceae
+12	10		GENUS	ACCEPTED		Negundo Moench
