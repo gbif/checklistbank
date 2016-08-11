@@ -9,7 +9,8 @@ import com.google.common.base.Strings;
  */
 public class SciNameNormalizer {
 
-  private static final Pattern suffix_a = Pattern.compile("(on|um|us|a)$");
+  private static final Pattern suffix_a = Pattern.compile("(?:on|um|us|a)$");
+  private static final Pattern suffix_i = Pattern.compile("ei$");
   private static final Pattern i = Pattern.compile(" ([^ jyi]+)[jyi]+");
   private static final Pattern trh = Pattern.compile(" ([^ ]+[tr])h");
   private static final Pattern white = Pattern.compile("\\s{2,}");
@@ -35,6 +36,7 @@ public class SciNameNormalizer {
       s = stemEpithet(s);
       // normalize frequent variations of i in epithets only
       s = i.matcher(s).replaceAll(" $1i");
+      s = suffix_i.matcher(s).replaceAll("i");
       // normalize frequent variations of characters sometimes followed by an 'h' in epithets only
       s = trh.matcher(s).replaceAll(" $1");
     }

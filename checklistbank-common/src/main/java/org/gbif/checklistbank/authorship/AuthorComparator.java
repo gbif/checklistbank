@@ -42,6 +42,7 @@ public class AuthorComparator {
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
   private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
+  private static final Pattern FIL = Pattern.compile("([A-Z][a-z]*)\\.?\\s+f\\.?\\b");
   private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
   private static final Pattern INITIALS = Pattern.compile("\\b[a-y]\\s+");
   private static final Pattern FIRST_INITIAL = Pattern.compile("^([a-z])\\s");
@@ -169,14 +170,17 @@ public class AuthorComparator {
     if (StringUtils.isBlank(x)) {
       return null;
     }
-    // normalize and
-    x = AND.matcher(x).replaceAll(" ");
-
     // remove in publications
     x = IN.matcher(x).replaceFirst("");
 
     // remove ex authors
     x = EX.matcher(x).replaceFirst("");
+
+    // normalize filius
+    x = FIL.matcher(x).replaceAll("$1 fil");
+
+    // normalize and
+    x = AND.matcher(x).replaceAll(" ");
 
     // remove ex authors
     x = TRANSLITERATIONS.matcher(x).replaceAll("$1");
@@ -188,6 +192,7 @@ public class AuthorComparator {
     x = x.replaceAll("\\p{Punct}+", " ");
 
     x = StringUtils.normalizeSpace(x);
+
     if (StringUtils.isBlank(x)) {
       return null;
     }
@@ -267,48 +272,18 @@ public class AuthorComparator {
     a2 = normalize(a2);
     if (a1 != null && a2 != null) {
       // 1: test for shared name prefix
-      Equality equality = compareSurnamesOverlap(a1, a2, minCommonSubstring);
+      Equality equality = compareNormalizedAuthor(a1, a2, minCommonSubstring);
       if (equality != Equality.EQUAL) {
         // 2: test for shared prefix after lookups
         String lookup1 = lookup(a1);
         String lookup2 = lookup(a2);
         if (!lookup1.equals(a1) || !lookup2.equals(a2)) {
-          equality = compareSurnamesOverlap(lookup1, lookup2, minCommonSubstring+1);
+          equality = compareNormalizedAuthor(lookup1, lookup2, minCommonSubstring+1);
         }
       }
       return equality;
     }
     return Equality.UNKNOWN;
-  }
-
-  private Equality compareLongestCommonSubstring(final String a1, final String a2, final int minCommonSubstring) {
-    if (a1.equalsIgnoreCase(a2)) {
-      // we can stop here, authors are equal, thats enough
-      return Equality.EQUAL;
-
-    } else {
-      final String noInitials1 = INITIALS.matcher(a1).replaceAll("");
-      final String noInitials2 = INITIALS.matcher(a2).replaceAll("");
-
-      String lcs = LongestCommonSubstring.lcs(noInitials1, noInitials2);
-      if (lcs.length() >= minCommonSubstring) {
-        // do both names have a single initial which is different?
-        // this is often the case when authors are relatives like brothers or son & father
-        if (singleInitialsDiffer(a1, a2)) {
-          return Equality.DIFFERENT;
-        } else {
-          return Equality.EQUAL;
-        }
-
-      } else if (a1.equals(lcs) && (noInitials2.startsWith(lcs))
-          || a2.equals(lcs) && (noInitials1.startsWith(lcs))) {
-        // the smallest common substring is the same as one of the inputs
-        // if it also matches the start of the first longer surname then we are ok as the entire string is the best match we can have
-        // likey a short abbreviation
-        return Equality.EQUAL;
-      }
-    }
-    return Equality.DIFFERENT;
   }
 
   @VisibleForTesting
@@ -327,7 +302,11 @@ public class AuthorComparator {
     return longest;
   }
 
-  private Equality compareSurnamesOverlap(final String a1, final String a2, final int minCommonStart) {
+  private int lengthWithoutWhitespace(String x) {
+    return StringUtils.deleteWhitespace(x).length();
+  }
+
+  private Equality compareNormalizedAuthor(final String a1, final String a2, final int minCommonStart) {
     if (a1.equals(a2)) {
       // we can stop here, authors are equal, thats enough
       return Equality.EQUAL;
@@ -347,10 +326,19 @@ public class AuthorComparator {
         }
 
       } else if (a1.equals(longest) && (noInitials2.startsWith(longest))
-          || a2.equals(longest) && (noInitials1.startsWith(longest))) {
+              || a2.equals(longest) && (noInitials1.startsWith(longest))
+        ) {
         // the smallest common substring is the same as one of the inputs
         // if it also matches the start of the first longer surname then we are ok as the entire string is the best match we can have
         // likey a short abbreviation
+        return Equality.EQUAL;
+
+      } else if (lengthWithoutWhitespace(StringUtils.getCommonPrefix(a1, a2)) > minCommonStart) {
+        // the author string incl initials but without whitespace shares at least minCommonStart+1 characters
+        return Equality.EQUAL;
+
+      } else if (lengthWithoutWhitespace(LongestCommonSubstring.lcs(a1, a2)) > minCommonStart+1) {
+        // there is a common substring of length minCommonStart+2 without whitespace
         return Equality.EQUAL;
       }
     }

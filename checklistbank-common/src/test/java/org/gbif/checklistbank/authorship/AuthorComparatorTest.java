@@ -54,6 +54,15 @@ public class AuthorComparatorTest {
     assertEquals("muller", comp.normalize("Müller"));
     assertEquals("muller", comp.normalize("Mueller"));
     assertEquals("moller", comp.normalize("Moeller"));
+
+    assertEquals("don fil", comp.normalize("Don f."));
+    assertEquals("don fil", comp.normalize("Don fil."));
+    assertEquals("don fil", comp.normalize("Don fil"));
+    assertEquals("f merck", comp.normalize("f. Merck"));
+    assertEquals("f merck", comp.normalize("f Merck"));
+    assertEquals("la don fil dc", comp.normalize("la Don f. et DC"));
+    assertEquals("la don f rich dc", comp.normalize("la Don, f. Rich. et DC"));
+    assertEquals("la don rich fil dc", comp.normalize("la Don, Rich. f. et DC"));
   }
 
   @Test
@@ -217,6 +226,9 @@ public class AuthorComparatorTest {
     assertAuth("A.Bruggen.", null, Equality.EQUAL, "Brug.", null);
 
     assertAuth("Presl ex DC.", null, Equality.EQUAL, "C. Presl ex de Candolle", null);
+
+    assertAuth("G. Don f.", null, Equality.EQUAL, "G. Don fil.", null);
+    assertAuth("Don f.", null, Equality.EQUAL, "Don fil.", null);
   }
 
   @Test
