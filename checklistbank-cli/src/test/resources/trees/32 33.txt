@@ -20,6 +20,7 @@ Plantae [kingdom]
             Acer negundo var. negundo [variety]
             Acer negundo var. violaceum (G. Kirchn.) H. Jaeger [variety]
               *$Negundo aceroides var. violaceum G.Kirchn. [variety]
+              *$? violaceum Booth ex Kirchn.
               *Acer violaceum (Kirchn.) Simonkai [species]
               *Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub [subspecies]
               *Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber [subspecies]

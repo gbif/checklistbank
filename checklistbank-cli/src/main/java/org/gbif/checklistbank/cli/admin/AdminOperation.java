@@ -53,6 +53,11 @@ public enum AdminOperation {
   NUB_CHANGED(true),
 
   /**
+   * Updates the backbone dataset metadata based on the current dataset metrics
+   */
+  UPDATE_NUB_DATASET(true),
+
+  /**
    * Reparse all names.
    * This does not supply any rank information to the name parser, so it might be worse than the initial parsing for monomials.
    */

@@ -56,7 +56,7 @@ public class IdLookupImplTest {
     assertEquals("donatia novaezelandiae", IdLookupImpl.norm("Donatia novae-zelandiæ"));
     assertEquals("abies olsen", IdLookupImpl.norm("Abies ölsen"));
     assertEquals("abies oeftaen", IdLookupImpl.norm("Abies œftæn"));
-    assertEquals("carex caiouetei", IdLookupImpl.norm("Carex ×cayouettei"));
+    assertEquals("carex caioueti", IdLookupImpl.norm("Carex ×cayouettei"));
     assertEquals("carex comosa carex lupulina", IdLookupImpl.norm("Carex comosa × Carex lupulina"));
     assertEquals("aeropyrum coilshaped vira", IdLookupImpl.norm("Aeropyrum coil-shaped virus"));
     assertEquals("†lachnus boneti", IdLookupImpl.norm("†Lachnus bonneti"));

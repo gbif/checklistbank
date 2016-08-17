@@ -7,12 +7,10 @@ import org.gbif.utils.file.FileUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -20,9 +18,11 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +44,15 @@ public class AuthorComparator {
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
   private static final Pattern FIL = Pattern.compile("([A-Z][a-z]*)\\.?\\s+f\\.?\\b");
   private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
-  private static final Pattern INITIALS = Pattern.compile("\\b[a-y]\\s+");
-  private static final Pattern FIRST_INITIAL = Pattern.compile("^([a-z])\\s");
-  private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s+)+");
+  private static final Pattern SURNAME = Pattern.compile("([a-z]+)$");
+  private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s)+");
   private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
   private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
-  private static final Splitter SPACE_SPLITTER = Splitter.on(" ").omitEmptyStrings();
+  private static final Pattern PUNCTUATION = Pattern.compile("[\\p{Punct}&&[^,]]+");
+  private static final Pattern COMMA = Pattern.compile("\\s*,\\s*");
+  private static final Splitter AUTHOR_SPLITTER = Splitter.on(",").omitEmptyStrings();
   private final Map<String, String> authorMap;
+  private static final int MIN_AUTHOR_LENGTH_WITHOUT_LOOKUP = 4;
 
   private final int minCommonSubstring;
 
@@ -94,9 +96,9 @@ public class AuthorComparator {
    * Compares the author and year of two names by first evaluating equivalence of the authors.
    * Only if they appear to differ also a year comparison is done which can still yield an overall EQUAL in case years match.
    */
-  public Equality compare(@Nullable String author1, @Nullable String year1, @Nullable String author2, @Nullable String year2) {
+  public Equality compare(@Nullable String authors1, @Nullable String year1, @Nullable String authors2, @Nullable String year2) {
     // compare recombination authors first
-    Equality result = compareAuthor(author1, author2, minCommonSubstring);
+    Equality result = compareAuthorteam(authors1, authors2, minCommonSubstring, MIN_AUTHOR_LENGTH_WITHOUT_LOOKUP);
     if (result != Equality.EQUAL) {
       // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
       Equality yresult = compareYear(year1, year2);
@@ -150,7 +152,7 @@ public class AuthorComparator {
    */
   public boolean compareStrict(String author1, @Nullable String year1, String author2, @Nullable String year2) {
     // strictly compare authors first
-    Equality result = compareAuthor(author1, author2, minCommonSubstring);
+    Equality result = compareAuthorteam(author1, author2, minCommonSubstring, Integer.MAX_VALUE);
     if (result != Equality.EQUAL) {
       return false;
     }
@@ -180,7 +182,7 @@ public class AuthorComparator {
     x = FIL.matcher(x).replaceAll("$1 fil");
 
     // normalize and
-    x = AND.matcher(x).replaceAll(" ");
+    x = AND.matcher(x).replaceAll(", ");
 
     // remove ex authors
     x = TRANSLITERATIONS.matcher(x).replaceAll("$1");
@@ -188,23 +190,54 @@ public class AuthorComparator {
     // fold to ascii
     x = org.gbif.utils.text.StringUtils.foldToAscii(x);
 
-    //remove punctuation
-    x = x.replaceAll("\\p{Punct}+", " ");
+    // replace all punctuation but commas
+    x = PUNCTUATION.matcher(x).replaceAll(" ");
+
+    // normalize commas
+    x = COMMA.matcher(x).replaceAll(",");
 
     x = StringUtils.normalizeSpace(x);
 
     if (StringUtils.isBlank(x)) {
       return null;
     }
+
     return x.toLowerCase();
   }
 
+  /**
+   * Looks up individual authors from an authorship string
+   * @return entire authorship string with expanded authors if found
+   */
   @VisibleForTesting
   protected String lookup(String normalizedAuthor) {
-    if (normalizedAuthor != null && authorMap.containsKey(normalizedAuthor)) {
+    if (normalizedAuthor!=null && authorMap.containsKey(normalizedAuthor)) {
       return authorMap.get(normalizedAuthor);
+    } else {
+      return normalizedAuthor;
     }
-    return normalizedAuthor;
+  }
+
+  private List<String> lookup(List<String> authorTeam) {
+    List<String> authors = Lists.newArrayList();
+    for (String author : authorTeam) {
+      authors.add(lookup(author));
+    }
+    return authors;
+  }
+
+  private List<String> splitAndLookup(String normalizedAuthorTeam, int minAuthorLengthWithoutLookup) {
+    List<String> authors = Lists.newArrayList();
+    if (normalizedAuthorTeam!=null){
+      for (String author : AUTHOR_SPLITTER.split(normalizedAuthorTeam)) {
+        if (minAuthorLengthWithoutLookup > 0 && author.length() < minAuthorLengthWithoutLookup) {
+          authors.add(lookup(author));
+        } else {
+          authors.add(author);
+        }
+      }
+    }
+    return authors;
   }
 
   private ParsedName clone(ParsedName pn) {
@@ -266,19 +299,17 @@ public class AuthorComparator {
    * @param minCommonSubstring
    * @return
    */
-  private Equality compareAuthor(@Nullable String a1, @Nullable String a2, int minCommonSubstring) {
-    // all lower case now, no punctuation and normed whitespace
-    a1 = normalize(a1);
-    a2 = normalize(a2);
-    if (a1 != null && a2 != null) {
-      // 1: test for shared name prefix
-      Equality equality = compareNormalizedAuthor(a1, a2, minCommonSubstring);
+  private Equality compareAuthorteam(@Nullable String a1, @Nullable String a2, int minCommonSubstring, int maxAuthorLengthWithoutLookup) {
+    // convert to all lower case, no punctuation but commas seperating authors and normed whitespace
+    List<String> authorTeam1 = splitAndLookup(normalize(a1), maxAuthorLengthWithoutLookup);
+    List<String> authorTeam2 = splitAndLookup(normalize(a2), maxAuthorLengthWithoutLookup);
+    if (!authorTeam1.isEmpty() && !authorTeam2.isEmpty()) {
+      Equality equality = compareNormalizedAuthorteam(authorTeam1, authorTeam2, minCommonSubstring);
       if (equality != Equality.EQUAL) {
-        // 2: test for shared prefix after lookups
-        String lookup1 = lookup(a1);
-        String lookup2 = lookup(a2);
-        if (!lookup1.equals(a1) || !lookup2.equals(a2)) {
-          equality = compareNormalizedAuthor(lookup1, lookup2, minCommonSubstring+1);
+        List<String> authorTeam1l = lookup(authorTeam1);
+        List<String> authorTeam2l = lookup(authorTeam2);
+        if (!authorTeam1.equals(authorTeam1l) || !authorTeam2.equals(authorTeam2l)) {
+          equality = compareNormalizedAuthorteam(authorTeam1l, authorTeam2l, minCommonSubstring);
         }
       }
       return equality;
@@ -286,48 +317,66 @@ public class AuthorComparator {
     return Equality.UNKNOWN;
   }
 
-  @VisibleForTesting
-  protected String longestWordStart(final String a1, final String a2) {
-    List<String> names1 = SPACE_SPLITTER.splitToList(a1);
-    List<String> names2 = SPACE_SPLITTER.splitToList(a2);
-    String longest = "";
-    for (String n1 : names1) {
-      for (String n2 : names2) {
-        String common = StringUtils.getCommonPrefix(n1, n2);
-        if (common != null && common.length()>longest.length()) {
-          longest = common;
-        }
-      }
-    }
-    return longest;
-  }
-
   private int lengthWithoutWhitespace(String x) {
     return StringUtils.deleteWhitespace(x).length();
   }
 
+  /**
+   * compares entire author team strings
+   */
+  private Equality compareNormalizedAuthorteam(final List<String> authorTeam1, final List<String> authorTeam2, final int minCommonStart) {
+    // quick check avoiding subsequent heavier processing
+    if (authorTeam1.equals(authorTeam2)) {
+      // we can stop here, authors are equal, thats enough
+      return Equality.EQUAL;
+
+    } else {
+      // compare all authors to each other - a single match is good enough!
+      for (String author1 : authorTeam1) {
+        for (String author2 : authorTeam2) {
+          if (Equality.EQUAL == compareNormalizedAuthor(author1, author2, minCommonStart)) {
+            return Equality.EQUAL;
+          }
+        }
+      }
+    }
+    return Equality.DIFFERENT;
+  }
+
+  private String extractSurname(String name) {
+    Matcher m = SURNAME.matcher(name);
+    if (m.find()){
+      return m.group(0);
+    }
+    return name;
+  }
+
+  /**
+   * compares a single author potentially with initials
+   */
   private Equality compareNormalizedAuthor(final String a1, final String a2, final int minCommonStart) {
     if (a1.equals(a2)) {
       // we can stop here, authors are equal, thats enough
       return Equality.EQUAL;
 
     } else {
-      final String noInitials1 = INITIALS.matcher(a1).replaceAll("");
-      final String noInitials2 = INITIALS.matcher(a2).replaceAll("");
 
-      String longest = longestWordStart(noInitials1, noInitials2);
-      if (longest.length() >= minCommonStart) {
+      final String surname1 = extractSurname(a1);
+      final String surname2 = extractSurname(a2);
+
+      String common = StringUtils.getCommonPrefix(surname1, surname2);
+      if (common != null && common.length() >= minCommonStart) {
         // do both names have a single initial which is different?
         // this is often the case when authors are relatives like brothers or son & father
-        if (singleInitialsDiffer(a1, a2)) {
+        if (firstInitialsDiffer(a1, a2)) {
           return Equality.DIFFERENT;
         } else {
           return Equality.EQUAL;
         }
 
-      } else if (a1.equals(longest) && (noInitials2.startsWith(longest))
-              || a2.equals(longest) && (noInitials1.startsWith(longest))
-        ) {
+      } else if (a1.equals(common) && (surname2.startsWith(common))
+          || a2.equals(common) && (surname1.startsWith(common))
+          ) {
         // the smallest common substring is the same as one of the inputs
         // if it also matches the start of the first longer surname then we are ok as the entire string is the best match we can have
         // likey a short abbreviation
@@ -337,22 +386,9 @@ public class AuthorComparator {
         // the author string incl initials but without whitespace shares at least minCommonStart+1 characters
         return Equality.EQUAL;
 
-      } else if (lengthWithoutWhitespace(LongestCommonSubstring.lcs(a1, a2)) > minCommonStart+1) {
-        // there is a common substring of length minCommonStart+2 without whitespace
-        return Equality.EQUAL;
       }
     }
     return Equality.DIFFERENT;
-  }
-
-  /**
-   * Removes initials and sorts surnames
-   * @return
-   */
-  private List<String> sortedSurnames(String normed) {
-    List<String> names = SPACE_SPLITTER.splitToList(normed);
-    Collections.sort(names);
-    return names;
   }
 
   @VisibleForTesting
@@ -360,14 +396,42 @@ public class AuthorComparator {
     return FIRST_INITIALS.matcher(normedName).replaceAll("");
   }
 
-  private boolean singleInitialsDiffer(String a1, String a2) {
-    Matcher m1 = FIRST_INITIAL.matcher(a1);
-    Matcher m2 = FIRST_INITIAL.matcher(a2);
+  /**
+   * Gracefully compare initials of the first author only
+   * @return true if they differ
+   */
+  @VisibleForTesting
+  protected boolean firstInitialsDiffer(String a1, String a2) {
+    Matcher m1 = FIRST_INITIALS.matcher(a1);
+    Matcher m2 = FIRST_INITIALS.matcher(a2);
     if (m1.find() && m2.find()) {
-      if (!m1.group(1).equals(m2.group(1))) {
-        return true;
+      String i1 = m1.group(0);
+      String i2 = m2.group(0);
+      if (i1.equals(i2)) {
+        return false;
+
+      } else {
+        // if one set of chars is a subset of the other we consider this a match
+        List<Character> smaller = Lists.charactersOf(StringUtils.deleteWhitespace(i1));
+        List<Character> larger  = Lists.charactersOf(StringUtils.deleteWhitespace(i2));
+        if (smaller.size() > larger.size()) {
+          // swap, the Sets difference method needs the right inputs
+          List<Character> tmp = smaller;
+          smaller = larger;
+          larger = tmp;
+        }
+        // remove all of the chars from the larger list and see if any remain
+        if (CollectionUtils.isSubCollection(smaller, larger)) {
+          // one is a subset of the other
+          return false;
+        }
       }
+      // they seem to differ
+      return true;
+
+    } else {
+      // no initials
+      return false;
     }
-    return false;
   }
 }

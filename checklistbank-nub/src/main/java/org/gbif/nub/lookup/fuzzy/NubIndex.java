@@ -9,11 +9,11 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +22,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -204,27 +202,15 @@ public class NubIndex implements AutoCloseable {
   public List<NameUsageMatch> matchByName(String name, boolean fuzzySearch, int maxMatches) {
 
     // use lucene analyzer to normalize input without using the full query parser
-    StringBuilder sb = new StringBuilder();
-    try (TokenStream stream = analyzer.tokenStream(NubIndex.FIELD_CANONICAL_NAME, new StringReader(name))) {
-      CharTermAttribute termAtt = stream.getAttribute(CharTermAttribute.class);
-      stream.reset();
-      while (stream.incrementToken()) {
-        sb.append(termAtt.toString());
-      }
-      stream.end();
-    } catch (IOException e) {
-      LOG.error("An impossible error happened", e);
-    }
-
-    LOG.debug("Analyzed {} query \"{}\" becomes >>{}<<", fuzzySearch ? "fuzzy" : "straight", name, sb.toString());
+    final String analyzedName = SciNameNormalizer.normalize(name).toLowerCase();
+    LOG.debug("Analyzed {} query \"{}\" becomes >>{}<<", fuzzySearch ? "fuzzy" : "straight", name, analyzedName);
 
     // query needs to have at least 2 letters to match a real name
-    if (sb.length() < 2) {
+    if (analyzedName.length() < 2) {
       return Lists.newArrayList();
     }
 
 
-    final String analyzedName = sb.toString();
     Term t = new Term(NubIndex.FIELD_CANONICAL_NAME, analyzedName);
     Query q;
     if (fuzzySearch) {
@@ -254,7 +240,7 @@ public class NubIndex implements AutoCloseable {
           if (name.equalsIgnoreCase(match.getCanonicalName())) {
             match.setMatchType(NameUsageMatch.MatchType.EXACT);
             results.add(match);
-          } else if (fuzzySearch) {
+          } else {
             // even though we used a term query for straight matching the lucene analyzer has already normalized
             // the name drastically. So we include these matches here only in case of fuzzy queries
             match.setMatchType(NameUsageMatch.MatchType.FUZZY);

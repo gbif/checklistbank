@@ -15,13 +15,14 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
+import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.NubDb;
+import org.gbif.checklistbank.nub.source.ClbSource;
+import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
-import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
@@ -173,6 +174,11 @@ public class AdminCommand extends BaseCommand {
         sendNubChanged();
         break;
 
+      case UPDATE_NUB_DATASET:
+        updateNubDataset();
+        break;
+
+
       case UPDATE_NUB_NAMES:
         updateNubNames();
         break;
@@ -180,6 +186,18 @@ public class AdminCommand extends BaseCommand {
       default:
         throw new UnsupportedOperationException();
     }
+  }
+
+  private void updateNubDataset() {
+    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+    DatasetMetricsService metricsService = clbInj.getInstance(DatasetMetricsService.class);
+
+    Injector regInj = cfg.registry.createRegistryInjector();
+    BackboneDatasetUpdater nubUpdater = new BackboneDatasetUpdater(regInj.getInstance(DatasetService.class),
+        regInj.getInstance(OrganizationService.class), regInj.getInstance(NetworkService.class));
+
+    nubUpdater.updateBackboneDataset(metricsService.get(Constants.NUB_DATASET_KEY));
+    LOG.info("Backbone dataset metadata updated.");
   }
 
   private void sendNubChanged() throws IOException {

@@ -46,8 +46,8 @@ public class NubMatchingServiceImplStrictIT {
 
     printMatch(name, best);
 
-    assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
     assertEquals( expectedKey, best.getUsageKey());
+    assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
     if (confidence != null) {
       assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
     }
@@ -96,5 +96,30 @@ public class NubMatchingServiceImplStrictIT {
 //    assertMatch("Abies alba nothing but a year, 1768", Rank.SPECIES, Kingdom.INCERTAE_SEDIS, 2685484);
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/7
+   */
+  @Test
+  public void testIssue7() throws IOException, InterruptedException {
+    assertMatch("Nicotiana langsdorfii J.A. Weinm.", Rank.SPECIES, Kingdom.PLANTAE, 2928759);
 
+    assertNoMatch("Eragrostis brownii (Kunth) Nees ex Wight", Rank.SPECIES, Kingdom.PLANTAE);
+    assertMatch("Eragrostis brownii (Kunth) Nees", Rank.SPECIES, Kingdom.PLANTAE, 4149175);
+
+    assertNoMatch("Linaria bipartita (Vent.) Desf.", Rank.SPECIES, Kingdom.PLANTAE);
+    assertMatch("Linaria bipartita (Vent.) Willd.", Rank.SPECIES, Kingdom.PLANTAE, 5415006);
+
+    assertMatch("Modiola caroliniana (L.) G. Don f.", Rank.SPECIES, Kingdom.PLANTAE, 8338793);
+    assertMatch("Modiola caroliniana (L.) G. Don fil.", Rank.SPECIES, Kingdom.PLANTAE, 8338793);
+
+    assertNoMatch("Oenothera affinis Cambess. ex A. St. Hil.", Rank.SPECIES, Kingdom.PLANTAE);
+    assertMatch("Oenothera affinis Loud.", Rank.SPECIES, Kingdom.PLANTAE, 7860544);
+    assertMatch("Oenothera affinis Camb.", Rank.SPECIES, Kingdom.PLANTAE, 3188847);
+
+    assertMatch("Malva setigera F.K. Schimp. et Spenn.", Rank.SPECIES, Kingdom.PLANTAE, 3940638);
+    assertMatch("Nicotiana langsdorfii J.A. Weinm.", Rank.SPECIES, Kingdom.PLANTAE, 2928759);
+    assertMatch("Nonea lutea (Desr.) DC. ex Lam. et DC.", Rank.SPECIES, Kingdom.PLANTAE, 2926042);
+    assertNoMatch("Veronica austriaca Jacq.", Rank.SPECIES, Kingdom.PLANTAE);
+    assertNoMatch("Trisetaria panicea (Lam.) Maire", Rank.SPECIES, Kingdom.PLANTAE);
+  }
 }

@@ -125,7 +125,7 @@ public class BasionymSorter {
       try {
         group.setBasionym(findBasionym(group.getAuthorship(), group.getYear(), originals, func));
       } catch (MultipleBasionymException e) {
-        LOG.warn("Ignore group with multiple basionyms found for {} {} {} in {} original names", group.getEpithet(), group.getAuthorship(), group.getYear(), originals.size());
+        LOG.info("Ignore group with multiple basionyms found for {} {} {} in {} original names", group.getEpithet(), group.getAuthorship(), group.getYear(), originals.size());
         iter.remove();
       }
     }
