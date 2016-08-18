@@ -158,7 +158,7 @@ public class NeoInserterTest {
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.scientificName, "? alba");
-        assertName(v, Rank.SPECIES, "? alba", null, NameType.DOUBTFUL);
+        assertName(v, Rank.SPECIES, "? alba", "? alba", NameType.PLACEHOLDER);
 
         v = new VerbatimNameUsage();
         v.setCoreField(DwcTerm.genus, "Abies");
