@@ -42,9 +42,9 @@ public class AuthorComparator {
   private static final Pattern AND = Pattern.compile("( et | and |&|&amp;)", Pattern.CASE_INSENSITIVE);
   private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
-  private static final Pattern FIL = Pattern.compile("([A-Z][a-z]*)\\.?\\s+f\\.?\\b");
+  private static final Pattern FIL = Pattern.compile("([A-Z][a-z]*)[\\. ]\\s*f(:?il)?\\.?\\b");
   private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
-  private static final Pattern SURNAME = Pattern.compile("([a-z]+)$");
+  private static final Pattern SURNAME = Pattern.compile("([a-z]+)(:? filius)?$");
   private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s)+");
   private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
   private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
@@ -179,7 +179,7 @@ public class AuthorComparator {
     x = EX.matcher(x).replaceFirst("");
 
     // normalize filius
-    x = FIL.matcher(x).replaceAll("$1 fil");
+    x = FIL.matcher(x).replaceAll("$1 filius");
 
     // normalize and
     x = AND.matcher(x).replaceAll(", ");
@@ -343,10 +343,11 @@ public class AuthorComparator {
     return Equality.DIFFERENT;
   }
 
-  private String extractSurname(String name) {
+  @VisibleForTesting
+  protected String extractSurname(String name) {
     Matcher m = SURNAME.matcher(name);
     if (m.find()){
-      return m.group(0);
+      return m.group(1);
     }
     return name;
   }
@@ -389,11 +390,6 @@ public class AuthorComparator {
       }
     }
     return Equality.DIFFERENT;
-  }
-
-  @VisibleForTesting
-  protected static String removeFirstInitials(String normedName) {
-    return FIRST_INITIALS.matcher(normedName).replaceAll("");
   }
 
   /**

@@ -386,7 +386,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     Collections.sort(matches, CONFIDENCE_ORDER);
 
     if (matches.size() > 0) {
-      // add -5 - 5 confidence based on distance to next best match
+      // add 0 - 5 confidence based on distance to next best match
       NameUsageMatch best = matches.get(0);
       int bestConfidence = best.getConfidence();
       int nextMatchDistance;
@@ -421,8 +421,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
             return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
           }
         }
-        // boost up to 5 based on distance to next match, penalty for very close matches
-        nextMatchDistance = Math.min(5, (bestConfidence - secondBestConfidence - 10) / 2);
+        // boost up to 5 based on distance to next match
+        nextMatchDistance = Math.min(5, (bestConfidence - secondBestConfidence) / 2);
         if (verbose) {
           addNote(best, "nextMatch=" + nextMatchDistance);
         }

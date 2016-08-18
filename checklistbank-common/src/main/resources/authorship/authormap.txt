@@ -2759,7 +2759,8 @@ Lewis	Meriwether Lewis 	M Lewis
 Lex.	Juan José Martinez de Lexarza 	J J M de Lexarza
 Leyb.	Friedrich Leybold 	F Leybold
 Leyss.	Friedrich Wilhelm von Leysser 	F W von Leysser
-L.f.	Carolus Linnaeus the Younger 	C L the Younger
+L.f.	Carl Linnaeus filius 	C Linnaeus fil
+L.fil.	Carl Linnaeus filius 	C Linnaeus fil
 L.F.Hend.	Louis Forniquet Henderson 	L F Henderson
 L.Fisch.	Ludvig Fischer 	L Fischer
 L.Fuchs	Leonhart Fuchs 	L Fuchs

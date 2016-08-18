@@ -122,4 +122,11 @@ public class NubMatchingServiceImplStrictIT {
     assertNoMatch("Veronica austriaca Jacq.", Rank.SPECIES, Kingdom.PLANTAE);
     assertNoMatch("Trisetaria panicea (Lam.) Maire", Rank.SPECIES, Kingdom.PLANTAE);
   }
+
+  @Test
+  public void testFilius() throws IOException, InterruptedException {
+    assertMatch("Hydrocotyle ranunculoides L. f.", Rank.SPECIES, Kingdom.PLANTAE, 7978544);
+    assertMatch("Hydrocotyle ranunculoides L.f.", Rank.SPECIES, Kingdom.PLANTAE, 7978544);
+    assertMatch("Hydrocotyle ranunculoides Linnaeus filius", Rank.SPECIES, Kingdom.PLANTAE, 7978544);
+  }
 }

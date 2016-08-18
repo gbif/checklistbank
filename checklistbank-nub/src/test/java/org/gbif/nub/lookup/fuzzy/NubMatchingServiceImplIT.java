@@ -375,16 +375,16 @@ public class NubMatchingServiceImplIT {
     assertMatch("Daphne Müller, 1785", cl, 2234879, new IntRange(95, 98));
     assertMatch("Daphne Müller, 1776", cl, 2234879, new IntRange(96, 100));
 
-    assertMatch("Daphnia Korth", cl, 7956551, new IntRange(82, 90));
+    assertMatch("Daphnia Korth", cl, 7956551, new IntRange(86, 94));
     cl.setKingdom("Plantae");
     cl.setFamily("Oxalidaceae");
-    assertMatch("Daphnia Korth", cl, 3626852, new IntRange(95, 100));
+    assertMatch("Daphnia Korth", cl, 3626852, new IntRange(96, 100));
     cl = new NameUsageMatch();
 
-    assertMatch("Daphnia Rafinesque", cl, 7956551, new IntRange(85, 89));
+    assertMatch("Daphnia Rafinesque", cl, 7956551, new IntRange(88, 94));
     cl.setKingdom("Animalia");
     cl.setFamily("Calanidae");
-    assertMatch("Daphnia Rafinesque", cl, 4333792, new IntRange(96, 100));
+    assertMatch("Daphnia Rafinesque", cl, 4333792, new IntRange(98, 100));
     cl = new NameUsageMatch();
 
 

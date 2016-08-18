@@ -55,14 +55,18 @@ public class AuthorComparatorTest {
     assertEquals("muller", comp.normalize("Mueller"));
     assertEquals("moller", comp.normalize("Moeller"));
 
-    assertEquals("don fil", comp.normalize("Don f."));
-    assertEquals("don fil", comp.normalize("Don fil."));
-    assertEquals("don fil", comp.normalize("Don fil"));
+    assertEquals("don filius", comp.normalize("Don f."));
+    assertEquals("don filius", comp.normalize("Don fil."));
+    assertEquals("don filius", comp.normalize("Don fil"));
     assertEquals("f merck", comp.normalize("f. Merck"));
     assertEquals("f merck", comp.normalize("f Merck"));
-    assertEquals("la don fil,dc", comp.normalize("la Don f. et DC"));
+    assertEquals("la don filius,dc", comp.normalize("la Don f. et DC"));
     assertEquals("la don,f rich,dc", comp.normalize("la Don, f. Rich. et DC"));
-    assertEquals("la don,rich fil,dc", comp.normalize("la Don, Rich. f. et DC"));
+    assertEquals("la don,rich filius,dc", comp.normalize("la Don, Rich. f. et DC"));
+    assertEquals("l filius", comp.normalize("L.f."));
+    assertEquals("l filius", comp.normalize("L. f."));
+    assertEquals("l filius", comp.normalize("L f"));
+    assertEquals("lf", comp.normalize("Lf"));
   }
 
   @Test
@@ -93,17 +97,20 @@ public class AuthorComparatorTest {
     assertEquals("j lamarck", comp.lookup("lam"));
     // the input is a single author. so expect nothing
     assertEquals("lam,dc", comp.lookup("lam,dc"));
+
+    assertEquals("c linnaus filius", comp.lookup("l filius"));
   }
 
   @Test
-  public void extractFirstSurname() throws Exception {
-    assertEquals("doring", comp.removeFirstInitials("doring"));
-    assertEquals("white", comp.removeFirstInitials("a j white"));
-    assertEquals("white herbert harvey", comp.removeFirstInitials("white herbert harvey"));
-    assertEquals("colla", comp.removeFirstInitials("l a colla"));
-    assertEquals("yin", comp.removeFirstInitials("w q yin"));
-    assertEquals("kirchner", comp.removeFirstInitials("g kirchner"));
-    assertEquals("reichenbach", comp.removeFirstInitials("h g l reichenbach"));
+  public void extractSurname() throws Exception {
+    assertEquals("doring", comp.extractSurname("doring"));
+    assertEquals("white", comp.extractSurname("a j white"));
+    assertEquals("harvey", comp.extractSurname("white herbert harvey"));
+    assertEquals("colla", comp.extractSurname("l a colla"));
+    assertEquals("yin", comp.extractSurname("w q yin"));
+    assertEquals("kirchner", comp.extractSurname("g kirchner"));
+    assertEquals("reichenbach", comp.extractSurname("h g l reichenbach"));
+    assertEquals("linnaeus", comp.extractSurname("c linnaeus filius"));
   }
 
   @Test
@@ -255,6 +262,13 @@ public class AuthorComparatorTest {
     assertAuth("Koch", null, Equality.EQUAL, "Johann Friedrich Wilhelm Koch", null);
     assertAuth("Koch", null, Equality.EQUAL, "J F W Koch", null);
     assertAuth("Koch", null, Equality.EQUAL, "H Koch", null);
+
+  }
+    @Test
+    public void testNew() throws Exception {
+    assertAuth("L.f", null, Equality.EQUAL, "Linnaeus filius", null);
+    assertAuth("L. f", null, Equality.EQUAL, "Linnaeus filius", null);
+    assertAuth("L.fil.", null, Equality.EQUAL, "Linnaeus filius", null);
   }
 
   @Test
