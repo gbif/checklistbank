@@ -66,11 +66,11 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
 
     pn = service.createOrGet(parse("? hostilis Gravenhorst, 1829"));
     assertEquals("? hostilis Gravenhorst, 1829", pn.getScientificName());
-    assertNull(pn.canonicalName());
-    assertNull(pn.getGenusOrAbove());
+    assertEquals("? hostilis", pn.canonicalName());
+    assertEquals("?", pn.getGenusOrAbove());
     assertNull(pn.getRankMarker());
-    assertNull(pn.getRank());
-    assertNull(pn.getSpecificEpithet());
+    assertEquals(Rank.SPECIES, pn.getRank());
+    assertEquals("hostilis", pn.getSpecificEpithet());
   }
 
   private ParsedName parse(String x) {
