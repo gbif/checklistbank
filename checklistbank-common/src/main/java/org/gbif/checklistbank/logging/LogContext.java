@@ -9,7 +9,7 @@ import org.slf4j.MDC;
  */
 public class LogContext {
 
-  public static final String DATASET_MDC = "dataset";
+  public static final String DATASET_MDC = "datasetKey";
 
   public static void startDataset(UUID key) {
     MDC.put(DATASET_MDC, key.toString());
