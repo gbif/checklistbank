@@ -298,11 +298,17 @@ public class BasionymSorterTest {
    * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5510 order by 1,2) to 'muridae.txt'
    */
   public void testGroupBasionymFiles() throws Exception {
-    assertEquals(80, testGroupBasionymFile("names/molossidae.txt"));
-    assertEquals(460, testGroupBasionymFile("names/muridae.txt"));
-    assertEquals(10194, testGroupBasionymFile("names/aves.txt"));
-    assertEquals(14741, testGroupBasionymFile("names/fabaceae.txt"));
-    assertEquals(22699, testGroupBasionymFile("names/asteraceae.txt"));
+    assertInRage(70, 90, "molossidae.txt");
+    assertInRage(450, 470, "muridae.txt");
+    assertInRage(10150, 10250, "aves.txt");
+    assertInRage(14700, 14800, "fabaceae.txt");
+    assertInRage(22650, 22750, "asteraceae.txt");
+  }
+
+  private void assertInRage(int min, int max, String filename) throws Exception {
+    int count = testGroupBasionymFile("names/"+filename);
+    assertTrue(filename + " with too little basionym groups", min <= count);
+    assertTrue(filename + " with too many basionym groups", max >= count);
   }
 
   private int testGroupBasionymFile(String filename) throws Exception {
