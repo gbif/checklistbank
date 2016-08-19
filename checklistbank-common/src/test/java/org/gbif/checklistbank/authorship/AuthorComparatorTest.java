@@ -99,6 +99,8 @@ public class AuthorComparatorTest {
     assertEquals("lam,dc", comp.lookup("lam,dc"));
 
     assertEquals("c linnaus filius", comp.lookup("l filius"));
+    assertEquals("c h bipontinus schultz", comp.lookup("sch bip"));
+    assertEquals("c h bipontinus schultz", comp.lookup("schultz bip"));
   }
 
   @Test
@@ -263,12 +265,11 @@ public class AuthorComparatorTest {
     assertAuth("Koch", null, Equality.EQUAL, "J F W Koch", null);
     assertAuth("Koch", null, Equality.EQUAL, "H Koch", null);
 
-  }
-    @Test
-    public void testNew() throws Exception {
     assertAuth("L.f", null, Equality.EQUAL, "Linnaeus filius", null);
     assertAuth("L. f", null, Equality.EQUAL, "Linnaeus filius", null);
     assertAuth("L.fil.", null, Equality.EQUAL, "Linnaeus filius", null);
+
+    assertAuth("Schultz-Bip", null, Equality.EQUAL, "Sch.Bip.", null);
   }
 
   @Test

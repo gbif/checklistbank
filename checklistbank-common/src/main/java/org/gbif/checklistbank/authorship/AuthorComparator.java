@@ -366,7 +366,7 @@ public class AuthorComparator {
       final String surname2 = extractSurname(a2);
 
       String common = StringUtils.getCommonPrefix(surname1, surname2);
-      if (common != null && common.length() >= minCommonStart) {
+      if (surname1.equals(surname2) || common.length() >= minCommonStart) {
         // do both names have a single initial which is different?
         // this is often the case when authors are relatives like brothers or son & father
         if (firstInitialsDiffer(a1, a2)) {

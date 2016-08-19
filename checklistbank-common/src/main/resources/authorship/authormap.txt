@@ -2759,8 +2759,8 @@ Lewis	Meriwether Lewis 	M Lewis
 Lex.	Juan José Martinez de Lexarza 	J J M de Lexarza
 Leyb.	Friedrich Leybold 	F Leybold
 Leyss.	Friedrich Wilhelm von Leysser 	F W von Leysser
-L.f.	Carl Linnaeus filius 	C Linnaeus fil
-L.fil.	Carl Linnaeus filius 	C Linnaeus fil
+L.f.	Carl Linnaeus filius 	C Linnaeus filius
+L.fil.	Carl Linnaeus filius 	C Linnaeus filius
 L.F.Hend.	Louis Forniquet Henderson 	L F Henderson
 L.Fisch.	Ludvig Fischer 	L Fischer
 L.Fuchs	Leonhart Fuchs 	L Fuchs
@@ -4017,6 +4017,7 @@ Schäf.-Verw.	Alfons Schäfer-Verwimp 	A Schäfer-Verwimp
 Scharf	Uwe Scharf 	U Scharf
 Schauer	Johannes Conrad Schauer 	J C Schauer
 Sch.Bip.	Carl Heinrich 'Bipontinus' Schultz 	C H 'Bipontinus' Schultz
+Schultz-Bip	Carl Heinrich 'Bipontinus' Schultz 	C H 'Bipontinus' Schultz
 Schchian	Anna Semenovna Schchian 	A S Schchian
 Scheb.	M. A. Schebalina 	M A Schebalina
 Scheele	George Heinrich Adolf Scheele 	G H A Scheele
@@ -4499,7 +4500,7 @@ Touton	Karl Touton 	K Touton
 T.Q.Nguyen	To Quyen Nguyen 	T Q Nguyen
 T.R.Dudley	Theodore Robert Dudley 	T R Dudley
 Tracy	Samuel Mills Tracy 	S M Tracy
-Trad.	John Tradescant the younger 	J T the younger
+Trad.	John Tradescant the younger 	J Tradescant filius
 Trail	James William Helenus Trail 	J W H Trail
 Tratt.	Leopold Trattinnick 	L Trattinnick
 Traub	Hamilton Paul Traub 	H P Traub
