@@ -1451,6 +1451,16 @@ public class NubBuilderIT {
     assertTree("104.txt");
   }
 
+  /**
+   * http://dev.gbif.org/issues/browse/PF-2600
+   */
+  @Test
+  public void testGenusNormilization() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(106, 107);
+    build(src);
+
+    assertTree("106 107.txt");
+  }
 
   /**
    * builds a new nub and keeps dao open for further test queries.

@@ -11,7 +11,7 @@ public class SciNameNormalizerTest {
   public void testNormalize() throws Exception {
     assertEquals(null, SciNameNormalizer.normalize(""));
     assertEquals("Abies", SciNameNormalizer.normalize("Abies "));
-    assertEquals("Abies", SciNameNormalizer.normalize("Abiies "));
+    assertEquals("Abiies", SciNameNormalizer.normalize("Abiies "));
     assertEquals("Abyes", SciNameNormalizer.normalize("Abyes "));
     assertEquals("Abyes alba", SciNameNormalizer.normalize("Abyes  albus"));
     assertEquals("Abyes albieta", SciNameNormalizer.normalize("Abyes albieta"));
@@ -41,24 +41,24 @@ public class SciNameNormalizerTest {
 
   @Test
   public void testHybridCross() throws Exception {
-    assertEquals("xcayouettei", SciNameNormalizer.removeHybridCross("xcayouettei"));
-    assertEquals(" cayouettei", SciNameNormalizer.removeHybridCross("×cayouettei"));
+    assertEquals("xcayouettei", SciNameNormalizer.normalize("xcayouettei"));
+    assertEquals("cayouettei", SciNameNormalizer.normalize("×cayouettei"));
 
-    assertEquals("Carex xcayouettei", SciNameNormalizer.removeHybridCross("Carex xcayouettei"));
-    assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("Carex ×cayouettei"));
-    assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("×Carex cayouettei"));
-    assertEquals("Carex xcayouettei", SciNameNormalizer.removeHybridCross("xCarex xcayouettei"));
-    assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("XCarex cayouettei"));
-    assertEquals("Carex cayouettei", SciNameNormalizer.removeHybridCross("xCarex ×cayouettei"));
+    assertEquals("Carex xcaioueti", SciNameNormalizer.normalize("Carex xcayouettei"));
+    assertEquals("Carex caioueti", SciNameNormalizer.normalize("Carex ×cayouettei"));
+    assertEquals("Carex caioueti", SciNameNormalizer.normalize("×Carex cayouettei"));
+    assertEquals("Carex xcaioueti", SciNameNormalizer.normalize("xCarex xcayouettei"));
+    assertEquals("Carex caioueti", SciNameNormalizer.normalize("XCarex cayouettei"));
+    assertEquals("Carex caioueti", SciNameNormalizer.normalize("xCarex ×cayouettei"));
 
-    assertEquals("Platanus hispanica", SciNameNormalizer.removeHybridCross("Platanus x hispanica"));
+    assertEquals("Platanus hispanica", SciNameNormalizer.normalize("Platanus x hispanica"));
 
   }
 
   @Test
   public void testNonAscii() throws Exception {
     assertEquals("Cem Andrexi", SciNameNormalizer.normalize("Çem Ándrexï"));
-    assertEquals("SOEZsoezY¥µAECEIDNOUYsaeceidnouy", SciNameNormalizer.normalize("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"));
+    assertEquals("SOEZsoezY¥µAAAAAAAECEEEEIIIIDNOOOOOOUUUUYssaaaaaaaeceeeeiiiidnoooooouuuuyy", SciNameNormalizer.normalize("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ"));
   }
 
   @Test

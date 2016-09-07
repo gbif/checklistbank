@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia
+2	1		PHYLUM	ACCEPTED		Arthropoda
+5	2		FAMILY	ACCEPTED		Sapindaceae
+10	5		GENUS	ACCEPTED		Valonia Walker, 1856
+100	10		SPECIES	ACCEPTED		Valonia complicata Walker, 1856
+3	1		PHYLUM	ACCEPTED		Mollusca
+6	3		FAMILY	ACCEPTED		Valloniidae
+11	6		GENUS	ACCEPTED		Vallonia Risso, 1826
+110	11		SPECIES	ACCEPTED		Vallonia cyclophorella Sterki, 1892

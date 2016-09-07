@@ -24,15 +24,22 @@ public class SciNameNormalizer {
 
     s = s.trim();
 
-    s = removeHybridCross(s);
+   // Remove a hybrid cross, or a likely hybrid cross.
+   s = removeHybridSignGenus.matcher(s).replaceAll("$1");
+   s = removeHybridSignEpithet.matcher(s).replaceAll(" $1");
 
-    s = normalizeLetters(s);
+    // Normalize letters and ligatures to their ASCII equivalent
+    s = org.gbif.utils.text.StringUtils.foldToAscii(s);
 
+    // normalize whitespace
     s = empty.matcher(s).replaceAll("");
     s = white.matcher(s).replaceAll(" ");
 
     // Only for bi/trinomials, otherwise we mix up ranks.
     if (s.indexOf(' ') > 2) {
+      // remove repeated letters→leters in binomials
+      s= removeRepeatedLetter.matcher(s).replaceAll("$1");
+
       s = stemEpithet(s);
       // normalize frequent variations of i in epithets only
       s = i.matcher(s).replaceAll(" $1i");
@@ -52,19 +59,4 @@ public class SciNameNormalizer {
     return suffix_a.matcher(epithet).replaceFirst("a");
   }
 
-  /**
-   * Normalize letters and ligatures to their ASCII equivalent and remove repeated letters→leters.
-   */
-  public static String normalizeLetters(String s) {
-    return removeRepeatedLetter.matcher(org.gbif.utils.text.StringUtils.foldToAscii(s)).replaceAll("$1");
-  }
-
-  /**
-   * Remove a hybrid cross, or a likely hybrid cross.
-   */
-  public static String removeHybridCross(String s) {
-    s = removeHybridSignGenus.matcher(s).replaceAll("$1");
-    s = removeHybridSignEpithet.matcher(s).replaceAll(" $1");
-    return s;
-  }
 }
