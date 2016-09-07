@@ -210,7 +210,7 @@ public class NubMatchingServiceImplLegacyIT {
     query.setKingdom("Animalia");
     query.setPhylum("Porifera");
     assertMatchedUsageKey("Acanthophora", query, 3);
-    assertMatchedUsageKey("Accanthophora", query, 3);
+    assertNoMatch("Accanthophora", query);
     assertNoMatch("Akantophora", query);
     assertNoMatch("Acanthofora", query);
     assertNoMatch("Acanthoofoora", query);

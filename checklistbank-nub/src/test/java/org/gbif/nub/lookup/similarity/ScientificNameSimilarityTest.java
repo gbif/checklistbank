@@ -26,7 +26,8 @@ public class ScientificNameSimilarityTest {
     assertEquals(0d, sns.getSimilarity("abcdefg", "zyxvwu"), 0.01d);
     assertEquals(0d, sns.getSimilarity("abcdefg", "amncdefg"), 0.01d);
     assertEquals(0d, sns.getSimilarity("abcdefg", "adefg"), 0.01d);
-    assertEquals(100d, sns.getSimilarity("abcdefg", "aabbccddeeffgg"), 0.01d);
+    assertEquals(0d, sns.getSimilarity("abcdefg", "aabbccddeeffgg"), 0.01d);
+    assertEquals(100d, sns.getSimilarity("Aka abcdefg", "Aka aabbccddeeffgg"), 0.01d);
     assertEquals(100d, sns.getSimilarity("äöüæøåœđł", "aouaeoaoedl"), 0.01d);
 
     assertEquals(100d, sns.getSimilarity("xAus", "Aus"), 0.01d);
