@@ -32,14 +32,14 @@ public class NameUsageMetricsMapperIT extends MapperITBase<NameUsageMetricsMappe
         usageMapper = getInstance(NameUsageMapper.class);
     }
 
-    private int createUsage(String name) {
+    private int createUsage(String name, Rank rank) {
         // name first
-        ParsedName pn = nameMapper.getByName(name);
+        ParsedName pn = nameMapper.getByName(name, rank);
         if (pn == null) {
             pn = new ParsedName();
             pn.setType(NameType.SCIENTIFIC);
             pn.setScientificName(name);
-            nameMapper.create(pn, name);
+            nameMapper.create(pn);
         }
         // name usage
         NameUsageWritable nu = new NameUsageWritable();
@@ -59,7 +59,7 @@ public class NameUsageMetricsMapperIT extends MapperITBase<NameUsageMetricsMappe
     @Test
     public void testInsertAndRead() {
         String name = "Abies alba Mill.";
-        int usageKey = createUsage(name);
+        int usageKey = createUsage(name, Rank.SPECIES);
 
         NameUsageMetrics m = new NameUsageMetrics();
         m.setKey(usageKey);

@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.Pageable;
+import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,12 +34,12 @@ public interface ParsedNameMapper {
      */
     ParsedName getByUsageKey(@Param("key") int usageKey);
 
-    ParsedName getByName(@Param("name") String scientificName);
+    ParsedName getByName(@Param("name") String scientificName, @Param("rank") Rank rank);
 
     /**
      * Insert a new parsed name into the name table.
      */
-    void create(@Param("pn") ParsedName name, @Param("canonicalName") String canonicalName);
+    void create(@Param("pn") ParsedName name);
 
     void delete(@Param("key") int key);
 
@@ -59,5 +60,5 @@ public interface ParsedNameMapper {
      */
     void processNames(ResultHandler<ParsedName> handler);
 
-    void update(@Param("pn") ParsedName name, @Param("canonicalName") String canonicalName);
+    void update(@Param("pn") ParsedName name);
 }

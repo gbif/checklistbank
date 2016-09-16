@@ -18,6 +18,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
@@ -77,6 +78,11 @@ public class NameUsageSearchServiceImpl
     // Type parameter bounded to NameUsageSearch
     super(solrClient, null, NameUsageSearchResult.class, NameUsageSolrSearchResult.class,
       NameUsageSearchParameter.class, PRIMARY_SORT_ORDER, DEFAULT_SUGGEST_ORDER, NameUsageSolrSuggestResult.class);
+  }
+
+  @Override
+  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(NameUsageSearchRequest searchRequest) {
+    return super.search(searchRequest);
   }
 
   @Override

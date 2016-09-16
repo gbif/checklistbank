@@ -261,7 +261,6 @@ public class NeoInserter implements AutoCloseable {
             ParseResult<TaxonomicStatus> taxParse = taxStatusParser.parse(tstatus);
             if (taxParse.isSuccessful()) {
                 u.setTaxonomicStatus(taxParse.getPayload());
-                u.setSynonym(u.getTaxonomicStatus().isSynonym());
             } else {
                 u.addIssue(NameUsageIssue.TAXONOMIC_STATUS_INVALID);
             }

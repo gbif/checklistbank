@@ -478,8 +478,8 @@ public class UsageDao {
   public NameUsage readUsage(Node n, boolean readRelations) {
     if (usages.containsKey(n.getId())) {
       NameUsage u = usages.get(n.getId());
-      if (n.hasLabel(Labels.SYNONYM)) {
-        u.setSynonym(true);
+      if (n.hasLabel(Labels.SYNONYM) && !u.isSynonym()) {
+        u.setTaxonomicStatus(TaxonomicStatus.SYNONYM);
       }
       if (readRelations) {
         return readRelations(n, u);
@@ -510,7 +510,9 @@ public class UsageDao {
         u.setAcceptedKey((int) acc.getId());
         u.setAccepted(NeoProperties.getScientificName(acc));
         // update synonym flag based on relations
-        u.setSynonym(true);
+        if (!u.isSynonym()) {
+          u.setTaxonomicStatus(TaxonomicStatus.SYNONYM);
+        }
       }
     } catch (RuntimeException e) {
       LOG.error("Unable to read accepted name relation for {} with node {}", u.getScientificName(), n.getId(), e);

@@ -535,11 +535,11 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (n.hasLabel(Labels.SYNONYM)) {
       // use the classification of the parent in case of synonyms
       facts = dao.readFacts(u.getAcceptedKey());
-      u.setSynonym(true);
+      u.setTaxonomicStatus(u.getTaxonomicStatus() == null ? TaxonomicStatus.SYNONYM : u.getTaxonomicStatus());
       u.setAcceptedKey(clbForeignKey(n.getId(), u.getAcceptedKey(), KeyType.ACCEPTED));
     } else {
       facts = dao.readFacts(n.getId());
-      u.setSynonym(false);
+      u.setTaxonomicStatus(u.getTaxonomicStatus() == null ? TaxonomicStatus.ACCEPTED : u.getTaxonomicStatus());
       u.setParentKey(clbForeignKey(n.getId(), u.getParentKey(), KeyType.PARENT));
     }
     if (facts != null && facts.classification != null) {

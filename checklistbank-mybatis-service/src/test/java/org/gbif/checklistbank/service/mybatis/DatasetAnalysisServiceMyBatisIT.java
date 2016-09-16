@@ -30,7 +30,7 @@ public class DatasetAnalysisServiceMyBatisIT extends MyBatisServiceITBase<Datase
         assertEquals(downloaded, d.getDownloaded());
         assertEquals(44, d.getUsagesCount());
         assertEquals(16, d.getSynonymsCount());
-        assertEquals(43, d.getDistinctNamesCount());
+        assertEquals(44, d.getDistinctNamesCount());
         assertEquals(2, d.getNubMatchingCount());
         assertEquals(4, d.getNubCoveragePct());
         assertEquals(0, d.getColCoveragePct());

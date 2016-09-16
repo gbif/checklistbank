@@ -22,133 +22,134 @@ import static org.junit.Assert.assertTrue;
 
 public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
 
-    private static final UUID DATASET_KEY = UUID.randomUUID();
+  private static final UUID DATASET_KEY = UUID.randomUUID();
 
-    private ParsedNameMapper parsedNameMapper;
+  private ParsedNameMapper parsedNameMapper;
 
-    public NameUsageMapperIT() {
-        super(NameUsageMapper.class, false);
+  public NameUsageMapperIT() {
+    super(NameUsageMapper.class, false);
+  }
+
+  @Before
+  public void initNameMapper() throws Exception {
+    parsedNameMapper = getInstance(ParsedNameMapper.class);
+  }
+
+  private int createName(String name, Rank rank) {
+    ParsedName pn = new ParsedName();
+    pn.setType(NameType.SCIENTIFIC);
+    pn.setScientificName(name);
+    pn.setRank(rank);
+    parsedNameMapper.create(pn);
+    return pn.getKey();
+  }
+
+  private void deleteName(String name, Rank rank) {
+    ParsedName pn = parsedNameMapper.getByName(name, rank);
+    if (pn != null) {
+      parsedNameMapper.delete(pn.getKey());
     }
+  }
 
-    @Before
-    public void initNameMapper() throws Exception {
-        parsedNameMapper = getInstance(ParsedNameMapper.class);
+  /**
+   * Check all enum values have a matching postgres type value.
+   */
+  @Test
+  public void testEnums() {
+    String name = "Abies alba Mill.";
+    deleteName(name, Rank.SPECIES);
+    int nameKey = createName(name, Rank.SPECIES);
+
+    NameUsageWritable u = new NameUsageWritable();
+    u.setDatasetKey(DATASET_KEY);
+    u.setNameKey(nameKey);
+    for (Rank r : Rank.values()) {
+      u.setKey(null);
+      u.setRank(r);
+      mapper.insert(u);
     }
-
-    private int createName(String name) {
-        ParsedName pn = new ParsedName();
-        pn.setType(NameType.SCIENTIFIC);
-        pn.setScientificName(name);
-        parsedNameMapper.create(pn, name);
-        return pn.getKey();
+    for (Origin o : Origin.values()) {
+      u.setKey(null);
+      u.setOrigin(o);
+      mapper.insert(u);
     }
-
-    private void deleteName(String name) {
-        ParsedName pn = parsedNameMapper.getByName(name);
-        if (pn != null) {
-            parsedNameMapper.delete(pn.getKey());
-        }
+    for (TaxonomicStatus s : TaxonomicStatus.values()) {
+      u.setKey(null);
+      u.setTaxonomicStatus(s);
+      mapper.insert(u);
     }
-
-    /**
-     * Check all enum values have a matching postgres type value.
-     */
-    @Test
-    public void testEnums() {
-        String name = "Abies alba Mill.";
-        deleteName(name);
-        int nameKey = createName(name);
-
-        NameUsageWritable u = new NameUsageWritable();
-        u.setDatasetKey(DATASET_KEY);
-        u.setNameKey(nameKey);
-        for (Rank r : Rank.values()) {
-            u.setKey(null);
-            u.setRank(r);
-            mapper.insert(u);
-        }
-        for (Origin o : Origin.values()) {
-            u.setKey(null);
-            u.setOrigin(o);
-            mapper.insert(u);
-        }
-        for (TaxonomicStatus s : TaxonomicStatus.values()) {
-            u.setKey(null);
-            u.setTaxonomicStatus(s);
-            mapper.insert(u);
-        }
-        for (NomenclaturalStatus s : NomenclaturalStatus.values()) {
-            u.setKey(null);
-            u.getNomenclaturalStatus().add(s);
-            mapper.insert(u);
-        }
-        for (NameUsageIssue s : NameUsageIssue.values()) {
-            u.setKey(null);
-            u.getIssues().add(s);
-            mapper.insert(u);
-        }
+    for (NomenclaturalStatus s : NomenclaturalStatus.values()) {
+      u.setKey(null);
+      u.getNomenclaturalStatus().add(s);
+      mapper.insert(u);
     }
-
-    /**
-     * Check all enum values have a matching postgres type value.
-     */
-    @Test
-    public void testListUsageRange() {
-        List<NameUsage> list = mapper.listRange(0, 1000);
+    for (NameUsageIssue s : NameUsageIssue.values()) {
+      u.setKey(null);
+      u.getIssues().add(s);
+      mapper.insert(u);
     }
+  }
 
-    /**
-     * Check all enum values have a matching postgres type value.
-     */
-    @Test
-    public void testInsertWithKey() {
-        String name = "Abies negra Mill.";
-        deleteName(name);
-        int nameKey = createName(name);
+  /**
+   * Check all enum values have a matching postgres type value.
+   */
+  @Test
+  public void testListUsageRange() {
+    List<NameUsage> list = mapper.listRange(0, 1000);
+  }
 
-        NameUsageWritable u = new NameUsageWritable();
-        u.setDatasetKey(DATASET_KEY);
-        u.setNameKey(nameKey);
-        u.setRank(Rank.SPECIES);
-        mapper.insert(u);
-        assertEquals(100000000, (int) u.getKey());
+  /**
+   * Check all enum values have a matching postgres type value.
+   */
+  @Test
+  public void testInsertWithKey() {
+    String name = "Abies negra Mill.";
+    deleteName(name, Rank.SPECIES);
+    int nameKey = createName(name, Rank.SPECIES);
 
-        u.setKey(110);
-        mapper.insert(u);
-        assertEquals(110, (int)u.getKey());
+    NameUsageWritable u = new NameUsageWritable();
+    u.setDatasetKey(DATASET_KEY);
+    u.setNameKey(nameKey);
+    u.setRank(Rank.SPECIES);
+    mapper.insert(u);
+    assertEquals(100000000, (int) u.getKey());
 
-        u.setKey(null);
-        mapper.insert(u);
-        assertEquals(100000001, (int)u.getKey());
-    }
+    u.setKey(110);
+    mapper.insert(u);
+    assertEquals(110, (int) u.getKey());
 
-    /**
-     * Check all enum values have a matching postgres type value.
-     */
-    @Test
-    public void testGetUpdateIssues() {
-        String name = "Abies Mill.";
-        deleteName(name);
-        int nameKey = createName(name);
+    u.setKey(null);
+    mapper.insert(u);
+    assertEquals(100000001, (int) u.getKey());
+  }
 
-        NameUsageWritable u = new NameUsageWritable();
-        u.setDatasetKey(DATASET_KEY);
-        u.setNameKey(nameKey);
-        u.setRank(Rank.SPECIES);
-        mapper.insert(u);
+  /**
+   * Check all enum values have a matching postgres type value.
+   */
+  @Test
+  public void testGetUpdateIssues() {
+    String name = "Abies Mill.";
+    deleteName(name, Rank.GENUS);
+    int nameKey = createName(name, Rank.GENUS);
 
-        final int key = u.getKey();
+    NameUsageWritable u = new NameUsageWritable();
+    u.setDatasetKey(DATASET_KEY);
+    u.setNameKey(nameKey);
+    u.setRank(Rank.SPECIES);
+    mapper.insert(u);
 
-        Set<NameUsageIssue> issues = mapper.getIssues(key).getIssues();
-        assertTrue(issues.isEmpty());
-        assertEquals((Integer)key, mapper.getIssues(key).getKey());
+    final int key = u.getKey();
 
-        issues.add(NameUsageIssue.BACKBONE_MATCH_NONE);
-        mapper.updateIssues(key, issues);
-        assertEquals(issues, mapper.getIssues(key).getIssues());
+    Set<NameUsageIssue> issues = mapper.getIssues(key).getIssues();
+    assertTrue(issues.isEmpty());
+    assertEquals((Integer) key, mapper.getIssues(key).getKey());
 
-        issues.remove(NameUsageIssue.BACKBONE_MATCH_NONE);
-        mapper.updateIssues(key, issues);
-        assertTrue(mapper.getIssues(key).getIssues().isEmpty());
-    }
+    issues.add(NameUsageIssue.BACKBONE_MATCH_NONE);
+    mapper.updateIssues(key, issues);
+    assertEquals(issues, mapper.getIssues(key).getIssues());
+
+    issues.remove(NameUsageIssue.BACKBONE_MATCH_NONE);
+    mapper.updateIssues(key, issues);
+    assertTrue(mapper.getIssues(key).getIssues().isEmpty());
+  }
 }

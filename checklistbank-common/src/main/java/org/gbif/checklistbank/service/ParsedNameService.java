@@ -14,17 +14,15 @@ public interface ParsedNameService {
    */
   ParsedName createOrGet(ParsedName name);
 
-
-  /**
-   * Reparses all stored names in the db
-   *
-   * @return number of parsed names
-   */
-  int reparseAll();
-
   /**
    * Deletes all orphaned names without a name_usage linking to them
    * @return number of deleted names
    */
   int deleteOrphaned();
+
+  /**
+   * Reparses all scientific names from the names table and updates modified parsed name records
+   * @return number of changed parsed names
+   */
+  int reparseAll();
 }

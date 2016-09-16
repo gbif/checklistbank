@@ -80,16 +80,20 @@ public class AdminConfiguration {
   public boolean nubRanksOnly = false;
 
   /**
+   * Do not change any information in checklistbank, just report potential changes, e.g. for reparsed names
+   */
+  @Parameter(names = {"--dry-run"}, required = false)
+  public boolean dryRun = false;
+
+  /**
    * If true sets the Backbone dataset key in the key config
    */
-  @Valid
   @Parameter(names = {"--nub"}, required = false)
   public boolean nub = false;
 
   /**
    * If true sets the Catalog of Life dataset key in the key config
    */
-  @Valid
   @Parameter(names = {"--col"}, required = false)
   public boolean col = false;
 

@@ -4,19 +4,19 @@
 
     <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
     n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
-    n.notho_type, n.rank_marker, n.nom_status, n.sensu, n.remarks,
+    n.notho_type, n.rank, n.nom_status, n.sensu, n.remarks,
     n.authors_parsed, n.authorship, n.year, n.bracket_authorship, n.bracket_year
   </sql>
 
     <sql id="writeFields">scientific_name, canonical_name, type,
       genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
-      notho_type, rank_marker, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
+      notho_type, rank, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
       nom_status, sensu, remarks
     </sql>
 
-    <sql id="writeValues">#{pn.scientificName}, #{canonicalName}, #{pn.type}::name_type,
+    <sql id="writeValues">#{pn.scientificName}, #{canonical}, #{pn.type}::name_type,
         #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
-        #{pn.notho}::name_part, #{pn.rankMarker}, #{pn.authorsParsed},
+        #{pn.notho}::name_part, #{pn.rank}::rank, #{pn.authorsParsed},
         #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
         #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks}
     </sql>
@@ -56,15 +56,17 @@
         <include refid="SELECT"/>
         FROM
         <include refid="FROM"/>
-        WHERE n.scientific_name=#{name}
+        WHERE n.scientific_name=#{name} AND n.rank=#{rank}::rank
     </select>
 
     <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
+      <bind name="canonical" value="_parameter.pn.canonicalName()" />
         INSERT INTO name (<include refid="writeFields"/>)
         VALUES (<include refid="writeValues"/>)
     </insert>
 
     <update id="update" parameterType="ParsedName" keyProperty="pn.key">
+      <bind name="canonical" value="_parameter.pn.canonicalName()" />
         UPDATE name
         SET (<include refid="writeFields"/>) = (<include refid="writeValues"/>)
         WHERE id=#{pn.key}

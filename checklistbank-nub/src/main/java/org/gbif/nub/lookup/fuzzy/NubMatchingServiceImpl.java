@@ -6,6 +6,7 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
@@ -587,12 +588,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     int similarity = 0;
     if (ref != null) {
         // rate ranks lower that are not represented in the canonical, e.g. cultivars
-      if (Rank.CULTIVAR == ref || Rank.CULTIVAR_GROUP == ref){
+      if (ref.isRestrictedToCode() == NomenclaturalCode.CULTIVARS){
         similarity -= 7;
       } else if (Rank.STRAIN == ref){
         similarity -= 7;
-      } else if (Rank.INFORMAL == ref){
-        similarity -= 5;
       }
 
       if (ref.isUncomparable()){
@@ -615,7 +614,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
           // unspecific infrasubspecific rank
           similarity += 5;
 
-        } else if (Rank.UNCOMPARABLE_RANKS.contains(query)) {
+        } else if (query.isUncomparable()) {
           // uncomparable query ranks
           similarity -= 5;
 

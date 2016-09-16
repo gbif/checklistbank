@@ -28,8 +28,6 @@ import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -176,11 +174,6 @@ public class AdminCommand extends BaseCommand {
 
       case UPDATE_NUB_DATASET:
         updateNubDataset();
-        break;
-
-
-      case UPDATE_NUB_NAMES:
-        updateNubNames();
         break;
 
       default:
@@ -330,9 +323,10 @@ public class AdminCommand extends BaseCommand {
    */
   private void reparseNames() {
     Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    ParsedNameService parsedNameService = inj.getInstance(ParsedNameService.class);
+    ParsedNameService nameService = inj.getInstance(ParsedNameService.class);
+
     LOG.info("Start reparsing all names. This will take a while ...");
-    int num = parsedNameService.reparseAll();
+    int num = nameService.reparseAll();
     LOG.info("{} names reparsed", num);
   }
 
@@ -341,18 +335,6 @@ public class AdminCommand extends BaseCommand {
     ClbSource src = new ClbSource(cfg.clb, cfg.key, "Checklist " + cfg.key);
     src.setNeoRepository(cfg.neo.neoRepository);
     src.init(true, cfg.nubRanksOnly, false, false);
-  }
-
-  private void updateNubNames() {
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
-    ParsedNameService pNameService = inj.getInstance(ParsedNameService.class);
-    NameUsageMapper usageMapper = inj.getInstance(NameUsageMapper.class);
-    ParsedNameMapper nameMapper = inj.getInstance(ParsedNameMapper.class);
-
-    NubNameUpdater updater = new NubNameUpdater(usageMapper, nameMapper, pNameService);
-    LOG.info("update all inconsistent names");
-    usageMapper.processDataset(Constants.NUB_DATASET_KEY, updater);
-    LOG.info("Finished updating {} inconsistent names out of {} nub names", updater.getUpdCounter(), updater.getCounter());
   }
 
   private void verifyNeo() throws Exception {

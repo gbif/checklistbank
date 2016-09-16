@@ -81,7 +81,7 @@ public class MapperITBase<T> {
     ParsedName pn = new ParsedName();
     pn.setType(NameType.SCIENTIFIC);
     pn.setScientificName(StringUtils.randomSpecies());
-    parsedNameMapper.create(pn, pn.getScientificName());
+    parsedNameMapper.create(pn);
     final int nameKey = pn.getKey();
 
     datasetKey = UUID.randomUUID();

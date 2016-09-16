@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.UsageExtensions;
 
 import java.util.List;
@@ -31,12 +32,12 @@ public class NameUsageDocConverterTest {
         u.setScientificName("Abies alba Mill.");
         u.setCanonicalName("Abies alba");
         u.setRank(Rank.SPECIES);
-        u.setSynonym(false);
+        u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
         u.setParentKey(1);
         u.setFamilyKey(1024);
         u.setFamily("Pinaceae");
         u.getIssues().add(NameUsageIssue.RANK_INVALID);
-        u.getIssues().add(NameUsageIssue.BACKBONE_MATCH_FUZZY);
+        u.getIssues().add(NameUsageIssue.CLASSIFICATION_NOT_APPLIED);
 
         UsageExtensions ext = new UsageExtensions();
         SpeciesProfile sp = new SpeciesProfile();
@@ -65,7 +66,7 @@ public class NameUsageDocConverterTest {
         assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
         assertEquals(u.getRank().ordinal(), doc.get("rank_key").getValue());
         assertThat((List<Integer>) doc.get("issues").getValue()).contains(NameUsageIssue.RANK_INVALID.ordinal(),
-                NameUsageIssue.BACKBONE_MATCH_FUZZY.ordinal());
+                NameUsageIssue.CLASSIFICATION_NOT_APPLIED.ordinal());
         assertThat((List<Integer>) doc.get("habitat_key").getValue()).containsOnlyOnce(Habitat.TERRESTRIAL.ordinal(), Habitat.FRESHWATER.ordinal());
         assertThat((List<Integer>) doc.get("higher_taxon_key").getValue()).containsOnlyOnce(12, 15, 20, 100);
     }

@@ -87,7 +87,6 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     u.setScientificName(name);
     u.setTaxonID(taxonID);
     u.setOrigin(Origin.SOURCE);
-    u.setSynonym(false);
     u.getIssues().add(NameUsageIssue.MULTIMEDIA_INVALID);
     u.getIssues().add(NameUsageIssue.CHAINED_SYNOYM);
     u.setModified(new Date());
@@ -95,7 +94,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     u.getNomenclaturalStatus().add(NomenclaturalStatus.DOUBTFUL);
     u.setRank(Rank.SUBSPECIES);
     u.setRemarks("neat neat neat");
-    u.setTaxonomicStatus(TaxonomicStatus.HETEROTYPIC_SYNONYM);
+    u.setTaxonomicStatus(TaxonomicStatus.DOUBTFUL);
     u.setSourceTaxonKey(674321);
     u.setReferences(URI.create("http://www.gbif.org/1234"));
     u.setAccordingTo("Chuck told me this");
@@ -190,12 +189,10 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     u.setDatasetKey(CHECKLIST_KEY);
     u.setScientificName(name);
     u.setOrigin(Origin.SOURCE);
-    u.setSynonym(false);
     u.setModified(new Date());
     // all enums
     u.getIssues().addAll(Sets.newHashSet(NameUsageIssue.values()));
     u.getNomenclaturalStatus().addAll(Sets.newHashSet(NomenclaturalStatus.values()));
-
     u.setRank(Rank.SPECIES);
     u.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
 
@@ -245,7 +242,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     p.setScientificName(name);
     p.setRank(rank);
     p.setTaxonID(name);
-    p.setSynonym(false);
+    p.setTaxonomicStatus(TaxonomicStatus.ACCEPTED);
     p.setOrigin(Origin.SOURCE);
     p.setLastInterpreted(new Date());
     p.setModified(new Date());

@@ -181,7 +181,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     assertEquals("Rodentia", rodentia.getGenusOrAbove());
     assertEquals("Bowdich", rodentia.getAuthorship());
     assertEquals("1821", rodentia.getYear());
-    assertNull(rodentia.getRank());
+    assertEquals(Rank.ORDER, rodentia.getRank());
   }
 
   @Test

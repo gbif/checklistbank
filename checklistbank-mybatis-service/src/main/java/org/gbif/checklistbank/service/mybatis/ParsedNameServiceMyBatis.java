@@ -51,7 +51,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
   @Transactional
   private ParsedName createOrGetThrowing(ParsedName preParsed) throws PersistenceException {
-    ParsedName pn = mapper.getByName(preParsed.getScientificName());
+    ParsedName pn = mapper.getByName(preParsed.getScientificName(), preParsed.getRank());
     if (pn == null) {
       // try to write the name to postgres
       write(preParsed);
@@ -61,7 +61,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
   }
 
   private void write(ParsedName pn) {
-    mapper.create(pn, Strings.emptyToNull(pn.canonicalName()));
+    mapper.create(pn);
   }
 
   @Override
@@ -87,7 +87,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     mapper.processNames(handler);
     LOG.info("Reparsed all {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
         handler.counter, handler.changed, handler.failed, handler.hybrids, handler.virus, handler.placeholder, handler.noname);
-    return handler.counter;
+    return handler.changed;
   }
 
   private class ReparseHandler implements ResultHandler<ParsedName> {
@@ -101,16 +101,18 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
     @Override
     public void handleResult(ResultContext<? extends ParsedName> context) {
-      ParsedName pn = context.getResultObject();
+      ParsedName p1 = context.getResultObject();
       counter++;
+      ParsedName p2;
       try {
-        ParsedName p2 = parser.parse(pn.getScientificName(), null);
-        p2.setKey(pn.getKey());
-        if (!pn.equals(p2)) {
-          mapper.update(p2, p2.canonicalName());
-          changed++;
-        }
+        p2 = parser.parse(p1.getScientificName(), p1.getRank());
+
       } catch (UnparsableException e) {
+        p2 = new ParsedName();
+        p2.setScientificName(p1.getScientificName());
+        p2.setRank(p1.getRank());
+        p2.setType(e.type);
+
         failed++;
         switch (e.type) {
           case HYBRID:
@@ -126,6 +128,13 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
             noname++;
             break;
         }
+      }
+
+      p2.setKey(p1.getKey());
+      if (!p1.equals(p2)) {
+        LOG.debug("Updating reparsed name {} -> {}", p1, p2);
+        mapper.update(p2);
+        changed++;
       }
       if (counter % 100000 == 0) {
         LOG.info("Reparsed {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, changed, failed, hybrids, virus, placeholder, noname);

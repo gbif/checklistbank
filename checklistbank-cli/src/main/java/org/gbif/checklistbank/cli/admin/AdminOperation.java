@@ -58,8 +58,7 @@ public enum AdminOperation {
   UPDATE_NUB_DATASET(true),
 
   /**
-   * Reparse all names.
-   * This does not supply any rank information to the name parser, so it might be worse than the initial parsing for monomials.
+   * Reparse all parsed names.
    */
   REPARSE(true),
 
@@ -76,13 +75,7 @@ public enum AdminOperation {
   /**
    * Runs the backbone validation against the local neo4j backbone.
    */
-  VALIDATE_NEO(true),
-
-  /**
-   * Reparses all nub names and if the canonical full name differs from the current scientific name creates a new name record and updates the respective nub name usage.
-   * Useful to update nub names when the name parser has improved.
-   */
-  UPDATE_NUB_NAMES(true);
+  VALIDATE_NEO(true);
 
   public final boolean global;
 

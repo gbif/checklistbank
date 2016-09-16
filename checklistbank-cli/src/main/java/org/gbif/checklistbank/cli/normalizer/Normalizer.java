@@ -72,7 +72,7 @@ public class Normalizer extends ImportDb implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
-  private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.INFORMAL);
+  private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
   private static final NamedThreadFactory THREAD_FACTORY = new NamedThreadFactory("normalizer-parser");
 
@@ -733,7 +733,6 @@ public class Normalizer extends ImportDb implements Runnable {
     if (accepted != null && !accepted.equals(nn.node)) {
       // make sure taxonomic status reflects the synonym relation
       if (!nn.usage.isSynonym()) {
-        nn.usage.setSynonym(true);
         nn.usage.setTaxonomicStatus(TaxonomicStatus.SYNONYM);
       }
       nn.node.createRelationshipTo(accepted, RelType.SYNONYM_OF);

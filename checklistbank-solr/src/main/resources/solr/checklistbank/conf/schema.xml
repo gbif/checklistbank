@@ -136,6 +136,7 @@
     <field name="key" type="int" indexed="true" stored="true" required="true"/>
     <!-- needed by updatelog for NRT search with soft commits -->
     <field name="_version_" type="long" indexed="true" stored="true" multiValued="false"/>
+    <field name="name_key" type="int" indexed="false" stored="true"/>
     <field name="nub_key" type="int" indexed="false" stored="true"/>
     <field name="dataset_key" type="uuid" indexed="true" stored="true" docValues="true"/>
     <field name="constituent_key" type="uuid" indexed="true" stored="true" docValues="true"/>
@@ -193,7 +194,6 @@
     <field name="num_descendants" type="int" indexed="true" stored="true" docValues="true"/>
 
     <field name="source_id" type="string" indexed="false" stored="true"/>
-    <field name="is_synonym" type="boolean" indexed="false" stored="true"/>
     <field name="extinct" type="boolean" indexed="true" stored="true"/>
 
     <field name="description" type="text" indexed="true" stored="true" multiValued="true"/>

@@ -51,7 +51,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals("Abies sp.", pn.getScientificName());
     assertEquals("Abies spec.", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
-    assertEquals("sp.", pn.getRankMarker());
     assertEquals(Rank.SPECIES, pn.getRank());
     assertNull(pn.getSpecificEpithet());
 
@@ -59,7 +58,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals("×Abies Mill.", pn.getScientificName());
     assertEquals("Abies", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
-    assertNull(pn.getRankMarker());
     assertNull(pn.getRank());
     assertNull(pn.getSpecificEpithet());
     assertEquals(NamePart.GENERIC, pn.getNotho());
@@ -68,7 +66,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals("? hostilis Gravenhorst, 1829", pn.getScientificName());
     assertEquals("? hostilis", pn.canonicalName());
     assertEquals("?", pn.getGenusOrAbove());
-    assertNull(pn.getRankMarker());
     assertEquals(Rank.SPECIES, pn.getRank());
     assertEquals("hostilis", pn.getSpecificEpithet());
   }
@@ -83,30 +80,14 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
       return pn;
     }
   }
-  @Test
-  public void testReparse() throws Exception {
-    assertEquals(1150, service.reparseAll());
-
-    ParsedNameServiceMyBatis srv = (ParsedNameServiceMyBatis) service;
-
-    ParsedName pn = srv.get(100938);
-    assertEquals("Losaria", pn.getInfraGeneric());
-    assertEquals("Losaria", pn.canonicalName());
-
-    //TODO: reparse all needs to know the rank for this to work!!!
-    pn = srv.get(100939);
-    //assertNull(pn.getInfraGeneric());
-    //assertEquals("Nitschke", pn.getBracketAuthorship());
-    //assertEquals("Bolinia", pn.canonicalName());
-
-    pn = srv.get(100940);
-    assertEquals("Diconoficus", pn.getInfraGeneric());
-    assertEquals("Diconoficus", pn.canonicalName());
-  }
 
   @Test
   public void testOrphaned() throws Exception {
-    assertEquals(1107, ((ParsedNameServiceMyBatis) service).deleteOrphaned());
+    assertEquals(1, service.deleteOrphaned());
   }
 
+  @Test
+  public void testReparse() throws Exception {
+    assertEquals(1, service.reparseAll());
+  }
 }

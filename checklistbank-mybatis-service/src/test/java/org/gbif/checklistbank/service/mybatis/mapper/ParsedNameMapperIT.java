@@ -27,19 +27,19 @@ public class ParsedNameMapperIT extends MapperITBase<ParsedNameMapper> {
             pn.setKey(null);
             pn.setScientificName(StringUtils.randomSpecies());
             pn.setType(p);
-            mapper.create(pn, "canonical");
+            mapper.create(pn);
         }
         for (Rank r : Rank.values()) {
             pn.setKey(null);
             pn.setScientificName(StringUtils.randomSpecies());
             pn.setRank(r);
-            mapper.create(pn, "canonical");
+            mapper.create(pn);
         }
         for (NamePart p : NamePart.values()) {
             pn.setKey(null);
             pn.setScientificName(StringUtils.randomSpecies());
             pn.setNotho(p);
-            mapper.create(pn, "canonical");
+            mapper.create(pn);
         }
     }
 
@@ -54,7 +54,7 @@ public class ParsedNameMapperIT extends MapperITBase<ParsedNameMapper> {
         for (int x = 0; x < 10; x++) {
             pn.setKey(null);
             pn.setScientificName(StringUtils.randomSpecies());
-            mapper.create(pn, "canonical");
+            mapper.create(pn);
         }
         assertEquals((Integer) 10, mapper.maxKey());
     }

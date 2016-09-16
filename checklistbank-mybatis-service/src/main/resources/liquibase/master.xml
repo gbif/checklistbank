@@ -275,4 +275,27 @@
       ]]>
     </sql>
   </changeSet>
+  <changeSet id="43" author="markus">
+    <sqlFile path="liquibase/rank_enum_update2.sql"/>
+    <sqlFile path="liquibase/debug_views2.sql"/>
+    <sql>
+      <![CDATA[
+      CREATE FUNCTION groupInfraspecificRanks(rnk rank) RETURNS rank AS $$
+      SELECT CASE WHEN rnk <= 'SPECIES'::rank THEN rnk
+        ELSE 'INFRASPECIFIC_NAME'::rank
+      END
+      $$
+      LANGUAGE SQL;
+      ]]>
+    </sql>
+    <!-- use rank in parsed name and make it unique by name & rank -->
+    <sql>
+      ALTER TABLE name DROP CONSTRAINT scientific_name_unique;
+      DROP INDEX name_scientific_name_idx;
+      ALTER TABLE name ADD COLUMN rank rank;
+      ALTER TABLE name DROP COLUMN rank_marker;
+      ALTER TABLE name ADD UNIQUE (scientific_name, rank);
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

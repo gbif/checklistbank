@@ -34,7 +34,7 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
         assertEquals(CHECKLIST_KEY, d.getDatasetKey());
         assertEquals(44, d.getUsagesCount());
         assertEquals(16, d.getSynonymsCount());
-        assertEquals(43, d.getDistinctNamesCount());
+        assertEquals(44, d.getDistinctNamesCount());
         assertEquals(2, d.getNubMatchingCount());
         assertEquals(0, d.getColMatchingCount());
         assertEquals(0, d.getColCoveragePct());

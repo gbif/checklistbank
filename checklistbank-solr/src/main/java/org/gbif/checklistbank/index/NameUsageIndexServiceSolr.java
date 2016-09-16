@@ -66,6 +66,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   private ConcurrentLinkedQueue<Future<?>> tasks = new ConcurrentLinkedQueue<>();
   private final Meter updMeter = new Meter();
   private final AtomicInteger updCounter = new AtomicInteger(0);
+
   @Inject
   public NameUsageIndexServiceSolr(
     SolrClient solr,

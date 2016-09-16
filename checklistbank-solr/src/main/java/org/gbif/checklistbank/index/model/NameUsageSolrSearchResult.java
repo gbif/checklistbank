@@ -261,6 +261,11 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
     super.setNubKey(nubKey);
   }
 
+  @Field("name_key")
+  public void setNameKey(Integer nubKey) {
+    // ignore for now
+  }
+
   @Override
   @Field("num_descendants")
   public void setNumDescendants(int numDescendants) {
@@ -355,12 +360,6 @@ public class NameUsageSolrSearchResult extends NameUsageSearchResult {
   @Field("subgenus_key")
   public void setSubgenusKey(Integer subgenusKey) {
     super.setSubgenusKey(subgenusKey);
-  }
-
-  @Override
-  @Field("is_synonym")
-  public void setSynonym(boolean isSynonym) {
-    super.setSynonym(isSynonym);
   }
 
   @Field("taxonomic_status_key")
