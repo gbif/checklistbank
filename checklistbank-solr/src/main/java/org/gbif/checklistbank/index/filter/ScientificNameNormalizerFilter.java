@@ -4,19 +4,14 @@ import org.gbif.checklistbank.utils.SciNameNormalizer;
 
 import java.io.IOException;
 
-import com.google.common.base.Strings;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Lucene filter that uses the SciNameNormalizer util to normalize scientific names.
  */
 public class ScientificNameNormalizerFilter extends TokenFilter {
-  private static final Logger LOG = LoggerFactory.getLogger(ScientificNameNormalizerFilter.class);
-
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
   /**
@@ -31,7 +26,7 @@ public class ScientificNameNormalizerFilter extends TokenFilter {
     if (!input.incrementToken()) return false;
 
     String term = termAtt.toString();
-    if (!Strings.isNullOrEmpty(term)) {
+    if (term == null || term.trim().isEmpty()) {
       String normed = SciNameNormalizer.normalize(term);
       termAtt.copyBuffer(normed.toCharArray(), 0, normed.length());
     }

@@ -5,14 +5,11 @@ import java.io.IOException;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Based on character transpositions found in Tony Reese's TaxonMatch.
  */
 public class ScientificNameSoundAlikeFilter extends TokenFilter {
-  private static final Logger LOG = LoggerFactory.getLogger(ScientificNameSoundAlikeFilter.class);
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 

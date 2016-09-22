@@ -1,8 +1,9 @@
 package org.gbif.checklistbank.utils;
 
+import org.gbif.utils.text.StringUtils;
+
 import java.util.regex.Pattern;
 
-import com.google.common.base.Strings;
 
 /**
  * A scientific name normalizer that replaces common misspellings and epithet gender changes.
@@ -19,8 +20,13 @@ public class SciNameNormalizer {
   private static final Pattern removeHybridSignGenus   = Pattern.compile("^\\s*[×xX]\\s*([A-Z])");
   private static final Pattern removeHybridSignEpithet = Pattern.compile("(?:^|\\s)(?:×\\s*|[xX]\\s+)([^A-Z])");
 
+  // dont use guava or commons so we dont have to bundle it for the solr cloud plugin ...
+  public static boolean hasContent(String s) {
+    return s != null && !(s.trim().isEmpty());
+  }
+
   public static String normalize(String s) {
-    if (Strings.isNullOrEmpty(s)) return null;
+    if (!hasContent(s)) return null;
 
     s = s.trim();
 
@@ -29,7 +35,7 @@ public class SciNameNormalizer {
    s = removeHybridSignEpithet.matcher(s).replaceAll(" $1");
 
     // Normalize letters and ligatures to their ASCII equivalent
-    s = org.gbif.utils.text.StringUtils.foldToAscii(s);
+    s = StringUtils.foldToAscii(s);
 
     // normalize whitespace
     s = empty.matcher(s).replaceAll("");
@@ -55,7 +61,7 @@ public class SciNameNormalizer {
    * Does a stemming of a latin epithet and return the female version ending with 'a'.
    */
   public static String stemEpithet(String epithet) {
-    if (Strings.isNullOrEmpty(epithet)) return null;
+    if (!hasContent(epithet)) return null;
     return suffix_a.matcher(epithet).replaceFirst("a");
   }
 

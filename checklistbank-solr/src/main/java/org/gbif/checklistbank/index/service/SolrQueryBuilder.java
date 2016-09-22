@@ -41,6 +41,7 @@ import static org.gbif.common.search.builder.SolrQueryUtils.DEFAULT_FACET_COUNT;
 import static org.gbif.common.search.builder.SolrQueryUtils.DEFAULT_FACET_SORT;
 import static org.gbif.common.search.builder.SolrQueryUtils.perFieldParamName;
 import static org.gbif.common.search.builder.SolrQueryUtils.taggedField;
+import static org.gbif.common.search.util.QueryUtils.PARAMS_AND_JOINER;
 import static org.gbif.common.search.util.QueryUtils.PARAMS_JOINER;
 import static org.gbif.common.search.util.QueryUtils.PARAMS_OR_JOINER;
 import static org.gbif.common.search.util.QueryUtils.toParenthesesQuery;
@@ -48,7 +49,9 @@ import static org.gbif.common.search.util.QueryUtils.toPhraseQuery;
 import static org.gbif.common.search.util.SolrConstants.BLANK;
 import static org.gbif.common.search.util.SolrConstants.DEFAULT_QUERY;
 import static org.gbif.common.search.util.SolrConstants.FACET_FILTER_EX;
+import static org.gbif.common.search.util.SolrConstants.NOT_OP;
 import static org.gbif.common.search.util.SolrConstants.NUM_HL_SNIPPETS;
+import static org.gbif.ws.util.WebserviceParameter.DEFAULT_SEARCH_PARAM_VALUE;
 
 /**
  * Builder class that helps in the creation process of query patterns for classes annotated with
@@ -68,9 +71,12 @@ public class SolrQueryBuilder {
   private static final Integer FRAGMENT_SIZE = 100;
 
 
-  private static String cleanQ(String q) {
+  private static String prepareQ(String q) {
     if (Strings.isNullOrEmpty(q)) return null;
     q = q.trim();
+    // the common-ws utils replaces empty queries with * as the default - this does not work for dismax, remove it
+    if (q.equals(DEFAULT_SEARCH_PARAM_VALUE)) return null;
+
     return q.contains(BLANK) ? QueryUtils.toPhraseQuery(q) : q;
   }
 
@@ -106,7 +112,10 @@ public class SolrQueryBuilder {
     //Preconditions.checkArgument(request.getOffset() <= maxOffset - request.getLimit(), "maximum offset allowed is %s", this.maxOffset);
     SolrQuery query = new SolrQuery();
     // q param
-    query.setQuery(cleanQ(request.getQ()));
+    String q = prepareQ(request.getQ());
+    if (!Strings.isNullOrEmpty(q)) {
+      query.setQuery(q);
+    }
     // use dismax query parser
     query.set("defType", QUERY_PARSER);
     // sets the default catch all, alternative query if q above is empty
@@ -151,15 +160,33 @@ public class SolrQueryBuilder {
   private static void setFacetFilterQuery(SearchRequest<NameUsageSearchParameter> request, SolrQuery solrQuery) {
     Multimap<NameUsageSearchParameter, String> params = request.getParameters();
     if (params != null) {
+      List<String> and = Lists.newArrayList();
       for (NameUsageSearchParameter param : params.keySet()) {
         String solrField = FACET_MAPPING.get(param);
         if (solrField != null) {
-          List<String> or = Lists.newArrayList();
+          List<String> predicates = Lists.newArrayList();
+          Boolean negated = null;
           for (String value : params.get(param)) {
             if (Strings.isNullOrEmpty(value)) {
               throw new IllegalArgumentException("Null value not allowed for filter parameter " + param);
             }
 
+            // treat negation
+            if (negated == null) {
+              negated = QueryUtils.isNegated(value);
+            } else {
+              // make sure we do not mix negated and unnegated filters for the same parameter - this is too complex and not supported
+              if (QueryUtils.isNegated(value) != negated) {
+                throw new IllegalArgumentException("Mixing of negated and not negated filters for the same parameter " + param.name() + " is not allowed");
+              }
+            }
+
+            // strip off negation symbol before we parse the value
+            if (negated) {
+              value = QueryUtils.removeNegation(value);
+            }
+
+            // parse value into typed instance
             String filterVal;
             if (Enum.class.isAssignableFrom(param.type())) {
               Enum<?> e = VocabularyUtils.lookupEnum(value, (Class<? extends Enum<?>>) param.type());
@@ -181,12 +208,19 @@ public class SolrQueryBuilder {
               filterVal = toPhraseQuery(value);
             }
 
-            or.add(PARAMS_JOINER.join(solrField, filterVal));
+            final String predicate = PARAMS_JOINER.join(solrField, filterVal);
+            predicates.add(predicate);
           }
-          if (!or.isEmpty()) {
-            solrQuery.addFilterQuery(toParenthesesQuery(PARAMS_OR_JOINER.join(or)));
+
+          // combine all parameter predicates with OR
+          if (!predicates.isEmpty()) {
+            String paranthesis = toParenthesesQuery(PARAMS_OR_JOINER.join(predicates));
+            and.add(negated ? NOT_OP + paranthesis : paranthesis);
           }
         }
+      }
+      if (!and.isEmpty()) {
+        solrQuery.addFilterQuery(toParenthesesQuery(PARAMS_AND_JOINER.join(and)));
       }
     }
   }

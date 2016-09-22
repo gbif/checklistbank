@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;
@@ -91,9 +92,32 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
   @Test
   public void testEnumFilterRequest() {
     // test good query with a rank enum name
-    NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 10);
-    searchRequest.addParameter(NameUsageSearchParameter.RANK, "genus");
-    searchService.search(searchRequest);
+    NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 25);
+    req.addParameter(NameUsageSearchParameter.RANK, "order");
+    assertSearch(req, 2l, null);
+
+    req.addParameter(NameUsageSearchParameter.RANK, "genus");
+    assertSearch(req, 16l, null);
+  }
+
+  @Test
+  public void testNegatedFilters() {
+    // test good query with a rank enum name
+    NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 50);
+    req.addParameter(NameUsageSearchParameter.RANK, "!genus");
+    req.addParameter(NameUsageSearchParameter.RANK, "!species");
+    req.addParameter(NameUsageSearchParameter.RANK, "!subspecies");
+
+    assertSearch(req, 15l, null);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testNegatedFiltersError() {
+    // test good query with a rank enum name
+    NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 50);
+    req.addParameter(NameUsageSearchParameter.RANK, "!genus");
+    req.addParameter(NameUsageSearchParameter.RANK, "species");
+    assertSearch(req, null, null);
   }
 
   @Test
@@ -114,6 +138,8 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, null, 10L, null);
     assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.SPECIES, 1l, null);
     assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
+
+    assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
   }
 
   @Test
@@ -122,6 +148,16 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> resp = search(null, NameUsageSearchParameter.NOMENCLATURAL_STATUS, NomenclaturalStatus.NUDUM);
     assertEquals((Integer) 100000026, resp.getResults().get(0).getKey());
   }
+
+  @Test
+  public void testHigherTaxonFilter() {
+    NameUsageSearchRequest req = new NameUsageSearchRequest();
+    req.addChecklistFilter(UUID.fromString(SQUIRRELS_DATASET_KEY));
+    req.addHigherTaxonFilter(100000024);
+
+    assertSearch(req, 14L, null);
+  }
+
 
   @Test
   public void testSuggest() {
@@ -153,6 +189,11 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     results = searchSuggest("Sciurillus pusila");
     assertEquals(1, results.size());
     assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
+
+    results = searchSuggest("Sciu");
+    assertEquals(27, results.size());
+    assertEquals("Sciuromorpha Brandt, 1855", results.get(0).getScientificName());
+
   }
 
   @Test
@@ -253,22 +294,24 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertSearch(q, null, null, expectedCount, null);
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
-    NameUsageSearchParameter facet,
-    Enum<?> facetFilter, Long expectedCount, Integer expectedFacetCounts) {
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet, Enum<?> facetFilter, Long expectedCount, Integer expectedFacetCounts) {
+    return assertSearch(buildSearch(q, facet, facetFilter), expectedCount, expectedFacetCounts);
+  }
 
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = search(q, facet, facetFilter);
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(NameUsageSearchRequest req, Long expectedCount, Integer expectedFacetCounts) {
+
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = searchService.search(req);
 
     // assert
     if (expectedCount != null) {
       assertEquals(expectedCount, response.getCount());
     }
 
-    if (facet != null && expectedFacetCounts != null) {
+    if (expectedFacetCounts != null) {
       assertEquals(1, response.getFacets().size());
       assertEquals(expectedFacetCounts, (Integer) response.getFacets().get(0).getCounts().size());
     }
-    if (facet == null) {
+    if (req.getFacets().isEmpty()) {
       Assert.assertTrue(response.getFacets().isEmpty());
     }
 
@@ -283,13 +326,17 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     return vnames;
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter>
-    search(String q, NameUsageSearchParameter facet, Enum<?> filter) {
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(String q, NameUsageSearchParameter facet, Enum<?> filter) {
+    return searchService.search(buildSearch(q, facet, filter));
+  }
+
+  private NameUsageSearchRequest buildSearch(String q, NameUsageSearchParameter facet, Enum<?> filter) {
 
     // build request
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 10);
     searchRequest.setQ(q);
     if (filter != null) {
+      searchRequest.addParameter(facet, filter);
       searchRequest.addParameter(facet, filter);
     }
     if (facet != null) {
@@ -297,7 +344,7 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     }
 
     // query
-    return searchService.search(searchRequest);
+    return searchRequest;
   }
 
   /**

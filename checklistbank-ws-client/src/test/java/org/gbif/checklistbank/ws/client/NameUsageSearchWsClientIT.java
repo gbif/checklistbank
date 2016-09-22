@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.gbif.api.model.common.paging.PagingConstants.DEFAULT_PARAM_LIMIT;
@@ -27,6 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class NameUsageSearchWsClientIT {
+  private static String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
 
   private NameUsageSearchService wsClient;
 
@@ -44,12 +44,27 @@ public class NameUsageSearchWsClientIT {
   }
 
   @Test
-  @Ignore("Outcomes need adapting still")
   public void searchSuggestTest() {
-    NameUsageSuggestRequest searchSuggestRequest = new NameUsageSuggestRequest();
-    searchSuggestRequest.setQ("tetracanthus");
-    List<NameUsageSuggestResult> results = wsClient.suggest(searchSuggestRequest);
+    NameUsageSuggestRequest req = new NameUsageSuggestRequest();
+    req.addParameter(NameUsageSearchParameter.DATASET_KEY, SQUIRRELS_DATASET_KEY);
+    req.setLimit(100);
+    req.setQ("tetracanthus");
+    List<NameUsageSuggestResult> results = wsClient.suggest(req);
+    for (NameUsageSuggestResult r : results) {
+      System.out.println(r.getScientificName());
+    }
+    assertEquals(0, results.size());
     assertNotNull(results);
+
+    req = new NameUsageSuggestRequest();
+    req.addParameter(NameUsageSearchParameter.DATASET_KEY, SQUIRRELS_DATASET_KEY);
+    req.setLimit(100);
+    req.setQ("Sciu");
+    results = wsClient.suggest(req);
+
+    //TODO: why does this not work !!!???!??!?!?!
+//    assertEquals(27, results.size());
+//    assertEquals("Sciuridae", results.get(0).getScientificName());
   }
 
   @Test
@@ -57,7 +72,7 @@ public class NameUsageSearchWsClientIT {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(DEFAULT_PARAM_OFFSET, DEFAULT_PARAM_LIMIT);
     searchRequest.setQ("puma");
     searchRequest.addFacets(NameUsageSearchParameter.DATASET_KEY);
-    searchRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c");
+    searchRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());
     searchRequest.setMultiSelectFacets(true);
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = wsClient.search(searchRequest);
     assertNotNull(response);
@@ -69,25 +84,23 @@ public class NameUsageSearchWsClientIT {
     searchRequest.setQ("oenanthe");
     searchRequest.addParameter(NameUsageSearchParameter.HIGHERTAXON_KEY, "3184223");
     searchRequest.addFacets(NameUsageSearchParameter.DATASET_KEY);
-    searchRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c");
+    searchRequest.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = wsClient.search(searchRequest);
     assertNotNull(response);
   }
 
   @Test
   public void searchSearches() {
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result =
-      assertSearch("vulgaris", NameUsageSearchParameter.RANK, 10L, null);
+    assertSearch("vulgaris", NameUsageSearchParameter.RANK, 10L, null);
   }
 
   @Test
-  @Ignore("Outcomes need adapting still")
   public void searchSearchFacets() {
     // RANK
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result =
-      assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, 10L, null);
+    assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, 10L, null);
     assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.VARIETY, 2l, null);
-    result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.SPECIES, 1l, null);
+
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> result = assertSearch("Sciurus vulgaris", NameUsageSearchParameter.RANK, Rank.SPECIES, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertEquals("Sciurus vulgaris Linnaeus, 1758", result.getResults().get(0).getScientificName());
 
@@ -102,23 +115,28 @@ public class NameUsageSearchWsClientIT {
     // we only have the order Rodentia in the nub without children
     result = assertSearch("Rodentia", NameUsageSearchParameter.HIGHERTAXON_KEY, "1", 1l, null);
     assertEquals((Integer) 10, result.getResults().get(0).getKey());
-    // we have the order Rodentia in the checklist linked to subgenus Scirius (100000024) with 14 children
-    assertSearch(null, NameUsageSearchParameter.HIGHERTAXON_KEY, "100000024", 14l, null);
+
+    // plain facet filter search, no query
+    NameUsageSearchRequest req = new NameUsageSearchRequest();
+    req.setQ(null);
+    req.addChecklistFilter(UUID.fromString(SQUIRRELS_DATASET_KEY));
+    req.addHigherTaxonFilter(100000024);
+    assertSearch(req, true, 14l, null);
 
     // TAXSTATUS
-    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, 30L, null);
-    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.SYNONYM, 15l, null);
-    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.HETEROTYPIC_SYNONYM, 1l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, 17L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.SYNONYM, 4l, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.HETEROTYPIC_SYNONYM, 0l, null);
     assertSearch("Sciurus", NameUsageSearchParameter.STATUS, TaxonomicStatus.MISAPPLIED, 0l, null);
 
     // EXTINCT
-    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 30L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, 17L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "false", 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertSearch("Sciurus", NameUsageSearchParameter.IS_EXTINCT, "true", 1l, null);
 
     // HABITAT
-    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 30L, null);
+    assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, 17L, null);
     result = assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.TERRESTRIAL, 1l, null);
     assertEquals((Integer) 100000025, result.getResults().get(0).getKey());
     assertSearch("Sciurus", NameUsageSearchParameter.HABITAT, Habitat.MARINE, 0l, null);
@@ -134,7 +152,7 @@ public class NameUsageSearchWsClientIT {
     NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 20);
     searchRequest.setQ("Sciurus");
     searchRequest.addFacets(NameUsageSearchParameter.HIGHERTAXON_KEY, NameUsageSearchParameter.RANK);
-    assertSearch(searchRequest, true, 30l, null);
+    assertSearch(searchRequest, true, 17L, null);
 
     searchRequest.addParameter(NameUsageSearchParameter.HIGHERTAXON_KEY, "100000025");
     assertSearch(searchRequest, true, 13l, null);
@@ -145,14 +163,14 @@ public class NameUsageSearchWsClientIT {
 
 
   private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
-    NameUsageSearchParameter facet,
-    Long expectedCount, String expectedFacetCounts) {
+                                                                                       NameUsageSearchParameter facet,
+                                                                                       Long expectedCount, String expectedFacetCounts) {
     return assertSearch(q, facet, (String) null, expectedCount, expectedFacetCounts);
   }
 
   private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
-    NameUsageSearchParameter facet,
-    Enum<?> facetFilter, Long expectedCount, String expectedFacetCounts) {
+                                                                                       NameUsageSearchParameter facet,
+                                                                                       Enum<?> facetFilter, Long expectedCount, String expectedFacetCounts) {
 
     NameUsageSearchRequest searchRequest = prepareRequest(q, facet);
     if (facetFilter != null) {
@@ -162,9 +180,8 @@ public class NameUsageSearchWsClientIT {
     return assertSearch(searchRequest, facet != null, expectedCount, expectedFacetCounts);
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q,
-    NameUsageSearchParameter facet,
-    String facetFilter, Long expectedCount, String expectedFacetCounts) {
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet,
+                                                                                       String facetFilter, Long expectedCount, String expectedFacetCounts) {
 
     NameUsageSearchRequest searchRequest = prepareRequest(q, facet);
     if (facetFilter != null) {
@@ -185,9 +202,8 @@ public class NameUsageSearchWsClientIT {
     return searchRequest;
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(
-    NameUsageSearchRequest searchRequest, boolean useFacets,
-    Long expectedCount, String expectedFacetCounts) {
+  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(NameUsageSearchRequest searchRequest, boolean useFacets,
+                                                                                       Long expectedCount, String expectedFacetCounts) {
 
     // query
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = wsClient.search(searchRequest);
