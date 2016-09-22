@@ -105,6 +105,7 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertSearch("Puma concolor, 1821", 0L);
     assertSearch("vulgaris", 10L);
     assertSearch("Sciurus", 17L);
+    assertSearch("Sciurillus pusillus", 4L);
   }
 
   @Test

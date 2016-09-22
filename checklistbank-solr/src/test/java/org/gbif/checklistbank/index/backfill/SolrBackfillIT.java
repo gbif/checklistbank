@@ -48,7 +48,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
 
     docs = rsp.getResults();
-    assertEquals(4, docs.size());
+    assertEquals(1, docs.size());
     NameUsageSearchResult u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000007, u1.getKey());
 
@@ -110,7 +110,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
 
     // scientific_name
     query = new SolrQuery();
-    query.setQuery("scientific_name_str:\"Sciurus nadymensis Serebrennikov, 1928\"");
+    query.setQuery("scientific_name:\"Sciurus nadymensis Serebrennikov, 1928\"");
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
