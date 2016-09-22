@@ -53,6 +53,7 @@ public class NameUsageIndexingJobIT {
     descriptionService = (DescriptionServiceMyBatis) inj.getInstance(DescriptionService.class);
     distributionService = (DistributionServiceMyBatis) inj.getInstance(DistributionService.class);
     speciesProfileService = (SpeciesProfileServiceMyBatis) inj.getInstance(SpeciesProfileService.class);
+    // this wont build a real clb index, there are no configs copied!
     solrClient = new EmbeddedServerBuilder().build();
   }
 
@@ -66,18 +67,20 @@ public class NameUsageIndexingJobIT {
 
   @Test
   public void testDescriptionRange() throws Exception {
-    int start = 110448010;
-    int end   = 110448020;
+    int start = 100000000;
+    int end   = 100000025;
     Map<Integer, List<Description>> range = descriptionService.listRange(start, end);
-    assertEquals(10, range.size());
+    assertEquals(3, range.size());
+    assertEquals(6, range.get(100000025).size());
   }
 
   @Test
   public void testDistributionRange() throws Exception {
-    int start = 110448010;
-    int end   = 110448020;
+    int start = 100000040;
+    int end   = 101000000;
     Map<Integer, List<Distribution>> range = distributionService.listRange(start, end);
-    assertEquals(0, range.size());
+    assertEquals(1, range.size());
+    assertEquals(10, range.get(100000040).size());
   }
 
   @Test

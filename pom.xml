@@ -134,7 +134,6 @@
     <module>checklistbank-common</module>
     <module>checklistbank-mybatis-service</module>
     <module>checklistbank-solr</module>
-    <module>checklistbank-search</module>
     <module>checklistbank-ws</module>
     <module>checklistbank-ws-client</module>
     <module>checklistbank-nub</module>
@@ -162,7 +161,8 @@
           </configuration>
           <executions>
             <execution>
-              <phase>pre-integration-test</phase>
+              <!-- we need the db in place for some unit test already, not just integration tests -->
+              <phase>test-compile</phase>
               <goals>
                 <goal>update</goal>
               </goals>
@@ -284,18 +284,6 @@
         <groupId>org.gbif.checklistbank</groupId>
         <artifactId>checklistbank-nub</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gbif.checklistbank</groupId>
-        <artifactId>checklistbank-search</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.gbif.checklistbank</groupId>
-        <artifactId>checklistbank-search</artifactId>
-        <version>${project.version}</version>
-        <classifier>tests</classifier>
-        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.gbif.checklistbank</groupId>

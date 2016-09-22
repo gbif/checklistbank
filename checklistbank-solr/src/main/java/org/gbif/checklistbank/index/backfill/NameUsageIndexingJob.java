@@ -122,7 +122,7 @@ public class NameUsageIndexingJob implements Callable<Integer> {
 
           List<Integer> parents = nameUsageService.listParents(usage.getKey());
 
-          docs.add(solrDocumentConverter.toObject(usage, parents, ext));
+          docs.add(solrDocumentConverter.toDoc(usage, parents, ext));
           docCount++;
         }
         solrClient.add(docs);

@@ -10,10 +10,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.search.inject;
+package org.gbif.checklistbank.index.guice;
 
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
-import org.gbif.checklistbank.search.service.NameUsageSearchServiceImpl;
+import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
 import org.gbif.common.search.inject.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
 

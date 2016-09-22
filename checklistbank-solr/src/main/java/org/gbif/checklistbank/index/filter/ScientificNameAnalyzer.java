@@ -1,4 +1,4 @@
-package org.gbif.nub.lookup.fuzzy;
+package org.gbif.checklistbank.index.filter;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;

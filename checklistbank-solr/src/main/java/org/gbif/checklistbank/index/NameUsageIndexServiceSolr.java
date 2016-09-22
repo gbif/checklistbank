@@ -129,7 +129,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
         if (datasetKey==null) {
           datasetKey=u.usage.getDatasetKey();
         }
-        docs.add(converter.toObject(u.usage, u.parents, u.extensions));
+        docs.add(converter.toDoc(u.usage, u.parents, u.extensions));
       }
       try {
         if (!docs.isEmpty()) {

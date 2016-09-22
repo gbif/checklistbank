@@ -297,5 +297,16 @@
       ALTER TABLE name ADD UNIQUE (scientific_name, rank);
     </sql>
   </changeSet>
-
+  <changeSet id="44" author="markus">
+    <!-- adds a convenient function to return the datasetKey of the CoL -->
+    <sql>
+      <![CDATA[
+      CREATE FUNCTION colKey() RETURNS UUID AS $$
+        SELECT '7ddf754f-d193-4cc9-b351-99906754a03b'::uuid
+      $$
+      LANGUAGE SQL
+      IMMUTABLE;
+      ]]>
+    </sql>
+  </changeSet>
 </databaseChangeLog>

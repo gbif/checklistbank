@@ -1,12 +1,12 @@
 package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.index.model.NameUsageSolrSearchResult;
+import org.gbif.checklistbank.index.NameUsageDocConverter;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -26,6 +26,8 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
 
   @Test
   public void testIndexBuild() throws IOException, SolrServerException, InterruptedException {
+    NameUsageDocConverter converter = new NameUsageDocConverter();
+
     // test index and make sure we use the squirrels test data
     // number of all records
     SolrQuery query = new SolrQuery();
@@ -47,8 +49,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
 
     docs = rsp.getResults();
     assertEquals(4, docs.size());
-    List<NameUsageSolrSearchResult> usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    NameUsageSolrSearchResult u1 = usages.get(0);
+    NameUsageSearchResult u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000007, u1.getKey());
 
     // extinct
@@ -57,8 +58,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    u1 = usages.get(0);
+    u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000025, u1.getKey());
     assertFalse(u1.isSynonym());
     assertFalse(u1.isExtinct());
@@ -89,8 +89,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    u1 = usages.get(0);
+    u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000025, u1.getKey());
 
     // threat status
@@ -99,8 +98,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    u1 = usages.get(0);
+    u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000007, u1.getKey());
 
     // habitat
@@ -109,8 +107,6 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(2, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    usages.isEmpty();
 
     // scientific_name
     query = new SolrQuery();
@@ -118,8 +114,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    u1 = usages.get(0);
+    u1 = converter.toSearchUsage(docs.get(0), true);
     assertEquals((Integer) 100000027, u1.getKey());
 
     query = new SolrQuery();
@@ -127,8 +122,7 @@ public class SolrBackfillIT extends SolrBackfillBaseIT {
     rsp = solr().query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
-    usages = rsp.getBeans(NameUsageSolrSearchResult.class);
-    u1 = usages.get(0);
+    u1 = converter.toSearchUsage(docs.get(0), true);
     for (Description d : u1.getDescriptions()) {
       // make sure we don't have html tags in the descriptions
       assertFalse(d.getDescription().contains("<"));

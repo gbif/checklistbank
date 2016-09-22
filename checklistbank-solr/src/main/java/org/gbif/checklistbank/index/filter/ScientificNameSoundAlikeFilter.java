@@ -1,4 +1,4 @@
-package org.gbif.nub.lookup.fuzzy;
+package org.gbif.checklistbank.index.filter;
 
 import java.io.IOException;
 

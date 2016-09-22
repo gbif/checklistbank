@@ -1,6 +1,4 @@
-package org.gbif.checklistbank.search;
-
-import org.gbif.checklistbank.search.inject.SearchModule;
+package org.gbif.checklistbank.index.guice;
 
 import java.util.Properties;
 

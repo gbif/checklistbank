@@ -47,7 +47,7 @@
               <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-              <includeArtifactIds>checklistbank-search,checklistbank-solr</includeArtifactIds>
+              <includeArtifactIds>checklistbank-solr</includeArtifactIds>
               <includes>**/*.xml</includes>
               <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
             </configuration>
@@ -166,14 +166,7 @@
       <scope>test</scope>
     </dependency>
 
-
     <!-- test classifier -->
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-search</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>

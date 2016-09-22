@@ -1,4 +1,4 @@
-package org.gbif.nub.lookup.fuzzy;
+package org.gbif.checklistbank.index.filter;
 
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Based on character transpositions found in Tony Reese's TaxonMatch.
+ * Lucene filter that uses the SciNameNormalizer util to normalize scientific names.
  */
 public class ScientificNameNormalizerFilter extends TokenFilter {
   private static final Logger LOG = LoggerFactory.getLogger(ScientificNameNormalizerFilter.class);

@@ -81,53 +81,64 @@
       </analyzer>
     </fieldType>
 
-    <!-- A text field that uses WordDelimiterFilter to enable splitting and
-        matching of words on case-change, alpha numeric boundaries, and non-alphanumeric
-        chars, so that a query of "wifi" or "wi fi" could match a document containing "Wi-Fi".
-         TODO: insert a scientific name specific latin stemming filter and tokenizer that is hybrid aware?
+    <!-- Keeps the entire name as a single token, applying our sciname normalization to it.
+    The normalization only works well for binomials, thus whitespace tokens are not very useful.
      -->
     <fieldType name="sciname" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
-        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
-        <filter class="solr.WordDelimiterFilterFactory"
-                generateWordParts="1" generateNumberParts="1" catenateWords="1"
-                catenateNumbers="1" catenateAll="0" splitOnCaseChange="1"/>
-        <!-- folds Unicode characters which are not in the first 127 ASCII characters
-              (the "Basic Latin" Unicode block) into their ASCII equivalents, if one exists:
-              http://lucene.apache.org/java/3_4_0/api/all/org/apache/lucene/analysis/ASCIIFoldingFilter.html -->
-        <filter class="solr.ASCIIFoldingFilterFactory"/>
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
-    <!-- Field type used for autocomplete functionality when the input is a phrase query -->
-    <fieldType name="text_auto_edge" class="solr.TextField">
+    <fieldType name="sciname_tokenized" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!-- Field type used for autocomplete functionality so we do prefix matches of entire names -->
+    <fieldType name="sciname_ngram" class="solr.TextField">
      <analyzer type="index">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="solr.ASCIIFoldingFilterFactory"/>
+       <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
        <filter class="solr.LowerCaseFilterFactory"/>
-       <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25" />
+       <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
      </analyzer>
      <analyzer type="query">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="solr.ASCIIFoldingFilterFactory"/>
+       <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
        <filter class="solr.LowerCaseFilterFactory"/>
      </analyzer>
     </fieldType>
 
-    <!-- Field type used for autocomplete functionality when the input is a single term.
-        Supports partial matching of words. -->
-    <fieldType name="text_auto_ngram" class="solr.TextField">
+    <!-- Field type used for autocomplete functionality so we do prefix matches of name tokens -->
+    <fieldType name="sciname_ngram_tokenized" class="solr.TextField">
       <analyzer type="index">
-        <tokenizer class="solr.KeywordTokenizerFactory" />
-        <filter class="solr.ASCIIFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
-        <filter class="solr.NGramFilterFactory" minGramSize="1" maxGramSize="15" />
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
       </analyzer>
       <analyzer type="query">
-        <tokenizer class="solr.KeywordTokenizerFactory" />
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="org.gbif.checklistbank.index.filter.ScientificNameNormalizerFilterFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <!--
+    specifically targeting vernacular names in various languages
+    tokenized text allows for highlighting
+     -->
+    <fieldType name="vernacular" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.ASCIIFoldingFilterFactory"/>
-        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
   </types>
@@ -147,13 +158,11 @@
     <field name="basionym_key" type="int" indexed="false" stored="true"/>
     <field name="basionym" type="sciname" indexed="false" stored="true"/>
 
-    <field name="scientific_name" type="sciname" indexed="true" stored="true"/>
-    <!-- we use the full name for sorting -->
-    <field name="scientific_name_str" type="string" indexed="true" stored="false" docValues="true"/>
+    <field name="scientific_name" type="sciname_tokenized" indexed="true" stored="true"/>
     <field name="canonical_name" type="sciname" indexed="true" stored="true"/>
-    <!-- Fields for auto-suggest functionality, as= auto-suggest, as_phrase: field for allowing phrase queries -->
-    <field name="canonical_name_as" type="text_auto_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="true"/>
-    <field name="canonical_name_as_phrase" type="text_auto_edge" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="true"/>
+    <!-- ngram fields for auto-suggest functionality -->
+    <field name="scientific_name_ngram" type="sciname_ngram_tokenized" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
+    <field name="canonical_name_ngram" type="sciname_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
 
     <field name="name_type" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="authorship" type="text" indexed="false" stored="true"/>
@@ -198,9 +207,9 @@
 
     <field name="description" type="text" indexed="true" stored="true" multiValued="true"/>
 
-    <field name="vernacular_name" type="sciname" indexed="true" stored="false" multiValued="true"/>
+    <!-- store the field for highlighting -->
+    <field name="vernacular_name" type="vernacular" indexed="true" stored="true" multiValued="true"/>
     <field name="vernacular_name_lang" type="sciname" indexed="true" stored="true" multiValued="true"/>
-    <field name="vernacular_lang" type="lowercase" indexed="true" stored="false" multiValued="true"/>
 
     <field name="higher_taxon_key" type="int" indexed="true" stored="false" multiValued="true" docValues="true"/>
     <field name="issues" type="int" indexed="true" stored="false" multiValued="true" docValues="true"/>
@@ -215,8 +224,7 @@
   <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
   <solrQueryParser defaultOperator="OR"/>
 
-  <copyField source="canonical_name" dest="canonical_name_as"/>
-  <copyField source="canonical_name" dest="canonical_name_as_phrase"/>
-  <copyField source="scientific_name" dest="scientific_name_str"/>
+  <copyField source="canonical_name" dest="canonical_name_ngram"/>
+  <copyField source="scientific_name" dest="scientific_name_ngram"/>
 
 </schema>

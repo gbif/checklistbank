@@ -54,13 +54,13 @@ public class NameUsageDocConverterTest {
         ext.vernacularNames.add(v1);
         ext.vernacularNames.add(v2);
 
-        SolrInputDocument doc = conv.toObject(u, Lists.newArrayList(12, 15, 20, 100), ext);
+        SolrInputDocument doc = conv.toDoc(u, Lists.newArrayList(12, 15, 20, 100), ext);
 
-        assertEquals(u.getKey().toString(), doc.get("key").getValue());
-        assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
-        assertEquals(u.getParentKey().toString(), doc.get("parent_key").getValue());
+        assertEquals(u.getKey(), doc.get("key").getValue());
+        assertEquals(u.getDatasetKey(), doc.get("dataset_key").getValue());
+        assertEquals(u.getParentKey(), doc.get("parent_key").getValue());
         assertEquals(u.getFamily(), doc.get("family").getValue());
-        assertEquals(u.getFamilyKey().toString(), doc.get("family_key").getValue());
+        assertEquals(u.getFamilyKey(), doc.get("family_key").getValue());
         assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
         assertEquals(u.getCanonicalName(), doc.get("canonical_name").getValue());
         assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());

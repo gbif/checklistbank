@@ -2,7 +2,7 @@ package org.gbif.checklistbank.ws.guice;
 
 
 import org.gbif.checklistbank.config.MetricModule;
-import org.gbif.checklistbank.search.inject.SearchModule;
+import org.gbif.checklistbank.index.guice.SearchModule;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.ws.resources.SpeciesResource;
 import org.gbif.utils.file.properties.PropertiesUtil;
