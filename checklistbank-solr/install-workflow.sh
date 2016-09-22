@@ -8,6 +8,7 @@ TOKEN=$2
 IS_SINGLE_SHARD=${3-'false'}
 
 echo "Getting latest checklistbank-index-builder workflow properties file from github"
+curl -s -H "Authorization: token $TOKEN" -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/gbif/gbif-configuration/contents/checklistbank-index-builder/profiles.xml
 curl -s -H "Authorization: token $TOKEN" -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/gbif/gbif-configuration/contents/checklistbank-index-builder/$P.properties
 
 if [ $IS_SINGLE_SHARD = true ] ; then
@@ -21,8 +22,8 @@ oozie_url=`cat $P.properties| grep "oozie.url" | cut -d'=' -f2`
 
 echo "Assembling jar for $ENV"
 
-mvn -Poozie,$P clean package assembly:single
-mvn -Psolr,$P package assembly:single
+mvn --settings profiles.xml -Poozie,$P clean package assembly:single
+mvn --settings profiles.xml -Psolr,$P package assembly:single
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
    echo "Removing content of current Oozie workflow directory"
