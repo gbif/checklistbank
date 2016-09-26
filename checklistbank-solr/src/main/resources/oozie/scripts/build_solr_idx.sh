@@ -11,7 +11,7 @@ IS_SINGLE_SHARD=${10}
 
 source $SOLR_HOME/server/scripts/map-reduce/set-map-reduce-classpath.sh
 export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTSP $HADOOP_CLIENT_OPTS"
-export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$SOLR_HOME/server/solr-webapp/webapp/WEB-INF/lib/jts-1.13.jar
+export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$SOLR_HOME/server/solr-webapp/webapp/WEB-INF/lib/checklistbank-solr-2.44-SNAPSHOT.jar
 export HADOOP_USER_CLASSPATH_FIRST=true
 echo "HADOOP_CLASSPATH" $HADOOP_CLASSPATH
 echo "HADOOP_LIBJAR" $HADOOP_LIBJAR

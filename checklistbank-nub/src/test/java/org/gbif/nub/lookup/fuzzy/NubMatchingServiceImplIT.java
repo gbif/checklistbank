@@ -48,8 +48,9 @@ public class NubMatchingServiceImplIT {
     System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
     System.out.println("  " + best.getNote());
 
+    assertEquals("Wrong expected key", expectedKey, best.getUsageKey());
     if (type == null) {
-      assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
+      assertTrue("Wrong none match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
     } else {
       assertEquals("Wrong match type", type, best.getMatchType());
     }
@@ -58,7 +59,6 @@ public class NubMatchingServiceImplIT {
         System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
       }
     }
-    assertEquals( expectedKey, best.getUsageKey());
     if (confidence != null) {
       assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
     }
@@ -625,8 +625,10 @@ public class NubMatchingServiceImplIT {
 
     cl.setFamily("Ephippidae");
     assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
-    assertMatch("Zabideus novemaculeatus", cl, 2394331, new IntRange(90, 98));
     assertMatch("Zabidius novaemaculeatus", cl, 2394331, new IntRange(90, 100));
+    assertMatch("Zabidius novaemaculeata", cl, 2394331, new IntRange(90, 100));
+    // no name normalization on the genus
+    assertNoMatch("Zabideus novemaculeatus", cl);
 
     cl = new NameUsageMatch();
     cl.setKingdom("Animalia");
