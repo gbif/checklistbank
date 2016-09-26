@@ -27,7 +27,8 @@ public class ScientificNameNormalizerFilter extends TokenFilter {
 
     String term = termAtt.toString();
     if (term == null || term.trim().isEmpty()) {
-      String normed = SciNameNormalizer.normalize(term);
+
+      String normed = SciNameNormalizer.nullToEmpty(SciNameNormalizer.normalize(term));
       termAtt.copyBuffer(normed.toCharArray(), 0, normed.length());
     }
     return true;

@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.utils;
 
-import org.gbif.utils.text.StringUtils;
-
+import java.text.Normalizer;
 import java.util.regex.Pattern;
 
 
@@ -20,9 +19,15 @@ public class SciNameNormalizer {
   private static final Pattern removeHybridSignGenus   = Pattern.compile("^\\s*[×xX]\\s*([A-Z])");
   private static final Pattern removeHybridSignEpithet = Pattern.compile("(?:^|\\s)(?:×\\s*|[xX]\\s+)([^A-Z])");
 
+  private static Pattern MARKER = Pattern.compile("\\p{M}");
+
   // dont use guava or commons so we dont have to bundle it for the solr cloud plugin ...
   public static boolean hasContent(String s) {
     return s != null && !(s.trim().isEmpty());
+  }
+
+  public static String nullToEmpty(String s) {
+    return (s == null) ? "" : s;
   }
 
   public static String normalize(String s) {
@@ -35,7 +40,7 @@ public class SciNameNormalizer {
    s = removeHybridSignEpithet.matcher(s).replaceAll(" $1");
 
     // Normalize letters and ligatures to their ASCII equivalent
-    s = StringUtils.foldToAscii(s);
+    s = foldToAscii(s);
 
     // normalize whitespace
     s = empty.matcher(s).replaceAll("");
@@ -63,6 +68,81 @@ public class SciNameNormalizer {
   public static String stemEpithet(String epithet) {
     if (!hasContent(epithet)) return null;
     return suffix_a.matcher(epithet).replaceFirst("a");
+  }
+
+  /**
+   * Removes accents & diacretics and converts ligatures into several chars
+   *
+   * WARNING: this is a copied version from gbif-common StringUtils to keep dependencies for solr plugins small
+   * @param x string to fold into ASCII
+   * @return string converted to ASCII equivalent, expanding common ligatures
+   */
+  private static String foldToAscii(String x) {
+    if (x == null) {
+      return null;
+    }
+    x = replaceSpecialCases(x);
+    // use java unicode normalizer to remove accents
+    x = Normalizer.normalize(x, Normalizer.Form.NFD);
+    return MARKER.matcher(x).replaceAll("");
+  }
+
+  /**
+   * The Normalizer misses a few cases and 2 char ligatures which we deal with here
+   */
+  private static String replaceSpecialCases(String x) {
+    StringBuffer sb = new StringBuffer();
+
+    for (int i = 0; i < x.length(); i++) {
+      char c = x.charAt(i);
+      switch (c) {
+        case 'ß':
+          sb.append("ss");
+          break;
+        case 'Æ':
+          sb.append("AE");
+          break;
+        case 'æ':
+          sb.append("ae");
+          break;
+        case 'Ð':
+          sb.append("D");
+          break;
+        case 'đ':
+          sb.append("d");
+          break;
+        case 'ð':
+          sb.append("d");
+          break;
+        case 'Ø':
+          sb.append("O");
+          break;
+        case 'ø':
+          sb.append("o");
+          break;
+        case 'Œ':
+          sb.append("OE");
+          break;
+        case 'œ':
+          sb.append("oe");
+          break;
+        case 'Ŧ':
+          sb.append("T");
+          break;
+        case 'ŧ':
+          sb.append("t");
+          break;
+        case 'Ł':
+          sb.append("L");
+          break;
+        case 'ł':
+          sb.append("l");
+          break;
+        default:
+          sb.append(c);
+      }
+    }
+    return sb.toString();
   }
 
 }
