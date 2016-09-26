@@ -12,8 +12,8 @@ public class SciNameNormalizer {
 
   private static final Pattern suffix_a = Pattern.compile("(?:on|um|us|a)$");
   private static final Pattern suffix_i = Pattern.compile("ei$");
-  private static final Pattern i = Pattern.compile(" ([^ jyi]+)[jyi]+");
-  private static final Pattern trh = Pattern.compile(" ([^ ]+[tr])h");
+  private static final Pattern i = Pattern.compile("[jyi]+");
+  private static final Pattern trh = Pattern.compile("([tr])h", Pattern.CASE_INSENSITIVE);
   private static final Pattern white = Pattern.compile("\\s{2,}");
   private static final Pattern empty = Pattern.compile("['_-]");
   private static final Pattern removeRepeatedLetter = Pattern.compile("(\\p{L})\\1+");
@@ -29,8 +29,23 @@ public class SciNameNormalizer {
     return (s == null) ? "" : s;
   }
 
+  /**
+   * Normalizes and entire scientific name, keeping monomials or the first genus part rather unchanged,
+   * applying the more drastic normalizatin to the remainder of the name only.
+   */
   public static String normalize(String s) {
-    if (!hasContent(s)) return null;
+    return normalize(s, false);
+  }
+
+  /**
+   * Normalizes an entire name string including monomials and genus parts of a name.
+   */
+  public static String normalizeAll(String s) {
+    return normalize(s, true);
+  }
+
+  private static String normalize(String s, boolean normMonomials) {
+    if (!hasContent(s)) return "";
 
     s = s.trim();
 
@@ -46,19 +61,27 @@ public class SciNameNormalizer {
     s = white.matcher(s).replaceAll(" ");
 
     // Only for bi/trinomials, otherwise we mix up ranks.
-    if (s.indexOf(' ') > 2) {
-      // remove repeated letters→leters in binomials
-      s= removeRepeatedLetter.matcher(s).replaceAll("$1");
+    if (normMonomials) {
+      s = normStrongly(s);
 
-      s = stemEpithet(s);
-      // normalize frequent variations of i in epithets only
-      s = i.matcher(s).replaceAll(" $1i");
-      s = suffix_i.matcher(s).replaceAll("i");
-      // normalize frequent variations of characters sometimes followed by an 'h' in epithets only
-      s = trh.matcher(s).replaceAll(" $1");
+    } else if (s.indexOf(' ') > 2) {
+      String[] parts = s.split(" ", 2);
+      s = parts[0] + " " + normStrongly(parts[1]);
     }
 
     return s.trim();
+  }
+
+  private static String normStrongly(String s) {
+    // remove repeated letters→leters in binomials
+    s = removeRepeatedLetter.matcher(s).replaceAll("$1");
+
+    s = stemEpithet(s);
+    // normalize frequent variations of i
+    s = i.matcher(s).replaceAll("i");
+    s = suffix_i.matcher(s).replaceAll("i");
+    // normalize frequent variations of t/r sometimes followed by an 'h'
+    return trh.matcher(s).replaceAll("$1");
   }
 
   /**

@@ -9,7 +9,7 @@ public class SciNameNormalizerTest {
 
   @Test
   public void testNormalize() throws Exception {
-    assertEquals(null, SciNameNormalizer.normalize(""));
+    assertEquals("", SciNameNormalizer.normalize(""));
     assertEquals("Abies", SciNameNormalizer.normalize("Abies "));
     assertEquals("Abiies", SciNameNormalizer.normalize("Abiies "));
     assertEquals("Abyes", SciNameNormalizer.normalize("Abyes "));
@@ -37,6 +37,38 @@ public class SciNameNormalizerTest {
     // https://github.com/gbif/checklistbank/issues/7
     assertEquals("Eragrostis browni", SciNameNormalizer.normalize("Eragrostis brownii"));
     assertEquals("Eragrostis browni", SciNameNormalizer.normalize("Eragrostis brownei"));
+  }
+
+  @Test
+  public void testNormalizeAll() throws Exception {
+    assertEquals("", SciNameNormalizer.normalizeAll(""));
+    assertEquals("Abies", SciNameNormalizer.normalizeAll("Abies "));
+    assertEquals("Abies", SciNameNormalizer.normalizeAll("Abiies "));
+    assertEquals("Abies", SciNameNormalizer.normalizeAll("Abyes "));
+    assertEquals("Abies alba", SciNameNormalizer.normalizeAll("Abyes  albus"));
+    assertEquals("Abies albieta", SciNameNormalizer.normalizeAll("Abyes albieta"));
+    assertEquals("Abies albieta", SciNameNormalizer.normalizeAll("Abies albijeta"));
+    assertEquals("Abies albieta", SciNameNormalizer.normalizeAll("Abies albyeta"));
+    assertEquals("Abies alba", SciNameNormalizer.normalizeAll(" \txAbies × ållbbus\t"));
+
+    assertEquals("Abies alba", SciNameNormalizer.normalizeAll(" \txAbies × ållbbus\t"));
+    assertEquals("Rachis taktos", SciNameNormalizer.normalizeAll("Rhachis taktos"));
+
+    assertEquals("Hieracium sabauda", SciNameNormalizer.normalizeAll("Hieracium sabaudum"));
+    assertEquals("Hieracium scorzoneraefolia", SciNameNormalizer.normalizeAll("Hieracium scorzoneræfolium"));
+    assertEquals("Hieracium scorzonerifolia", SciNameNormalizer.normalizeAll("Hieracium scorzonerifolium"));
+    assertEquals("Macrozamia platirachis", SciNameNormalizer.normalizeAll("Macrozamia platyrachis"));
+    assertEquals("Macrozamia platirachis", SciNameNormalizer.normalizeAll("Macrozamia platyrhachis"));
+    assertEquals("Cicas circinalis", SciNameNormalizer.normalizeAll("Cycas circinalis"));
+    assertEquals("Cicas circinalis", SciNameNormalizer.normalizeAll("Cycas circinnalis"));
+    assertEquals("Isolona perieri", SciNameNormalizer.normalizeAll("Isolona perrieri"));
+    assertEquals("Isolona perieri", SciNameNormalizer.normalizeAll("Isolona perrierii"));
+
+    assertEquals("Carex caioueti", SciNameNormalizer.normalizeAll("Carex ×cayouettei"));
+    assertEquals("Platanus hispanica", SciNameNormalizer.normalizeAll("Platanus x hispanica"));
+    // https://github.com/gbif/checklistbank/issues/7
+    assertEquals("Eragrostis browni", SciNameNormalizer.normalizeAll("Eragrostis brownii"));
+    assertEquals("Eragrostis browni", SciNameNormalizer.normalizeAll("Eragrostis brownei"));
   }
 
   @Test

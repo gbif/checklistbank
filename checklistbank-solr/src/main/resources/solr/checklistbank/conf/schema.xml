@@ -81,13 +81,11 @@
       </analyzer>
     </fieldType>
 
-    <!-- Keeps the entire name as a single token, applying our sciname normalization to it.
-    The normalization only works well for binomials, thus whitespace tokens are not very useful.
-     -->
+    <!-- Keeps the entire name as a single token, applying our sciname normalization to it. -->
     <fieldType name="sciname" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" runtimeLib="true"/>
+        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>

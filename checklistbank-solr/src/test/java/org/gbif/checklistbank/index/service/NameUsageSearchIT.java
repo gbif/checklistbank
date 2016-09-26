@@ -181,13 +181,23 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertEquals(1, results.size());
     assertEquals("Rodentia Bowdich, 1821", results.get(0).getScientificName());
 
-    // apply sciname normalizer only to entire names, so the ngrams dont match
-    results = searchSuggest("Sciurillus pusilus");
-    assertEquals(1, results.size());
+    results = searchSuggest("Sciurillus pusillus");
+    assertEquals(4, results.size());
     assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
 
-    results = searchSuggest("Sciurillus pusila");
-    assertEquals(1, results.size());
+    // we change the gender epithets
+    results = searchSuggest("Sciurilus pusila");
+    assertEquals(4, results.size());
+    assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
+
+    // we change the gender epithets
+    results = searchSuggest("Sciurilus pussy");
+    assertEquals(4, results.size());
+    assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
+
+    // apply sciname normalizer only to entire names, so the ngrams dont match
+    results = searchSuggest("Sciurilus pusilus");
+    assertEquals(4, results.size());
     assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
 
     results = searchSuggest("Sciu");

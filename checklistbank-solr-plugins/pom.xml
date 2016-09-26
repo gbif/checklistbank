@@ -44,7 +44,6 @@
           <createDependencyReducedPom>true</createDependencyReducedPom>
           <artifactSet>
             <excludes>
-              <exclude>org.apache.lucene:*</exclude>
               <exclude>org.apache.tika:*</exclude>
               <exclude>org.codehaus.jackson:*</exclude>
               <exclude>org.slf4j:*</exclude>
@@ -105,10 +104,12 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- TEST SCOPE -->

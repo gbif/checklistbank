@@ -50,7 +50,6 @@
     <error to="kill"/>
   </action>
 
-
   <action name='build_index'>
       <shell xmlns="uri:oozie:shell-action:0.3">
         <prepare>
