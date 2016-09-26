@@ -21,6 +21,9 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Range;
 import com.google.common.io.Files;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -187,7 +190,9 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
 
     LOG.debug("Start retrieving all usage ids ...");
     stopWatch.start();
-    allIds = nameUsageService.listAll();
+    //allIds = nameUsageService.listAll();
+    allIds = ContiguousSet.create(Range.closed(0, 13), DiscreteDomain.integers()).asList();
+
     LOG.info("Retrieved all {} usage ids in {}", allIds.size(), stopWatch.toString());
     stopWatch.reset();
     stopWatch.start();
