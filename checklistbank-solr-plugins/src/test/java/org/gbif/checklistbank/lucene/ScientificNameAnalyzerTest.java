@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.index.filter;
+package org.gbif.checklistbank.lucene;
 
 
 import java.io.StringReader;

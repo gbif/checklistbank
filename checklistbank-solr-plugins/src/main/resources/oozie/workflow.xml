@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ~ Copyright 2012 Global Biodiversity Information Facility (GBIF) ~ ~
+  Licensed under the Apache License, Version 2.0 (the "License"); ~ you may
+  not use this file except in compliance with the License. ~ You may obtain
+  a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~
+  ~ Unless required by applicable law or agreed to in writing, software ~ distributed
+  under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES
+  OR CONDITIONS OF ANY KIND, either express or implied. ~ See the License for
+  the specific language governing permissions and ~ limitations under the License. -->
+<workflow-app xmlns="uri:oozie:workflow:0.4.5" name="checklistbank-index-builder-${environment}">
+
+  <global>
+    <job-tracker>${wf:conf("hadoop.jobtracker")}</job-tracker>
+    <name-node>${wf:conf("hdfs.namenode")}</name-node>
+    <configuration>
+      <property>
+        <name>oozie.launcher.mapreduce.task.classpath.user.precedence</name>
+        <value>true</value>
+      </property>
+      <property>
+        <name>oozie.launcher.mapred.job.queue.name</name>
+        <value>${wf:conf("hadoop.queuename")}</value>
+      </property>
+    </configuration>
+  </global>
+
+  <start to="export_to_avro" />
+
+  <action name="export_to_avro">
+    <java>
+      <prepare>
+        <delete path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+        <mkdir path="${wf:conf('hdfs.namenode')}/checklistbank/solr/${wf:conf('environment')}/name_usage/"/>
+      </prepare>
+      <configuration>
+        <property>
+          <name>oozie.launcher.mapreduce.map.memory.mb</name>
+          <value>${avro.export.map.memory.mb}</value>
+        </property>
+        <property>
+          <name>oozie.launcher.mapreduce.map.java.opts</name>
+          <value>${avro.export.mapreduce.map.java.opts}</value>
+        </property>
+      </configuration>
+      <main-class>org.gbif.checklistbank.index.backfill.AvroExporter</main-class>
+      <arg>${wf:conf("environment")}.properties</arg>
+    </java>
+
+    <ok to="build_index"/>
+    <error to="kill"/>
+  </action>
+
+
+  <action name='build_index'>
+      <shell xmlns="uri:oozie:shell-action:0.3">
+        <prepare>
+          <delete path="${wf:conf('hdfs.out.dir')}/"/>
+          <mkdir path="${wf:conf('hdfs.out.dir')}/"/>
+        </prepare>
+        <exec>scripts/build_solr_idx.sh</exec>
+        <argument>${wf:conf("solr.home")}</argument>
+        <argument>${wf:conf("hdfs.namenode")}/checklistbank/solr/${wf:conf("environment")}/name_usage/</argument>
+        <argument>${wf:conf("solr.zk")}</argument>
+        <argument>${wf:conf("hdfs.out.dir")}</argument>
+        <argument>${wf:conf("solr.collection")}</argument>
+        <argument>${wf:conf("solr.collection.opts")}</argument>
+        <argument>${wf:conf("hadoop.client.opts")}</argument>
+        <argument>${wf:conf("mapred.opts")}</argument>
+        <argument>${wf:conf("solr.http.url")}</argument>
+        <argument>${wf:conf("solr.is_single_shard")}</argument>
+        <file>scripts/build_solr_idx.sh</file>
+        <archive>solr.zip#solr</archive>
+      </shell>
+      <ok to="end" />
+      <error to="kill" />
+  </action>
+
+
+  <kill name="kill">
+    <message>Checklistbank index building failed:[${wf:errorMessage(wf:lastErrorNode())}]</message>
+  </kill>
+
+  <end name="end" />
+
+</workflow-app>

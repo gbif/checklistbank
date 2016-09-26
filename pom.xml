@@ -134,6 +134,7 @@
     <module>checklistbank-common</module>
     <module>checklistbank-mybatis-service</module>
     <module>checklistbank-solr</module>
+    <module>checklistbank-solr-plugins</module>
     <module>checklistbank-ws</module>
     <module>checklistbank-ws-client</module>
     <module>checklistbank-nub</module>
@@ -255,6 +256,11 @@
         <version>${project.version}</version>
         <classifier>tests</classifier>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.gbif.checklistbank</groupId>
+        <artifactId>checklistbank-solr-plugins</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.gbif.checklistbank</groupId>
