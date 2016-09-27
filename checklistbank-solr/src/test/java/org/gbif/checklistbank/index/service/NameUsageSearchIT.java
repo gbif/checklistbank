@@ -36,7 +36,6 @@ import java.util.UUID;
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -234,7 +233,7 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
 
     // query extended, but hl description only
     searchRequest.setExtended(true);
-    searchRequest.setHighlightFields(Lists.newArrayList(NameUsageSearchRequest.HighlightField.DESCRIPTION));
+    searchRequest.setHighlightFields(Sets.<NameUsageSearchRequest.HighlightField>newHashSet(NameUsageSearchRequest.HighlightField.DESCRIPTION));
 
     response = searchService.search(searchRequest);
 
