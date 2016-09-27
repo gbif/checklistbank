@@ -22,6 +22,7 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWs;
 import org.gbif.ws.client.BaseWsSuggestClient;
 
+import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import javax.ws.rs.core.MultivaluedMap;
@@ -34,7 +35,7 @@ import com.sun.jersey.api.client.WebResource;
 import static org.gbif.ws.util.WebserviceParameter.PARAM_EXTENDED;
 import static org.gbif.ws.util.WebserviceParameter.PARAM_HIGHLIGHT_CONTEXT;
 import static org.gbif.ws.util.WebserviceParameter.PARAM_HIGHLIGHT_FIELD;
-import static org.gbif.ws.util.WebserviceParameter.PARAM_MATCH;
+import static org.gbif.ws.util.WebserviceParameter.PARAM_QUERY_FIELD;
 
 /**
  * Client-side implementation to the NameUsageSearchService.
@@ -62,22 +63,27 @@ public class NameUsageSearchWsClient
 
     if (searchRequest != null) {
       params.putSingle(PARAM_EXTENDED, Boolean.toString(searchRequest.isExtended()));
-      if (searchRequest.getMatch() != null) {
-        params.putSingle(PARAM_MATCH, searchRequest.getMatch().name());
-      }
+
       if (searchRequest.getHighlightContext() != null) {
         params.putSingle(PARAM_HIGHLIGHT_CONTEXT, Integer.toString(searchRequest.getHighlightContext()));
       }
 
-      List<String> fields = Lists.newArrayList();
-      for (NameUsageSearchRequest.QueryField field : searchRequest.getHighlightFields()) {
-        fields.add(field.name());
-      }
-      if (!fields.isEmpty()) {
-        params.put(PARAM_HIGHLIGHT_FIELD, fields);
-      }
+      putFields(params, PARAM_QUERY_FIELD, searchRequest.getQueryFields());
+
+      putFields(params, PARAM_HIGHLIGHT_FIELD, searchRequest.getHighlightFields());
     }
 
     return params;
+  }
+
+  private static void putFields(MultivaluedMap<String, String> params, String param, Collection<NameUsageSearchRequest.QueryField> qFields) {
+    List<String>fields = Lists.newArrayList();
+    for (NameUsageSearchRequest.QueryField field : qFields) {
+      fields.add(field.name());
+    }
+
+    if (!fields.isEmpty()) {
+      params.put(param, fields);
+    }
   }
 }
