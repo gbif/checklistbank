@@ -95,7 +95,7 @@ public class SciNameNormalizerTest {
 
   @Test
   public void testEpithetStemming() throws Exception {
-    assertEquals(null, SciNameNormalizer.stemEpithet(""));
+    assertEquals("", SciNameNormalizer.stemEpithet(""));
     assertEquals("alba", SciNameNormalizer.stemEpithet("alba"));
     assertEquals("alba", SciNameNormalizer.stemEpithet("albus"));
     assertEquals("alba", SciNameNormalizer.stemEpithet("albon"));
