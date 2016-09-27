@@ -70,7 +70,7 @@ public class NameUsageSearchWsClient
       }
 
       List<String> fields = Lists.newArrayList();
-      for (NameUsageSearchRequest.HighlightField field : searchRequest.getHighlightFields()) {
+      for (NameUsageSearchRequest.QueryField field : searchRequest.getHighlightFields()) {
         fields.add(field.name());
       }
       if (!fields.isEmpty()) {

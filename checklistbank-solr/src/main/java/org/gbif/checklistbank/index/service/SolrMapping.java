@@ -31,9 +31,9 @@ public class SolrMapping {
     FACET_MAPPING.put(NameUsageSearchParameter.ISSUE, "issues");
   }
 
-  public static final Map<NameUsageSearchRequest.HighlightField, String> HIGHLIGHT_FIELDS = ImmutableMap.of(
-      NameUsageSearchRequest.HighlightField.DESCRIPTION, "description",
-      NameUsageSearchRequest.HighlightField.VERNACULAR, "vernacular_name"
+  public static final Map<NameUsageSearchRequest.QueryField, String> HIGHLIGHT_FIELDS = ImmutableMap.of(
+      NameUsageSearchRequest.QueryField.DESCRIPTION, "description",
+      NameUsageSearchRequest.QueryField.VERNACULAR, "vernacular_name"
   );
 
   /**

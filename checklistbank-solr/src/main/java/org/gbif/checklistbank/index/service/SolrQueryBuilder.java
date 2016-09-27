@@ -24,10 +24,13 @@ import org.gbif.common.search.model.SuggestMapping;
 import org.gbif.common.search.util.QueryUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -61,9 +64,17 @@ public class SolrQueryBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(SolrQueryBuilder.class);
 
   private static final String QUERY_PARSER   = "dismax";
-  private static final String QUERY_FIELDS   = "canonical_name^5 scientific_name^3 vernacular_name^2 species subgenus family description^0.1";
-  private static final String PHRASE_FIELDS  = "scientific_name^1000 canonical_name^500 vernacular_name^50";
-  private static final String BOOST_QUERY    = "taxonomic_status_key:0^2";
+  private static final Map<NameUsageSearchRequest.QueryField, String> QUERY_FIELDS = ImmutableMap.of(
+      NameUsageSearchRequest.QueryField.DESCRIPTION, "description^0.1",
+      NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^3",
+      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "canonical_name^5 scientific_name^2 species subgenus family"
+  );
+  private static final Map<NameUsageSearchRequest.QueryField, String> PHRASE_FIELDS = ImmutableMap.of(
+      NameUsageSearchRequest.QueryField.DESCRIPTION, "description^2",
+      NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^20",
+      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "scientific_name^100 canonical_name^50"
+  );
+  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5";
   private static final String BOOST_FUNCTION = "sub(" + Rank.values().length + ",rank_key)";
   private static final String SUGGEST_QUERY_FIELDS   = "scientific_name_ngram canonical_name_ngram canonical_name^10 scientific_name^2";
   private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^50";
@@ -80,12 +91,21 @@ public class SolrQueryBuilder {
     return q.contains(BLANK) ? QueryUtils.toPhraseQuery(q) : q;
   }
 
+  private static String buildFields(Map<NameUsageSearchRequest.QueryField, String> config, Set<NameUsageSearchRequest.QueryField> fields) {
+    StringBuilder sb = new StringBuilder();
+    for (NameUsageSearchRequest.QueryField f : fields) {
+      sb.append(config.get(f));
+      sb.append(" ");
+    }
+    return sb.toString().trim();
+  }
+
   public SolrQuery build(NameUsageSearchRequest request) {
     SolrQuery query = buildBase(request);
 
     // dismax fields
-    query.set(DisMaxParams.QF, QUERY_FIELDS);
-    query.set(DisMaxParams.PF, PHRASE_FIELDS);
+    query.set(DisMaxParams.QF, buildFields(QUERY_FIELDS, request.getQueryFields()));
+    query.set(DisMaxParams.PF, buildFields(PHRASE_FIELDS, request.getQueryFields()));
 
     // request facets
     requestFacets(request, query);
@@ -109,7 +129,6 @@ public class SolrQueryBuilder {
   }
 
   private SolrQuery buildBase(SearchRequest<NameUsageSearchParameter> request) {
-    //Preconditions.checkArgument(request.getOffset() <= maxOffset - request.getLimit(), "maximum offset allowed is %s", this.maxOffset);
     SolrQuery query = new SolrQuery();
     // q param
     String q = prepareQ(request.getQ());
@@ -146,7 +165,7 @@ public class SolrQueryBuilder {
       solrQuery.setHighlight(searchRequest.isHighlight());
       solrQuery.setHighlightSnippets(NUM_HL_SNIPPETS);
       solrQuery.setHighlightFragsize(FRAGMENT_SIZE);
-      for (NameUsageSearchRequest.HighlightField hlField : searchRequest.getHighlightFields()) {
+      for (NameUsageSearchRequest.QueryField hlField : searchRequest.getHighlightFields()) {
         solrQuery.addHighlightField(SolrMapping.HIGHLIGHT_FIELDS.get(hlField));
       }
     }

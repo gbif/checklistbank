@@ -114,7 +114,7 @@ public class ResponseBuilder {
         NameUsageSearchResult bean = getByKey(response, docId);
         if (bean != null) {
           Map<String, List<String>> docHighlights = solrResponse.getHighlighting().get(docId);
-          for (NameUsageSearchRequest.HighlightField hlField : request.getHighlightFields()) {
+          for (NameUsageSearchRequest.QueryField hlField : request.getHighlightFields()) {
             if (docHighlights.containsKey(SolrMapping.HIGHLIGHT_FIELDS.get(hlField))) {
               for (String hlSnippet : docHighlights.get(SolrMapping.HIGHLIGHT_FIELDS.get(hlField))) {
                 if (request.isExtended()) {

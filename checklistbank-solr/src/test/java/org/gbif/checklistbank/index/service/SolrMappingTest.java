@@ -14,7 +14,7 @@ public class SolrMappingTest {
 
   @Test
   public void testMappingCompleteness() {
-    for (NameUsageSearchRequest.HighlightField hlField : NameUsageSearchRequest.HighlightField.values()) {
+    for (NameUsageSearchRequest.QueryField hlField : NameUsageSearchRequest.QueryField.values()) {
       assertNotNull("HighlightField mapping for "+hlField+" missing", SolrMapping.HIGHLIGHT_FIELDS.get(hlField));
     }
 

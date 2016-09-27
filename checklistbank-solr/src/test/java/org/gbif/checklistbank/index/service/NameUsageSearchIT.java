@@ -233,7 +233,7 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
 
     // query extended, but hl description only
     searchRequest.setExtended(true);
-    searchRequest.setHighlightFields(Sets.<NameUsageSearchRequest.HighlightField>newHashSet(NameUsageSearchRequest.HighlightField.DESCRIPTION));
+    searchRequest.setHighlightFields(Sets.newHashSet(NameUsageSearchRequest.QueryField.DESCRIPTION));
 
     response = searchService.search(searchRequest);
 
@@ -277,8 +277,7 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
 
   @Test
   public void testExtendedSearch() {
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> resp =
-        search("Sciurus vulgaris Linnaeus", NameUsageSearchParameter.RANK, Rank.SPECIES);
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> resp = search("Sciurus vulgaris Linnaeus", NameUsageSearchParameter.RANK, Rank.SPECIES);
     assertEquals(1, resp.getResults().size());
     NameUsageSearchResult nu = resp.getResults().get(0);
     assertEquals(2, nu.getVernacularNames().size());
@@ -297,6 +296,22 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertEquals(2, resp.getResults().get(0).getVernacularNames().size());
     Set<String> vnames = getVernacularNamesSet(resp.getResults().get(0));
     assertTrue(vnames.contains("Europäisches Eichhörnchen"));
+
+    // test good query with a rank enum name
+    NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 50);
+    req.setQ("Rodent");
+    req.getQueryFields().clear();
+    assertSearch(req, 0l, null);
+
+    req.getQueryFields().add(NameUsageSearchRequest.QueryField.DESCRIPTION);
+    assertSearch(req, 2l, null);
+
+    req.setQ("Palearctic");
+    assertSearch(req, 1l, null);
+
+    req.getQueryFields().clear();
+    req.getQueryFields().add(NameUsageSearchRequest.QueryField.VERNACULAR);
+    assertSearch(req, 0l, null);
   }
 
   private void assertSearch(String q, Long expectedCount) {
