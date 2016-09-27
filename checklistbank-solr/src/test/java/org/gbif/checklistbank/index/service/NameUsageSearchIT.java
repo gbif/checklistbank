@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;
@@ -47,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -223,12 +223,11 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     // assert vernaculars
     List<VernacularName> names = response.getResults().get(0).getVernacularNames();
     assertEquals(1, names.size());
-    assertTrue(SolrConstants.HL_REGEX.matcher(names.get(0).getVernacularName()).find());
+    assertEquals(1, countHighlights(names, getVernacular));
 
     // assert descriptions
     List<Description> descriptions = response.getResults().get(0).getDescriptions();
-    assertTrue(SolrConstants.HL_REGEX.matcher(descriptions.get(0).getDescription()).find());
-
+    assertEquals(1, countHighlights(descriptions, getDescriptions));
 
 
     // query extended, but hl description only
@@ -240,16 +239,40 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     // assert 2 vernacular names without highlighting
     names = response.getResults().get(0).getVernacularNames();
     assertEquals(2, names.size());
-    assertFalse(SolrConstants.HL_REGEX.matcher(names.get(0).getVernacularName()).find());
-    assertFalse(SolrConstants.HL_REGEX.matcher(names.get(1).getVernacularName()).find());
+    assertEquals(0, countHighlights(names, getVernacular));
 
     // assert descriptions
     descriptions = response.getResults().get(0).getDescriptions();
     assertEquals(3, descriptions.size());
-    assertFalse(SolrConstants.HL_REGEX.matcher(descriptions.get(0).getDescription()).find());
-    assertFalse(SolrConstants.HL_REGEX.matcher(descriptions.get(1).getDescription()).find());
-    assertTrue(SolrConstants.HL_REGEX.matcher(descriptions.get(2).getDescription()).find());
+    assertEquals(1, countHighlights(descriptions, getDescriptions));
   }
+
+  private static <T> int countHighlights(List<T> objs, Function<T, String> getText) {
+    int cnt = 0;
+    for (T obj : objs) {
+      String text = getText.apply(obj);
+      if (text != null && SolrConstants.HL_REGEX.matcher(text).find()) {
+        cnt++;
+      }
+    }
+    return cnt;
+  }
+
+  Function<Description, String> getDescriptions = new Function<Description, String>() {
+    @Nullable
+    @Override
+    public String apply(@Nullable Description input) {
+      return input.getDescription();
+    }
+  };
+
+  Function<VernacularName, String> getVernacular = new Function<VernacularName, String>() {
+    @Nullable
+    @Override
+    public String apply(@Nullable VernacularName input) {
+      return input.getVernacularName();
+    }
+  };
 
   @Test
   public void testVernacularNames() {
