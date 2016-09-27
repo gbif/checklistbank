@@ -8,9 +8,9 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParser;
 
 import java.io.File;
@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -102,7 +101,7 @@ public class NubIndex implements AutoCloseable {
     .put(Rank.SPECIES, "sid")
     .build();
 
-  private static final Analyzer analyzer = new ScientificNameAnalyzer();
+  private static final ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
   private static final NameParser parser = new NameParser();
   private final Directory index;
   private final IndexSearcher searcher;
@@ -202,8 +201,8 @@ public class NubIndex implements AutoCloseable {
 
   public List<NameUsageMatch> matchByName(String name, boolean fuzzySearch, int maxMatches) {
 
-    // use lucene analyzer to normalize input without using the full query parser
-    final String analyzedName = SciNameNormalizer.normalize(name).toLowerCase();
+    // use the same lucene analyzer to normalize input
+    final String analyzedName = LuceneUtils.analyzeString(analyzer, name).get(0);
     LOG.debug("Analyzed {} query \"{}\" becomes >>{}<<", fuzzySearch ? "fuzzy" : "straight", name, analyzedName);
 
     // query needs to have at least 2 letters to match a real name

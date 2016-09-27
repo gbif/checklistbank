@@ -22,9 +22,10 @@ public class ScientificNameAnalyzer extends Analyzer {
     //TokenStream result = new ASCIIFoldingFilter(source);
     //result = new ScientificNameSoundAlikeFilter(result);
 
-    TokenStream result = new ScientificNameNormalizerFilter(source);
+    TokenStream result = new ScientificNameNormalizerFilter(source, true);
     result = new LowerCaseFilter(result);
 
     return new TokenStreamComponents(source, result);
   }
+
 }

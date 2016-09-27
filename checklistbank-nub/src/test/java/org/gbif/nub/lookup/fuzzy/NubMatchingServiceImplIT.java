@@ -42,22 +42,29 @@ public class NubMatchingServiceImplIT {
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
     assertMatch(name, query, expectedKey, type, new IntRange(1,100));
   }
+  private void print(String name, NameUsageMatch best) {
+    System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
+    if (best.getUsageKey() != null) {
+      System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
+      System.out.println("  " + best.getNote());
+    }
+    if (best.getAlternatives() != null) {
+      for (NameUsageMatch m : best.getAlternatives()) {
+        System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
+      }
+    }
+  }
+
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
-    System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
-    System.out.println("  " + CLASS_JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
-    System.out.println("  " + best.getNote());
+
+    print(name, best);
 
     assertEquals("Wrong expected key", expectedKey, best.getUsageKey());
     if (type == null) {
       assertTrue("Wrong none match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
     } else {
       assertEquals("Wrong match type", type, best.getMatchType());
-    }
-    if (best.getAlternatives() != null) {
-      for (NameUsageMatch m : best.getAlternatives()) {
-        System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
-      }
     }
     if (confidence != null) {
       assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
@@ -71,17 +78,10 @@ public class NubMatchingServiceImplIT {
 
   private void assertNoMatch(String name, LinneanClassification query, @Nullable IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
-    System.out.println(best.getNote());
+    print(name, best);
+
     assertEquals(NameUsageMatch.MatchType.NONE, best.getMatchType());
-    if (best.getAlternatives() != null && !best.getAlternatives().isEmpty()) {
-      NameUsageMatch alt = best.getAlternatives().get(0);
-      for (NameUsageMatch m : best.getAlternatives()) {
-        System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
-      }
-      if (confidence != null) {
-        assertTrue("alt confidence " + alt.getConfidence() + " not within " + confidence, confidence.containsInteger(alt.getConfidence()));
-      }
-    }
+    assertNull(best.getUsageKey());
   }
 
   protected static void assertMatchConsistency(NameUsageMatch match){
@@ -627,8 +627,8 @@ public class NubMatchingServiceImplIT {
     assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
     assertMatch("Zabidius novaemaculeatus", cl, 2394331, new IntRange(90, 100));
     assertMatch("Zabidius novaemaculeata", cl, 2394331, new IntRange(90, 100));
-    // no name normalization on the genus
-    assertNoMatch("Zabideus novemaculeatus", cl);
+    // no name normalization on the genus, but a fuzzy match
+    assertMatch("Zabideus novemaculeatus", cl, 2394331, NameUsageMatch.MatchType.FUZZY, new IntRange(85, 95));
 
     cl = new NameUsageMatch();
     cl.setKingdom("Animalia");
@@ -640,7 +640,6 @@ public class NubMatchingServiceImplIT {
     // genus match only
     assertMatch("Yoldia frate", cl, 2285488, new IntRange(90, 95));
   }
-
 
   /**
    * Names that fuzzy match to higher species "Iberus gualtieranus"

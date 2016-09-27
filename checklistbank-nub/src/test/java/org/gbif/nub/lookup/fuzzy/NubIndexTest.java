@@ -85,7 +85,7 @@ public class NubIndexTest {
     assertEquals(abiesAlbaKey, m.getUsageKey());
 
     // sciname soundalike filter enables this
-    m = index.matchByName("Aabbiess allba", true, 2).get(0);
+    m = index.matchByName("Abies alllbbbbaaa", true, 2).get(0);
     assertEquals(abiesAlbaKey, m.getUsageKey());
 
     m = index.matchByName("Aebies allba", true, 2).get(0);

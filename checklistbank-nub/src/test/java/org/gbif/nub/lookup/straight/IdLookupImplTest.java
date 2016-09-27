@@ -46,6 +46,8 @@ public class IdLookupImplTest {
 
   @Test
   public void testNorm() throws Exception {
+    assertEquals("malvastrum yelow vein virus satelite dna s", IdLookupImpl.norm("Malvastrum yellow vein virus satellite DNA ß"));
+
     assertNull(IdLookupImpl.norm(null));
     assertNull(IdLookupImpl.norm(""));
     assertNull(IdLookupImpl.norm("  "));

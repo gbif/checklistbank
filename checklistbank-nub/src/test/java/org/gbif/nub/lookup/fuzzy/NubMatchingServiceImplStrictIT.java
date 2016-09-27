@@ -65,8 +65,10 @@ public class NubMatchingServiceImplStrictIT {
 
   private void printMatch(String name, NameUsageMatch best) {
     System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
-    System.out.println("  " + JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
-    System.out.println("  " + best.getNote());
+    if (best.getUsageKey() != null) {
+      System.out.println("  " + JOINER.join(best.getKingdom(), best.getPhylum(), best.getClazz(), best.getOrder(), best.getFamily()));
+      System.out.println("  " + best.getNote());
+    }
 
     if (best.getAlternatives() != null && !best.getAlternatives().isEmpty()) {
       for (NameUsageMatch m : best.getAlternatives()) {

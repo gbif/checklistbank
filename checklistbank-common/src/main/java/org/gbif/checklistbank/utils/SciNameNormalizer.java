@@ -12,7 +12,7 @@ public class SciNameNormalizer {
 
   private static final Pattern suffix_a = Pattern.compile("(?:on|um|us|a)$");
   private static final Pattern suffix_i = Pattern.compile("ei$");
-  private static final Pattern i = Pattern.compile("[jyi]+");
+  private static final Pattern i = Pattern.compile("(?<!\\b)[jyi]+");
   private static final Pattern trh = Pattern.compile("([tr])h", Pattern.CASE_INSENSITIVE);
   private static final Pattern white = Pattern.compile("\\s{2,}");
   private static final Pattern empty = Pattern.compile("['_-]");
@@ -88,7 +88,7 @@ public class SciNameNormalizer {
    * Does a stemming of a latin epithet and return the female version ending with 'a'.
    */
   public static String stemEpithet(String epithet) {
-    if (!hasContent(epithet)) return null;
+    if (!hasContent(epithet)) return "";
     return suffix_a.matcher(epithet).replaceFirst("a");
   }
 
