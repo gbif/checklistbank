@@ -40,7 +40,7 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>2.4</version>
         <configuration>
-          <minimizeJar>false</minimizeJar>
+          <minimizeJar>true</minimizeJar>
           <createDependencyReducedPom>true</createDependencyReducedPom>
           <artifactSet>
             <excludes>
@@ -53,7 +53,7 @@
             <filter>
               <artifact>*:*</artifact>
               <excludes>
-                <exclude>**/logback.xml</exclude>
+                <exclude>logback.xml</exclude>
               </excludes>
             </filter>
           </filters>
@@ -93,10 +93,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-common</artifactId>
     </dependency>
@@ -113,11 +109,6 @@
     </dependency>
 
     <!-- TEST SCOPE -->
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

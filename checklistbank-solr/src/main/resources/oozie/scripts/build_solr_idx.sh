@@ -12,7 +12,8 @@ IS_SINGLE_SHARD=${10}
 #sets up HADOOP_CLASSPATH and HADOOP_LIBJAR
 source $SOLR_HOME/server/scripts/map-reduce/set-map-reduce-classpath.sh
 export HADOOP_CLIENT_OPTS="$HADOOP_CLIENT_OPTSP $HADOOP_CLIENT_OPTS"
-export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$SOLR_HOME/server/solr-webapp/webapp/WEB-INF/lib/checklistbank-solr-plugins-2.44-SNAPSHOT.jar
+export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$SOLR_HOMEserver/solr-webapp/webapp/WEB-INF/lib/checklistbank-solr-plugins-2.44-SNAPSHOT.jar
+export HADOOP_LIBJAR=$HADOOP_LIBJAR,file://$SOLR_HOMEserver/solr-webapp/webapp/WEB-INF/lib/checklistbank-solr-plugins-2.44-SNAPSHOT.jar
 export HADOOP_USER_CLASSPATH_FIRST=true
 echo "HADOOP_CLASSPATH" $HADOOP_CLASSPATH
 echo "HADOOP_LIBJAR" $HADOOP_LIBJAR
@@ -25,33 +26,26 @@ hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/solr-map-reduce-*.jar $MAP
 
 else
 
-PREV_COLLECTION="$SOLR_COLLECTION-prev"
-NEW_COLLECTION="$SOLR_COLLECTION-new"
+SOLR_COLLECTION_TODAY=$SOLR_COLLECTION"_"$(date +"%Y_%m_%d")
 
-echo "Delete existing new collection $NEW_COLLECTION"
-curl """$SOLR_HTTP_URL"/admin/collections?action=DELETE\&name="$NEW_COLLECTION"""
+echo "Delete todays collection $SOLR_COLLECTION_TODAY if existing"
+curl -s """$SOLR_HTTP_URL"/admin/collections?action=DELETE\&name="$SOLR_COLLECTION_TODAY"""
 
-echo "Copy configs for $NEW_COLLECTION to ZK"
-$SOLR_HOME/server/scripts/cloud-scripts/zkcli.sh  -zkhost $ZK_HOST -cmd upconfig -confname $NEW_COLLECTION -confdir solr/checklistbank/conf/
+echo "Copy configs for $SOLR_COLLECTION_TODAY to ZK"
+$SOLR_HOME/server/scripts/cloud-scripts/zkcli.sh  -zkhost $ZK_HOST -cmd upconfig -confname $SOLR_COLLECTION_TODAY -confdir solr/checklistbank/conf/
 
-echo "Create new collection $NEW_COLLECTION"
-curl """$SOLR_HTTP_URL"/admin/collections?action=CREATE\&name="$NEW_COLLECTION"\&"$SOLR_COLLECTION_OPTS"\&collection.configName="$NEW_COLLECTION"""
+echo "Create new collection $SOLR_COLLECTION_TODAY"
+curl -s """$SOLR_HTTP_URL"/admin/collections?action=CREATE\&name="$SOLR_COLLECTION_TODAY"\&"$SOLR_COLLECTION_OPTS"\&collection.configName="$SOLR_COLLECTION_TODAY"""
 
-echo "Build $NEW_COLLECTION"
+echo "Build $SOLR_COLLECTION_TODAY"
 hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/solr-map-reduce-*.jar $MAP_RED_OPTS -D mapreduce.job.user.classpath.first=true \
 -libjars $HADOOP_LIBJAR --morphline-file avro_solr_morphline.conf \
 --zk-host $ZK_HOST --output-dir $OUT_HDFS_DIR \
---collection $NEW_COLLECTION --log4j log4j.properties \
+--collection $SOLR_COLLECTION_TODAY --log4j log4j.properties \
 --verbose "$AVRO_TABLE" \
 --go-live
 
-echo "Delete previous collection $PREV_COLLECTION"
-curl """$SOLR_HTTP_URL"/admin/collections?action=DELETE\&name="$PREV_COLLECTION"""
-
-echo "Rename current collection $SOLR_COLLECTION to $PREV_COLLECTION"
-curl """$SOLR_HTTP_URL"/admin/collections?action=RENAME\&core="$SOLR_COLLECTION"\&other="$PREV_COLLECTION"""
-
-echo "Rename new collection to $SOLR_COLLECTION"
-curl """$SOLR_HTTP_URL"/admin/collections?action=RENAME\&core="$NEW_COLLECTION"\&other="$SOLR_COLLECTION"""
+echo "Create alias $SOLR_COLLECTION for $SOLR_COLLECTION_TODAY"
+curl -s """$SOLR_HTTP_URL"/admin/collections?action=CREATEALIAS\&name="$SOLR_COLLECTION"\&collections="$SOLR_COLLECTION_TODAY"""
 
 fi
