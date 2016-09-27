@@ -23,10 +23,18 @@ import org.gbif.checklistbank.ws.client.guice.ChecklistBankWs;
 import org.gbif.ws.client.BaseWsSuggestClient;
 
 import java.util.List;
+import javax.annotation.Nullable;
+import javax.ws.rs.core.MultivaluedMap;
 
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
+
+import static org.gbif.ws.util.WebserviceParameter.PARAM_EXTENDED;
+import static org.gbif.ws.util.WebserviceParameter.PARAM_HIGHLIGHT_CONTEXT;
+import static org.gbif.ws.util.WebserviceParameter.PARAM_HIGHLIGHT_FIELD;
+import static org.gbif.ws.util.WebserviceParameter.PARAM_MATCH;
 
 /**
  * Client-side implementation to the NameUsageSearchService.
@@ -48,4 +56,28 @@ public class NameUsageSearchWsClient
     super(resource.path("species"), SEARCH_TYPE, SUGGEST_TYPE);
   }
 
+  @Override
+  protected MultivaluedMap<String, String> getParameterFromRequest(@Nullable NameUsageSearchRequest searchRequest) {
+    MultivaluedMap<String, String> params = super.getParameterFromRequest(searchRequest);
+
+    if (searchRequest != null) {
+      params.putSingle(PARAM_EXTENDED, Boolean.toString(searchRequest.isExtended()));
+      if (searchRequest.getMatch() != null) {
+        params.putSingle(PARAM_MATCH, searchRequest.getMatch().name());
+      }
+      if (searchRequest.getHighlightContext() != null) {
+        params.putSingle(PARAM_HIGHLIGHT_CONTEXT, Integer.toString(searchRequest.getHighlightContext()));
+      }
+
+      List<String> fields = Lists.newArrayList();
+      for (NameUsageSearchRequest.HighlightField field : searchRequest.getHighlightFields()) {
+        fields.add(field.name());
+      }
+      if (!fields.isEmpty()) {
+        params.put(PARAM_HIGHLIGHT_FIELD, fields);
+      }
+    }
+
+    return params;
+  }
 }
