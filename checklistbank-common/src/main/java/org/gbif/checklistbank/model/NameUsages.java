@@ -7,17 +7,17 @@ import java.util.Objects;
 /**
  *
  */
-public class NameUsageSimple {
-  private int usageKey;
+public class NameUsages {
+  private Integer[] usageKeys;
   private String scientificName;
   private Rank rank;
 
-  public int getUsageKey() {
-    return usageKey;
+  public Integer[] getUsageKeys() {
+    return usageKeys;
   }
 
-  public void setUsageKey(int usageKey) {
-    this.usageKey = usageKey;
+  public void setUsageKeys(Integer[] usageKeys) {
+    this.usageKeys = usageKeys;
   }
 
   public String getScientificName() {
@@ -40,21 +40,21 @@ public class NameUsageSimple {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    NameUsageSimple u = (NameUsageSimple) o;
-    return usageKey == u.usageKey &&
+    NameUsages u = (NameUsages) o;
+    return usageKeys == u.usageKeys &&
         Objects.equals(scientificName, u.scientificName) &&
         rank == u.rank;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(usageKey, scientificName, rank);
+    return Objects.hash(usageKeys, scientificName, rank);
   }
 
   @Override
   public String toString() {
     final StringBuilder sb = new StringBuilder("UsageName{");
-    sb.append("key=").append(usageKey);
+    sb.append("keys=").append(usageKeys);
     sb.append(", scientificName=").append(scientificName);
     sb.append(", rank=").append(rank);
     sb.append('}');

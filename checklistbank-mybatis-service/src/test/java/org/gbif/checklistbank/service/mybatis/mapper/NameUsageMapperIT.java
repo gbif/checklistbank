@@ -152,4 +152,5 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     mapper.updateIssues(key, issues);
     assertTrue(mapper.getIssues(key).getIssues().isEmpty());
   }
+
 }

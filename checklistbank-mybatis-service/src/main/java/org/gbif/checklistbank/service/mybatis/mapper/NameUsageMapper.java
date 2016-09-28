@@ -3,7 +3,7 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.checklistbank.model.NameUsageSimple;
+import org.gbif.checklistbank.model.NameUsages;
 import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.List;
@@ -77,7 +77,7 @@ public interface NameUsageMapper {
    *
    * @param handler to process each name with
    */
-  void processAllSimpleUsages(ResultHandler<NameUsageSimple> handler);
+  void processAllNameUsages(ResultHandler<NameUsages> handler);
 
   /**
    * List all related name usages that have a given nubKey.

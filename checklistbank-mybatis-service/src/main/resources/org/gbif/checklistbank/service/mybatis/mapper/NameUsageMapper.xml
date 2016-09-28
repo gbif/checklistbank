@@ -94,8 +94,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
-    <resultMap id="simpleUsageResultMap" type="NameUsageSimple" autoMapping="true">
-      <id property="usageKey" column="id"/>
+    <resultMap id="usagesResultMap" type="NameUsages" autoMapping="true">
+      <id property="usageKeys" column="keys" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.IntegerArrayTypeHandler"/>
       <result property="scientificName" column="scientific_name"/>
       <result property="rank" column="rank"/>
     </resultMap>
@@ -176,8 +176,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   <!--  select all name usages of a dataset
    Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
   -->
-  <select id="processAllSimpleUsages" resultMap="simpleUsageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
-    SELECT id,rank,scientific_name
+  <select id="processAllNameUsages" resultMap="usagesResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT keys,rank,scientific_name
     FROM tmp_usage_names
   </select>
 

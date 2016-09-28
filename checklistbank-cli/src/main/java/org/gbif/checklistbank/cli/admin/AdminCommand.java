@@ -18,7 +18,7 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.model.NameUsageSimple;
+import org.gbif.checklistbank.model.NameUsages;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.source.ClbSource;
@@ -345,12 +345,12 @@ public class AdminCommand extends BaseCommand {
 
     LOG.info("Start reparsing all name usages. This will take a while ...");
     ReparseHandler handler = new ReparseHandler(nameService, usageMapper);
-    usageMapper.processAllSimpleUsages(handler);
+    usageMapper.processAllNameUsages(handler);
     LOG.info("Reparsed {} name usages, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
         handler.counter, handler.failed, handler.hybrids, handler.virus, handler.placeholder, handler.noname);
   }
 
-  private class ReparseHandler implements ResultHandler<NameUsageSimple> {
+  private class ReparseHandler implements ResultHandler<NameUsages> {
     private final NameParser parser;
     private final ParsedNameService nameService;
     private final NameUsageMapper usageMapper;
@@ -369,8 +369,8 @@ public class AdminCommand extends BaseCommand {
     }
 
     @Override
-    public void handleResult(ResultContext<? extends NameUsageSimple> context) {
-      NameUsageSimple u = context.getResultObject();
+    public void handleResult(ResultContext<? extends NameUsages> context) {
+      NameUsages u = context.getResultObject();
 
       counter++;
       ParsedName p;
@@ -401,10 +401,12 @@ public class AdminCommand extends BaseCommand {
         }
       }
 
-      // update usage name_fk
-      usageMapper.updateName(u.getUsageKey(), p.getKey());
+      // update usages
+      for (int key : u.getUsageKeys()) {
+        usageMapper.updateName(key, p.getKey());
+      }
       if (counter % 100000 == 0) {
-        LOG.info("Reparsed {} name usages, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, failed, hybrids, virus, placeholder, noname);
+        LOG.info("Reparsed {} names, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, failed, hybrids, virus, placeholder, noname);
       }
     }
   }
