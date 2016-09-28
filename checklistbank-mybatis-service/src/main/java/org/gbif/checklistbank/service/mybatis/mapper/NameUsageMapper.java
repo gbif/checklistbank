@@ -3,8 +3,8 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.checklistbank.model.NameUsageSimple;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.model.Usage;
 
 import java.util.List;
 import java.util.Set;
@@ -72,12 +72,12 @@ public interface NameUsageMapper {
   void processAll(ResultHandler<NameUsage> handler);
 
   /**
-   * Iterates over all not deleted name usages and processes them with the supplied handler.
+   * Iterates over all usage names and processes them with the supplied handler.
    * This allows a single query to efficiently stream all its values without keeping them in memory.
    *
-   * @param handler to process each name usage with
+   * @param handler to process each name with
    */
-  void processAllQuick(ResultHandler<Usage> handler);
+  void processAllSimpleUsages(ResultHandler<NameUsageSimple> handler);
 
   /**
    * List all related name usages that have a given nubKey.
@@ -115,4 +115,5 @@ public interface NameUsageMapper {
    * Update the name usage issues with the given set
    */
   void updateIssues(@Param("key") int usageKey, @Param("issues") Set<NameUsageIssue> issues);
+
 }

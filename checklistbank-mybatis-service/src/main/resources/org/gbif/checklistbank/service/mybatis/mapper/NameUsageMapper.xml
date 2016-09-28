@@ -94,7 +94,14 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
-    <!--  A mapping to build a NameUsage with just the issue set and the usage key.
+    <resultMap id="simpleUsageResultMap" type="NameUsageSimple" autoMapping="true">
+      <id property="usageKey" column="id"/>
+      <result property="scientificName" column="scientific_name"/>
+      <result property="rank" column="rank"/>
+    </resultMap>
+
+
+  <!--  A mapping to build a NameUsage with just the issue set and the usage key.
           We need this mapping as mybatis cannot return a typed set with a specific type handler -->
     <resultMap id="issueResultMap" type="NameUsage">
         <id property="key" column="id"/>
@@ -164,6 +171,14 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     FROM
     <include refid="from"/>
     WHERE u.deleted IS NULL
+  </select>
+
+  <!--  select all name usages of a dataset
+   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+  -->
+  <select id="processAllSimpleUsages" resultMap="simpleUsageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT id,rank,scientific_name
+    FROM tmp_usage_names
   </select>
 
   <!--  list root usages -->
