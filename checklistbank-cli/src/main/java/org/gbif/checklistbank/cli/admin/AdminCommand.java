@@ -376,7 +376,6 @@ public class AdminCommand extends BaseCommand {
       ParsedName p;
       try {
         p = parser.parse(u.getScientificName(), u.getRank());
-        nameService.createOrGet(p);
 
       } catch (UnparsableException e) {
         p = new ParsedName();
@@ -400,6 +399,9 @@ public class AdminCommand extends BaseCommand {
             break;
         }
       }
+
+      // persist name
+      p = nameService.createOrGet(p);
 
       // update usages
       for (int key : u.getUsageKeys()) {
