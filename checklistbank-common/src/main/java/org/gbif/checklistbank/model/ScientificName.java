@@ -12,6 +12,15 @@ public class ScientificName {
   private String scientificName;
   private Rank rank;
 
+  public ScientificName() {
+  }
+
+  public ScientificName(int key, String scientificName, Rank rank) {
+    this.key = key;
+    this.scientificName = scientificName;
+    this.rank = rank;
+  }
+
   public int getKey() {
     return key;
   }

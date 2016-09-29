@@ -2,6 +2,7 @@ package org.gbif.checklistbank.service.mybatis.tmp;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NameType;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
@@ -159,8 +160,41 @@ public class NameUsageReparser implements Runnable {
     )
     private void writeNames(List<ParsedName> pNames) {
       for (ParsedName pn : pNames) {
-        nameMapper.create(pn);
+        try {
+          nameMapper.create(pn);
+        } catch (Exception e) {
+          LOG.error("Error persisting name: {}", pn, e);
+        }
       }
     }
+  }
+  private static ParsedName parse(NameParser parser, ScientificName u) {
+    ParsedName p;
+    try {
+      p = parser.parse(u.getScientificName(), u.getRank());
+
+    } catch (UnparsableException e) {
+      p = new ParsedName();
+      p.setScientificName(u.getScientificName());
+      p.setRank(u.getRank());
+      p.setType(e.type);
+
+    } catch (Exception e) {
+      LOG.error("Parsing error for {} {}: ", u.getRank(), u.getScientificName(), e);
+
+      p = new ParsedName();
+      p.setScientificName(u.getScientificName());
+      p.setRank(u.getRank());
+      p.setType(NameType.DOUBTFUL);
+      p.setRemarks("parsing failure");
+    }
+
+    return p;
+  }
+
+  public static void main (String[] args) {
+    NameParser parser = new NameParser();
+    System.out.println(parse(parser, new ScientificName(0, "Taraxacum erythrospermum agg.", Rank.SECTION)));
+
   }
 }
