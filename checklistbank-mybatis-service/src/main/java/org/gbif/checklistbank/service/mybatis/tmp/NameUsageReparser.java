@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.tmp;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
@@ -53,14 +54,19 @@ public class NameUsageReparser implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Submit reparsing jobs in bacthes of {} to executor with {} threads.", BATCH_SIZE, threads);
+    LOG.info("Submit reparsing jobs in batches of {} to executor with {} threads.", BATCH_SIZE, threads);
     ReparseHandler handler = new ReparseHandler();
     usageMapper.processAllNameUsages(handler);
     // finally submit the remaining unfinished batch
     handler.submitBatch();
 
+    LOG.info("Submitted all {} jobs.", jobCounter);
+
     ExecutorUtils.stop(exec, "Reparsing");
 
+    if (jobCounter != 0) {
+      LOG.warn("Something not right. All jobs should be done but {} remain in counter", jobCounter);
+    }
     LOG.info("Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
   }
 
@@ -79,6 +85,7 @@ public class NameUsageReparser implements Runnable {
       ReparseBatch job = new ReparseBatch(batch);
       exec.submit(job);
       batch.clear();
+      jobCounter++;
     }
   }
 
@@ -91,21 +98,26 @@ public class NameUsageReparser implements Runnable {
 
     @Override
     public void run() {
-      // parse names
-      List<ParsedName> pNames = Lists.newArrayList();
-      for (ScientificName n : names) {
-        counter++;
-        pNames.add(parse(n));
-      }
+      try {
+        // parse names
+        List<ParsedName> pNames = Lists.newArrayList();
+        for (ScientificName n : names) {
+          counter++;
+          pNames.add(parse(n));
+        }
 
-      // write names to table. rank & scientific_name must be unique already!
-      writeNames(pNames);
+        // write names to table. rank & scientific_name must be unique already!
+        writeNames(pNames);
 
-      jobCounter++;
-      if (jobCounter % 100 == 0) {
-        LOG.info("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
-      } else if (jobCounter % 10 == 0) {
-        LOG.debug("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+        jobCounter--;
+        if (jobCounter % 100 == 0) {
+          LOG.info("Reparsed {} unique names in {} batches, {} failed, {} unparsable", counter, jobCounter, failed, unparsable);
+        } else if (jobCounter % 10 == 0) {
+          LOG.debug("Reparsed {} unique names in {} batches, {} failed, {} unparsable", counter, jobCounter, failed, unparsable);
+        }
+
+      } catch (Exception e) {
+        LOG.error("Batch reparsing error {}", e);
       }
     }
 
@@ -125,7 +137,19 @@ public class NameUsageReparser implements Runnable {
         } else {
           unparsable++;
         }
+
+      } catch (Exception e) {
+        LOG.error("Parsing error for {} {}: ", u.getRank(), u.getScientificName(), e);
+
+        p = new ParsedName();
+        p.setScientificName(u.getScientificName());
+        p.setRank(u.getRank());
+        p.setType(NameType.DOUBTFUL);
+        p.setRemarks("parsing failure");
+
+        failed++;
       }
+
       return p;
     }
 
