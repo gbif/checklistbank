@@ -45,7 +45,7 @@ public class NameUsageReparser implements Runnable {
     Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg));
     nameMapper  = inj.getInstance(ParsedNameMapper.class);
     usageMapper = inj.getInstance(NameUsageMapper.class);
-    exec = Executors.newFixedThreadPool(cfg.syncThreads);
+    exec = Executors.newFixedThreadPool(Math.max(1, cfg.maximumPoolSize-1));
   }
 
   @Override
@@ -80,13 +80,10 @@ public class NameUsageReparser implements Runnable {
     }
   }
 
-  class ReparseBatch implements Runnable {
+  private class ReparseBatch implements Runnable {
     private final List<NameUsages> names;
-    private int counter = 0;
-    private int failed = 0;
-    private int unparsable = 0;
 
-    public ReparseBatch(List<NameUsages> names) {
+    private ReparseBatch(List<NameUsages> names) {
       this.names = ImmutableList.copyOf(names);
     }
 
@@ -115,7 +112,11 @@ public class NameUsageReparser implements Runnable {
       // update usages
       writeUsages(pNames);
 
-      LOG.info("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+      if (counter % 100000 == 0) {
+        LOG.info("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+      } else if (counter % 10000 == 0) {
+        LOG.debug("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+      }
     }
 
     private ParsedName parse(NameUsages u) {
