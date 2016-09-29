@@ -90,6 +90,15 @@ public class NameUsageReparser implements Runnable {
     }
   }
 
+  class ScientificParsedName {
+    public final ScientificName sciname;
+    public final ParsedName pn;
+
+    public ScientificParsedName(ScientificName sciname, ParsedName pn) {
+      this.sciname = sciname;
+      this.pn = pn;
+    }
+  }
   private class ReparseBatch implements Runnable {
     private final List<ScientificName> names;
 
@@ -101,10 +110,10 @@ public class NameUsageReparser implements Runnable {
     public void run() {
       try {
         // parse names
-        List<ParsedName> pNames = Lists.newArrayList();
+        List<ScientificParsedName> pNames = Lists.newArrayList();
         for (ScientificName n : names) {
           counter++;
-          pNames.add(parse(n));
+          pNames.add(new ScientificParsedName(n, parse(n)));
         }
 
         // write names to table. rank & scientific_name must be unique already!
@@ -158,12 +167,13 @@ public class NameUsageReparser implements Runnable {
         exceptionMessage = "names inserts failed",
         executorType = ExecutorType.REUSE
     )
-    private void writeNames(List<ParsedName> pNames) {
-      for (ParsedName pn : pNames) {
+    private void writeNames(List<ScientificParsedName> pNames) {
+      for (ScientificParsedName spn : pNames) {
         try {
-          nameMapper.create(pn);
+          nameMapper.create2(spn.sciname.getKey(), spn.pn);
         } catch (Exception e) {
-          LOG.error("Error persisting name: {}", pn, e);
+          LOG.warn("Failed to persist name: {}", spn.pn, e);
+          nameMapper.failed(spn.sciname.getKey(), spn.sciname.getScientificName(), spn.sciname.getRank());
         }
       }
     }

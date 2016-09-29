@@ -41,6 +41,10 @@ public interface ParsedNameMapper {
      */
     void create(@Param("pn") ParsedName name);
 
+    void create2(@Param("key") int key, @Param("pn") ParsedName name);
+
+    void failed(@Param("key") int key, @Param("sciname") String scientificName, @Param("rank") Rank rank);
+
     void delete(@Param("key") int key);
 
     int deleteOrphaned(@Param("keyMin") int keyMin, @Param("keyMax") int keyMax);

@@ -65,6 +65,16 @@
         VALUES (<include refid="writeValues"/>)
     </insert>
 
+  <insert id="create2" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
+    <bind name="canonical" value="_parameter.pn.canonicalName()" />
+    INSERT INTO name (name_key, <include refid="writeFields"/>)
+    VALUES (#{key}, <include refid="writeValues"/>)
+  </insert>
+  <insert id="failed" parameterType="map">
+    INSERT INTO name_failed (key,rank,sciname)
+    VALUES (#{key}, #{rank}::rank, #{sciname})
+  </insert>
+
     <update id="update" parameterType="ParsedName" keyProperty="pn.key">
       <bind name="canonical" value="_parameter.pn.canonicalName()" />
         UPDATE name
