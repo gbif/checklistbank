@@ -1,7 +1,8 @@
 -- copy all usage names to interim table
 CREATE TABLE tmp_usage_names AS
-  SELECT u.id, u.rank, n.scientific_name
-  FROM name_usage u JOIN name n ON u.name_fk=n.id;
+  SELECT n.scientific_name, u.rank, array_agg(u.id) as keys
+  FROM name_usage u JOIN name n ON u.name_fk=n.id
+  GROUP BY 1,2;
 
 -- turn off name_fk fk constraint
 ALTER TABLE name_usage DROP CONSTRAINT name_usage_name_fk_fkey;

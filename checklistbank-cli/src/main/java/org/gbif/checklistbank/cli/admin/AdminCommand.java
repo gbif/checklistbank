@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
@@ -18,7 +17,6 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.model.NameUsages;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.source.ClbSource;
@@ -30,7 +28,7 @@ import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -42,8 +40,6 @@ import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,8 +55,6 @@ import com.google.common.collect.Maps;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -155,8 +149,7 @@ public class AdminCommand extends BaseCommand {
   private void runGlobalCommands() throws Exception {
     switch (cfg.operation) {
       case REPARSE:
-        reparseNameUsages();
-        //reparseNames();
+        reparseNames();
         break;
 
       case CLEAN_ORPHANS:
@@ -330,89 +323,15 @@ public class AdminCommand extends BaseCommand {
    * Reparses all names
    */
   private void reparseNames() {
-    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    ParsedNameService nameService = inj.getInstance(ParsedNameService.class);
+    new NameUsageReparser(cfg.clb).run();
 
-    LOG.info("Start reparsing all names. This will take a while ...");
-    int num = nameService.reparseAll();
-    LOG.info("{} names reparsed", num);
+    //Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+    //ParsedNameService nameService = inj.getInstance(ParsedNameService.class);
+    //
+    //LOG.info("Start reparsing all names. This will take a while ...");
+    //int num = nameService.reparseAll();
+    //LOG.info("{} names reparsed", num);
   }
-
-  private void reparseNameUsages() {
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
-    ParsedNameService nameService = inj.getInstance(ParsedNameService.class);
-    NameUsageMapper usageMapper = inj.getInstance(NameUsageMapper.class);
-
-    LOG.info("Start reparsing all name usages. This will take a while ...");
-    ReparseHandler handler = new ReparseHandler(nameService, usageMapper);
-    usageMapper.processAllNameUsages(handler);
-    LOG.info("Reparsed {} name usages, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
-        handler.counter, handler.failed, handler.hybrids, handler.virus, handler.placeholder, handler.noname);
-  }
-
-  private class ReparseHandler implements ResultHandler<NameUsages> {
-    private final NameParser parser;
-    private final ParsedNameService nameService;
-    private final NameUsageMapper usageMapper;
-
-    int counter = 0;
-    int failed = 0;
-    int hybrids = 0;
-    int virus = 0;
-    int placeholder = 0;
-    int noname = 0;
-
-    public ReparseHandler(ParsedNameService nameService, NameUsageMapper usageMapper) {
-      this.nameService = nameService;
-      this.parser = new NameParser();
-      this.usageMapper = usageMapper;
-    }
-
-    @Override
-    public void handleResult(ResultContext<? extends NameUsages> context) {
-      NameUsages u = context.getResultObject();
-
-      counter++;
-      ParsedName p;
-      try {
-        p = parser.parse(u.getScientificName(), u.getRank());
-
-      } catch (UnparsableException e) {
-        p = new ParsedName();
-        p.setScientificName(u.getScientificName());
-        p.setRank(u.getRank());
-        p.setType(e.type);
-
-        failed++;
-        switch (e.type) {
-          case HYBRID:
-            hybrids++;
-            break;
-          case VIRUS:
-            virus++;
-            break;
-          case PLACEHOLDER:
-            placeholder++;
-            break;
-          case NO_NAME:
-            noname++;
-            break;
-        }
-      }
-
-      // persist name
-      p = nameService.createOrGet(p);
-
-      // update usages
-      for (int key : u.getUsageKeys()) {
-        usageMapper.updateName(key, p.getKey());
-      }
-      if (counter % 100000 == 0) {
-        LOG.info("Reparsed {} names, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, failed, hybrids, virus, placeholder, noname);
-      }
-    }
-  }
-
 
   private void dumpToNeo() throws Exception {
     LOG.info("Start dumping dataset {} from postgres into neo4j", cfg.key);

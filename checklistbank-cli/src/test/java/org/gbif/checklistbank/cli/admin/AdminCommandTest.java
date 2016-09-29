@@ -33,4 +33,17 @@ public class AdminCommandTest {
         cfg.clb.password = "xxx";
         cmd.doRun();
     }
+
+  @Test
+  public void runLocal() throws Exception {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
+    cfg.operation = AdminOperation.REPARSE;
+    cfg.clb.serverName = "localhost";
+    cfg.clb.databaseName = "clb";
+    cfg.clb.user = "postgres";
+    cfg.clb.password = "pogo";
+    cmd.doRun();
+  }
+
 }
