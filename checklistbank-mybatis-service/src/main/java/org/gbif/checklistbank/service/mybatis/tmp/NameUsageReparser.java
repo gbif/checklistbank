@@ -36,7 +36,9 @@ public class NameUsageReparser implements Runnable {
   private final ExecutorService exec;
   private final NameUsageMapper usageMapper;
   private final ParsedNameMapper nameMapper;
+  private final int threads;
 
+  private int jobCounter = 0;
   private int counter = 0;
   private int failed = 0;
   private int unparsable = 0;
@@ -45,13 +47,13 @@ public class NameUsageReparser implements Runnable {
     Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg));
     nameMapper  = inj.getInstance(ParsedNameMapper.class);
     usageMapper = inj.getInstance(NameUsageMapper.class);
-    exec = Executors.newFixedThreadPool(Math.max(1, cfg.maximumPoolSize-1));
+    threads = Math.max(1, cfg.maximumPoolSize-1);
+    exec = Executors.newFixedThreadPool(threads);
   }
 
   @Override
   public void run() {
-
-    LOG.info("Start reparsing all name usages. This will take a while ...");
+    LOG.info("Submit reparsing jobs in bacthes of {} to executor with {} threads.", BATCH_SIZE, threads);
     ReparseHandler handler = new ReparseHandler();
     usageMapper.processAllNameUsages(handler);
     // finally submit the remaining unfinished batch
@@ -59,7 +61,7 @@ public class NameUsageReparser implements Runnable {
 
     ExecutorUtils.stop(exec, "Reparsing");
 
-    LOG.info("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+    LOG.info("Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
   }
 
   private class ReparseHandler implements ResultHandler<NameUsages> {
@@ -112,9 +114,10 @@ public class NameUsageReparser implements Runnable {
       // update usages
       writeUsages(pNames);
 
-      if (counter % 100000 == 0) {
+      jobCounter++;
+      if (jobCounter % 100 == 0) {
         LOG.info("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
-      } else if (counter % 10000 == 0) {
+      } else if (jobCounter % 10 == 0) {
         LOG.debug("Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
       }
     }
