@@ -95,7 +95,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     </resultMap>
 
     <resultMap id="usagesResultMap" type="NameUsages" autoMapping="true">
-      <id property="usageKeys" column="keys" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.IntegerArrayTypeHandler"/>
+      <result property="key" column="nameKey"/>
       <result property="scientificName" column="scientific_name"/>
       <result property="rank" column="rank"/>
     </resultMap>
@@ -177,7 +177,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
    Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
   -->
   <select id="processAllNameUsages" resultMap="usagesResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
-    SELECT keys,rank,scientific_name
+    SELECT name_key,rank,scientific_name
     FROM tmp_usage_names
   </select>
 

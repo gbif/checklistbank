@@ -28,7 +28,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.model.NameUsages;
+import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.TocEntry;
 import org.gbif.checklistbank.model.Usage;
@@ -133,7 +133,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addAlias("Distribution").to(Distribution.class);
     addAlias("Identifier").to(Identifier.class);
     addAlias("NameUsage").to(NameUsage.class);
-    addAlias("NameUsages").to(NameUsages.class);
+    addAlias("NameUsages").to(ScientificName.class);
     addAlias("NameUsageContainer").to(NameUsageContainer.class);
     addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
     addAlias("NameUsageMetrics").to(NameUsageMetrics.class);

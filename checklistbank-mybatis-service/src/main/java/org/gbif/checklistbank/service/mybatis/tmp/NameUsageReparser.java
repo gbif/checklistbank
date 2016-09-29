@@ -2,7 +2,7 @@ package org.gbif.checklistbank.service.mybatis.tmp;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.model.NameUsages;
+import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
@@ -64,11 +64,11 @@ public class NameUsageReparser implements Runnable {
     LOG.info("Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
   }
 
-  private class ReparseHandler implements ResultHandler<NameUsages> {
-    List<NameUsages> batch = Lists.newArrayList();
+  private class ReparseHandler implements ResultHandler<ScientificName> {
+    List<ScientificName> batch = Lists.newArrayList();
 
     @Override
-    public void handleResult(ResultContext<? extends NameUsages> context) {
+    public void handleResult(ResultContext<? extends ScientificName> context) {
       batch.add(context.getResultObject());
       if (batch.size() >= BATCH_SIZE) {
         submitBatch();
@@ -83,36 +83,23 @@ public class NameUsageReparser implements Runnable {
   }
 
   private class ReparseBatch implements Runnable {
-    private final List<NameUsages> names;
+    private final List<ScientificName> names;
 
-    private ReparseBatch(List<NameUsages> names) {
+    private ReparseBatch(List<ScientificName> names) {
       this.names = ImmutableList.copyOf(names);
-    }
-
-    class ParsedNameUsage {
-      public final ParsedName pn;
-      public final Integer[] usageKeys;
-
-      public ParsedNameUsage(ParsedName pn, Integer[] usageKeys) {
-        this.pn = pn;
-        this.usageKeys = usageKeys;
-      }
     }
 
     @Override
     public void run() {
       // parse names
-      List<ParsedNameUsage> pNames = Lists.newArrayList();
-      for (NameUsages n : names) {
+      List<ParsedName> pNames = Lists.newArrayList();
+      for (ScientificName n : names) {
         counter++;
-        pNames.add(new ParsedNameUsage(parse(n), n.getUsageKeys()));
+        pNames.add(parse(n));
       }
 
       // write names to table. rank & scientific_name must be unique already!
       writeNames(pNames);
-
-      // update usages
-      writeUsages(pNames);
 
       jobCounter++;
       if (jobCounter % 100 == 0) {
@@ -122,7 +109,7 @@ public class NameUsageReparser implements Runnable {
       }
     }
 
-    private ParsedName parse(NameUsages u) {
+    private ParsedName parse(ScientificName u) {
       ParsedName p;
       try {
         p = parser.parse(u.getScientificName(), u.getRank());
@@ -146,21 +133,9 @@ public class NameUsageReparser implements Runnable {
         exceptionMessage = "names inserts failed",
         executorType = ExecutorType.REUSE
     )
-    private void writeNames(List<ParsedNameUsage> pNames) {
-      for (ParsedNameUsage pnu : pNames) {
-        nameMapper.create(pnu.pn);
-      }
-    }
-
-    @Transactional(
-        exceptionMessage = "usage updates failed",
-        executorType = ExecutorType.REUSE
-    )
-    private void writeUsages(List<ParsedNameUsage> pNames) {
-      for (ParsedNameUsage pnu : pNames) {
-        for (Integer usageKey : pnu.usageKeys) {
-          usageMapper.updateName(usageKey, pnu.pn.getKey());
-        }
+    private void writeNames(List<ParsedName> pNames) {
+      for (ParsedName pn : pNames) {
+        nameMapper.create(pn);
       }
     }
   }
