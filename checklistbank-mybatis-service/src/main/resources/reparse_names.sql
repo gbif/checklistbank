@@ -53,14 +53,6 @@ SELECT t.name_fk as name_key, u.*
 FROM name_usage u
   JOIN tmp_usage t on t.key=u.id;
 
--- add failed name usages
-INSERT INTO name_usage2
-  SELECT n.id as name_key, u.*
-  FROM name_usage u
-    JOIN tmp_usage t on t.usage_fk=u.id
-    JOIN tmp_name_failure nf on nf.key=t.id
-    JOIN name n on n.rank=nf.rank and n.scientific_name=nf.scientific_name;
-
 -- use new names column
 ALTER TABLE name_usage2 DROP COLUMN name_fk;
 ALTER TABLE name_usage2 RENAME COLUMN name_key TO name_fk;
@@ -78,6 +70,11 @@ ALTER TABLE raw_usage DROP CONSTRAINT raw_usage_usage_fk_fkey;
 ALTER TABLE species_info DROP CONSTRAINT species_info_usage_fk_fkey;
 ALTER TABLE typification DROP CONSTRAINT typification_usage_fk_fkey;
 ALTER TABLE vernacular_name DROP CONSTRAINT vernacular_name_usage_fk_fkey;
+
+-- drop dependend views
+DROP VIEW nub;
+DROP VIEW nub_homonyms;
+DROP VIEW kname;
 
 -- drop old table
 DROP TABLE name_usage;
