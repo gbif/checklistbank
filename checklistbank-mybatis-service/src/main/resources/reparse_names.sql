@@ -119,3 +119,9 @@ CREATE INDEX ON name_usage USING btree (parent_fk) WHERE deleted IS NULL AND is_
 CREATE INDEX ON name_usage USING btree (pp_synonym_fk);
 CREATE INDEX ON name_usage USING btree (rank);
 CREATE INDEX ON name_usage USING btree (status);
+
+-- drop tmp tables and columns
+DROP TABLE tmp_usage;
+DROP TABLE tmp_usage_name;
+DROP TABLE tmp_name_failure;
+ALTER TABLE name DROP COLUMN tmp_usage_name_id;

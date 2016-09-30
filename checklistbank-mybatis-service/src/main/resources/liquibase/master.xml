@@ -309,4 +309,8 @@
       ]]>
     </sql>
   </changeSet>
+  <changeSet id="45" author="markus">
+    <!-- adds parsed flag to name table -->
+    <sql>ALTER TABLE name ADD COLUMN parsed boolean</sql>
+  </changeSet>
 </databaseChangeLog>

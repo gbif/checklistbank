@@ -1,8 +1,6 @@
 package org.gbif.checklistbank.service.mybatis.tmp;
 
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
@@ -10,7 +8,6 @@ import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.utils.ExecutorUtils;
 import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -114,7 +111,15 @@ public class NameUsageReparser implements Runnable {
         List<ScientificParsedName> pNames = Lists.newArrayList();
         for (ScientificName n : names) {
           counter++;
-          pNames.add(new ScientificParsedName(n, parse(n)));
+          ParsedName p = parser.parseQuietly(n.getScientificName(), n.getRank());
+          if (!p.isParsed()) {
+            if (p.getType() == null || p.getType().isParsable()) {
+              failed++;
+            } else {
+              unparsable++;
+            }
+          }
+          pNames.add(new ScientificParsedName(n, p));
         }
 
         // write names to table. rank & scientific_name must be unique already!
@@ -130,27 +135,6 @@ public class NameUsageReparser implements Runnable {
       } catch (Exception e) {
         LOG.error("Batch reparsing error {}", e);
       }
-    }
-
-    private ParsedName parse(ScientificName u) {
-      ParsedName p;
-      try {
-        p = parser.parse(u.getScientificName(), u.getRank());
-
-      } catch (UnparsableException e) {
-        p = new ParsedName();
-        p.setScientificName(u.getScientificName());
-        p.setRank(u.getRank());
-        p.setType(e.type);
-
-        if (e.type == null || e.type.isParsable()) {
-          failed++;
-        } else {
-          unparsable++;
-        }
-      }
-
-      return p;
     }
 
     @Transactional(
@@ -173,33 +157,5 @@ public class NameUsageReparser implements Runnable {
       }
     }
   }
-  private static ParsedName parse(NameParser parser, ScientificName u) {
-    ParsedName p;
-    try {
-      p = parser.parse(u.getScientificName(), u.getRank());
 
-    } catch (UnparsableException e) {
-      p = new ParsedName();
-      p.setScientificName(u.getScientificName());
-      p.setRank(u.getRank());
-      p.setType(e.type);
-
-    } catch (Exception e) {
-      LOG.error("Parsing error for {} {}: ", u.getRank(), u.getScientificName(), e);
-
-      p = new ParsedName();
-      p.setScientificName(u.getScientificName());
-      p.setRank(u.getRank());
-      p.setType(NameType.DOUBTFUL);
-      p.setRemarks("parsing failure");
-    }
-
-    return p;
-  }
-
-  public static void main (String[] args) {
-    NameParser parser = new NameParser();
-    System.out.println(parse(parser, new ScientificName(0, "Taraxacum erythrospermum agg.", Rank.SECTION)));
-
-  }
 }

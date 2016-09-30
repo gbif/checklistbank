@@ -5,18 +5,18 @@
     <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
     n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
     n.notho_type, n.rank, n.nom_status, n.sensu, n.remarks,
-    n.authors_parsed, n.authorship, n.year, n.bracket_authorship, n.bracket_year
+    n.authors_parsed, n.parsed, n.authorship, n.year, n.bracket_authorship, n.bracket_year
   </sql>
 
     <sql id="writeFields">scientific_name, canonical_name, type,
       genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
-      notho_type, rank, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year,
+      notho_type, rank, authors_parsed, parsed, authorship, year, year_int, bracket_authorship, bracket_year,
       nom_status, sensu, remarks
     </sql>
 
     <sql id="writeValues">#{pn.scientificName}, #{canonical}, #{pn.type}::name_type,
         #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
-        #{pn.notho}::name_part, #{pn.rank}::rank, #{pn.authorsParsed},
+        #{pn.notho}::name_part, #{pn.rank}::rank, #{pn.authorsParsed}, #{pn.parsed},
         #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
         #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks}
     </sql>
@@ -29,7 +29,6 @@
     <resultMap id="parsedNameResultMap" type="ParsedName" autoMapping="true">
         <id property="key" column="id"/>
         <result property="notho" column="notho_type"/>
-        <result property="rankMarker" column="rank_marker"/>
     </resultMap>
 
 
