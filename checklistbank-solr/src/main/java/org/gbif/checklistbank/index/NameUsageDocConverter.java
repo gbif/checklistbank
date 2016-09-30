@@ -115,7 +115,7 @@ public class NameUsageDocConverter {
     NameUsageSearchResult u = new NameUsageSearchResult();
 
     u.setKey((Integer)doc.getFieldValue("key"));
-    //u.setNameKey((Integer)doc.getFieldValue("name_key"));
+    u.setNameKey((Integer)doc.getFieldValue("name_key"));
     u.setNubKey((Integer)doc.getFieldValue("nub_key"));
     u.setDatasetKey(toUUID(doc.getFieldValue("dataset_key")));
     u.setConstituentKey(toUUID(doc.getFieldValue("constituent_key")));
@@ -187,7 +187,7 @@ public class NameUsageDocConverter {
     NameUsageSuggestResult u = new NameUsageSuggestResult();
 
     u.setKey((Integer)doc.getFieldValue("key"));
-    //u.setNameKey((Integer)doc.getFieldValue("name_key"));
+    u.setNameKey((Integer)doc.getFieldValue("name_key"));
     u.setNubKey((Integer)doc.getFieldValue("nub_key"));
     u.setParentKey((Integer)doc.getFieldValue("parent_key"));
     u.setParent((String)doc.getFieldValue("parent"));

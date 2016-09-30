@@ -6,7 +6,7 @@
     The vernacular name is omitted here and added later in the service implementation to avoid nasty SQL
     select distinct on (u.id) cannot be used directly as we need to have a different sort order
     -->
-    <sql id="select">u.id, rel.nub_fk, u.dataset_key, u.constituent_key,
+    <sql id="select">u.id, u.name_fk, rel.nub_fk, u.dataset_key, u.constituent_key,
 CASE WHEN u.is_synonym THEN par.parent_fk ELSE u.parent_fk END as parentKey,
 CASE WHEN u.is_synonym THEN coalesce(parn2.canonical_name, parn2.scientific_name) ELSE coalesce(parn.canonical_name, parn.scientific_name) END as parent,
 CASE WHEN u.is_synonym THEN u.parent_fk ELSE null END as acceptedKey,
@@ -76,6 +76,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <!--  A mapping to build a NameUsage without any identifiers or a vernacular name -->
     <resultMap id="usageResultMap" type="NameUsage" autoMapping="true">
         <id property="key" column="id"/>
+        <result property="nameKey" column="name_fk"/>
         <result property="nubKey" column="nub_fk"/>
         <result property="proParteKey" column="pp_synonym_fk"/>
         <result property="basionymKey" column="basionym_fk"/>
