@@ -178,7 +178,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   -->
   <select id="processAllNameUsages" resultMap="usagesResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
     SELECT id,rank,scientific_name
-    FROM tmp_usage_names
+    FROM tmp_usage_name
   </select>
 
   <!--  list root usages -->
