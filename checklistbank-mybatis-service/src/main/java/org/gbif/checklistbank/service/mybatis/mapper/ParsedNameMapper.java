@@ -43,7 +43,7 @@ public interface ParsedNameMapper {
 
     void create2(@Param("key") int key, @Param("pn") ParsedName name);
 
-    void failed(@Param("key") int key, @Param("sciname") String scientificName, @Param("rank") Rank rank);
+    void failed(@Param("key") int key, @Param("scientific_name") String scientificName, @Param("rank") Rank rank);
 
     void delete(@Param("key") int key);
 

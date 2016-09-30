@@ -67,12 +67,12 @@
 
   <insert id="create2" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
     <bind name="canonical" value="_parameter.pn.canonicalName()" />
-    INSERT INTO name (name_key, <include refid="writeFields"/>)
+    INSERT INTO name (tmp_usage_name_id, <include refid="writeFields"/>)
     VALUES (#{key}, <include refid="writeValues"/>)
   </insert>
   <insert id="failed" parameterType="map">
-    INSERT INTO name_failure (key,rank,sciname)
-    VALUES (#{key}, #{rank}::rank, #{sciname})
+    INSERT INTO tmp_name_failure (key,rank,scientific_name)
+    VALUES (#{key}, #{rank}::rank, #{scientific_name})
   </insert>
 
     <update id="update" parameterType="ParsedName" keyProperty="pn.key">

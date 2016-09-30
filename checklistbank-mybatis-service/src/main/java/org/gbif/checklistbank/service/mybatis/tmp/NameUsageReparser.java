@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -121,9 +122,9 @@ public class NameUsageReparser implements Runnable {
 
         jobCounter--;
         if (jobCounter % 100 == 0) {
-          LOG.info("Reparsed {} unique names in {} batches, {} failed, {} unparsable", counter, jobCounter, failed, unparsable);
+          LOG.info("Reparsed {} unique names. {} failed, {} unparsable. {} batches left", counter, failed, unparsable, jobCounter);
         } else if (jobCounter % 10 == 0) {
-          LOG.debug("Reparsed {} unique names in {} batches, {} failed, {} unparsable", counter, jobCounter, failed, unparsable);
+          LOG.debug("Reparsed {} unique names. {} failed, {} unparsable. {} batches left", counter, failed, unparsable, jobCounter);
         }
 
       } catch (Exception e) {
@@ -147,17 +148,6 @@ public class NameUsageReparser implements Runnable {
         } else {
           unparsable++;
         }
-
-      } catch (Exception e) {
-        LOG.error("Parsing error for {} {}: ", u.getRank(), u.getScientificName(), e);
-
-        p = new ParsedName();
-        p.setScientificName(u.getScientificName());
-        p.setRank(u.getRank());
-        p.setType(NameType.DOUBTFUL);
-        p.setRemarks("parsing failure");
-
-        failed++;
       }
 
       return p;
@@ -171,8 +161,13 @@ public class NameUsageReparser implements Runnable {
       for (ScientificParsedName spn : pNames) {
         try {
           nameMapper.create2(spn.sciname.getKey(), spn.pn);
+        } catch (PersistenceException e) {
+          Throwable cause = e.getCause() != null ? e.getCause() : e;
+          LOG.warn("Failed to persist name {}: {}", spn.pn, cause.getMessage());
+          nameMapper.failed(spn.sciname.getKey(), spn.pn.getScientificName(), spn.pn.getRank());
+
         } catch (Exception e) {
-          LOG.warn("Failed to persist name: {}", spn.pn, e);
+          LOG.error("Unexpected error persisting name {}", spn.pn, e);
           nameMapper.failed(spn.sciname.getKey(), spn.sciname.getScientificName(), spn.sciname.getRank());
         }
       }
