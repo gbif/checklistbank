@@ -1,7 +1,6 @@
 -- keep name persistence problems in a separate table
 CREATE TABLE tmp_name_failure (
   tmp_usage_name_id int PRIMARY KEY,
-  name_fk int,
   rank rank,
   scientific_name text
 );

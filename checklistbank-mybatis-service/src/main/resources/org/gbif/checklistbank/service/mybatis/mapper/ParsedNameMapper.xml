@@ -71,7 +71,7 @@
     VALUES (#{key}, <include refid="writeValues"/>)
   </insert>
   <insert id="failed" parameterType="map">
-    INSERT INTO tmp_name_failure (key,rank,scientific_name)
+    INSERT INTO tmp_name_failure (tmp_usage_name_id,rank,scientific_name)
     VALUES (#{key}, #{rank}::rank, #{scientific_name})
   </insert>
 
