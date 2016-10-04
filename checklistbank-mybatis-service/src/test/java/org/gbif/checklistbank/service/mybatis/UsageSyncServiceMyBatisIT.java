@@ -216,6 +216,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
 
     NameUsage u2 = uService.get(uID, null);
     u2.setLastInterpreted(null);
+    u2.setNameKey(null);
     u2.setCanonicalName(null);
     u2.setNameType(null);
     u2.setAuthorship(null);

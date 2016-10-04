@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetImportService> {
 
@@ -69,8 +70,16 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetI
 
     NameUsageService usageService = getInstance(NameUsageService.class);
     NameUsage u2 = usageService.get(USAGE_ID, null);
+
     u2.setLastInterpreted(null);
+
+    // name key is newly assigned
+    u.setNameKey(u2.getNameKey());
+    u.setNameKey(u2.getNameKey());
+    assertNotNull(u.getNameKey());
+
     assertFalse(u2.getIssues().isEmpty());
+
     assertEquals(u, u2);
   }
 
