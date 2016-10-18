@@ -206,7 +206,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     updateSelfReferences(u);
 
     // insert usage metrics
-    metrics.setKey(u.getKey());
+    metrics.setKey(uw.getKey());
     metricsMapper.insert(datasetKey, metrics);
 
     // insert nub mapping

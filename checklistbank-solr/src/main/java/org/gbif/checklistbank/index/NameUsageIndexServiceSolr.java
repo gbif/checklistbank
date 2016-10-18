@@ -239,6 +239,10 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
   }
 
+  /**
+   * Updates solr by loading given usage keys from the provided ImporterCallback handler.
+   * This is used by the neo4j backed indexing tools to provide data from neo without coupling the service here to neo4j.
+   */
   class SolrUpdateCallback implements Callable<List<Integer>> {
     private final Iterable<Integer> usages;
     private final ImporterCallback dao;
@@ -264,6 +268,9 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     }
   }
 
+  /**
+   * Updates solr by loading given usage keys from mybatis.
+   */
   class SolrUpdateMybatis implements Callable<List<Integer>> {
     private final List<Integer> ids;
 

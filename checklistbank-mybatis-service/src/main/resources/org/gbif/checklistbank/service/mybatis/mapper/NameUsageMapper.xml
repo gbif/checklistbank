@@ -296,7 +296,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
     #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.sourceTaxonKey}, #{u.modified}, #{u.numDescendants}, now()
   </sql>
-    <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key">
+    <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key" keyColumn="id">
         INSERT INTO name_usage (
         <if test="u.key != null">id,</if>
         <include refid="writeFields"/>, dataset_key)

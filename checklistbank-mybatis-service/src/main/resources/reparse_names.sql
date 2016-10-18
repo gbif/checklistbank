@@ -16,7 +16,7 @@ CREATE TABLE tmp_usage_name (
   keys int[]
 );
 
-INSERT INTO tmp_usage_name
+INSERT INTO tmp_usage_name (scientific_name, rank, keys)
   SELECT n.scientific_name, u.rank, array_agg(u.id) as keys
   FROM name_usage u JOIN name n ON u.name_fk=n.id
   GROUP BY 1,2;
@@ -84,6 +84,15 @@ ALTER TABLE name_usage2 RENAME TO name_usage;
 
 -- recreate constraints
 ALTER TABLE ONLY name_usage ADD PRIMARY KEY(id);
+CREATE SEQUENCE name_usage_id_seq;
+SELECT setval('name_usage_id_seq', (select max(id) from name_usage)+1);
+ALTER TABLE name_usage ALTER COLUMN id SET DEFAULT nextval('name_usage_id_seq');
+ALTER TABLE name_usage ALTER COLUMN modified SET DEFAULT now();
+ALTER TABLE name_usage ALTER COLUMN last_interpreted SET DEFAULT now();
+ALTER TABLE name_usage ALTER COLUMN dataset_key SET NOT NULL;
+ALTER TABLE name_usage ALTER COLUMN name_fk SET NOT NULL;
+ALTER TABLE name_usage ALTER COLUMN is_synonym SET NOT NULL;
+
 ALTER TABLE ONLY name_usage ADD FOREIGN KEY (name_fk) REFERENCES name(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY name_usage ADD FOREIGN KEY (according_to_fk) REFERENCES citation(id) DEFERRABLE INITIALLY DEFERRED;
 ALTER TABLE ONLY name_usage ADD FOREIGN KEY (name_published_in_fk) REFERENCES citation(id) DEFERRABLE INITIALLY DEFERRED;
@@ -116,6 +125,7 @@ CREATE INDEX ON name_usage USING btree (parent_fk) WHERE deleted IS NULL AND is_
 CREATE INDEX ON name_usage USING btree (pp_synonym_fk);
 CREATE INDEX ON name_usage USING btree (rank);
 CREATE INDEX ON name_usage USING btree (status);
+
 
 -- drop tmp tables and columns
 DROP TABLE tmp_usage;

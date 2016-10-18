@@ -37,6 +37,7 @@ public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase<UsageService>
         boolean found = false;
         for (NameUsage nu : usages) {
             assertNull(nu.getVernacularName());
+            assertNotNull(nu.getNameKey());
             assertNotNull(nu.getScientificName());
             assertTrue(nu.getKey() >= 100000001 && nu.getKey() <= 100000020);
             assertEquals(CHECKLIST_KEY, nu.getDatasetKey());
