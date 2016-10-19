@@ -57,7 +57,7 @@ public class NameUsageDocConverterTest {
         SolrInputDocument doc = conv.toDoc(u, Lists.newArrayList(12, 15, 20, 100), ext);
 
         assertEquals(u.getKey(), doc.get("key").getValue());
-        assertEquals(u.getDatasetKey(), doc.get("dataset_key").getValue());
+        assertEquals(u.getDatasetKey().toString(), doc.get("dataset_key").getValue());
         assertEquals(u.getParentKey(), doc.get("parent_key").getValue());
         assertEquals(u.getFamily(), doc.get("family").getValue());
         assertEquals(u.getFamilyKey(), doc.get("family_key").getValue());

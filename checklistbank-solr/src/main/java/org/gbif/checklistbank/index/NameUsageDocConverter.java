@@ -62,8 +62,8 @@ public class NameUsageDocConverter {
       doc.addField("key", usage.getKey());
       doc.addField("name_key", usage.getNameKey());
       doc.addField("nub_key", usage.getNubKey());
-      doc.addField("dataset_key", usage.getDatasetKey());
-      doc.addField("constituent_key", usage.getConstituentKey());
+      doc.addField("dataset_key", str(usage.getDatasetKey()));
+      doc.addField("constituent_key", str(usage.getConstituentKey()));
       doc.addField("parent_key", usage.getParentKey());
       doc.addField("parent", usage.getParent());
       doc.addField("accepted_key", usage.getAcceptedKey());
@@ -257,6 +257,10 @@ public class NameUsageDocConverter {
       return val.ordinal();
     }
     return null;
+  }
+
+  private static String str(@Nullable Object obj) {
+    return obj == null ? null : obj.toString();
   }
 
   private static <T extends Enum<?>> T toEnum(SolrDocument doc, Class<T> vocab, String field) {
