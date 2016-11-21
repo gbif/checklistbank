@@ -294,6 +294,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
     @Override
     public List<Integer> call() throws Exception {
+      LOG.info("Deleting {} usages from solr", ids.size());
       for (Integer id : ids) {
         solr.deleteById(String.valueOf(id), commitWithinMs);
       }

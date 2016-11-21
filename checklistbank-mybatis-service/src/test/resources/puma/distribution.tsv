@@ -1,0 +1,1 @@
+id, usage_fk, location_id, locality, country, occurrence_status, threat_status, establishment_means, appendix_cites, start_day_of_year, end_day_of_year, start_year, end_year, source_fk, remarks, temporal, life_stage

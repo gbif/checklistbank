@@ -7,6 +7,10 @@ DROP FUNCTION groupInfraspecificRanks(rank);
 
 UPDATE name_usage set rank = 'UNRANKED' WHERE rank = 'INFORMAL';
 UPDATE typification set rank = 'UNRANKED' WHERE rank = 'INFORMAL';
+-- add INFORMAL counts to UNRANKED in dataset metrics
+UPDATE dataset_metrics set count_by_rank = count_by_rank - array['INFORMAL','UNRANKED'] || ('UNRANKED=>' || ((count_by_rank->'INFORMAL')::int + (count_by_rank->'UNRANKED')::int)::text)::hstore
+WHERE count_by_rank ? 'INFORMAL';
+
 ALTER TABLE name_usage ALTER COLUMN rank type text;
 ALTER TABLE typification ALTER COLUMN rank type text;
 

@@ -1,0 +1,215 @@
+id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet, notho_type, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year, nom_status, sensu, remarks, modified, rank, parsed
+265719	Aeluroidea Flower 1869	Aeluroidea	SCIENTIFIC	Aeluroidea	\N	\N	\N	\N	\N	t	Flower	1869	1869	\N	\N	\N	\N	\N	2016-10-05 16:15:46.759703	SUPERFAMILY	t
+553381	Amniota	Amniota	SCIENTIFIC	Amniota	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:17:58.117539	UNRANKED	t
+553385	Amniota (Haeckel 1866)	Amniota	SCIENTIFIC	Amniota	\N	\N	\N	\N	\N	t	\N	\N	\N	Haeckel	1866	\N	\N	\N	2016-10-05 16:17:58.119649	UNRANKED	t
+683619	Animalia	Animalia	SCIENTIFIC	Animalia	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:18:57.39172	KINGDOM	t
+683621	Animalia (Linnaeus 1758)	Animalia	SCIENTIFIC	Animalia	\N	\N	\N	\N	\N	t	\N	\N	\N	Linnaeus	1758	\N	\N	\N	2016-10-05 16:18:57.3933	KINGDOM	t
+683628	Animalia Linnaeus, 1758	Animalia	SCIENTIFIC	Animalia	\N	\N	\N	\N	\N	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2016-10-05 16:18:57.400276	KINGDOM	t
+760172	Anthracosauria Säve-Söderbergh 1934	Anthracosauria	SCIENTIFIC	Anthracosauria	\N	\N	\N	\N	\N	t	Säve-Söderbergh	1934	1934	\N	\N	\N	\N	\N	2016-10-05 16:19:34.811884	UNRANKED	t
+1385007	Batrachosauria (Efremov 1946)	Batrachosauria	SCIENTIFIC	Batrachosauria	\N	\N	\N	\N	\N	t	\N	\N	\N	Efremov	1946	\N	\N	\N	2016-10-05 16:24:34.994018	UNRANKED	t
+1473260	Bilateria	Bilateria	SCIENTIFIC	Bilateria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:25:28.182465	UNRANKED	t
+1553310	Boreoeutheria	Boreoeutheria	SCIENTIFIC	Boreoeutheria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:26:15.355569	UNRANKED	t
+1555192	Boreosphenida (Luo et al. 2001)	Boreosphenida	SCIENTIFIC	Boreosphenida	\N	\N	\N	\N	\N	t	\N	\N	\N	Luo et al.	2001	\N	\N	\N	2016-10-05 16:26:16.211415	UNRANKED	t
+1945368	Canidae	Canidae	SCIENTIFIC	Canidae	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:29:27.931743	FAMILY	t
+2047942	Carnivoraformes Flynn et al.	Carnivoraformes	SCIENTIFIC	Carnivoraformes	\N	\N	\N	\N	\N	t	Flynn et al.	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:30:20.570372	UNRANKED	t
+2047951	Carnivoramorpha Wyss and Flynn 1993	Carnivoramorpha	SCIENTIFIC	Carnivoramorpha	\N	\N	\N	\N	\N	t	Wyss & Flynn	1993	1993	\N	\N	\N	\N	\N	2016-10-05 16:30:20.578939	UNRANKED	t
+2047981	Carnivora	Carnivora	SCIENTIFIC	Carnivora	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:30:20.597576	ORDER	t
+2047987	Carnivora Bowdich 1821	Carnivora	SCIENTIFIC	Carnivora	\N	\N	\N	\N	\N	t	Bowdich	1821	1821	\N	\N	\N	\N	\N	2016-10-05 16:30:20.600645	ORDER	t
+2047989	Carnivora Bowdich, 1821	Carnivora	SCIENTIFIC	Carnivora	\N	\N	\N	\N	\N	t	Bowdich	1821	1821	\N	\N	\N	\N	\N	2016-10-05 16:30:20.601402	ORDER	t
+2047995	Carnivora Bowditch 1821	Carnivora	SCIENTIFIC	Carnivora	\N	\N	\N	\N	\N	t	Bowditch	1821	1821	\N	\N	\N	\N	\N	2016-10-05 16:30:20.60594	ORDER	t
+2429952	Chordata	Chordata	SCIENTIFIC	Chordata	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:33:15.812527	PHYLUM	t
+2429955	Chordata (Haeckel 1847)	Chordata	SCIENTIFIC	Chordata	\N	\N	\N	\N	\N	t	\N	\N	\N	Haeckel	1847	\N	\N	\N	2016-10-05 16:33:15.814762	UNRANKED	t
+2557438	Cladotheria McKenna 1975	Cladotheria	SCIENTIFIC	Cladotheria	\N	\N	\N	\N	\N	t	McKenna	1975	1975	\N	\N	\N	\N	\N	2016-10-05 16:34:12.085498	UNRANKED	t
+2938892	Cotylosauria (Cope 1880)	Cotylosauria	SCIENTIFIC	Cotylosauria	\N	\N	\N	\N	\N	t	\N	\N	\N	Cope	1880	\N	\N	\N	2016-10-05 16:37:01.265441	UNRANKED	t
+2948939	Craniata	Craniata	SCIENTIFIC	Craniata	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:37:05.681511	SUBPHYLUM	t
+3199735	Cynodontia (Owen 1861)	Cynodontia	SCIENTIFIC	Cynodontia	\N	\N	\N	\N	\N	t	\N	\N	\N	Owen	1861	\N	\N	\N	2016-10-05 16:38:59.376858	INFRAORDER	t
+3427706	Deuterostomia	Deuterostomia	SCIENTIFIC	Deuterostomia	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:40:51.691505	UNRANKED	t
+3427711	Deuterostomia Grobben 1908	Deuterostomia	SCIENTIFIC	Deuterostomia	\N	\N	\N	\N	\N	t	Grobben	1908	1908	\N	\N	\N	\N	\N	2016-10-05 16:40:51.693145	UNRANKED	t
+3597825	Dipnotetrapodomorpha	Dipnotetrapodomorpha	SCIENTIFIC	Dipnotetrapodomorpha	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:42:19.141892	UNRANKED	t
+3597829	Dipnotetrapodomorpha (Nelson 2006)	Dipnotetrapodomorpha	SCIENTIFIC	Dipnotetrapodomorpha	\N	\N	\N	\N	\N	t	\N	\N	\N	Nelson	2006	\N	\N	\N	2016-10-05 16:42:19.142785	SUBCLASS	t
+4021601	Epicynodontia Hopson and Kitching 2001	Epicynodontia	SCIENTIFIC	Epicynodontia	\N	\N	\N	\N	\N	t	Hopson & Kitching	2001	2001	\N	\N	\N	\N	\N	2016-10-05 16:45:33.064408	UNRANKED	t
+4210391	Eucynodontia Kemp 1982	Eucynodontia	SCIENTIFIC	Eucynodontia	\N	\N	\N	\N	\N	t	Kemp	1982	1982	\N	\N	\N	\N	\N	2016-10-05 16:46:52.386306	INFRAORDER	t
+4233003	Eukaryota	Eukaryota	SCIENTIFIC	Eukaryota	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:47:01.354262	DOMAIN	t
+4233011	Eukaryota (Leedale 1974)	Eukaryota	SCIENTIFIC	Eukaryota	\N	\N	\N	\N	\N	t	\N	\N	\N	Leedale	1974	\N	\N	\N	2016-10-05 16:47:01.357383	UNRANKED	t
+4247983	Eumetazoa	Eumetazoa	SCIENTIFIC	Eumetazoa	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:47:07.536097	UNRANKED	t
+4347308	Euteleostomi	Euteleostomi	SCIENTIFIC	Euteleostomi	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:47:47.552679	UNRANKED	t
+4350843	Eutheria	Eutheria	SCIENTIFIC	Eutheria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:47:48.867238	UNRANKED	t
+4350849	Eutheria (Huxley 1880)	Eutheria	SCIENTIFIC	Eutheria	\N	\N	\N	\N	\N	t	\N	\N	\N	Huxley	1880	\N	\N	\N	2016-10-05 16:47:48.868838	SUBCLASS	t
+4350855	Eutheria Gill, 1872	Eutheria	SCIENTIFIC	Eutheria	\N	\N	\N	\N	\N	t	Gill	1872	1872	\N	\N	\N	\N	\N	2016-10-05 16:47:48.870397	SUBCLASS	t
+4416245	Felidae	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:48:16.382001	FAMILY	t
+4416257	Felidae Fischer de Waldheim 1817	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2016-10-05 16:48:16.385138	FAMILY	t
+4416260	Felidae Fischer de Waldheim, 1817	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2016-10-05 16:48:16.385737	FAMILY	t
+4416262	Felidae G. Fischer, 1817	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	G. Fischer	1817	1817	\N	\N	\N	\N	\N	2016-10-05 16:48:16.386458	FAMILY	t
+4416264	Felidae Gray 1821	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	Gray	1821	1821	\N	\N	\N	\N	\N	2016-10-05 16:48:16.387135	FAMILY	t
+4416267	Felidae Gray, 1821	Felidae	SCIENTIFIC	Felidae	\N	\N	\N	\N	\N	t	Gray	1821	1821	\N	\N	\N	\N	\N	2016-10-05 16:48:16.387725	FAMILY	t
+4416273	Feliformia	Feliformia	SCIENTIFIC	Feliformia	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:48:16.38915	SUBORDER	t
+4416279	Feliformia Kretzoi 1945	Feliformia	SCIENTIFIC	Feliformia	\N	\N	\N	\N	\N	t	Kretzoi	1945	1945	\N	\N	\N	\N	\N	2016-10-05 16:48:16.390541	SUBORDER	t
+4416280	Feliformia Kretzoi, 1945	Feliformia	SCIENTIFIC	Feliformia	\N	\N	\N	\N	\N	t	Kretzoi	1945	1945	\N	\N	\N	\N	\N	2016-10-05 16:48:16.391157	SUBORDER	t
+4416770	Felinae	Felinae	SCIENTIFIC	Felinae	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:48:16.512559	SUBFAMILY	t
+4416776	Felinae Fischer de Waldheim, 1817	Felinae	SCIENTIFIC	Felinae	\N	\N	\N	\N	\N	t	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2016-10-05 16:48:16.514535	SUBFAMILY	t
+4416780	Felinae G. Fischer, 1817	Felinae	SCIENTIFIC	Felinae	\N	\N	\N	\N	\N	t	G. Fischer	1817	1817	\N	\N	\N	\N	\N	2016-10-05 16:48:16.516371	SUBFAMILY	t
+4416782	Felinae Trouessart 1885	Felinae	SCIENTIFIC	Felinae	\N	\N	\N	\N	\N	t	Trouessart	1885	1885	\N	\N	\N	\N	\N	2016-10-05 16:48:16.516941	SUBFAMILY	t
+4419994	Ferae (Linnaeus 1758)	Ferae	SCIENTIFIC	Ferae	\N	\N	\N	\N	\N	t	\N	\N	\N	Linnaeus	1758	\N	\N	\N	2016-10-05 16:48:17.960157	UNRANKED	t
+4761301	Gnathostomata	Gnathostomata	SCIENTIFIC	Gnathostomata	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:50:46.222273	UNRANKED	t
+4761305	Gnathostomata (Gegenbauer 1874)	Gnathostomata	SCIENTIFIC	Gnathostomata	\N	\N	\N	\N	\N	t	\N	\N	\N	Gegenbauer	1874	\N	\N	\N	2016-10-05 16:50:46.22363	UNRANKED	t
+6042297	Laurasiatheria	Laurasiatheria	SCIENTIFIC	Laurasiatheria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:00:47.514877	SUPERORDER	t
+6042299	Laurasiatheria Waddell et al. 1999	Laurasiatheria	SCIENTIFIC	Laurasiatheria	\N	\N	\N	\N	\N	t	Waddell et al.	1999	1999	\N	\N	\N	\N	\N	2016-10-05 17:00:47.515554	UNRANKED	t
+6312258	Life	Life	SCIENTIFIC	Life	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:03:04.435442	UNRANKED	t
+6658677	Mammalia	Mammalia	SCIENTIFIC	Mammalia	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:05:48.768128	CLASS	t
+6658683	Mammalia (Linnaeus 1758)	Mammalia	SCIENTIFIC	Mammalia	\N	\N	\N	\N	\N	t	\N	\N	\N	Linnaeus	1758	\N	\N	\N	2016-10-05 17:05:48.770085	CLASS	t
+6658690	Mammalia Linnaeus, 1758	Mammalia	SCIENTIFIC	Mammalia	\N	\N	\N	\N	\N	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2016-10-05 17:05:48.772606	CLASS	t
+6658704	Mammaliaformes Rowe 1988	Mammaliaformes	SCIENTIFIC	Mammaliaformes	\N	\N	\N	\N	\N	t	Rowe	1988	1988	\N	\N	\N	\N	\N	2016-10-05 17:05:48.778366	UNRANKED	t
+6658708	Mammaliamorpha Rowe 1988	Mammaliamorpha	SCIENTIFIC	Mammaliamorpha	\N	\N	\N	\N	\N	t	Rowe	1988	1988	\N	\N	\N	\N	\N	2016-10-05 17:05:48.779972	UNRANKED	t
+6658845	Mammals UNKNOWN	\N	PLACEHOLDER	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:05:48.835448	CLASS	f
+6946592	Metazoa	Metazoa	SCIENTIFIC	Metazoa	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:07:54.511953	KINGDOM	t
+7494461	Nephrozoa Jondelius et al. 2002	Nephrozoa	SCIENTIFIC	Nephrozoa	\N	\N	\N	\N	\N	t	Jondelius et al.	2002	2002	\N	\N	\N	\N	\N	2016-10-05 17:12:08.785791	UNRANKED	t
+7850762	Opisthokonta	Opisthokonta	SCIENTIFIC	Opisthokonta	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:14:52.158876	UNRANKED	t
+7850770	Opisthokonta Cavalier-Smith 1987	Opisthokonta	SCIENTIFIC	Opisthokonta	\N	\N	\N	\N	\N	t	Cavalier-Smith	1987	1987	\N	\N	\N	\N	\N	2016-10-05 17:14:52.162076	UNRANKED	t
+7953028	Osteichthyes (Huxley 1880)	Osteichthyes	SCIENTIFIC	Osteichthyes	\N	\N	\N	\N	\N	t	\N	\N	\N	Huxley	1880	\N	\N	\N	2016-10-05 17:15:40.025349	UNRANKED	t
+8810725	Placentalia (Owen 1837)	Placentalia	SCIENTIFIC	Placentalia	\N	\N	\N	\N	\N	t	\N	\N	\N	Owen	1837	\N	\N	\N	2016-10-05 17:21:34.293152	UNRANKED	t
+9196508	Probainognathia Hopson 1990	Probainognathia	SCIENTIFIC	Probainognathia	\N	\N	\N	\N	\N	t	Hopson	1990	1990	\N	\N	\N	\N	\N	2016-10-05 17:24:01.008211	UNRANKED	t
+9541873	Puma	Puma	SCIENTIFIC	Puma	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.099898	GENUS	t
+9541875	Puma Jardine 1834	Puma	SCIENTIFIC	Puma	\N	\N	\N	\N	\N	t	Jardine	1834	1834	\N	\N	\N	\N	\N	2016-10-05 17:26:09.10068	GENUS	t
+9541877	Puma Jardine, 1834	Puma	SCIENTIFIC	Puma	\N	\N	\N	\N	\N	t	Jardine	1834	1834	\N	\N	\N	\N	\N	2016-10-05 17:26:09.101443	GENUS	t
+9541879	Puma concolor	Puma concolor	SCIENTIFIC	Puma	\N	concolor	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.102213	SPECIES	t
+9541881	Puma concolor "(Linnaeus, 1771)     "	Puma concolor	DOUBTFUL	Puma	\N	concolor	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.102984	SPECIES	t
+9541884	Puma concolor (Linnaeus 1771)	Puma concolor	SCIENTIFIC	Puma	\N	concolor	\N	\N	\N	t	\N	\N	\N	Linnaeus	1771	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+9541887	Puma concolor (Linnaeus, 1771)	Puma concolor	SCIENTIFIC	Puma	\N	concolor	\N	\N	\N	t	\N	\N	\N	Linnaeus	1771	\N	\N	\N	2016-10-05 17:26:09.104832	SPECIES	t
+9541891	Puma concolor Linnaeus 1771	Puma concolor	SCIENTIFIC	Puma	\N	concolor	\N	\N	\N	t	Linnaeus	1771	1771	\N	\N	\N	\N	\N	2016-10-05 17:26:09.10563	SPECIES	t
+9541894	Puma concolor Linnaeus, 1771	Puma concolor	SCIENTIFIC	Puma	\N	concolor	\N	\N	\N	t	Linnaeus	1771	1771	\N	\N	\N	\N	\N	2016-10-05 17:26:09.106629	SPECIES	t
+9541897	Puma concolor acrocodia (Goldman, 1943)	Puma concolor acrocodia	SCIENTIFIC	Puma	\N	concolor	acrocodia	\N	\N	t	\N	\N	\N	Goldman	1943	\N	\N	\N	2016-10-05 17:26:09.107469	INFRASPECIFIC_NAME	t
+9541901	Puma concolor anthonyi (Nelson and Goldman, 1931)	Puma concolor anthonyi	SCIENTIFIC	Puma	\N	concolor	anthonyi	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.108486	INFRASPECIFIC_NAME	t
+9541908	Puma concolor araucanus (Osgood, 1943)	Puma concolor araucanus	SCIENTIFIC	Puma	\N	concolor	araucanus	\N	\N	t	\N	\N	\N	Osgood	1943	\N	\N	\N	2016-10-05 17:26:09.110739	INFRASPECIFIC_NAME	t
+9541911	Puma concolor azteca (Merriam, 1901)	Puma concolor azteca	SCIENTIFIC	Puma	\N	concolor	azteca	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.111575	INFRASPECIFIC_NAME	t
+9541914	Puma concolor bangsi (Merriam, 1901)	Puma concolor bangsi	SCIENTIFIC	Puma	\N	concolor	bangsi	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.11236	INFRASPECIFIC_NAME	t
+9541916	Puma concolor borbensis (Nelson and Goldman, 1933)	Puma concolor borbensis	SCIENTIFIC	Puma	\N	concolor	borbensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1933	\N	\N	\N	2016-10-05 17:26:09.113129	INFRASPECIFIC_NAME	t
+9541919	Puma concolor browni (Merriam, 1903)	Puma concolor browni	SCIENTIFIC	Puma	\N	concolor	browni	\N	\N	t	\N	\N	\N	Merriam	1903	\N	\N	\N	2016-10-05 17:26:09.11381	INFRASPECIFIC_NAME	t
+9541922	Puma concolor cabrerae	Puma concolor cabrerae	SCIENTIFIC	Puma	\N	concolor	cabrerae	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.114486	SUBSPECIES	t
+9541926	Puma concolor cabrerae Pocock, 1940	Puma concolor cabrerae	SCIENTIFIC	Puma	\N	concolor	cabrerae	\N	\N	t	Pocock	1940	1940	\N	\N	\N	\N	\N	2016-10-05 17:26:09.115182	INFRASPECIFIC_NAME	t
+9541934	Puma concolor californica (May, 1896)	Puma concolor californica	SCIENTIFIC	Puma	\N	concolor	californica	\N	\N	t	\N	\N	\N	May	1896	\N	\N	\N	2016-10-05 17:26:09.117668	INFRASPECIFIC_NAME	t
+9541936	Puma concolor capricornensis (Goldman, 1946)	Puma concolor capricornensis	SCIENTIFIC	Puma	\N	concolor	capricornensis	\N	\N	t	\N	\N	\N	Goldman	1946	\N	\N	\N	2016-10-05 17:26:09.118678	INFRASPECIFIC_NAME	t
+9541938	Puma concolor concolor (Linnaeus, 1771)	Puma concolor concolor	SCIENTIFIC	Puma	\N	concolor	concolor	\N	\N	t	\N	\N	\N	Linnaeus	1771	\N	\N	\N	2016-10-05 17:26:09.119446	INFRASPECIFIC_NAME	t
+9541942	Puma concolor coryi	Puma concolor coryi	SCIENTIFIC	Puma	\N	concolor	coryi	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.121498	SUBSPECIES	t
+9541945	Puma concolor coryi (Bangs, 1899)	Puma concolor coryi	SCIENTIFIC	Puma	\N	concolor	coryi	\N	\N	t	\N	\N	\N	Bangs	1899	\N	\N	\N	2016-10-05 17:26:09.122198	INFRASPECIFIC_NAME	t
+9541947	Puma concolor costaricensis (Merriam, 1901)	Puma concolor costaricensis	SCIENTIFIC	Puma	\N	concolor	costaricensis	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.122895	INFRASPECIFIC_NAME	t
+9541954	Puma concolor cougar (Kerr, 1792)	Puma concolor cougar	SCIENTIFIC	Puma	\N	concolor	cougar	\N	\N	t	\N	\N	\N	Kerr	1792	\N	\N	\N	2016-10-05 17:26:09.124623	INFRASPECIFIC_NAME	t
+9541956	Puma concolor couguar	Puma concolor couguar	SCIENTIFIC	Puma	\N	concolor	couguar	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.125282	SUBSPECIES	t
+9541958	Puma concolor couguar (Kerr, 1792)	Puma concolor couguar	SCIENTIFIC	Puma	\N	concolor	couguar	\N	\N	t	\N	\N	\N	Kerr	1792	\N	\N	\N	2016-10-05 17:26:09.126101	INFRASPECIFIC_NAME	t
+9541968	Puma concolor greeni (Nelson and Goldman, 1931)	Puma concolor greeni	SCIENTIFIC	Puma	\N	concolor	greeni	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.128499	INFRASPECIFIC_NAME	t
+9541971	Puma concolor hippolestes (Merriam, 1897)	Puma concolor hippolestes	SCIENTIFIC	Puma	\N	concolor	hippolestes	\N	\N	t	\N	\N	\N	Merriam	1897	\N	\N	\N	2016-10-05 17:26:09.129124	INFRASPECIFIC_NAME	t
+9541972	Puma concolor improcera (Phillips, 1912)	Puma concolor improcera	SCIENTIFIC	Puma	\N	concolor	improcera	\N	\N	t	\N	\N	\N	Phillips	1912	\N	\N	\N	2016-10-05 17:26:09.129741	INFRASPECIFIC_NAME	t
+9541976	Puma concolor incarum (Nelson and Goldman, 1929)	Puma concolor incarum	SCIENTIFIC	Puma	\N	concolor	incarum	\N	\N	t	\N	\N	\N	Nelson & Goldman	1929	\N	\N	\N	2016-10-05 17:26:09.130393	INFRASPECIFIC_NAME	t
+9541979	Puma concolor kaibabensis (Nelson and Goldman, 1931)	Puma concolor kaibabensis	SCIENTIFIC	Puma	\N	concolor	kaibabensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.131013	INFRASPECIFIC_NAME	t
+9541981	Puma concolor mayensis (Nelson and Goldman, 1929)	Puma concolor mayensis	SCIENTIFIC	Puma	\N	concolor	mayensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1929	\N	\N	\N	2016-10-05 17:26:09.131656	INFRASPECIFIC_NAME	t
+9541984	Puma concolor missoulensis (Goldman, 1943)	Puma concolor missoulensis	SCIENTIFIC	Puma	\N	concolor	missoulensis	\N	\N	t	\N	\N	\N	Goldman	1943	\N	\N	\N	2016-10-05 17:26:09.13237	INFRASPECIFIC_NAME	t
+9541987	Puma concolor oregonensis (Rafinesque, 1832)	Puma concolor oregonensis	SCIENTIFIC	Puma	\N	concolor	oregonensis	\N	\N	t	\N	\N	\N	Rafinesque	1832	\N	\N	\N	2016-10-05 17:26:09.133047	INFRASPECIFIC_NAME	t
+9541990	Puma concolor osgoodi (Nelson and Goldman, 1929)	Puma concolor osgoodi	SCIENTIFIC	Puma	\N	concolor	osgoodi	\N	\N	t	\N	\N	\N	Nelson & Goldman	1929	\N	\N	\N	2016-10-05 17:26:09.133662	INFRASPECIFIC_NAME	t
+9541995	Puma concolor patagonica (Merriam, 1901)	Puma concolor patagonica	SCIENTIFIC	Puma	\N	concolor	patagonica	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.134895	INFRASPECIFIC_NAME	t
+9541998	Puma concolor pearsoni (Thomas, 1901)	Puma concolor pearsoni	SCIENTIFIC	Puma	\N	concolor	pearsoni	\N	\N	t	\N	\N	\N	Thomas	1901	\N	\N	\N	2016-10-05 17:26:09.135519	INFRASPECIFIC_NAME	t
+9542000	Puma concolor puma (Molina, 1782)	Puma concolor puma	SCIENTIFIC	Puma	\N	concolor	puma	\N	\N	t	\N	\N	\N	Molina	1782	\N	\N	\N	2016-10-05 17:26:09.136132	INFRASPECIFIC_NAME	t
+9542007	Puma concolor schorgeri (Jackson, 1955)	Puma concolor schorgeri	SCIENTIFIC	Puma	\N	concolor	schorgeri	\N	\N	t	\N	\N	\N	Jackson	1955	\N	\N	\N	2016-10-05 17:26:09.137935	INFRASPECIFIC_NAME	t
+9542010	Puma concolor soderstromii (Lönnberg, 1913)	Puma concolor soderstromii	SCIENTIFIC	Puma	\N	concolor	soderstromii	\N	\N	t	\N	\N	\N	Lönnberg	1913	\N	\N	\N	2016-10-05 17:26:09.1386	INFRASPECIFIC_NAME	t
+9542013	Puma concolor stanleyana (Goldman, 1938)	Puma concolor stanleyana	SCIENTIFIC	Puma	\N	concolor	stanleyana	\N	\N	t	\N	\N	\N	Goldman	1938	\N	\N	\N	2016-10-05 17:26:09.139268	INFRASPECIFIC_NAME	t
+9542017	Puma concolor subsp. anthonyi (Nelson and Goldman, 1931)	Puma concolor anthonyi	SCIENTIFIC	Puma	\N	concolor	anthonyi	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.139919	SUBSPECIES	t
+9542020	Puma concolor subsp. anthonyi Nelson & Goldman, 1931	Puma concolor anthonyi	SCIENTIFIC	Puma	\N	concolor	anthonyi	\N	\N	t	Nelson & Goldman	1931	1931	\N	\N	\N	\N	\N	2016-10-05 17:26:09.140578	SUBSPECIES	t
+9542022	Puma concolor subsp. anthonyi Nelson and Goldman 1931	Puma concolor anthonyi	SCIENTIFIC	Puma	\N	concolor	anthonyi	\N	\N	t	Nelson & Goldman	1931	1931	\N	\N	\N	\N	\N	2016-10-05 17:26:09.14147	SUBSPECIES	t
+9542027	Puma concolor subsp. azteca (Merriam, 1901)	Puma concolor azteca	SCIENTIFIC	Puma	\N	concolor	azteca	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.14217	SUBSPECIES	t
+9542030	Puma concolor subsp. browni (Merriam, 1903)	Puma concolor browni	SCIENTIFIC	Puma	\N	concolor	browni	\N	\N	t	\N	\N	\N	Merriam	1903	\N	\N	\N	2016-10-05 17:26:09.143072	SUBSPECIES	t
+9542033	Puma concolor subsp. cabrerae Pocock 1940	Puma concolor cabrerae	SCIENTIFIC	Puma	\N	concolor	cabrerae	\N	\N	t	Pocock	1940	1940	\N	\N	\N	\N	\N	2016-10-05 17:26:09.143779	SUBSPECIES	t
+9542036	Puma concolor subsp. cabrerae Pocock, 1940	Puma concolor cabrerae	SCIENTIFIC	Puma	\N	concolor	cabrerae	\N	\N	t	Pocock	1940	1940	\N	\N	\N	\N	\N	2016-10-05 17:26:09.144682	SUBSPECIES	t
+9542040	Puma concolor subsp. californica (May, 1896)	Puma concolor californica	SCIENTIFIC	Puma	\N	concolor	californica	\N	\N	t	\N	\N	\N	May	1896	\N	\N	\N	2016-10-05 17:26:09.145378	SUBSPECIES	t
+9542043	Puma concolor subsp. concolor	Puma concolor concolor	SCIENTIFIC	Puma	\N	concolor	concolor	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.146253	SUBSPECIES	t
+9542046	Puma concolor subsp. coryi (Bangs, 1899)	Puma concolor coryi	SCIENTIFIC	Puma	\N	concolor	coryi	\N	\N	t	\N	\N	\N	Bangs	1899	\N	\N	\N	2016-10-05 17:26:09.146958	SUBSPECIES	t
+9542050	Puma concolor subsp. coryi Bangs, 1899	Puma concolor coryi	SCIENTIFIC	Puma	\N	concolor	coryi	\N	\N	t	Bangs	1899	1899	\N	\N	\N	\N	\N	2016-10-05 17:26:09.147676	SUBSPECIES	t
+9542053	Puma concolor subsp. costaricensis (Merriam, 1901)	Puma concolor costaricensis	SCIENTIFIC	Puma	\N	concolor	costaricensis	\N	\N	t	\N	\N	\N	Merriam	1901	\N	\N	\N	2016-10-05 17:26:09.148621	SUBSPECIES	t
+9542056	Puma concolor subsp. costaricensis Merriam 1901	Puma concolor costaricensis	SCIENTIFIC	Puma	\N	concolor	costaricensis	\N	\N	t	Merriam	1901	1901	\N	\N	\N	\N	\N	2016-10-05 17:26:09.149503	SUBSPECIES	t
+9542060	Puma concolor subsp. costaricensis Merriam, 1901	Puma concolor costaricensis	SCIENTIFIC	Puma	\N	concolor	costaricensis	\N	\N	t	Merriam	1901	1901	\N	\N	\N	\N	\N	2016-10-05 17:26:09.150472	SUBSPECIES	t
+9542063	Puma concolor subsp. cougar (Kerr, 1792)	Puma concolor cougar	SCIENTIFIC	Puma	\N	concolor	cougar	\N	\N	t	\N	\N	\N	Kerr	1792	\N	\N	\N	2016-10-05 17:26:09.151178	SUBSPECIES	t
+9542066	Puma concolor subsp. couguar (Kerr, 1792)	Puma concolor couguar	SCIENTIFIC	Puma	\N	concolor	couguar	\N	\N	t	\N	\N	\N	Kerr	1792	\N	\N	\N	2016-10-05 17:26:09.152038	SUBSPECIES	t
+9542070	Puma concolor subsp. couguar Kerr 1792	Puma concolor couguar	SCIENTIFIC	Puma	\N	concolor	couguar	\N	\N	t	Kerr	1792	1792	\N	\N	\N	\N	\N	2016-10-05 17:26:09.152713	SUBSPECIES	t
+9542072	Puma concolor subsp. couguar Kerr, 1792	Puma concolor couguar	SCIENTIFIC	Puma	\N	concolor	couguar	\N	\N	t	Kerr	1792	1792	\N	\N	\N	\N	\N	2016-10-05 17:26:09.153561	SUBSPECIES	t
+9542076	Puma concolor subsp. hippolestes (Merriam, 1897)	Puma concolor hippolestes	SCIENTIFIC	Puma	\N	concolor	hippolestes	\N	\N	t	\N	\N	\N	Merriam	1897	\N	\N	\N	2016-10-05 17:26:09.154258	SUBSPECIES	t
+9542080	Puma concolor subsp. improcera (Phillips, 1912)	Puma concolor improcera	SCIENTIFIC	Puma	\N	concolor	improcera	\N	\N	t	\N	\N	\N	Phillips	1912	\N	\N	\N	2016-10-05 17:26:09.155216	SUBSPECIES	t
+9542082	Puma concolor subsp. kaibabensis (Nelson & Goldman, 1931)	Puma concolor kaibabensis	SCIENTIFIC	Puma	\N	concolor	kaibabensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.155909	SUBSPECIES	t
+9542085	Puma concolor subsp. kaibabensis (Nelson and Goldman, 1931)	Puma concolor kaibabensis	SCIENTIFIC	Puma	\N	concolor	kaibabensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1931	\N	\N	\N	2016-10-05 17:26:09.156598	SUBSPECIES	t
+9542088	Puma concolor subsp. mayensis (Nelson & Goldman, 1929)	Puma concolor mayensis	SCIENTIFIC	Puma	\N	concolor	mayensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1929	\N	\N	\N	2016-10-05 17:26:09.157274	SUBSPECIES	t
+9542091	Puma concolor subsp. mayensis (Nelson and Goldman, 1929)	Puma concolor mayensis	SCIENTIFIC	Puma	\N	concolor	mayensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1929	\N	\N	\N	2016-10-05 17:26:09.157958	SUBSPECIES	t
+9542094	Puma concolor subsp. missoulensis (Goldman, 1943)	Puma concolor missoulensis	SCIENTIFIC	Puma	\N	concolor	missoulensis	\N	\N	t	\N	\N	\N	Goldman	1943	\N	\N	\N	2016-10-05 17:26:09.158646	SUBSPECIES	t
+9542097	Puma concolor subsp. oregonensis (Rafinesque, 1832)	Puma concolor oregonensis	SCIENTIFIC	Puma	\N	concolor	oregonensis	\N	\N	t	\N	\N	\N	Rafinesque	1832	\N	\N	\N	2016-10-05 17:26:09.159332	SUBSPECIES	t
+9542100	Puma concolor subsp. puma (Molina, 1782)	Puma concolor puma	SCIENTIFIC	Puma	\N	concolor	puma	\N	\N	t	\N	\N	\N	Molina	1782	\N	\N	\N	2016-10-05 17:26:09.159958	SUBSPECIES	t
+9542103	Puma concolor subsp. puma Molina 1782	Puma concolor puma	SCIENTIFIC	Puma	\N	concolor	puma	\N	\N	t	Molina	1782	1782	\N	\N	\N	\N	\N	2016-10-05 17:26:09.160557	SUBSPECIES	t
+9542106	Puma concolor subsp. puma Molina, 1782	Puma concolor puma	SCIENTIFIC	Puma	\N	concolor	puma	\N	\N	t	Molina	1782	1782	\N	\N	\N	\N	\N	2016-10-05 17:26:09.161413	SUBSPECIES	t
+9542110	Puma concolor subsp. schorgeri (Jackson, 1955)	Puma concolor schorgeri	SCIENTIFIC	Puma	\N	concolor	schorgeri	\N	\N	t	\N	\N	\N	Jackson	1955	\N	\N	\N	2016-10-05 17:26:09.162105	SUBSPECIES	t
+9542113	Puma concolor subsp. stanleyana (Goldman, 1938)	Puma concolor stanleyana	SCIENTIFIC	Puma	\N	concolor	stanleyana	\N	\N	t	\N	\N	\N	Goldman	1938	\N	\N	\N	2016-10-05 17:26:09.163028	SUBSPECIES	t
+9542116	Puma concolor subsp. vancouverensis (Nelson & Goldman, 1932)	Puma concolor vancouverensis	SCIENTIFIC	Puma	\N	concolor	vancouverensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1932	\N	\N	\N	2016-10-05 17:26:09.163718	SUBSPECIES	t
+9542120	Puma concolor subsp. vancouverensis (Nelson and Goldman, 1932)	Puma concolor vancouverensis	SCIENTIFIC	Puma	\N	concolor	vancouverensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1932	\N	\N	\N	2016-10-05 17:26:09.164504	SUBSPECIES	t
+9542123	Puma concolor vancouverensis (Nelson and Goldman, 1932)	Puma concolor vancouverensis	SCIENTIFIC	Puma	\N	concolor	vancouverensis	\N	\N	t	\N	\N	\N	Nelson & Goldman	1932	\N	\N	\N	2016-10-05 17:26:09.165187	INFRASPECIFIC_NAME	t
+9542126	Puma lacustris	Puma lacustris	SCIENTIFIC	Puma	\N	lacustris	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.165918	SPECIES	t
+9542135	Puma pardoides (Owen, 1846)	Puma pardoides	SCIENTIFIC	Puma	\N	pardoides	\N	\N	\N	t	\N	\N	\N	Owen	1846	\N	\N	\N	2016-10-05 17:26:09.16837	SPECIES	t
+9542140	Puma pardoides Owen, 1846	Puma pardoides	SCIENTIFIC	Puma	\N	pardoides	\N	\N	\N	t	Owen	1846	1846	\N	\N	\N	\N	\N	2016-10-05 17:26:09.16899	SPECIES	t
+9542142	Puma yagouaroundi	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.169869	SPECIES	t
+9542145	Puma yagouaroundi "(É. Geoffroy Saint-Hilary, 1803)   "	Puma yagouaroundi	DOUBTFUL	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.170555	SPECIES	t
+9542149	Puma yagouaroundi (E. Geoffory Saint-Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.171239	SPECIES	t
+9542152	Puma yagouaroundi (E. Geoffroy Saint-Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.171968	SPECIES	t
+9542155	Puma yagouaroundi (E. Geoffroy Sant-Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.172665	SPECIES	t
+9542158	Puma yagouaroundi (E. Geoffroy St. Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.173349	SPECIES	t
+9542161	Puma yagouaroundi (Geoffroy 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	t	\N	\N	\N	Geoffroy	1803	\N	\N	\N	2016-10-05 17:26:09.17396	SPECIES	t
+9542165	Puma yagouaroundi (Geoffroy Saint-Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	t	\N	\N	\N	Geoffroy Saint-Hilaire	1803	\N	\N	\N	2016-10-05 17:26:09.174947	SPECIES	t
+9542168	Puma yagouaroundi (Geoffroy, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	t	\N	\N	\N	Geoffroy	1803	\N	\N	\N	2016-10-05 17:26:09.175646	SPECIES	t
+9542172	Puma yagouaroundi (Ã‰. Geoffroy Saint-Hilaire, 1803)	Puma yagouaroundi	DOUBTFUL	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.176332	SPECIES	t
+9542174	Puma yagouaroundi (É. Geoffroy Saint-Hilaire, 1803)	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.177021	SPECIES	t
+9542181	Puma yagouaroundi Geoffroy, 1803	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	t	Geoffroy	1803	1803	\N	\N	\N	\N	\N	2016-10-05 17:26:09.178813	SPECIES	t
+9542185	Puma yagouaroundi ameghinoi (Holmberg, 1898)	Puma yagouaroundi ameghinoi	SCIENTIFIC	Puma	\N	yagouaroundi	ameghinoi	\N	\N	t	\N	\N	\N	Holmberg	1898	\N	\N	\N	2016-10-05 17:26:09.179702	INFRASPECIFIC_NAME	t
+9542193	Puma yagouaroundi cacomitli (Berlandier, 1859)	Puma yagouaroundi cacomitli	SCIENTIFIC	Puma	\N	yagouaroundi	cacomitli	\N	\N	t	\N	\N	\N	Berlandier	1859	\N	\N	\N	2016-10-05 17:26:09.18178	INFRASPECIFIC_NAME	t
+9542201	Puma yagouaroundi eyra (G. Fischer, 1814)	Puma yagouaroundi eyra	SCIENTIFIC	Puma	\N	yagouaroundi	eyra	\N	\N	t	\N	\N	\N	G. Fischer	1814	\N	\N	\N	2016-10-05 17:26:09.183586	INFRASPECIFIC_NAME	t
+9542209	Puma yagouaroundi fossata (Mearns, 1901)	Puma yagouaroundi fossata	SCIENTIFIC	Puma	\N	yagouaroundi	fossata	\N	\N	t	\N	\N	\N	Mearns	1901	\N	\N	\N	2016-10-05 17:26:09.185391	INFRASPECIFIC_NAME	t
+9542215	Puma yagouaroundi melantho (Thomas, 1914)	Puma yagouaroundi melantho	SCIENTIFIC	Puma	\N	yagouaroundi	melantho	\N	\N	t	\N	\N	\N	Thomas	1914	\N	\N	\N	2016-10-05 17:26:09.187128	INFRASPECIFIC_NAME	t
+9542220	Puma yagouaroundi panamensis (J. A. Allen, 1904)	Puma yagouaroundi panamensis	SCIENTIFIC	Puma	\N	yagouaroundi	panamensis	\N	\N	t	\N	\N	\N	J. A. Allen	1904	\N	\N	\N	2016-10-05 17:26:09.188813	INFRASPECIFIC_NAME	t
+9542226	Puma yagouaroundi subsp. ameghinoi (Holmberg, 1898)	Puma yagouaroundi ameghinoi	SCIENTIFIC	Puma	\N	yagouaroundi	ameghinoi	\N	\N	t	\N	\N	\N	Holmberg	1898	\N	\N	\N	2016-10-05 17:26:09.190543	SUBSPECIES	t
+9542230	Puma yagouaroundi subsp. ameghinoi Holmberg 1898	Puma yagouaroundi ameghinoi	SCIENTIFIC	Puma	\N	yagouaroundi	ameghinoi	\N	\N	t	Holmberg	1898	1898	\N	\N	\N	\N	\N	2016-10-05 17:26:09.191146	SUBSPECIES	t
+9542233	Puma yagouaroundi subsp. ameghinoi Holmberg, 1898	Puma yagouaroundi ameghinoi	SCIENTIFIC	Puma	\N	yagouaroundi	ameghinoi	\N	\N	t	Holmberg	1898	1898	\N	\N	\N	\N	\N	2016-10-05 17:26:09.192018	SUBSPECIES	t
+9542236	Puma yagouaroundi subsp. cacomitli (Berlandier, 1859)	Puma yagouaroundi cacomitli	SCIENTIFIC	Puma	\N	yagouaroundi	cacomitli	\N	\N	t	\N	\N	\N	Berlandier	1859	\N	\N	\N	2016-10-05 17:26:09.192687	SUBSPECIES	t
+9542239	Puma yagouaroundi subsp. cacomitli Berlandier 1859	Puma yagouaroundi cacomitli	SCIENTIFIC	Puma	\N	yagouaroundi	cacomitli	\N	\N	t	Berlandier	1859	1859	\N	\N	\N	\N	\N	2016-10-05 17:26:09.193558	SUBSPECIES	t
+9542242	Puma yagouaroundi subsp. cacomitli Berlandier, 1859	Puma yagouaroundi cacomitli	SCIENTIFIC	Puma	\N	yagouaroundi	cacomitli	\N	\N	t	Berlandier	1859	1859	\N	\N	\N	\N	\N	2016-10-05 17:26:09.194392	SUBSPECIES	t
+9542245	Puma yagouaroundi subsp. eyra (G. Fischer, 1814)	Puma yagouaroundi eyra	SCIENTIFIC	Puma	\N	yagouaroundi	eyra	\N	\N	t	\N	\N	\N	G. Fischer	1814	\N	\N	\N	2016-10-05 17:26:09.195064	SUBSPECIES	t
+9542249	Puma yagouaroundi subsp. eyra Fischer 1814	Puma yagouaroundi eyra	SCIENTIFIC	Puma	\N	yagouaroundi	eyra	\N	\N	t	Fischer	1814	1814	\N	\N	\N	\N	\N	2016-10-05 17:26:09.195927	SUBSPECIES	t
+9542252	Puma yagouaroundi subsp. eyra Fischer, 1814	Puma yagouaroundi eyra	SCIENTIFIC	Puma	\N	yagouaroundi	eyra	\N	\N	t	Fischer	1814	1814	\N	\N	\N	\N	\N	2016-10-05 17:26:09.196785	SUBSPECIES	t
+9542255	Puma yagouaroundi subsp. fossata (Mearns, 1901)	Puma yagouaroundi fossata	SCIENTIFIC	Puma	\N	yagouaroundi	fossata	\N	\N	t	\N	\N	\N	Mearns	1901	\N	\N	\N	2016-10-05 17:26:09.197527	SUBSPECIES	t
+9542259	Puma yagouaroundi subsp. fossata Mearns 1901	Puma yagouaroundi fossata	SCIENTIFIC	Puma	\N	yagouaroundi	fossata	\N	\N	t	Mearns	1901	1901	\N	\N	\N	\N	\N	2016-10-05 17:26:09.198416	SUBSPECIES	t
+9542262	Puma yagouaroundi subsp. fossata Mearns, 1901	Puma yagouaroundi fossata	SCIENTIFIC	Puma	\N	yagouaroundi	fossata	\N	\N	t	Mearns	1901	1901	\N	\N	\N	\N	\N	2016-10-05 17:26:09.199302	SUBSPECIES	t
+9542265	Puma yagouaroundi subsp. melantho (Thomas, 1914)	Puma yagouaroundi melantho	SCIENTIFIC	Puma	\N	yagouaroundi	melantho	\N	\N	t	\N	\N	\N	Thomas	1914	\N	\N	\N	2016-10-05 17:26:09.200016	SUBSPECIES	t
+9542268	Puma yagouaroundi subsp. melantho Thomas 1914	Puma yagouaroundi melantho	SCIENTIFIC	Puma	\N	yagouaroundi	melantho	\N	\N	t	Thomas	1914	1914	\N	\N	\N	\N	\N	2016-10-05 17:26:09.20089	SUBSPECIES	t
+9542270	Puma yagouaroundi subsp. melantho Thomas, 1914	Puma yagouaroundi melantho	SCIENTIFIC	Puma	\N	yagouaroundi	melantho	\N	\N	t	Thomas	1914	1914	\N	\N	\N	\N	\N	2016-10-05 17:26:09.201771	SUBSPECIES	t
+9542275	Puma yagouaroundi subsp. panamensis (J. A. Allen, 1904)	Puma yagouaroundi panamensis	SCIENTIFIC	Puma	\N	yagouaroundi	panamensis	\N	\N	t	\N	\N	\N	J. A. Allen	1904	\N	\N	\N	2016-10-05 17:26:09.202486	SUBSPECIES	t
+9542278	Puma yagouaroundi subsp. panamensis J. A. Allen 1904	Puma yagouaroundi panamensis	SCIENTIFIC	Puma	\N	yagouaroundi	panamensis	\N	\N	t	J. A. Allen	1904	1904	\N	\N	\N	\N	\N	2016-10-05 17:26:09.203407	SUBSPECIES	t
+9542281	Puma yagouaroundi subsp. panamensis J. A. Allen, 1904	Puma yagouaroundi panamensis	SCIENTIFIC	Puma	\N	yagouaroundi	panamensis	\N	\N	t	J. A. Allen	1904	1904	\N	\N	\N	\N	\N	2016-10-05 17:26:09.204272	SUBSPECIES	t
+9542284	Puma yagouaroundi subsp. tolteca (Thomas, 1898)	Puma yagouaroundi tolteca	SCIENTIFIC	Puma	\N	yagouaroundi	tolteca	\N	\N	t	\N	\N	\N	Thomas	1898	\N	\N	\N	2016-10-05 17:26:09.204978	SUBSPECIES	t
+9542287	Puma yagouaroundi subsp. tolteca Thomas 1898	Puma yagouaroundi tolteca	SCIENTIFIC	Puma	\N	yagouaroundi	tolteca	\N	\N	t	Thomas	1898	1898	\N	\N	\N	\N	\N	2016-10-05 17:26:09.205846	SUBSPECIES	t
+9542290	Puma yagouaroundi subsp. tolteca Thomas, 1898	Puma yagouaroundi tolteca	SCIENTIFIC	Puma	\N	yagouaroundi	tolteca	\N	\N	t	Thomas	1898	1898	\N	\N	\N	\N	\N	2016-10-05 17:26:09.206739	SUBSPECIES	t
+9542293	Puma yagouaroundi subsp. yagouaroundi	Puma yagouaroundi yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	yagouaroundi	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.207545	SUBSPECIES	t
+9542297	Puma yagouaroundi tolteca (Thomas, 1898)	Puma yagouaroundi tolteca	SCIENTIFIC	Puma	\N	yagouaroundi	tolteca	\N	\N	t	\N	\N	\N	Thomas	1898	\N	\N	\N	2016-10-05 17:26:09.208247	INFRASPECIFIC_NAME	t
+9542304	Puma yagouaroundi yagouaroundi (É. Geoffroy Saint-Hilaire, 1803)	Puma yagouaroundi yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	yagouaroundi	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.210383	INFRASPECIFIC_NAME	t
+9542312	Puma yagouaroundi É. Geoffory Saint-Hilaire 1803	Puma yagouaroundi	SCIENTIFIC	Puma	\N	yagouaroundi	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.212279	SPECIES	t
+9542315	Puma yagouaroundii	Puma yagouaroundii	SCIENTIFIC	Puma	\N	yagouaroundii	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.212981	SPECIES	t
+9697804	Reptiliomorpha Säve-Söderbergh 1934	Reptiliomorpha	SCIENTIFIC	Reptiliomorpha	\N	\N	\N	\N	\N	t	Säve-Söderbergh	1934	1934	\N	\N	\N	\N	\N	2016-10-05 17:27:09.386002	UNRANKED	t
+10064713	Sarcopterygii	Sarcopterygii	SCIENTIFIC	Sarcopterygii	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:29:22.965821	UNRANKED	t
+10064715	Sarcopterygii (Romer 1955)	Sarcopterygii	SCIENTIFIC	Sarcopterygii	\N	\N	\N	\N	\N	t	\N	\N	\N	Romer	1955	\N	\N	\N	2016-10-05 17:29:22.966541	SUPERCLASS	t
+10231648	Scrotifera Waddell et al. 1999	Scrotifera	SCIENTIFIC	Scrotifera	\N	\N	\N	\N	\N	t	Waddell et al.	1999	1999	\N	\N	\N	\N	\N	2016-10-05 17:30:24.154029	UNRANKED	t
+10924702	Synapsida (Osborn 1903)	Synapsida	SCIENTIFIC	Synapsida	\N	\N	\N	\N	\N	t	\N	\N	\N	Osborn	1903	\N	\N	\N	2016-10-05 17:34:33.157342	UNRANKED	t
+11058131	Teleostomi	Teleostomi	SCIENTIFIC	Teleostomi	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:35:21.066351	UNRANKED	t
+11125429	Tetrapoda	Tetrapoda	SCIENTIFIC	Tetrapoda	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:35:44.580858	UNRANKED	t
+11125433	Tetrapoda (Goodrich 1930)	Tetrapoda	SCIENTIFIC	Tetrapoda	\N	\N	\N	\N	\N	t	\N	\N	\N	Goodrich	1930	\N	\N	\N	2016-10-05 17:35:44.58217	UNRANKED	t
+11125476	Tetrapodomorpha (Ahlberg 1991)	Tetrapodomorpha	SCIENTIFIC	Tetrapodomorpha	\N	\N	\N	\N	\N	t	\N	\N	\N	Ahlberg	1991	\N	\N	\N	2016-10-05 17:35:44.598132	SUBCLASS	t
+11189986	Therapsida (Broom 1905)	Therapsida	SCIENTIFIC	Therapsida	\N	\N	\N	\N	\N	t	\N	\N	\N	Broom	1905	\N	\N	\N	2016-10-05 17:36:07.850977	UNRANKED	t
+11192259	Theria	Theria	SCIENTIFIC	Theria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:36:08.635374	UNRANKED	t
+11192263	Theria (Parker and Haswell 1897)	Theria	SCIENTIFIC	Theria	\N	\N	\N	\N	\N	t	\N	\N	\N	Parker & Haswell	1897	\N	\N	\N	2016-10-05 17:36:08.636635	SUBCLASS	t
+11192275	Theria Parker and Haswell, 1897	Theria	SCIENTIFIC	Theria	\N	\N	\N	\N	\N	t	Parker & Haswell	1897	1897	\N	\N	\N	\N	\N	2016-10-05 17:36:08.641336	SUBCLASS	t
+11192333	Theriamorpha (Rowe 1993)	Theriamorpha	SCIENTIFIC	Theriamorpha	\N	\N	\N	\N	\N	t	\N	\N	\N	Rowe	1993	\N	\N	\N	2016-10-05 17:36:08.662544	UNRANKED	t
+11194726	Theriiformes (Rowe 1988)	Theriiformes	SCIENTIFIC	Theriiformes	\N	\N	\N	\N	\N	t	\N	\N	\N	Rowe	1988	\N	\N	\N	2016-10-05 17:36:09.422429	UNRANKED	t
+11367724	Trechnotheria McKenna 1975	Trechnotheria	SCIENTIFIC	Trechnotheria	\N	\N	\N	\N	\N	t	McKenna	1975	1975	\N	\N	\N	\N	\N	2016-10-05 17:37:14.718017	UNRANKED	t
+11482563	Triploblastica Lankester 1877	Triploblastica	SCIENTIFIC	Triploblastica	\N	\N	\N	\N	\N	t	Lankester	1877	1877	\N	\N	\N	\N	\N	2016-10-05 17:37:55.425019	UNRANKED	t
+11744220	Vertebrata	Vertebrata	SCIENTIFIC	Vertebrata	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:39:27.965765	SUBPHYLUM	t
+11744231	Vertebrata	Vertebrata	SCIENTIFIC	Vertebrata	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:39:27.968588	UNRANKED	t
+11744235	Vertebrata (Lamarck 1801)	Vertebrata	SCIENTIFIC	Vertebrata	\N	\N	\N	\N	\N	t	\N	\N	\N	Lamarck	1801	\N	\N	\N	2016-10-05 17:39:27.96986	UNRANKED	t
+12068582	cellular organisms	Cellular organisms	DOUBTFUL	Cellular	\N	organisms	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:41:21.281323	UNRANKED	t
+12100282	root	\N	DOUBTFUL	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:41:31.349016	UNRANKED	f

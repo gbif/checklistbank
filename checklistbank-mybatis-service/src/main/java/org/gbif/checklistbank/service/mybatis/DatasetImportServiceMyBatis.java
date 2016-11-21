@@ -222,7 +222,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     @Override
     public List<Integer> call() throws Exception {
       LogContext.startDataset(datasetKey);
-      LOG.debug("Starting usage deletion for {} usages", usageKeys.size());
+      LOG.info("Starting deletion for {} usages", usageKeys.size());
       for (List<Integer> batch : Lists.partition(usageKeys, BATCH_SIZE)) {
         deleteBatch(batch);
       }

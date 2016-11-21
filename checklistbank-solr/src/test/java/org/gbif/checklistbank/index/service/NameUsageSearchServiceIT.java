@@ -23,18 +23,17 @@ import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.index.backfill.SolrBackfillBaseIT;
+import org.gbif.checklistbank.index.backfill.SolrTestSetup;
 import org.gbif.checklistbank.index.guice.SearchTestModule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.common.search.util.SolrConstants;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import javax.xml.parsers.ParserConfigurationException;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
@@ -45,7 +44,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -54,28 +52,22 @@ import static org.junit.Assert.assertTrue;
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
-public class NameUsageSearchIT extends SolrBackfillBaseIT {
+public class NameUsageSearchServiceIT {
 
-  protected final Logger log = LoggerFactory.getLogger(NameUsageSearchIT.class);
+  protected final Logger log = LoggerFactory.getLogger(NameUsageSearchServiceIT.class);
   private static final String PROPERTY_FILE = "checklistbank.properties";
   private static NameUsageSearchService searchService;
   private static String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
-  private final Function<NameUsageSearchResult, Integer> extractKeyFunction =
-    new Function<NameUsageSearchResult, Integer>() {
-
-      public Integer apply(NameUsageSearchResult n) {
-        return n == null ? null : n.getKey();
-      }
-    };
 
   @BeforeClass
-  public static void setup() throws IOException, SAXException, ParserConfigurationException {
+  public static void setup() throws Exception {
     // creates squirrels db and solr index & server using its own injector
-    SolrBackfillBaseIT.setup();
+    SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.squirrels());
+    setup.setup();
 
     // insert new injector for this test, reusing existing solr server
     Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
-    Injector injector = Guice.createInjector(new SearchTestModule(props, solr()));
+    Injector injector = Guice.createInjector(new SearchTestModule(props, setup.solr()));
 
     searchService = injector.getInstance(NameUsageSearchService.class);
   }
@@ -175,6 +167,16 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     assertEquals(10, results.size());
     assertEquals("Sciurus vulgaris Linnaeus, 1758", results.get(0).getScientificName());
 
+    // https://github.com/gbif/checklistbank/issues/11
+    assertSciurusVulgaris("Sciurus v");
+    assertSciurusVulgaris("Sciurus vu");
+    assertSciurusVulgaris("Sciurus vul");
+    assertSciurusVulgaris("Sciurus vulg");
+    assertSciurusVulgaris("Sciurus vulga");
+    assertSciurusVulgaris("Sciurus vulgar");
+    assertSciurusVulgaris("Sciurus vulgari");
+    assertSciurusVulgaris("Sciurus vulgaris");
+
     // only match squirrel dataset
     results = searchSuggest("Roden");
     assertEquals(1, results.size());
@@ -202,6 +204,13 @@ public class NameUsageSearchIT extends SolrBackfillBaseIT {
     results = searchSuggest("Sciu");
     assertEquals(27, results.size());
     assertEquals("Sciuromorpha Brandt, 1855", results.get(0).getScientificName());
+
+  }
+
+  private void assertSciurusVulgaris(String q) {
+    List<NameUsageSuggestResult> results = searchSuggest(q);
+    assertEquals(10, results.size());
+    assertEquals("Sciurus vulgaris Linnaeus, 1758", results.get(0).getScientificName());
 
   }
 

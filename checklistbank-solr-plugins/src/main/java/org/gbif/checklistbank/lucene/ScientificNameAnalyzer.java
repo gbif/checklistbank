@@ -22,7 +22,7 @@ public class ScientificNameAnalyzer extends Analyzer {
     //TokenStream result = new ASCIIFoldingFilter(source);
     //result = new ScientificNameSoundAlikeFilter(result);
 
-    TokenStream result = new ScientificNameNormalizerFilter(source, true);
+    TokenStream result = new ScientificNameNormalizerFilter(source, true, true);
     result = new LowerCaseFilter(result);
 
     return new TokenStreamComponents(source, result);

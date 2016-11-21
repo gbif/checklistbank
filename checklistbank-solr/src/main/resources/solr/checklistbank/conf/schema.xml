@@ -102,13 +102,13 @@
     <fieldType name="sciname_ngram" class="solr.TextField">
      <analyzer type="index">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
+       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false" />
        <filter class="solr.LowerCaseFilterFactory"/>
        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
      </analyzer>
      <analyzer type="query">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
+       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
        <filter class="solr.LowerCaseFilterFactory"/>
      </analyzer>
     </fieldType>
@@ -117,13 +117,13 @@
     <fieldType name="sciname_ngram_tokenized" class="solr.TextField">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
+        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
+        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>

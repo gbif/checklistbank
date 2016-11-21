@@ -18,17 +18,23 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 public class ScientificNameNormalizerFilter extends TokenFilter {
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
   private final boolean fullNameTokens;
+  private final boolean stemming;
 
   /**
    * Construct a token stream filtering the given input.
    */
   public ScientificNameNormalizerFilter(TokenStream input) {
-    this(input, false);
+    this(input, false, true);
   }
 
-  public ScientificNameNormalizerFilter(TokenStream input, boolean fullNameTokens) {
+  /**
+   * @param fullNameTokens if true the name normalization is done on the entire token. If false just on the epithets, leaving the genus part untouched
+   * @param stemming if true gender stemming of tokens is done
+   */
+  public ScientificNameNormalizerFilter(TokenStream input, boolean fullNameTokens, boolean stemming) {
     super(input);
     this.fullNameTokens = fullNameTokens;
+    this.stemming = stemming;
   }
 
   @Override
@@ -38,7 +44,7 @@ public class ScientificNameNormalizerFilter extends TokenFilter {
     String term = termAtt.toString();
     if (SciNameNormalizer.hasContent(term)) {
 
-      String normed = fullNameTokens ? SciNameNormalizer.normalize(term) : SciNameNormalizer.normalizeAll(term);
+      String normed = fullNameTokens ? SciNameNormalizer.normalize(term, stemming) : SciNameNormalizer.normalizeAll(term, stemming);
       termAtt.copyBuffer(normed.toCharArray(), 0, normed.length());
     }
     return true;

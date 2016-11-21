@@ -31,20 +31,35 @@ public class SciNameNormalizer {
 
   /**
    * Normalizes and entire scientific name, keeping monomials or the first genus part rather unchanged,
-   * applying the more drastic normalizatin to the remainder of the name only.
+   * applying the more drastic normalization incl stemming to the remainder of the name only.
    */
   public static String normalize(String s) {
-    return normalize(s, false);
+    return normalize(s, false, true);
+  }
+
+  /**
+   * Normalizes and entire scientific name, keeping monomials or the first genus part rather unchanged,
+   * applying the more drastic normalization to the remainder of the name only.
+   */
+  public static String normalize(String s, boolean stemming) {
+    return normalize(s, false, stemming);
   }
 
   /**
    * Normalizes an entire name string including monomials and genus parts of a name.
    */
   public static String normalizeAll(String s) {
-    return normalize(s, true);
+    return normalize(s, true, true);
   }
 
-  private static String normalize(String s, boolean normMonomials) {
+  /**
+   * Normalizes an entire name string including monomials and genus parts of a name.
+   */
+  public static String normalizeAll(String s, boolean stemming) {
+    return normalize(s, true, stemming);
+  }
+
+  private static String normalize(String s, boolean normMonomials, boolean stemming) {
     if (!hasContent(s)) return "";
 
     s = s.trim();
@@ -62,24 +77,28 @@ public class SciNameNormalizer {
 
     // Only for bi/trinomials, otherwise we mix up ranks.
     if (normMonomials) {
-      s = normStrongly(s);
+      s = normStrongly(s, stemming);
 
     } else if (s.indexOf(' ') > 2) {
       String[] parts = s.split(" ", 2);
-      s = parts[0] + " " + normStrongly(parts[1]);
+      s = parts[0] + " " + normStrongly(parts[1], stemming);
     }
 
     return s.trim();
   }
 
-  private static String normStrongly(String s) {
+  private static String normStrongly(String s, boolean stemming) {
     // remove repeated letters→leters in binomials
     s = removeRepeatedLetter.matcher(s).replaceAll("$1");
 
-    s = stemEpithet(s);
+    if (stemming) {
+      s = stemEpithet(s);
+    }
     // normalize frequent variations of i
     s = i.matcher(s).replaceAll("i");
-    s = suffix_i.matcher(s).replaceAll("i");
+    if (stemming) {
+      s = suffix_i.matcher(s).replaceAll("i");
+    }
     // normalize frequent variations of t/r sometimes followed by an 'h'
     return trh.matcher(s).replaceAll("$1");
   }

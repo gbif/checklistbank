@@ -73,6 +73,26 @@ public class ClbDbTestRule implements TestRule {
   }
 
   /**
+   * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
+   */
+  public static ClbDbTestRule puma() {
+    return new ClbDbTestRule("puma", ImmutableMap.<String, Integer>builder()
+        .put("citation_id_seq", 32)
+        .put("dataset_metrics_id_seq", 5)
+        .put("description_id_seq", 28)
+        .put("distribution_id_seq", 29)
+        .put("identifier_id_seq", 106)
+        .put("literature_id_seq", 23)
+        .put("media_id_seq", 100021)
+        .put("name_usage_id_seq", 110000000)
+        .put("name_id_seq", 200000)
+        .put("species_info_id_seq", 4)
+        .put("typification_id_seq", 16)
+        .put("vernacular_name_id_seq", 100011)
+        .build());
+  }
+
+  /**
    * @param tsvFolder the optional unqualified filename within the dbUnit package to be used in setting up
    *                  the db
    */

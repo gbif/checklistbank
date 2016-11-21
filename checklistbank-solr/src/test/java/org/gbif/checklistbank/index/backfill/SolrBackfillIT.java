@@ -5,14 +5,17 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.io.IOException;
 
 import com.google.common.collect.Lists;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -22,7 +25,20 @@ import static org.junit.Assert.assertNull;
 /**
  * Test the index generation.
  */
-public class SolrBackfillIT extends SolrBackfillBaseIT {
+public class SolrBackfillIT {
+
+  private static SolrTestSetup setup;
+
+  @BeforeClass
+  public static void setup() throws Exception {
+    // creates squirrels db and solr index & server using its own injector
+    setup = new SolrTestSetup(ClbDbTestRule.squirrels());
+    setup.setup();
+  }
+
+  private EmbeddedSolrServer solr() {
+    return setup.solr();
+  }
 
   @Test
   public void testIndexBuild() throws IOException, SolrServerException, InterruptedException {
