@@ -339,14 +339,16 @@ public class Normalizer extends ImportDb implements Runnable {
         boolean found = false;
         for (Node n : nodesByCanonicalAndRank(lc.getHigherRank(hr), hr)) {
           if (parent == null) {
-            // make sure node does also not have a parent
-            if (!n.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
-              // match!
+            // make sure node does also not have a higher linnean rank parent
+            Node p = getLinneanRankParent(n);
+            if (p == null) {
+              // aligns!
               parent = n;
               parentRank = hr;
               found = true;
               break;
             }
+
           } else {
             // verify the parents for the next higher rank are the same
             try {

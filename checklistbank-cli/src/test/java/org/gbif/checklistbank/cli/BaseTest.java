@@ -2,8 +2,10 @@ package org.gbif.checklistbank.cli;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
@@ -13,12 +15,15 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -229,11 +234,50 @@ public abstract class BaseTest {
   }
 
   /**
+   * Debug method to print all nodes with a given rank or above as text.
+   */
+  public void print(@Nullable Rank rank) throws Exception {
+    try (Transaction tx = dao.beginTx()) {
+      Writer writer = new PrintWriter(System.out);
+      dao.printTree(writer, GraphFormat.TEXT, true, rank, null);
+    }
+  }
+
+  /**
    * Debug method to show all synonyms in the neo db.
    */
   public void showSynonyms() {
     try (Transaction tx = beginTx()) {
       show(dao.getNeo().findNodes(Labels.SYNONYM));
+    }
+  }
+
+  /**
+   * Debug method to show all nodes with a specific issue.
+   */
+  public void showWithIssue(NameUsageIssue issue) {
+    try (Transaction tx = beginTx()) {
+      for (Node n : dao.allNodes()) {
+        NameUsage u = getUsageByNode(n);
+        if (u.getIssues().contains(issue)) {
+          System.out.println("### " + n.getId() + " " + u.getScientificName());
+          System.out.println(u);
+        }
+      }
+    }
+  }
+
+  /**
+   * Debug method to show all nodes with a specific issue.
+   */
+  public void showOrigin(Origin origin) {
+    try (Transaction tx = beginTx()) {
+      for (Node n : dao.allNodes()) {
+        NameUsage u = getUsageByNode(n);
+        if (u.getOrigin().equals(origin)) {
+          System.out.println("### " + n.getId() + " " + u.getRank() + " " + u.getScientificName());
+        }
+      }
     }
   }
 

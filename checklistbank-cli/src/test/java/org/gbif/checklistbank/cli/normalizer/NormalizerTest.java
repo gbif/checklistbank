@@ -1090,6 +1090,42 @@ public class NormalizerTest extends BaseTest {
     }
   }
 
+  /**
+   * http://dev.gbif.org/issues/browse/POR-3193
+   */
+  @Test
+  public void testWormsDuplicates() throws Exception {
+    final UUID datasetKey = datasetKey(23);
+
+    Normalizer norm = Normalizer.create(cfg, datasetKey);
+    norm.run();
+    NormalizerStats stats = norm.getStats();
+    System.out.println(stats);
+
+    openDb(datasetKey);
+    compareStats(stats);
+
+    try (Transaction tx = beginTx()) {
+      print(Rank.CLASS);
+
+      showOrigin(Origin.DENORMED_CLASSIFICATION);
+
+      NameUsage k = getUsageByName("Animalia");
+      assertEquals(Rank.KINGDOM, k.getRank());
+      assertEquals("Animalia", k.getCanonicalName());
+      assertEquals("Animalia", k.getScientificName());
+    }
+
+    assertEquals(1, stats.getRoots());
+    assertEquals(9, stats.getCountByRank(Rank.KINGDOM));
+    assertEquals(5, stats.getCountByRank(Rank.PHYLUM));
+    assertEquals(99, stats.getCountByOrigin(Origin.SOURCE));
+    assertEquals(12, stats.getCountByOrigin(Origin.DENORMED_CLASSIFICATION));
+    assertEquals(0, stats.getCountByOrigin(Origin.VERBATIM_ACCEPTED));
+    assertEquals(11, stats.getCountByOrigin(Origin.MISSING_ACCEPTED));
+    assertEquals(122, stats.getCount());
+  }
+
   public static UUID datasetKey(Integer x) throws NormalizationFailedException {
     return UUID.fromString(String.format("%08d-c6af-11e2-9b88-00145eb45e9a", x));
   }

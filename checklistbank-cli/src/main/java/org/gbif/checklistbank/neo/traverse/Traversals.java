@@ -27,6 +27,12 @@ public class Traversals {
       .depthFirst()
       .evaluator(Evaluators.excludeStartPosition());
 
+  public static final TraversalDescription LINNEAN_PARENTS = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.INCOMING)
+      .depthFirst()
+      .evaluator(new LinneanRankEvaluator())
+      .evaluator(Evaluators.excludeStartPosition());
+
   public static final TraversalDescription CHILDREN = new MonoDirectionalTraversalDescription()
       .relationships(RelType.PARENT_OF, Direction.OUTGOING)
       .breadthFirst()
