@@ -159,8 +159,8 @@
     <field name="scientific_name" type="sciname_tokenized" indexed="true" stored="true"/>
     <field name="canonical_name" type="sciname" indexed="true" stored="true"/>
     <!-- ngram fields for auto-suggest functionality -->
-    <field name="scientific_name_ngram" type="sciname_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
     <field name="canonical_name_ngram" type="sciname_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
+    <field name="canonical_name_ngram_tokenized" type="sciname_ngram_tokenized" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
 
     <field name="name_type" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="authorship" type="text" indexed="false" stored="true"/>
@@ -223,6 +223,6 @@
   <solrQueryParser defaultOperator="OR"/>
 
   <copyField source="canonical_name" dest="canonical_name_ngram"/>
-  <copyField source="scientific_name" dest="scientific_name_ngram"/>
+  <copyField source="canonical_name" dest="canonical_name_ngram_tokenized"/>
 
 </schema>
