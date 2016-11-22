@@ -55,10 +55,10 @@
     <gbif-httputils.version>0.10</gbif-httputils.version>
     <gbif-microservice.version>0.5</gbif-microservice.version>
     <gbif-postal-service.version>0.22</gbif-postal-service.version>
-    <registry.version>2.58</registry.version>
+    <registry.version>2.59</registry.version>
     <name-parser.version>2.20</name-parser.version>
     <gbif-parser.version>0.29</gbif-parser.version>
-    <dwca-io.version>1.27</dwca-io.version>
+    <dwca-io.version>1.28</dwca-io.version>
     <!-- external libs -->
     <amqp-client.version>3.1.4</amqp-client.version>
     <aopalliance.version>1.0</aopalliance.version>
