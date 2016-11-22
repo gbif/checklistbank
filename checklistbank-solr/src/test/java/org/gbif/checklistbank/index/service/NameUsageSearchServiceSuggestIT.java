@@ -78,6 +78,8 @@ public class NameUsageSearchServiceSuggestIT {
     assertPumaConcolor("Puma con");
     assertPumaConcolor("Puma co");
     assertPumaConcolor("Puma c");
+
+    assertPumaConcolor("concolor");
   }
 
   private void assertPumaConcolor(String q) {

@@ -213,3 +213,5 @@ id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specif
 11744235	Vertebrata (Lamarck 1801)	Vertebrata	SCIENTIFIC	Vertebrata	\N	\N	\N	\N	\N	t	\N	\N	\N	Lamarck	1801	\N	\N	\N	2016-10-05 17:39:27.96986	UNRANKED	t
 12068582	cellular organisms	Cellular organisms	DOUBTFUL	Cellular	\N	organisms	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:41:21.281323	UNRANKED	t
 12100282	root	\N	DOUBTFUL	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:41:31.349016	UNRANKED	f
+999999999	Smilisca puma (Cope, 1885)	Smilisca puma	SCIENTIFIC	Smilisca	\N	puma	\N	\N	\N	t	\N	\N	\N	Cope	1885	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999999998	Smilisca Cope, 1865	Smilisca	SCIENTIFIC	Smilisca	\N	\N	\N	\N	\N	t	\N	\N	\N	Cope	1885	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
