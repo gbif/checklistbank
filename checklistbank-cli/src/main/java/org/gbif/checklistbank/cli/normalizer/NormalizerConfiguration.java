@@ -41,7 +41,6 @@ public class NormalizerConfiguration {
 
     @ParametersDelegate
     @Valid
-    @NotNull
     public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
     @ParametersDelegate

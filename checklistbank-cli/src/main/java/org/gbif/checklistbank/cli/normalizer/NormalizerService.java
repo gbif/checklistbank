@@ -31,10 +31,14 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   public NormalizerService(NormalizerConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "normalize");
     this.cfg = cfg;
-    try {
-      zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (cfg.zookeeper.isConfigured()) {
+      try {
+        zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      zkUtils = null;
     }
   }
 
@@ -70,16 +74,20 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
     } else {
       Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), getRegistry(), msg.getConstituents(), lookup);
       normalizer.run();
-      zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
+      if (cfg.zookeeper.isConfigured()) {
+        zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
+      }
       send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
     }
   }
 
   @Override
   protected void failed(UUID datasetKey) {
-    zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
-    zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
-    zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1l);
+    if (cfg.zookeeper.isConfigured()) {
+      zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
+      zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+      zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1l);
+    }
   }
 
   @Override

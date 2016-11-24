@@ -1,0 +1,7 @@
+de8934f4-a136-481c-a87a-b0b202b80a31	Dyntaxa	http://dl.dropbox.com/u/523458/Dyntaxa/Archive.zip
+a6c6cead-b5ce-4a4e-8cf5-1542ba708dec	Artsnavnebasen	http://data.gbif.no/ipt/archive.do?r=artsnavn
+c696e5ee-9088-4d11-bdae-ab88daffab78	IOC World Bird List	https://dl.dropboxusercontent.com/u/457027/ioc.zip
+a739f783-08c1-4d47-a8cc-2e9e6e874202	A taxonomic monograph of the assassin bug genus Zelus Fabricius	http://bdj.pensoft.net/lib/ajax_srv/archive_download.php?archive_type=2&document_id=8150
+8067e0a2-a26d-4831-8a1e-21b9118a299c	FALO classification	https://github.com/mdoering/ggi-families/archive/master.zip
+672aca30-f1b5-43d3-8a2b-c1606125fa1b	Mammal Species of the World	http://rs.gbif.org/datasets/msw3.zip
+80b4b440-eaca-4860-aadf-d0dfdd3e856e	Official Lists and Indexes of Names in Zoology	https://github.com/gbif/iczn-lists/archive/master.zip

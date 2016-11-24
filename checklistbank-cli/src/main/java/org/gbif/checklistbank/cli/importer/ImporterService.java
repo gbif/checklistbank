@@ -39,10 +39,14 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   public ImporterService(ImporterConfiguration cfg) {
     super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import", ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
     this.cfg = cfg;
-    try {
-      zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (cfg.zookeeper.isConfigured()) {
+      try {
+        zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    } else {
+      zkUtils = null;
     }
     // init mybatis layer and solr once from cfg instance
     sqlService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
@@ -56,12 +60,19 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     try {
       Importer importer = Importer.create(cfg, msg.getDatasetUuid(), nameUsageService, usageService, sqlService, solrService);
       importer.run();
+
       // notify rabbit
-      Date crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
-      if (crawlFinished == null) {
-        LOG.warn("No crawlFinished date found in zookeeper, use current date instead for dataset {}", msg.getDatasetUuid());
+      Date crawlFinished;
+      if (cfg.zookeeper.isConfigured()) {
+        crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
+        if (crawlFinished == null) {
+          LOG.warn("No crawlFinished date found in zookeeper, use current date instead for dataset {}", msg.getDatasetUuid());
+          crawlFinished = new Date();
+        }
+      } else {
         crawlFinished = new Date();
       }
+
       send(new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished, importer.getSyncCounter(), importer.getDelCounter()));
       // finally delete artifacts unless configured not to or it is the nub!
       if (cfg.deleteNeo && !Constants.NUB_DATASET_KEY.equals(msg.getDatasetUuid())) {
@@ -69,13 +80,17 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       }
 
     } finally {
-      zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+      if (cfg.zookeeper.isConfigured()) {
+        zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+      }
     }
   }
 
   @Override
   protected void failed(UUID datasetKey) {
-    zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
+    if (cfg.zookeeper.isConfigured()) {
+      zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
+    }
   }
 
   @Override

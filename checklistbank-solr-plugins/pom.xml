@@ -75,7 +75,9 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>${project.artifactId}</finalName>
+              <!--
+              <finalName>${project.artifactId}-${version}</finalName>
+              -->
               <shadedArtifactAttached>true</shadedArtifactAttached>
             </configuration>
           </execution>

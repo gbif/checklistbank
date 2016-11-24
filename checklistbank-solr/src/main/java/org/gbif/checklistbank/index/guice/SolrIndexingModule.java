@@ -1,8 +1,6 @@
 package org.gbif.checklistbank.index.guice;
 
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
-import org.gbif.ws.client.guice.AnonymousAuthModule;
 
 import java.util.Properties;
 
@@ -26,8 +24,8 @@ public class SolrIndexingModule extends AbstractModule {
     install(new ChecklistBankServiceMyBatisModule(properties));
 
     // install registry client
-    install(new AnonymousAuthModule());
-    install(new RegistryWsClientModule(properties));
+    //install(new AnonymousAuthModule());
+    //install(new RegistryWsClientModule(properties));
 
     // Installs private indexing module
     install(new SolrIndexingModulePrivate(properties));

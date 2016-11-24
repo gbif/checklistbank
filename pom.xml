@@ -33,7 +33,7 @@
   </distributionManagement>
 
   <properties>
-    <jdkLevel>1.7</jdkLevel>
+    <jdkLevel>1.8</jdkLevel>
     <release.tagNameBase>checklistbank</release.tagNameBase>
 
     <!-- datasource defaults, time in milliseconds -->

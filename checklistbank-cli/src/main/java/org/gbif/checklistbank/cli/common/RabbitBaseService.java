@@ -12,11 +12,13 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -44,11 +46,14 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
   protected MessageListener listener;
 
 
-  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, Module ... modules) {
+  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, List<Module> modules) {
     this.mCfg = mCfg;
     this.poolSize = poolSize;
     this.queue = queue;
-    injector = Guice.createInjector(ImmutableList.<Module>builder().add(new MetricModule(gCfg)).add(modules).build());
+    injector = Guice.createInjector(ImmutableList.<Module>builder()
+        .add(new MetricModule(gCfg))
+        .addAll(modules)
+        .build());
     this.registry = injector.getInstance(MetricRegistry.class);
     initMetrics(this.registry);
     // keep a reference to the hikari pool so we can close it properly on shutdown
@@ -58,6 +63,10 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
         break;
       }
     }
+  }
+
+  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, Module ... modules) {
+    this(queue, poolSize, mCfg, gCfg, Lists.newArrayList(modules));
   }
 
   public MetricRegistry getRegistry() {

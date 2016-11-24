@@ -1,10 +1,11 @@
 package org.gbif.checklistbank.cli.common;
 
 import java.io.IOException;
+import javax.annotation.Nullable;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Strings;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import org.apache.curator.framework.CuratorFramework;
@@ -25,14 +26,14 @@ public class ZooKeeperConfiguration {
 
   @Parameter(
     names = "--zk-connection-string",
-    description = "The connection string to connect to ZooKeeper")
-  @NotNull
+    description = "The connection string to connect to ZooKeeper. Keep empty if zookeeper is not used")
+  @Nullable
   public String connectionString;
 
   @Parameter(
     names = "--zk-namespace",
     description = "The namespace in ZooKeeper under which all data lives")
-  @NotNull
+  @Nullable
   public String namespace;
 
   @Parameter(
@@ -63,6 +64,10 @@ public class ZooKeeperConfiguration {
       .retryPolicy(new ExponentialBackoffRetry(baseSleepTime, maxRetries)).connectString(connectionString).build();
     curator.start();
     return curator;
+  }
+
+  public boolean isConfigured() {
+    return !Strings.isStringEmpty(namespace) && Strings.isStringEmpty(connectionString);
   }
 
   @Override

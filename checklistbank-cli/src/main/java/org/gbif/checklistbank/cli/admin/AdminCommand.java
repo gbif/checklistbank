@@ -114,7 +114,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private ZookeeperUtils zk() {
-    if (zkUtils == null) {
+    if (zkUtils == null && cfg.zookeeper.isConfigured()) {
       try {
         zkUtils = new ZookeeperUtils(cfg.zookeeper.getCuratorFramework());
       } catch (IOException e) {
@@ -251,8 +251,10 @@ public class AdminCommand extends BaseCommand {
 
       switch (cfg.operation) {
         case CLEANUP:
-          zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
-          LOG.info("Removed crawl {} from zookeeper", d.getKey());
+          if (cfg.zookeeper.isConfigured()) {
+            zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
+            LOG.info("Removed crawl {} from zookeeper", d.getKey());
+          }
 
           // cleanup repo files
           final File dwcaFile = new File(cfg.archiveRepository, d.getKey() + DWCA_SUFFIX);

@@ -19,11 +19,6 @@
     </site>
   </distributionManagement>
 
-  <properties>
-    <checklistbank.match.ws.url>http://api.gbif.org/species/match</checklistbank.match.ws.url>
-    <registry.ws.url>http://api.gbif.org/</registry.ws.url>
-  </properties>
-
   <build>
     <resources>
       <resource>
@@ -116,10 +111,6 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif.registry</groupId>
-      <artifactId>registry-ws-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>

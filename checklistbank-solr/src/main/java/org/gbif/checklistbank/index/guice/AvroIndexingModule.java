@@ -3,9 +3,7 @@ package org.gbif.checklistbank.index.guice;
 import org.gbif.checklistbank.index.backfill.AvroExporter;
 import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.service.guice.PrivateServiceModule;
-import org.gbif.ws.client.guice.AnonymousAuthModule;
 
 import java.util.Properties;
 
@@ -41,10 +39,11 @@ public class AvroIndexingModule extends AbstractModule {
     public void configureService() {
       //installs the MyBatis service layer
       install(new ChecklistBankServiceMyBatisModule(getVerbatimProperties()));
-      //installs auth client
-      install(new AnonymousAuthModule());
+
       //installs registry client
-      install(new RegistryWsClientModule(getVerbatimProperties()));
+      //install(new AnonymousAuthModule());
+      //install(new RegistryWsClientModule(getVerbatimProperties()));
+
       bind(AvroExporter.class);
       expose(AvroExporter.class);
     }

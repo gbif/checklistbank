@@ -38,11 +38,17 @@ public class AdminCommandTest {
   public void runLocal() throws Exception {
     AdminCommand cmd = new AdminCommand();
     AdminConfiguration cfg = (AdminConfiguration) cmd.getConfigurationObject();
-    cfg.operation = AdminOperation.REPARSE;
+    cfg.operation = AdminOperation.CRAWL;
+    cfg.key = UUID.fromString("a739f783-08c1-4d47-a8cc-2e9e6e874202");
     cfg.clb.serverName = "localhost";
     cfg.clb.databaseName = "clb";
     cfg.clb.user = "postgres";
     cfg.clb.password = "pogo";
+    cfg.registry.wsUrl = "/Users/markus/Desktop/clb/datasets.txt";
+    cfg.messaging.host = "localhost";
+    cfg.messaging.virtualHost= "/";
+    cfg.messaging.username = "guest";
+    cfg.messaging.password = "guest";
     cmd.doRun();
   }
 
