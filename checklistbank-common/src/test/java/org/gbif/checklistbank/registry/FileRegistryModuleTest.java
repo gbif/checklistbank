@@ -2,10 +2,10 @@ package org.gbif.checklistbank.registry;
 
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.service.registry.OrganizationService;
+import org.gbif.utils.file.FileUtils;
 
 import java.util.UUID;
 
-import com.google.common.io.Files;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.Test;
@@ -19,7 +19,8 @@ public class FileRegistryModuleTest {
 
   @Test
   public void configure() throws Exception {
-    FileRegistryModule mod = new FileRegistryModule(Files.createTempDir());
+
+    FileRegistryModule mod = new FileRegistryModule(FileUtils.getClasspathFile("registry-datasets.txt"));
     Injector inj = Guice.createInjector(mod);
 
     DatasetService ds = inj.getInstance(DatasetService.class);
