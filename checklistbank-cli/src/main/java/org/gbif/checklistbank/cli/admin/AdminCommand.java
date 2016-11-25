@@ -27,6 +27,7 @@ import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.liquibase.DbSchemaUpdater;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
 import org.gbif.cli.BaseCommand;
@@ -44,6 +45,8 @@ import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -177,8 +180,20 @@ public class AdminCommand extends BaseCommand {
         updateNubDataset();
         break;
 
+      case SCHEMA_UPDATE:
+        updateSchema();
+        break;
+
       default:
         throw new UnsupportedOperationException();
+    }
+  }
+
+  private void updateSchema() {
+    try (Connection c = cfg.clb.connect()) {
+      DbSchemaUpdater.update(c);
+    } catch (SQLException e) {
+      LOG.error("Failed to update db schema", e);
     }
   }
 

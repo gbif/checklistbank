@@ -138,12 +138,12 @@
       <groupId>com.carrotsearch</groupId>
       <artifactId>hppc</artifactId>
     </dependency>
-    <!-- test scope -->
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
+    <!-- test scope -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
