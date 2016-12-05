@@ -32,6 +32,11 @@ public class AnalysisConfiguration {
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
 
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public SolrConfig dataset = new SolrConfig();
+
   @Parameter(names = "--pool-size")
   @Min(1)
   public int poolSize = 3;

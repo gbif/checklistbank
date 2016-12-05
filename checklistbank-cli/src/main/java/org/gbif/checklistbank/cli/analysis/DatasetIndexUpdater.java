@@ -78,6 +78,7 @@ public class DatasetIndexUpdater {
   private void updDataset(ResultSet rs) {
     try {
       String key = rs.getString("dataset_key");
+      LOG.debug("Index taxon keys for dataset {}", key);
       Integer[] keys = (Integer[])rs.getArray("keys").getArray();
       LOG.debug("Indexing {} taxon keys for dataset {}", keys.length, key);
 
