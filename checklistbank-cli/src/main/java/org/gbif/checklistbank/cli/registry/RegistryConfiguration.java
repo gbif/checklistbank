@@ -4,7 +4,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.common.search.inject.SolrConfig;
+import org.gbif.common.search.solr.SolrConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;

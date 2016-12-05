@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.show;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -10,7 +11,9 @@ import org.gbif.cli.Command;
 import java.io.FileWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.UUID;
 
+import com.google.common.base.Joiner;
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -81,6 +84,32 @@ public class ShowCommand extends BaseCommand {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void validate() {
+      UsageDao dao = UsageDao.persistentDao(cfg.neo, UUID.fromString("UUID"), true, null, false);
+      try (Transaction tx = dao.beginTx()) {
+        // log some key dataset stats
+        dao.logStats();
+
+        // iterate over all records and check their issues
+        Joiner join = Joiner.on("; ").skipNulls();
+        for (Node n : dao.allNodes()) {
+          NameUsage u = dao.readUsage(n, false);
+          System.out.println(join.join(u.getIssues()));
+        }
+
+        // show tree
+        try (Writer writer = new FileWriter(cfg.file)) {
+          dao.printTree(writer, GraphFormat.TEXT);
+
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+
+      } finally {
+        dao.close();
+      }
     }
 
 }

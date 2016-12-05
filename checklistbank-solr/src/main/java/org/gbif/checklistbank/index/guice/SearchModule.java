@@ -14,7 +14,8 @@ package org.gbif.checklistbank.index.guice;
 
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
-import org.gbif.common.search.inject.SolrModule;
+import org.gbif.common.search.solr.SolrConfig;
+import org.gbif.common.search.solr.SolrModule;
 import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
@@ -46,7 +47,7 @@ public class SearchModule extends PrivateServiceModule {
     // do we have solr already?
     if (installSolr) {
       // bind solr server, using the checklistbank.search.solr.server property
-      install(new SolrModule());
+      install(new SolrModule(SolrConfig.fromProperties(getProperties(), "solr.")));
     }
 
     bind(NameUsageSearchService.class).to(NameUsageSearchServiceImpl.class).in(Scopes.SINGLETON);

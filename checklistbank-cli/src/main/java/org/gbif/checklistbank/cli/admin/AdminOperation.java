@@ -80,7 +80,12 @@ public enum AdminOperation {
   /**
    * Runs a liquibase schema update for the configured database.
    */
-  SCHEMA_UPDATE(true);
+  SCHEMA_UPDATE(true),
+
+  /**
+   * Update the solr dataset index with taxon keys from CLB.
+   */
+  DATASET_INDEX(true);
 
   public final boolean global;
 

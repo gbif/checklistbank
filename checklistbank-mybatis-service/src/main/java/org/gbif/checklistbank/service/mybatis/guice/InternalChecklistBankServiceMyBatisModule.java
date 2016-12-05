@@ -28,8 +28,8 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.model.RawUsage;
+import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.model.TocEntry;
 import org.gbif.checklistbank.model.Usage;
 import org.gbif.checklistbank.model.UsageCount;
@@ -149,6 +149,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addAlias("UsageRelated").to(UsageRelated.class);
     addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
     addAlias("VernacularName").to(VernacularName.class);
+
 
     // mybatis mapper
     addMapperClass(CitationMapper.class);

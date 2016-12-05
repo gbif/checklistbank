@@ -21,7 +21,7 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NameType;
-import org.gbif.common.search.exception.SearchException;
+import org.gbif.common.search.SearchException;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,7 +36,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.gbif.common.search.util.QueryUtils.NOT_OP;
+import static org.gbif.common.search.solr.SolrConstants.NOT_OP;
 
 
 /**

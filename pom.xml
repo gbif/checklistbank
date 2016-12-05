@@ -49,7 +49,7 @@
     <gbif-common.version>0.28</gbif-common.version>
     <gbif-common-mybatis.version>0.27</gbif-common-mybatis.version>
     <!-- matches solr 5.4.x -->
-    <gbif-common-search.version>0.30</gbif-common-search.version>
+    <gbif-common-search.version>0.31-SNAPSHOT</gbif-common-search.version>
     <gbif-common-service.version>0.16</gbif-common-service.version>
     <gbif-common-ws.version>0.37</gbif-common-ws.version>
     <gbif-httputils.version>0.10</gbif-httputils.version>

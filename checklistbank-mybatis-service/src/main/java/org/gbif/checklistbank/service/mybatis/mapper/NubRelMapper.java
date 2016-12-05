@@ -11,4 +11,5 @@ public interface NubRelMapper {
   void delete(@Param("usageKey") int usageKey);
 
   void deleteByDataset(@Param("uuid") UUID datasetKey);
+
 }

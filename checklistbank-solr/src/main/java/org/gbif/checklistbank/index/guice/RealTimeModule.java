@@ -3,8 +3,7 @@ package org.gbif.checklistbank.index.guice;
 import org.gbif.checklistbank.index.NameUsageIndexServicePassThru;
 import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.common.search.inject.SolrConfig;
-import org.gbif.common.search.inject.SolrModule;
+import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.common.search.solr.SolrServerType;
 
 import com.google.inject.PrivateModule;
@@ -37,8 +36,7 @@ public class RealTimeModule extends PrivateModule {
           .in(Scopes.SINGLETON);
       LOG.info("No solr service configured. Using pass thru mock solr service.");
     } else {
-      SolrModule mod = new SolrModule();
-      bind(SolrClient.class).toInstance(mod.providerSolr(cfg));
+      bind(SolrClient.class).toInstance(cfg.buildSolr());
       bind(Integer.class)
           .annotatedWith(Solr.class)
           .toInstance(syncThreads);

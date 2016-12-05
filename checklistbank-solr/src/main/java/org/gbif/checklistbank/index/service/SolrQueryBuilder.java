@@ -20,8 +20,7 @@ import org.gbif.api.model.common.search.FacetedSearchRequest;
 import org.gbif.api.model.common.search.SearchRequest;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.common.search.model.SuggestMapping;
-import org.gbif.common.search.util.QueryUtils;
+import org.gbif.common.search.solr.QueryUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -40,25 +39,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.gbif.checklistbank.index.service.SolrMapping.FACET_MAPPING;
-import static org.gbif.common.search.builder.SolrQueryUtils.DEFAULT_FACET_COUNT;
-import static org.gbif.common.search.builder.SolrQueryUtils.DEFAULT_FACET_SORT;
-import static org.gbif.common.search.builder.SolrQueryUtils.perFieldParamName;
-import static org.gbif.common.search.builder.SolrQueryUtils.taggedField;
-import static org.gbif.common.search.util.QueryUtils.PARAMS_AND_JOINER;
-import static org.gbif.common.search.util.QueryUtils.PARAMS_JOINER;
-import static org.gbif.common.search.util.QueryUtils.PARAMS_OR_JOINER;
-import static org.gbif.common.search.util.QueryUtils.toParenthesesQuery;
-import static org.gbif.common.search.util.QueryUtils.toPhraseQuery;
-import static org.gbif.common.search.util.SolrConstants.BLANK;
-import static org.gbif.common.search.util.SolrConstants.DEFAULT_QUERY;
-import static org.gbif.common.search.util.SolrConstants.FACET_FILTER_EX;
-import static org.gbif.common.search.util.SolrConstants.NOT_OP;
-import static org.gbif.common.search.util.SolrConstants.NUM_HL_SNIPPETS;
+
+import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_COUNT;
+import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_SORT;
+import static org.gbif.common.search.solr.QueryUtils.NOT_OP;
+import static org.gbif.common.search.solr.QueryUtils.PARAMS_AND_JOINER;
+import static org.gbif.common.search.solr.QueryUtils.PARAMS_JOINER;
+import static org.gbif.common.search.solr.QueryUtils.PARAMS_OR_JOINER;
+import static org.gbif.common.search.solr.QueryUtils.perFieldParamName;
+import static org.gbif.common.search.solr.QueryUtils.taggedField;
+import static org.gbif.common.search.solr.QueryUtils.toParenthesesQuery;
+import static org.gbif.common.search.solr.QueryUtils.toPhraseQuery;
+import static org.gbif.common.search.solr.SolrConstants.BLANK;
+import static org.gbif.common.search.solr.SolrConstants.DEFAULT_QUERY;
+import static org.gbif.common.search.solr.SolrConstants.FACET_FILTER_EX;
+import static org.gbif.common.search.solr.SolrConstants.NUM_HL_SNIPPETS;
 import static org.gbif.ws.util.WebserviceParameter.DEFAULT_SEARCH_PARAM_VALUE;
 
 /**
- * Builder class that helps in the creation process of query patterns for classes annotated with
- * {@link SuggestMapping}.
+ * Builder class to generate solr queries based on the dismax query parser.
  */
 public class SolrQueryBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(SolrQueryBuilder.class);
@@ -88,7 +87,7 @@ public class SolrQueryBuilder {
     // the common-ws utils replaces empty queries with * as the default - this does not work for dismax, remove it
     if (q.equals(DEFAULT_SEARCH_PARAM_VALUE)) return null;
 
-    return q.contains(BLANK) ? QueryUtils.toPhraseQuery(q) : q;
+    return q.contains(BLANK) ? toPhraseQuery(q) : q;
   }
 
   private static String buildFields(Map<NameUsageSearchRequest.QueryField, String> config, Set<NameUsageSearchRequest.QueryField> fields) {

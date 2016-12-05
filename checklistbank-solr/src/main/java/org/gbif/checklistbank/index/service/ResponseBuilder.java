@@ -21,9 +21,9 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 
-import static org.gbif.common.search.util.SolrConstants.HL_POST;
-import static org.gbif.common.search.util.SolrConstants.HL_PRE;
-import static org.gbif.common.search.util.SolrConstants.HL_PRE_REGEX;
+import static org.gbif.common.search.solr.SolrConstants.HL_POST;
+import static org.gbif.common.search.solr.SolrConstants.HL_PRE;
+import static org.gbif.common.search.solr.SolrConstants.HL_PRE_REGEX;
 
 /**
  *

@@ -6,6 +6,7 @@ import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.common.search.solr.SolrConfig;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +36,11 @@ public class AdminConfiguration {
   @NotNull
   @Valid
   public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public SolrConfig dataset = new SolrConfig();
 
   @ParametersDelegate
   @Valid

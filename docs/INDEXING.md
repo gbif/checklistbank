@@ -6,22 +6,22 @@ In contrast to occurrence records checklist are highly relational in nature. Nea
 # Messaging flow
 The checklist indexing will share the initial dwc archive crawling with occurrences and only deviate after the metadata sync has been done:
 
-- registry console --> StartCrawlMessage
-- *CrawlerCoordinatorService* --> CrawlJob (dwca zookeeper queue)
-- *DownloaderService* --> DwcaDownloadFinishedMessage
-- *DwcaValidator* --> DwcaValidationFinishedMessage
-- *DwcaMetasyncService* --> DwcaMetasyncFinishedMessage
+- registry **console** or **clb-admin.sh** --> *StartCrawlMessage*
+- **crawler.CrawlerCoordinatorService** --> CrawlJob (dwca zookeeper queue)
+- **crawler.DownloaderService** --> *DwcaDownloadFinishedMessage*
+- **crawler.DwcaValidator** --> *DwcaValidationFinishedMessage*
+- **crawler.DwcaMetasyncService** --> *DwcaMetasyncFinishedMessage*
 
 Checklist specific message chain:
 
-- *NormalizerService* --> ChecklistNormalizedMessage
-- *ImporterService* --> ChecklistImportedMessage
-- *ChecklistAnalysisService* --> ChecklistAnalyzedMessage
+- **clb.NormalizerService** --> *ChecklistNormalizedMessage*
+- **clb.ImporterService** --> *ChecklistImportedMessage*
+- **clb.ChecklistAnalysisService** --> *ChecklistAnalyzedMessage* & BackboneChangedMessage (if backbone dataset)
 
 In addition to that chain there is a deletion service that listens to registry messages:
 
-- *registry-ws* --> RegistryChangeMessages
-- *DeleteService* 
+- **registry-ws** --> *RegistryChangeMessage*
+- **clb.RegistryService** 
 
 # CLIs and indexing repository
 TBD
@@ -41,7 +41,8 @@ In the future it should be fairly simple to optionally produce valid dwc archive
  - the [UsageDao](https://github.com/gbif/checklistbank/blob/master/checklistbank-cli/src/main/java/org/gbif/checklistbank/neo/UsageDao.java) class abstracts the two storage engines
 
 ### Neo checklist graph model
-Neo4j uses a property graph model which allows to attach any number of properties to both graph nodes and relations. The graph created from a checklist will be kept simple with name usages (records) being a node potentially having the following relationships:
+Neo4j uses a property graph model which allows to attach any number of properties to both graph nodes and relations. 
+The graph created from a checklist will be kept simple with name usages (records) being a node potentially having the following relationships:
 
  - PARENT_OF
  - SYNONYM_OF
