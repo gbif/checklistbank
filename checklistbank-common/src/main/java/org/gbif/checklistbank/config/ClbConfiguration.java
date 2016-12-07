@@ -34,7 +34,7 @@ public class ClbConfiguration {
 
   public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
   public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
-  private static final String WORK_MEM_PROP = "checklistbank.db.workMem";
+  private static final String WORK_MEM_PROP = "checklistbank.pg.workMem";
 
   @NotNull
   @Parameter(names = "--clb-host")
