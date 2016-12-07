@@ -1,10 +1,13 @@
 package org.gbif.checklistbank.config;
 
+import org.gbif.checklistbank.utils.PropertiesUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import javax.validation.constraints.Min;
@@ -31,6 +34,7 @@ public class ClbConfiguration {
 
   public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
   public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
+  private static final String WORK_MEM_PROP = "checklistbank.db.workMem";
 
   @NotNull
   @Parameter(names = "--clb-host")
@@ -121,6 +125,7 @@ public class ClbConfiguration {
     if (withPrefix) {
       props.put(PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
       props.put(IMPORT_THREADS_PROP, String.valueOf(syncThreads));
+      props.put(WORK_MEM_PROP, String.valueOf(workMem));
     }
     if (workMem > 0) {
       props.put(prefix + CONNECTION_INIT_SQL_PROP, "SET work_mem='"+workMem+"MB'");
@@ -142,6 +147,39 @@ public class ClbConfiguration {
       }
     }
     return props;
+  }
+
+  public static ClbConfiguration fromProps(Properties props) {
+    ClbConfiguration cfg = new ClbConfiguration();
+    cfg.parserTimeout = PropertiesUtils.getIntProp(props, PARSER_TIMEOUT_PROP, cfg.parserTimeout);
+    cfg.syncThreads = PropertiesUtils.getIntProp(props, IMPORT_THREADS_PROP, cfg.syncThreads);
+    cfg.workMem = PropertiesUtils.getIntProp(props, WORK_MEM_PROP, cfg.workMem);
+
+    for (Field field : ClbConfiguration.class.getDeclaredFields()) {
+      if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers()) && !Modifier.isStatic(field.getModifiers())) {
+        try {
+          if (!IGNORE.contains(field.getName())) {
+            String prefix;
+            if (DATASOURCE_SET.contains(field.getName())) {
+              prefix = PROPERTY_PREFIX+"dataSource.";
+            } else {
+              prefix = PROPERTY_PREFIX;
+            }
+            Class<?> clazz = field.getType();
+            if (int.class == clazz) {
+              field.setInt(cfg, Integer.parseInt(props.getProperty(prefix + field.getName(), String.valueOf(field.get(cfg)))));
+            } else {
+              field.set(cfg, props.getProperty(prefix + field.getName(), String.valueOf(field.get(cfg))));
+            }
+          }
+
+        } catch (IllegalAccessException e) {
+          // cant happen, we check for public access
+          throw new RuntimeException(e);
+        }
+      }
+    }
+    return cfg;
   }
 
   /**
@@ -168,5 +206,33 @@ public class ClbConfiguration {
         .add("parserTimeout", parserTimeout)
         .add("syncThreads", syncThreads)
         .toString();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(serverName, databaseName, user, password, maximumPoolSize, minimumIdle, idleTimeout, maxLifetime, workMem, connectionTimeout, parserTimeout, syncThreads);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ClbConfiguration other = (ClbConfiguration) obj;
+    return Objects.equals(this.serverName, other.serverName)
+        && Objects.equals(this.databaseName, other.databaseName)
+        && Objects.equals(this.user, other.user)
+        && Objects.equals(this.password, other.password)
+        && Objects.equals(this.maximumPoolSize, other.maximumPoolSize)
+        && Objects.equals(this.minimumIdle, other.minimumIdle)
+        && Objects.equals(this.idleTimeout, other.idleTimeout)
+        && Objects.equals(this.maxLifetime, other.maxLifetime)
+        && Objects.equals(this.workMem, other.workMem)
+        && Objects.equals(this.connectionTimeout, other.connectionTimeout)
+        && Objects.equals(this.parserTimeout, other.parserTimeout)
+        && Objects.equals(this.syncThreads, other.syncThreads);
   }
 }
