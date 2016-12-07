@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class DatasetIndexUpdater {
+public class DatasetIndexUpdater implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(DatasetIndexUpdater.class);
 
   private final ClbConfiguration clb;
@@ -100,4 +100,8 @@ public class DatasetIndexUpdater {
     return atomic;
   }
 
+  @Override
+  public void close() throws Exception {
+    solr.close();
+  }
 }
