@@ -149,7 +149,7 @@ public class ClbConfiguration {
     return props;
   }
 
-  public static ClbConfiguration fromProps(Properties props) {
+  public static ClbConfiguration fromProperties(Properties props) {
     ClbConfiguration cfg = new ClbConfiguration();
     cfg.parserTimeout = PropertiesUtils.getIntProp(props, PARSER_TIMEOUT_PROP, cfg.parserTimeout);
     cfg.syncThreads = PropertiesUtils.getIntProp(props, IMPORT_THREADS_PROP, cfg.syncThreads);

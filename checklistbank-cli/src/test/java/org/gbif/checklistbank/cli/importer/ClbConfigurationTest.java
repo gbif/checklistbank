@@ -42,7 +42,7 @@ public class ClbConfigurationTest {
 
     Properties p = cfg.toProps(true);
 
-    ClbConfiguration cfg2 = ClbConfiguration.fromProps(p);
+    ClbConfiguration cfg2 = ClbConfiguration.fromProperties(p);
 
     assertEquals(cfg2, cfg);
   }
