@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.gbif.checklistbank.model.DatasetCore;
+
 import java.util.UUID;
 
 import org.junit.Test;
@@ -15,22 +17,32 @@ public class DatasetMapperTest extends MapperITBase<DatasetMapper> {
 
   @Test
   public void truncateInsertUpdateGet() {
-    final String title = "Quadrophenia";
-    final String title2 = "Quadrophenia reloaded";
-
+    final DatasetCore d = new DatasetCore();
     final UUID key = UUID.randomUUID();
-    mapper.truncate();
-    mapper.insert(key, title);
-    assertEquals(title, mapper.get(key));
+    d.setKey(key);
+    d.setPublisher(UUID.randomUUID());
+    d.setParent(UUID.randomUUID());
+    d.setTitle("Quadrophenia");
 
-    mapper.update(key, title2);
-    assertEquals(title2, mapper.get(key));
+    final DatasetCore d2 = new DatasetCore();
+    d2.setKey(key);
+    d2.setTitle("Quadrophenia reloaded");
+    d2.setPublisher(d.getPublisher());
+    d2.setParent(d.getParent());
+
+    mapper.truncate();
+    mapper.insert(d);
+    assertEquals(d, mapper.get(key));
+
+    mapper.update(d2);
+    assertEquals(d2, mapper.get(key));
+    assertEquals(d2.getTitle(), mapper.get(key).getTitle());
 
     mapper.truncate();
     assertNull(mapper.get(key));
 
-    mapper.insert(key, title);
-    assertEquals(title, mapper.get(key));
+    mapper.insert(d);
+    assertEquals(d, mapper.get(key));
     mapper.delete(key);
     assertNull(mapper.get(key));
   }

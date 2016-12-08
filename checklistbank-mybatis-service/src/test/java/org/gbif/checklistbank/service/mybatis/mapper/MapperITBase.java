@@ -7,6 +7,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Citation;
+import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
@@ -85,7 +86,10 @@ public class MapperITBase<T> {
     final int nameKey = pn.getKey();
 
     datasetKey = UUID.randomUUID();
-    datasetMapper.insert(datasetKey, datasetTitle);
+    DatasetCore d = new DatasetCore();
+    d.setKey(datasetKey);
+    d.setTitle(datasetTitle);
+    datasetMapper.insert(d);
 
     NameUsageWritable uw = new NameUsageWritable();
     uw.setNameKey(nameKey);

@@ -7,6 +7,7 @@ import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.logging.LogContext;
+import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
@@ -105,7 +106,10 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     } finally {
       context.stop();
     }
+
+    // archives
     deleteStorageFiles(cfg.neo, key);
+
     // delete dataset table entry
     datasetMapper.delete(key);
     LogContext.endDataset();
@@ -116,15 +120,16 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     if (Dataset.class.equals(msg.getObjectClass())) {
       Dataset d = (Dataset) ObjectUtils.coalesce(msg.getNewObject(), msg.getOldObject());
       if (d != null && DatasetType.CHECKLIST == d.getType()) {
+        DatasetCore dc = new DatasetCore(d);
         switch (msg.getChangeType()) {
           case DELETED:
             delete(d.getKey());
             break;
           case UPDATED:
-            datasetMapper.update(d.getKey(), d.getTitle());
+            datasetMapper.update(dc);
             break;
           case CREATED:
-            datasetMapper.insert(d.getKey(), d.getTitle());
+            datasetMapper.insert(dc);
             break;
         }
       }

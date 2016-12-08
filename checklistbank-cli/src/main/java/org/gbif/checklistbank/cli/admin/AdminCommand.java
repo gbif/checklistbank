@@ -18,6 +18,7 @@ import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.exporter.Exporter;
 import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
+import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.source.ClbSource;
@@ -240,7 +241,7 @@ public class AdminCommand extends BaseCommand {
     Iterable<Dataset> datasets = Iterables.datasets(DatasetType.CHECKLIST, datasetService);
     mapper.truncate();
     for (Dataset d : datasets) {
-      mapper.insert(d.getKey(), d.getTitle());
+      mapper.insert(new DatasetCore(d));
       counter++;
     }
     LOG.info("{} checklist titles copied", counter);

@@ -333,7 +333,12 @@
     </sql>
   </changeSet>
 
-
-
+  <changeSet id="47" author="markus">
+    <!-- add publisher to dataset table -->
+    <sql>
+      ALTER TABLE dataset ADD COLUMN parent UUID;
+      ALTER TABLE dataset ADD COLUMN publisher UUID;
+    </sql>
+  </changeSet>
 
 </databaseChangeLog>

@@ -27,6 +27,7 @@ import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.model.ScientificName;
@@ -128,6 +129,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
 
     // mybatis config
     addAlias("Count").to(DatasetMetricsServiceMyBatis.Count.class);
+    addAlias("DatasetCore").to(DatasetCore.class);
     addAlias("DatasetMetrics").to(DatasetMetrics.class);
     addAlias("Description").to(Description.class);
     addAlias("Distribution").to(Distribution.class);
