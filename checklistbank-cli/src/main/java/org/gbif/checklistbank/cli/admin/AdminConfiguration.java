@@ -104,6 +104,12 @@ public class AdminConfiguration {
   public boolean col = false;
 
   /**
+   * If true sets the Plazi publisher key in the key config
+   */
+  @Parameter(names = {"--plazi"}, required = false)
+  public boolean plazi = false;
+
+  /**
    * Returns the directory with the decompressed archive folder created by the dwca downloader.
    */
   public File archiveDir(UUID datasetKey) {

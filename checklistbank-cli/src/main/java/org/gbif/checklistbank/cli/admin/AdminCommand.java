@@ -46,6 +46,7 @@ import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -103,19 +104,24 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initCfg() {
-    if (cfg.col) {
-      if (cfg.key != null) {
-        LOG.warn("Explicit dataset key given, ignore col flag");
-      } else {
-        cfg.key = Constants.COL_DATASET_KEY;
+    setKnownKey("col", Constants.COL_DATASET_KEY);
+    setKnownKey("nub", Constants.NUB_DATASET_KEY);
+    setKnownKey("plazi", UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
+  }
+
+  private void setKnownKey(String name, UUID key) {
+    try {
+      Field field = cfg.getClass().getDeclaredField(name);
+      if (field.getBoolean(cfg)) {
+        if (cfg.key != null) {
+          LOG.warn("Explicit dataset key given, ignore {} flag", name);
+        } else {
+          cfg.key = key;
+        }
       }
-    }
-    if (cfg.nub) {
-      if (cfg.key != null) {
-        LOG.warn("Explicit dataset key given, ignore nub flag");
-      } else {
-        cfg.key = Constants.NUB_DATASET_KEY;
-      }
+    } catch (ReflectiveOperationException e) {
+      e.printStackTrace();
+      Throwables.propagate(e);
     }
   }
 

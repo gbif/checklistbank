@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.helpers.Settings;
 import org.neo4j.shell.ShellSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,13 +65,13 @@ public class NeoConfiguration {
     }
     GraphDatabaseBuilder builder = new GraphDatabaseFactory()
         .newEmbeddedDatabaseBuilder(storeDir)
-        .setConfig(GraphDatabaseSettings.keep_logical_logs, Settings.FALSE)
+        .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
         .setConfig(GraphDatabaseSettings.read_only, Boolean.toString(readOnly))
-        .setConfig(GraphDatabaseSettings.allow_store_upgrade, Settings.TRUE)
+        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
         .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "M");
     if (shell) {
       LOG.info("Enable neo4j shell on port " + port);
-      builder.setConfig(ShellSettings.remote_shell_enabled, Settings.TRUE)
+      builder.setConfig(ShellSettings.remote_shell_enabled, "true")
           .setConfig(ShellSettings.remote_shell_port, String.valueOf(port))
           // listen to all IPs, not localhost only
           .setConfig(ShellSettings.remote_shell_host, "0.0.0.0");
