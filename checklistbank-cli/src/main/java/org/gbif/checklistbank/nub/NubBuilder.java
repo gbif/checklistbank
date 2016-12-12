@@ -1,7 +1,9 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -33,8 +35,7 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.collection.MapUtils;
@@ -141,7 +142,7 @@ public class NubBuilder implements Runnable {
     idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
     this.cfg = cfg;
-    this.parser = new NameParser(cfg.parserTimeout);
+    this.parser = new GBIFNameParser(cfg.parserTimeout);
   }
 
   public static NubBuilder create(NubConfiguration cfg) {

@@ -1,9 +1,10 @@
 package org.gbif.checklistbank.authorship;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 
@@ -30,7 +31,7 @@ import static org.junit.Assert.fail;
  * See http://dev.gbif.org/issues/browse/POR-398 for more.
  */
 public class BasionymSorterTest {
-  private final NameParser parser = new NameParser();
+  private final NameParser parser = new GBIFNameParser();
   private final BasionymSorter sorter = new BasionymSorter();
 
   @Test

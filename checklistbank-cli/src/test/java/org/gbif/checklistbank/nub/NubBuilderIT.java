@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -24,8 +24,7 @@ import org.gbif.checklistbank.nub.source.NubSource;
 import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.source.RandomSource;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
@@ -68,7 +67,7 @@ import static org.junit.Assert.fail;
 public class NubBuilderIT {
   private UsageDao dao;
   private Transaction tx;
-  private static final NameParser PARSER = new NameParser();
+  private static final NameParser PARSER = new GBIFNameParser();
 
   private static void log(String msg, Object ... args) {
     System.out.println(String.format(msg, args));
@@ -1342,13 +1341,7 @@ public class NubBuilderIT {
     u.usageKey = id;
     u.rank = rank;
     u.kingdom = kingdom;
-    try {
-      u.parsedName = PARSER.parse(sciname, rank);
-    } catch (UnparsableException e) {
-      u.parsedName = new ParsedName();
-      u.parsedName.setScientificName(sciname);
-      u.parsedName.setType(e.type);
-    }
+    u.parsedName = PARSER.parseQuietly(sciname, rank);
     dao.store(u);
     return u;
   }

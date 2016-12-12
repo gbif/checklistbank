@@ -1,8 +1,10 @@
 package org.gbif.nub.lookup.fuzzy;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
@@ -11,8 +13,6 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 

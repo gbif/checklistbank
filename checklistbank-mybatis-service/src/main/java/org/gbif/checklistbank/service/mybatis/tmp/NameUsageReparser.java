@@ -1,17 +1,19 @@
 package org.gbif.checklistbank.service.mybatis.tmp;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-import org.gbif.checklistbank.utils.ExecutorUtils;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.utils.concurrent.ExecutorUtils;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -32,7 +34,7 @@ public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
 
-  private final NameParser parser = new NameParser();
+  private final NameParser parser = new GBIFNameParser();
   private final ExecutorService exec;
   private final NameUsageMapper usageMapper;
   private final ParsedNameMapper nameMapper;
@@ -61,7 +63,7 @@ public class NameUsageReparser implements Runnable {
 
     LOG.info("Submitted all {} jobs.", jobCounter);
 
-    ExecutorUtils.stop(exec, "Reparsing");
+    ExecutorUtils.stop(exec, 10, TimeUnit.SECONDS);
 
     if (jobCounter != 0) {
       LOG.warn("Something not right. All jobs should be done but {} remain in counter", jobCounter);

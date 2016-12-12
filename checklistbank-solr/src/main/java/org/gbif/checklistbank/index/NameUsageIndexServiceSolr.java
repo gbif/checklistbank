@@ -15,7 +15,7 @@ import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.utils.ExecutorUtils;
+import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.util.Iterator;
@@ -31,11 +31,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 
+import com.codahale.metrics.Meter;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
-import com.codahale.metrics.Meter;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
@@ -207,7 +207,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
   @Override
   public void close() throws Exception {
-    ExecutorUtils.stop(exec, NAME, 60, TimeUnit.SECONDS);
+    ExecutorUtils.stop(exec, 60, TimeUnit.SECONDS);
   }
 
   class SolrUpdateProParte implements Callable<List<NameUsage>> {

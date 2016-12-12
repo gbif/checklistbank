@@ -2,7 +2,7 @@ package org.gbif.checklistbank.nub.source;
 
 import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.FutureIterator;
-import org.gbif.checklistbank.utils.ExecutorUtils;
+import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.util.Iterator;
@@ -57,6 +57,6 @@ public class NubSourceList implements CloseableIterable<NubSource> {
 
   @Override
   public void close() {
-    ExecutorUtils.stop(exec, "nub source loader", 10, TimeUnit.SECONDS);
+    ExecutorUtils.stop(exec, 10, TimeUnit.SECONDS);
   }
 }

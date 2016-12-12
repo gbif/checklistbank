@@ -1,8 +1,10 @@
 package org.gbif.checklistbank.neo;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -32,8 +34,7 @@ import org.gbif.dwca.io.Archive;
 import org.gbif.dwca.io.ArchiveFactory;
 import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.utils.ObjectUtils;
 
 import java.io.File;
@@ -43,20 +44,22 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.kernel.api.index.PreexistingIndexEntryConflictException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.gbif.dwc.terms.GbifTerm.datasetKey;
 
 /**
  *
@@ -69,7 +72,7 @@ public class NeoInserter implements AutoCloseable {
 
     private Archive arch;
     private Map<String, UUID> constituents;
-    private NameParser nameParser = new NameParser();
+    private NameParser nameParser = new GBIFNameParser();
     private RankParser rankParser = RankParser.getInstance();
     private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
     private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
@@ -113,7 +116,7 @@ public class NeoInserter implements AutoCloseable {
     }
 
     @VisibleForTesting
-    protected void insertStarRecord(StarRecord star) {
+    protected void insertStarRecord(StarRecord star) throws NormalizationFailedException {
 
         try {
             VerbatimNameUsage v = new VerbatimNameUsage();
@@ -164,6 +167,10 @@ public class NeoInserter implements AutoCloseable {
             }
             if (meta.getRecords() % (batchSize * 10) == 0) {
                 LOG.info("Inserts done into neo4j: {}", meta.getRecords());
+                if (Thread.interrupted()) {
+                  LOG.warn("NeoInserter interrupted, exit {} early with incomplete parsing", datasetKey);
+                  throw new NormalizationFailedException("NeoInserter interrupted");
+                }
             }
 
         } catch (IgnoreNameUsageException e) {

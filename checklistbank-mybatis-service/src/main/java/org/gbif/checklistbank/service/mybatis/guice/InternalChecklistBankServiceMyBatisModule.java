@@ -19,6 +19,7 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -83,7 +84,7 @@ import org.gbif.mybatis.type.CountryTypeHandler;
 import org.gbif.mybatis.type.LanguageTypeHandler;
 import org.gbif.mybatis.type.UriTypeHandler;
 import org.gbif.mybatis.type.UuidTypeHandler;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
 
 import java.net.URI;
 import java.util.Properties;
@@ -212,6 +213,6 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
         .to(DatasetImportServiceMyBatis.class)
         .in(Scopes.SINGLETON);
 
-    bind(NameParser.class).toInstance(new NameParser(parserTimeout));
+    bind(NameParser.class).toInstance(new GBIFNameParser(parserTimeout));
   }
 }

@@ -3,11 +3,10 @@ package org.gbif.nub.lookup.fuzzy;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 
 import java.io.IOException;
-
 import javax.annotation.Nullable;
 
 import com.google.common.base.Joiner;
@@ -30,7 +29,7 @@ public class NubMatchingServiceImplIT {
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
-    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new NameParser());
+    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new GBIFNameParser());
   }
 
   private void assertMatch(String name, LinneanClassification query, Integer expectedKey) {

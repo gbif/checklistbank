@@ -46,7 +46,7 @@
     <dwc-api.version>1.16</dwc-api.version>
     <gbif-api.version>0.48-SNAPSHOT</gbif-api.version>
     <gbif-cli.version>0.10</gbif-cli.version>
-    <gbif-common.version>0.28</gbif-common.version>
+    <gbif-common.version>0.31</gbif-common.version>
     <gbif-common-mybatis.version>0.27</gbif-common-mybatis.version>
     <!-- matches solr 5.4.x -->
     <gbif-common-search.version>0.31-SNAPSHOT</gbif-common-search.version>
@@ -56,7 +56,7 @@
     <gbif-microservice.version>0.5</gbif-microservice.version>
     <gbif-postal-service.version>0.22</gbif-postal-service.version>
     <registry.version>2.59</registry.version>
-    <name-parser.version>2.20</name-parser.version>
+    <name-parser.version>2.21-SNAPSHOT</name-parser.version>
     <gbif-parser.version>0.29</gbif-parser.version>
     <dwca-io.version>1.28</dwca-io.version>
     <!-- external libs -->

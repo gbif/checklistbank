@@ -264,6 +264,31 @@ public class AdminCommand extends BaseCommand {
     LOG.info("{} orphan names deleted", num);
   }
 
+  private void cleanup(Dataset d) throws IOException {
+    try {
+      if (cfg.zookeeper.isConfigured()) {
+        zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
+        LOG.info("Removed crawl {} from ZK running queue", d.getKey());
+
+        //TODO: clear pending & running queues
+      }
+
+      // cleanup repo files
+      final File dwcaFile = new File(cfg.archiveRepository, d.getKey() + DWCA_SUFFIX);
+      FileUtils.deleteQuietly(dwcaFile);
+      File dir = cfg.archiveDir(d.getKey());
+      if (dir.exists() && dir.isDirectory()) {
+        FileUtils.deleteDirectory(dir);
+      }
+      LOG.info("Removed dwca files from repository {}", dwcaFile);
+
+      RegistryService.deleteStorageFiles(cfg.neo, d.getKey());
+
+    } catch (Exception e) {
+      LOG.error("Failed to cleanup dataset {}", d.getKey(), e);
+    }
+  }
+
   private void runDatasetComamnds() throws Exception {
     if (cfg.keys != null) {
       datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
@@ -289,21 +314,7 @@ public class AdminCommand extends BaseCommand {
 
       switch (cfg.operation) {
         case CLEANUP:
-          if (cfg.zookeeper.isConfigured()) {
-            zk().delete(ZookeeperUtils.getCrawlInfoPath(d.getKey(), null));
-            LOG.info("Removed crawl {} from zookeeper", d.getKey());
-          }
-
-          // cleanup repo files
-          final File dwcaFile = new File(cfg.archiveRepository, d.getKey() + DWCA_SUFFIX);
-          FileUtils.deleteQuietly(dwcaFile);
-          File dir = cfg.archiveDir(d.getKey());
-          if (dir.exists() && dir.isDirectory()) {
-            FileUtils.deleteDirectory(dir);
-          }
-          LOG.info("Removed dwca files from repository {}", dwcaFile);
-
-          RegistryService.deleteStorageFiles(cfg.neo, d.getKey());
+          cleanup(d);
           break;
 
         case CRAWL:

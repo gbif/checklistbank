@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class NubMatchingServiceImplStrictIT {
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
-    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new NameParser());
+    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new GBIFNameParser());
   }
 
   private NameUsageMatch query(String name, Rank rank, Kingdom kingdom) {

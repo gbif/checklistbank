@@ -4,6 +4,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
@@ -25,11 +26,9 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
-import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.io.File;
 import java.util.Collection;
@@ -38,13 +37,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -52,8 +48,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -74,7 +68,7 @@ public class Normalizer extends ImportDb implements Runnable {
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
   private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
-  private static final NamedThreadFactory THREAD_FACTORY = new NamedThreadFactory("normalizer-parser");
+  private static final NameParser PARSER = new GBIFNameParser();
 
   static {
     for (char del : "[|;, ]".toCharArray()) {
@@ -83,7 +77,6 @@ public class Normalizer extends ImportDb implements Runnable {
   }
 
   private final IdLookup lookup;
-  private final ExecutorService exec;
 
   private final Map<String, UUID> constituents;
   private final File dwca;
@@ -92,7 +85,6 @@ public class Normalizer extends ImportDb implements Runnable {
   private final Meter metricsMeter;
   private final int batchSize;
   private InsertMetadata meta;
-  private int ignored;
   private List<String> cycles = Lists.newArrayList();
   private UsageMetricsHandler metricsHandler;
   private NubMatchHandler matchHandler;
@@ -107,7 +99,6 @@ public class Normalizer extends ImportDb implements Runnable {
     this.dwca = dwca;
     this.lookup = lookup;
     this.batchSize = batchSize;
-    exec = Executors.newFixedThreadPool(1, THREAD_FACTORY);
   }
 
 
@@ -159,70 +150,27 @@ public class Normalizer extends ImportDb implements Runnable {
     }
   }
 
-  private class NameParsingJob implements Callable<Integer> {
-    private final NameParser parser = new NameParser();
-
-    @Override
-    public Integer call() throws Exception {
-      int counter = 0;
-      try (Transaction tx = dao.beginTx()) {
-        for (Node n : dao.allNodes()) {
-          String sciname = NeoProperties.getScientificName(n);
-          ParsedName pn;
-          try {
-            pn = parser.parse(sciname, NeoProperties.getRank(n, null));
-          } catch (UnparsableException e) {
-            // allow any name at least as a scientific name string
-            pn = new ParsedName();
-            pn.setScientificName(sciname);
-            pn.setType(e.type);
-          }
-          dao.store(n.getId(), pn);
-          counter++;
-        }
-      }
-      return counter;
-    }
-  }
-
   public void run() throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
     try {
       // batch import uses its own batchdb
       batchInsertData();
-      // insert regular neo db for further processing
-      setupRelations();
-      // start name processing job
-      Future<Integer> f = parseNames();
-      // while parsing match to nub and build metrics
+      // insert neo db relations, create implicit nodes if needed and parse names
+      normalize();
+      // parse all names
+      parseNames();
+      // match to nub and build metrics
       buildMetricsAndMatchBackbone();
-      // now wait for name parsing to finish
-      LOG.info("Wait for name parsing to finish");
-      Integer parserCount = f.get();
-      LOG.info("Finish to parse all {} names", parserCount);
       LOG.info("Normalization succeeded");
-
-    } catch (InterruptedException e) {
-      LOG.error("Name parsing thread interrupted.", datasetKey);
-      throw new NormalizationFailedException("Name parsing interrupted", e);
-
-    } catch (ExecutionException e) {
-      LOG.error("Name parsing failed: {}", datasetKey, e.getMessage());
-      throw new NormalizationFailedException("Name parsing failed", e);
 
     } finally {
       dao.close();
-      LOG.info("Neo database shut down");
+      LOG.info("Normalizer database shut down");
     }
-    ignored = meta.getIgnored();
-  }
-
-  private Future<Integer> parseNames() {
-    return exec.submit(new NameParsingJob());
   }
 
   public NormalizerStats getStats() {
-    return metricsHandler.getStats(ignored, cycles);
+    return metricsHandler.getStats(meta == null ? 0 : meta.getIgnored(), cycles);
   }
 
   private void batchInsertData() throws NormalizationFailedException {
@@ -561,7 +509,8 @@ public class Normalizer extends ImportDb implements Runnable {
    * Matches every node to the backbone and calculates a usage metric.
    * This is done jointly as both needs the full Linnean classification for every node.
    */
-  private void buildMetricsAndMatchBackbone() {
+  private void buildMetricsAndMatchBackbone() throws NormalizationFailedException {
+    checkInterrupted();
     LOG.info("Walk all accepted taxa, build metrics and match to the GBIF backbone");
     metricsHandler = new UsageMetricsHandler(dao);
     matchHandler = new NubMatchHandler(lookup, dao);
@@ -625,7 +574,7 @@ public class Normalizer extends ImportDb implements Runnable {
   /**
    * Creates implicit nodes and sets up relations between taxa.
    */
-  private void setupRelations() {
+  private void normalize() throws NormalizationFailedException {
     LOG.info("Start processing explicit relations ...");
     int counter = 0;
 
@@ -636,11 +585,14 @@ public class Normalizer extends ImportDb implements Runnable {
       // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
       for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
         setupRelation(n);
+        // inc counters & commit batch
         counter++;
         relationMeter.mark();
         tx = renewTx(tx);
         if (counter % 10000 == 0) {
           LOG.debug("Processed relations for {} nodes", counter);
+          // interrupted? then lets get out of here
+          checkInterrupted();
         }
       }
 
@@ -658,13 +610,38 @@ public class Normalizer extends ImportDb implements Runnable {
     LOG.info("Relation setup completed, {} nodes processed. Setup rate: {}", counter, relationMeter.getMeanRate());
   }
 
-  private void setupRelation(Node n) {
+  /**
+   * Parses all names and stores them in the DAO
+   * NubMatchHandler relies on this!
+   * @throws NormalizationFailedException
+   */
+  private void parseNames() throws NormalizationFailedException {
+    LOG.info("Start parsing all names ...");
+    try (Transaction tx = dao.beginTx()) {
+      int counter = 0;
+      for (Node n : dao.allNodes()) {
+        // parse name
+        ParsedName pn = PARSER.parseQuietly(NeoProperties.getScientificName(n), NeoProperties.getRank(n, null));
+        dao.store(n.getId(), pn);
+
+        if (counter % 10000 == 0) {
+          LOG.debug("Parsed names for {} nodes", counter);
+          // interrupted? then lets get out of here
+          checkInterrupted();
+        }
+      }
+      tx.success();
+    }
+  }
+
+  private NameUsage setupRelation(Node n) {
     final NameUsageNode nn = new NameUsageNode(n, dao.readUsage(n, false), true);
     final VerbatimNameUsage v = dao.readVerbatim(n.getId());
     setupAcceptedRel(nn, v);
     setupParentRel(nn, v);
     setupBasionymRel(nn, v);
     dao.store(nn, false);
+    return nn.usage;
   }
 
   /**
@@ -850,4 +827,11 @@ public class Normalizer extends ImportDb implements Runnable {
     return n;
   }
 
+
+  private void checkInterrupted() throws NormalizationFailedException {
+    if (Thread.interrupted()) {
+      LOG.warn("Normalizer interrupted, exit {} early with incomplete parsing", datasetKey);
+      throw new NormalizationFailedException("Normalizer interrupted");
+    }
+  }
 }

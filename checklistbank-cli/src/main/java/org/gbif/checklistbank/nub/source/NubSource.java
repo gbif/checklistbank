@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -15,8 +15,7 @@ import org.gbif.checklistbank.neo.traverse.TreeIterables;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -148,7 +147,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       this.nubRanksOnly = nubRanksOnly;
       this.parseNames = parseNames;
       // we only need a parser in case we need to write neo properties or parse names
-      parser = writeNeoProperties || parseNames ? new NameParser() : null;
+      parser = writeNeoProperties || parseNames ? new GBIFNameParser() : null;
       tx = dao.beginTx();
     }
 
@@ -164,13 +163,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.scientificName = row[6];
 
       if (parseNames) {
-        try {
-          u.parsedName = parser.parse(u.scientificName, u.rank);
-        } catch (UnparsableException e) {
-          u.parsedName = new ParsedName();
-          u.parsedName.setType(e.type);
-          u.parsedName.setScientificName(u.scientificName);
-        }
+        u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
       }
 
       if (ignoreSynonyms && u.status != null && u.status.isSynonym()) {

@@ -332,9 +332,7 @@ public class NameUsageDocConverter {
    */
   private void addHigherTaxonKeys(List<Integer> parents, SolrInputDocument doc) {
     if (parents != null) {
-      for (Integer key : parents) {
-        doc.addField("higher_taxon_key", key);
-      }
+      doc.addField("higher_taxon_key", parents);
     }
   }
 

@@ -11,7 +11,7 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
-import org.gbif.checklistbank.utils.ExecutorUtils;
+import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
 import java.util.Iterator;
@@ -325,7 +325,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
 
   @Override
   public void close() throws Exception {
-    ExecutorUtils.stop(exec, NAME, 60, TimeUnit.SECONDS);
+    ExecutorUtils.stop(exec, 60, TimeUnit.SECONDS);
   }
 
 }

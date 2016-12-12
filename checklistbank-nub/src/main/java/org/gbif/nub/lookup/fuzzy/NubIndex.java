@@ -5,18 +5,20 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -102,7 +104,7 @@ public class NubIndex implements AutoCloseable {
     .build();
 
   private static final ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
-  private static final NameParser parser = new NameParser();
+  private static final NameParser parser = new GBIFNameParser();
   private final Directory index;
   private final IndexSearcher searcher;
 
@@ -300,7 +302,8 @@ public class NubIndex implements AutoCloseable {
     LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
-    String canonical = parser.parseToCanonicalOrScientificName(sciname, rank);
+    Optional<String> optCanonical = Optional.of(parser.parseToCanonical(sciname, rank));
+    final String canonical = optCanonical.orElse(sciname);
 
     // use custom precision step as we do not need range queries and prefer to save memory usage instead
     doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));

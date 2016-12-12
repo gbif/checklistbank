@@ -1,12 +1,13 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertNull;
 
 public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameService> {
 
-  private NameParser parser = new NameParser();
+  private NameParser parser = new GBIFNameParser();
 
   public ParsedNameServiceMyBatisIT() {
     super(ParsedNameService.class);

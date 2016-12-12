@@ -1,9 +1,8 @@
 package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.ws.util.LineReader;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
 import org.gbif.ws.util.ExtraMediaTypes;
 
 import java.io.InputStream;
@@ -93,25 +92,20 @@ public class NameParserResource {
 
   private List<ParsedName> parse(Iterator<String> iter) {
     int counter = 0;
-    int failed = 0;
+    int unparsable = 0;
     List<ParsedName> pnames = Lists.newArrayList();
 
     while (iter.hasNext()) {
-      ParsedName pn;
       final String name = iter.next();
-      try {
-        pn = parser.parse(name, null);
-      } catch (UnparsableException e) {
-        pn = new ParsedName();
-        pn.setType(e.type);
-        failed++;
-      }
-      pn.setScientificName(name);
+      ParsedName pn = parser.parseQuietly(name);
       pnames.add(pn);
       counter++;
+      if (!pn.getType().isParsable()) {
+        unparsable++;
+      }
     }
 
-    LOG.debug("Parsed {} names out of which {} are unparsable", counter, failed);
+    LOG.debug("Parsed {} names out of which {} are unparsable", counter, unparsable);
     return pnames;
   }
 }

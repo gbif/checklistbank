@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -11,6 +12,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.CitesAppendix;
@@ -27,8 +29,7 @@ import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 
 import java.net.URI;
 import java.util.Date;
@@ -53,7 +54,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
   }
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
-  private static final NameParser PARSER = new NameParser();
+  private static final NameParser PARSER = new GBIFNameParser();
   NameUsageService uService;
 
   @Before

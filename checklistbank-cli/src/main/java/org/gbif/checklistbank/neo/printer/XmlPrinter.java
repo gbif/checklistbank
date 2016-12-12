@@ -1,15 +1,15 @@
 package org.gbif.checklistbank.neo.printer;
 
-import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
+import org.gbif.nameparser.GBIFNameParser;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
+import java.util.Optional;
 
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
@@ -28,7 +28,7 @@ public class XmlPrinter implements TreePrinter {
 
   public XmlPrinter(Writer writer) {
     this.writer = writer;
-    parser = new NameParser(250);
+    parser = new GBIFNameParser(250);
   }
 
   @Override
@@ -49,12 +49,7 @@ public class XmlPrinter implements TreePrinter {
       String cname = NeoProperties.getCanonicalName(n);
       Rank rank = Rank.values()[(Integer) n.getProperty(NeoProperties.RANK, Rank.UNRANKED.ordinal())];
       if (Strings.isNullOrEmpty(cname)) {
-        try {
-          ParsedName pn = parser.parse(sname, rank);
-          cname = pn.canonicalName();
-        } catch (UnparsableException e) {
-          cname = sname;
-        }
+        cname = Optional.of(parser.parseToCanonical(sname, rank)).orElse(sname);
       }
       cname = escapeTag(cname);
 

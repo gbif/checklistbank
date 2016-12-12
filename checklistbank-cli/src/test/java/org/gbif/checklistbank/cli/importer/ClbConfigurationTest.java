@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.cli.importer;
 
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.nameparser.NameParser;
 
 import java.util.Properties;
 

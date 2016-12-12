@@ -1,11 +1,11 @@
 package org.gbif.checklistbank.service.mybatis;
 
 
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-import org.gbif.nameparser.NameParser;
-import org.gbif.nameparser.UnparsableException;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;

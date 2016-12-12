@@ -1,8 +1,9 @@
 package org.gbif.nub.lookup;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.nameparser.NameParser;
+import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
@@ -65,7 +66,7 @@ public class NubMatchingTestModule extends PrivateModule {
   @Provides
   @Singleton
   public NameParser provideParser() {
-    NameParser parser = new NameParser();
+    NameParser parser = new GBIFNameParser();
     return parser;
   }
 
