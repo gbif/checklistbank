@@ -138,10 +138,21 @@ public class IdLookupImpl implements IdLookup {
           row[2],
           row[3],
           Rank.valueOf(row[4]),
-          Kingdom.byNubUsageId(toInt(row[5])),
+          toKingdom(row[5]),
           "t".equals(row[6])
       );
       add(u);
+    }
+
+    /**
+     * Translates the kingdom_fk into a kingdom enum value.
+     * To avoid NPEs it translates null kingdoms into incertae sedis,
+     * see http://dev.gbif.org/issues/browse/POR-3202
+     * @return matching kingdom or incertae sedis in case of null (which should *never* happen!)
+     */
+    private Kingdom toKingdom(String x) {
+      Integer usageKey = toInt(x);
+      return usageKey == null ? Kingdom.INCERTAE_SEDIS : Kingdom.byNubUsageKey(usageKey);
     }
 
     private Integer toInt(String x) {

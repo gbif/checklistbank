@@ -11,6 +11,7 @@ import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
 import java.io.IOException;
 
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,11 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
     super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", ChecklistBankServiceMyBatisModule.create(cfg.clb));
     analysisService = getInstance(DatasetAnalysisService.class);
 
-    datasetIndexUpdater = new DatasetIndexUpdater(cfg.clb, cfg.dataset);
+    if (Strings.isNullOrEmpty(cfg.dataset.serverHome)) {
+      datasetIndexUpdater = null;
+    } else {
+      datasetIndexUpdater = new DatasetIndexUpdater(cfg.clb, cfg.dataset);
+    }
   }
 
   @Override
@@ -37,7 +42,9 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
   @Override
   protected void process(ChecklistSyncedMessage msg) throws IOException {
     DatasetMetrics metrics = analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
-    datasetIndexUpdater.index(msg.getDatasetUuid());
+    if (datasetIndexUpdater != null) {
+      datasetIndexUpdater.index(msg.getDatasetUuid());
+    }
 
     send(new ChecklistAnalyzedMessage(msg.getDatasetUuid()));
 
