@@ -76,8 +76,11 @@ public class NubMatchHandler implements StartEndHandler {
    */
   private void matchToNub(NameUsageNode nn) {
     ParsedName pn = dao.readName(nn.node.getId());
+    if (pn == null) {
+      LOG.warn("No parsed name found for {} {}", nn.node, nn.usage.getScientificName());
+    }
     LookupUsage match;
-    if (unparsableMatchTypes.contains(pn.getType())) {
+    if (pn == null || unparsableMatchTypes.contains(pn.getType())) {
       // try with full scientific name for certain name types (we dont want to match informal or no names)
       match = lookup.match(nn.usage.getScientificName(), null, null, nn.usage.getRank(), currKingdom);
     } else {

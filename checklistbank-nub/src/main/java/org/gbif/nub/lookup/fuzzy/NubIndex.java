@@ -302,7 +302,7 @@ public class NubIndex implements AutoCloseable {
     LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
-    Optional<String> optCanonical = Optional.of(parser.parseToCanonical(sciname, rank));
+    Optional<String> optCanonical = Optional.ofNullable(parser.parseToCanonical(sciname, rank));
     final String canonical = optCanonical.orElse(sciname);
 
     // use custom precision step as we do not need range queries and prefer to save memory usage instead

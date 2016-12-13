@@ -49,7 +49,7 @@ public class XmlPrinter implements TreePrinter {
       String cname = NeoProperties.getCanonicalName(n);
       Rank rank = Rank.values()[(Integer) n.getProperty(NeoProperties.RANK, Rank.UNRANKED.ordinal())];
       if (Strings.isNullOrEmpty(cname)) {
-        cname = Optional.of(parser.parseToCanonical(sname, rank)).orElse(sname);
+        cname = Optional.ofNullable(parser.parseToCanonical(sname, rank)).orElse(sname);
       }
       cname = escapeTag(cname);
 
