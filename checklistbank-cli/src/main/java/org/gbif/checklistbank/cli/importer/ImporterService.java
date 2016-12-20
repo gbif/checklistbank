@@ -46,6 +46,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
         throw new RuntimeException(e);
       }
     } else {
+      LOG.warn("Zookeeper not configured. Crawl metadata will not be managed.");
       zkUtils = null;
     }
     // init mybatis layer and solr once from cfg instance

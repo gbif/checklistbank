@@ -60,14 +60,17 @@ public class ZooKeeperConfiguration {
   @JsonIgnore
   public CuratorFramework getCuratorFramework() throws IOException {
     LOG.info("Connecting to zookeeper at {} within namespace {}", connectionString, namespace);
-    CuratorFramework curator = CuratorFrameworkFactory.builder().namespace(namespace)
-      .retryPolicy(new ExponentialBackoffRetry(baseSleepTime, maxRetries)).connectString(connectionString).build();
+    CuratorFramework curator = CuratorFrameworkFactory.builder()
+        .namespace(namespace)
+        .retryPolicy(new ExponentialBackoffRetry(baseSleepTime, maxRetries))
+        .connectString(connectionString)
+        .build();
     curator.start();
     return curator;
   }
 
   public boolean isConfigured() {
-    return !Strings.isStringEmpty(namespace) && Strings.isStringEmpty(connectionString);
+    return !Strings.isStringEmpty(namespace) && !Strings.isStringEmpty(connectionString);
   }
 
   @Override

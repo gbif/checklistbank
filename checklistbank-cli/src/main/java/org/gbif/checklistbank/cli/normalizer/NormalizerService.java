@@ -38,6 +38,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
         throw new RuntimeException(e);
       }
     } else {
+      LOG.warn("Zookeeper not configured. Crawl metadata will not be managed.");
       zkUtils = null;
     }
   }
