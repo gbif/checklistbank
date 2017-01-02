@@ -85,7 +85,7 @@ public class DatasetIndexUpdater implements AutoCloseable {
       SolrInputDocument doc = new SolrInputDocument();
       doc.addField("key", key);
       doc.addField("taxon_key", atomicUpdate(keys));
-      doc.addField("record_count", keys.length);
+      doc.addField("record_count", atomicUpdate(keys.length));
 
       solr.add( doc );
 

@@ -39,11 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.gbif.checklistbank.index.service.SolrMapping.FACET_MAPPING;
-
 import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_COUNT;
 import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_SORT;
 import static org.gbif.common.search.solr.QueryUtils.NOT_OP;
-import static org.gbif.common.search.solr.QueryUtils.PARAMS_AND_JOINER;
 import static org.gbif.common.search.solr.QueryUtils.PARAMS_JOINER;
 import static org.gbif.common.search.solr.QueryUtils.PARAMS_OR_JOINER;
 import static org.gbif.common.search.solr.QueryUtils.perFieldParamName;
@@ -178,7 +176,6 @@ public class SolrQueryBuilder {
   private static void setFacetFilterQuery(SearchRequest<NameUsageSearchParameter> request, SolrQuery solrQuery) {
     Multimap<NameUsageSearchParameter, String> params = request.getParameters();
     if (params != null) {
-      List<String> and = Lists.newArrayList();
       for (NameUsageSearchParameter param : params.keySet()) {
         String solrField = FACET_MAPPING.get(param);
         if (solrField != null) {
@@ -232,13 +229,12 @@ public class SolrQueryBuilder {
 
           // combine all parameter predicates with OR
           if (!predicates.isEmpty()) {
-            String paranthesis = toParenthesesQuery(PARAMS_OR_JOINER.join(predicates));
-            and.add(negated ? NOT_OP + paranthesis : paranthesis);
+            String parenthesis = toParenthesesQuery(PARAMS_OR_JOINER.join(predicates));
+            // tag filter queries so we can exclude them later for multi value faceting
+            // http://yonik.com/multi-select-faceting/
+            solrQuery.addFilterQuery(tag(solrField, negated ? NOT_OP + parenthesis : parenthesis));
           }
         }
-      }
-      if (!and.isEmpty()) {
-        solrQuery.addFilterQuery(toParenthesesQuery(PARAMS_AND_JOINER.join(and)));
       }
     }
   }
@@ -276,7 +272,8 @@ public class SolrQueryBuilder {
         if (searchRequest.isMultiSelectFacets()) {
           // use exclusion filter with same name as used in filter query
           // http://wiki.apache.org/solr/SimpleFacetParameters#Tagging_and_excluding_Filters
-          solrQuery.addFacetField(taggedField(field, FACET_FILTER_EX));
+          // http://yonik.com/multi-select-faceting/
+          solrQuery.addFacetField(ex(field, field));
         } else {
           solrQuery.addFacetField(field);
         }
@@ -290,4 +287,11 @@ public class SolrQueryBuilder {
     }
   }
 
+  private static String ex(String tag, String filter) {
+    return "{!ex=" + tag + "}" + filter;
+  }
+
+  private static String tag(String tag, String filter) {
+    return "{!tag=" + tag + "}" + filter;
+  }
 }
