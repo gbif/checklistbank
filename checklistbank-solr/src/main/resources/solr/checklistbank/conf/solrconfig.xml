@@ -76,8 +76,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
     <autoCommit>
-      <maxDocs>5000</maxDocs>
-      <maxTime>${solr.autoCommit.maxTime:900000}</maxTime>
+      <maxDocs>50000</maxDocs>
       <openSearcher>false</openSearcher>
     </autoCommit>
 
@@ -87,11 +86,9 @@
          faster and more near-realtime friendly than a hard commit.
       -->
     <autoSoftCommit>
-      <maxTime>${solr.autoSoftCommit.maxTime:300000}</maxTime>
+      <maxDocs>1000</maxDocs>
+      <maxTime>${solr.autoSoftCommit.maxTime:1000}</maxTime>
     </autoSoftCommit>
-
-
-    <maxPendingDeletes>1000</maxPendingDeletes>
 
   </updateHandler>
 

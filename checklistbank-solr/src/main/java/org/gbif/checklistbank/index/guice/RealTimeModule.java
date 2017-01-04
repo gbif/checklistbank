@@ -6,6 +6,7 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.common.search.solr.SolrServerType;
 
+import com.google.common.base.Strings;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import org.apache.solr.client.solrj.SolrClient;
@@ -13,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Guice module that binds a NameUsageSolrService expecting the mybatis module to be available already.
+ * Guice module that binds a DatasetImportService expecting the mybatis module to be available already.
  */
 public class RealTimeModule extends PrivateModule {
   private static Logger LOG = LoggerFactory.getLogger(RealTimeModule.class);
@@ -24,19 +25,24 @@ public class RealTimeModule extends PrivateModule {
     this.cfg = cfg;
   }
 
+  public static boolean empty(SolrConfig cfg) {
+    return cfg.serverType == null
+        || Strings.isNullOrEmpty(cfg.serverHome)
+        || (cfg.serverType == SolrServerType.HTTP && !cfg.serverHome.startsWith("http"));
+    }
+
   @Override
   protected void configure() {
-    if (cfg.serverType == null
-            || cfg.serverHome == null
-            || (cfg.serverType == SolrServerType.HTTP && !cfg.serverHome.startsWith("http"))
-      ) {
+    if (empty(cfg)) {
       bind(DatasetImportService.class)
           .annotatedWith(Solr.class)
           .to(NameUsageIndexServicePassThru.class)
           .in(Scopes.SINGLETON);
       LOG.info("No solr service configured. Using pass thru mock solr service.");
+
     } else {
       bind(SolrClient.class).toInstance(cfg.buildSolr());
+      expose(SolrClient.class);
       bind(Integer.class)
           .annotatedWith(Solr.class)
           .toInstance(syncThreads);

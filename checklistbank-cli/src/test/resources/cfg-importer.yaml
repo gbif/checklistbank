@@ -13,8 +13,8 @@ clb:
   maximumPoolSize: 10
 solr:
   serverType: CLOUD
-  #serverHome: c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181/solrdev
-  collection: dev_checklistbank
+  #serverHome: prodmaster1-vh.gbif.org:2181,prodmaster2-vh.gbif.org:2181,prodmaster3-vh.gbif.org:2181/uatsolr
+  collection: clb_import_test
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev

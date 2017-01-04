@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import com.codahale.metrics.Meter;
@@ -37,7 +38,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,6 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   private final NameUsageDocConverter converter = new NameUsageDocConverter();
   private final SolrClient solr;
   private final int batchSize = 25;
-  private final int commitWithinMs = 60*1000;
   private final UsageService usageService;
   private final VernacularNameService vernacularNameService;
   private final DescriptionService descriptionService;
@@ -133,7 +132,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
       }
       try {
         if (!docs.isEmpty()) {
-          solr.add(docs, commitWithinMs);
+          solr.add(docs);
           updMeter.mark();
           int cnt = updCounter.incrementAndGet();
           if (cnt % 10000 == 0) {
@@ -178,8 +177,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
   @Override
   public int deleteDataset(UUID datasetKey) {
     try {
-      UpdateResponse resp = solr.deleteByQuery("dataset_key:"+datasetKey.toString(), commitWithinMs);
-      // TODO: extract number of deletion from response
+      solr.deleteByQuery("dataset_key:"+datasetKey.toString());
       return 0;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -247,6 +245,9 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
     private final Iterable<Integer> usages;
     private final ImporterCallback dao;
 
+    /**
+     * @param usages usage keys as required by the callback service (usually neo4j ids, NOT postgres usage keys)
+     */
     public SolrUpdateCallback(ImporterCallback dao, Iterable<Integer> usages) {
       this.dao = dao;
       this.usages = usages;
@@ -261,7 +262,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
           ids.add(id);
           NameUsage u = dao.readUsage(id);
           UsageExtensions e = dao.readExtensions(id);
-          return new SolrUsage(u, usageService.listParents(id), e);
+          return new SolrUsage(u, usageService.listParents(u.getKey()), e);
         }
       }));
       return ids;
@@ -294,9 +295,10 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
 
     @Override
     public List<Integer> call() throws Exception {
-      LOG.info("Deleting {} usages from solr", ids.size());
-      for (Integer id : ids) {
-        solr.deleteById(String.valueOf(id), commitWithinMs);
+      if (!ids.isEmpty()) {
+        LOG.info("Deleting {} usages from solr", ids.size());
+        List<String> idsAsStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
+        solr.deleteById(idsAsStrings);
       }
       return ids;
     }

@@ -2,8 +2,14 @@ package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
+import org.gbif.api.model.common.search.Facet;
+import org.gbif.api.model.common.search.SearchResponse;
+import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
@@ -13,6 +19,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -27,6 +34,7 @@ import org.gbif.nub.lookup.straight.LookupUsage;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -39,6 +47,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,6 +62,9 @@ import static org.junit.Assert.fail;
 
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
+ * By default solr indexing is not tested and a mock service is used instead.
+ * This is done cause neo4j uses an old version of lucene which conflicts with solr, preventing the use of an embedded solr server for tests.
+ * An external solr instance can be configured manually in cfg-importer.yaml if wanted
  */
 public class ImporterIT extends BaseTest implements AutoCloseable {
 
@@ -62,6 +74,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private UsageService usageService;
   private DatasetImportService sqlService;
   private DatasetImportService solrService;
+  private NameUsageSearchService searchService;
   private HikariDataSource hds;
 
   @Rule
@@ -84,6 +97,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       usageService = inj.getInstance(UsageService.class);
       sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
       solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+      if (!RealTimeModule.empty(iCfg.solr)) {
+        searchService = new NameUsageSearchServiceImpl(inj.getInstance(SolrClient.class));
+      }
     }
   }
 
@@ -200,16 +216,48 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
   /**
    * Reimport the same dataset and make sure ids stay the same.
+   * This test also checks solr if manually configured - default is without solr.
    */
   @Test
   public void testStableIds() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
+
+    // truncate solr
+    solrService.deleteDataset(datasetKey);
+
+    NameUsageSearchRequest search = new NameUsageSearchRequest();
+    search.setLimit(1);
+    search.setFacetLimit(100);
+    search.addFacets(NameUsageSearchParameter.HIGHERTAXON_KEY);
+    search.addChecklistFilter(datasetKey);
+    if (!RealTimeModule.empty(iCfg.solr)) {
+      // make sure there are no facets anymore
+      Thread.sleep(1000);
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      assertEquals(0, srep.getResults().size());
+      assertEquals(0, srep.getFacets().get(0).getCounts().size());
+    }
 
     // insert neo db
     insertNeo(datasetKey);
 
     // 1st import, keep neo db
     runImport(datasetKey);
+
+    // check higher taxa
+    // http://dev.gbif.org/issues/browse/POR-3204
+    if (!RealTimeModule.empty(iCfg.solr)) {
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
+      // make sure the key actually exists!
+      for (Facet.Count c : facets) {
+        System.out.println(c);
+        int key = Integer.valueOf(c.getName());
+        NameUsage u = nameUsageService.get(key, null);
+        assertNotNull("Higher taxon key "+key+" in solr does not exist in postgres", u);
+      }
+    }
+
     // remember ids
     Map<Integer, String> ids = Maps.newHashMap();
     int sourceCounter = 0;
@@ -236,6 +284,23 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         assertEquals(u.getScientificName(), ids.get(u.getKey()));
       } else {
         assertFalse("Usage key " + u.getKey() + " existed before", ids.containsKey(u.getKey()));
+      }
+    }
+
+    // check higher taxa again, wait a little for solr to catch up
+    if (!RealTimeModule.empty(iCfg.solr)) {
+      Thread.sleep(1000);
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
+      for (Facet.Count c : facets) {
+        System.out.println(c);
+      }
+      // make sure the key actually exists!
+      for (Facet.Count c : facets) {
+        System.out.println(c);
+        int key = Integer.valueOf(c.getName());
+        NameUsage u = nameUsageService.get(key, null);
+        assertNotNull("Higher taxon key "+key+" in solr does not exist in postgres", u);
       }
     }
   }
@@ -444,5 +509,4 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     importer.run();
     return importer;
   }
-
 }

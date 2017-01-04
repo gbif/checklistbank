@@ -346,8 +346,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    otherFutures.add(sqlService.deleteUsages(datasetKey, ids));
     otherFutures.add(solrService.deleteUsages(datasetKey, ids));
+    otherFutures.add(sqlService.deleteUsages(datasetKey, ids));
     delCounter = ids.size();
   }
 
