@@ -20,14 +20,11 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
-import org.gbif.api.vocabulary.NameType;
 import org.gbif.common.search.SearchException;
 
 import java.io.IOException;
 import java.util.List;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.inject.Inject;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -35,8 +32,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.gbif.common.search.solr.SolrConstants.NOT_OP;
 
 
 /**
@@ -47,15 +42,6 @@ public class NameUsageSearchServiceImpl implements NameUsageSearchService {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageSearchServiceImpl.class);
   private static final int DEFAULT_SUGGEST_LIMIT = 10;
   private static final int MAX_SUGGEST_LIMIT = 100;
-
-  private static final Multimap<NameUsageSearchParameter, String> SUGGEST_DEFAULT_FILTERS = ArrayListMultimap.create();
-
-  static {
-    // Suggest default filters for suggest service: names of type INFORMAL and BLACKLISTED are excluded by default.
-    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.INFORMAL.name());
-    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.PLACEHOLDER.name());
-    SUGGEST_DEFAULT_FILTERS.put(NameUsageSearchParameter.NAME_TYPE, NOT_OP + NameType.NO_NAME.name());
-  }
 
   /*
  * Solr server instance, this abstract type is used because it can hold instance of:
@@ -93,9 +79,6 @@ public class NameUsageSearchServiceImpl implements NameUsageSearchService {
     if (!request.getParameters().containsKey(NameUsageSearchParameter.DATASET_KEY)) {
       // if the datasetKey parameters is not in the list, the GBIF nub is used by default
       request.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());
-      for (NameUsageSearchParameter p : SUGGEST_DEFAULT_FILTERS.keys()) {
-        request.addParameter(p, SUGGEST_DEFAULT_FILTERS.get(p));
-      }
     }
     if (request.getLimit() < 1 || request.getLimit() > MAX_SUGGEST_LIMIT) {
       LOG.info("Suggest request with limit {} found. Reset to default {}", request.getLimit(), DEFAULT_SUGGEST_LIMIT);

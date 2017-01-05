@@ -45,12 +45,10 @@ import static org.gbif.common.search.solr.QueryUtils.NOT_OP;
 import static org.gbif.common.search.solr.QueryUtils.PARAMS_JOINER;
 import static org.gbif.common.search.solr.QueryUtils.PARAMS_OR_JOINER;
 import static org.gbif.common.search.solr.QueryUtils.perFieldParamName;
-import static org.gbif.common.search.solr.QueryUtils.taggedField;
 import static org.gbif.common.search.solr.QueryUtils.toParenthesesQuery;
 import static org.gbif.common.search.solr.QueryUtils.toPhraseQuery;
 import static org.gbif.common.search.solr.SolrConstants.BLANK;
 import static org.gbif.common.search.solr.SolrConstants.DEFAULT_QUERY;
-import static org.gbif.common.search.solr.SolrConstants.FACET_FILTER_EX;
 import static org.gbif.common.search.solr.SolrConstants.NUM_HL_SNIPPETS;
 import static org.gbif.ws.util.WebserviceParameter.DEFAULT_SEARCH_PARAM_VALUE;
 
@@ -71,7 +69,8 @@ public class SolrQueryBuilder {
       NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^20",
       NameUsageSearchRequest.QueryField.SCIENTIFIC,  "scientific_name^100 canonical_name^50"
   );
-  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5";
+  // boost accepted taxa and scientific names
+  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5 name_type:0^2";
   private static final String BOOST_FUNCTION = "sub(" + Rank.values().length + ",rank_key)";
   private static final String SUGGEST_QUERY_FIELDS   = "canonical_name_ngram canonical_name_ngram_tokenized^0.8 canonical_name^10 scientific_name^2";
   private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^50";
