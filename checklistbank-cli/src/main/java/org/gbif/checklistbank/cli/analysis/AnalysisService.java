@@ -53,4 +53,11 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
     }
   }
 
+  @Override
+  protected void shutDown() throws Exception {
+    if (datasetIndexUpdater != null) {
+      datasetIndexUpdater.close();
+    }
+    super.shutDown();
+  }
 }

@@ -3,7 +3,6 @@ package org.gbif.checklistbank.cli.analysis;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.search.solr.SolrConfig;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -65,13 +64,6 @@ public class DatasetIndexUpdater implements AutoCloseable {
 
     } catch (Exception e) {
       LOG.error("Failed to index taxon keys for dataset index", e);
-
-    } finally {
-      try {
-        solr.close();
-      } catch (IOException e) {
-        LOG.error("Failed to close solr", e);
-      }
     }
   }
 
