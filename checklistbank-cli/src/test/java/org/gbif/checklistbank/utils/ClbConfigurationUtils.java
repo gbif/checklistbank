@@ -19,7 +19,7 @@ public class ClbConfigurationUtils {
   public static ClbConfiguration uat() {
     ClbConfiguration cfg = local();
     cfg.serverName = "pg1.gbif-uat.org";
-    cfg.databaseName = "nubtest";
+    cfg.databaseName = "uat_checklistbank";
     cfg.user = "clb";
     cfg.password = "%BBJu2MgstXJ";
     return cfg;

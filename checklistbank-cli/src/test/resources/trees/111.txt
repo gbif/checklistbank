@@ -1,0 +1,14 @@
+Animalia [kingdom]
+Archaea [kingdom]
+Bacteria [kingdom]
+Chromista [kingdom]
+Fungi [kingdom]
+Plantae [kingdom]
+  Collotheca [genus]
+    Collotheca cucullata (Hood, 1894) [species]
+      Collotheca cucullata subsp. cucullata
+      Collotheca cucullata subsp. smolandica Berzinš, 1894
+    Collotheca heptabrachiata (Schoch, 1869)
+Protozoa [kingdom]
+Viruses [kingdom]
+incertae sedis [kingdom]

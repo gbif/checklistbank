@@ -1213,6 +1213,10 @@ public class NubBuilder implements Runnable {
         if ("null".equals(u.parsedName.getSpecificEpithet()) || "null".equals(u.parsedName.getInfraSpecificEpithet())) {
           throw new IgnoreSourceUsageException("Ignore names with null epithets", u.scientificName);
         }
+        // consider infraspecific names subspecies
+        if (u.parsedName.getRank() == Rank.INFRASPECIFIC_NAME && u.parsedName.isBinomial() && u.parsedName.getInfraSpecificEpithet() != null) {
+          u.parsedName.setRank(Rank.SUBSPECIES);
+        }
         // consider parsed rank only for bi/trinomials
         Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
         if (pRank != null && pRank != u.rank && !pRank.isUncomparable()) {
@@ -1226,6 +1230,7 @@ public class NubBuilder implements Runnable {
             LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
             throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
           }
+
         } else if (Rank.INFRAGENERIC_NAME ==  u.rank && u.parsedName.isBinomial()) {
           // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
           u.rank = Rank.SPECIES;

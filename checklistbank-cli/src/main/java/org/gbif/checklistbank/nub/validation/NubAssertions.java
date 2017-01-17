@@ -132,9 +132,11 @@ public class NubAssertions implements NubValidation {
     assertionEngine.assertUsage(2439119, Rank.GENUS, "Myospalax Laxmann, 1769", null, Kingdom.ANIMALIA);
     assertionEngine.assertClassification(2439119, "Spalacidae", "Rodentia", "Mammalia", "Chordata", "Animalia");
 
-    // Drake-brockmania & Drake-Brockmania
-    assertionEngine.assertNotExisting("Drake-Brockmania", Rank.GENUS);
-    assertionEngine.assertUsage(4120905, Rank.GENUS, "Drake-brockmania", null, Kingdom.PLANTAE);
+    // Drake-brockmania & Drake-Brockmania should be one
+    assertionEngine.assertNotExisting("Drake-brockmania", Rank.GENUS);
+    assertionEngine.assertUsage(4120905, Rank.GENUS, "Drake-Brockmania", null, Kingdom.PLANTAE);
+    //TODO: find ID
+    assertionEngine.assertUsage(-1, Rank.GENUS, "Drakebrockmania", null, Kingdom.PLANTAE);
 
     // Saxo-Fridericia vs Saxo-fridericia (COL!) vs Saxofridericia
     assertionEngine.assertNotExisting("Saxo-Fridericia", Rank.GENUS);

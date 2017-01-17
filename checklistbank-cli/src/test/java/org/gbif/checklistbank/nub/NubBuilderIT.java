@@ -1456,6 +1456,33 @@ public class NubBuilderIT {
   }
 
   /**
+   * Test hyphens in genus name.
+   * Only one of these 2 should exist, preferrably the Camel-Case
+   * Drake-brockmania
+   * Drake-Brockmania
+   *
+   * This should be allowed to also exist but always as a synonym of the above!
+   * Drakebrockmania
+   */
+  @Test
+  @Ignore("unfinished")
+  public void testDrakeBrockmania() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(108, 109, 110);
+    src.setSourceRank(108, Rank.PHYLUM);
+    build(src);
+
+    assertTree("108 109 110.txt");
+  }
+
+  @Test
+  public void testColInfraspecificRank() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(111);
+    build(src);
+
+    assertTree("111.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {
