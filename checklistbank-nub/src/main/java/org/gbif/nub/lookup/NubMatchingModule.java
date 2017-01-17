@@ -57,6 +57,12 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
   @Inject
   @Singleton
   public NubIndex provideIndex(NameUsageMapper mapper) throws IOException {
+    NubIndex index = provideIndex(indexDir, mapper);
+    toBeClosed.add(index);
+    return index;
+  }
+
+  public static NubIndex provideIndex(File indexDir, NameUsageMapper mapper) throws IOException {
     NubIndex index;
     if (indexDir == null) {
       index = NubIndex.newMemoryIndex(mapper);
@@ -65,7 +71,6 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
       index = NubIndex.newFileIndex(indexDir, mapper);
       LOG.info("Lucene file index initialized at {}", indexDir.getAbsolutePath());
     }
-    toBeClosed.add(index);
     return index;
   }
 

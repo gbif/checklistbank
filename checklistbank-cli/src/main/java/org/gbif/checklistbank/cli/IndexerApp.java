@@ -16,7 +16,7 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.search.solr.SolrServerType;
-import org.gbif.nub.lookup.straight.IdLookupPassThru;
+import org.gbif.nub.lookup.fuzzy.NubMatchingPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -34,6 +34,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Utility to manually index an external checklist and download, normalize and import it.
+ * Warn: It uses a passthru nub matching mock instance.
  * ATTENTION: this is a class mainly for debugging and configs are for simplicity all in the code !!!
  */
 public class IndexerApp {
@@ -87,7 +88,7 @@ public class IndexerApp {
 
   private void normalize() {
     MetricRegistry registry = new MetricRegistry();
-    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
+    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NubMatchingPassThru());
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

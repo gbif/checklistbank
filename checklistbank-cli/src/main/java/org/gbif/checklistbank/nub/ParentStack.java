@@ -1,5 +1,8 @@
 package org.gbif.checklistbank.nub;
 
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -18,12 +21,13 @@ public class ParentStack {
   private Map<Integer, NubUsage> nubMap = Maps.newHashMap();
   private LinkedList<SrcUsage> parents = Lists.newLinkedList();
   private NubUsage currParent;
-  private Kingdom currKingdom;
+  private Kingdom currNubKingdom;
   private final NubUsage unknownKingdom;
+  private LinneanClassification cl = new NameUsage();
 
   public ParentStack(NubUsage unknownKingdom) {
     this.unknownKingdom = unknownKingdom;
-    currKingdom = Kingdom.INCERTAE_SEDIS;
+    currNubKingdom = Kingdom.INCERTAE_SEDIS;
   }
 
   /**
@@ -37,7 +41,14 @@ public class ParentStack {
    * @return the nub kingdom the current classification is rooted in
    */
   public Kingdom nubKingdom() {
-    return currKingdom;
+    return currNubKingdom;
+  }
+
+  /**
+   * @return the Linnean classification of the parents
+   */
+  public LinneanClassification classification() {
+    return cl;
   }
 
   public int size() {
@@ -57,6 +68,7 @@ public class ParentStack {
       clear();
 
     } else {
+      // remove parents until the last on the stack represents this source usages parent
       while (!parents.isEmpty()) {
         if (parents.getLast().key.equals(src.parentKey)) {
           // the last src usage on the parent stack represents the current parentKey, we are in good state!
@@ -65,11 +77,15 @@ public class ParentStack {
           // remove last parent until we find the real one
           SrcUsage p = parents.removeLast();
           nubMap.remove(p.key);
+          // reset classification if needed
+          ClassificationUtils.setHigherRank(cl, p.rank, null);
         }
       }
       if (parents.isEmpty()) {
         throw new IllegalStateException("Source parent node " + src.parentKey + " not found for " + src.scientificName);
       }
+      // update classification
+      ClassificationUtils.setHigherRank(cl, src.rank, src.scientificName);
       // set current nub parent
       currParent = null;
       Iterator<SrcUsage> iter = parents.descendingIterator();
@@ -104,13 +120,14 @@ public class ParentStack {
    */
   public void put(NubUsage nub) {
     nubMap.put(parents.getLast().key, nub);
-    currKingdom = nub.kingdom;
+    currNubKingdom = nub.kingdom;
   }
 
   public void clear() {
     nubMap.clear();
     parents.clear();
     currParent = null;
-    currKingdom = Kingdom.INCERTAE_SEDIS;
+    currNubKingdom = Kingdom.INCERTAE_SEDIS;
+    cl = new NameUsage();
   }
 }

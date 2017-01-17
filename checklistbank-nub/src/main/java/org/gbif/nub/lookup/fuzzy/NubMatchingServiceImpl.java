@@ -5,14 +5,16 @@ import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
+import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.model.ParsedNameUsageMatch;
+import org.gbif.checklistbank.service.MatchingService;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -42,7 +45,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NubMatchingServiceImpl implements NameUsageMatchingService {
+public class NubMatchingServiceImpl implements MatchingService {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingServiceImpl.class);
   private static final int MIN_CONFIDENCE = 80;
@@ -58,8 +61,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   private static final List<Rank> PARSED_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS);
   private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
-  public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
-    ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
+  public static final Map<TaxonomicStatus, Integer> STATUS_SCORE = ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
   // match order by usageKey lowest to highest to preserve old ids
   private static final Ordering<NameUsageMatch> USAGE_KEY_ORDER = Ordering.natural().nullsLast().onResultOf(new Function<NameUsageMatch, Integer>() {
     @Nullable
@@ -92,6 +94,27 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     this.parser = parser;
     authComp = AuthorComparator.createWithAuthormap();
     initHackMap();
+  }
+
+  /**
+   * Creates a new in memory nub matching service that only handles strict matching.
+   * This has a much lighter memory footprint and startup time.
+   * As fuzzy matching is not used for inter checklist matching this is the desirable way in most clb cases.
+   */
+  public static NubMatchingServiceImpl strictMatchingIndex(ClbConfiguration clb) {
+    //TODO: best way to load kingdom only index
+    //NubIndex index = NubMatchingModule.provideIndex(null, null);
+    return null;
+  }
+
+  /**
+   * Creates a new in memory nub matching service that only handles strict matching loading a given list of usages.
+   * This is mostly for test purposes.
+   */
+  public static NubMatchingServiceImpl strictMatchingIndex(Iterable<ParsedNameUsageMatch> nubUsages) {
+    //TODO: best way to load kingdom only index
+    //NubIndex index = NubMatchingModule.provideIndex(null, null);
+    return null;
   }
 
   private void initHackMap(){
@@ -133,22 +156,13 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     match.setAlternatives(alts);
   }
 
-  // Wrapper method doing the time tracking and logging only.
+  /**
+   * Wrapper method doing input cleanup, name parsing & time tracking and logging.
+   */
   @Override
   public NameUsageMatch match(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
     StopWatch watch = new StopWatch();
     watch.start();
-
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, strict, verbose);
-
-    LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
-    return match;
-  }
-
-  /**
-   * Real method doing the work
-   */
-  private NameUsageMatch matchInternal(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
     if (classification == null) {
@@ -171,6 +185,21 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
       LOG.debug("Unparsable [{}] name [{}]", e.type, scientificName);
     }
+    NameUsageMatch match = match(pn, scientificName, rank, classification, strict, verbose);
+
+    LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
+    return match;
+  }
+
+  @Override
+  public Integer matchStrict(ParsedName pn, String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification) {
+    return match(pn, scientificName, rank, classification, true, false).getUsageKey();
+  }
+
+  /**
+   * Real method doing the work
+   */
+  private NameUsageMatch match(ParsedName pn, String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
 
     NameUsageMatch match1 = match(pn, scientificName, rank, classification, strict ? MatchingMode.STRICT : MatchingMode.FUZZY, verbose);
     // for strict matching do not try higher ranks
@@ -263,21 +292,21 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
   private List<NameUsageMatch> queryFuzzy(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
-    for (NameUsageMatch m : matches) {
+    List<ParsedNameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
+    for (ParsedNameUsageMatch m : matches) {
       // 0 - +100
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      final int nameSimilarity = nameSimilarity(canonicalName, m.pn);
       // -28 - +40
-      final int authorSimilarity = incNegScore(authorSimilarity(pn, m)*2, 2);
+      final int authorSimilarity = incNegScore(authorSimilarity(pn, m.pn)*2, 2);
       // -50 - +50
-      final int classificationSimilarity = classificationSimilarity(lc, m);
+      final int classificationSimilarity = classificationSimilarity(lc, m.u);
       // -10 - +5
-      final int rankSimilarity = rankSimilarity(rank, m.getRank());
+      final int rankSimilarity = rankSimilarity(rank, m.u.getRank());
       // -5 - +1
-      final int statusScore = STATUS_SCORE.get(m.getStatus());
+      final int statusScore = STATUS_SCORE.get(m.u.getStatus());
 
       // preliminary total score, -5 - 20 distance to next best match coming below!
-      m.setConfidence(nameSimilarity + authorSimilarity + classificationSimilarity + rankSimilarity + statusScore);
+      m.u.setConfidence(nameSimilarity + authorSimilarity + classificationSimilarity + rankSimilarity + statusScore);
 
       if (verbose) {
         addNote(m, "Similarity: name="+nameSimilarity);
@@ -288,25 +317,24 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       }
     }
 
-    return matches;
+    return extractMatches(matches);
   }
-
 
   private List<NameUsageMatch> queryHigher(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
-    for (NameUsageMatch m : matches) {
+    List<ParsedNameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    for (ParsedNameUsageMatch m : matches) {
       // 0 - +100
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      final int nameSimilarity = nameSimilarity(canonicalName, m.pn);
       // -50 - +50
-      final int classificationSimilarity = classificationSimilarity(lc, m);
+      final int classificationSimilarity = classificationSimilarity(lc, m.u);
       // -10 - +5
-      final int rankSimilarity = rankSimilarity(rank, m.getRank()) * 2;
+      final int rankSimilarity = rankSimilarity(rank, m.u.getRank()) * 2;
       // -5 - +1
-      final int statusScore = STATUS_SCORE.get(m.getStatus());
+      final int statusScore = STATUS_SCORE.get(m.u.getStatus());
 
       // preliminary total score, -5 - 20 distance to next best match coming below!
-      m.setConfidence(nameSimilarity + classificationSimilarity + rankSimilarity + statusScore);
+      m.u.setConfidence(nameSimilarity + classificationSimilarity + rankSimilarity + statusScore);
 
       if (verbose) {
         addNote(m, "Similarity: name="+nameSimilarity);
@@ -316,26 +344,26 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       }
     }
 
-    return matches;
+    return extractMatches(matches);
   }
 
   private List<NameUsageMatch> queryStrict(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
-    for (NameUsageMatch m : matches) {
+    List<ParsedNameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    for (ParsedNameUsageMatch m : matches) {
       // 0 - +120
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      final int nameSimilarity = nameSimilarity(canonicalName, m.pn);
       // -28 - +40
-      final int authorSimilarity = incNegScore( authorSimilarity(pn, m)*4, 8);
+      final int authorSimilarity = incNegScore( authorSimilarity(pn, m.pn)*4, 8);
       // -50 - +50
-      final int kingdomSimilarity = incNegScore( kingdomSimilarity(htComp.toKingdom(lc.getKingdom()), htComp.toKingdom(m.getKingdom())), 10);
+      final int kingdomSimilarity = incNegScore( kingdomSimilarity(htComp.toKingdom(lc.getKingdom()), htComp.toKingdom(m.u.getKingdom())), 10);
       // -10 - +5
-      final int rankSimilarity = incNegScore( rankSimilarity(rank, m.getRank()), 10);
+      final int rankSimilarity = incNegScore( rankSimilarity(rank, m.u.getRank()), 10);
       // -5 - +1
-      final int statusScore = STATUS_SCORE.get(m.getStatus());
+      final int statusScore = STATUS_SCORE.get(m.u.getStatus());
 
       // preliminary total score, -5 - 20 distance to next best match coming below!
-      m.setConfidence(nameSimilarity + authorSimilarity + kingdomSimilarity + rankSimilarity + statusScore);
+      m.u.setConfidence(nameSimilarity + authorSimilarity + kingdomSimilarity + rankSimilarity + statusScore);
 
       if (verbose) {
         addNote(m, "Similarity: name="+nameSimilarity);
@@ -346,7 +374,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
       }
     }
 
-    return matches;
+    return extractMatches(matches);
+  }
+
+  private List<NameUsageMatch> extractMatches(List<ParsedNameUsageMatch> matches) {
+    return matches.stream().map(m -> m.u).collect(Collectors.toList());
   }
 
   private int incNegScore(int score, int factor) {
@@ -452,23 +484,15 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   }
 
   // -12 to 8
-  private int authorSimilarity(@Nullable ParsedName pn, NameUsageMatch m) {
+  private int authorSimilarity(@Nullable ParsedName pn, ParsedName mpn) {
     int similarity = 0;
     if (pn != null) {
-      try {
-        ParsedName mpn = parser.parse(m.getScientificName(), m.getRank());
-        // authorship comparison was requested!
-        Equality recomb = authComp.compare(pn.getAuthorship(), pn.getYear(), mpn.getAuthorship(), mpn.getYear());
-        Equality bracket = authComp.compare(pn.getBracketAuthorship(), pn.getBracketYear(), mpn.getBracketAuthorship(), mpn.getBracketYear());
+      // authorship comparison was requested!
+      Equality recomb = authComp.compare(pn.getAuthorship(), pn.getYear(), mpn.getAuthorship(), mpn.getYear());
+      Equality bracket = authComp.compare(pn.getBracketAuthorship(), pn.getBracketYear(), mpn.getBracketAuthorship(), mpn.getBracketYear());
 
-        similarity = equality2Similarity(recomb, 3);
-        similarity = similarity + equality2Similarity(bracket, 1);
-
-      } catch (UnparsableException e) {
-        if (e.type.isParsable()) {
-          LOG.warn("Failed to parse name: {}", m.getScientificName());
-        }
-      }
+      similarity = equality2Similarity(recomb, 3);
+      similarity = similarity + equality2Similarity(bracket, 1);
     }
 
     return similarity;
@@ -514,6 +538,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     return equal;
   }
 
+  private static void addNote(ParsedNameUsageMatch m, String note) {
+    addNote(m.u, note);
+  }
+
   private static void addNote(NameUsageMatch m, String note) {
     if (m.getNote() == null) {
       m.setNote(note);
@@ -530,10 +558,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     return no;
   }
 
-  private int nameSimilarity(String canonicalName, NameUsageMatch m) {
+  private int nameSimilarity(String canonicalName, ParsedName match) {
     // calculate name distance
     int confidence;
-    if (canonicalName.equalsIgnoreCase(m.getCanonicalName())) {
+    String canonicalMatch = match.canonicalName();
+    if (canonicalName.equalsIgnoreCase(canonicalMatch)) {
       // straight match
       confidence = 100;
       // binomial straight match? That is pretty trustworthy
@@ -543,13 +572,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
     } else {
       // fuzzy - be careful!
-      confidence = (int) sim.getSimilarity(canonicalName, m.getCanonicalName()) - 5;
+      confidence = (int) sim.getSimilarity(canonicalName, canonicalMatch) - 5;
       // modify confidence according to genus comparison in bionomials.
       // slightly trust binomials with a matching genus more, and trust less if we matched a different genus name
-      int spaceIdx = m.getCanonicalName().indexOf(" ");
-      if (spaceIdx > 0) {
-        String genus = m.getCanonicalName().substring(0, spaceIdx);
-        if (canonicalName.startsWith(genus)) {
+      if (match.getSpecificEpithet() != null) {
+        if (canonicalName.startsWith(match.getGenusOrAbove())) {
           confidence += 5;
         } else {
           confidence -= 10;

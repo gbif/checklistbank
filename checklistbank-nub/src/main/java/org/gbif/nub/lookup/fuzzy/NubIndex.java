@@ -11,8 +11,10 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
+import org.gbif.checklistbank.model.ParsedNameUsageMatch;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +48,12 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
+import org.mapdb.DB;
+import org.mapdb.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.mortbay.util.IO.bufferSize;
 
 
 /**
@@ -64,6 +70,8 @@ import org.slf4j.LoggerFactory;
  */
 public class NubIndex implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
+  private final DB db;
+  private final Map<Integer, ParsedNameUsageMatch> usages;
 
   /**
    * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
@@ -104,7 +112,7 @@ public class NubIndex implements AutoCloseable {
     .build();
 
   private static final ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
-  private static final NameParser parser = new GBIFNameParser();
+  private static final NameParser parser2 = new GBIFNameParser();
   private final Directory index;
   private final IndexSearcher searcher;
 
@@ -122,28 +130,27 @@ public class NubIndex implements AutoCloseable {
     LOG.info("Finished building nub index");
   }
 
-  public static NubIndex newMemoryIndex(NameUsageMapper mapper) throws IOException {
+  public static NubIndex newMemoryIndex() throws IOException {
     RAMDirectory dir = new RAMDirectory();
     load(dir, mapper);
     return new NubIndex(dir);
   }
 
-  public static NubIndex newMemoryIndex(Iterable<NameUsageMatch> usages) throws IOException {
+  public static NubIndex newMemoryIndex(Iterable<ParsedNameUsageMatch> usages) throws IOException {
     LOG.info("Start building a new nub RAM index");
     RAMDirectory dir = new RAMDirectory();
     IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
     IndexWriter writer = new IndexWriter(dir, cfg);
     // creates initial index segments
     writer.commit();
-    int counter = 0;
-    for (NameUsageMatch u : usages) {
-      if (u != null && u.getUsageKey() != null) {
-        writer.addDocument(toDoc(u));
-        counter++;
-      }
-    }
-    writer.close();
-    LOG.info("Finished building nub index with {} usages", counter);
+
+    // create mapdb store
+    DB db;
+    Map<Integer, ParsedNameUsageMatch> store = db.hashMap("usages")
+        .keySerializer(Serializer.INTEGER)
+        .valueSerializer(Serializer.ELSA)
+        .createOrOpen();
+
     return new NubIndex(dir);
   }
 
@@ -171,6 +178,22 @@ public class NubIndex implements AutoCloseable {
     return new NubIndex(dir);
   }
 
+  public NubIndex load(Iterable<ParsedNameUsageMatch> usages) {
+    int counter = 0;
+    for (ParsedNameUsageMatch pnu : usages) {
+      if (pnu != null && pnu.u.getUsageKey() != null) {
+        writer.addDocument(toDoc(pnu.u));
+        counter++;
+      }
+    }
+    writer.close();
+    LOG.info("Finished building nub index with {} usages", counter);
+  }
+
+  public NubIndex load(NameUsageMapper mapper) {
+
+  }
+
   public NubIndex(Directory d) throws IOException {
     index = d;
     DirectoryReader reader= DirectoryReader.open(index);
@@ -178,6 +201,7 @@ public class NubIndex implements AutoCloseable {
   }
 
 
+  @Deprecated
   public NameUsageMatch matchByUsageId(Integer usageID) {
 
     Query q = NumericRangeQuery.newIntRange(NubIndex.FIELD_ID, Integer.MAX_VALUE, usageID, usageID, true, true);
@@ -201,7 +225,7 @@ public class NubIndex implements AutoCloseable {
     return null;
   }
 
-  public List<NameUsageMatch> matchByName(String name, boolean fuzzySearch, int maxMatches) {
+  public List<ParsedNameUsageMatch> matchByName(String name, boolean fuzzySearch, int maxMatches) {
 
     // use the same lucene analyzer to normalize input
     final String analyzedName = LuceneUtils.analyzeString(analyzer, name).get(0);
@@ -231,7 +255,7 @@ public class NubIndex implements AutoCloseable {
     }
   }
 
-  private List<NameUsageMatch> search(Query q, String name, boolean fuzzySearch, int maxMatches) {
+  private List<ParsedNameUsageMatch> search(Query q, String name, boolean fuzzySearch, int maxMatches) {
     List<NameUsageMatch> results = Lists.newArrayList();
     try {
       IndexSearcher searcher = obtainSearcher();

@@ -25,10 +25,10 @@ import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
+import org.gbif.checklistbank.service.MatchingService;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.GBIFNameParser;
-import org.gbif.nub.lookup.straight.IdLookup;
-import org.gbif.nub.lookup.straight.IdLookupPassThru;
+import org.gbif.nub.lookup.fuzzy.NubMatchingPassThru;
 
 import java.io.File;
 import java.util.Collection;
@@ -76,7 +76,7 @@ public class Normalizer extends ImportDb implements Runnable {
     }
   }
 
-  private final IdLookup lookup;
+  private final MatchingService lookup;
 
   private final Map<String, UUID> constituents;
   private final File dwca;
@@ -90,7 +90,7 @@ public class Normalizer extends ImportDb implements Runnable {
   private NubMatchHandler matchHandler;
 
   private Normalizer(UUID datasetKey, UsageDao dao, File dwca, int batchSize,
-                     MetricRegistry registry, Map<String, UUID> constituents, IdLookup lookup) {
+                     MetricRegistry registry, Map<String, UUID> constituents, MatchingService lookup) {
     super(datasetKey, dao);
     this.constituents = constituents;
     this.relationMeter = registry.meter(Metrics.RELATION_METER);
@@ -103,7 +103,7 @@ public class Normalizer extends ImportDb implements Runnable {
 
 
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
-                                  Map<String, UUID> constituents, IdLookup lookup) {
+                                  Map<String, UUID> constituents, MatchingService lookup) {
     return new Normalizer(datasetKey,
         UsageDao.persistentDao(cfg.neo, datasetKey, false, registry, true),
         cfg.archiveDir(datasetKey),
@@ -123,7 +123,7 @@ public class Normalizer extends ImportDb implements Runnable {
    * Creates a dataset specific normalizer with a pass thru nub matcher.
    */
   public static Normalizer create(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
-    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
+    return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NubMatchingPassThru());
   }
 
   /**

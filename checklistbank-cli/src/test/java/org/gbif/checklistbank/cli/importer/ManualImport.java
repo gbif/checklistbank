@@ -5,7 +5,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
-import org.gbif.nub.lookup.straight.IdLookupPassThru;
+import org.gbif.nub.lookup.fuzzy.NubMatchingPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
@@ -16,11 +16,11 @@ import java.sql.Statement;
 import java.util.UUID;
 
 import com.beust.jcommander.internal.Maps;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.codahale.metrics.MetricRegistry;
 import org.junit.Ignore;
 import org.postgresql.core.BaseConnection;
 
@@ -89,7 +89,7 @@ public class ManualImport {
 
   private void normalize() {
     MetricRegistry registry = new MetricRegistry();
-    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
+    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new NubMatchingPassThru());
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);

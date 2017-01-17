@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub.lookup;
 
 import org.gbif.api.model.Constants;
+import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -9,11 +10,10 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.MatchingService;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
-import org.gbif.nub.lookup.straight.IdLookup;
-import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.util.Date;
 import java.util.Map;
@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 public class NubMatchService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchService.class);
   protected final ClbConfiguration cfg;
-  protected IdLookup nubLookup;
+  protected MatchingService nubLookup;
   private final DatasetImportService sqlService;
   private final DatasetImportService solrService;
   private final MessagePublisher publisher;
   private int counter = 0;
 
-  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService solrService, MessagePublisher publisher) {
+  public NubMatchService(ClbConfiguration cfg, MatchingService nubLookup, DatasetImportService sqlService, DatasetImportService solrService, MessagePublisher publisher) {
     this.cfg = cfg;
     this.nubLookup = nubLookup;
     this.sqlService = sqlService;
@@ -51,7 +51,7 @@ public class NubMatchService {
    * Updates a datasets nub matches.
    * Uses the internal Lookup to generate a complete id map and then does postgres writes in a separate thread ?!
    */
-  public void matchDataset(Dataset d) throws DatasetMatchFailed {
+  private void matchDataset(Dataset d) throws DatasetMatchFailed {
     if (Constants.NUB_DATASET_KEY.equals(d.getKey())) {
       LOG.warn("Cannot match backbone to itself. Ignore");
       return;
@@ -66,24 +66,16 @@ public class NubMatchService {
       src.init(false, false, true, false);
 
       NubUsage unknown = new NubUsage();
-      unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageID();
+      unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageKey();
       unknown.kingdom = Kingdom.INCERTAE_SEDIS;
       // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
       ParentStack parents = new ParentStack(unknown);
       for (SrcUsage u : src) {
         parents.add(u);
-        LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
-        if (match != null) {
-          // add to relations
-          relations.put(u.key, match.getKey());
-          // store current kingdom in parent stack for further nub lookups of children
-          NubUsage nub = new NubUsage();
-          nub.kingdom = match.getKingdom();
-          parents.put(nub);
-        } else {
-          // also store no matches as nulls so we can flag an issue
-          relations.put(u.key, null);
-        }
+        // match to nub
+        Integer nubKey = nubLookup.matchStrict(u.parsedName, u.scientificName, u.rank, parents.classification());
+        // add to relations. Also store no matches as nulls so we can flag an issue
+        relations.put(u.key, nubKey);
       }
       LOG.info("Updating {} nub relations for dataset {}", relations.size(), d.getKey());
       sqlService.insertNubRelations(d.getKey(), relations);

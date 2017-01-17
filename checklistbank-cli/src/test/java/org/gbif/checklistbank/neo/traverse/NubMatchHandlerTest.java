@@ -1,15 +1,24 @@
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.model.ParsedNameUsageMatch;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.IdGeneratorTest;
-import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.checklistbank.service.MatchingService;
+import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 
+import java.util.Collection;
+import java.util.Date;
+
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -19,12 +28,52 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class NubMatchHandlerTest {
+  static NameParser parser = new GBIFNameParser();
+  static final Date delDate = new Date();
 
-    UsageDao dao = UsageDao.temporaryDao(10);
+  UsageDao dao = UsageDao.temporaryDao(10);
 
-    @Test
+  public static MatchingService newTestLookup() {
+    Collection<ParsedNameUsageMatch<NameUsage>> usages = Lists.newArrayList(
+        usage(1, "Animalia", Rank.KINGDOM, Kingdom.ANIMALIA, false),
+        usage(2, "Oenanthe Vieillot, 1816", Rank.GENUS, Kingdom.ANIMALIA, false),
+        usage(3, "Oenanthe Linnaeus, 1753", Rank.GENUS, Kingdom.PLANTAE, false),
+        usage(4, "Oenanthe aquatica Poir.", Rank.SPECIES, Kingdom.PLANTAE, false),
+        usage(5, "Oenanthe aquatica Senser, 1957", Rank.SPECIES, Kingdom.PLANTAE, false),
+        usage(6, "Oenanthe aquatica", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(7, "Rodentia Bowdich, 1821", Rank.ORDER, Kingdom.ANIMALIA, false),
+        usage(8, "Rodentia", Rank.GENUS, Kingdom.ANIMALIA, true),
+        usage(9, "Abies alba", Rank.SPECIES, Kingdom.PLANTAE, false),
+        usage(10, "Abies alba Mumpf.", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(11, "Abies alba 1778", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(12, "Picea alba 1778", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(13, "Picea", Rank.GENUS, Kingdom.PLANTAE, true),
+        usage(14, "Carex cayouettei", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(15, "Carex comosa × Carex lupulina", Rank.SPECIES, Kingdom.PLANTAE, true),
+        usage(16, "Aeropyrum coil-shaped virus", Rank.UNRANKED, Kingdom.VIRUSES, true)
+    );
+    return NubMatchingServiceImpl.strictMatchingIndex(usages);
+  }
+
+  static ParsedNameUsageMatch<NameUsage> usage(int key, String sciname, Rank rank, Kingdom kingdom, boolean deleted) {
+    ParsedName pn = parser.parseQuietly(sciname, rank);
+
+    NameUsage u = new NameUsage();
+    u.setKey(key);
+    u.setScientificName(sciname);
+    u.setCanonicalName(pn.canonicalName());
+    u.setRank(rank);
+    u.setKingdom(kingdom.scientificName());
+    if (deleted) {
+      u.setDeleted(delDate);
+    }
+
+    return new ParsedNameUsageMatch<NameUsage>(pn, u);
+  }
+
+  @Test
     public void testMatching() throws Exception {
-        IdLookup lookup = IdGeneratorTest.newTestLookup();
+        MatchingService lookup = newTestLookup();
         try (Transaction tx = dao.beginTx()) {
             Node kp = dao.create(usage("Plantae", null, Rank.KINGDOM));
             kp.addLabel(Labels.ROOT);
