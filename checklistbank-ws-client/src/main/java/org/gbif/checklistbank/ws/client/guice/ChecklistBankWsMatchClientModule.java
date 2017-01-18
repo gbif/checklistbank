@@ -27,7 +27,7 @@ import com.sun.jersey.api.client.WebResource;
  * Guice module that includes an implementation for the ChecklistBank NameUsageMatchingService.
  */
 public class ChecklistBankWsMatchClientModule extends AbstractModule {
-
+  public static final String PROPERTY_API_URL = "checklistbank.match.ws.url";
   /**
    * Use the main #ChecklistBankWsClientModule(true,false) instead.
    */
@@ -42,7 +42,7 @@ public class ChecklistBankWsMatchClientModule extends AbstractModule {
   @Provides
   @Singleton
   @NameUsageMatchWs
-  public WebResource providesUsageMatchWebResource(Client client, @Named("checklistbank.match.ws.url") String url) {
+  public WebResource providesUsageMatchWebResource(Client client, @Named(PROPERTY_API_URL) String url) {
     return client.resource(url);
   }
 
