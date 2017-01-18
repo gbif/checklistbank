@@ -8,12 +8,14 @@ import java.util.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Simple usage representing the minimal nub usage info needed to match names.
  */
 public class LookupUsage implements Comparable<LookupUsage> {
   private int key;
+  @JsonIgnore
   private Int2IntMap proParteKeys; // parentKey -> pro parte usageKey
   private String canonical;
   private String authorship;
