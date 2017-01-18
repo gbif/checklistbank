@@ -21,7 +21,7 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
   LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom);
 
   /**
-   * Lookup a usage by all possible parameters.
+   * Lookup a usage by all possible parameters but the parentKey which was added very recently.
    *
    * @return the matching usage or null
    */

@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import com.carrotsearch.hppc.IntIntHashMap;
-import com.carrotsearch.hppc.IntIntMap;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.junit.Assert;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -29,7 +29,7 @@ public class NeoAssertionEngine implements AssertionEngine {
   private static final Logger LOG = LoggerFactory.getLogger(NeoAssertionEngine.class);
 
   private final NubDb db;
-  private final IntIntMap usage2NubKey = new IntIntHashMap();
+  private final Int2IntMap usage2NubKey = new Int2IntOpenHashMap();
   private boolean valid = true;
 
   public NeoAssertionEngine(NubDb db) {

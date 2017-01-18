@@ -71,6 +71,7 @@
     <commons-io.version>2.4</commons-io.version>
     <!-- make sure curator is the same as in microservices -->
     <curator.version>2.9.0</curator.version>
+    <fastutil.version>7.0.13</fastutil.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
     <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
     <guava.version>18.0</guava.version>
@@ -78,7 +79,6 @@
     <hadoop.version>2.6.0-cdh5.4.10</hadoop.version>
     <hamcrest.version>1.3</hamcrest.version>
     <hikaricp.version>2.4.7</hikaricp.version>
-    <hppc.version>0.7.1</hppc.version>
     <jackson.version>1.9.12</jackson.version>
     <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
     <jackson2.version>2.6.3</jackson2.version>
@@ -762,9 +762,9 @@
 
       <!-- Other -->
       <dependency>
-        <groupId>com.carrotsearch</groupId>
-        <artifactId>hppc</artifactId>
-        <version>${hppc.version}</version>
+        <groupId>it.unimi.dsi</groupId>
+        <artifactId>fastutil</artifactId>
+        <version>${fastutil.version}</version>
       </dependency>
       <dependency>
         <groupId>org.mapdb</groupId>

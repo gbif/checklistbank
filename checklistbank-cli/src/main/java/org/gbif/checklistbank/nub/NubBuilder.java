@@ -54,16 +54,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
-import com.carrotsearch.hppc.IntLongHashMap;
-import com.carrotsearch.hppc.IntLongMap;
-import com.carrotsearch.hppc.LongHashSet;
-import com.carrotsearch.hppc.LongIntHashMap;
-import com.carrotsearch.hppc.LongIntMap;
-import com.carrotsearch.hppc.ObjectLongHashMap;
-import com.carrotsearch.hppc.ObjectLongMap;
-import com.carrotsearch.hppc.cursors.IntCursor;
-import com.carrotsearch.hppc.cursors.LongCursor;
-import com.carrotsearch.hppc.cursors.LongIntCursor;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -78,6 +68,14 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.google.common.collect.UnmodifiableIterator;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -128,8 +126,8 @@ public class NubBuilder implements Runnable {
   private int sourceUsageCounter = 0;
   private final AuthorComparator authorComparator;
   private final IdGenerator idGen;
-  private final IntLongMap src2NubKey = new IntLongHashMap();
-  private final LongIntMap basionymRels = new LongIntHashMap(); // node.id -> src.usageKey
+  private final Int2LongMap src2NubKey = new Int2LongOpenHashMap();
+  private final Long2IntMap basionymRels = new Long2IntOpenHashMap(); // node.id -> src.usageKey
   private final Map<UUID, Integer> priorities = Maps.newHashMap();
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
@@ -414,7 +412,7 @@ public class NubBuilder implements Runnable {
    * @param nodes any node iterable to check for names
    */
   private void markDuplicatesRedundant(ResourceIterable<Node> nodes) {
-    ObjectLongMap<String> names = new ObjectLongHashMap<String>();
+    Object2LongMap<String> names = new Object2LongOpenHashMap<>();
     for (Node n : nodes) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
@@ -686,7 +684,7 @@ public class NubBuilder implements Runnable {
       currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
       for (Kingdom k : Kingdom.values()) {
         NubUsage ku = new NubUsage();
-        ku.usageKey = k.nubUsageID();
+        ku.usageKey = idGen.reissue(k.nubUsageKey());
         ku.kingdom = k;
         ku.datasetKey = Constants.NUB_DATASET_KEY;
         ku.origin = Origin.SOURCE;
@@ -927,9 +925,9 @@ public class NubBuilder implements Runnable {
   private void processExplicitBasionymRels() {
     try (Transaction tx = db.beginTx()) {
       LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), currSrc.name);
-      for (LongIntCursor c : basionymRels) {
-        Node n = db.getNode(c.key);
-        Node bas = db.getNode(src2NubKey.get(c.value));
+      for (Map.Entry<Long, Integer> entry : basionymRels.entrySet()) {
+        Node n = db.getNode(entry.getKey());
+        Node bas = db.getNode(src2NubKey.get(entry.getValue()));
         // find basionym node by sourceKey
         if (n != null && bas != null) {
           // basionym has not been verified yet, make sure its of rank <= genus and its name type is no placeholder
@@ -946,7 +944,7 @@ public class NubBuilder implements Runnable {
             LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), currSrc.name);
           }
         } else {
-          LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", c.key, c.value);
+          LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", entry.getKey(), entry.getValue());
         }
       }
       tx.success();
@@ -1055,13 +1053,13 @@ public class NubBuilder implements Runnable {
       if (match.isMatch()) {
         if (u.key != null) {
           // remember all original source usage key to nub id mappings per dataset
-          src2NubKey.put(u.key, match.usage.node.getId());
+          src2NubKey.put((int)u.key, match.usage.node.getId());
         }
         if (u.originalNameKey != null) {
           // remember basionym relation.
           // Basionyms do not follow the taxnomic hierarchy, so we might not have seen some source keys yet
           // we will process all basionyms at the end of each source dataset
-          basionymRels.put(match.usage.node.getId(), u.originalNameKey);
+          basionymRels.put(match.usage.node.getId(), (int) u.originalNameKey);
         }
       }
     } else {
@@ -1071,8 +1069,8 @@ public class NubBuilder implements Runnable {
   }
 
   private void delete(NubUsage nub) {
-    for (IntCursor sourceId : nub.sourceIds) {
-      src2NubKey.remove(sourceId.value);
+    for (int sourceId : nub.sourceIds) {
+      src2NubKey.remove(sourceId);
     }
     basionymRels.remove(nub.node.getId());
     db.dao().delete(nub);
@@ -1387,7 +1385,7 @@ public class NubBuilder implements Runnable {
     int counter = 0;
     int counterModified = 0;
     // first load all basionym node ids into a set so we can process them individually in separate transactions
-    LongHashSet basIds = new LongHashSet();
+    LongSet basIds = new LongOpenHashSet();
     try (Transaction tx = db.beginTx()) {
       for (Node bas : IteratorUtil.loop(db.dao().allBasionyms())) {
         basIds.add(bas.getId());
@@ -1395,9 +1393,9 @@ public class NubBuilder implements Runnable {
       LOG.info("Found {} basionyms to consolidate", basIds.size());
     }
     // now consolidate each basionym group in its own transaction
-    for (LongCursor basCursor : basIds) {
+    for (long basId : basIds) {
       try (Transaction tx = db.beginTx()) {
-        Node bas = db.getNode(basCursor.value);
+        Node bas = db.getNode(basId);
 
         counter++;
         // sort all usage by source dataset priority, placing doubtful names last
@@ -1436,7 +1434,7 @@ public class NubBuilder implements Runnable {
         tx.success();
 
       } catch (NotFoundException e) {
-        LOG.info("Basionym {} was removed. Ignore for consolidation", basCursor.value, e);
+        LOG.info("Basionym {} was removed. Ignore for consolidation", basId, e);
       }
     }
     LOG.info("Consolidated {} usages from {} basionyms in total", counterModified, counter);
@@ -1570,7 +1568,7 @@ public class NubBuilder implements Runnable {
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
       if (u.rank != Rank.KINGDOM) {
-        u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
+        u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom);
         db.dao().update(entry.getKey(), u);
       }
     }
@@ -1582,8 +1580,12 @@ public class NubBuilder implements Runnable {
         while (rels.hasNext()) {
           Relationship rel = rels.next();
           NubUsage u = db.dao().readNub(rel.getStartNode());
-          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, true);
-          LOG.debug("Assign extra id {} for pro parte relation of primary usage {}", ppKey, u.usageKey);
+          NubUsage acc = db.dao().readNub(rel.getEndNode());
+          if (acc.usageKey <= 0) {
+            LOG.warn("No usage key assigned to {}", acc);
+          }
+          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, acc.usageKey);
+          LOG.debug("Assign id {} for pro parte relation of primary usage {} {}", ppKey, u.usageKey, u.parsedName.canonicalNameComplete());
           rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
         }
       }

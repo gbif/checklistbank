@@ -9,6 +9,8 @@ Plantae [kingdom]
       Collotheca cucullata subsp. cucullata
       Collotheca cucullata subsp. smolandica Berzinš, 1894
     Collotheca heptabrachiata (Schoch, 1869)
+      Collotheca heptabrachiata var. heptabrachiata [variety]
+      Collotheca heptabrachiata var. molundica [variety]
 Protozoa [kingdom]
 Viruses [kingdom]
 incertae sedis [kingdom]

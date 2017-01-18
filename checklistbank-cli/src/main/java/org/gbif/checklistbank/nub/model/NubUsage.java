@@ -14,10 +14,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-import com.carrotsearch.hppc.IntArrayList;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import org.neo4j.graphdb.Node;
 
 public class NubUsage {
@@ -33,7 +34,7 @@ public class NubUsage {
     public Set<NomenclaturalStatus> nomStatus = Sets.newHashSet();
     public Node node;
     public Kingdom kingdom;
-    public IntArrayList sourceIds = new IntArrayList();
+    public IntList sourceIds = new IntArrayList();
     //public Set<String> authors = Sets.newHashSet();
     public Set<NameUsageIssue> issues = EnumSet.noneOf(NameUsageIssue.class);
     public List<String> remarks = Lists.newArrayList();

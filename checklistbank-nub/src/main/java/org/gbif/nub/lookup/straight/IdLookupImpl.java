@@ -12,6 +12,7 @@ import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import javax.annotation.Nullable;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -92,19 +95,33 @@ public class IdLookupImpl implements IdLookup {
    * Loads known usages from checklistbank backbone.
    */
   public IdLookupImpl load(ClbConfiguration clb, boolean includeDeleted) throws SQLException, IOException {
-    UsageWriter writer = new UsageWriter();
-    LOG.info("Reading existing nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
     try (Connection c = clb.connect()) {
       final CopyManager cm = new CopyManager((BaseConnection) c);
       final String delClause = includeDeleted ? "" : " AND deleted is null";
-      cm.copyOut("COPY ("
-          + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
-          + " FROM name_usage u join name n ON name_fk=n.id"
-          + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + ")"
-          + " TO STDOUT WITH NULL ''", writer);
+
+      // first read bulk of regular usages - we add pro parte usage later
+      LOG.info("Reading existing nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
+      try (Writer writer = new UsageWriter()) {
+        cm.copyOut("COPY ("
+            + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
+            + " FROM name_usage u join name n ON name_fk=n.id"
+            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null)"
+            + " TO STDOUT WITH NULL ''", writer);
+        LOG.info("Added {} nub usages into id lookup", usages.size());
+      }
+      final int uCount = usages.size();
+
+      // now load pro parte keys separately saving us from doing complex aggregations
+      LOG.info("Reading existing pro parte nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
+      try (Writer writer = new ProParteUsageWriter()) {
+        cm.copyOut("COPY ("
+            + "SELECT u.id, u.parent_fk, u.pp_synonym_fk, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
+            + " FROM name_usage u join name n ON name_fk=n.id"
+            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is not null)"
+            + " TO STDOUT WITH NULL ''", writer);
+        LOG.info("Added {} pro parte usages into id lookup", usages.size()-uCount);
+      }
       LOG.info("Loaded existing nub with {} usages and max key {} into id lookup", usages.size(), keyMax);
-    } finally {
-      writer.close();
     }
     return this;
   }
@@ -128,6 +145,53 @@ public class IdLookupImpl implements IdLookup {
     public UsageWriter() {
       // the number of columns in our query to consume
       super(7);
+    }
+
+    @Override
+    protected void addRow(String[] row) {
+      LookupUsage u = new LookupUsage(
+          toInt(row[0]),
+          row[1],
+          row[2],
+          row[3],
+          Rank.valueOf(row[4]),
+          toKingdom(row[5]),
+          "t".equals(row[6])
+      );
+      add(u);
+    }
+
+    /**
+     * Translates the kingdom_fk into a kingdom enum value.
+     * To avoid NPEs it translates null kingdoms into incertae sedis,
+     * see http://dev.gbif.org/issues/browse/POR-3202
+     * @return matching kingdom or incertae sedis in case of null (which should *never* happen!)
+     */
+    private Kingdom toKingdom(String x) {
+      Integer usageKey = toInt(x);
+      return usageKey == null ? Kingdom.INCERTAE_SEDIS : Kingdom.byNubUsageKey(usageKey);
+    }
+
+    private Integer toInt(String x) {
+      return x == null ? null : Integer.valueOf(x);
+    }
+  }
+
+  /**
+   * int key
+   * int parentKey
+   * int proParteKey
+   * String canonical
+   * String authorship
+   * String year
+   * Rank rank
+   * Kingdom kingdom
+   * boolean deleted
+   */
+  private class ProParteUsageWriter extends TabMapperBase {
+    public ProParteUsageWriter() {
+      // the number of columns in our query to consume
+      super(9);
     }
 
     @Override
@@ -271,7 +335,8 @@ public class IdLookupImpl implements IdLookup {
         return exact;
       }
 
-      // if we ever had too many bad usages they might block forever a stable id.
+      // Still several matches
+      // If we ever had too many bad usages they might block forever a stable id.
       // If only one current id is matched use that!
       LookupUsage curr = null;
       int currCounter = 0;
@@ -340,6 +405,11 @@ public class IdLookupImpl implements IdLookup {
   @Override
   public Iterator<LookupUsage> iterator() {
     return new LookupIterator();
+  }
+
+  @Override
+  public Spliterator<LookupUsage> spliterator() {
+    return Spliterators.spliteratorUnknownSize(iterator(), 0);
   }
 
   private class LookupIterator implements Iterator<LookupUsage> {

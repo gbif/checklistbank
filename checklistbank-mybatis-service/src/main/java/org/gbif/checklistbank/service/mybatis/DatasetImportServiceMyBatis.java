@@ -17,6 +17,7 @@ import org.gbif.utils.concurrent.NamedThreadFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -25,13 +26,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.carrotsearch.hppc.LongHashSet;
-import com.carrotsearch.hppc.LongSet;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.ibatis.session.ExecutorType;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
@@ -68,7 +68,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     final Iterable<Integer> usages;
     final ImporterCallback dao;
     private Map<Integer, Integer> usageKeys;
-    private LongSet inserts;
+    private Set<Integer> inserts;
     private int firstId = -1;
 
     /**
@@ -88,7 +88,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       int counter = 0;
       LOG.debug("Starting usage sync");
       usageKeys = Maps.newHashMap();
-      inserts = new LongHashSet();
+      inserts = new IntOpenHashSet();
       List<Integer> neoKeys = Lists.newArrayList();
       for (List<Integer> neoBatch : Iterables.partition(usages, BATCH_SIZE)) {
         if (firstId < 0) {
@@ -171,11 +171,11 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   class ExtensionSync implements Callable<List<Integer>> {
     final UUID datasetKey;
     final Map<Integer, Integer> usages;
-    final LongSet inserts;
+    final Set<Integer> inserts;
     final ImporterCallback dao;
     private int firstId = -1;
 
-    public ExtensionSync(ImporterCallback dao, UUID datasetKey, int firstId, Map<Integer, Integer> usages, LongSet inserts) {
+    public ExtensionSync(ImporterCallback dao, UUID datasetKey, int firstId, Map<Integer, Integer> usages, Set<Integer> inserts) {
       this.dao = dao;
       this.datasetKey = datasetKey;
       this.usages = usages;

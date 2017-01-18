@@ -1465,8 +1465,9 @@ public class NubBuilderIT {
    * Drakebrockmania
    */
   @Test
-  @Ignore("unfinished")
+  @Ignore("NubBuilder needs code change first")
   public void testDrakeBrockmania() throws Exception {
+
     ClasspathSourceList src = ClasspathSourceList.source(108, 109, 110);
     src.setSourceRank(108, Rank.PHYLUM);
     build(src);
@@ -1480,6 +1481,7 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("111.txt");
+    assertScientific("Collotheca heptabrachiata var. molundica", Rank.VARIETY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
   }
 
   /**

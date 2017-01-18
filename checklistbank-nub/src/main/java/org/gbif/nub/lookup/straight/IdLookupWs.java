@@ -18,8 +18,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-import static org.gbif.dwc.terms.GbifTerm.canonicalName;
-
 /**
  * Implementation of an IdLookup using the nub matching webservice.
  */

@@ -3,9 +3,9 @@ package org.gbif.checklistbank.neo.traverse;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.neo.UsageDao;
 
-import com.carrotsearch.hppc.LongHashSet;
-import com.carrotsearch.hppc.LongSet;
 import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
@@ -22,7 +22,7 @@ public class ChunkingEvaluator implements Evaluator {
   private UsageDao dao;
   private int chunkSize;
   private int minChunkSize;
-  private LongSet chunkIds = new LongHashSet();
+  private LongSet chunkIds = new LongOpenHashSet();
 
   public ChunkingEvaluator(UsageDao dao, int minChunkSize, int chunkSize) {
     Preconditions.checkArgument(minChunkSize < chunkSize, "Minimum chunk size needs to be smaller then the chunk size");

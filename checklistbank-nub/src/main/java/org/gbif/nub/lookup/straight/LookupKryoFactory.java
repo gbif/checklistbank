@@ -11,6 +11,7 @@ import java.util.HashSet;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 
 /**
  * A kryo factory that knows how to serde the LookupUsage class
@@ -24,6 +25,9 @@ public class LookupKryoFactory implements KryoFactory {
 
     // model class(es)
     kryo.register(LookupUsage.class);
+
+    // fastutils
+    kryo.register(Int2IntArrayMap.class);
 
     // java & commons
     kryo.register(Date.class);
