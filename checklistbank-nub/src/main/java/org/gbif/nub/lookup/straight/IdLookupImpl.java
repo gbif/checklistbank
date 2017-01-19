@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
@@ -118,6 +119,7 @@ public class IdLookupImpl implements IdLookup {
             + "SELECT u.id, u.parent_fk, u.pp_synonym_fk, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
             + " FROM name_usage u join name n ON name_fk=n.id"
             + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is not null)"
+            + " ORDER BY pp_synonym_fk"
             + " TO STDOUT WITH NULL ''", writer);
         LOG.info("Added {} pro parte usages into id lookup", usages.size()-uCount);
       }
@@ -160,24 +162,11 @@ public class IdLookupImpl implements IdLookup {
       );
       add(u);
     }
-
-    /**
-     * Translates the kingdom_fk into a kingdom enum value.
-     * To avoid NPEs it translates null kingdoms into incertae sedis,
-     * see http://dev.gbif.org/issues/browse/POR-3202
-     * @return matching kingdom or incertae sedis in case of null (which should *never* happen!)
-     */
-    private Kingdom toKingdom(String x) {
-      Integer usageKey = toInt(x);
-      return usageKey == null ? Kingdom.INCERTAE_SEDIS : Kingdom.byNubUsageKey(usageKey);
-    }
-
-    private Integer toInt(String x) {
-      return x == null ? null : Integer.valueOf(x);
-    }
   }
 
   /**
+   * The writer expects the incoming rows to be sorted by the proParteKey!
+   *
    * int key
    * int parentKey
    * int proParteKey
@@ -189,6 +178,9 @@ public class IdLookupImpl implements IdLookup {
    * boolean deleted
    */
   private class ProParteUsageWriter extends TabMapperBase {
+    private LookupUsage u;
+    private Integer lastProParteKey;
+
     public ProParteUsageWriter() {
       // the number of columns in our query to consume
       super(9);
@@ -196,32 +188,48 @@ public class IdLookupImpl implements IdLookup {
 
     @Override
     protected void addRow(String[] row) {
-      LookupUsage u = new LookupUsage(
-          toInt(row[0]),
-          row[1],
-          row[2],
-          row[3],
-          Rank.valueOf(row[4]),
-          toKingdom(row[5]),
-          "t".equals(row[6])
-      );
+      Integer key = toInt(row[0]);
+      Integer parentKey = toInt(row[1]);
+      Integer proParteKey = toInt(row[2]);
+      // only create a new usage if the pro parte key changes
+      if (lastProParteKey == null || !lastProParteKey.equals(proParteKey)) {
+        add(u);
+        u = new LookupUsage(
+            key,
+            new Int2IntOpenHashMap(),
+            row[3],
+            row[4],
+            row[5],
+            Rank.valueOf(row[6]),
+            toKingdom(row[7]),
+            "t".equals(row[8])
+        );
+      }
+      // add parent key -> usage key into map
+      u.getProParteKeys().put(parentKey, key);
+    }
+
+    @Override
+    public void close() throws IOException {
+      // we need to add the last usage still
       add(u);
+      super.close();
     }
+  }
 
-    /**
-     * Translates the kingdom_fk into a kingdom enum value.
-     * To avoid NPEs it translates null kingdoms into incertae sedis,
-     * see http://dev.gbif.org/issues/browse/POR-3202
-     * @return matching kingdom or incertae sedis in case of null (which should *never* happen!)
-     */
-    private Kingdom toKingdom(String x) {
-      Integer usageKey = toInt(x);
-      return usageKey == null ? Kingdom.INCERTAE_SEDIS : Kingdom.byNubUsageKey(usageKey);
-    }
+  /**
+   * Translates the kingdom_fk into a kingdom enum value.
+   * To avoid NPEs it translates null kingdoms into incertae sedis,
+   * see http://dev.gbif.org/issues/browse/POR-3202
+   * @return matching kingdom or incertae sedis in case of null (which should *never* happen!)
+   */
+  private static Kingdom toKingdom(String x) {
+    Integer usageKey = toInt(x);
+    return usageKey == null ? Kingdom.INCERTAE_SEDIS : Kingdom.byNubUsageKey(usageKey);
+  }
 
-    private Integer toInt(String x) {
-      return x == null ? null : Integer.valueOf(x);
-    }
+  private static Integer toInt(String x) {
+    return x == null ? null : Integer.valueOf(x);
   }
 
   @VisibleForTesting
