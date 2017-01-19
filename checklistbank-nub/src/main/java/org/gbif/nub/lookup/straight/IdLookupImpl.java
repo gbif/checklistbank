@@ -106,7 +106,7 @@ public class IdLookupImpl implements IdLookup {
         cm.copyOut("COPY ("
             + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
             + " FROM name_usage u join name n ON name_fk=n.id"
-            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null LIMIT 10)"
+            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null)"
             + " TO STDOUT WITH NULL ''", writer);
         LOG.info("Added {} nub usages into id lookup", usages.size());
       }
