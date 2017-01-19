@@ -106,7 +106,7 @@ public class IdLookupImpl implements IdLookup {
         cm.copyOut("COPY ("
             + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
             + " FROM name_usage u join name n ON name_fk=n.id"
-            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null)"
+            + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null LIMIT 10)"
             + " TO STDOUT WITH NULL ''", writer);
         LOG.info("Added {} nub usages into id lookup", usages.size());
       }
@@ -193,7 +193,12 @@ public class IdLookupImpl implements IdLookup {
       Integer proParteKey = toInt(row[2]);
       // only create a new usage if the pro parte key changes
       if (lastProParteKey == null || !lastProParteKey.equals(proParteKey)) {
-        add(u);
+        // add last if existing
+        if (u != null) {
+          add(u);
+        }
+        // start new usage
+        lastProParteKey = proParteKey;
         u = new LookupUsage(
             key,
             new Int2IntOpenHashMap(),
@@ -212,7 +217,9 @@ public class IdLookupImpl implements IdLookup {
     @Override
     public void close() throws IOException {
       // we need to add the last usage still
-      add(u);
+      if (u != null) {
+        add(u);
+      }
       super.close();
     }
   }
