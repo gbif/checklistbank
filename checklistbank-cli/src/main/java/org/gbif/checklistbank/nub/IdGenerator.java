@@ -87,7 +87,7 @@ public class IdGenerator {
   // select best match from pro parte keys if possible, otherwise return match key
   private int keyOrProParte(LookupUsage u, Integer parentKey) {
     if (u.getProParteKeys() != null && parentKey != null && u.getProParteKeys().containsKey(parentKey)) {
-      return u.getProParteKeys().get(parentKey);
+      return Math.abs(u.getProParteKeys().get(parentKey));
     }
     return u.getKey();
   }
@@ -140,10 +140,8 @@ public class IdGenerator {
           if (resurrected.contains(u.getKey())) {
             res.add(u);
           }
-        } else {
-          if (!reissued.contains(u.getKey())) {
-            del.add(u);
-          }
+        } else if (!reissued.contains(u.getKey())) {
+          del.add(u);
         }
       }
     );
@@ -163,7 +161,8 @@ public class IdGenerator {
   private static Stream<LookupUsage> proParteUsages(LookupUsage orig) {
     return StreamSupport.stream(orig.getProParteKeys().values().spliterator(), false).map(val -> {
       LookupUsage ppu = new LookupUsage();
-      ppu.setKey(val);
+      ppu.setDeleted(val < 0);
+      ppu.setKey(Math.abs(val));
       ppu.setKingdom(orig.getKingdom());
       ppu.setRank(orig.getRank());
       ppu.setCanonical(orig.getCanonical());

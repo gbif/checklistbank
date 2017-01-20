@@ -191,6 +191,7 @@ public class IdLookupImpl implements IdLookup {
       Integer key = toInt(row[0]);
       Integer parentKey = toInt(row[1]);
       Integer proParteKey = toInt(row[2]);
+      boolean deleted = "t".equals(row[8]);
       // only create a new usage if the pro parte key changes
       if (lastProParteKey == null || !lastProParteKey.equals(proParteKey)) {
         // add last if existing
@@ -207,9 +208,11 @@ public class IdLookupImpl implements IdLookup {
             row[5],
             Rank.valueOf(row[6]),
             toKingdom(row[7]),
-            "t".equals(row[8])
+            deleted
         );
       }
+      // negate key if its a deleted usage
+      key = deleted ? -1 * key : key;
       // add parent key -> usage key into map
       u.getProParteKeys().put(parentKey, key);
     }

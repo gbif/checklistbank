@@ -16,6 +16,11 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 public class LookupUsage implements Comparable<LookupUsage> {
   private int key;
   @JsonIgnore
+  /**
+   * A map of parent usage key -> pro parte usage key
+   * We want to keep the deleted flag information and integrate it into the pro parte key
+   * by using the convention that negative keys are deleted keys!
+   */
   private Int2IntMap proParteKeys; // parentKey -> pro parte usageKey
   private String canonical;
   private String authorship;
