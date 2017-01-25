@@ -276,7 +276,7 @@ public class IdLookupImpl implements IdLookup {
     if (u.isDeleted()) {
       deleted++;
     }
-    keyMax = u.getKey() > keyMax ? u.getKey() : keyMax;
+    keyMax = Math.max(keyMax, u.getMaxKey());
   }
 
   @Override

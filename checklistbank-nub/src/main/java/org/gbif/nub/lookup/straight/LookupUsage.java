@@ -107,6 +107,14 @@ public class LookupUsage implements Comparable<LookupUsage> {
     this.deleted = deleted;
   }
 
+  /**
+   * @return the key or the greatest pro parte key if it exceeds the key
+   */
+  public int getMaxKey() {
+    if (proParteKeys == null) return key;
+    else return Math.max(key, proParteKeys.values().stream().max(Integer::compare).orElse(-1));
+  }
+
   @Override
   public int hashCode() {
     return Objects.hash(key, proParteKeys, rank, kingdom, canonical, authorship, year, deleted);
