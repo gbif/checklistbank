@@ -341,4 +341,11 @@
     </sql>
   </changeSet>
 
+  <changeSet id="48" author="markus">
+    <!-- index to get related usages quickly -->
+    <sql>
+      CREATE INDEX on nub_rel(nub_fk, dataset_key, usage_fk);
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

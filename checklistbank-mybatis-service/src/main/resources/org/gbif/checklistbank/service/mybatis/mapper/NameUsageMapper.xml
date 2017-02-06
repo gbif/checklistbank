@@ -234,7 +234,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
                 #{uuid, jdbcType=OTHER}
             </foreach>
         </if>
-        ORDER BY u.dataset_key, u.id
+        ORDER BY rel.dataset_key, rel.usage_fk
         <include refid="page"/>
     </select>
 
