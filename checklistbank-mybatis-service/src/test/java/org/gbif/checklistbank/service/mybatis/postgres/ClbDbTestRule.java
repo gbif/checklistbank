@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableMap;
@@ -25,6 +26,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 public class ClbDbTestRule implements TestRule {
 
   public static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
+  public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   private final String tsvFolder;

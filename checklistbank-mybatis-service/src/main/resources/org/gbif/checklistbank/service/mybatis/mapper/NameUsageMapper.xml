@@ -28,6 +28,16 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
 u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled, u.deleted, u.remarks, u.issues
 </sql>
 
+  <sql id="selectParsedName">
+    <include refid="select"/>,
+    n.id as name_key,
+    n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
+    n.notho_type, n.rank as name_rank, n.nom_status as name_nom_status, n.sensu as name_sensu, n.remarks as name_remarks,
+    n.authors_parsed as name_authors_parsed, n.parsed as name_parsed,
+    n.authorship as name_authorship, n.year as name_year,
+    n.bracket_authorship as name_bracket_authorship, n.bracket_year as name_bracket_year
+  </sql>
+
     <sql id="from"> name_usage u
  JOIN name n ON u.name_fk=n.id
  LEFT JOIN dataset_metrics m ON m.dataset_key=u.dataset_key AND m.latest
@@ -95,7 +105,40 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
-    <resultMap id="usagesResultMap" type="NameUsages" autoMapping="true">
+  <!--  A mapping to build a ParsedNameUsage extending a NameUsage with a ParsedName instance -->
+  <resultMap id="parsedUsageResultMap" type="ParsedNameUsage" extends="usageResultMap">
+    <id property="parsedName.key" column="name_key"/>
+    <result property="parsedName.type" column="nameType"/>
+    <result property="parsedName.rank" column="name_rank"/>
+    <result property="parsedName.notho" column="notho_type"/>
+
+    <result property="parsedName.scientificName" column="scientific_name"/>
+    <result property="parsedName.genusOrAbove" column="genus_or_above"/>
+    <result property="parsedName.infraGeneric" column="infra_generic"/>
+    <result property="parsedName.specificEpithet" column="specific_epithet"/>
+    <result property="parsedName.infraSpecificEpithet" column="infra_specific_epithet"/>
+    <result property="parsedName.cultivarEpithet" column="cultivar_epithet"/>
+    <result property="parsedName.nomStatus" column="name_nom_status"/>
+    <result property="parsedName.sensu" column="name_sensu"/>
+    <result property="parsedName.remarks" column="name_remarks"/>
+    <result property="parsedName.authorsParsed" column="name_authors_parsed"/>
+    <result property="parsedName.parsed" column="name_parsed"/>
+    <result property="parsedName.authorship" column="name_authorship"/>
+    <result property="parsedName.year" column="name_year"/>
+    <result property="parsedName.bracketAuthorship" column="name_bracket_authorship"/>
+    <result property="parsedName.bracketYear" column="name_bracket_year"/>
+
+    <!--
+        <association property="parsedName" javaType="ParsedName" autoMapping="true">
+          <id property="key" column="name_key"/>
+          <result property="type" column="nameType"/>
+          <result property="rank" column="name_rank"/>
+          <result property="notho" column="notho_type"/>
+        </association>
+    -->
+  </resultMap>
+
+  <resultMap id="scinameResultMap" type="ScientificName" autoMapping="true">
       <result property="key" column="id"/>
       <result property="scientificName" column="scientific_name"/>
       <result property="rank" column="rank"/>
@@ -155,9 +198,9 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   <!--  select all name usages of a dataset
    Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
   -->
-  <select id="processDataset" parameterType="map" resultMap="usageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+  <select id="processDataset" parameterType="map" resultMap="parsedUsageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
     SELECT
-    <include refid="select"/>
+    <include refid="selectParsedName"/>
     FROM
     <include refid="from"/>
     WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
@@ -166,18 +209,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
   <!--  select all name usages of a dataset
    Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
   -->
-  <select id="processAll" resultMap="usageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE u.deleted IS NULL
-  </select>
-
-  <!--  select all name usages of a dataset
-   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
-  -->
-  <select id="processAllNameUsages" resultMap="usagesResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+  <select id="processAllNames" resultMap="scinameResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
     SELECT id,rank,scientific_name
     FROM tmp_usage_name
   </select>

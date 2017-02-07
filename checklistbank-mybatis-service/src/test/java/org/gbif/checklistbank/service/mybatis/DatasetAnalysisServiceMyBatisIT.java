@@ -9,6 +9,7 @@ import org.gbif.checklistbank.service.DatasetAnalysisService;
 import java.util.Date;
 import java.util.UUID;
 
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -19,14 +20,12 @@ public class DatasetAnalysisServiceMyBatisIT extends MyBatisServiceITBase<Datase
         super(DatasetAnalysisService.class);
     }
 
-    private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
-
     @Test
     public void testAnalyse() {
         final Date downloaded = new Date();
-        DatasetMetrics d = service.analyse(CHECKLIST_KEY, downloaded);
+        DatasetMetrics d = service.analyse(ClbDbTestRule.SQUIRRELS_DATASET_KEY, downloaded);
         System.out.println(d);
-        assertEquals(CHECKLIST_KEY, d.getDatasetKey());
+        assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
         assertEquals(downloaded, d.getDownloaded());
         assertEquals(44, d.getUsagesCount());
         assertEquals(16, d.getSynonymsCount());

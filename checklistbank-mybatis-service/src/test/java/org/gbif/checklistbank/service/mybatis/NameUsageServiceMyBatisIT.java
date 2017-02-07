@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import com.google.common.base.Joiner;
 import com.zaxxer.hikari.HikariDataSource;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -39,7 +40,6 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     super(NameUsageService.class);
   }
 
-  private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
   private final int NOT_FOUND_KEY = -10;
 
   @Test
@@ -77,7 +77,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
     assertEquals(Origin.SOURCE, rodentia.getOrigin());
 
-    assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), rodentia.getDatasetKey());
+    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rodentia.getDatasetKey());
     assertNull(rodentia.getPublishedIn());
 
     assertEquals("1000", rodentia.getTaxonID());
@@ -122,7 +122,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     assertEquals(9, squirrelM.getNumChildren());
     assertEquals(4, squirrelM.getNumSynonyms());
 
-    assertEquals(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), squirrel.getDatasetKey());
+    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, squirrel.getDatasetKey());
     assertEquals("Syst. Nat. , 10th ed. vol. 1 p. 63", squirrel.getPublishedIn());
 
     assertEquals("2010030", squirrel.getTaxonID());
@@ -217,14 +217,14 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
     // test combined
     usages =
-        service.list(Locale.UK, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "1", null).getResults();
+        service.list(Locale.UK, ClbDbTestRule.SQUIRRELS_DATASET_KEY, "1", null).getResults();
     assertEquals(1, usages.size());
     assertEquals((Integer) 100000001, usages.get(0).getKey());
   }
 
   @Test
   public void testByTaxonId() {
-    List<NameUsage> usages = service.list(Locale.UK, CHECKLIST_KEY, "100000", null).getResults();
+    List<NameUsage> usages = service.list(Locale.UK, ClbDbTestRule.SQUIRRELS_DATASET_KEY, "100000", null).getResults();
     assertEquals(1, usages.size());
 
     assertEquals(service.get(100000006, Locale.UK), usages.get(0));
@@ -236,10 +236,10 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     ;
     assertEquals(1, usages.size());
 
-    usages = service.listRelated(1, Locale.UK, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4")).getResults();
+    usages = service.listRelated(1, Locale.UK, null, ClbDbTestRule.SQUIRRELS_DATASET_KEY).getResults();
     assertEquals(1, usages.size());
 
-    usages = service.listRelated(1, Locale.UK, null, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"),
+    usages = service.listRelated(1, Locale.UK, null, ClbDbTestRule.SQUIRRELS_DATASET_KEY,
         UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f5")).getResults();
     assertEquals(1, usages.size());
 
@@ -291,16 +291,16 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
 
   @Test
   public void testListRoot() {
-    List<NameUsage> usages = service.listRoot(CHECKLIST_KEY, Locale.UK, null).getResults();
+    List<NameUsage> usages = service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, null).getResults();
     assertEquals(1, usages.size());
 
     // test paging
     Pageable page = new PagingRequest(1l, 1);
-    usages = service.listRoot(CHECKLIST_KEY, Locale.UK, page).getResults();
+    usages = service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
     assertEquals(0, usages.size());
 
     page = new PagingRequest(0l, 2);
-    usages = service.listRoot(CHECKLIST_KEY, Locale.UK, page).getResults();
+    usages = service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
     assertEquals(1, usages.size());
   }
 
@@ -399,7 +399,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
     final String data = "xeghwax542tgld@";
     RawUsage raw = new RawUsage();
     raw.setUsageKey(key);
-    raw.setDatasetKey(CHECKLIST_KEY);
+    raw.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
     // date is null in dataset_metrics table
     //raw.setLastCrawled(new Date());
     raw.setJson(data);

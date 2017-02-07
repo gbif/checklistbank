@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -22,16 +23,14 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
         super(DatasetMetricsService.class);
     }
 
-    private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
-
     @Test
     public void testInsert() {
         DatasetMetricsServiceMyBatis srv = (DatasetMetricsServiceMyBatis) service;
 
-        srv.create(CHECKLIST_KEY, new Date());
+        srv.create(ClbDbTestRule.SQUIRRELS_DATASET_KEY, new Date());
 
-        DatasetMetrics d = service.get(CHECKLIST_KEY);
-        assertEquals(CHECKLIST_KEY, d.getDatasetKey());
+        DatasetMetrics d = service.get(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+        assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
         assertEquals(44, d.getUsagesCount());
         assertEquals(16, d.getSynonymsCount());
         assertEquals(44, d.getDistinctNamesCount());
@@ -55,8 +54,8 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
 
     @Test
     public void testGet() {
-        DatasetMetrics d = service.get(CHECKLIST_KEY);
-        assertEquals(CHECKLIST_KEY, d.getDatasetKey());
+        DatasetMetrics d = service.get(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+        assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
         assertEquals(1000, d.getUsagesCount());
         assertEquals(25, d.getColCoveragePct());
         assertEquals(250, d.getColMatchingCount());
@@ -71,10 +70,10 @@ public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase<Dataset
 
     @Test
     public void testList() {
-        List<DatasetMetrics> ds = service.list(CHECKLIST_KEY);
+        List<DatasetMetrics> ds = service.list(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
         assertEquals(3, ds.size());
         for (DatasetMetrics d : ds) {
-            assertEquals(CHECKLIST_KEY, d.getDatasetKey());
+            assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
         }
         assertEquals(1000, ds.get(0).getUsagesCount());
         assertEquals(200, ds.get(1).getUsagesCount());

@@ -7,13 +7,14 @@ import java.io.IOException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.lucene.index.IndexWriter;
+import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public class IndexBuildHandler implements ResultHandler<NameUsage> {
+public class IndexBuildHandler implements ResultHandler<ParsedNameUsage> {
   private static final Logger LOG = LoggerFactory.getLogger(IndexBuildHandler.class);
 
   private final IndexWriter writer;
@@ -24,7 +25,7 @@ public class IndexBuildHandler implements ResultHandler<NameUsage> {
   }
 
   @Override
-  public void handleResult(ResultContext<? extends NameUsage> u) {
+  public void handleResult(ResultContext<? extends ParsedNameUsage> u) {
     try {
       writer.addDocument(NubIndex.toDoc(u.getResultObject()));
       counter++;

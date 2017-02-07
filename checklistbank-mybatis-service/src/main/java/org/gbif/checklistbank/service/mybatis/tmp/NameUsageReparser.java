@@ -57,7 +57,7 @@ public class NameUsageReparser implements Runnable {
   public void run() {
     LOG.info("Submit reparsing jobs in batches of {} to executor with {} threads.", BATCH_SIZE, threads);
     ReparseHandler handler = new ReparseHandler();
-    usageMapper.processAllNameUsages(handler);
+    usageMapper.processAllNames(handler);
     // finally submit the remaining unfinished batch
     handler.submitBatch();
 

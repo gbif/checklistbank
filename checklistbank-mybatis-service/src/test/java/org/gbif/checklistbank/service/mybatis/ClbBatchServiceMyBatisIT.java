@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -20,8 +21,6 @@ public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase<UsageService>
     public ClbBatchServiceMyBatisIT() {
         super(UsageService.class);
     }
-
-    private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
     @Test
     public void testListAll() {
@@ -40,7 +39,7 @@ public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase<UsageService>
             assertNotNull(nu.getNameKey());
             assertNotNull(nu.getScientificName());
             assertTrue(nu.getKey() >= 100000001 && nu.getKey() <= 100000020);
-            assertEquals(CHECKLIST_KEY, nu.getDatasetKey());
+            assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, nu.getDatasetKey());
 
             if (nu.getKey().equals(100000007)) {
                 found = true;

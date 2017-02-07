@@ -28,7 +28,7 @@ public class UsageCountMapperTest extends MapperITBase<UsageCountMapper> {
     assertEquals(1, root.size());
     assertEquals(1, root.get(0).getKey());
 
-    root = mapper.root(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"));
+    root = mapper.root(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
     assertEquals(1, root.size());
     assertEquals(100000001, root.get(0).getKey());
     assertEquals(27, root.get(0).getSize());

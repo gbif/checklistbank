@@ -1,11 +1,7 @@
 package org.gbif.checklistbank.cli.exporter;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
@@ -13,6 +9,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.MultimediaMapper;
@@ -101,7 +98,7 @@ public class Exporter {
     return export(datasetService.get(datasetKey));
   }
 
-  private class DwcaExport implements Runnable, ResultHandler<NameUsage> {
+  private class DwcaExport implements Runnable, ResultHandler<ParsedNameUsage> {
     private final Dataset dataset;
     private final File dwca;
     private DwcaWriter writer;
@@ -158,8 +155,9 @@ public class Exporter {
 
 
     @Override
-    public void handleResult(ResultContext<? extends NameUsage> obj) {
+    public void handleResult(ResultContext<? extends ParsedNameUsage> obj) {
       final NameUsage u = obj.getResultObject();
+      final ParsedName pn = obj.getResultObject().getParsedName();
       try {
         writer.newRecord(u.getKey().toString());
         writer.addCoreColumn(DwcTerm.taxonID, u.getKey());
@@ -170,7 +168,14 @@ public class Exporter {
         writer.addCoreColumn(DwcTerm.parentNameUsageID, u.getParentKey());
         writer.addCoreColumn(DwcTerm.acceptedNameUsageID, u.getAcceptedKey());
         writer.addCoreColumn(DwcTerm.originalNameUsageID, u.getBasionymKey());
+        // name terms
         writer.addCoreColumn(DwcTerm.scientificName, u.getScientificName());
+        writer.addCoreColumn(DwcTerm.scientificNameAuthorship, u.getAuthorship());
+        writer.addCoreColumn(GbifTerm.canonicalName, u.getCanonicalName());
+        writer.addCoreColumn(GbifTerm.genericName, pn.getGenusOrAbove());
+        writer.addCoreColumn(DwcTerm.specificEpithet, pn.getSpecificEpithet());
+        writer.addCoreColumn(DwcTerm.infraspecificEpithet, pn.getInfraSpecificEpithet());
+        // taxon
         writer.addCoreColumn(DwcTerm.taxonRank, u.getRank());
         writer.addCoreColumn(DwcTerm.nameAccordingTo, u.getAccordingTo());
         writer.addCoreColumn(DwcTerm.namePublishedIn, u.getPublishedIn());
