@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class NameUsageMapperWithDataIT extends MapperITBase<NameUsageMapper> {
@@ -25,7 +26,15 @@ public class NameUsageMapperWithDataIT extends MapperITBase<NameUsageMapper> {
     public void handleResult(ResultContext<? extends ParsedNameUsage> resultContext) {
       if (resultContext.getResultObject() != null) {
         counter++;
-        System.out.println(resultContext.getResultObject().getParsedName());
+        ParsedNameUsage u = resultContext.getResultObject();
+        assertNotNull(u.getKey());
+        assertNotNull(u.getScientificName());
+        assertNotNull(u.getRank());
+        assertNotNull(u.getDatasetKey());
+
+        assertNotNull(u.getParsedName());
+        assertNotNull(u.getParsedName().getScientificName());
+        System.out.println(u.getParsedName());
       }
     }
   }

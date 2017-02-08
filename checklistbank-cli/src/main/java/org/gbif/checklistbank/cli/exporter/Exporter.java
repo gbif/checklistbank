@@ -116,7 +116,7 @@ public class Exporter {
       File tmp = Files.createTempDir();
       try {
         FileUtils.forceMkdir(dwca.getParentFile());
-        writer = new DwcaWriter(DwcTerm.Taxon, tmp);
+        writer = new DwcaWriter(DwcTerm.Taxon, DwcTerm.taxonID, tmp, false);
         usageMapper.processDataset(dataset.getKey(), this);
 
         // add EML
@@ -160,7 +160,6 @@ public class Exporter {
       final ParsedName pn = obj.getResultObject().getParsedName();
       try {
         writer.newRecord(u.getKey().toString());
-        writer.addCoreColumn(DwcTerm.taxonID, u.getKey());
         writer.addCoreColumn(DwcTerm.datasetID, u.getConstituentKey());
         if (u.getConstituentKey() != null && !u.getConstituentKey().equals(dataset.getKey())) {
           constituents.add(u.getConstituentKey());

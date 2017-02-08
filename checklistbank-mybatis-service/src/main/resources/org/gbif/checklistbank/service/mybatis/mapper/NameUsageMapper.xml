@@ -30,7 +30,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
 
   <sql id="selectParsedName">
     <include refid="select"/>,
-    n.id as name_key,
+    n.id as name_key, n.scientific_name as name_scientific_name,
     n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
     n.notho_type, n.rank as name_rank, n.nom_status as name_nom_status, n.sensu as name_sensu, n.remarks as name_remarks,
     n.authors_parsed as name_authors_parsed, n.parsed as name_parsed,
@@ -105,14 +105,14 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
-  <!--  A mapping to build a ParsedNameUsage extending a NameUsage with a ParsedName instance -->
+  <!--  A mapping to build a ParsedNameUsage extending a NameUsage with a ParsedName instance. -->
   <resultMap id="parsedUsageResultMap" type="ParsedNameUsage" extends="usageResultMap">
     <id property="parsedName.key" column="name_key"/>
     <result property="parsedName.type" column="nameType"/>
     <result property="parsedName.rank" column="name_rank"/>
     <result property="parsedName.notho" column="notho_type"/>
 
-    <result property="parsedName.scientificName" column="scientific_name"/>
+    <result property="parsedName.scientificName" column="name_scientific_name"/>
     <result property="parsedName.genusOrAbove" column="genus_or_above"/>
     <result property="parsedName.infraGeneric" column="infra_generic"/>
     <result property="parsedName.specificEpithet" column="specific_epithet"/>
@@ -127,15 +127,6 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <result property="parsedName.year" column="name_year"/>
     <result property="parsedName.bracketAuthorship" column="name_bracket_authorship"/>
     <result property="parsedName.bracketYear" column="name_bracket_year"/>
-
-    <!--
-        <association property="parsedName" javaType="ParsedName" autoMapping="true">
-          <id property="key" column="name_key"/>
-          <result property="type" column="nameType"/>
-          <result property="rank" column="name_rank"/>
-          <result property="notho" column="notho_type"/>
-        </association>
-    -->
   </resultMap>
 
   <resultMap id="scinameResultMap" type="ScientificName" autoMapping="true">
