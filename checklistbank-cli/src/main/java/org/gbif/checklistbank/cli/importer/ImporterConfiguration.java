@@ -69,4 +69,7 @@ public class ImporterConfiguration {
   @Parameter(names = "--chunk-min-size")
   @Min(0)
   public int chunkMinSize = 100;
+
+  @Parameter(names = "--pro-parte-only")
+  public boolean proParteOnly = false;
 }

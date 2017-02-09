@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.importer;
 
+import com.google.common.base.Joiner;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
@@ -200,10 +201,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
         } else {
           // add to main batch
-          batch.add((int)n.getId());
-          if (isProParteNode(n)) {
-            proParteNodes.add(n.getId());
+          if (!cfg.proParteOnly) {
+            batch.add((int)n.getId());
           }
+          logProParteNode(n);
           syncCounterMain++;
         }
       }
@@ -255,6 +256,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void syncProParte() {
     if (!proParteNodes.isEmpty()) {
       LOG.info("Syncing {} pro parte usages", proParteNodes.size());
+      Joiner comma = Joiner.on(",");
       for (List<Long> ids : Iterables.partition(proParteNodes, cfg.chunkSize)) {
         List<NameUsage> usages = Lists.newArrayList();
         List<ParsedName> names = Lists.newArrayList();
@@ -268,11 +270,13 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
             primary.setOrigin(Origin.PROPARTE);
             primary.setTaxonID(null); // if we keep the original id we will do an update, not an insert
             primary.setParentKey(null);
+            List<Integer> ppUsageKeys = Lists.newArrayList();
             for (Relationship rel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
               // pro parte synonyms keep their id in the relation, read it
               // http://dev.gbif.org/issues/browse/POR-2872
               NameUsage u = clone(primary);
               u.setKey( (Integer) rel.getProperty(NeoProperties.USAGE_KEY, null));
+              ppUsageKeys.add(u.getKey());
               Node accN = rel.getEndNode();
               // all nodes should be synced by now, so clb keys must be known
               u.setAcceptedKey(clbKeys.get((int) accN.getId()));
@@ -281,6 +285,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
               usages.add(u);
               names.add(pn);
             }
+            LOG.debug("Schedule pro parte node={} usageKey={} with relation usage keys: {}", id, primary.getKey(), comma.join(ppUsageKeys));
           }
         }
         // submit sync job
@@ -313,14 +318,21 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     try (Transaction tx = dao.beginTx()) {
       // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
       for (Node n : MultiRootNodeIterator.create(startNode, Traversals.TREE_WITHOUT_PRO_PARTE)) {
-        ids.add((int)n.getId());
-        if (isProParteNode(n)) {
-          proParteNodes.add(n.getId());
+        if (!cfg.proParteOnly) {
+          ids.add((int)n.getId());
         }
+        logProParteNode(n);
       }
     }
     LOG.debug("Created batch of {} nodes starting with {}", ids.size(), startNode);
     return ids;
+  }
+
+  private void logProParteNode(Node n) {
+    if (isProParteNode(n)) {
+      proParteNodes.add(n.getId());
+      LOG.debug("pro parte node (total={}) detected: {}", proParteNodes.size(), n);
+    }
   }
 
   private boolean isProParteNode(Node n) {

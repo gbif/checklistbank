@@ -142,6 +142,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       this.usages = usages;
       this.names = names;
       Preconditions.checkArgument(usages.size() == names.size());
+      LOG.info("New pro parte sync job with {} usages", usages.size());
     }
 
     @Override
@@ -160,6 +161,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         m.setKey(u.getKey());
         m.setNumDescendants(0);
 
+        LOG.debug("Sync pro parte usage {} {}", u, pn);
         syncService.syncUsage(true, u, pn, m);
       }
       LOG.debug("Completed batch of {} pro parte usages", usages.size());
