@@ -122,7 +122,7 @@ public class ImportDbTest {
       Node n = idb.create(Origin.DENORMED_CLASSIFICATION, "Abies Mill.", Rank.GENUS, TaxonomicStatus.ACCEPTED, false).node;
       tx.success();
 
-      assertEquals(n, idb.getHighestParent(n).node);
+      assertEquals(n, idb.getDirectParent(n).node);
 
 
       Node syn = idb.create(Origin.DENORMED_CLASSIFICATION, "Pinus", Rank.GENUS, TaxonomicStatus.SYNONYM, false).node;
@@ -135,7 +135,7 @@ public class ImportDbTest {
       syn.createRelationshipTo(n, RelType.SYNONYM_OF);
       tx.success();
 
-      assertEquals(n4, idb.getHighestParent(n).node);
+      assertEquals(n4, idb.getDirectParent(n).node);
     }
   }
 

@@ -148,12 +148,9 @@ public class ImportDb {
   /**
    * @return the last parent or the node itself if no parent exists
    */
-  protected RankedName getHighestParent(Node n) {
+  protected RankedName getDirectParent(Node n) {
     Node p = IteratorUtil.lastOrNull(Traversals.PARENTS.traverse(n).nodes());
-    if (p != null) {
-      return dao.readRankedName(p);
-    }
-    return dao.readRankedName(n);
+    return dao.readRankedName(p != null ? p : n);
   }
 
   protected Node getLinneanRankParent(Node n) {

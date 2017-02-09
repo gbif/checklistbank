@@ -66,7 +66,7 @@ public class Normalizer extends ImportDb implements Runnable {
 
   private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
-  private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED);
+  private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.OTHER);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
   private static final NameParser PARSER = new GBIFNameParser();
 
@@ -226,7 +226,7 @@ public class Normalizer extends ImportDb implements Runnable {
     RankedName highest;
     if (meta.isParentNameMapped()) {
       // verify if we already have a classification, that it ends with a known rank
-      highest = getHighestParent(n);
+      highest = getDirectParent(n);
       if (highest.node != n && (highest.rank == null || UNKNOWN_RANKS.contains(highest.rank))) {
         LOG.debug("Node {} already has a classification which ends in an uncomparable rank.", n.getId());
         addIssueRemark(n, null, NameUsageIssue.CLASSIFICATION_NOT_APPLIED);

@@ -10,9 +10,9 @@ public class ClbConfigurationUtils {
   public static ClbConfiguration local() {
     ClbConfiguration cfg = new ClbConfiguration();
     cfg.serverName = "localhost";
-    cfg.databaseName = "clb";
-    cfg.user = "postgres";
-    cfg.password = "pogo";
+    cfg.databaseName = "checklistbank";
+    cfg.user = "markus";
+    cfg.password = "";
     return cfg;
   }
 

@@ -117,7 +117,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
 
   /**
    * TODO: update docs!!!
-   *
+   * <p>
    * Syncs the usage to postgres doing an update or insert depending on whether a usage with the given taxonID already existed for that dataset.
    * If the taxonID existed the previous usageKey is kept and an update of the record is done. If it did not exist yet a new usageKey is generated
    * and an insert performed.
@@ -425,9 +425,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
   }
 
   @Transactional(
-      executorType = ExecutorType.BATCH,
-      isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-      exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
+          executorType = ExecutorType.BATCH,
+          isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
+          exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
   )
   private void insertNubRelationBatch(UUID datasetKey, Map<Integer, Integer> relations, Iterable<Integer> usageKeyBatch) {
     for (Integer usageKey : usageKeyBatch) {
