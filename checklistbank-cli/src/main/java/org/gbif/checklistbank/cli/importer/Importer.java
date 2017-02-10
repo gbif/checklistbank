@@ -121,6 +121,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   public void run() {
+    LOG.warn("Warning! Import pro parte only for DEBUGGING !!!");
+
     LOG.info("Start importing checklist");
     try {
       syncDataset();
@@ -201,9 +203,6 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
         } else {
           // add to main batch
-          if (!cfg.proParteOnly) {
-            batch.add((int)n.getId());
-          }
           logProParteNode(n);
           syncCounterMain++;
         }
@@ -231,7 +230,6 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // make sure we have imported at least one record
     if (firstUsageKey < 0) {
       LOG.warn("No records imported. Keep all existing data!");
-      throw new EmptyImportException(datasetKey, "No records imported for dataset " + datasetKey);
     }
 
     // remove old usages
@@ -318,9 +316,6 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     try (Transaction tx = dao.beginTx()) {
       // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
       for (Node n : MultiRootNodeIterator.create(startNode, Traversals.TREE_WITHOUT_PRO_PARTE)) {
-        if (!cfg.proParteOnly) {
-          ids.add((int)n.getId());
-        }
         logProParteNode(n);
       }
     }
@@ -432,20 +427,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (clbKeys.containsKey(nodeId)) {
       return clbKeys.get(nodeId);
     } else {
-      // missing key
-      try (Transaction tx = dao.getNeo().beginTx()) {
-        Node n = dao.getNeo().getNodeById(nodeId);
-        LOG.error("Clb usage key missing for {}: {}", n, NeoProperties.getScientificName(n));
-        NubUsage nub = dao.readNub(n);
-        if (nub != null) {
-          LOG.info("Nub usage for missing key: {}", nub.toStringComplete());
-        } else {
-          LOG.warn("Nub usage for missing key {} not found", nodeId);
-        }
-      } catch (Exception e) {
-        // ignore, we throw anyways
-      }
-      throw new IllegalStateException("NodeId not in CLB yet: " + nodeId);
+      // missing key - debugging only
+      return null;
     }
   }
 
@@ -467,9 +450,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       // tell postgres to use the newly generated key of the inserted record
       return SELF_ID;
     } else if (KeyType.CLASSIFICATION == type) {
-      // should not happen as we process the usages in a taxonomic hierarchy from top down.
-      // if you see this it looks like the normalizer did a bad job somewhere
-      throw new IllegalStateException("Higher classification NodeId not in CLB yet: " + nodeFk);
+      // we did not import nodes, this is for debugging only, use no key for entire classification !!!
+      return null;
     } else {
       // remember non classification keys for update after all records have been synced once
       int nid = (int) nodeId;
