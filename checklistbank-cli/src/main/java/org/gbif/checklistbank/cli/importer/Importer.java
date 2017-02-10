@@ -340,8 +340,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void deleteOldUsages() {
     NameUsage first = nameUsageService.get(firstUsageKey, null);
     if (first == null || first.getLastInterpreted() == null) {
-      LOG.error("First synced name usage with id {} not found", firstUsageKey);
-      throw new EmptyImportException(datasetKey, "Error importing name usages for dataset " + datasetKey);
+      LOG.error("First synced name usage with id {} not found. Dont delete", firstUsageKey);
+      return;
     }
     Calendar cal = Calendar.getInstance();
     cal.setTime(first.getLastInterpreted());
