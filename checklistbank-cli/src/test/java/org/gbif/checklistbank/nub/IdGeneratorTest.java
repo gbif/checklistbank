@@ -36,8 +36,9 @@ public class IdGeneratorTest {
         new LookupUsage(15, "Carex comosa × Carex lupulina", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
         new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.VIRUSES, true),
 
-        new LookupUsage(17, map(100, 17, 110, 18, 111, 19),  "Admetidae", "Troschel", "1865", Rank.FAMILY, Kingdom.ANIMALIA, false),
-        new LookupUsage(20, null, "Admetidae", null, null, Rank.FAMILY, Kingdom.ANIMALIA, true)
+        new LookupUsage(17, map(100, 17, 110, -18, 111, 19),  "Admetidae", "Troschel", "1865", Rank.FAMILY, Kingdom.ANIMALIA, false),
+        new LookupUsage(20, null, "Admetidae", null, null, Rank.FAMILY, Kingdom.ANIMALIA, true),
+        new LookupUsage(5093664, map(5093663, 5093664, 1673124, -8431281, 1673124, 8710209),  "Bombylius scintillans", "Brunetti", "1909", Rank.SPECIES, Kingdom.ANIMALIA, false)
     );
     return IdLookupImpl.temp().load(usages);
   }
@@ -77,11 +78,17 @@ public class IdGeneratorTest {
     assertEquals(1000, gen.issue("Admetidae", null, null, Rank.FAMILY, Kingdom.PLANTAE));
     // regular canonical match
     assertEquals(20, gen.issue("Admetidae", null, null, Rank.FAMILY, Kingdom.ANIMALIA));
+    assertEquals(1001, gen.issue("Admetidae", null, null, Rank.FAMILY, Kingdom.ANIMALIA));
+    assertEquals(17, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA));
     // pro parte matching
-    assertEquals(17, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 100));
+    assertEquals(1002, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 100));
+    // deleted, but reissued
     assertEquals(18, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 110));
     assertEquals(19, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 111));
-    assertEquals(1001, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 200));
+    assertEquals(1003, gen.issue("Admetidae", "Troschel", null, Rank.FAMILY, Kingdom.ANIMALIA, 200));
+
+    assertEquals(8710209, gen.issue("Bombylius scintillans", "Brunetti", "1909", Rank.SPECIES, Kingdom.ANIMALIA, 1673124));
+    assertEquals(5093664, gen.issue("Bombylius scintillans", "Brunetti", "1909", Rank.SPECIES, Kingdom.ANIMALIA));
   }
 
 }

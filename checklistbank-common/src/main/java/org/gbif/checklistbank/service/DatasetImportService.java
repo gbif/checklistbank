@@ -28,7 +28,7 @@ public interface DatasetImportService extends AutoCloseable {
    * @param names list of names, same order and length as usages
    * @return list of clb usages that were synced
    */
-  Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names);
+  Future<List<NameUsage>> sync(UUID datasetKey, ImporterCallback dao, List<NameUsage> usages, List<ParsedName> names);
 
   /**
    * @return list of clb usage keys that were updated

@@ -36,7 +36,7 @@ public class NameUsageIndexServicePassThru implements DatasetImportService {
   }
 
   @Override
-  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+  public Future<List<NameUsage>> sync(UUID datasetKey, ImporterCallback dao, List<NameUsage> usages, List<ParsedName> names) {
     for (NameUsage u : usages) {
       checkUsage(u);
     }

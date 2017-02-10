@@ -165,7 +165,7 @@ public class NameUsageIndexServiceSolr implements DatasetImportService {
    * @param names list of names being ignored. Can be null!
    */
   @Override
-  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, @Nullable List<ParsedName> names) {
+  public Future<List<NameUsage>> sync(UUID datasetKey, ImporterCallback dao, List<NameUsage> usages, @Nullable List<ParsedName> names) {
     return addTask(new SolrUpdateProParte(usages));
   }
 

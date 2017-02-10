@@ -133,11 +133,13 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   class ProParteSync implements Callable<List<NameUsage>> {
+    final ImporterCallback dao;
     final UUID datasetKey;
     final List<NameUsage> usages;
     final List<ParsedName> names;
 
-    public ProParteSync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+    public ProParteSync(ImporterCallback dao, UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
+      this.dao = dao;
       this.datasetKey = datasetKey;
       this.usages = usages;
       this.names = names;
@@ -160,7 +162,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
         m.setKey(u.getKey());
         m.setNumDescendants(0);
 
-        syncService.syncUsage(true, u, pn, m);
+        boolean insert = dao.isInsert(u);
+        syncService.syncUsage(insert, u, pn, m);
       }
       LOG.debug("Completed batch of {} pro parte usages", usages.size());
       LogContext.endDataset();
@@ -290,8 +293,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   }
 
   @Override
-  public Future<List<NameUsage>> sync(UUID datasetKey, List<NameUsage> usages, List<ParsedName> names) {
-    return addTask(new ProParteSync(datasetKey, usages, names));
+  public Future<List<NameUsage>> sync(UUID datasetKey, ImporterCallback dao, List<NameUsage> usages, List<ParsedName> names) {
+    return addTask(new ProParteSync(dao, datasetKey, usages, names));
   }
 
   @Override

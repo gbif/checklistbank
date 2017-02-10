@@ -285,7 +285,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         }
         // submit sync job
         syncCounterProParte = syncCounterProParte + usages.size();
-        proParteFuture = sqlService.sync(datasetKey, usages, names);
+        proParteFuture = sqlService.sync(datasetKey, this, usages, names);
       }
     }
   }
@@ -365,7 +365,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (proParteFuture != null) {
       // wait for pro parte pg sync.
       // solr doesnt need the parsed names
-      otherFutures.add(solrService.sync(datasetKey, proParteFuture.get(), null));
+      otherFutures.add(solrService.sync(datasetKey, this, proParteFuture.get(), null));
     }
   }
   /**
