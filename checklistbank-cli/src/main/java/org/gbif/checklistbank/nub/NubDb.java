@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import com.google.common.collect.*;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -17,6 +18,7 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
+import org.gbif.checklistbank.utils.SymmetricIdentityMatrix;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 
@@ -30,9 +32,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -54,6 +53,15 @@ public class NubDb {
   private final UsageDao dao;
   private final KingdomParser kingdomParser = KingdomParser.getInstance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
+  private static final SymmetricIdentityMatrix<Kingdom> KINGDOM_MATCH = SymmetricIdentityMatrix.create();
+  static {
+    KINGDOM_MATCH.add(Kingdom.ANIMALIA, Kingdom.PROTOZOA);
+    KINGDOM_MATCH.add(Kingdom.ARCHAEA, Kingdom.BACTERIA);
+    KINGDOM_MATCH.add(Kingdom.CHROMISTA, Kingdom.PROTOZOA);
+    KINGDOM_MATCH.add(Kingdom.CHROMISTA, Kingdom.FUNGI);
+    KINGDOM_MATCH.add(Kingdom.PLANTAE, Kingdom.FUNGI);
+  }
+
   private NubUsage incertaeSedis;
 
   private NubDb(UsageDao dao, AuthorComparator authorComparator, boolean initialize) {
@@ -370,28 +378,30 @@ public class NubDb {
       return true;
     }
     Equality author = ignoreAuthor ? Equality.UNKNOWN : authComp.compare(pn, match.parsedName);
-    Equality kingdom = compareKingdom(uKingdom, match);
-    if (author == Equality.DIFFERENT || kingdom == Equality.DIFFERENT) return false;
+    Equality kingdom = compareKingdom(uKingdom, match.kingdom);
     switch (author) {
+      case DIFFERENT:
+        return false;
       case EQUAL:
-        // really force a no-match in case authors match but the name is classified under a different (normalised) kingdom?
         return true;
       case UNKNOWN:
-        return rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT;
+        return kingdom != Equality.DIFFERENT && (
+                rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT
+        );
     }
     return false;
   }
 
   // if authors are missing require the classification to not contradict!
-  private Equality compareKingdom(Kingdom uKingdom, NubUsage match) {
-    if (uKingdom == null || match.kingdom == null) {
+  private Equality compareKingdom(Kingdom k1, Kingdom k2) {
+    if (k1 == null || k2 == null) {
       return Equality.UNKNOWN;
     }
-    Kingdom k1 = norm(uKingdom);
-    Kingdom k2 = norm(match.kingdom);
+    if (k1 == k2) {
+      return Equality.EQUAL;
+    }
 
-    return k1 == k2 ? Equality.EQUAL :
-        k1 == Kingdom.INCERTAE_SEDIS || k2 == Kingdom.INCERTAE_SEDIS ? Equality.UNKNOWN : Equality.DIFFERENT;
+    return k1 == Kingdom.INCERTAE_SEDIS || k2 == Kingdom.INCERTAE_SEDIS || KINGDOM_MATCH.contains(k1, k2) ? Equality.UNKNOWN : Equality.DIFFERENT;
   }
 
   // if authors are missing require the classification to not contradict!
@@ -405,29 +415,8 @@ public class NubDb {
   }
 
   public long countTaxa() {
-    Result res = dao.getNeo().execute("start node=node(*) match node return count(node) as cnt");
+    Result res = dao.getNeo().execute("start node=node(*) contains node return count(node) as cnt");
     return (long) res.columnAs("cnt").next();
-  }
-
-  /**
-   * distinct only 3 larger groups of kingdoms as others are often conflated.
-   */
-  private Kingdom norm(Kingdom k) {
-    switch (k) {
-      case ANIMALIA:
-      case PROTOZOA:
-        return Kingdom.ANIMALIA;
-      case PLANTAE:
-      case FUNGI:
-      case CHROMISTA:
-        return Kingdom.PLANTAE;
-      case ARCHAEA:
-      case BACTERIA:
-      case VIRUSES:
-        return Kingdom.BACTERIA;
-      default:
-        return Kingdom.INCERTAE_SEDIS;
-    }
   }
 
   public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {

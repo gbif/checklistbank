@@ -1246,7 +1246,7 @@ public class NubBuilderIT {
   }
 
   /**
-   * Make sure names coming in from sources without a kingdom or classification still match to existing names in a proper kingdom
+   * Make sure names coming in from sources without a kingdom or classification still contains to existing names in a proper kingdom
    * E.g. Toxostoma rufum in PalaeoDB has no classification and "should" be merged with existing animal Toxostoma rufum (Linnaeus, 1758)
    *
    * Examples here use Parmelina quercina for tests
@@ -1482,6 +1482,20 @@ public class NubBuilderIT {
 
     assertTree("111.txt");
     assertScientific("Collotheca heptabrachiata var. molundica", Rank.VARIETY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+  }
+
+  /**
+   * by introducing the type specimen checklist we see many apparently accepted names coming in via different kingdoms.
+   * Make sure these get merged if the name matches incl authorship!
+   */
+  @Test
+  public void testDifferentKingdoms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(112, 113);
+    // type specimen list
+    src.setSourceRank(113, Rank.SPECIES);
+    build(src);
+
+    assertTree("112 113.txt");
   }
 
   /**
@@ -1799,7 +1813,7 @@ public class NubBuilderIT {
     TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
 
-    // verify all nodes are walked in the tree and match the expected numbers
+    // verify all nodes are walked in the tree and contains the expected numbers
     int neoCnt = IteratorUtil.count(GlobalGraphOperations.at(dao.getNeo()).getAllNodes());
     // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
     System.out.println("expected nodes: "+expected.getCount());
