@@ -84,10 +84,10 @@ public class NubChangedService extends AbstractIdleService implements MessageCal
       LOG.info("Start sending match dataset messages for all checklists, starting with CoL");
 
       int counter = 1;
-      // make sure we match CoL first as we need that to anaylze datasets (nub & col overlap of names)
+      // make sure we match CoL first as we need that to analyze datasets (nub & col overlap of names)
       publisher.send(new MatchDatasetMessage(Constants.COL_DATASET_KEY));
       for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
-        if (Constants.COL_DATASET_KEY.equals(d.getKey())) {
+        if (Constants.COL_DATASET_KEY.equals(d.getKey()) || Constants.NUB_DATASET_KEY.equals(d.getKey())) {
           continue;
         }
         publisher.send(new MatchDatasetMessage(d.getKey()));

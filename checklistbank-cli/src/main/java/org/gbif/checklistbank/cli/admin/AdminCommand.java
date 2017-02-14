@@ -197,9 +197,27 @@ public class AdminCommand extends BaseCommand {
         indexDataset();
         break;
 
+      case REMATCH:
+        rematchAll();
+        break;
+
       default:
         throw new UnsupportedOperationException();
     }
+  }
+
+  private void rematchAll() throws Exception {
+    LOG.info("Start sending match dataset messages for all checklists but the Backbone and CoL");
+
+    int counter = 0;
+    for (Dataset d : Iterables.datasets(DatasetType.CHECKLIST, datasetService)) {
+      if (Constants.COL_DATASET_KEY.equals(d.getKey()) || Constants.NUB_DATASET_KEY.equals(d.getKey())) {
+        continue;
+      }
+      publisher.send(new MatchDatasetMessage(d.getKey()));
+      counter++;
+    }
+    LOG.info("Sent dataset match message for all {} checklists", counter);
   }
 
   private void indexDataset() throws Exception {

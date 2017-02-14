@@ -37,6 +37,14 @@ public enum AdminOperation {
   MATCH(false),
 
   /**
+   * Sends a MatchDatasetMessage message for all checklist datasets excluding the nub and the CoL.
+   * This is useful to rematch all checklists after a new backbone has been created.
+   * Note: The CoL should first be matched manually on its own before all other checklists are matched.
+   * This is needed to establish the right dataset metrics for the CoL overlap!
+   */
+  REMATCH(true),
+
+  /**
    * Exports a requested checklist dataset into a dwc archive.
    */
   EXPORT(false),

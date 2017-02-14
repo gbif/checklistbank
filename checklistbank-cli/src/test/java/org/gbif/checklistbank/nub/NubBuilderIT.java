@@ -1499,6 +1499,18 @@ public class NubBuilderIT {
   }
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-3168
+   */
+  @Test
+  public void testBadSpeciesSynonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(114);
+    src.setSourceRank(114, Rank.PHYLUM);
+    build(src);
+
+    assertTree("114.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {

@@ -7,6 +7,7 @@ import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
@@ -17,6 +18,8 @@ import com.codahale.metrics.Timer;
 import com.google.inject.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
@@ -59,6 +62,8 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
     final Timer.Context context = timer.time();
     try {
       matcher.matchDataset(msg.getDatasetUuid());
+      // now also request new metrics from the analysis step
+      send(new ChecklistSyncedMessage(msg.getDatasetUuid(), new Date(), 0, 0));
 
     } catch (DatasetMatchFailed e) {
       LOG.error("Dataset matching failed for {}", msg.getDatasetUuid(), e);
