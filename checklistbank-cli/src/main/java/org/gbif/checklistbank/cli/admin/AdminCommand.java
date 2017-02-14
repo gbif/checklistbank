@@ -215,7 +215,7 @@ public class AdminCommand extends BaseCommand {
       if (Constants.COL_DATASET_KEY.equals(d.getKey()) || Constants.NUB_DATASET_KEY.equals(d.getKey())) {
         continue;
       }
-      publisher.send(new MatchDatasetMessage(d.getKey()));
+      send(new MatchDatasetMessage(d.getKey()));
       counter++;
     }
     LOG.info("Sent dataset match message for all {} checklists", counter);
