@@ -61,9 +61,11 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   protected void process(MatchDatasetMessage msg) throws Exception {
     final Timer.Context context = timer.time();
     try {
+      LOG.info("Start matching dataset {}", msg.getDatasetUuid());
       matcher.matchDataset(msg.getDatasetUuid());
       // now also request new metrics from the analysis step
       send(new ChecklistSyncedMessage(msg.getDatasetUuid(), new Date(), 0, 0));
+      LOG.info("Dataset {} matched sucessfully", msg.getDatasetUuid());
 
     } catch (DatasetMatchFailed e) {
       LOG.error("Dataset matching failed for {}", msg.getDatasetUuid(), e);

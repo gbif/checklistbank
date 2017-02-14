@@ -207,6 +207,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void rematchAll() throws Exception {
+    initRegistry();
     LOG.info("Start sending match dataset messages for all checklists but the Backbone and CoL");
 
     int counter = 0;
