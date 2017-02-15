@@ -415,7 +415,7 @@ public class NubDb {
   }
 
   public long countTaxa() {
-    Result res = dao.getNeo().execute("start node=node(*) contains node return count(node) as cnt");
+    Result res = dao.getNeo().execute("START node=node(*) MATCH node RETURN count(node) as cnt");
     return (long) res.columnAs("cnt").next();
   }
 

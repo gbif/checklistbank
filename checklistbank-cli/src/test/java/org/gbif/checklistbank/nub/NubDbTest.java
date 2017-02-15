@@ -161,9 +161,12 @@ public class NubDbTest {
           db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.ANIMALIA, animalia)
       );
 
-      // wrong kingdom
-      assertNoMatch(
-          db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.FUNGI, animalia)
+      // wrong kingdom, but matching authorship
+      assertMatch(vp1869,
+          db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.VIRUSES, animalia)
+      );
+      assertMatch(vl,
+              db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.VIRUSES, animalia)
       );
 
       // wrong rank
@@ -174,6 +177,11 @@ public class NubDbTest {
       // single accepted
       assertSnap(vp1870,
           db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri", Rank.SPECIES, TaxonomicStatus.SYNONYM), Kingdom.ANIMALIA, animalia)
+      );
+
+      // single accepted, but wrong kingdom
+      assertNoMatch(
+              db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.PLANTAE, animalia)
       );
 
       // 3 synonyms, all pointing to the same accepted. Pick first
