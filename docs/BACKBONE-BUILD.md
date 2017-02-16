@@ -1,10 +1,12 @@
 # Rebuild Backbone & put it into production
 
 ## Build new backbone on UAT
+
 ### build neo4j backbone
  - stop all UAT clis as the backbone build needs 40g memory, growing with more sources
  - configure nub builder to use prod db & registry services for reading source data https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-nub.yaml
  - run neo4j nub build via '''./clb-buildnub.sh'''
+
 ### import into postgres 
  - dump prod clb db and import into boma (for faster writes) as db nub_build
  - configure clb importer to use boma nub_build db https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-importer.yaml
