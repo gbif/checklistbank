@@ -1,14 +1,23 @@
 # Rebuild Backbone & put it into production
 
 ## Build new backbone on UAT
+### build neo4j backbone
  - stop all UAT clis as the backbone build needs 40g memory, growing with more sources
  - configure nub builder to use prod db & registry services for reading source data https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-nub.yaml
  - run neo4j nub build via '''./clb-buildnub.sh'''
+### import into postgres 
  - dump prod clb db and import into boma (for faster writes) as db nub_build
- - start-clb-importer.sh to import neo4j backbone into postgres
- - start-clb-analysis.sh
+ - configure clb importer to use boma nub_build db https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-importer.yaml
+ - start start-clb-importer.sh 
+ - issue message to import neo4j backbone into postgres: ./clb-admin.sh IMPORT --nub
+ - once imported, dump boma nub_build and copy to uat_checklistbank
+ - stop-clb.sh
 
-... to be continued
+### rebuild nub lookup index on apps2.gbif-uat.org
+ - cd /usr/local/gbif/services/checklistbank-nub-ws/2.xx/1234567
+ - ./stop.sh
+ - rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nub_idx
+ - ./start.sh
 
 ## Reprocess occurrences
 
@@ -32,10 +41,27 @@
  - `cd ~/util; ./interpret-occurrences -e uat /mnt/auto/misc/<something>/ids-*`
  
 ## Rematch checklists
- - Change CLB related configurations:
-https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-matcher.yaml
+ - Change CLB matcher & analysis configs to use bomas nub_build:
+   - https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-matcher.yaml
+   - https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-analysis.yaml
+ - start-clb-matcher.sh
+ - start-clb-analysis.sh
+ - rematch all: ./clb-admin.sh REMATCH
+ - when complete (no more rabbit messages in clb-matcher & clb-analysis):
+ - boma: pg_dump -U postgres nub_build | gzip > nub.sql.gz
+ - import into uat: 
+   - scp file to camelot
+   - gunzip -c nub.sql.gz | psql -U postgres uat_checklistbank
+
+
+## Export backbone DwC-A
+ - import from nub_build dump
+ - export NUB to dwca, move to rs.gbif.org
 
 ## Rebuild solr, maps & cubes
+### CLB
+tbd
+### Occurrences
 tbd
 
 ## Final prod deployment
