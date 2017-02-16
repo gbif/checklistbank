@@ -61,7 +61,8 @@
 
 ## Export backbone DwC-A
  - import from nub_build dump
- - export NUB to dwca, move to rs.gbif.org
+ - export NUB to dwca: `./clb-admin.sh EXPORT --nub`
+ - move to rs.gbif.org/datasets/backbone/2017-mm-dd
 
 ## Rebuild solr, maps & cubes
 ### CLB
