@@ -17,17 +17,18 @@
  - Deploy release version registry-ws and checklist-bank-ws to UAT
  - Change UAT processor-interpreted config to use new HBase table
  - Update occurrence and clb related clis
-
-### Get all gbifids ---
- - export all ID from HBase to a file
- - break file into multiple files
-
-### issue interpretation messages
  - Delete rabbit MQ queues (on UAT)
  - Change UAT processor-interpreted config to use new HBase table and 12(?) threads
  https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/processor-interpreted.yaml
  - start-processor-interpreted.sh
 
+### Get all gbifids
+ - export all ID from HBase to a file '''ids'''
+
+### issue interpretation messages
+ - split -l 1000000 ids ids-
+ - ./interpret_occurrence_by_files.sh ids-*
+ 
 ## Rematch checklists
  - Change CLB related configurations:
 https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-matcher.yaml
