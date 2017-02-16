@@ -22,6 +22,8 @@
  - `./start.sh`
 
 ## Reprocess occurrences
+Processing uses the geocode-ws and checklistbank-nub-ws.
+Registry is not used as the dataset/organisation derived values are stored already when generating the verbatim view: http://api.gbif-uat.org/v1/occurrence/996799163/verbatim
 
 ### Stop PROD
  - Stop crawling & interpreting on PROD
