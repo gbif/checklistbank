@@ -18,8 +18,7 @@
  - Change UAT processor-interpreted config to use new HBase table
  - Update occurrence and clb related clis
  - Delete rabbit MQ queues (on UAT)
- - Change UAT processor-interpreted config to use new HBase table and 12(?) threads
- https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/processor-interpreted.yaml
+ - Change UAT [processor-interpreted config](https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/processor-interpreted.yaml) to use new HBase table and 12(?) threads
  - start-processor-interpreted.sh
 
 ### Get all gbifids
