@@ -23,8 +23,10 @@
 
 ## Reprocess occurrences
 
+### Stop PROD
+ - Stop crawling & interpreting on PROD
+
 ### Prepare UAT
- - stop all clis but the registry ones on bla6 prod
  - copy hbase tables from prod
  - Deploy release version of occurrence-ws, checklistbank-ws & checklistbank-nub-ws to UAT
  - Change UAT processor-interpreted config to use new HBase table
