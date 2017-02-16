@@ -22,12 +22,14 @@
  - start-processor-interpreted.sh
 
 ### Get all gbifids
- - export all ID from HBase to a file '''ids'''
+ - export all ID from HBase to a file '''ids''', store in `/mnt/auto/misc/<something>/`
 
 ### Issue interpretation messages
- - split -l 1000000 ids ids-
- - start a screen session: screen -S interpret
- - ./interpret_occurrence_by_files.sh ids-*
+ - As "crap" user:
+ - `cd /mnt/auto/misc/<something>/`
+ - `split -l 1000000 ids ids-`
+ - start a screen session: `screen -S interpret`
+ - `cd ~/util; ./interpret-occurrences -e uat /mnt/auto/misc/<something>/ids-*`
  
 ## Rematch checklists
  - Change CLB related configurations:
