@@ -13,7 +13,7 @@
 ## Reprocess occurrences
 
 ### Prepare UAT
- - Copy registry and directory from prod to UAT
+ - Copy registry and directory databases from prod to UAT
  - Deploy release version registry-ws and checklist-bank-ws to UAT
  - Change UAT processor-interpreted config to use new HBase table
  - Update occurrence and clb related clis
@@ -25,8 +25,9 @@
 ### Get all gbifids
  - export all ID from HBase to a file '''ids'''
 
-### issue interpretation messages
+### Issue interpretation messages
  - split -l 1000000 ids ids-
+ - start a screen session: screen -S interpret
  - ./interpret_occurrence_by_files.sh ids-*
  
 ## Rematch checklists
