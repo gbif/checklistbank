@@ -22,11 +22,12 @@
  - ./start.sh
 
 ## Reprocess occurrences
+### Stop PROD
+ - Stop crawling on PROD
 
 ### Prepare UAT
  - Copy registry and directory databases from prod to UAT
  - Deploy release version registry-ws and checklist-bank-ws to UAT
- - Change UAT processor-interpreted config to use new HBase table
  - Update occurrence and clb related clis
  - Delete rabbit MQ queues (on UAT)
  - Change UAT [processor-interpreted config](https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/processor-interpreted.yaml) to use new HBase table and 12(?) threads
