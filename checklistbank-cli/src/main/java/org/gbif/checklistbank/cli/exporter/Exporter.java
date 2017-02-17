@@ -42,6 +42,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.neo4j.unsafe.impl.batchimport.cache.NumberArrayFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,58 +112,64 @@ public class Exporter {
       LOG.info("Start exporting checklist {} into DwC-A at {}", dataset.getKey(), dwca.getAbsolutePath());
       File tmp = Files.createTempDir();
       try {
-        FileUtils.forceMkdir(dwca.getParentFile());
-        writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, true);
+        writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, DwcTerm.taxonID, true);
 
         // add EML
         writer.setMetadata(dataset);
 
-
         // write core taxa
-        TaxonHandler coreHandler = new TaxonHandler(writer, dataset.getKey());
-        usageMapper.processDataset(dataset.getKey(), coreHandler);
-        counter = coreHandler.getCounter();
-        LOG.info("Written {} core taxa", counter);
+        try (TaxonHandler coreHandler = new TaxonHandler(writer, dataset.getKey())) {
+          usageMapper.processDataset(dataset.getKey(), coreHandler);
+          counter = coreHandler.getCounter();
+          LOG.info("Written {} core taxa", counter);
 
-        // add constituents
-        LOG.info("Adding {} constituents metadata", coreHandler.getConstituents().size());
-        for (UUID dkey : coreHandler.getConstituents()) {
-          Dataset constituent = datasetService.get(dkey);
-          if (constituent != null) {
-            writer.addConstituent(constituent);
+          // add constituents
+          LOG.info("Adding {} constituents metadata", coreHandler.getConstituents().size());
+          for (UUID dkey : coreHandler.getConstituents()) {
+            Dataset constituent = datasetService.get(dkey);
+            if (constituent != null) {
+              writer.addConstituent(constituent);
+            }
           }
         }
 
         // distributions
-        DistributionHandler dHandler = new DistributionHandler(writer);
-        distributionMapper.processDataset(dataset.getKey(), dHandler);
-        LOG.info("Written {} distribution records", dHandler.getCounter());
-        extCounter = dHandler.getCounter();
+        try (DistributionHandler dHandler = new DistributionHandler(writer)) {
+          distributionMapper.processDataset(dataset.getKey(), dHandler);
+          LOG.info("Written {} distribution records", dHandler.getCounter());
+          extCounter = dHandler.getCounter();
+        }
 
         // media
-        NameUsageMediaObjectHandler mHandler = new NameUsageMediaObjectHandler(writer);
-        mediaMapper.processDataset(dataset.getKey(), mHandler);
-        LOG.info("Written {} media records", mHandler.getCounter());
-        extCounter = mHandler.getCounter();
+        try (NameUsageMediaObjectHandler mHandler = new NameUsageMediaObjectHandler(writer)) {
+          mediaMapper.processDataset(dataset.getKey(), mHandler);
+          LOG.info("Written {} media records", mHandler.getCounter());
+          extCounter = mHandler.getCounter();
+        }
 
         // references
-        ReferenceHandler rHandler = new ReferenceHandler(writer);
-        referenceMapper.processDataset(dataset.getKey(), rHandler);
-        LOG.info("Written {} reference records", rHandler.getCounter());
-        extCounter = rHandler.getCounter();
+        try (ReferenceHandler rHandler = new ReferenceHandler(writer)) {
+          referenceMapper.processDataset(dataset.getKey(), rHandler);
+          LOG.info("Written {} reference records", rHandler.getCounter());
+          extCounter = rHandler.getCounter();
+        }
 
         // vernacular names
-        VernacularNameHandler vHandler = new VernacularNameHandler(writer);
-        vernacularMapper.processDataset(dataset.getKey(), vHandler);
-        LOG.info("Written {} vernacular name records", vHandler.getCounter());
-        extCounter = vHandler.getCounter();
+        try (VernacularNameHandler vHandler = new VernacularNameHandler(writer)) {
+          vernacularMapper.processDataset(dataset.getKey(), vHandler);
+          LOG.info("Written {} vernacular name records", vHandler.getCounter());
+          extCounter = vHandler.getCounter();
+        }
 
         // finish dwca
         writer.close();
         // zip it up to final location
+        FileUtils.forceMkdir(dwca.getParentFile());
         CompressionUtil.zipDir(tmp, dwca, true);
 
-      } catch (IOException e) {
+        LOG.info("Done exporting checklist {} with {} usages and {} extensions into DwC-A at {}", dataset.getKey(), counter, extCounter, dwca.getAbsolutePath());
+
+      } catch (Exception e) {
         LOG.error("Failed to create dwca for dataset {} at {}", dataset.getKey(), tmp.getAbsolutePath(), e);
 
       } finally {
@@ -172,12 +179,11 @@ public class Exporter {
           LOG.error("Failed to remove tmp dwca dir {}", tmp.getAbsolutePath(), e);
         }
       }
-      LOG.info("Done exporting checklist {} with {} usages and {} extensions into DwC-A at {}", dataset.getKey(), counter, extCounter, dwca.getAbsolutePath());
     }
 
   }
 
-  private static abstract class RowHandler<T> implements ResultHandler<T> {
+  private static abstract class RowHandler<T> implements ResultHandler<T>, AutoCloseable {
     private final DwcaStreamWriter.RowWriteHandler writer;
     private int counter;
     private final Term rowType;
@@ -204,6 +210,11 @@ public class Exporter {
 
     public int getCounter() {
       return counter;
+    }
+
+    @Override
+    public void close() throws Exception {
+      writer.close();
     }
   }
 
@@ -247,7 +258,7 @@ public class Exporter {
 
     @Override
     String[] toRow(ParsedNameUsage u) {
-      String[] row = new String[columns.size()];
+      String[] row = new String[columns.size()+1];
 
       final ParsedName pn = u.getParsedName();
 
@@ -308,7 +319,7 @@ public class Exporter {
     @Override
     String[] toRow(Distribution d) {
       int idx = 0;
-      String[] row = new String[columns.size()];
+      String[] row = new String[columns.size()+1];
 
       row[idx++] = toStr(d.getTaxonKey());
       row[idx++] = d.getLocationId();
@@ -349,7 +360,7 @@ public class Exporter {
     @Override
     String[] toRow(NameUsageMediaObject m) {
       int idx = 0;
-      String[] row = new String[columns.size()];
+      String[] row = new String[columns.size()+1];
 
       row[idx++] = toStr(m.getTaxonKey());
       row[idx++] = toStr(m.getIdentifier());
@@ -384,7 +395,7 @@ public class Exporter {
     @Override
     String[] toRow(Reference r) {
       int idx = 0;
-      String[] row = new String[columns.size()];
+      String[] row = new String[columns.size()+1];
 
       row[idx++] = toStr(r.getTaxonKey());
       row[idx++] = r.getCitation();
@@ -415,7 +426,7 @@ public class Exporter {
     @Override
     String[] toRow(VernacularName v) {
       int idx = 0;
-      String[] row = new String[columns.size()];
+      String[] row = new String[columns.size()+1];
 
       row[idx++] = toStr(v.getTaxonKey());
       row[idx++] = v.getVernacularName();

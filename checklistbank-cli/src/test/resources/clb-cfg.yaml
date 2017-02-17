@@ -1,0 +1,5 @@
+serverName: "${checklistbank.db.host}"
+databaseName: "${checklistbank.db.name}"
+user: ${checklistbank.db.username}
+password: "${checklistbank.db.password}"
+maximumPoolSize: 4
