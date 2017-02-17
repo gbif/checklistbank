@@ -144,21 +144,21 @@ public class Exporter {
         try (NameUsageMediaObjectHandler mHandler = new NameUsageMediaObjectHandler(writer)) {
           mediaMapper.processDataset(dataset.getKey(), mHandler);
           LOG.info("Written {} media records", mHandler.getCounter());
-          extCounter = mHandler.getCounter();
+          extCounter =+ mHandler.getCounter();
         }
 
         // references
         try (ReferenceHandler rHandler = new ReferenceHandler(writer)) {
           referenceMapper.processDataset(dataset.getKey(), rHandler);
           LOG.info("Written {} reference records", rHandler.getCounter());
-          extCounter = rHandler.getCounter();
+          extCounter =+ rHandler.getCounter();
         }
 
         // vernacular names
         try (VernacularNameHandler vHandler = new VernacularNameHandler(writer)) {
           vernacularMapper.processDataset(dataset.getKey(), vHandler);
           LOG.info("Written {} vernacular name records", vHandler.getCounter());
-          extCounter = vHandler.getCounter();
+          extCounter =+ vHandler.getCounter();
         }
 
         // finish dwca
@@ -203,8 +203,8 @@ public class Exporter {
     @Override
     public void handleResult(ResultContext<? extends T> ctx) {
       writer.write(toRow(ctx.getResultObject()));
-      if (counter++ % 10000 == 0) {
-        LOG.info("{} {} records added to dwca", counter, rowType.simpleName());
+      if (counter++ % 100000 == 0) {
+        LOG.debug("{} {} records added to dwca", counter, rowType.simpleName());
       }
     }
 
