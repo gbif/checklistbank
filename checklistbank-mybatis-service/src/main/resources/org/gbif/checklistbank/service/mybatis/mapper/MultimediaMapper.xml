@@ -4,8 +4,8 @@
 
     <sql id="selectCommon">m.type, m.format, m.identifier, m."references", m.title, m.description, m.audience,
     m.created, m.creator, m.contributor, m.publisher, m.license, m.rights_holder</sql>
-    <sql id="select">null AS sourceTaxonKey, s.citation as source,<include refid="selectCommon"/></sql>
-    <sql id="selectNub">m.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
+    <sql id="select">m.usage_fk AS usageKey, null AS sourceTaxonKey, s.citation as source,<include refid="selectCommon"/></sql>
+    <sql id="selectNub">rel.nub_fk as usageKey, m.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
 
   
   <sql id="from">media m
@@ -20,6 +20,7 @@
 
   <!--  A mapping to build a media -->
   <resultMap id="mediaResultMap" type="NameUsageMediaObject" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
     <result property="sourceTaxonKey" column="usage_fk"/>
   </resultMap>
 
@@ -44,6 +45,27 @@
     WHERE rel.nub_fk=#{key}
     ORDER BY m.id
     <include refid="page"/>
+  </select>
+
+  <!--  select all media of a dataset
+Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+-->
+  <select id="processDataset" parameterType="map" resultMap="mediaResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=m.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
   </select>
 
   <delete id="deleteByUsage">

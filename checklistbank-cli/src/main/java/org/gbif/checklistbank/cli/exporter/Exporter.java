@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.exporter;
 
+import com.google.common.collect.ImmutableList;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.paging.PagingRequest;
@@ -22,18 +23,14 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.IucnTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwca.io.DwcaWriter;
+import org.gbif.dwca.io.DwcaStreamWriter;
 import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
@@ -52,7 +49,6 @@ public class Exporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(Exporter.class);
   private static final Joiner CONCAT = Joiner.on(";").skipNulls();
-  private static final PagingRequest EXT_PAGE = new PagingRequest(0, 500);
   private final File repository;
   private final NameUsageMapper usageMapper;
   private final VernacularNameMapper vernacularMapper;
@@ -86,6 +82,7 @@ public class Exporter {
 
   /**
    * Synchroneously generates a new dwca export file for a given dataset
+   *
    * @return the newly generated dwca file
    */
   public File export(Dataset dataset) {
@@ -98,11 +95,10 @@ public class Exporter {
     return export(datasetService.get(datasetKey));
   }
 
-  private class DwcaExport implements Runnable, ResultHandler<ParsedNameUsage> {
+  private class DwcaExport implements Runnable {
     private final Dataset dataset;
     private final File dwca;
-    private DwcaWriter writer;
-    private Set<UUID> constituents = Sets.newHashSet();
+    private DwcaStreamWriter writer;
     private int counter;
     private int extCounter;
 
@@ -116,29 +112,55 @@ public class Exporter {
       File tmp = Files.createTempDir();
       try {
         FileUtils.forceMkdir(dwca.getParentFile());
-        writer = new DwcaWriter(DwcTerm.Taxon, DwcTerm.taxonID, tmp, false);
-        usageMapper.processDataset(dataset.getKey(), this);
+        writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, true);
 
         // add EML
-        writer.setEml(dataset);
+        writer.setMetadata(dataset);
+
+
+        // write core taxa
+        TaxonHandler coreHandler = new TaxonHandler(writer, dataset.getKey());
+        usageMapper.processDataset(dataset.getKey(), coreHandler);
+        counter = coreHandler.getCounter();
+        LOG.info("Written {} core taxa", counter);
 
         // add constituents
-        for (UUID dkey : constituents) {
+        LOG.info("Adding {} constituents metadata", coreHandler.getConstituents().size());
+        for (UUID dkey : coreHandler.getConstituents()) {
           Dataset constituent = datasetService.get(dkey);
           if (constituent != null) {
             writer.addConstituent(constituent);
           }
         }
-        try {
-          // finish dwca
-          writer.close();
-          // zip it up to final location
-          CompressionUtil.zipDir(tmp, dwca, true);
 
-        } catch (IOException e) {
-          LOG.error("Failed to bundle dwca at {}", tmp.getAbsolutePath(), e);
-          throw e;
-        }
+        // distributions
+        DistributionHandler dHandler = new DistributionHandler(writer);
+        distributionMapper.processDataset(dataset.getKey(), dHandler);
+        LOG.info("Written {} distribution records", dHandler.getCounter());
+        extCounter = dHandler.getCounter();
+
+        // media
+        NameUsageMediaObjectHandler mHandler = new NameUsageMediaObjectHandler(writer);
+        mediaMapper.processDataset(dataset.getKey(), mHandler);
+        LOG.info("Written {} media records", mHandler.getCounter());
+        extCounter = mHandler.getCounter();
+
+        // references
+        ReferenceHandler rHandler = new ReferenceHandler(writer);
+        referenceMapper.processDataset(dataset.getKey(), rHandler);
+        LOG.info("Written {} reference records", rHandler.getCounter());
+        extCounter = rHandler.getCounter();
+
+        // vernacular names
+        VernacularNameHandler vHandler = new VernacularNameHandler(writer);
+        vernacularMapper.processDataset(dataset.getKey(), vHandler);
+        LOG.info("Written {} vernacular name records", vHandler.getCounter());
+        extCounter = vHandler.getCounter();
+
+        // finish dwca
+        writer.close();
+        // zip it up to final location
+        CompressionUtil.zipDir(tmp, dwca, true);
 
       } catch (IOException e) {
         LOG.error("Failed to create dwca for dataset {} at {}", dataset.getKey(), tmp.getAbsolutePath(), e);
@@ -153,162 +175,292 @@ public class Exporter {
       LOG.info("Done exporting checklist {} with {} usages and {} extensions into DwC-A at {}", dataset.getKey(), counter, extCounter, dwca.getAbsolutePath());
     }
 
+  }
+
+  private static abstract class RowHandler<T> implements ResultHandler<T> {
+    private final DwcaStreamWriter.RowWriteHandler writer;
+    private int counter;
+    private final Term rowType;
+
+    private RowHandler(DwcaStreamWriter writer, Term rowType, List<Term> columns) {
+      int idx = 1;
+      Map<Term, Integer> mapping = Maps.newHashMap();
+      for (Term term : columns) {
+        mapping.put(term, idx++);
+      }
+      this.writer = writer.writeHandler(rowType, 0, mapping);
+      this.rowType = rowType;
+    }
+
+    abstract String[] toRow(T obj);
 
     @Override
-    public void handleResult(ResultContext<? extends ParsedNameUsage> obj) {
-      final NameUsage u = obj.getResultObject();
-      final ParsedName pn = obj.getResultObject().getParsedName();
-      try {
-        writer.newRecord(u.getKey().toString());
-        writer.addCoreColumn(DwcTerm.datasetID, u.getConstituentKey());
-        if (u.getConstituentKey() != null && !u.getConstituentKey().equals(dataset.getKey())) {
-          constituents.add(u.getConstituentKey());
-        }
-        writer.addCoreColumn(DwcTerm.parentNameUsageID, u.getParentKey());
-        writer.addCoreColumn(DwcTerm.acceptedNameUsageID, u.getAcceptedKey());
-        writer.addCoreColumn(DwcTerm.originalNameUsageID, u.getBasionymKey());
-        // name terms
-        writer.addCoreColumn(DwcTerm.scientificName, u.getScientificName());
-        writer.addCoreColumn(DwcTerm.scientificNameAuthorship, u.getAuthorship());
-        writer.addCoreColumn(GbifTerm.canonicalName, u.getCanonicalName());
-        writer.addCoreColumn(GbifTerm.genericName, pn.getGenusOrAbove());
-        writer.addCoreColumn(DwcTerm.specificEpithet, pn.getSpecificEpithet());
-        writer.addCoreColumn(DwcTerm.infraspecificEpithet, pn.getInfraSpecificEpithet());
-        // taxon
-        writer.addCoreColumn(DwcTerm.taxonRank, u.getRank());
-        writer.addCoreColumn(DwcTerm.nameAccordingTo, u.getAccordingTo());
-        writer.addCoreColumn(DwcTerm.namePublishedIn, u.getPublishedIn());
-        writer.addCoreColumn(DwcTerm.taxonomicStatus, u.getTaxonomicStatus());
-        writer.addCoreColumn(DwcTerm.nomenclaturalStatus, enum2Str(u.getNomenclaturalStatus()));
-        writer.addCoreColumn(DwcTerm.kingdom, u.getKingdom());
-        writer.addCoreColumn(DwcTerm.phylum, u.getPhylum());
-        writer.addCoreColumn(DwcTerm.class_, u.getClazz());
-        writer.addCoreColumn(DwcTerm.order, u.getOrder());
-        writer.addCoreColumn(DwcTerm.family, u.getFamily());
-        writer.addCoreColumn(DwcTerm.genus, u.getGenus());
-        writer.addCoreColumn(DwcTerm.taxonRemarks, u.getRemarks());
-        addExtensionData(u);
-        if (counter++ % 10000 == 0) {
-          LOG.info("{} usages with {} extension added to dwca", counter, extCounter);
-        }
-      } catch (IOException e) {
-        throw new IllegalStateException(e);
+    public void handleResult(ResultContext<? extends T> ctx) {
+      writer.write(toRow(ctx.getResultObject()));
+      if (counter++ % 10000 == 0) {
+        LOG.info("{} {} records added to dwca", counter, rowType.simpleName());
       }
     }
 
-    private void addExtensionData(NameUsage u) throws IOException {
-      // distributions
-      for (Distribution v : listExtensions(distributionMapper, u.getKey())) {
-        writer.addExtensionRecord(GbifTerm.Distribution, map(v));
-        extCounter++;
-      }
-      // media
-      for (NameUsageMediaObject v : listExtensions(mediaMapper, u.getKey())) {
-        writer.addExtensionRecord(GbifTerm.Multimedia, map(v));
-        extCounter++;
-      }
-      // references
-      for (Reference v : listExtensions(referenceMapper, u.getKey())) {
-        writer.addExtensionRecord(GbifTerm.Reference, map(v));
-        extCounter++;
-      }
-      // vernacular names
-      for (VernacularName v : listExtensions(vernacularMapper, u.getKey())) {
-        writer.addExtensionRecord(GbifTerm.VernacularName, map(v));
-        extCounter++;
-      }
-      // TODO: types
-    }
-
-    private Map<Term, String> map(Distribution d) {
-      Map<Term, String> data = Maps.newHashMap();
-      data.put(DwcTerm.locationID, d.getLocationId());
-      data.put(DwcTerm.locality, d.getLocality());
-      add(data, d.getCountry());
-      data.put(DwcTerm.locationRemarks, d.getRemarks());
-      data.put(DwcTerm.establishmentMeans, enum2Str(d.getEstablishmentMeans()));
-      data.put(DwcTerm.lifeStage, enum2Str(d.getLifeStage()));
-      data.put(DwcTerm.occurrenceStatus, enum2Str(d.getStatus()));
-      data.put(IucnTerm.threatStatus, enum2Str(d.getThreatStatus()));
-      data.put(DcTerm.source, d.getSource());
-      return data;
-    }
-
-    private Map<Term, String> map(NameUsageMediaObject m) {
-      Map<Term, String> data = Maps.newHashMap();
-      data.put(DcTerm.identifier, uri2Str(m.getIdentifier()));
-      data.put(DcTerm.references, uri2Str(m.getReferences()));
-      data.put(DcTerm.title, m.getTitle());
-      data.put(DcTerm.description, m.getDescription());
-      data.put(DcTerm.license, m.getLicense());
-      data.put(DcTerm.creator, m.getCreator());
-      data.put(DcTerm.created, date2Str(m.getCreated()));
-      data.put(DcTerm.contributor, m.getContributor());
-      data.put(DcTerm.publisher, m.getPublisher());
-      data.put(DcTerm.rightsHolder, m.getRightsHolder());
-      data.put(DcTerm.source, m.getSource());
-      return data;
-    }
-
-    private Map<Term, String> map(Reference r) {
-      Map<Term, String> data = Maps.newHashMap();
-      data.put(DcTerm.bibliographicCitation, r.getCitation());
-      data.put(DcTerm.identifier, r.getDoi());
-      data.put(DcTerm.references, r.getLink());
-      data.put(DcTerm.source, r.getSource());
-      return data;
-    }
-
-    private Map<Term, String> map(VernacularName v) {
-      Map<Term, String> data = Maps.newHashMap();
-      data.put(DwcTerm.vernacularName, v.getVernacularName());
-      data.put(DcTerm.language, enum2Str(v.getLanguage()));
-      add(data, v.getCountry());
-      data.put(DwcTerm.sex, enum2Str(v.getSex()));
-      data.put(DwcTerm.lifeStage, enum2Str(v.getLifeStage()));
-      data.put(DcTerm.source, v.getSource());
-      return data;
-    }
-
-    private <T> List<T> listExtensions(NameUsageComponentMapper<T> mapper, int usageKey) {
-      if (Constants.NUB_DATASET_KEY.equals(dataset.getKey())) {
-        return mapper.listByNubUsage(usageKey, EXT_PAGE);
-      } else {
-        return mapper.listByChecklistUsage(usageKey, EXT_PAGE);
-      }
-    }
-
-    private String enum2Str(Collection<? extends Enum> es) {
-      if (es == null) return "";
-      return CONCAT.join(es).toLowerCase().replaceAll("_", " ");
-    }
-
-    private String enum2Str(Language l) {
-      if (l == null) return null;
-      return l.getIso2LetterCode();
-    }
-
-    private String enum2Str(Enum e) {
-      if (e == null) return null;
-      return e.name().toLowerCase().replaceAll("_", " ");
-    }
-
-    private String uri2Str(URI uri) {
-      if (uri == null) return null;
-      return uri.toString();
-    }
-
-    private String date2Str(Date date) {
-      if (date == null) return null;
-      return DateFormatUtils.ISO_DATE_FORMAT.format(date);
-    }
-
-    private void add(Map<Term, String> data, Country val) {
-      if (val != null) {
-        data.put(DwcTerm.countryCode, val.getIso2LetterCode());
-        data.put(DwcTerm.country, val.getTitle());
-      }
+    public int getCounter() {
+      return counter;
     }
   }
 
+  private static class TaxonHandler extends RowHandler<ParsedNameUsage> {
+
+    static final List<Term> columns = ImmutableList.of(
+            DwcTerm.datasetID,
+            DwcTerm.parentNameUsageID,
+            DwcTerm.acceptedNameUsageID,
+            DwcTerm.originalNameUsageID,
+            DwcTerm.scientificName,
+            DwcTerm.scientificNameAuthorship,
+            GbifTerm.canonicalName,
+            GbifTerm.genericName,
+            DwcTerm.specificEpithet,
+            DwcTerm.infraspecificEpithet,
+            DwcTerm.taxonRank,
+            DwcTerm.nameAccordingTo,
+            DwcTerm.namePublishedIn,
+            DwcTerm.taxonomicStatus,
+            DwcTerm.nomenclaturalStatus,
+            DwcTerm.taxonRemarks,
+            DwcTerm.kingdom,
+            DwcTerm.phylum,
+            DwcTerm.class_,
+            DwcTerm.order,
+            DwcTerm.family,
+            DwcTerm.genus
+    );
+    private final Set<UUID> constituents = Sets.newHashSet();
+    private final UUID datasetKey;
+
+    private TaxonHandler(DwcaStreamWriter writer, UUID datasetKey) {
+      super(writer, DwcTerm.Taxon, columns);
+      this.datasetKey = datasetKey;
+    }
+
+    public Set<UUID> getConstituents() {
+      return constituents;
+    }
+
+    @Override
+    String[] toRow(ParsedNameUsage u) {
+      String[] row = new String[columns.size()];
+
+      final ParsedName pn = u.getParsedName();
+
+      int idx = 0;
+      row[idx++] = toStr(u.getKey());
+      row[idx++] = toStr(u.getConstituentKey());
+      if (u.getConstituentKey() != null && !u.getConstituentKey().equals(datasetKey)) {
+        constituents.add(u.getConstituentKey());
+      }
+      row[idx++] = toStr(u.getParentKey());
+      row[idx++] = toStr(u.getAcceptedKey());
+      row[idx++] = toStr(u.getBasionymKey());
+      // name
+      row[idx++] = u.getScientificName();
+      row[idx++] = u.getAuthorship();
+      row[idx++] = u.getCanonicalName();
+      row[idx++] = pn.getGenusOrAbove();
+      row[idx++] = pn.getSpecificEpithet();
+      row[idx++] = pn.getInfraSpecificEpithet();
+      // taxon
+      row[idx++] = toStr(u.getRank());
+      row[idx++] = u.getAccordingTo();
+      row[idx++] = u.getPublishedIn();
+      row[idx++] = toStr(u.getTaxonomicStatus());
+      row[idx++] = toStr(u.getNomenclaturalStatus());
+      row[idx++] = u.getRemarks();
+      // classification
+      row[idx++] = u.getKingdom();
+      row[idx++] = u.getPhylum();
+      row[idx++] = u.getClazz();
+      row[idx++] = u.getOrder();
+      row[idx++] = u.getFamily();
+      row[idx] = u.getGenus();
+
+      return row;
+    }
+  }
+
+  private static class DistributionHandler extends RowHandler<Distribution> {
+
+    static final List<Term> columns = ImmutableList.of(
+            DwcTerm.locationID,
+            DwcTerm.locality,
+            DwcTerm.country,
+            DwcTerm.countryCode,
+            DwcTerm.locationRemarks,
+            DwcTerm.establishmentMeans,
+            DwcTerm.lifeStage,
+            DwcTerm.occurrenceStatus,
+            IucnTerm.threatStatus,
+            DcTerm.source
+    );
+
+    private DistributionHandler(DwcaStreamWriter writer) {
+      super(writer, GbifTerm.Distribution, columns);
+    }
+
+    @Override
+    String[] toRow(Distribution d) {
+      int idx = 0;
+      String[] row = new String[columns.size()];
+
+      row[idx++] = toStr(d.getTaxonKey());
+      row[idx++] = d.getLocationId();
+      row[idx++] = d.getLocality();
+      addCountryColumns(row, idx, d.getCountry());
+      idx = idx + 2;
+      row[idx++] = d.getRemarks();
+      row[idx++] = toStr(d.getEstablishmentMeans());
+      row[idx++] = toStr(d.getLifeStage());
+      row[idx++] = toStr(d.getStatus());
+      row[idx++] = toStr(d.getThreatStatus());
+      row[idx] = d.getSource();
+
+      return row;
+    }
+  }
+
+  private static class NameUsageMediaObjectHandler extends RowHandler<NameUsageMediaObject> {
+
+    static final List<Term> columns = ImmutableList.of(
+            DcTerm.identifier,
+            DcTerm.references,
+            DcTerm.title,
+            DcTerm.description,
+            DcTerm.license,
+            DcTerm.creator,
+            DcTerm.created,
+            DcTerm.contributor,
+            DcTerm.publisher,
+            DcTerm.rightsHolder,
+            DcTerm.source
+    );
+
+    private NameUsageMediaObjectHandler(DwcaStreamWriter writer) {
+      super(writer, GbifTerm.Multimedia, columns);
+    }
+
+    @Override
+    String[] toRow(NameUsageMediaObject m) {
+      int idx = 0;
+      String[] row = new String[columns.size()];
+
+      row[idx++] = toStr(m.getTaxonKey());
+      row[idx++] = toStr(m.getIdentifier());
+      row[idx++] = toStr(m.getReferences());
+      row[idx++] = m.getTitle();
+      row[idx++] = m.getDescription();
+      row[idx++] = m.getLicense();
+      row[idx++] = m.getCreator();
+      row[idx++] = toStr(m.getCreated());
+      row[idx++] = m.getContributor();
+      row[idx++] = m.getPublisher();
+      row[idx++] = m.getRightsHolder();
+      row[idx] = m.getSource();
+
+      return row;
+    }
+  }
+
+  private static class ReferenceHandler extends RowHandler<Reference> {
+
+    static final List<Term> columns = ImmutableList.of(
+            DcTerm.bibliographicCitation,
+            DcTerm.identifier,
+            DcTerm.references,
+            DcTerm.source
+    );
+
+    private ReferenceHandler(DwcaStreamWriter writer) {
+      super(writer, GbifTerm.Reference, columns);
+    }
+
+    @Override
+    String[] toRow(Reference r) {
+      int idx = 0;
+      String[] row = new String[columns.size()];
+
+      row[idx++] = toStr(r.getTaxonKey());
+      row[idx++] = r.getCitation();
+      row[idx++] = r.getDoi();
+      row[idx++] = r.getLink();
+      row[idx] = r.getSource();
+
+      return row;
+    }
+  }
+
+  private static class VernacularNameHandler extends RowHandler<VernacularName> {
+
+    static final List<Term> columns = ImmutableList.of(
+            DwcTerm.vernacularName,
+            DcTerm.language,
+            DwcTerm.country,
+            DwcTerm.countryCode,
+            DwcTerm.sex,
+            DwcTerm.lifeStage,
+            DcTerm.source
+    );
+
+    private VernacularNameHandler(DwcaStreamWriter writer) {
+      super(writer, GbifTerm.VernacularName, columns);
+    }
+
+    @Override
+    String[] toRow(VernacularName v) {
+      int idx = 0;
+      String[] row = new String[columns.size()];
+
+      row[idx++] = toStr(v.getTaxonKey());
+      row[idx++] = v.getVernacularName();
+      row[idx++] = toStr(v.getLanguage());
+      addCountryColumns(row, idx, v.getCountry());
+      idx=idx+2;
+      row[idx++] = toStr(v.getSex());
+      row[idx++] = toStr(v.getLifeStage());
+      row[idx] = v.getSource();
+
+      return row;
+    }
+  }
+
+  private static String toStr(Collection<? extends Enum> es) {
+    if (es == null) return "";
+    return CONCAT.join(es).toLowerCase().replaceAll("_", " ");
+  }
+
+  private static String toStr(Language l) {
+    if (l == null) return null;
+    return l.getIso2LetterCode();
+  }
+
+  private static String toStr(Enum e) {
+    if (e == null) return null;
+    return e.name().toLowerCase().replaceAll("_", " ");
+  }
+
+  private static String toStr(Date date) {
+    if (date == null) return null;
+    return DateFormatUtils.ISO_DATE_FORMAT.format(date);
+  }
+
+  private static String toStr(Object obj) {
+    return obj == null ? null : obj.toString();
+  }
+
+  private static void addCountryColumns(String[] row, int idx, Country val) {
+    if (val != null) {
+      row[idx++] = val.getTitle();
+      row[idx] = val.getIso2LetterCode();
+    } else {
+      row[idx++] = null;
+      row[idx] = null;
+    }
+  }
 }

@@ -27,13 +27,14 @@
 
   <!--  A mapping to build a Distribution -->
   <resultMap id="distributionResultMap" type="Distribution" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
     <result property="status" column="occurrence_status"/>
     <result property="source" column="citation"/>
   </resultMap>
 
   <resultMap id="distributionRangeResultMap" type="UsageRelated" autoMapping="true">
     <id property="usageKey" column="usageKey"/>
-    <id property="value" column="id"></id>
+    <id property="value" column="id"/>
     <association property="value" javaType="Distribution" resultMap="distributionResultMap" />
   </resultMap>
 
@@ -75,6 +76,27 @@
     FROM
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
+  </select>
+
+  <!--  select all distributions of a dataset
+  Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+  -->
+  <select id="processDataset" parameterType="map" resultMap="distributionResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=d.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
   </select>
 
   <delete id="deleteByUsage">

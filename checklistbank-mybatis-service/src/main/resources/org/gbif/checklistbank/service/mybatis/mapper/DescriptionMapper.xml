@@ -25,6 +25,7 @@
   <!--  A mapping to build a Description -->
   <resultMap id="descriptionResultMap" type="Description" autoMapping="true">
     <id property="key" column="id"/>
+    <result property="taxonKey" column="usageKey"/>
   </resultMap>
 
   <resultMap id="descriptionRangeResultMap" type="UsageRelated" autoMapping="true">

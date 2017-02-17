@@ -18,6 +18,7 @@
 
   <!--  A mapping to build a VernacularName -->
   <resultMap id="vernacularResultMap" type="VernacularName" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
     <result property="vernacularName" column="name"/>
   </resultMap>
 
@@ -87,6 +88,27 @@
     FROM
     <include refid="fromNub"/>
     WHERE rel.nub_fk between #{start} and #{end}
+  </select>
+
+  <!--  select all vernacular names of a dataset
+Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+-->
+  <select id="processDataset" parameterType="map" resultMap="vernacularResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=v.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
   </select>
 
   <delete id="deleteByUsage">

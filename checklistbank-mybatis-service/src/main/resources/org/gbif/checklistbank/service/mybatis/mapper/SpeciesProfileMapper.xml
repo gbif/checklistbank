@@ -24,6 +24,7 @@
 
   <!--  A mapping to build a SpeciesProfile -->
   <resultMap id="speciesProfileResultMap" type="SpeciesProfile" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
   </resultMap>
 
   <resultMap id="speciesProfileRangeResultMap" type="UsageRelated" autoMapping="true">

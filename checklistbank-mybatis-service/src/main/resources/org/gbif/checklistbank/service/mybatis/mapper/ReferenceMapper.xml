@@ -3,8 +3,8 @@
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper">
 
   <sql id="selectCommon">r.id, r.type, r.remarks, c.citation, c.identifier, c.link</sql>
-  <sql id="select">null AS sourceTaxonKey, null as source,<include refid="selectCommon"/></sql>
-  <sql id="selectNub">r.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
+  <sql id="select">r.usage_fk AS usageKey, null AS sourceTaxonKey, null as source,<include refid="selectCommon"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey, r.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
 
   <sql id="from">literature r
     JOIN citation c ON r.citation_fk=c.id
@@ -20,6 +20,7 @@
 
 
   <resultMap id="referenceResultMap" type="Reference" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
     <result property="doi" column="identifier"/>
   </resultMap>
 
@@ -44,6 +45,27 @@
     WHERE rel.nub_fk=#{key}
     ORDER BY citation
     <include refid="page"/>
+  </select>
+
+  <!--  select all references of a dataset
+Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+-->
+  <select id="processDataset" parameterType="map" resultMap="referenceResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=r.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
   </select>
 
   <delete id="deleteByUsage">

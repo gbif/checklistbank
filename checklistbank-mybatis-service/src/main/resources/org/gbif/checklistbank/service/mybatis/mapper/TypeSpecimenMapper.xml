@@ -3,8 +3,8 @@
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper">
 
   <sql id="selectCommon">t.id, t.rank, t.scientific_name, t.designated_by, t.designation_type</sql>
-  <sql id="select">null AS sourceTaxonKey, c.citation as source, <include refid="selectCommon"/></sql>
-  <sql id="selectNub">t.usage_fk as sourceTaxonKey, d.title as source, <include refid="selectCommon"/></sql>
+  <sql id="select">t.usage_fk AS usageKey, null AS sourceTaxonKey, c.citation as source, <include refid="selectCommon"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey, t.usage_fk as sourceTaxonKey, d.title as source, <include refid="selectCommon"/></sql>
 
   <sql id="from"> typification t
     LEFT JOIN citation c ON t.source_fk=c.id
@@ -18,6 +18,7 @@
 
   <!--  A mapping to build a TypeSpecimen -->
   <resultMap id="typeSpecimenResultMap" type="TypeSpecimen" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
     <result property="taxonRank" column="rank"/>
     <result property="typeDesignatedBy" column="designated_by"/>
     <result property="typeDesignationType" column="designation_type"/>
