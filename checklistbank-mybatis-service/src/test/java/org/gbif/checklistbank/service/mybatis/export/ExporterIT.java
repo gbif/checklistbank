@@ -1,18 +1,14 @@
 
-package org.gbif.checklistbank.cli.exporter;
+package org.gbif.checklistbank.service.mybatis.export;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
-import org.apache.commons.io.IOUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.gbif.checklistbank.utils.ClbConfigurationUtils;
 import org.gbif.utils.file.FileUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

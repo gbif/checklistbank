@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.cli.nubchanged;
 
-import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
+import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;

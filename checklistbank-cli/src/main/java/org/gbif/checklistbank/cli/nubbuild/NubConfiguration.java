@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.cli.common.RegistryServiceConfiguration;
+import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 

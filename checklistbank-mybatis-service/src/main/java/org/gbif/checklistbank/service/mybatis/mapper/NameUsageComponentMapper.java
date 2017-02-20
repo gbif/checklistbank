@@ -1,9 +1,12 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.apache.ibatis.session.ResultHandler;
+import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.checklistbank.model.UsageRelated;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -23,4 +26,13 @@ public interface NameUsageComponentMapper<T> {
   List<UsageRelated<T>> listByNubUsageRange(@Param("start") int usageKeyStart, @Param("end") int usageKeyEnd);
 
   void deleteByUsage(@Param("key") int usageKey);
+
+  /**
+   * Iterates over all components of a given dataset and processes them with the supplied handler.
+   * This allows a single query to efficiently stream all its values without keeping them in memory.
+   *
+   * @param handler to process each name usage with
+   */
+  void processDataset(@Param("uuid") UUID datasetKey, ResultHandler<T> handler);
+
 }

@@ -1,5 +1,6 @@
-package org.gbif.checklistbank.cli.common;
+package org.gbif.checklistbank.config;
 
+import com.google.common.base.Strings;
 import org.gbif.checklistbank.registry.FileRegistryModule;
 import org.gbif.registry.ws.client.guice.RegistryWsClientModule;
 import org.gbif.ws.client.guice.AnonymousAuthModule;
@@ -16,7 +17,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import org.neo4j.helpers.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class RegistryServiceConfiguration {
       props.put("registry.ws.url", wsUrl);
 
       List<Module> modules = Lists.newArrayList();
-      if (!Strings.isBlank(user) && !Strings.isBlank(password)) {
+      if (!Strings.isNullOrEmpty(user) && !Strings.isNullOrEmpty(password)) {
         modules.add( new SingleUserAuthModule(user, password) );
       } else {
         modules.add( new AnonymousAuthModule() );

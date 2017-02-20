@@ -21,7 +21,7 @@ public class ClbConfigurationUtils {
     cfg.serverName = "pg1.gbif-uat.org";
     cfg.databaseName = "uat_checklistbank";
     cfg.user = "clb";
-    cfg.password = "%BBJu2MgstXJ";
+    cfg.password = "---";
     return cfg;
   }
 

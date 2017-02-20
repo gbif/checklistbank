@@ -7,7 +7,7 @@ import org.gbif.api.service.registry.NetworkService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.checklistbank.cli.exporter.Exporter;
+import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.config.MetricModule;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.MessageListener;

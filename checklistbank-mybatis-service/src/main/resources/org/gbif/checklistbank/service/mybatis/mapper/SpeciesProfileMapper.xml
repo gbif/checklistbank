@@ -76,6 +76,24 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
+  <select id="processDataset" parameterType="map" resultMap="speciesProfileResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=s.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
+  </select>
+
   <delete id="deleteByUsage">
     DELETE FROM species_info
     WHERE usage_fk = #{key}

@@ -1,23 +1,17 @@
-package org.gbif.checklistbank.cli.exporter;
+package org.gbif.checklistbank.service.mybatis.export;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.cli.admin.AdminCommand;
-import org.gbif.checklistbank.cli.admin.AdminConfiguration;
-import org.gbif.checklistbank.cli.admin.AdminOperation;
 import org.gbif.checklistbank.config.ClbConfiguration;
-
-import java.io.File;
-import java.util.UUID;
-
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.utils.ClbConfigurationUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- *
- */
+import java.io.File;
+import java.util.UUID;
+
+
 @Ignore("manual test")
 public class ExporterTest {
 

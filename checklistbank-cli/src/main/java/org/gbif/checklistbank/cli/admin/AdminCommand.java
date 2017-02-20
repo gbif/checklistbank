@@ -15,7 +15,7 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.analysis.DatasetIndexUpdater;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.exporter.Exporter;
+import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.model.DatasetCore;
