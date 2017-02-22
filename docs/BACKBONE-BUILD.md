@@ -67,14 +67,14 @@ Registry is not used as the dataset/organisation derived values are stored alrea
  - export NUB to dwca: `./clb-admin.sh EXPORT --nub`
  - move to rs.gbif.org/datasets/backbone/2017-mm-dd
 
-## Rebuild solr, maps & cubes
-### CLB
-tbd
-### Occurrences
-tbd
+## Backfill Occurrence maps & cubes
+See https://github.com/gbif/metrics/tree/master/cube
+
+## Rebuild Occurrence HDFS and Solr
+
 
 ## Final prod deployment
-### prepare CLB
+### Prepare CLB
  - import uat dump into prod: 
    - `gunzip -c nub.sql.gz | psql -U postgres prod_checklistbank`
    - psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
@@ -84,7 +84,7 @@ tbd
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
  - build new prod solr index without aliasing to prod_checklistbank
    
-### deploy CLB
+### Deploy CLB
  - prod deploy of checklistbank-nub-ws
  - swap nub index within checklistbank-nub-ws:
     - ./stop.sh
