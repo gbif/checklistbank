@@ -82,14 +82,21 @@ tbd
  - update webservice configs
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
+ - build new prod solr index without aliasing to prod_checklistbank
    
 ### deploy CLB
- - prod deploy of checklistbank-ws
  - prod deploy of checklistbank-nub-ws
  - swap nub index within checklistbank-nub-ws:
     - ./stop.sh
     - rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nubidx
     - mv /usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW /usr/local/gbif/services/checklistbank-nub-ws/nubidx
     - ./start.sh
+ - prod deploy of checklistbank-ws
+ - alias to new solr collection
+    - ./stop.sh
+    - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank-2017-02-22"`
+    - ./start.sh
+
 ### Occ
 
+tbd
