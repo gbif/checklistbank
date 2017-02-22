@@ -72,11 +72,14 @@ See https://github.com/gbif/metrics/tree/master/cube
 
 ## Rebuild Occurrence HDFS and Solr
 ### Occurrence HDFS table 
+Warning: Do NOT use prod, it needs to keep running.
  - Update the configurations for UAT using the new HBase table: https://github.com/gbif/gbif-configuration/blob/master/occurrence-download/profiles.xml
  - Install the workflow for UAT on the gateway https://github.com/gbif/occurrence/tree/master/occurrence-download 
  
 ### Occurrence Solr
- - Update the configurations to use hive.db=uat  https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
+Warning: For Solr, we use the prod config BUT the UAT hive database to have it ready with the right number of shards.
+ - Update the configurations to use hive.db=uat https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
+ - Install workflow for PROD on the gateway
 
 ## Final prod deployment
 ### Prepare CLB
