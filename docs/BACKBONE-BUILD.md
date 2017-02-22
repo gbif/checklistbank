@@ -91,5 +91,6 @@ tbd
     - rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nubidx
     - mv /usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW /usr/local/gbif/services/checklistbank-nub-ws/nubidx
     - ./start.sh
+
 ### Occ
 
