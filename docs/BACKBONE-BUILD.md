@@ -20,7 +20,8 @@
  - `./stop.sh`
  - `rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nub_idx`
  - `./start.sh`
-
+ - wait until the logs indicate the index build was finished (~1h).
+ 
 ## Reprocess occurrences
 Processing uses the geocode-ws and checklistbank-nub-ws.
 Registry is not used as the dataset/organisation derived values are stored already when generating the verbatim view: http://api.gbif-uat.org/v1/occurrence/996799163/verbatim
@@ -73,5 +74,22 @@ tbd
 tbd
 
 ## Final prod deployment
-tbd
+### prepare CLB
+ - import uat dump into prod: 
+   - `gunzip -c nub.sql.gz | psql -U postgres prod_checklistbank`
+   - psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
+ - copy nub index from `apps2.gbif.uat.org/usr/local/gbif/services/checklistbank-nub-ws/nubidx` to `apps2.gbif.org/usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW`
+ - update webservice configs
+   - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
+   - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
+   
+### deploy CLB
+ - prod deploy of checklistbank-ws
+ - prod deploy of checklistbank-nub-ws
+ - swap nub index within checklistbank-nub-ws:
+    - ./stop.sh
+    - rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nubidx
+    - mv /usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW /usr/local/gbif/services/checklistbank-nub-ws/nubidx
+    - ./start.sh
+### Occ
 
