@@ -74,7 +74,9 @@ See https://github.com/gbif/metrics/tree/master/cube
 ### Occurrence HDFS table 
  - Update the configurations for UAT using the new HBase table: https://github.com/gbif/gbif-configuration/blob/master/occurrence-download/profiles.xml
  - Install the workflow for UAT on the gateway https://github.com/gbif/occurrence/tree/master/occurrence-download 
+ 
 ### Occurrence Solr
+ - Update the configurations to use hive.db=uat  https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
 
 ## Final prod deployment
 ### Prepare CLB
