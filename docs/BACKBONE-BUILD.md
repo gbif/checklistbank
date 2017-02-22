@@ -28,6 +28,7 @@ Registry is not used as the dataset/organisation derived values are stored alrea
 
 ### Stop PROD
  - Stop crawling & interpreting on PROD
+ - Stop Oozie HDFS occurrence table coordinator
 
 ### Prepare UAT
  - copy hbase tables from prod
