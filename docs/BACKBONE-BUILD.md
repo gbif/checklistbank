@@ -103,7 +103,7 @@ Warning: For Solr, we use the prod config BUT the UAT hive database to have it r
  - prod deploy of checklistbank-ws
  - alias to new solr collection
     - ./stop.sh
-    - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank-2017-02-22"`
+    - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank_2017_02_22"`
     - ./start.sh
 
 ### Occ
