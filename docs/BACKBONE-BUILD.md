@@ -106,6 +106,8 @@ Warning: For Solr, we use the prod config BUT the UAT hive database to have it r
     - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank_2017_02_22"`
     - ./start.sh
 
-### Occ
-
-tbd
+### Deploy Occurrences WS
+ - Deploy metric-ws, tile-server-ws and occurrence-ws
+ - Disable previous HBase tables to ensure no configuration are still using them
+ 
+### Deploy Occurrences CLI
