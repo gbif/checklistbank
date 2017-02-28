@@ -111,3 +111,10 @@ Warning: For Solr, we use the prod config BUT the UAT hive database to have it r
  - Disable previous HBase tables to ensure no configuration are still using them
  
 ### Deploy Occurrences CLI
+
+### Deploy Dataset index coordinator job
+The dataset index contains information about taxa used in occurrence and checklist datasets which is updated nightly by an Oozie coordinator job. That job needs to be redeployed with updated configs to use the latest clb and occ settings:
+ - update https://github.com/gbif/gbif-configuration/blob/master/registry-index-builder/prod.properties
+ - execute `prodgateway-vh/root/registry/registry-index-builder/install-coordinator.sh prod TOKEN`
+ 
+ 
