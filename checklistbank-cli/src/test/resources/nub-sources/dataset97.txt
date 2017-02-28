@@ -1,24 +1,24 @@
-6			KINGDOM	ACCEPTED		Plantae
-8	6		FAMILY	ACCEPTED		Asteraceae
-10	8		SPECIES	ACCEPTED		Jacobaea vulgaris Gaertn.
-11	10		SPECIES	SYNONYM		Jacobaea vulgaris Moench, 1794
-12	10		VARIETY	SYNONYM		Jacobaea vulgaris var. vulgaris
-13	10		SPECIES	SYNONYM		Senecio jacobaea L. 
-14	10		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. jacobaea
-15	10		VARIETY	SYNONYM		Senecio jacobaea var. jacobaea
-16	10		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. gotlandica (Neuman) B.Nord.
-20	10		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. dunensis (Dumort.) Pelser & Meijden
-21	20		SPECIES	SYNONYM		Senecio dunensis Dumort.
-22	20		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. dunensis (Dumort.) Kadereit & P.D.Sell
-23	20		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. nudus (Weston) Soják, 1980
-24	20		VARIETY	SYNONYM		Senecio jacobaea var. discoideus Wimm. & Grab.
-25	20		VARIETY	SYNONYM		Senecio jacobaea var. flosculosus DC., 1805
-30	8		SPECIES	ACCEPTED		Jacobaea erratica (Bertol.) Fourr.
-31	30		VARIETY	SYNONYM		Senecio jacobaea var. barbareifolius Fiori
-32	8		SPECIES	ACCEPTED		Jacobaea aquatica (Hill) G.Gaertn., B.Mey. & Scherb.
-33	32		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. barbareifolius Krock.
-34	8		SPECIES	ACCEPTED		Hippolytia tomentosa (DC.) Tzvelev
-35	34		VARIETY	SYNONYM		Senecio jacobaea var. grandiflorus Turcz. ex DC.
-36	8		SPECIES	DOUBTFUL		Senecio jacobaea Brot. ex Willk. & Lange
-37	8		VARIETY	ACCEPTED		Senecio jacobaea L. var. gotlandicus Neuman
-38	8		VARIETY	ACCEPTED		Senecio jacobaea var. nudus Weston, 1777
+6			KINGDOM	ACCEPTED		Plantae	
+8	6		FAMILY	ACCEPTED		Asteraceae	
+10	8		SPECIES	ACCEPTED		Jacobaea vulgaris Gaertn.	
+11	10		SPECIES	SYNONYM		Jacobaea vulgaris Moench, 1794	
+12	10		VARIETY	SYNONYM		Jacobaea vulgaris var. vulgaris	
+13	10		SPECIES	SYNONYM		Senecio jacobaea L. 	
+14	10		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. jacobaea	
+15	10		VARIETY	SYNONYM		Senecio jacobaea var. jacobaea	
+16	10		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. gotlandica (Neuman) B.Nord.	
+20	10		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. dunensis (Dumort.) Pelser & Meijden	
+21	20		SPECIES	SYNONYM		Senecio dunensis Dumort.	
+22	20		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. dunensis (Dumort.) Kadereit & P.D.Sell	
+23	20		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. nudus (Weston) Soják, 1980	
+24	20		VARIETY	SYNONYM		Senecio jacobaea var. discoideus Wimm. & Grab.	
+25	20		VARIETY	SYNONYM		Senecio jacobaea var. flosculosus DC., 1805	
+30	8		SPECIES	ACCEPTED		Jacobaea erratica (Bertol.) Fourr.	
+31	30		VARIETY	SYNONYM		Senecio jacobaea var. barbareifolius Fiori	
+32	8		SPECIES	ACCEPTED		Jacobaea aquatica (Hill) G.Gaertn., B.Mey. & Scherb.	
+33	32		SUBSPECIES	SYNONYM		Senecio jacobaea subsp. barbareifolius Krock.	
+34	8		SPECIES	ACCEPTED		Hippolytia tomentosa (DC.) Tzvelev	
+35	34		VARIETY	SYNONYM		Senecio jacobaea var. grandiflorus Turcz. ex DC.	
+36	8		SPECIES	DOUBTFUL		Senecio jacobaea Brot. ex Willk. & Lange	
+37	8		VARIETY	ACCEPTED		Senecio jacobaea L. var. gotlandicus Neuman	
+38	8		VARIETY	ACCEPTED		Senecio jacobaea var. nudus Weston, 1777	

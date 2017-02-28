@@ -347,5 +347,16 @@
       CREATE INDEX on nub_rel(nub_fk, dataset_key, usage_fk);
     </sql>
   </changeSet>
-
+    <changeSet id="49" author="markus">
+        <!-- adds a convenient function to return the publisherKey of plazi -->
+        <sql>
+            <![CDATA[
+      CREATE FUNCTION plaziKey() RETURNS UUID AS $$
+        SELECT '7ce8aef0-9e92-11dc-8738-b8a03c50a862'::uuid
+      $$
+      LANGUAGE SQL
+      IMMUTABLE;
+      ]]>
+        </sql>
+    </changeSet>
 </databaseChangeLog>

@@ -1,23 +1,23 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		CLASS	ACCEPTED		Aves
-10			KINGDOM	ACCEPTED		Plantae
-100	2		GENUS	ACCEPTED		Oenanthe Vieillot, 1816
-101	10		GENUS	ACCEPTED		Oenanthe Linnaeus, 1753
-200	10		FAMILY	ACCEPTED		Poaceae
-201	1		CLASS	ACCEPTED		Insecta
-202	201		ORDER	ACCEPTED		Diptera
-203	202		FAMILY	ACCEPTED		Limoniidae
-1000	203		SPECIES	ACCEPTED		Trichoneura bontocensis Alexander, 1934
-1001	203		SPECIES	ACCEPTED		Trichoneura formosensis (Alexander, 1923)
-2000	200		SPECIES	ACCEPTED		Trichoneura ciliata (Peter) S.M.Phillips
-2001	2000		SPECIES	SYNONYM		Leptochloa ciliata Peter
-2002	2000		SPECIES	SYNONYM		Trichoneura hirtella Napper
-300	10		FAMILY	ACCEPTED		Scrophulariaceae
-301	10		FAMILY	ACCEPTED		Malvaceae
-302	201		ORDER	ACCEPTED		Coleoptera
-303	201		ORDER	ACCEPTED		Orthoptera
-3000	300		GENUS	ACCEPTED		Blattaria P. Miller, 1754
-3001	3004		GENUS	SYNONYM		Blattaria O. Kuntze, 1891
-3002	302		GENUS	ACCEPTED		Blattaria Voet, 1806
-3003	303		GENUS	ACCEPTED		Blattaria Weyenbergh, 1874
-3004	301		GENUS	ACCEPTED		Pentapetes Linnaeus 1753
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+10			KINGDOM	ACCEPTED		Plantae	
+100	2		GENUS	ACCEPTED		Oenanthe Vieillot, 1816	
+101	10		GENUS	ACCEPTED		Oenanthe Linnaeus, 1753	
+200	10		FAMILY	ACCEPTED		Poaceae	
+201	1		CLASS	ACCEPTED		Insecta	
+202	201		ORDER	ACCEPTED		Diptera	
+203	202		FAMILY	ACCEPTED		Limoniidae	
+1000	203		SPECIES	ACCEPTED		Trichoneura bontocensis Alexander, 1934	
+1001	203		SPECIES	ACCEPTED		Trichoneura formosensis (Alexander, 1923)	
+2000	200		SPECIES	ACCEPTED		Trichoneura ciliata (Peter) S.M.Phillips	
+2001	2000		SPECIES	SYNONYM		Leptochloa ciliata Peter	
+2002	2000		SPECIES	SYNONYM		Trichoneura hirtella Napper	
+300	10		FAMILY	ACCEPTED		Scrophulariaceae	
+301	10		FAMILY	ACCEPTED		Malvaceae	
+302	201		ORDER	ACCEPTED		Coleoptera	
+303	201		ORDER	ACCEPTED		Orthoptera	
+3000	300		GENUS	ACCEPTED		Blattaria P. Miller, 1754	
+3001	3004		GENUS	SYNONYM		Blattaria O. Kuntze, 1891	
+3002	302		GENUS	ACCEPTED		Blattaria Voet, 1806	
+3003	303		GENUS	ACCEPTED		Blattaria Weyenbergh, 1874	
+3004	301		GENUS	ACCEPTED		Pentapetes Linnaeus 1753	

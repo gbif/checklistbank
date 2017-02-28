@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
+ * <li>namePublishedIn</li>
  * </ul>
  * Implement the abstract initNeo method to supply such a tab delimited stream to the NeoUsageWriter instance.
  */
@@ -141,7 +142,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
      */
     public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) {
       // the number of columns in our query to consume
-      super(7);
+      super(8);
       this.dao = dao;
       this.writeNeoProperties = writeNeoProperties;
       this.nubRanksOnly = nubRanksOnly;
@@ -161,6 +162,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
+      u.publishedIn= row[7];
 
       if (parseNames) {
         u.parsedName = parser.parseQuietly(u.scientificName, u.rank);

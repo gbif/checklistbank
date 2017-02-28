@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Animalia
-5	1		FAMILY	ACCEPTED		Cardinalidae
-10	5		GENUS	ACCEPTED		Cardinalis Bonaparte, 1838
-100	10		GENUS	ACCEPTED		Cardinalis cardinalis (Linnaeus, 1758)
+1			KINGDOM	ACCEPTED		Animalia	
+5	1		FAMILY	ACCEPTED		Cardinalidae	
+10	5		GENUS	ACCEPTED		Cardinalis Bonaparte, 1838	
+100	10		GENUS	ACCEPTED		Cardinalis cardinalis (Linnaeus, 1758)	

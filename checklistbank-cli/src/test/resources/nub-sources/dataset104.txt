@@ -1,6 +1,6 @@
--1			UNRANKED	ACCEPTED		Life
-0	-1		UNRANKED	ACCEPTED		Eukaryota (Leedale 1974)
-1	0		KINGDOM	ACCEPTED		Plantae (Haeckel 1866)
-10	1		GENUS	SYNONYM		Archelytron Haupt 1952
-11	1		SPECIES	SYNONYM		Silpha deplanata Heer 1870
-12	1		SPECIES	ACCEPTED		Silpha yeahi Heer 1870
+-1			UNRANKED	ACCEPTED		Life	
+0	-1		UNRANKED	ACCEPTED		Eukaryota (Leedale 1974)	
+1	0		KINGDOM	ACCEPTED		Plantae (Haeckel 1866)	
+10	1		GENUS	SYNONYM		Archelytron Haupt 1952	
+11	1		SPECIES	SYNONYM		Silpha deplanata Heer 1870	
+12	1		SPECIES	ACCEPTED		Silpha yeahi Heer 1870	

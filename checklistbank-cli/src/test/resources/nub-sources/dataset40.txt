@@ -1,21 +1,21 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		PHYLUM	ACCEPTED		Arthropoda
-3	2		CLASS	ACCEPTED		Insecta
-4	3		FAMILY	ACCEPTED		Apidae
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		FAMILY	ACCEPTED		Apidae	
 
-6	4		GENUS	ACCEPTED		Amegilla Friese
-8	6		SUBGENUS	ACCEPTED		Amegilla (Micramegilla) Brooks, 1988
-9	6		SUBGENUS	ACCEPTED		Amegilla (Ackmonopsis) Brooks, 1988
-10	8		SPECIES	ACCEPTED		Amegilla (Micramegilla) atrocincta (Lepeletier)
+6	4		GENUS	ACCEPTED		Amegilla Friese	
+8	6		SUBGENUS	ACCEPTED		Amegilla (Micramegilla) Brooks, 1988	
+9	6		SUBGENUS	ACCEPTED		Amegilla (Ackmonopsis) Brooks, 1988	
+10	8		SPECIES	ACCEPTED		Amegilla (Micramegilla) atrocincta (Lepeletier)	
 
-11	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora atrocincta Lepeletier, 1841
-12	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora domicola Cockerell, 1908
-13	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora latipes Friese, 1922
-14	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora plumipes (Fabricius)
-15	10		SPECIES	HETEROTYPIC_SYNONYM		Apis plumipes Fabricius, 1781
-16	10		SPECIES	HETEROTYPIC_SYNONYM		Centris plumipes (Fabricius)
-17	10		SPECIES	HETEROTYPIC_SYNONYM		Hemisia plumipes (Fabricius)
-18	10		SPECIES	HETEROTYPIC_SYNONYM		Podalirius (Anthophora) atrocinctus (Lepeletier)
-19	10		SPECIES	HETEROTYPIC_SYNONYM		Podalirius plumipes (Fabricius)
+11	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora atrocincta Lepeletier, 1841	
+12	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora domicola Cockerell, 1908	
+13	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora latipes Friese, 1922	
+14	10		SPECIES	HETEROTYPIC_SYNONYM		Anthophora plumipes (Fabricius)	
+15	10		SPECIES	HETEROTYPIC_SYNONYM		Apis plumipes Fabricius, 1781	
+16	10		SPECIES	HETEROTYPIC_SYNONYM		Centris plumipes (Fabricius)	
+17	10		SPECIES	HETEROTYPIC_SYNONYM		Hemisia plumipes (Fabricius)	
+18	10		SPECIES	HETEROTYPIC_SYNONYM		Podalirius (Anthophora) atrocinctus (Lepeletier)	
+19	10		SPECIES	HETEROTYPIC_SYNONYM		Podalirius plumipes (Fabricius)	
 
-20	6		SPECIES	ACCEPTED		Amegilla brooksi Eardley, 1994
+20	6		SPECIES	ACCEPTED		Amegilla brooksi Eardley, 1994	

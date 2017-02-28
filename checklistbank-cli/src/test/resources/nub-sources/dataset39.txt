@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		PHYLUM	ACCEPTED		Pinophyta
-3	2		FAMILY	ACCEPTED		Pinaceae
-20	3		SPECIES	ACCEPTED		Abies taxifolia Jeffr. ex Gordon
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		PHYLUM	ACCEPTED		Pinophyta	
+3	2		FAMILY	ACCEPTED		Pinaceae	
+20	3		SPECIES	ACCEPTED		Abies taxifolia Jeffr. ex Gordon	

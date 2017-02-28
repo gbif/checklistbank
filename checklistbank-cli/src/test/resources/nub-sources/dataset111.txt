@@ -1,6 +1,6 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		SPECIES	ACCEPTED		Collotheca cucullata (Hood 1894)
-10	2		INFRASPECIFIC_NAME	ACCEPTED		Collotheca cucullata cucullata (Hood 1894)
-11	2		INFRASPECIFIC_NAME	ACCEPTED		Collotheca cucullata smolandica Berzinš 1894
-12	1		SPECIES	ACCEPTED		Collotheca heptabrachiata (Schoch 1869)
-13	12		INFRASPECIFIC_NAME	ACCEPTED		Collotheca heptabrachiata var. molundica
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		SPECIES	ACCEPTED		Collotheca cucullata (Hood 1894)	
+10	2		INFRASPECIFIC_NAME	ACCEPTED		Collotheca cucullata cucullata (Hood 1894)	
+11	2		INFRASPECIFIC_NAME	ACCEPTED		Collotheca cucullata smolandica Berzinš 1894	
+12	1		SPECIES	ACCEPTED		Collotheca heptabrachiata (Schoch 1869)	
+13	12		INFRASPECIFIC_NAME	ACCEPTED		Collotheca heptabrachiata var. molundica	

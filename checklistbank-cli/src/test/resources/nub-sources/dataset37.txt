@@ -1,6 +1,6 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		PHYLUM	ACCEPTED		Pinophyta
-3	2		FAMILY	ACCEPTED		Pinaceae
-10	3		SPECIES	ACCEPTED		Abies pindrow (Royle ex D. Don) Royle
-20	3		SPECIES	ACCEPTED		Abies taxifolia C.Presl
-21	3		SPECIES	ACCEPTED		Abies taxifolia Raf.
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		PHYLUM	ACCEPTED		Pinophyta	
+3	2		FAMILY	ACCEPTED		Pinaceae	
+10	3		SPECIES	ACCEPTED		Abies pindrow (Royle ex D. Don) Royle	
+20	3		SPECIES	ACCEPTED		Abies taxifolia C.Presl	
+21	3		SPECIES	ACCEPTED		Abies taxifolia Raf.	

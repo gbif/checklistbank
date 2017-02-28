@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public abstract class TabMapperBase extends Writer implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(TabMapperBase.class);
 
-  private int ROW_SIZE;
+  private final int ROW_SIZE;
   private int idx;
   private String[] row;
   private String lastPartialString;

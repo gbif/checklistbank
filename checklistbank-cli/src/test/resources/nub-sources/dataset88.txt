@@ -1,10 +1,10 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		PHYLUM	ACCEPTED		Arthropoda
-3	2		CLASS	ACCEPTED		Insecta
-4	3		ORDER	ACCEPTED		Orthoptera
-5	4		FAMILY	ACCEPTED		Phaneropteridae
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Orthoptera	
+5	4		FAMILY	ACCEPTED		Phaneropteridae	
 
-10	5		GENUS	ACCEPTED		Abaxisotima
-11	10		SPECIES	ACCEPTED		Abaxisotima acuminata (Wang, Yuwen & Xian-wei Liu, 1996)
-12	10		SPECIES	ACCEPTED		Abaxisotima bicolor (Liu, Xian-wei, Z. Zheng & G. Xi, 1991)
+10	5		GENUS	ACCEPTED		Abaxisotima	
+11	10		SPECIES	ACCEPTED		Abaxisotima acuminata (Wang, Yuwen & Xian-wei Liu, 1996)	
+12	10		SPECIES	ACCEPTED		Abaxisotima bicolor (Liu, Xian-wei, Z. Zheng & G. Xi, 1991)	
 

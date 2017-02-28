@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Plantae
-10	1		FAMILY	ACCEPTED		Fabaceae
-100	10		INFRASUBSPECIFIC_NAME	ACCEPTED		Lupinus sericeus var. jonesii (Rydb.) S.
-110	10		INFRASPECIFIC_NAME	ACCEPTED		Lupinus sericeus subsp. flavus Girault, 1913
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		FAMILY	ACCEPTED		Fabaceae	
+100	10		INFRASUBSPECIFIC_NAME	ACCEPTED		Lupinus sericeus var. jonesii (Rydb.) S.	
+110	10		INFRASPECIFIC_NAME	ACCEPTED		Lupinus sericeus subsp. flavus Girault, 1913	

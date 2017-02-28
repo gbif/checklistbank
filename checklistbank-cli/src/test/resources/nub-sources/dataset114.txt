@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Plantae (Haeckel 1866)
-10	1		GENUS	SYNONYM		Archelytron Haupt 1952
-11	1		SPECIES	SYNONYM		Blatta hyperborea Heer, 1870
-13	1		SPECIES	SYNONYM		Chrysomelites lindhageni Heer 1870
+1			KINGDOM	ACCEPTED		Plantae (Haeckel 1866)	
+10	1		GENUS	SYNONYM		Archelytron Haupt 1952	
+11	1		SPECIES	SYNONYM		Blatta hyperborea Heer, 1870	
+13	1		SPECIES	SYNONYM		Chrysomelites lindhageni Heer 1870	

@@ -1,14 +1,14 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		PHYLUM	ACCEPTED		Arthropoda
-3	2		CLASS	ACCEPTED		Insecta
-4	3		ORDER	ACCEPTED		Coleoptera
-5	4		FAMILY	ACCEPTED		Staphylinidae
-10	5		GENUS	ACCEPTED		Trimium
-11	10		SPECIES	ACCEPTED		Trimium brevicorne (Reichenbach, 1816)
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Staphylinidae	
+10	5		GENUS	ACCEPTED		Trimium	
+11	10		SPECIES	ACCEPTED		Trimium brevicorne (Reichenbach, 1816)	
 
-22	1		PHYLUM	ACCEPTED		Bryozoa
-23	22		CLASS	ACCEPTED		Gymnolaemata
-24	23		ORDER	ACCEPTED		Cheilostomatida
-25	24		FAMILY	ACCEPTED		Bitectiporidae
-26	25		GENUS	ACCEPTED		Metroperiella Canu & Bassler, 1917
-27	26		GENUS	SYNONYM		Codonellina Canu & Bassler, in Bassler, 1934
+22	1		PHYLUM	ACCEPTED		Bryozoa	
+23	22		CLASS	ACCEPTED		Gymnolaemata	
+24	23		ORDER	ACCEPTED		Cheilostomatida	
+25	24		FAMILY	ACCEPTED		Bitectiporidae	
+26	25		GENUS	ACCEPTED		Metroperiella Canu & Bassler, 1917	
+27	26		GENUS	SYNONYM		Codonellina Canu & Bassler, in Bassler, 1934	

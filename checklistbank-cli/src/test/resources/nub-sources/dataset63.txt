@@ -1,6 +1,6 @@
-10			GENUS	ACCEPTED		Parmelina
-100	10		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale
-101	100		FORM	ACCEPTED		Parmelina quercina f. marquita Dill.
-200			SPECIES	ACCEPTED		Imbricaria quercina
-30			GENUS	ACCEPTED		Kartoffelia
-300	30		SPECIES	ACCEPTED		Kartoffelia leckeria
+10			GENUS	ACCEPTED		Parmelina	
+100	10		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale	
+101	100		FORM	ACCEPTED		Parmelina quercina f. marquita Dill.	
+200			SPECIES	ACCEPTED		Imbricaria quercina	
+30			GENUS	ACCEPTED		Kartoffelia	
+300	30		SPECIES	ACCEPTED		Kartoffelia leckeria	

@@ -1,14 +1,14 @@
-1			KINGDOM	ACCEPTED		Plantae
-10	1		GENUS	ACCEPTED		Heliopyrgus, 1957
-11	10		SPECIES	ACCEPTED		Heliopyrgus willi Plötz, 1884
-12	10		SPECIES	ACCEPTED		Heliopyrgus correctwilli (Plötz, 1884)
-13	11		SUBSPECIES	ACCEPTED		Heliopyrgus willi subsp. banane Plötz, 1884
-14	11		SPECIES	SYNONYM		Heliopyrgus willisyn Mill., 1860
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		GENUS	ACCEPTED		Heliopyrgus, 1957	
+11	10		SPECIES	ACCEPTED		Heliopyrgus willi Plötz, 1884	
+12	10		SPECIES	ACCEPTED		Heliopyrgus correctwilli (Plötz, 1884)	
+13	11		SUBSPECIES	ACCEPTED		Heliopyrgus willi subsp. banane Plötz, 1884	
+14	11		SPECIES	SYNONYM		Heliopyrgus willisyn Mill., 1860	
 
-110	1		GENUS	ACCEPTED		Meliopyrgus
-111	110		SPECIES	ACCEPTED		Meliopyrgus willi Plötz, 1884
-112	110		SPECIES	ACCEPTED		Meliopyrgus correctwilli (Plötz, 1884)
+110	1		GENUS	ACCEPTED		Meliopyrgus	
+111	110		SPECIES	ACCEPTED		Meliopyrgus willi Plötz, 1884	
+112	110		SPECIES	ACCEPTED		Meliopyrgus correctwilli (Plötz, 1884)	
 
-210	1		GENUS	ACCEPTED		Leliopyrgus (1957)
-211	210		SPECIES	ACCEPTED		Leliopyrgus willi Plötz, 1884
-212	210		SPECIES	ACCEPTED		Leliopyrgus correctwilli (Plötz, 1884)
+210	1		GENUS	ACCEPTED		Leliopyrgus (1957)	
+211	210		SPECIES	ACCEPTED		Leliopyrgus willi Plötz, 1884	
+212	210		SPECIES	ACCEPTED		Leliopyrgus correctwilli (Plötz, 1884)	

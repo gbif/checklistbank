@@ -1,8 +1,8 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		CLASS	ACCEPTED		Aves
-3	2		ORDER	ACCEPTED		Passeriformes
-4	3		FAMILY	ACCEPTED		Muscicapidae
-5	4		GENUS	ACCEPTED		Oenanthe
-10	5		SPECIES	ACCEPTED		Oenanthe cypriaca
-11	5		SPECIES	ACCEPTED		Oenanthe dubia
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+3	2		ORDER	ACCEPTED		Passeriformes	
+4	3		FAMILY	ACCEPTED		Muscicapidae	
+5	4		GENUS	ACCEPTED		Oenanthe	
+10	5		SPECIES	ACCEPTED		Oenanthe cypriaca	
+11	5		SPECIES	ACCEPTED		Oenanthe dubia	
 

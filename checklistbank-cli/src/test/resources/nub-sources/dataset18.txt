@@ -1,15 +1,15 @@
-1			KINGDOM	ACCEPTED		Animalia
-10	1		FAMILY	ACCEPTED		Hyalonematidae
-20	10		GENUS	ACCEPTED		Hyalonema Gray, 1832
-21	20		GENUS	SYNONYM		Hyalothrix Gray, 1867
+1			KINGDOM	ACCEPTED		Animalia	
+10	1		FAMILY	ACCEPTED		Hyalonematidae	
+20	10		GENUS	ACCEPTED		Hyalonema Gray, 1832	
+21	20		GENUS	SYNONYM		Hyalothrix Gray, 1867	
 
-50	20		SUBGENUS	ACCEPTED		Hyalonema (Corynonema) Ijima, 1927
-51	20		SUBGENUS	ACCEPTED		Hyalonema (Coscinonema) Ijima, 1927
-52	20		SUBGENUS	ACCEPTED		Hyalonema (Cyliconema) Ijima, 1927
+50	20		SUBGENUS	ACCEPTED		Hyalonema (Corynonema) Ijima, 1927	
+51	20		SUBGENUS	ACCEPTED		Hyalonema (Coscinonema) Ijima, 1927	
+52	20		SUBGENUS	ACCEPTED		Hyalonema (Cyliconema) Ijima, 1927	
 
-100	50		SPECIES	ACCEPTED		Hyalonema (Corynonema) rotundum Ijima, 1927
-101	100		SPECIES	SYNONYM		Hyalonema rotundum Ijima, 1927
-102	100		SPECIES	SYNONYM		Hyalonema rotundum
+100	50		SPECIES	ACCEPTED		Hyalonema (Corynonema) rotundum Ijima, 1927	
+101	100		SPECIES	SYNONYM		Hyalonema rotundum Ijima, 1927	
+102	100		SPECIES	SYNONYM		Hyalonema rotundum	
 
-110	50		SPECIES	ACCEPTED		Hyalonema (Corynonema) calix Schulze, 1904
+110	50		SPECIES	ACCEPTED		Hyalonema (Corynonema) calix Schulze, 1904	
 

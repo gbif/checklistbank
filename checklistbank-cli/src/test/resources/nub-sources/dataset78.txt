@@ -1,10 +1,10 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		CLASS	ACCEPTED		Aves
-3	2		GENUS	ACCEPTED		Oenanthe Vieillot, 1816
-4	3		GENUS	SYNONYM		Oenanthe Pallas, 1771
-5	3		GENUS	SYNONYM		Aenanthe Pallas, 1771
-6	3		GENUS	SYNONYM		Aenanthe Vieillot, 1816
-10			KINGDOM	ACCEPTED		Plantae
-11	10		GENUS	ACCEPTED		Oenanthe Linnaeus, 1753
-12	11		GENUS	SYNONYM		Actinanthus Ehrenberg, 1829
-13	11		GENUS	SYNONYM		Oenosciadium Pomel, 1874
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+3	2		GENUS	ACCEPTED		Oenanthe Vieillot, 1816	
+4	3		GENUS	SYNONYM		Oenanthe Pallas, 1771	
+5	3		GENUS	SYNONYM		Aenanthe Pallas, 1771	
+6	3		GENUS	SYNONYM		Aenanthe Vieillot, 1816	
+10			KINGDOM	ACCEPTED		Plantae	
+11	10		GENUS	ACCEPTED		Oenanthe Linnaeus, 1753	
+12	11		GENUS	SYNONYM		Actinanthus Ehrenberg, 1829	
+13	11		GENUS	SYNONYM		Oenosciadium Pomel, 1874	

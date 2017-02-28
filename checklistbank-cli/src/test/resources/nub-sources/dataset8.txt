@@ -1,29 +1,29 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		PHYLUM	ACCEPTED		Tracheophyta
-3	2		CLASS	ACCEPTED		Polypodiopsida
-4	3		ORDER	ACCEPTED		Polypodiales
-5	4		FAMILY	ACCEPTED		Pteridaceae
-6	4		FAMILY	ACCEPTED		Blechnaceae
-7	4		FAMILY	ACCEPTED		Polipodiaceae
-10	5		GENUS	ACCEPTED		Adiantum
-100	10		SPECIES	ACCEPTED		Adiantum pedatum
-101	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. pedatum L.
-102	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. calderi Cody
-103	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
-104	10		SPECIES	ACCEPTED		Adiantum hispidulum Sw.
-105	10		SUBSPECIES	ACCEPTED		Adiantum patens subsp. oatesii (Bak.) Schelpe
-106	10		SPECIES	ACCEPTED		Adiantum brasiliense Raddi
-107	10		SPECIES	ACCEPTED		Adiantum aleuticum (Rupr.) C.A.Paris
-108	10		SPECIES	ACCEPTED		Adiantum myriosorum Bak.
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		PHYLUM	ACCEPTED		Tracheophyta	
+3	2		CLASS	ACCEPTED		Polypodiopsida	
+4	3		ORDER	ACCEPTED		Polypodiales	
+5	4		FAMILY	ACCEPTED		Pteridaceae	
+6	4		FAMILY	ACCEPTED		Blechnaceae	
+7	4		FAMILY	ACCEPTED		Polipodiaceae	
+10	5		GENUS	ACCEPTED		Adiantum	
+100	10		SPECIES	ACCEPTED		Adiantum pedatum	
+101	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. pedatum L.	
+102	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. calderi Cody	
+103	100		SUBSPECIES	ACCEPTED		Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger	
+104	10		SPECIES	ACCEPTED		Adiantum hispidulum Sw.	
+105	10		SUBSPECIES	ACCEPTED		Adiantum patens subsp. oatesii (Bak.) Schelpe	
+106	10		SPECIES	ACCEPTED		Adiantum brasiliense Raddi	
+107	10		SPECIES	ACCEPTED		Adiantum aleuticum (Rupr.) C.A.Paris	
+108	10		SPECIES	ACCEPTED		Adiantum myriosorum Bak.	
 
-200	104		SPECIES	SYNONYM		Adiantum pedatum Forst.
-201	105		SPECIES	SYNONYM		Adiantum pedatum A. Peter
-202	106		SPECIES	SYNONYM		Adiantum pedatum Raddi
-203	107		SUBSPECIES	SYNONYM		Adiantum pedatum subsp. calderi Cody
-204	101		VARIETY	SYNONYM		Adiantum pedatum var. kamtschaticum Rupr.
-205	107		VARIETY	SYNONYM		Adiantum pedatum var. aleuticum Rupr.
-206	108		VARIETY	SYNONYM		Adiantum pedatum var. glaucinum H. Christ
-207	101		VARIETY	SYNONYM		Adiantum pedatum var. glaucinum C. Chr.
-208	108		VARIETY	SYNONYM		Adiantum pedatum var. protrusum H. Christ
-209	108		VARIETY	SYNONYM		Adiantum pedatum var. myriosorum (Bak.) H. Christ
-210	103		VARIETY	SYNONYM		Adiantum pedatum var. subpumilum W. H. Wagner
+200	104		SPECIES	SYNONYM		Adiantum pedatum Forst.	
+201	105		SPECIES	SYNONYM		Adiantum pedatum A. Peter	
+202	106		SPECIES	SYNONYM		Adiantum pedatum Raddi	
+203	107		SUBSPECIES	SYNONYM		Adiantum pedatum subsp. calderi Cody	
+204	101		VARIETY	SYNONYM		Adiantum pedatum var. kamtschaticum Rupr.	
+205	107		VARIETY	SYNONYM		Adiantum pedatum var. aleuticum Rupr.	
+206	108		VARIETY	SYNONYM		Adiantum pedatum var. glaucinum H. Christ	
+207	101		VARIETY	SYNONYM		Adiantum pedatum var. glaucinum C. Chr.	
+208	108		VARIETY	SYNONYM		Adiantum pedatum var. protrusum H. Christ	
+209	108		VARIETY	SYNONYM		Adiantum pedatum var. myriosorum (Bak.) H. Christ	
+210	103		VARIETY	SYNONYM		Adiantum pedatum var. subpumilum W. H. Wagner	

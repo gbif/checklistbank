@@ -1,11 +1,11 @@
-1			ORDER	ACCEPTED		Orthoptera Hebard, 1924
-2	1		SUBORDER	ACCEPTED		Ensifera
-3	2		INFRAORDER	ACCEPTED		Tettigoniidea
-4	3		SUPERFAMILY	ACCEPTED		Tettigonioidea Krauss, 1902
-5	4		FAMILY	ACCEPTED		Tettigoniidae Krauss, 1902
-6	5		SUBFAMILY	ACCEPTED		Phaneropterinae Burmeister, 1838
-7	6		TRIBE	ACCEPTED		Ducetiini Brunner von Wattenwyl, 1878
-10	5		GENUS	ACCEPTED		Abaxisotima Gorochov, 2005
-11	10		SPECIES	ACCEPTED		Abaxisotima acuminata (Wang & Liu, 1996)
-12	10		SPECIES	ACCEPTED		Abaxisotima bicolor (Liu, Zheng & Xi, 1991)
+1			ORDER	ACCEPTED		Orthoptera Hebard, 1924	
+2	1		SUBORDER	ACCEPTED		Ensifera	
+3	2		INFRAORDER	ACCEPTED		Tettigoniidea	
+4	3		SUPERFAMILY	ACCEPTED		Tettigonioidea Krauss, 1902	
+5	4		FAMILY	ACCEPTED		Tettigoniidae Krauss, 1902	
+6	5		SUBFAMILY	ACCEPTED		Phaneropterinae Burmeister, 1838	
+7	6		TRIBE	ACCEPTED		Ducetiini Brunner von Wattenwyl, 1878	
+10	5		GENUS	ACCEPTED		Abaxisotima Gorochov, 2005	
+11	10		SPECIES	ACCEPTED		Abaxisotima acuminata (Wang & Liu, 1996)	
+12	10		SPECIES	ACCEPTED		Abaxisotima bicolor (Liu, Zheng & Xi, 1991)	
 

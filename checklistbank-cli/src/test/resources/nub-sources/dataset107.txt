@@ -1,8 +1,8 @@
-1			KINGDOM	ACCEPTED		Animalia
-200	1		SPECIES	ACCEPTED		Valonia planiscutellata Frey, 1964
-201	1		SPECIES	ACCEPTED		Vallonia parvula
-2			KINGDOM	ACCEPTED		Plantae
-10	2		FAMILY	ACCEPTED		Valoniaceae
-20	10		GENUS	ACCEPTED		Valonia
-100	20		SPECIES	ACCEPTED		Valonia utricularis
-101	20		SPECIES	ACCEPTED		Valonia ventricosa J.Agardh 1887
+1			KINGDOM	ACCEPTED		Animalia	
+200	1		SPECIES	ACCEPTED		Valonia planiscutellata Frey, 1964	
+201	1		SPECIES	ACCEPTED		Vallonia parvula	
+2			KINGDOM	ACCEPTED		Plantae	
+10	2		FAMILY	ACCEPTED		Valoniaceae	
+20	10		GENUS	ACCEPTED		Valonia	
+100	20		SPECIES	ACCEPTED		Valonia utricularis	
+101	20		SPECIES	ACCEPTED		Valonia ventricosa J.Agardh 1887	

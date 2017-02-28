@@ -1511,6 +1511,22 @@ public class NubBuilderIT {
   }
 
   /**
+   * http://dev.gbif.org/issues/browse/POR-3213
+   */
+  @Test
+  public void testNamePublishedIn() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(115);
+    src.setSourceRank(115, Rank.PHYLUM);
+    build(src);
+
+    NubUsage u = assertCanonical("Archelytron", Rank.GENUS, Origin.SOURCE, null);
+    assertEquals("Insektenfunde aus den Goldlauterer Schichten des Thüringer Waldes. Hallesches Jahrbuch für Mitteldeutsche Erdgeschichte 1:241-258. 1952", u.publishedIn);
+
+    u = assertCanonical("Blatta hyperborea", Rank.SPECIES, Origin.SOURCE, null);
+    assertEquals("O. Heer. 1870. Die Miocene flora und fauna Spitzbergens. Kongliga Svenska Vetenskaps-Akademiens Handlingar 8(7):1-98", u.publishedIn);
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {

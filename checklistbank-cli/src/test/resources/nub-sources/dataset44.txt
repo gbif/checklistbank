@@ -1,6 +1,6 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		SPECIES	ACCEPTED		Plantae
-3	1		SPECIES	ACCEPTED		Hyalonema
-4	1		SPECIES	ACCEPTED		Hyalonema spec.
-5	1		SUBSPECIES	ACCEPTED		Hyalonema
-6	1		SUBSPECIES	ACCEPTED		Kartoffela margareta schoener
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		SPECIES	ACCEPTED		Plantae	
+3	1		SPECIES	ACCEPTED		Hyalonema	
+4	1		SPECIES	ACCEPTED		Hyalonema spec.	
+5	1		SUBSPECIES	ACCEPTED		Hyalonema	
+6	1		SUBSPECIES	ACCEPTED		Kartoffela margareta schoener	

@@ -1,10 +1,10 @@
-1			KINGDOM	ACCEPTED		Fungi
-2	1		PHYLUM	ACCEPTED		Ascomycota
-3	2		CLASS	ACCEPTED		Lecanoromycetes
-4	3		ORDER	ACCEPTED		Lecanorales
-10	4		FAMILY	ACCEPTED		Parmeliaceae
-100	10		GENUS	DOUBTFUL		Parmelina
-111319813	100		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale
-111319814	111319813		INFRASPECIFIC_NAME	ACCEPTED		Parmelina quercina var. quercina (Willd.) Hale
-111319815	111319814		INFRASPECIFIC_NAME	SYNONYM		Parmelina quercina var. quercina (Willd.) Vain.
-111319803	100		SPECIES	ACCEPTED		Parmelina pallida Elix & Kantvilas
+1			KINGDOM	ACCEPTED		Fungi	
+2	1		PHYLUM	ACCEPTED		Ascomycota	
+3	2		CLASS	ACCEPTED		Lecanoromycetes	
+4	3		ORDER	ACCEPTED		Lecanorales	
+10	4		FAMILY	ACCEPTED		Parmeliaceae	
+100	10		GENUS	DOUBTFUL		Parmelina	
+111319813	100		SPECIES	ACCEPTED		Parmelina quercina (Willd.) Hale	
+111319814	111319813		INFRASPECIFIC_NAME	ACCEPTED		Parmelina quercina var. quercina (Willd.) Hale	
+111319815	111319814		INFRASPECIFIC_NAME	SYNONYM		Parmelina quercina var. quercina (Willd.) Vain.	
+111319803	100		SPECIES	ACCEPTED		Parmelina pallida Elix & Kantvilas	

@@ -1,17 +1,17 @@
-6			KINGDOM	ACCEPTED		Plantae
-10	6		SPECIES	ACCEPTED		Hieracium sabaudum O.F.Muell.
-11	6		SPECIES	ACCEPTED		Hieracium sabaudum O.F.Müll.
-12	6		SPECIES	ACCEPTED		Hieracium scorzoneraefolium De la Soie
-13	6		SPECIES	ACCEPTED		Hieracium scorzonerifolium La Soie
-14	6		SPECIES	ACCEPTED		Macrozamia platyrachis F. M. Bailey
-15	6		SPECIES	ACCEPTED		Macrozamia platyrhachis F.M.Bailey
-16	6		SPECIES	ACCEPTED		Cycas circinalis L.
-17	6		SPECIES	ACCEPTED		Cycas circinalis Roxb.
-18	6		SPECIES	ACCEPTED		Cycas circinnalis L.
-19	6		SPECIES	ACCEPTED		Isolona perrieri Diels
-20	6		SPECIES	ACCEPTED		Isolona perrierii Diels
-21	6		SPECIES	ACCEPTED		Marka platyrhachis Odenthal
-22	6		SPECIES	ACCEPTED		Platanus hispanica Ten.
-23	6		SPECIES	ACCEPTED		Platanus x hispanica Mill. ex Münch., 1770
-24	6		VARIETY	ACCEPTED		Platanus ×hispanica var. pyramidata (Wesm.) Vigouroux ex Geerinck
-25	6		SPECIES	ACCEPTED		Tephrolema siphulodes Poelt & Grube
+6			KINGDOM	ACCEPTED		Plantae	
+10	6		SPECIES	ACCEPTED		Hieracium sabaudum O.F.Muell.	
+11	6		SPECIES	ACCEPTED		Hieracium sabaudum O.F.Müll.	
+12	6		SPECIES	ACCEPTED		Hieracium scorzoneraefolium De la Soie	
+13	6		SPECIES	ACCEPTED		Hieracium scorzonerifolium La Soie	
+14	6		SPECIES	ACCEPTED		Macrozamia platyrachis F. M. Bailey	
+15	6		SPECIES	ACCEPTED		Macrozamia platyrhachis F.M.Bailey	
+16	6		SPECIES	ACCEPTED		Cycas circinalis L.	
+17	6		SPECIES	ACCEPTED		Cycas circinalis Roxb.	
+18	6		SPECIES	ACCEPTED		Cycas circinnalis L.	
+19	6		SPECIES	ACCEPTED		Isolona perrieri Diels	
+20	6		SPECIES	ACCEPTED		Isolona perrierii Diels	
+21	6		SPECIES	ACCEPTED		Marka platyrhachis Odenthal	
+22	6		SPECIES	ACCEPTED		Platanus hispanica Ten.	
+23	6		SPECIES	ACCEPTED		Platanus x hispanica Mill. ex Münch., 1770	
+24	6		VARIETY	ACCEPTED		Platanus ×hispanica var. pyramidata (Wesm.) Vigouroux ex Geerinck	
+25	6		SPECIES	ACCEPTED		Tephrolema siphulodes Poelt & Grube	

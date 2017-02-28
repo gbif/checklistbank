@@ -1,16 +1,16 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		PHYLUM	ACCEPTED		Arthropoda
-3	2		CLASS	ACCEPTED		Insecta
-4	3		ORDER	ACCEPTED		Coleoptera
-5	4		FAMILY	ACCEPTED		Staphylinidae
-10	5		GENUS	ACCEPTED		Trimium Aubé, 1833
-11	10		GENUS	SYNONYM		Aphanogramme Dodero, 1919
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Staphylinidae	
+10	5		GENUS	ACCEPTED		Trimium Aubé, 1833	
+11	10		GENUS	SYNONYM		Aphanogramme Dodero, 1919	
 
-22	1		PHYLUM	ACCEPTED		Bryozoa
-23	22		CLASS	ACCEPTED		Gymnolaemata
-24	23		ORDER	ACCEPTED		Cheilostomata
-25	24		FAMILY	ACCEPTED		Bitectiporidae
-26	25		GENUS	ACCEPTED		Metroperiella Canu & Bassler, 1917
-27	26	28	GENUS	SYNONYM		Codonellina Bassler, 1934
-28	26		GENUS	SYNONYM		Codonella Canu & Bassler, 1928
+22	1		PHYLUM	ACCEPTED		Bryozoa	
+23	22		CLASS	ACCEPTED		Gymnolaemata	
+24	23		ORDER	ACCEPTED		Cheilostomata	
+25	24		FAMILY	ACCEPTED		Bitectiporidae	
+26	25		GENUS	ACCEPTED		Metroperiella Canu & Bassler, 1917	
+27	26	28	GENUS	SYNONYM		Codonellina Bassler, 1934	
+28	26		GENUS	SYNONYM		Codonella Canu & Bassler, 1928	
 

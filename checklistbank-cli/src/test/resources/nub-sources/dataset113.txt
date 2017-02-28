@@ -1,21 +1,21 @@
-01			SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)
-02			SPECIES	ACCEPTED		Hyperammina vagans Brady, 1879
-03			SPECIES	ACCEPTED		Girvanella vagans
-1			KINGDOM	ACCEPTED		Animalia
-12	1		SPECIES	ACCEPTED		Cerostoma xenicopis Meyrick, 1938
-13	1		SPECIES	ACCEPTED		Lockeia siliquaria James, 1879  
-2			KINGDOM	ACCEPTED		Protista
-22	2		SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)
-23	2		SPECIES	ACCEPTED		Hyperammina vagans Brady, 1879
-24	2		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)
-4			KINGDOM	ACCEPTED		Chromista
-42	4		SPECIES	ACCEPTED		Tolypammina vagans
-43	4		SPECIES	ACCEPTED		Hyperammina vagans
-44	4		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)
-5			KINGDOM	ACCEPTED		Plantae
-52	5		SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)
-53	5		SPECIES	ACCEPTED		Hyperammina vagans Brady
-54	5		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)
-6			KINGDOM	ACCEPTED		Archaea
-62	6		SPECIES	ACCEPTED		Cerostoma xenicopis Meyrick
-63	6		SPECIES	ACCEPTED		Lockeia siliquaria James, 1879  
+01			SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)	
+02			SPECIES	ACCEPTED		Hyperammina vagans Brady, 1879	
+03			SPECIES	ACCEPTED		Girvanella vagans	
+1			KINGDOM	ACCEPTED		Animalia	
+12	1		SPECIES	ACCEPTED		Cerostoma xenicopis Meyrick, 1938	
+13	1		SPECIES	ACCEPTED		Lockeia siliquaria James, 1879  	
+2			KINGDOM	ACCEPTED		Protista	
+22	2		SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)	
+23	2		SPECIES	ACCEPTED		Hyperammina vagans Brady, 1879	
+24	2		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)	
+4			KINGDOM	ACCEPTED		Chromista	
+42	4		SPECIES	ACCEPTED		Tolypammina vagans	
+43	4		SPECIES	ACCEPTED		Hyperammina vagans	
+44	4		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)	
+5			KINGDOM	ACCEPTED		Plantae	
+52	5		SPECIES	ACCEPTED		Tolypammina vagans (Brady, 1879)	
+53	5		SPECIES	ACCEPTED		Hyperammina vagans Brady	
+54	5		SPECIES	ACCEPTED		Girvanella vagans (Brady, 1879)	
+6			KINGDOM	ACCEPTED		Archaea	
+62	6		SPECIES	ACCEPTED		Cerostoma xenicopis Meyrick	
+63	6		SPECIES	ACCEPTED		Lockeia siliquaria James, 1879  	

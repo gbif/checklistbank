@@ -1,20 +1,20 @@
-1			KINGDOM	ACCEPTED		Plantae
-10	1		FAMILY	ACCEPTED		Fabaceae
-11	1		FAMILY	ACCEPTED		Leguminosae
-104910025	11		SPECIES	ACCEPTED		Lupinus sericeus Cooper
-104910026	11		SPECIES	ACCEPTED		Lupinus sericeus Eschsch.
-104910023	11		SPECIES	ACCEPTED		Lupinus sericeus Hook. & Arn.
-104910024	11		SPECIES	ACCEPTED		Lupinus sericeus Nutt.
-104566827	10		SPECIES	ACCEPTED		Lupinus sericeus Pursh
-104910022	11		SPECIES	ACCEPTED		Lupinus sericeus Pursh
-104910027	11		SPECIES	ACCEPTED		Lupinus sericeus Torr. & A.Gray
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		FAMILY	ACCEPTED		Fabaceae	
+11	1		FAMILY	ACCEPTED		Leguminosae	
+104910025	11		SPECIES	ACCEPTED		Lupinus sericeus Cooper	
+104910026	11		SPECIES	ACCEPTED		Lupinus sericeus Eschsch.	
+104910023	11		SPECIES	ACCEPTED		Lupinus sericeus Hook. & Arn.	
+104910024	11		SPECIES	ACCEPTED		Lupinus sericeus Nutt.	
+104566827	10		SPECIES	ACCEPTED		Lupinus sericeus Pursh	
+104910022	11		SPECIES	ACCEPTED		Lupinus sericeus Pursh	
+104910027	11		SPECIES	ACCEPTED		Lupinus sericeus Torr. & A.Gray	
 
-104578615	10		SUBSPECIES	ACCEPTED		Lupinus sericeus Pursh subsp. marianus (Rydb.) Fleak & D.B.Dunn
-104956144	10		SUBSPECIES	ACCEPTED		Lupinus sericeus Pursh subsp. marianus (Rydb.) L.S.Fleak & D.B.Dunn
-104588294	10		FORM	ACCEPTED		Lupinus sericeus f. leucanthus B.Boivin
-104960727	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. barbiger (S.Watson) S.L.Welsh
-104585513	10		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. marianus (Rydb.) S.L.Welsh
-104960729	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. marianus (Rydb.) S.L.Welsh
-104960728	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. jonesii (Rydb.) S.L.Welsh ex Isely
-104585509	10		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. jonesii (Rydb.) S.L.Welsh ex Isely
+104578615	10		SUBSPECIES	ACCEPTED		Lupinus sericeus Pursh subsp. marianus (Rydb.) Fleak & D.B.Dunn	
+104956144	10		SUBSPECIES	ACCEPTED		Lupinus sericeus Pursh subsp. marianus (Rydb.) L.S.Fleak & D.B.Dunn	
+104588294	10		FORM	ACCEPTED		Lupinus sericeus f. leucanthus B.Boivin	
+104960727	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. barbiger (S.Watson) S.L.Welsh	
+104585513	10		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. marianus (Rydb.) S.L.Welsh	
+104960729	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. marianus (Rydb.) S.L.Welsh	
+104960728	11		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. jonesii (Rydb.) S.L.Welsh ex Isely	
+104585509	10		VARIETY	ACCEPTED		Lupinus sericeus Pursh var. jonesii (Rydb.) S.L.Welsh ex Isely	
 

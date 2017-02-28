@@ -34,8 +34,8 @@ public class ClbSource extends NubSource {
             cm.copyOut("COPY ("
                     + "SELECT u.id, u.parent_fk, u.basionym_fk, u.rank,"
                     + " coalesce(u.status, CASE WHEN (u.is_synonym) THEN 'SYNONYM'::taxonomic_status ELSE 'ACCEPTED'::taxonomic_status END),"
-                    + " u.nom_status, n.scientific_name"
-                    + " FROM name_usage u JOIN name n ON u.name_fk=n.id"
+                    + " u.nom_status, n.scientific_name, c.citation"
+                    + " FROM name_usage u JOIN name n ON u.name_fk=n.id LEFT JOIN citation c ON u.name_published_in_fk=c.id"
                     + " WHERE u.dataset_key = '" + key + "')"
                     + " TO STDOUT WITH NULL ''", writer);
         }

@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
+ * <li>namePublishedIn</li>
  * </ul>
  */
 public class ClasspathSource extends NubSource {

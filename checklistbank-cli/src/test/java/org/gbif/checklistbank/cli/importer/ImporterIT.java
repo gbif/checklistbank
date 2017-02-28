@@ -308,6 +308,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   /**
    * Test richer nomenclatural data, make sure namePublishedIn is set.
    * See bottom comments on http://dev.gbif.org/issues/browse/POR-2480
+   * See also http://dev.gbif.org/issues/browse/POR-3213
    */
   @Test
   public void testIndexFungorumNomen() throws Exception {

@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Plantae (Haeckel 1866)	
+10	1		GENUS	ACCEPTED		Archelytron Haupt 1952	Insektenfunde aus den Goldlauterer Schichten des Thüringer Waldes. Hallesches Jahrbuch für Mitteldeutsche Erdgeschichte 1:241-258. 1952
+11	1		SPECIES	ACCEPTED		Blatta hyperborea Heer, 1870	O. Heer. 1870. Die Miocene flora und fauna Spitzbergens. Kongliga Svenska Vetenskaps-Akademiens Handlingar 8(7):1-98
+13	1		SPECIES	ACCEPTED		Chrysomelites lindhageni Heer 1870	O. Heer. 1870. Die Miocene flora und fauna Spitzbergens. Kongliga Svenska Vetenskaps-Akademiens Handlingar 8(7):1-98

@@ -1,25 +1,25 @@
-6			KINGDOM	ACCEPTED		Plantae
-8	6		FAMILY	ACCEPTED		Asteraceae
-10	8		SPECIES	ACCEPTED		Jacobaea vulgaris Gaertn.
-11	8		SPECIES	DOUBTFUL		Jacobaea vulgaris Moench, 1794
-12	8		VARIETY	DOUBTFUL		Jacobaea vulgaris var. vulgaris
-16	8		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. gotlandica (Neuman) B.Nord.
-20	8		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. dunensis (Dumort.) Pelser & Meijden
-30	8		SPECIES	ACCEPTED		Jacobaea erratica (Bertol.) Fourr.
-32	8		SPECIES	ACCEPTED		Jacobaea aquatica (Hill) G.Gaertn., B.Mey. & Scherb.
-40	8		GENUS	DOUBTFUL		Jacobaea Klaer.
-41	8		GENUS	ACCEPTED		Jacobaea Freerk
-42	8		GENUS	DOUBTFUL		Jacobaea Abriss.
-110	8		SPECIES	ACCEPTED		Iakobaea vulgaris Gaertn.
-111	110		SPECIES	SYNONYM		Iakobaea vulgaris Moench, 1794
-112	8		VARIETY	DOUBTFUL		Iakobaea vulgaris var. vulgaris
-116	8		SUBSPECIES	ACCEPTED		Iakobaea vulgaris subsp. gotlandica B.Nord.
-120	8		SUBSPECIES	ACCEPTED		Iakobaea vulgaris subsp. dunensis Pelser & Meijden
-210	8		SPECIES	ACCEPTED		Petraea karin
-211	210		SPECIES	SYNONYM		Petraea sandra Gaertn.
-212	8		SUBSPECIES	ACCEPTED		Petraea sandra subsp. berlinense
-213	8		SUBSPECIES	ACCEPTED		Petraea sandra subsp. roma
-220	8		SUBFAMILY	ACCEPTED		Asteraceaii
-221	220		GENUS	ACCEPTED		Petraea
-222	221		SUBGENUS	ACCEPTED		Petraea
-212	222		SPECIES	ACCEPTED		Petraea sandra Kern
+6			KINGDOM	ACCEPTED		Plantae	
+8	6		FAMILY	ACCEPTED		Asteraceae	
+10	8		SPECIES	ACCEPTED		Jacobaea vulgaris Gaertn.	
+11	8		SPECIES	DOUBTFUL		Jacobaea vulgaris Moench, 1794	
+12	8		VARIETY	DOUBTFUL		Jacobaea vulgaris var. vulgaris	
+16	8		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. gotlandica (Neuman) B.Nord.	
+20	8		SUBSPECIES	ACCEPTED		Jacobaea vulgaris subsp. dunensis (Dumort.) Pelser & Meijden	
+30	8		SPECIES	ACCEPTED		Jacobaea erratica (Bertol.) Fourr.	
+32	8		SPECIES	ACCEPTED		Jacobaea aquatica (Hill) G.Gaertn., B.Mey. & Scherb.	
+40	8		GENUS	DOUBTFUL		Jacobaea Klaer.	
+41	8		GENUS	ACCEPTED		Jacobaea Freerk	
+42	8		GENUS	DOUBTFUL		Jacobaea Abriss.	
+110	8		SPECIES	ACCEPTED		Iakobaea vulgaris Gaertn.	
+111	110		SPECIES	SYNONYM		Iakobaea vulgaris Moench, 1794	
+112	8		VARIETY	DOUBTFUL		Iakobaea vulgaris var. vulgaris	
+116	8		SUBSPECIES	ACCEPTED		Iakobaea vulgaris subsp. gotlandica B.Nord.	
+120	8		SUBSPECIES	ACCEPTED		Iakobaea vulgaris subsp. dunensis Pelser & Meijden	
+210	8		SPECIES	ACCEPTED		Petraea karin	
+211	210		SPECIES	SYNONYM		Petraea sandra Gaertn.	
+212	8		SUBSPECIES	ACCEPTED		Petraea sandra subsp. berlinense	
+213	8		SUBSPECIES	ACCEPTED		Petraea sandra subsp. roma	
+220	8		SUBFAMILY	ACCEPTED		Asteraceaii	
+221	220		GENUS	ACCEPTED		Petraea	
+222	221		SUBGENUS	ACCEPTED		Petraea	
+212	222		SPECIES	ACCEPTED		Petraea sandra Kern	

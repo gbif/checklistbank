@@ -1,22 +1,22 @@
-1			KINGDOM	ACCEPTED		Plantae
-2	1		CLASS	ACCEPTED		Magnoliopsida
-3	2		ORDER	ACCEPTED		Sapindales
-4	3		FAMILY	ACCEPTED		Sapindaceae
-10	4		GENUS	ACCEPTED		Acer
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		CLASS	ACCEPTED		Magnoliopsida	
+3	2		ORDER	ACCEPTED		Sapindales	
+4	3		FAMILY	ACCEPTED		Sapindaceae	
+10	4		GENUS	ACCEPTED		Acer	
 
-20	10		SPECIES	ACCEPTED		Acer negundo
-21	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo subsp. negundo
-22	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo subsp. mexicanum (DC.) Wesm.
-25	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo var. violaceum (G. Kirchn.) H. Jaeger
-26	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo var. californicum (Torr. & Gray) Sarg.
-
-
-30	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides (L.) Moench
-31	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides Torr.
-32	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides var. californicum (Torr. & Gray) Sarg.
+20	10		SPECIES	ACCEPTED		Acer negundo	
+21	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo subsp. negundo	
+22	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo subsp. mexicanum (DC.) Wesm.	
+25	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo var. violaceum (G. Kirchn.) H. Jaeger	
+26	20		INFRASPECIFIC_NAME	ACCEPTED		Acer negundo var. californicum (Torr. & Gray) Sarg.	
 
 
-40	25		INFRASPECIFIC_NAME	SYNONYM		Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub
-41	25		INFRASPECIFIC_NAME	SYNONYM		Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber
-42	25		SPECIES	SYNONYM		Acer violaceum (Kirchn.) Simonkai
+30	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides (L.) Moench	
+31	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides Torr.	
+32	21		SPECIES	HETEROTYPIC_SYNONYM		Negundo aceroides var. californicum (Torr. & Gray) Sarg.	
+
+
+40	25		INFRASPECIFIC_NAME	SYNONYM		Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub	
+41	25		INFRASPECIFIC_NAME	SYNONYM		Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber	
+42	25		SPECIES	SYNONYM		Acer violaceum (Kirchn.) Simonkai	
 

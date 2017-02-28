@@ -1,8 +1,8 @@
-1			KINGDOM	ACCEPTED		Fungi
-2	1		ORDER	ACCEPTED		Agaricales
-3	2		FAMILY	ACCEPTED		Agaricaceae
-100	3		SPECIES	ACCEPTED		Lepiota seminuda
-101	3		SUBSPECIES	ACCEPTED		Lepiota nuda
-12	1		ORDER	ACCEPTED		Polygonales
-13	12		FAMILY	ACCEPTED		Polygonaceae
-200	13		GENUS	ACCEPTED		Berto Miller.
+1			KINGDOM	ACCEPTED		Fungi	
+2	1		ORDER	ACCEPTED		Agaricales	
+3	2		FAMILY	ACCEPTED		Agaricaceae	
+100	3		SPECIES	ACCEPTED		Lepiota seminuda	
+101	3		SUBSPECIES	ACCEPTED		Lepiota nuda	
+12	1		ORDER	ACCEPTED		Polygonales	
+13	12		FAMILY	ACCEPTED		Polygonaceae	
+200	13		GENUS	ACCEPTED		Berto Miller.	

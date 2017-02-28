@@ -1,11 +1,11 @@
-1			KINGDOM	ACCEPTED		Plantae
-10	1		FAMILY	ACCEPTED		Asteraceae
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		FAMILY	ACCEPTED		Asteraceae	
 
-100	10		GENUS	ACCEPTED		Achelous
-101	10		GENUS	ACCEPTED		Acheloüs
-102	10		SPECIES	ACCEPTED		Achnanthes plonensis
-103	10		SPECIES	ACCEPTED		Achnanthes plönensis
-104	10		GENUS	ACCEPTED		Bütschliella
-105	10		GENUS	ACCEPTED		Butschliella
-106	10		SPECIES	ACCEPTED		Pseudopanthera oberthuri
-107	10		SPECIES	ACCEPTED		Pseudopanthera oberthüri
+100	10		GENUS	ACCEPTED		Achelous	
+101	10		GENUS	ACCEPTED		Acheloüs	
+102	10		SPECIES	ACCEPTED		Achnanthes plonensis	
+103	10		SPECIES	ACCEPTED		Achnanthes plönensis	
+104	10		GENUS	ACCEPTED		Bütschliella	
+105	10		GENUS	ACCEPTED		Butschliella	
+106	10		SPECIES	ACCEPTED		Pseudopanthera oberthuri	
+107	10		SPECIES	ACCEPTED		Pseudopanthera oberthüri	

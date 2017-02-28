@@ -1,11 +1,11 @@
-1			KINGDOM	ACCEPTED		Animalia
-2	1		CLASS	ACCEPTED		Aves
-5	4		FAMILY	ACCEPTED		Cardinalidae
-6	4		FAMILY	ACCEPTED		Fringillidae Vigors, 1825
-10	5		GENUS	ACCEPTED		Cardinalis Bonaparte, 1831
-11	6		GENUS	ACCEPTED		Cardinalis Bonaparte, 1838
-12	2		GENUS	ACCEPTED		Cardinalis Jarocki, 1821
-20	11		SPECIES	ACCEPTED		Cardinalis cardinalis (Linnaeus, 1758)
-100			KINGDOM	ACCEPTED		Plantae
-101	100		FAMILY	ACCEPTED		Campanulaceae de Jussieu, 1789
-110	101		GENUS	ACCEPTED		Cardinalis Fabricius, 1759
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+5	4		FAMILY	ACCEPTED		Cardinalidae	
+6	4		FAMILY	ACCEPTED		Fringillidae Vigors, 1825	
+10	5		GENUS	ACCEPTED		Cardinalis Bonaparte, 1831	
+11	6		GENUS	ACCEPTED		Cardinalis Bonaparte, 1838	
+12	2		GENUS	ACCEPTED		Cardinalis Jarocki, 1821	
+20	11		SPECIES	ACCEPTED		Cardinalis cardinalis (Linnaeus, 1758)	
+100			KINGDOM	ACCEPTED		Plantae	
+101	100		FAMILY	ACCEPTED		Campanulaceae de Jussieu, 1789	
+110	101		GENUS	ACCEPTED		Cardinalis Fabricius, 1759	

@@ -20,7 +20,8 @@ public class ClasspathSourceTest {
         for (SrcUsage u : src) {
             counter++;
             System.out.print(u.key + "  ");
-            System.out.println(u.scientificName);
+            System.out.print(u.scientificName + " :: ");
+            System.out.println(u.publishedIn);
         }
         assertEquals(12, counter);
 

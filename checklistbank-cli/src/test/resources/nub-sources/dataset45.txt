@@ -1,4 +1,4 @@
-0			KINGDOM	ACCEPTED		Plantae
-1	0		ORDER	ACCEPTED		Asterales Bercht.
-2	1		FAMILY	ACCEPTED		Asteraceae Bercht. & J.Presl 
-3	1		FAMILY	ACCEPTED		Asteraceae L.
+0			KINGDOM	ACCEPTED		Plantae	
+1	0		ORDER	ACCEPTED		Asterales Bercht.	
+2	1		FAMILY	ACCEPTED		Asteraceae Bercht. & J.Presl 	
+3	1		FAMILY	ACCEPTED		Asteraceae L.	

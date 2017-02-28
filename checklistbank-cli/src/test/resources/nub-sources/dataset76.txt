@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Plantae
-5	1		FAMILY	ACCEPTED		Campanulaceae
-10	5		GENUS	ACCEPTED		Cardinalis Fabr.
-11	5		GENUS	ACCEPTED		Cardinalis Rupp.
+1			KINGDOM	ACCEPTED		Plantae	
+5	1		FAMILY	ACCEPTED		Campanulaceae	
+10	5		GENUS	ACCEPTED		Cardinalis Fabr.	
+11	5		GENUS	ACCEPTED		Cardinalis Rupp.	

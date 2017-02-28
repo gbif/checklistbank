@@ -1,5 +1,5 @@
-1			KINGDOM	ACCEPTED		Animalia
-10	1		FAMILY	ACCEPTED		Carabidae
-20	10		GENUS	ACCEPTED		Blackburnia Sharp, 1878
-100	20		SPECIES	ACCEPTED		Blackburnia (Metromenus) erro (Blackburn, 1878)
-101	20		SPECIES	ACCEPTED		Blackburnia (Blackburnia) aaae (Liebherr & Samuelson, 1992)
+1			KINGDOM	ACCEPTED		Animalia	
+10	1		FAMILY	ACCEPTED		Carabidae	
+20	10		GENUS	ACCEPTED		Blackburnia Sharp, 1878	
+100	20		SPECIES	ACCEPTED		Blackburnia (Metromenus) erro (Blackburn, 1878)	
+101	20		SPECIES	ACCEPTED		Blackburnia (Blackburnia) aaae (Liebherr & Samuelson, 1992)	

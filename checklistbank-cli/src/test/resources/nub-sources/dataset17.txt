@@ -1,4 +1,4 @@
-1			KINGDOM	ACCEPTED		Protozoa
-10	1		FAMILY	ACCEPTED		Physaraceae
-100	10		SPECIES	ACCEPTED		Fuligo septica (L.) F.H.Wigg., 1780
-101	100		SPECIES	SYNONYM		Fuligo septica
+1			KINGDOM	ACCEPTED		Protozoa	
+10	1		FAMILY	ACCEPTED		Physaraceae	
+100	10		SPECIES	ACCEPTED		Fuligo septica (L.) F.H.Wigg., 1780	
+101	100		SPECIES	SYNONYM		Fuligo septica	

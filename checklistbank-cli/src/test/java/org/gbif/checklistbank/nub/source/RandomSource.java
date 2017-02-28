@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.utils.text.StringUtils;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
  * <li>taxonomicStatus (enum)</li>
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
+ * <li>namePublishedIn</li>
  * </ul>
  */
 public class RandomSource extends NubSource {
@@ -36,7 +38,7 @@ public class RandomSource extends NubSource {
     @Override
     void initNeo(NeoUsageWriter writer) throws Exception {
         // kingdom first
-        String[] record = new String[]{"0",null,null,"KINGDOM","ACCEPTED",null, kingdom.scientificName()};
+        String[] record = new String[]{"0",null,null,"KINGDOM","ACCEPTED",null, kingdom.scientificName(), null};
         writer.addRow(record);
         size--;
 
@@ -48,26 +50,27 @@ public class RandomSource extends NubSource {
         String species = null;
         while (size > 0) {
             int type = rnd.nextInt(1000);
+            String publishedIn = StringUtils.randomString(40 + rnd.nextInt(120));
             if (familyID == null || type == 999){
                 // familyName
                 familyID = size;
-                record = new String[]{familyID.toString(),"0",null,"FAMILY","ACCEPTED",null, fullName(StringUtils.randomFamily())};
+                record = new String[]{familyID.toString(),"0",null,"FAMILY","ACCEPTED",null, fullName(StringUtils.randomFamily()), publishedIn};
 
             } else if (genusID == null || type > 950) {
                 // species
                 genusID = size;
                 genus = StringUtils.randomGenus();
-                record = new String[]{genusID.toString(), familyID.toString(),null,"GENUS","ACCEPTED",null, fullName(genus)};
+                record = new String[]{genusID.toString(), familyID.toString(),null,"GENUS","ACCEPTED",null, fullName(genus), publishedIn};
 
             } else if (speciesID == null || type > 500) {
                 // species
                 speciesID = size;
                 species = appendEpithet(genus);
-                record = new String[]{speciesID.toString(), genusID.toString(),null,"SPECIES","ACCEPTED",null, fullName(species)};
+                record = new String[]{speciesID.toString(), genusID.toString(),null,"SPECIES","ACCEPTED",null, fullName(species), publishedIn};
 
             } else {
                 // subspecies
-                record = new String[]{String.valueOf(size), speciesID.toString(),null,"SUBSPECIES","ACCEPTED",null, fullName(appendEpithet(species))};
+                record = new String[]{String.valueOf(size), speciesID.toString(),null,"SUBSPECIES","ACCEPTED",null, fullName(appendEpithet(species)), publishedIn};
             }
             writer.addRow(record);
             size--;

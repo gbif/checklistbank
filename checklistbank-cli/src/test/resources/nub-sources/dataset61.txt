@@ -1,29 +1,29 @@
-1			KINGDOM	ACCEPTED		Plantae
-10	1		FAMILY	ACCEPTED		Asteraceae
-111873330	10		SPECIES	DOUBTFUL		Erigeron strigosus Muhl. ex Willd.
-111873332	111873330		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus f. strigosus
-111873332	111873330		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus subsp. strigosus
-111873333	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. calcicola J.R.Allison
-111873334	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. dolomiticola J.R.Allison
-111873335	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. strigosus
-111873342	111873335		SPECIES	SYNONYM		Diplemium strigosum (Muhl. ex Willd.) Raf.
-111873351	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron annuus subsp. strigosus (Muhl. ex Willd.) Wagenitz
-111873350	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron annuus var. ramosus (Walter) Hyl.
-111873346	111873335		SPECIES	SYNONYM		Erigeron ramosus (Walter) Britton, Sterns & Poggenb.
-111873340	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron ramosus var. beyrichii (Fisch. & C.A.Mey.) A.Gray
-111873342	111873335		SPECIES	SYNONYM		Diplemium strigosum (Muhl. ex Willd.) Raf.
-111873353	111873335		SPECIES	SYNONYM		Tessenia ramosa (Walter) Lunell
-111873341	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron ramosus var. beyrichii (Fisch. & C.A.Mey.) Trel.
-111873348	111873335		SPECIES	SYNONYM		Erigeron strigosum Muhl.
-111873336	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. beyrichii Torr. & A.Gray ex A.Gray
-111873337	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. discoideus A.Gray
-111873339	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. eligulatus Cronquist
-111873338	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. typicus Cronquist
-111873349	111873335		INFRASPECIFIC_NAME	SYNONYM		Phalacroloma annuum subsp. strigosum (Muhl. ex Willd.) Adema
-111873347	111873335		SPECIES	SYNONYM		Erigeron traversii Shinners
-111873355	111873335		SPECIES	SYNONYM		Phalacroloma beyrichii (Fisch. & C.A.Mey.) Fisch. & C.A.Mey.
-111873354	111873335		SPECIES	SYNONYM		Phalacroloma strigosum (Muhl. ex Willd.) Tzvelev
-111873352	111873335		INFRASPECIFIC_NAME	SYNONYM		Stenactis annua subsp. strigosa (Muhl. ex Willd.) Soó
-111873344	111873335		SPECIES	SYNONYM		Stenactis beyrichii Fisch. & C.A.Mey.
-111873345	111873335		SPECIES	SYNONYM		Stenactis ramosa (Walter) Domin
-111873343	111873335		SPECIES	SYNONYM		Stenactis strigosa (Muhl. ex Willd.) DC.
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		FAMILY	ACCEPTED		Asteraceae	
+111873330	10		SPECIES	DOUBTFUL		Erigeron strigosus Muhl. ex Willd.	
+111873332	111873330		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus f. strigosus	
+111873332	111873330		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus subsp. strigosus	
+111873333	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. calcicola J.R.Allison	
+111873334	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. dolomiticola J.R.Allison	
+111873335	111873330		INFRASPECIFIC_NAME	DOUBTFUL		Erigeron strigosus var. strigosus	
+111873342	111873335		SPECIES	SYNONYM		Diplemium strigosum (Muhl. ex Willd.) Raf.	
+111873351	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron annuus subsp. strigosus (Muhl. ex Willd.) Wagenitz	
+111873350	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron annuus var. ramosus (Walter) Hyl.	
+111873346	111873335		SPECIES	SYNONYM		Erigeron ramosus (Walter) Britton, Sterns & Poggenb.	
+111873340	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron ramosus var. beyrichii (Fisch. & C.A.Mey.) A.Gray	
+111873342	111873335		SPECIES	SYNONYM		Diplemium strigosum (Muhl. ex Willd.) Raf.	
+111873353	111873335		SPECIES	SYNONYM		Tessenia ramosa (Walter) Lunell	
+111873341	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron ramosus var. beyrichii (Fisch. & C.A.Mey.) Trel.	
+111873348	111873335		SPECIES	SYNONYM		Erigeron strigosum Muhl.	
+111873336	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. beyrichii Torr. & A.Gray ex A.Gray	
+111873337	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. discoideus A.Gray	
+111873339	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. eligulatus Cronquist	
+111873338	111873335		INFRASPECIFIC_NAME	SYNONYM		Erigeron strigosus var. typicus Cronquist	
+111873349	111873335		INFRASPECIFIC_NAME	SYNONYM		Phalacroloma annuum subsp. strigosum (Muhl. ex Willd.) Adema	
+111873347	111873335		SPECIES	SYNONYM		Erigeron traversii Shinners	
+111873355	111873335		SPECIES	SYNONYM		Phalacroloma beyrichii (Fisch. & C.A.Mey.) Fisch. & C.A.Mey.	
+111873354	111873335		SPECIES	SYNONYM		Phalacroloma strigosum (Muhl. ex Willd.) Tzvelev	
+111873352	111873335		INFRASPECIFIC_NAME	SYNONYM		Stenactis annua subsp. strigosa (Muhl. ex Willd.) Soó	
+111873344	111873335		SPECIES	SYNONYM		Stenactis beyrichii Fisch. & C.A.Mey.	
+111873345	111873335		SPECIES	SYNONYM		Stenactis ramosa (Walter) Domin	
+111873343	111873335		SPECIES	SYNONYM		Stenactis strigosa (Muhl. ex Willd.) DC.	

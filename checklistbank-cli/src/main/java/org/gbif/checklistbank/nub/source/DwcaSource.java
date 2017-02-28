@@ -69,8 +69,7 @@ public class DwcaSource extends NubSource {
         if (status == null) {
           status = u.isSynonym() ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED;
         }
-        // u.id, u.parent_fk, u.basionym_fk, u.rank, u.status, u.nom_status, n.scientific_name
-        String[] row = new String[7];
+        String[] row = new String[8];
         row[0] = String.valueOf(n.getId());
         row[1] = nullsafeString(status.isSynonym() ? u.getAcceptedKey() : u.getParentKey());
         row[2] = nullsafeString(u.getBasionymKey());
@@ -79,6 +78,7 @@ public class DwcaSource extends NubSource {
         //TODO: nom status
         row[5] = null;
         row[6] = u.getScientificName();
+        row[7] = u.getPublishedIn();
         writer.addRow(row);
       }
     }
