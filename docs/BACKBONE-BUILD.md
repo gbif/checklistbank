@@ -28,6 +28,7 @@ Registry is not used as the dataset/organisation derived values are stored alrea
 
 ### Stop PROD
  - Stop crawling & interpreting on PROD
+ - Stop Oozie HDFS occurrence table coordinator
 
 ### Prepare UAT
  - copy hbase tables from prod
@@ -67,14 +68,22 @@ Registry is not used as the dataset/organisation derived values are stored alrea
  - export NUB to dwca: `./clb-admin.sh EXPORT --nub`
  - move to rs.gbif.org/datasets/backbone/2017-mm-dd
 
-## Rebuild solr, maps & cubes
-### CLB
-tbd
-### Occurrences
-tbd
+## Backfill Occurrence maps & cubes
+See https://github.com/gbif/metrics/tree/master/cube
+
+## Rebuild Occurrence HDFS and Solr
+### Occurrence HDFS table 
+Warning: Do NOT use prod, it needs to keep running.
+ - Update the configurations for UAT using the new HBase table: https://github.com/gbif/gbif-configuration/blob/master/occurrence-download/profiles.xml
+ - Install the workflow for UAT on the gateway https://github.com/gbif/occurrence/tree/master/occurrence-download 
+ 
+### Occurrence Solr
+Warning: For Solr, we use the prod config BUT the UAT hive database to have it ready with the right number of shards.
+ - Update the configurations to use hive.db=uat https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
+ - Install workflow for PROD on the gateway
 
 ## Final prod deployment
-### prepare CLB
+### Prepare CLB
  - import uat dump into prod: 
    - `gunzip -c nub.sql.gz | psql -U postgres prod_checklistbank`
    - psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
@@ -84,7 +93,7 @@ tbd
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
  - build new prod solr index without aliasing to prod_checklistbank
    
-### deploy CLB
+### Deploy CLB
  - prod deploy of checklistbank-nub-ws
  - swap nub index within checklistbank-nub-ws:
     - ./stop.sh
@@ -94,9 +103,18 @@ tbd
  - prod deploy of checklistbank-ws
  - alias to new solr collection
     - ./stop.sh
-    - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank-2017-02-22"`
+    - `curl -s "http://prodsolr01-vh.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank_2017_02_22"`
     - ./start.sh
 
-### Occ
+### Deploy Occurrences WS
+ - Deploy metric-ws, tile-server-ws and occurrence-ws
+ - Disable previous HBase tables to ensure no configuration are still using them
+ 
+### Deploy Occurrences CLI
 
-tbd
+### Deploy Dataset index coordinator job
+The dataset index contains information about taxa used in occurrence and checklist datasets which is updated nightly by an Oozie coordinator job. That job needs to be redeployed with updated configs to use the latest clb and occ settings:
+ - update https://github.com/gbif/gbif-configuration/blob/master/registry-index-builder/prod.properties
+ - execute `prodgateway-vh/root/registry/registry-index-builder/install-coordinator.sh prod TOKEN`
+ 
+ 
