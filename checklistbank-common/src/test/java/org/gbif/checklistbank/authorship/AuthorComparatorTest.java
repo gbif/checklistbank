@@ -187,7 +187,7 @@ public class AuthorComparatorTest {
   }
 
   @Test
-  public void testCompareUnparsedName() throws Exception {
+  public void testCompareUnparsedAuthor() throws Exception {
     ParsedName p1 = new ParsedName();
     p1.setScientificName("Platanus x hispanica Mill. ex Münch., 1770");
     p1.setGenusOrAbove("Platanus");
@@ -270,6 +270,11 @@ public class AuthorComparatorTest {
     assertAuth("L.fil.", null, Equality.EQUAL, "Linnaeus filius", null);
 
     assertAuth("Schultz-Bip", null, Equality.EQUAL, "Sch.Bip.", null);
+
+    assertAuth("Bruand", "1850", Equality.EQUAL, "Bruand", "1851");
+    assertAuth("Bruand", "1850", Equality.DIFFERENT, null, "1998");
+    assertAuth("Bruand", "1850", Equality.EQUAL, null, "1850");
+    assertAuth("Bruand", "1850", Equality.EQUAL, null, "1851");
   }
 
   @Test
@@ -314,11 +319,12 @@ public class AuthorComparatorTest {
     assertTrue(comp.compareStrict("K.Koch", null, "K. Koch", null));
     assertTrue(comp.compareStrict("A. Nelson", null, "A Nélson", null));
     assertTrue(comp.compareStrict("Colla", null, "Bertero ex Colla", null));
+    assertTrue(comp.compareStrict("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1884"));
 
+    assertFalse(comp.compareStrict("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1883"));
     assertFalse(comp.compareStrict("Oberholser", "1917", "Oberholser", "1919"));
     assertFalse(comp.compareStrict("Koch", "1897", "K. Koch", null));
-    assertFalse(comp.compareStrict("Taczanowski & Berlepsch", "1885", "Berlepsch & Taczanowski", "1884"));
-    assertFalse(comp.compareStrict("Gould", "1860", "Gould", "1861"));
+    assertFalse(comp.compareStrict("Gould", "1860", "Gould", "1862"));
     assertFalse(comp.compareStrict("Gould", "1860", "Gould", "1863"));
     assertFalse(comp.compareStrict("A. Nelson", null, "E.E. Nelson", null));
 

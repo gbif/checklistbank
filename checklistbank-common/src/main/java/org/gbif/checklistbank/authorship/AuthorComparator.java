@@ -46,7 +46,6 @@ public class AuthorComparator {
   private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
   private static final Pattern SURNAME = Pattern.compile("([a-z]+)(:? filius)?$");
   private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s)+");
-  private static final Pattern YEAR = Pattern.compile("(^|[^0-9])(\\d{4})([^0-9]|$)");
   private static final String AUTHOR_MAP_FILENAME = "/authorship/authormap.txt";
   private static final Pattern PUNCTUATION = Pattern.compile("[\\p{Punct}&&[^,]]+");
   private static final Pattern COMMA = Pattern.compile("\\s*,\\s*");
@@ -101,7 +100,7 @@ public class AuthorComparator {
     Equality result = compareAuthorteam(authors1, authors2, minCommonSubstring, MIN_AUTHOR_LENGTH_WITHOUT_LOOKUP);
     if (result != Equality.EQUAL) {
       // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
-      Equality yresult = compareYear(year1, year2);
+      Equality yresult = new YearComparator(year1, year2).compare();
       if (yresult != Equality.UNKNOWN) {
         result = yresult;
       }
@@ -160,7 +159,7 @@ public class AuthorComparator {
     if (year1 == null && year2 == null) {
       return true;
     }
-    return Equality.EQUAL == compareYear(year1, year2);
+    return Equality.EQUAL == new YearComparator(year1, year2).compare();
   }
 
   /**
@@ -269,35 +268,12 @@ public class AuthorComparator {
     pn.setAuthorsParsed(true);
   }
 
-  //TODO: allow ? and brackets in year comparisons ...
-  private Equality compareYear(String y1, String y2) {
-    y1 = normalizeYear(y1);
-    y2 = normalizeYear(y2);
-    if (y1 != null && y2 != null) {
-      return y1.equals(y2) ? Equality.EQUAL : Equality.DIFFERENT;
-    }
-    return Equality.UNKNOWN;
-  }
-
-  private String normalizeYear(String y) {
-    if (y == null) return null;
-    Matcher m = YEAR.matcher(y);
-    if (m.find()) {
-      return m.group(2);
-    }
-    return normalize(y);
-  }
 
   /**
    * Does an author comparison, normalizing the strings and try 3 comparisons:
    * 1) checks regular string equality
    * 2) checks for equality of the longest common substring
    * 3) do an author lookup and then check for common substring
-   *
-   * @param a1
-   * @param a2
-   * @param minCommonSubstring
-   * @return
    */
   private Equality compareAuthorteam(@Nullable String a1, @Nullable String a2, int minCommonSubstring, int maxAuthorLengthWithoutLookup) {
     // convert to all lower case, no punctuation but commas seperating authors and normed whitespace
