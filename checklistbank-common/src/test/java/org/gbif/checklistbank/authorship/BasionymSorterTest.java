@@ -282,11 +282,18 @@ public class BasionymSorterTest {
 
     names.add(parser.parse("Heliodoxa rubinoides aequatorialis (Gould, 1860)", null));
     names.add(parser.parse("Androdon aequatorialis Gould, 1863", null));
+    names.add(parser.parse("Clementoron aequatorialis Gould, 1864", null));
+    // this one is 1 year apart so it matches the first recombination on top!
     names.add(parser.parse("Campylopterus largipennis aequatorialis Gould, 1861", null));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     // multiple basionyms, no clear group!
-    assertEquals(0, groups.size());
+    assertEquals(1, groups.size());
+    BasionymGroup<ParsedName> bg = groups.iterator().next();
+    assertEquals("aequatorialis", bg.getEpithet());
+    assertEquals("1861", bg.getBasionym().getYear());
+    assertEquals("aequatorialis", bg.getBasionym().getInfraSpecificEpithet());
+    assertEquals("Gould", bg.getAuthorship());
   }
 
   @Test
@@ -301,9 +308,9 @@ public class BasionymSorterTest {
   public void testGroupBasionymFiles() throws Exception {
     assertInRage(70, 90, "molossidae.txt");
     assertInRage(450, 470, "muridae.txt");
-    assertInRage(10150, 10250, "aves.txt");
-    assertInRage(14700, 14800, "fabaceae.txt");
-    assertInRage(22650, 22750, "asteraceae.txt");
+    assertInRage(10070, 10080, "aves.txt");
+    assertInRage(14700, 14760, "fabaceae.txt");
+    assertInRage(22650, 22725, "asteraceae.txt");
   }
 
   private void assertInRage(int min, int max, String filename) throws Exception {

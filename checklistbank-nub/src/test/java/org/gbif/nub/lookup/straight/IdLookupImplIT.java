@@ -44,7 +44,7 @@ public class IdLookupImplIT {
     assertMatch("Abies alba", "Mill.", "1800", Rank.SPECIES, Kingdom.INCERTAE_SEDIS, 2);
     assertMatch("Abies alba", "nothing but a year", "1768", Rank.SPECIES, Kingdom.INCERTAE_SEDIS, 2);
     assertNoMatch("Abies alba", "DC", "", Rank.SPECIES, Kingdom.PLANTAE);
-    assertNoMatch("Abies alba", "DeCandole", "1769", Rank.SPECIES, Kingdom.PLANTAE);
+    assertNoMatch("Abies alba", "DeCandole", "1770", Rank.SPECIES, Kingdom.PLANTAE);
     assertNoMatch("Abies alba", "Linnaeus", "", Rank.SPECIES, Kingdom.PLANTAE);
     assertNoMatch("Abies alba", "L.", "1989", Rank.SPECIES, Kingdom.PLANTAE);
   }
