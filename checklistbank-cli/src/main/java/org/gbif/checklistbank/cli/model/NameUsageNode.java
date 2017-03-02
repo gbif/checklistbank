@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
 
@@ -21,7 +22,7 @@ public class NameUsageNode {
      * Existing remarks are left untouched and the new string is appended.
      */
     public static void addRemark(NameUsage usage, String remark) {
-        if (Strings.isBlank(usage.getRemarks())) {
+        if (StringUtils.isBlank(usage.getRemarks())) {
             usage.setRemarks(remark);
         } else {
             usage.setRemarks(usage.getRemarks() + "; " + remark);

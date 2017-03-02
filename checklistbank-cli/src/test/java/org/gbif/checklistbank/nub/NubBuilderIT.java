@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import liquibase.util.StreamUtil;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Kingdom;
@@ -9,6 +10,7 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.iterable.StreamUtils;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
@@ -38,11 +40,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.junit.After;
@@ -53,8 +55,8 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.helpers.collection.Iterators;
+import org.neo4j.helpers.collection.Iterables;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -324,8 +326,8 @@ public class NubBuilderIT {
     ClasspathSourceList src = ClasspathSourceList.source(20, 21);
     build(src);
 
-    assertEquals(1, IteratorUtil.asList(getCanonical("Mustela martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)).size());
-    assertEquals(1, IteratorUtil.asList(getCanonical("Martes martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)).size());
+    assertEquals(1, Iterables.count(getCanonical("Mustela martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)));
+    assertEquals(1, Iterables.count(getCanonical("Martes martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)));
 
     NameUsage u = getUsage(getCanonical("Martes martes", Rank.SPECIES).node);
     assertEquals("Mustela martes Linnaeus, 1758", u.getBasionym());
@@ -981,8 +983,8 @@ public class NubBuilderIT {
     NameUsage nu = dao.readUsage(u.node, true);
     assertEquals("Poa pratensis L.", nu.getAccepted());
 
-    List<Relationship> rels = IteratorUtil.asList(u.node.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING));
-    Relationship acc = IteratorUtil.single(u.node.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING));
+    List<Relationship> rels = Iterables.asList(u.node.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING));
+    Relationship acc = Iterables.single(u.node.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING));
     assertEquals(1, rels.size());
     assertNotEquals(rels.get(0).getEndNode(), acc.getEndNode());
 
@@ -1562,7 +1564,7 @@ public class NubBuilderIT {
 
   private void assertUniqueIds() {
     Set<Integer> keys = Sets.newHashSet();
-    for (Node n : IteratorUtil.loop(dao.allTaxa())) {
+    for (Node n : Iterators.loop(dao.allTaxa())) {
       NubUsage u = dao.readNub(n);
       if (keys.contains(u.usageKey)) {
         System.err.println(u);
@@ -1595,16 +1597,12 @@ public class NubBuilderIT {
    * Read old ids from existing, open DAO
    */
   private static Iterable<LookupUsage> allNodes(final UsageDao dao) {
-    return Iterables.transform(IteratorUtil.asIterable(dao.allTaxa()), new Function<Node, LookupUsage>() {
-      @Nullable
-      @Override
-      public LookupUsage apply(@Nullable Node n) {
-        NubUsage u = dao.readNub(n);
-        return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
-      }
-    });
+    return () -> StreamUtils.stream(dao.allTaxa())
+            .map(n -> {
+              NubUsage u = dao.readNub(n);
+              return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
+            }).iterator();
   }
-
 
   private void assertClassification(NubUsage nub, String... parentNames) {
     int idx = 0;
@@ -1717,7 +1715,7 @@ public class NubBuilderIT {
     canonical = SciNameNormalizer.normalize(canonical);
 
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical))) {
       usages.add(get(n));
     }
     return usages;
@@ -1742,7 +1740,7 @@ public class NubBuilderIT {
 
   private List<NubUsage> listScientific(String sciname) {
     List<NubUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname))) {
       usages.add(get(n));
     }
     return usages;
@@ -1792,19 +1790,19 @@ public class NubBuilderIT {
   }
 
   private long countTaxa() {
-    return IteratorUtil.count(dao.getNeo().findNodes(Labels.TAXON));
+    return Iterators.count(dao.getNeo().findNodes(Labels.TAXON));
   }
 
   private long countSpecies() {
-    return IteratorUtil.count(dao.getNeo().findNodes(Labels.SPECIES));
+    return Iterators.count(dao.getNeo().findNodes(Labels.SPECIES));
   }
 
   private long countGenera() {
-    return IteratorUtil.count(dao.getNeo().findNodes(Labels.GENUS));
+    return Iterators.count(dao.getNeo().findNodes(Labels.GENUS));
   }
 
   private long countRoot() {
-    return IteratorUtil.count(dao.getNeo().findNodes(Labels.ROOT));
+    return Iterators.count(dao.getNeo().findNodes(Labels.ROOT));
   }
 
   class TreeAsserter implements StartEndHandler {
@@ -1836,13 +1834,13 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
 
     // compare trees
-    assertEquals("Number of roots differ", expected.getRoot().children.size(), IteratorUtil.count(dao.allRootTaxa()));
+    assertEquals("Number of roots differ", expected.getRoot().children.size(), Iterators.count(dao.allRootTaxa()));
     TreeAsserter treeAssert = new TreeAsserter(expected);
     TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
     assertTrue("There should be more taxa", treeAssert.completed());
 
     // verify all nodes are walked in the tree and contains the expected numbers
-    int neoCnt = IteratorUtil.count(GlobalGraphOperations.at(dao.getNeo()).getAllNodes());
+    long neoCnt = Iterables.count(dao.getNeo().getAllNodes());
     // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
     System.out.println("expected nodes: "+expected.getCount());
     System.out.println("counted nodes: "+neoCnt);

@@ -111,7 +111,7 @@ public class ClbSourceListTest {
    */
   @Test
   public void testListSources() throws Exception {
-    List<NubSource> sources = Iterables.toList(src);
+    List<NubSource> sources = Iterables.asList(src);
     assertEquals(3, sources.size());
     assertEquals(Rank.PHYLUM, sources.get(0).ignoreRanksAbove);
     assertEquals(Rank.FAMILY, sources.get(1).ignoreRanksAbove);

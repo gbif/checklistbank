@@ -12,7 +12,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.Iterators;
+
 
 /**
  * Utils to persistent Iterables for nodes or paths to traverse a taxonomic tree in taxonomic order with sorted leaf nodes.
@@ -49,7 +50,7 @@ public class TreeIterablesSorted {
     if (root != null) {
       return Lists.newArrayList(root);
     }
-    return IteratorUtil.asList(db.findNodes(Labels.ROOT));
+    return Iterators.asList(db.findNodes(Labels.ROOT));
   }
 
   public static TraversalDescription filterRank(TraversalDescription td, @Nullable Rank lowestRank) {

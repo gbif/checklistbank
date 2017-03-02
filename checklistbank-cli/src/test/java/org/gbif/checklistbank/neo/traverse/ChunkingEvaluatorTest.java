@@ -17,7 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.Iterators;
+
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -124,7 +125,7 @@ public class ChunkingEvaluatorTest {
       for (Node n : MultiRootNodeIterator.create(root, Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
           chunks++;
-          int cnt = 1 + IteratorUtil.count(Traversals.DESCENDANTS.traverse(n));
+          long cnt = 1 + Iterators.count(Traversals.DESCENDANTS.traverse(n).iterator());
           //System.out.println(n.getId() + ": " + cnt);
           assertTrue(cnt > chunkMinSize);
           // we cant assert a maximum chunk size

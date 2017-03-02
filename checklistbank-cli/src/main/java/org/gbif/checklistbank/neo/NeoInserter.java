@@ -84,12 +84,12 @@ public class NeoInserter implements AutoCloseable {
     private final Map<Term, Extension> extensions;
     private final UsageDao dao;
 
-    private NeoInserter(UsageDao dao, File storeDir, int batchSize, @Nullable Meter insertMeter) {
+    private NeoInserter(UsageDao dao, File storeDir, int batchSize, @Nullable Meter insertMeter) throws IOException {
         Preconditions.checkNotNull(dao, "DAO required");
         LOG.info("Creating new neo db at {}", storeDir.getAbsolutePath());
         this.dao = dao;
         initNeoDir(storeDir);
-        inserter = BatchInserters.inserter(storeDir.getAbsolutePath());
+        inserter = BatchInserters.inserter(storeDir);
         this.batchSize = batchSize;
         this.insertMeter = insertMeter;
         extensions = Maps.newHashMap();
@@ -98,7 +98,7 @@ public class NeoInserter implements AutoCloseable {
         }
     }
 
-    public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, @Nullable MetricRegistry registry) {
+    public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, @Nullable MetricRegistry registry) throws IOException {
         return new NeoInserter(dao, storeDir, batchSize, registry == null ? null : registry.meter(Metrics.INSERT_METER));
     }
 

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -29,6 +30,7 @@ import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
@@ -57,8 +59,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.helpers.Strings;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +213,7 @@ public class UsageDao {
    */
   public void logAll() throws Exception {
     Joiner joiner = Joiner.on(",").skipNulls();
-    for (Node n : GlobalGraphOperations.at(neo).getAllNodes()) {
+    for (Node n : neo.getAllNodes()) {
       NubUsage u = readNub(n);
       LOG.info("{} {} [{} {}] {}", n.getId(), NeoProperties.getScientificName(n), (n.hasLabel(Labels.SYNONYM) ? TaxonomicStatus.SYNONYM.name() : TaxonomicStatus.ACCEPTED.name()).toLowerCase(), NeoProperties.getRank(n, null), u == null ? "" : joiner.join(u.issues));
     }
@@ -328,7 +329,7 @@ public class UsageDao {
    * Shuts down the neo db is it was open and returns a neo inserter that uses a neo batch inserter under the hood.
    * Make sure you do not access any other dao methods until the batch inserter was closed properly!
    */
-  public NeoInserter createBatchInserter(int batchSize) {
+  public NeoInserter createBatchInserter(int batchSize) throws IOException {
     closeNeo();
     return NeoInserter.create(this, neoDir, batchSize, registry);
   }
@@ -342,7 +343,7 @@ public class UsageDao {
    * Be careful when using this method on large graphs without a schema indexing the canonical name property!
    */
   public Collection<Node> findByName(String canonicalName){
-    return IteratorUtil.asCollection(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
+    return Iterators.asCollection(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
   }
 
   /**
@@ -351,7 +352,7 @@ public class UsageDao {
    * @return th matching node, null or NoSuchElementException
    */
   public Node findByNameSingle(String canonicalName) {
-    return IteratorUtil.single(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
+    return Iterators.single(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
   }
 
   /**
@@ -359,7 +360,7 @@ public class UsageDao {
    * @return th matching node, null or NoSuchElementException
    */
   public Node findByScientificName(String scientificName) {
-    return IteratorUtil.single(neo.findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, scientificName));
+    return Iterators.single(neo.findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, scientificName));
   }
 
   /**
@@ -614,7 +615,7 @@ public class UsageDao {
    */
   public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
     String name = withAuthors ? pn.canonicalNameComplete() : SciNameNormalizer.normalize(pn.canonicalName());
-    if (Strings.isBlank(name)) {
+    if (StringUtils.isBlank(name)) {
       // this should only ever happen for virus names, log otherwise
       if (pn.isParsableType()) {
         LOG.warn("Parsable name found with an empty canonical name string: {}", pn.getScientificName());
@@ -660,7 +661,7 @@ public class UsageDao {
   }
 
   public ResourceIterable<Node> allNodes() {
-    return GlobalGraphOperations.at(getNeo()).getAllNodes();
+    return getNeo().getAllNodes();
   }
 
   public ResourceIterator<Node> allRootTaxa() {
@@ -769,18 +770,18 @@ public class UsageDao {
       LOG.info("KVP nubUsages: " + nubUsages.size());
     }
     LOG.info("neoDir: " + neoDir.getAbsolutePath());
-    LOG.info("roots: " + IteratorUtil.count(allRootTaxa()));
-    LOG.info("families: " + IteratorUtil.count(allFamilies()));
-    LOG.info("genera: " + IteratorUtil.count(allGenera()));
-    LOG.info("basionyms: " + IteratorUtil.count(allBasionyms()));
-    LOG.info("synonyms: " + IteratorUtil.count(allSynonyms()));
-    LOG.info("all: " + IteratorUtil.count(allTaxa()));
+    LOG.info("roots: " + Iterators.count(allRootTaxa()));
+    LOG.info("families: " + Iterators.count(allFamilies()));
+    LOG.info("genera: " + Iterators.count(allGenera()));
+    LOG.info("basionyms: " + Iterators.count(allBasionyms()));
+    LOG.info("synonyms: " + Iterators.count(allSynonyms()));
+    LOG.info("all: " + Iterators.count(allTaxa()));
   }
 
   public void consistencyNubReport() {
     try (Transaction tx = neo.beginTx()) {
       int nCounter = 0;
-      for (Node n : GlobalGraphOperations.at(getNeo()).getAllNodes()) {
+      for (Node n : getNeo().getAllNodes()) {
         nCounter++;
         if (readNub(n) == null) {
           LOG.warn("Missing KVP nub usage for node {} {}", n.getId(), NeoProperties.getScientificName(n));

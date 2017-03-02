@@ -39,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -56,7 +58,7 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -397,15 +399,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
    */
   private List<Integer> buildClbParents(Node n) {
     // we copy the transformed, short list as it is still backed by some neo transaction
-    return Lists.newArrayList(Lists.transform(
-        IteratorUtil.asList(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING)),
-        new Function<Relationship, Integer>() {
-          @Override
-          public Integer apply(Relationship rel) {
-            return rel != null ? clbKey((int) rel.getStartNode().getId()) : null;
-          }
-        })
-    );
+    return StreamSupport.stream(n.getRelationships(RelType.PARENT_OF, Direction.INCOMING).spliterator(), false)
+            .map(rel -> rel != null ? clbKey((int) rel.getStartNode().getId()) : null)
+            .collect(Collectors.toList());
   }
 
   /**

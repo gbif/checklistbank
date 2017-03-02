@@ -1,6 +1,8 @@
 package org.gbif.checklistbank.nub;
 
-import com.google.common.collect.*;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -39,7 +41,9 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.IteratorUtil;
+
+import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,9 +133,10 @@ public class NubDb {
    * @return the parent (or accepted) nodes for a given node.
    */
   public List<Node> parents(Node n) {
-    return IteratorUtil.asList(Traversals.PARENTS
-        .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
-        .traverse(n).nodes());
+    return Iterables.asList(Traversals.PARENTS
+            .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
+            .traverse(n)
+            .nodes());
   }
 
   public Map<Rank, String> parentsMap(Node n) {
@@ -176,7 +181,7 @@ public class NubDb {
     final String normedCanonical = SciNameNormalizer.normalize(canonical);
     List<NubUsage> usages = Lists.newArrayList();
     List<NubUsage> doubtful = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
       NubUsage rn = dao.readNub(n);
       if ( (kingdom == null || kingdom == rn.kingdom)
           && (rank == null || rank == rn.rank)
@@ -211,7 +216,7 @@ public class NubDb {
     int canonMatches = 0;
     NubUsage doubtful = null;
     final String name = dao.canonicalOrScientificName(pn, false);
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
       if (matchesNub(pn, rank, kingdom, rn, currNubParent, false)) {
         checked.add(rn);
@@ -326,10 +331,10 @@ public class NubDb {
 
     // finally pick the first accepted with the largest subtree
     NubUsage curr = null;
-    int maxDescendants = -1;
+    long maxDescendants = -1;
     for (NubUsage nu : checked) {
       if (nu.status.isAccepted()) {
-        int descendants = countDescendants(nu);
+        long descendants = countDescendants(nu);
         if (maxDescendants < descendants) {
           maxDescendants = descendants;
           curr = nu;
@@ -346,8 +351,8 @@ public class NubDb {
     throw new IgnoreSourceUsageException("homonym " + pn.getScientificName(), pn.getScientificName());
   }
 
-  private int countDescendants(NubUsage u) {
-    return IteratorUtil.count(Traversals.DESCENDANTS.traverse(u.node));
+  private long countDescendants(NubUsage u) {
+    return Iterables.count(Traversals.DESCENDANTS.traverse(u.node).nodes());
   }
 
   /**
@@ -415,7 +420,7 @@ public class NubDb {
   }
 
   public long countTaxa() {
-    Result res = dao.getNeo().execute("START node=node(*) MATCH node RETURN count(node) as cnt");
+    Result res = dao.getNeo().execute("MATCH (n) RETURN count(n) as cnt");
     return (long) res.columnAs("cnt").next();
   }
 
@@ -700,7 +705,7 @@ public class NubDb {
 
   public List<NubUsage> listBasionymGroup(Node bas) {
     List<NubUsage> group = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(Traversals.BASIONYM_GROUP.traverse(bas).nodes().iterator())) {
+    for (Node n : Iterators.loop(Traversals.BASIONYM_GROUP.traverse(bas).nodes().iterator())) {
       try {
         group.add(dao.readNub(n));
       } catch (NotFoundException e) {

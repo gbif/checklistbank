@@ -22,8 +22,8 @@
   </distributionManagement>
 
   <properties>
-    <!-- older lucene version required by neo4j -->
-    <lucene.version>3.6.2</lucene.version>
+    <!-- lucene version required by neo4j -->
+    <lucene-neo4j.version>5.5.0</lucene-neo4j.version>
 
     <!-- default configurations for allAccepted GBIF environments -->
     <hbase.maxConnectionPool>10</hbase.maxConnectionPool>
@@ -125,13 +125,13 @@
     </repository>
   </repositories>
 
-  <!-- use older lucene in this package which comes with neo -->
+  <!-- use lucene in this package which comes with neo -->
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.apache.lucene</groupId>
         <artifactId>lucene-core</artifactId>
-        <version>${lucene.version}</version>
+        <version>${lucene-neo4j.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

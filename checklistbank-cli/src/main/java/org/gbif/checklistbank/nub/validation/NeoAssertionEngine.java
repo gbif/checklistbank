@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.validation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
@@ -21,7 +22,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.Strings;
-import org.neo4j.helpers.collection.IteratorUtil;
+
+import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +92,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       NubUsage usage = getUsage(usageKey);
       Map<Rank, String> parents = db.parentsMap(usage.node);
       for (Rank r : Rank.DWC_RANKS) {
-        if (!Strings.isBlank(classification.getHigherRank(r))) {
+        if (!StringUtils.isBlank(classification.getHigherRank(r))) {
           if (!parents.get(r).equalsIgnoreCase(classification.getHigherRank(r))) {
             valid = false;
             LOG.error("Unexpected {} {} for {} {}", r, classification.getHigherRank(r), usage.toStringComplete());
@@ -161,7 +164,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       Assert.assertNotNull(u);
       Assert.assertEquals(rank, u.rank);
       Assert.assertTrue(u.parsedName.canonicalNameComplete().startsWith(name));
-      if (Strings.isBlank(accepted)) {
+      if (StringUtils.isBlank(accepted)) {
         Assert.assertTrue(u.status.isAccepted());
       } else {
         Assert.assertTrue(u.status.isSynonym());
@@ -190,7 +193,7 @@ public class NeoAssertionEngine implements AssertionEngine {
 
   private NubUsage findRootUsage(NubUsage u) {
     try (Transaction tx = db.beginTx()) {
-      Node root = IteratorUtil.last(Traversals.PARENTS.traverse(u.node).nodes());
+      Node root = Iterables.last(Traversals.PARENTS.traverse(u.node).nodes());
       return db.dao().readNub(root);
     }
   }

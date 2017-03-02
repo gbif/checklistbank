@@ -19,7 +19,9 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.helpers.collection.IteratorUtil;
+
+import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +46,7 @@ public class ImportDb {
    */
   protected Node nodeByTaxonId(String taxonID) {
 //      try {
-    return IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
+    return Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
 //      } catch (NoSuchElementException e) {
 //          throw new NotUniqueException(taxonID, "TaxonID not unique: " + taxonID);
 //      }
@@ -55,7 +57,7 @@ public class ImportDb {
    */
   protected Node nodeByCanonical(String canonical) throws NotUniqueException {
     try {
-      return IteratorUtil
+      return Iterators
           .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
     } catch (NoSuchElementException e) {
       throw new NotUniqueException(canonical, "Canonical name not unique: " + canonical);
@@ -63,7 +65,7 @@ public class ImportDb {
   }
 
   protected Collection<Node> nodesByCanonical(String canonical) {
-    return IteratorUtil
+    return Iterators
         .asCollection(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonical));
   }
 
@@ -91,7 +93,7 @@ public class ImportDb {
    */
   protected Node nodeBySciname(String sciname) throws NotUniqueException {
     try {
-      return IteratorUtil
+      return Iterators
           .singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, sciname));
     } catch (NoSuchElementException e) {
       throw new NotUniqueException(sciname, "Scientific name not unique: " + sciname);
@@ -149,12 +151,12 @@ public class ImportDb {
    * @return the last parent or the node itself if no parent exists
    */
   protected RankedName getDirectParent(Node n) {
-    Node p = IteratorUtil.lastOrNull(Traversals.PARENTS.traverse(n).nodes());
+    Node p = Iterables.lastOrNull(Traversals.PARENTS.traverse(n).nodes());
     return dao.readRankedName(p != null ? p : n);
   }
 
   protected Node getLinneanRankParent(Node n) {
-    return IteratorUtil.firstOrNull(Traversals.LINNEAN_PARENTS.traverse(n).nodes());
+    return Iterables.firstOrNull(Traversals.LINNEAN_PARENTS.traverse(n).nodes());
   }
 
   public UUID getDatasetKey() {

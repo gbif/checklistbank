@@ -33,8 +33,8 @@ import org.junit.Before;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -113,7 +113,7 @@ public abstract class BaseTest {
     Map<Origin, Integer> countByOrigin = Maps.newHashMap();
     Map<Rank, Integer> countByRank = Maps.newHashMap();
 
-    for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
+    for (Node n : dao.getNeo().getAllNodes()) {
       if (!n.hasLabel(Labels.TAXON)) {
         ignored++;
         continue;
@@ -124,7 +124,7 @@ public abstract class BaseTest {
         roots++;
       }
       // pro parte relations count as extra synonyms!
-      final int countAs = n.hasLabel(Labels.SYNONYM) ? IteratorUtil.count(Traversals.ACCEPTED.traverse(n)) : 1;
+      final int countAs = n.hasLabel(Labels.SYNONYM) ? (int) Iterables.count(Traversals.ACCEPTED.traverse(n).nodes()) : 1;
       if (n.hasLabel(Labels.SYNONYM)) {
         synonyms = synonyms + countAs;
         if (!n.hasRelationship(RelType.SYNONYM_OF)) {
@@ -162,18 +162,18 @@ public abstract class BaseTest {
    * gets single usage or null, throws exception if more than 1 usage exist!
    */
   public NameUsage getUsageByTaxonId(String id) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, id));
+    Node n = Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, id));
     return getUsageByNode(n);
   }
 
   public NameUsageMetrics getMetricsByTaxonId(String taxonID) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
+    Node n = Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
     return dao.readFacts(n.getId()).metrics;
   }
 
   public List<NameUsage> getUsagesByName(String name) {
     List<NameUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name))) {
       usages.add(getUsageByNode(n));
     }
     return usages;
@@ -183,7 +183,7 @@ public abstract class BaseTest {
    * Gets single usage by its canonical name. Returns null if none found or throws exception if more than 1 usage with that name exists!
    */
   public NameUsage getUsageByCanonical(String name) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name));
+    Node n = Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name));
     return getUsageByNode(n);
   }
 
@@ -191,17 +191,17 @@ public abstract class BaseTest {
    * Gets single usage by its scientific name. Returns null if none found or throws exception if more than 1 usage with that name exists!
    */
   public NameUsage getUsageByName(String name) {
-    Node n = IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
+    Node n = Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
     return getUsageByNode(n);
   }
 
   public List<Node> getNodesByName(String name) {
-    return IteratorUtil.asList(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
+    return Iterators.asList(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, name));
   }
 
   public List<NameUsage> getAllUsages() {
     List<NameUsage> usages = Lists.newArrayList();
-    for (Node n : IteratorUtil.loop(dao.getNeo().findNodes(Labels.TAXON))) {
+    for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON))) {
       usages.add(getUsageByNode(n));
     }
     return usages;

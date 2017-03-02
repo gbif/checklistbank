@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Organization;
@@ -105,7 +106,7 @@ public class ClbSourceList extends NubSourceList {
         if (keys.contains(key)) continue;
         keys.add(key);
 
-        Rank rank = row.length > 1 && !Strings.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
+        Rank rank = row.length > 1 && !StringUtils.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
         Dataset d = datasetService.get(key);
         if (d != null) {
           sources.add(buildSource(d, rank, cfg.clb, cfg.ignoreSynonyms.contains(key)));

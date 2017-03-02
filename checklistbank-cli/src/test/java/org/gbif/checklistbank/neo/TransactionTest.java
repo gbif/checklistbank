@@ -12,8 +12,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+
+import org.neo4j.helpers.collection.Iterables;
 
 import static org.junit.Assert.assertEquals;
 
@@ -33,7 +33,7 @@ public class TransactionTest {
   @Before
   public void init() throws IOException {
     dbf = Files.newTemporaryFolder();
-    db = new GraphDatabaseFactory().newEmbeddedDatabase(dbf.getAbsolutePath());
+    db = new GraphDatabaseFactory().newEmbeddedDatabase(dbf);
   }
 
   @After
@@ -58,7 +58,7 @@ public class TransactionTest {
     // expect those nodes not to be shown in the iterator which opened at the beginning of the tx.
     tx = db.beginTx();
     int counter = 0;
-    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+    for (Node n : db.getAllNodes()) {
       Node n2 = db.createNode(Labels.TAXON);
       n.createRelationshipTo(n2, RelType.PARENT_OF);
       counter++;
@@ -72,7 +72,7 @@ public class TransactionTest {
     // now commit in batches. We expect the newly created nodes to appear in the iterator as we reopen the tx in between ...
     tx = db.beginTx();
     counter = 0;
-    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+    for (Node n : db.getAllNodes()) {
       if (counter < 100) {
         Node n2 = db.createNode(Labels.SYNONYM);
         n2.createRelationshipTo(n, RelType.SYNONYM_OF);
@@ -94,7 +94,7 @@ public class TransactionTest {
     // now commit at the end, but mark tx as success every time...
     tx = db.beginTx();
     counter = 0;
-    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+    for (Node n : db.getAllNodes()) {
       if (counter < 100) {
         Node n2 = db.createNode(Labels.SYNONYM);
         n2.createRelationshipTo(n, RelType.SYNONYM_OF);
@@ -112,7 +112,7 @@ public class TransactionTest {
     // When committing the inner transactions they dont affect the outer one
     tx = db.beginTx();
     counter = 0;
-    for (Node n : GlobalGraphOperations.at(db).getAllNodes()) {
+    for (Node n : db.getAllNodes()) {
       if (counter < 100) {
         Transaction tx2 = db.beginTx();
         Node n2 = db.createNode(Labels.SYNONYM);
@@ -130,9 +130,9 @@ public class TransactionTest {
 
   }
 
-  private int countAll() {
+  private long countAll() {
     try (Transaction tx = db.beginTx()) {
-      return IteratorUtil.count(GlobalGraphOperations.at(db).getAllNodes());
+      return Iterables.count(db.getAllNodes());
     }
   }
 

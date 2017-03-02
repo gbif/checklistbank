@@ -19,7 +19,7 @@ public class ClasspathSourceListTest {
     public void testListSources() throws Exception {
         ClasspathSourceList src = ClasspathSourceList.source(1, 2, 3, 4, 5, 10, 11, 23, 12, 31);
         src.setSourceRank(23, Rank.KINGDOM);
-        List<NubSource> sources = Iterables.toList(src);
+        List<NubSource> sources = Iterables.asList(src);
         assertEquals(10, sources.size());
         assertEquals(Rank.FAMILY, sources.get(0).ignoreRanksAbove);
         assertEquals(Rank.KINGDOM, sources.get(7).ignoreRanksAbove);

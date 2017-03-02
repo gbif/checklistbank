@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.validation;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.LinneanClassification;
@@ -69,7 +70,7 @@ public class PgAssertionEngine implements AssertionEngine {
     try {
       NameUsage u = usageService.get(usageKey, null);
       for (Rank r : Rank.DWC_RANKS) {
-        if (!Strings.isBlank(classification.getHigherRank(r))) {
+        if (!StringUtils.isBlank(classification.getHigherRank(r))) {
           Assert.assertEquals(classification.getHigherRank(r), u.getHigherRank(r));
         }
       }
@@ -136,7 +137,7 @@ public class PgAssertionEngine implements AssertionEngine {
       Assert.assertEquals("Wrong rank", rank, u.getRank());
       Assert.assertTrue("Wrong scientific name", u.getScientificName().startsWith(name));
 
-      if (Strings.isBlank(accepted)) {
+      if (StringUtils.isBlank(accepted)) {
         Assert.assertFalse("Not accepted", u.isSynonym());
       } else {
         Assert.assertTrue("Not a synonym", u.isSynonym());

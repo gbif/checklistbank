@@ -19,7 +19,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.traversal.TraversalDescription;
-import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.Iterators;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -157,12 +158,12 @@ public class TraversalsTest {
   }
 
   private void assertTraversalSizes(TraversalDescription td, int child1, int child1Syn, int child2, int child2Syn, int root, int bas) {
-    assertEquals("child1 traversal wrong", child1, IteratorUtil.count(td.traverse(this.child1)));
-    assertEquals("child1Syn traversal wrong", child1Syn, IteratorUtil.count(td.traverse(this.child1Syn)));
-    assertEquals("child2 traversal wrong", child2, IteratorUtil.count(td.traverse(this.child2)));
-    assertEquals("child2Syn traversal wrong", child2Syn, IteratorUtil.count(td.traverse(this.child2Syn)));
-    assertEquals("root traversal wrong", root, IteratorUtil.count(td.traverse(this.root)));
-    assertEquals("bas traversal wrong", bas, IteratorUtil.count(td.traverse(this.bas)));
+    assertEquals("child1 traversal wrong", child1, Iterators.count(td.traverse(this.child1).iterator()));
+    assertEquals("child1Syn traversal wrong", child1Syn, Iterators.count(td.traverse(this.child1Syn).iterator()));
+    assertEquals("child2 traversal wrong", child2, Iterators.count(td.traverse(this.child2).iterator()));
+    assertEquals("child2Syn traversal wrong", child2Syn, Iterators.count(td.traverse(this.child2Syn).iterator()));
+    assertEquals("root traversal wrong", root, Iterators.count(td.traverse(this.root).iterator()));
+    assertEquals("bas traversal wrong", bas, Iterators.count(td.traverse(this.bas).iterator()));
 
   }
 

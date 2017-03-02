@@ -28,7 +28,9 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.IteratorUtil;
+import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -86,18 +88,18 @@ public class NormalizerTest extends BaseTest {
     try (Transaction tx = beginTx()) {
       Schema schema = dao.getNeo().schema();
       for (IndexDefinition idf : schema.getIndexes(Labels.TAXON)) {
-        List<String> idxProps = IteratorUtil.asList(idf.getPropertyKeys());
+        List<String> idxProps = Iterables.asList(idf.getPropertyKeys());
         assertTrue(idxProps.size() == 1);
         assertTrue(taxonIndices.remove(idxProps.get(0)));
       }
 
-      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "1001")));
-      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
-      assertNotNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "Crepis bakeri")));
+      assertNotNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "1001")));
+      assertNotNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "Crepis bakeri Greene")));
+      assertNotNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "Crepis bakeri")));
 
-      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "x1001")));
-      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
-      assertNull(IteratorUtil.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "xCrepis bakeri")));
+      assertNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, "x1001")));
+      assertNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.SCIENTIFIC_NAME, "xCrepis bakeri Greene")));
+      assertNull(Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, "xCrepis bakeri")));
     }
   }
 
@@ -405,7 +407,7 @@ public class NormalizerTest extends BaseTest {
       expected.put("Septoria", Rank.GENUS);
       expected.put("Sphaerella", Rank.GENUS);
 
-      for (Node n : IteratorUtil.loop(dao.allTaxa())) {
+      for (Node n : Iterators.loop(dao.allTaxa())) {
         u = dao.readUsage(n, true);
         if (u.getOrigin() == Origin.DENORMED_CLASSIFICATION) {
           Rank r = expected.remove(u.getScientificName());

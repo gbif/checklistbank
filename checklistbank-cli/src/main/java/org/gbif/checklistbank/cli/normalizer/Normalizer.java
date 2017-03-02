@@ -31,6 +31,7 @@ import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -49,13 +50,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.ObjectUtils;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.graphdb.*;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -184,11 +180,14 @@ public class Normalizer extends ImportDb implements Runnable {
       }
     } catch (NotUniqueRuntimeException e) {
       throw new NormalizationFailedException(e.getProperty() + " values not unique: " + e.getKey(), e);
+
+    } catch (IOException e) {
+      throw new NormalizationFailedException("IO error: " + e.getMessage(), e);
     }
   }
 
   /**
-   * Applies the classificaiton given as denormalized higher taxa terms
+   * Applies the classification given as denormalized higher taxa terms
    * after the parent / accepted relations have been applied.
    * It also removes the ROOT label if new parents are assigned.
    * We need to be careful as the classification coming in first via the parentNameUsage(ID) terms
@@ -204,7 +203,7 @@ public class Normalizer extends ImportDb implements Runnable {
     int counter = 0;
     Transaction tx = dao.getNeo().beginTx();
     try {
-      for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
+      for (Node n : dao.getNeo().getAllNodes()) {
         if (counter % batchSize * 10 == 0) {
           tx.success();
           tx.close();
@@ -413,7 +412,7 @@ public class Normalizer extends ImportDb implements Runnable {
     int childOfRelDeleted = 0;
     int childOfRelRelinkedToAccepted = 0;
     try (Transaction tx = dao.getNeo().beginTx()) {
-      for (Node syn : IteratorUtil.loop(dao.allSynonyms())) {
+      for (Node syn : Iterators.loop(dao.allSynonyms())) {
         Node accepted = syn.getSingleRelationship(RelType.SYNONYM_OF, Direction.OUTGOING).getEndNode();
         LazyUsage synU = new LazyUsage(syn);
         LazyUsage accU = new LazyUsage(accepted);
@@ -583,7 +582,7 @@ public class Normalizer extends ImportDb implements Runnable {
       // This iterates over ALL NODES, even the ones created within this loop which trigger a transaction commit!
       // iteration is by node id starting from node id 1 to highest.
       // if nodes are created within this loop they receive the highest node id and thus are added to the end of this loop
-      for (Node n : GlobalGraphOperations.at(dao.getNeo()).getAllNodes()) {
+      for (Node n : dao.getNeo().getAllNodes()) {
         setupRelation(n);
         // inc counters & commit batch
         counter++;

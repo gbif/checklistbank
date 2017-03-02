@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
  * Especially useful for larger tree snippets.
  */
 public class NubTree implements Iterable<NubNode> {
-  private int count;
+  private long count;
   private NubNode root = new NubNode(null, null, false);
   private static final Pattern INDENT = Pattern.compile("^( +\\" + TxtPrinter.SYNONYM_SYMBOL + "?\\" + TxtPrinter.BASIONYM_SYMBOL + "?)");
   private static final Pattern RANK = Pattern.compile(" \\[([a-z]+)\\] *$");
@@ -31,7 +31,7 @@ public class NubTree implements Iterable<NubNode> {
     return read(FileUtils.classpathStream(classpathFilename));
   }
 
-  public int getCount() {
+  public long getCount() {
     return count;
   }
 
