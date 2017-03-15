@@ -117,6 +117,10 @@ public class Normalizer extends ImportDb implements Runnable {
     return Normalizer.create(cfg, datasetKey, cfg.archiveDir(datasetKey), registry, constituents, lookup);
   }
 
+  public static Normalizer create(UUID datasetKey, UsageDao dao, File dwca, IdLookup lookup, int batchsize) {
+    return new Normalizer(datasetKey, dao, dwca, batchsize, null, Maps.<String, UUID>newHashMap(), lookup);
+  }
+
   /**
    * Creates a dataset specific normalizer with an internal metrics registry and a pass thru nub matcher.
    */
@@ -131,6 +135,7 @@ public class Normalizer extends ImportDb implements Runnable {
   public static Normalizer create(NormalizerConfiguration cfg, MetricRegistry registry, UUID datasetKey) {
     return Normalizer.create(cfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
   }
+
 
   /**
    * Simple wrapper class that lazily loads a name usage from the dao if needed.
