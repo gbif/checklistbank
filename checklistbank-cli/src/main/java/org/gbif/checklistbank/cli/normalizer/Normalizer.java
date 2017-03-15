@@ -154,7 +154,24 @@ public class Normalizer extends ImportDb implements Runnable {
     }
   }
 
+  /**
+   * Run the normalizer and close the dao.
+   *
+   * @throws NormalizationFailedException
+   */
   public void run() throws NormalizationFailedException {
+    //default behavior
+    run(true);
+  }
+
+  /**
+   * Run the normalizer.
+   *
+   * @param closeDao Should the dao be closed after running or on exception?
+   *
+   * @throws NormalizationFailedException
+   */
+  public void run(boolean closeDao) throws NormalizationFailedException {
     LOG.info("Start normalization of checklist {}", datasetKey);
     try {
       // batch import uses its own batchdb
@@ -166,10 +183,11 @@ public class Normalizer extends ImportDb implements Runnable {
       // match to nub and build metrics
       buildMetricsAndMatchBackbone();
       LOG.info("Normalization succeeded");
-
     } finally {
-      dao.close();
-      LOG.info("Normalizer database shut down");
+      if (closeDao) {
+        dao.close();
+        LOG.info("Normalizer database shut down");
+      }
     }
   }
 
