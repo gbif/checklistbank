@@ -97,28 +97,21 @@ public class Normalizer extends ImportDb implements Runnable {
     this.batchSize = batchSize;
   }
 
-
-  public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, File archiveFile, MetricRegistry registry,
-                                  Map<String, UUID> constituents, IdLookup lookup) {
-    return new Normalizer(datasetKey,
-            UsageDao.persistentDao(cfg.neo, datasetKey, false, registry, true),
-            archiveFile,
-            cfg.neo.batchSize,
-            registry, constituents, lookup);
-  }
-
-
   /**
    * Creates a dataset specific normalizer using the configuration {@link NormalizerConfiguration#archiveDir(UUID)}
    * to load the archive.
    */
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   Map<String, UUID> constituents, IdLookup lookup) {
-    return Normalizer.create(cfg, datasetKey, cfg.archiveDir(datasetKey), registry, constituents, lookup);
+    return new Normalizer(datasetKey,
+            UsageDao.persistentDao(cfg.neo, datasetKey, false, registry, true),
+            cfg.archiveDir(datasetKey),
+            cfg.neo.batchSize,
+            registry, constituents, lookup);
   }
 
-  public static Normalizer create(UUID datasetKey, UsageDao dao, File dwca, IdLookup lookup, int batchsize) {
-    return new Normalizer(datasetKey, dao, dwca, batchsize, null, Maps.<String, UUID>newHashMap(), lookup);
+  public static Normalizer create(UUID datasetKey, UsageDao dao, File dwca, IdLookup lookup, int batchSize) {
+    return new Normalizer(datasetKey, dao, dwca, batchSize, new MetricRegistry(), Maps.newHashMap(), lookup);
   }
 
   /**
