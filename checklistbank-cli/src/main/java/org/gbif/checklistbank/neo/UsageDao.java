@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * only offers a beginTx() method.
  * For all the rest it uses a file persistent MapDB hashmap with kryo for quick serialization.
  */
-public class UsageDao {
+public class UsageDao implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(UsageDao.class);
 
   private GraphDatabaseService neo;
