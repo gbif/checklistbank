@@ -1,0 +1,3 @@
+1			GENUS	ACCEPTED		Thelia	
+10	1		SPECIES	ACCEPTED		Thelia angulata Walker, 1851	
+11	1		SPECIES	ACCEPTED		Thelia tacta Walker, 1851	

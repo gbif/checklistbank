@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Animalia	
+10	1		GENUS	ACCEPTED		Thelia Amyot & Serville, 1843	
+2			KINGDOM	ACCEPTED		Plantae	
+20	2		GENUS	ACCEPTED		Thelia Sull. in Sull. & Lesq.	

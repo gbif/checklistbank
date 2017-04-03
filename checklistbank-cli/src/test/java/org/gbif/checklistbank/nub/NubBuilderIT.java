@@ -1,14 +1,11 @@
 package org.gbif.checklistbank.nub;
 
-import liquibase.util.StreamUtil;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.NamePart;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.iterable.StreamUtils;
 import org.gbif.checklistbank.neo.Labels;
@@ -19,34 +16,12 @@ import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
-import org.gbif.checklistbank.nub.source.ClasspathSourceList;
-import org.gbif.checklistbank.nub.source.DwcaSource;
-import org.gbif.checklistbank.nub.source.DwcaSourceTest;
-import org.gbif.checklistbank.nub.source.NubSource;
-import org.gbif.checklistbank.nub.source.NubSourceList;
-import org.gbif.checklistbank.nub.source.RandomSource;
+import org.gbif.checklistbank.nub.source.*;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Function;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -55,16 +30,17 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterators;
 import org.neo4j.helpers.collection.Iterables;
+import org.neo4j.helpers.collection.Iterators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 public class NubBuilderIT {
   private UsageDao dao;
@@ -1526,6 +1502,21 @@ public class NubBuilderIT {
 
     u = assertCanonical("Blatta hyperborea", Rank.SPECIES, Origin.SOURCE, null);
     assertEquals("O. Heer. 1870. Die Miocene flora und fauna Spitzbergens. Kongliga Svenska Vetenskaps-Akademiens Handlingar 8(7):1-98", u.publishedIn);
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/25
+   */
+  @Test
+  @Ignore
+  public void testNewSpeciesInHomonymGenus() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(116, 117);
+    src.setSourceRank(116, Rank.PHYLUM);
+    src.setSourceRank(117, Rank.GENUS);
+    src.setNomenclator(117);
+    build(src);
+
+    assertTree("116 117.txt");
   }
 
   /**
