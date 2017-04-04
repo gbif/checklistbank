@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.Common">
+
+    <sql id="excludeRels">
+        AND rel.dataset_key NOT IN ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02')
+    </sql>
+
+</mapper>
+
+

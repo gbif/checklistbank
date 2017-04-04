@@ -16,7 +16,7 @@
   -->
   <sql id="fromNub">species_info s
     JOIN nub_rel rel ON rel.usage_fk=s.usage_fk
-    AND rel.dataset_key NOT IN ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02')
+    <include refid="org.gbif.checklistbank.service.mybatis.mapper.Common.excludeRels"/>
     LEFT JOIN dataset d ON rel.dataset_key=d.key
   </sql>
 

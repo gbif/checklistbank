@@ -11,6 +11,7 @@
   </sql>
   <sql id="fromNub">typification t
     JOIN nub_rel rel ON rel.usage_fk=t.usage_fk
+    <include refid="org.gbif.checklistbank.service.mybatis.mapper.Common.excludeRels"/>
     LEFT JOIN dataset d ON rel.dataset_key=d.key
   </sql>
 

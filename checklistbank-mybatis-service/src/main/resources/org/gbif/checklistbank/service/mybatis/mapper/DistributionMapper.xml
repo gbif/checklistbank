@@ -20,6 +20,7 @@
   </sql>
   <sql id="fromNub">distribution d
     JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
+    <include refid="org.gbif.checklistbank.service.mybatis.mapper.Common.excludeRels"/>
     LEFT JOIN dataset ds ON rel.dataset_key=ds.key
   </sql>
 

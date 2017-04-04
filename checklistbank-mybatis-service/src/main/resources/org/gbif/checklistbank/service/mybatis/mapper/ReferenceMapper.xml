@@ -13,6 +13,7 @@
   <sql id="fromNub">literature r
     JOIN citation c ON r.citation_fk=c.id
     JOIN nub_rel rel ON r.usage_fk=rel.usage_fk
+    <include refid="org.gbif.checklistbank.service.mybatis.mapper.Common.excludeRels"/>
     LEFT JOIN dataset d ON rel.dataset_key=d.key
   </sql>
 
