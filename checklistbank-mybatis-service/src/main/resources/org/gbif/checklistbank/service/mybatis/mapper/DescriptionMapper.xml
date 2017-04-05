@@ -117,7 +117,9 @@
   <!-- get all descriptions by nub usage -->
   <select id="listTocEntriesByNub" parameterType="map" resultMap="tocResultMap">
     SELECT d.id, d.language, d.type
-    FROM description d JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
+    FROM description d
+    JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
+    <include refid="org.gbif.checklistbank.service.mybatis.mapper.Common.excludeRels"/>
     WHERE rel.nub_fk=#{usageKey}
   </select>
 
