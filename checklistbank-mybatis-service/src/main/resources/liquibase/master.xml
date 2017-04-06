@@ -359,4 +359,9 @@
       ]]>
         </sql>
     </changeSet>
+    <changeSet id="50" author="markus">
+        <sql>
+            ALTER TYPE name_type ADD VALUE 'OTU' AFTER 'CANDIDATUS';
+        </sql>
+    </changeSet>
 </databaseChangeLog>
