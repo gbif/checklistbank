@@ -359,7 +359,7 @@
       ]]>
         </sql>
     </changeSet>
-    <changeSet id="50" author="markus">
+    <changeSet id="50" author="markus" runInTransaction="false">
         <sql>
             ALTER TYPE name_type ADD VALUE 'OTU' AFTER 'CANDIDATUS';
         </sql>
