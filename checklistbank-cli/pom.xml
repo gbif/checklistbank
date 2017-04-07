@@ -288,7 +288,7 @@
     </dependency>
 
 
-    <!-- JACKSON 2.4 -->
+    <!-- JACKSON 2.x -->
     <!--
       We use jackson 1 & 2 at the same time. As they live in entirely different packages this is
       no problem and intended use to slowly shift towards v2.
@@ -306,7 +306,6 @@
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-assistedinject</artifactId>
