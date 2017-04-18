@@ -26,6 +26,7 @@ The recommended way to build a complete Solr (cloud) index is via Oozie:
 This workflow has the capability of building Solr indexes for both cloud  and non-cloud servers. 
 The non-cloud index is produced in a single shard index stored in HDFS, it will be copied into the Solr server. 
 In general terms the workflow steps are: 
+
     * Export name usages to Avro files into HDFS using a multithreaded java application running on one node
     * Run a map reduce index builder using the Avro files as input
     * If it's a Solr cloud index, then install it into the target cluster using the provided Zookeeper chroot.
@@ -34,6 +35,7 @@ In general terms the workflow steps are:
 
 #### How to install/run the Oozie workflow
  The simplest way of doing it is using the script [install-workflow](install-workflow.sh), it requires 2 command line parameters:
+ 
   * profile/environment name: properties file name as is stored in the GBIF configuration repository at the location [https://github.com/gbif/gbif-configuration/tree/master/checklistbank-index-builder](https://github.com/gbif/gbif-configuration/tree/master/checklistbank-index-builder).
   * Github OAuth token: Github authentication token to access the private repository [https://github.com/gbif/gbif-configuration/](https://github.com/gbif/gbif-configuration/) where the configuration files are stored.
   The configuration file used by this workflow requires the following settings:
