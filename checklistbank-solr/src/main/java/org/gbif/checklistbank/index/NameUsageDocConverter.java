@@ -1,41 +1,28 @@
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.VernacularName;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrInputDocument;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.vocabulary.Habitat;
-import org.gbif.api.vocabulary.Language;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.common.parsers.HabitatParser;
 import org.gbif.common.parsers.core.ParseResult;
+import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrInputDocument;
-import org.jsoup.Jsoup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -74,6 +61,7 @@ public class NameUsageDocConverter {
       doc.addField("canonical_name", usage.getCanonicalName());
       doc.addField("name_type", ordinal(usage.getNameType()));
       doc.addField("authorship", usage.getAuthorship());
+      doc.addField("origin_key", ordinal(usage.getOrigin()));
       doc.addField("taxonomic_status_key", ordinal(usage.getTaxonomicStatus()));
       if (usage.getNomenclaturalStatus() != null) {
         for (NomenclaturalStatus ns : usage.getNomenclaturalStatus()) {
@@ -129,6 +117,7 @@ public class NameUsageDocConverter {
     u.setCanonicalName((String)doc.getFieldValue("canonical_name"));
     u.setNameType(toEnum(doc, NameType.class, "name_type"));
     u.setAuthorship((String)doc.getFieldValue("authorship"));
+    u.setOrigin(toEnum(doc, Origin.class, "origin_key"));
     u.setTaxonomicStatus(toEnum(doc, TaxonomicStatus.class, "taxonomic_status_key"));
     addEnumList(NomenclaturalStatus.class, u.getNomenclaturalStatus(), doc, "nomenclatural_status_key");
     u.setRank(toEnum(doc, Rank.class, "rank_key"));

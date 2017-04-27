@@ -165,6 +165,7 @@
     <field name="name_type" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="authorship" type="text" indexed="false" stored="true"/>
 
+    <field name="origin_key" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="taxonomic_status_key" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="nomenclatural_status_key" type="int" indexed="true" stored="true" multiValued="true" docValues="true"/>
     <field name="threat_status_key" type="int" indexed="true" stored="true" multiValued="true" docValues="true"/>
