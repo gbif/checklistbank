@@ -1,15 +1,14 @@
 package org.gbif.checklistbank.index.service;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.EnumHashBiMap;
+import com.google.common.collect.ImmutableMap;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 
 import java.util.Map;
 import java.util.UUID;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.EnumHashBiMap;
-import com.google.common.collect.ImmutableMap;
 
 /**
  *
@@ -21,6 +20,7 @@ public class SolrMapping {
     FACET_MAPPING.put(NameUsageSearchParameter.DATASET_KEY, "dataset_key");
     FACET_MAPPING.put(NameUsageSearchParameter.CONSTITUENT_KEY, "constituent_key");
     FACET_MAPPING.put(NameUsageSearchParameter.HIGHERTAXON_KEY, "higher_taxon_key");
+    FACET_MAPPING.put(NameUsageSearchParameter.ORIGIN, "origin_key");
     FACET_MAPPING.put(NameUsageSearchParameter.STATUS, "taxonomic_status_key");
     FACET_MAPPING.put(NameUsageSearchParameter.RANK, "rank_key");
     FACET_MAPPING.put(NameUsageSearchParameter.THREAT, "threat_status_key");
