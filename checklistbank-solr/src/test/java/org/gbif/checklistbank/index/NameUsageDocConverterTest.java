@@ -1,10 +1,13 @@
 package org.gbif.checklistbank.index;
 
 import com.google.common.collect.Lists;
+import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrInputDocument;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.junit.Test;
@@ -59,7 +62,6 @@ public class NameUsageDocConverterTest {
         assertEquals(u.getFamilyKey(), doc.get("family_key").getValue());
         assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
         assertEquals(u.getCanonicalName(), doc.get("canonical_name").getValue());
-        assertEquals(u.getScientificName(), doc.get("scientific_name").getValue());
         assertEquals(u.getOrigin().ordinal(), doc.get("origin_key").getValue());
         assertEquals(u.getTaxonomicStatus().ordinal(), doc.get("taxonomic_status_key").getValue());
         assertEquals(u.getRank().ordinal(), doc.get("rank_key").getValue());
@@ -67,5 +69,17 @@ public class NameUsageDocConverterTest {
                 NameUsageIssue.CLASSIFICATION_NOT_APPLIED.ordinal());
         assertThat((List<Integer>) doc.get("habitat_key").getValue()).containsOnlyOnce(Habitat.TERRESTRIAL.ordinal(), Habitat.FRESHWATER.ordinal());
         assertThat((List<Integer>) doc.get("higher_taxon_key").getValue()).containsOnlyOnce(12, 15, 20, 100);
+
+        // trip back
+        NameUsageSearchResult u2 = conv.toSearchUsage(ClientUtils.toSolrDocument(doc), true);
+        assertEquals(ClassificationUtils.getHigherClassificationMap(u2), ClassificationUtils.getHigherClassificationMap(u));
+        assertEquals(u2.getKey(), u.getKey());
+        assertEquals(u2.getDatasetKey(), u.getDatasetKey());
+        assertEquals(u2.getParentKey(), u.getParentKey());
+        assertEquals(u2.getScientificName(), u.getScientificName());
+        assertEquals(u2.getCanonicalName(), u.getCanonicalName());
+        assertEquals(u2.getOrigin(), u.getOrigin());
+        assertEquals(u2.getTaxonomicStatus(), u.getTaxonomicStatus());
+        assertEquals(u2.getRank(), u.getRank());
     }
 }

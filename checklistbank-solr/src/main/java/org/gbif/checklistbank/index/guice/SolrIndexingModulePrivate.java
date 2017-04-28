@@ -1,5 +1,10 @@
 package org.gbif.checklistbank.index.guice;
 
+import com.google.inject.Inject;
+import com.google.inject.Provides;
+import com.google.inject.Scopes;
+import com.google.inject.Singleton;
+import org.apache.solr.client.solrj.SolrClient;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.checklistbank.index.backfill.SolrBackfill;
@@ -9,16 +14,10 @@ import org.gbif.service.guice.PrivateServiceModule;
 
 import java.util.Properties;
 
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Scopes;
-import com.google.inject.Singleton;
-import org.apache.solr.client.solrj.SolrClient;
-
 
 /**
  * Guice module that bind the indexing classes.
- * This module depends on the registry client and checklist bank mybatis modules to be installed too
+ * This module depends on the checklist bank mybatis modules to be installed too
  * which is done in the {@link SolrIndexingModule}.
  */
 public class SolrIndexingModulePrivate extends PrivateServiceModule {

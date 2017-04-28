@@ -1,33 +1,29 @@
 package org.gbif.checklistbank.index.backfill;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.apache.solr.client.solrj.SolrClient;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.service.checklistbank.DescriptionService;
-import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.SpeciesProfileService;
-import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.api.service.checklistbank.*;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
+import org.gbif.checklistbank.index.SolrIndexingTestModule;
+import org.gbif.checklistbank.index.guice.SearchModule;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.common.search.solr.builders.EmbeddedServerBuilder;
 import org.gbif.utils.file.properties.PropertiesUtil;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.apache.solr.client.solrj.SolrClient;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,20 +38,27 @@ public class NameUsageIndexingJobIT {
   private DistributionServiceMyBatis distributionService;
   private SpeciesProfileServiceMyBatis speciesProfileService;
   private SolrClient solrClient;
+  private NameUsageSearchService searchService;
 
   @Before
   public void init() throws IOException {
-    Properties props = PropertiesUtil.loadProperties("checklistbank.properties");
+    Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);
+    Properties props2 = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_INDEXING_PROPERTY_TEST_FILE);
+    props.putAll(props2);
     props.list(System.out);
-    Injector inj = Guice.createInjector(new ChecklistBankServiceMyBatisModule(props));
+
+    Injector inj = Guice.createInjector(new SolrIndexingTestModule(props), new SearchModule(props, false));
     nameUsageService = inj.getInstance(UsageService.class);
     vernacularNameService = (VernacularNameServiceMyBatis) inj.getInstance(VernacularNameService.class);
     descriptionService = (DescriptionServiceMyBatis) inj.getInstance(DescriptionService.class);
     distributionService = (DistributionServiceMyBatis) inj.getInstance(DistributionService.class);
     speciesProfileService = (SpeciesProfileServiceMyBatis) inj.getInstance(SpeciesProfileService.class);
-    // this wont build a real clb index, there are no configs copied!
-    solrClient = new EmbeddedServerBuilder().build();
+
+    // Get solr
+    solrClient = inj.getInstance(SolrClient.class);
+    searchService = inj.getInstance(NameUsageSearchService.class);
   }
+
 
   @Test
   public void testSpeciesInfoRange() throws Exception {
@@ -92,5 +95,8 @@ public class NameUsageIndexingJobIT {
     NameUsageIndexingJob job = new NameUsageIndexingJob(solrClient, nameUsageService, start, end, new NameUsageDocConverter(),
       vernacularNameService, descriptionService, distributionService, speciesProfileService);
     job.call();
+
+    solrClient.commit();
+
   }
 }

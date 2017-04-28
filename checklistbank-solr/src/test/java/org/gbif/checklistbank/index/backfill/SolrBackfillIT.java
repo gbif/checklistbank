@@ -1,26 +1,24 @@
 package org.gbif.checklistbank.index.backfill;
 
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
-import org.gbif.api.vocabulary.Habitat;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-
-import java.io.IOException;
-
 import com.google.common.collect.Lists;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.vocabulary.Habitat;
+import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.index.NameUsageDocConverter;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * Test the index generation.
@@ -49,6 +47,12 @@ public class SolrBackfillIT {
     SolrQuery query = new SolrQuery();
     query.setQuery("*:*");
     QueryResponse rsp = solr().query(query);
+    assertEquals(46l, rsp.getResults().getNumFound());
+
+    // number of all source records
+    query = new SolrQuery();
+    query.setQuery("origin_key:"+ Origin.SOURCE.ordinal());
+    rsp = solr().query(query);
     assertEquals(46l, rsp.getResults().getNumFound());
 
     // vernacular name with umlaut

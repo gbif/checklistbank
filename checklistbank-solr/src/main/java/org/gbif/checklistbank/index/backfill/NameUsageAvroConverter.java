@@ -109,6 +109,9 @@ public class NameUsageAvroConverter {
       }
       nameUsageAvro.setIssues(getOrdinals(usage.getIssues()));
       nameUsageAvro.setNomenclaturalStatusKey(getOrdinals(usage.getNomenclaturalStatus()));
+      if(usage.getOrigin() != null) {
+        nameUsageAvro.setOriginKey(usage.getOrigin().ordinal());
+      }
       if(usage.getTaxonomicStatus() != null) {
         nameUsageAvro.setTaxonomicStatusKey(usage.getTaxonomicStatus().ordinal());
       }
