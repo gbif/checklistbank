@@ -9,7 +9,7 @@
 
   <groupId>org.gbif.checklistbank</groupId>
   <artifactId>checklistbank-motherpom</artifactId>
-  <version>2.53</version>
+  <version>2.54-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ChecklistBank Mother POM</name>
@@ -22,7 +22,7 @@
     <connection>scm:git:git@github.com:gbif/checklistbank.git</connection>
     <url>https://github.com/gbif/checklistbank</url>
     <developerConnection>scm:git:git@github.com:gbif/checklistbank.git</developerConnection>
-    <tag>checklistbank-2.53</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>
