@@ -1,13 +1,5 @@
 package org.gbif.checklistbank.index.backfill;
 
-import org.gbif.checklistbank.index.AvroIndexingTestModule;
-import org.gbif.checklistbank.index.HdfsTestUtil;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.gbif.utils.file.properties.PropertiesUtil;
-
-import java.io.IOException;
-import java.util.Properties;
-
 import com.google.common.base.Throwables;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -15,6 +7,10 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.gbif.checklistbank.index.AvroIndexingTestModule;
+import org.gbif.checklistbank.index.HdfsTestUtil;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,6 +18,9 @@ import org.junit.Test;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * Test the the Avro exporter using a hdfs mini cluster.
@@ -74,6 +73,11 @@ public class AvroExporterIT {
     FileStatus[] fileStatuses = miniDFSCluster.getFileSystem().listStatus(new Path(HdfsTestUtil.TEST_HDFS_DIR));
     Assert.assertNotNull(fileStatuses);
     Assert.assertTrue(fileStatuses.length > 0);
+
+    // export avro file
+    //Path localAvro = new Path("/Users/markus/avro-out");
+    //miniDFSCluster.getFileSystem().copyToLocalFile(new Path(HdfsTestUtil.TEST_HDFS_DIR), localAvro);
+    //System.out.println("Copied avro files to " + localAvro);
   }
 
 

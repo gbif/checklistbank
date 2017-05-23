@@ -1,10 +1,10 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
-import org.apache.ibatis.annotations.Param;
 
 public interface UsageMapper {
 
@@ -21,5 +21,15 @@ public interface UsageMapper {
    * as seen during CoL solr index build
    */
   List<Integer> listParents(@Param("key") int usageKey);
+
+  /**
+   * Update a backbone name usage with the given source taxon key
+   */
+  void updateSourceTaxonKey(@Param("key") int nubKey, @Param("sourceTaxonKey") int sourceTaxonKey);
+
+  /**
+   * Sets sourceTaxonKey to null for all backbone name usages from a given constituent
+   */
+  void deleteSourceTaxonKeyByConstituent(@Param("uuid") UUID constituentKey);
 
 }

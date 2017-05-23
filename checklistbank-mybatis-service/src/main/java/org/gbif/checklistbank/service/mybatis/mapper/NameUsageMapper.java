@@ -1,18 +1,17 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.vocabulary.NameUsageIssue;
+import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.checklistbank.model.ScientificName;
-import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 
 /**
  * The MyBatis mapper interface for NameUsages.

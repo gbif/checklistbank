@@ -1520,6 +1520,19 @@ public class NubBuilderIT {
   }
 
   /**
+   * Allow OTU names in the backbone, e.g. from BOLD & UNITE
+   */
+  @Test
+  public void testOtuNames() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(118, 119);
+    src.setSourceRank(118, Rank.PHYLUM);
+    src.setSourceRank(119, Rank.GENUS);
+    build(src);
+
+    assertTree("118 119.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {

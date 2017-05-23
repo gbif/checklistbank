@@ -1,17 +1,15 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import com.codahale.metrics.Meter;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
+import com.google.inject.Inject;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.TypeSpecimen;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.IdentifierType;
@@ -24,41 +22,14 @@ import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageSyncService;
-import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.IdentifierMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.MultimediaMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMetricsMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.RawUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.SpeciesProfileMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.VerbatimNameUsageMapperJson;
-import org.gbif.checklistbank.service.mybatis.mapper.VernacularNameMapper;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
-import com.google.inject.Inject;
-import com.codahale.metrics.Meter;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.TransactionIsolationLevel;
+import org.gbif.checklistbank.service.mybatis.mapper.*;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements the insert and update methods for a single name usage and its related verbatim, extension and metrics data.
@@ -419,6 +390,11 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
   @Override
   public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
     nubRelMapper.deleteByDataset(datasetKey);
+    // for CoL with its instable ids remove previous source keys from nub
+    if (Constants.COL_DATASET_KEY.equals(datasetKey)) {
+      LOG.info("Updating Catalogue of Life source taxa in the backbone");
+      usageMapper.deleteSourceTaxonKeyByConstituent(datasetKey);
+    }
     for (List<Integer> batch : Iterables.partition(relations.keySet(), 10000)) {
       insertNubRelationBatch(datasetKey, relations, batch);
     }
@@ -444,6 +420,10 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
           nameUsageMapper.updateIssues(usageKey, issues);
         }
         nubRelMapper.insert(datasetKey, usageKey, relations.get(usageKey));
+        // for CoL with its instable ids update source key
+        if (Constants.COL_DATASET_KEY.equals(datasetKey)) {
+          usageMapper.updateSourceTaxonKey(relations.get(usageKey), usageKey);
+        }
       }
     }
   }
