@@ -1,5 +1,15 @@
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import org.apache.commons.io.FileUtils;
+import org.apache.lucene.document.*;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -13,41 +23,15 @@ import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.nameparser.GBIFNameParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import org.apache.commons.io.FileUtils;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.FieldType;
-import org.apache.lucene.document.IntField;
-import org.apache.lucene.document.StoredField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexOptions;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.FuzzyQuery;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.NumericRangeQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.store.RAMDirectory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.UUID;
 
 
 /**
@@ -108,15 +92,15 @@ public class NubIndex implements AutoCloseable {
   private final Directory index;
   private final IndexSearcher searcher;
 
-  private static void load(Directory d, NameUsageMapper mapper) throws IOException {
-    LOG.info("Start building a new nub index");
+  private static void load(Directory d, NameUsageMapper mapper, UUID nubDatasetKey) throws IOException {
+    LOG.info("Start building a new nub index from checklist {}", nubDatasetKey);
     IndexWriterConfig cfg = new IndexWriterConfig(analyzer);
     IndexWriter writer = new IndexWriter(d, cfg);
     // creates initial index segments
     writer.commit();
 
     IndexBuildHandler builder = new IndexBuildHandler(writer);
-    mapper.processDataset(Constants.NUB_DATASET_KEY, builder);
+    mapper.processDataset(nubDatasetKey, builder);
 
     writer.close();
     LOG.info("Finished building nub index");
@@ -124,7 +108,7 @@ public class NubIndex implements AutoCloseable {
 
   public static NubIndex newMemoryIndex(NameUsageMapper mapper) throws IOException {
     RAMDirectory dir = new RAMDirectory();
-    load(dir, mapper);
+    load(dir, mapper, Constants.NUB_DATASET_KEY);
     return new NubIndex(dir);
   }
 
@@ -153,7 +137,7 @@ public class NubIndex implements AutoCloseable {
    * If the indexDir is null the index is never written to the filesytem but just kept in memory.
    * @param indexDir directory to use as the lucence index directory. If null the index is only kept in memory.
    */
-  public static NubIndex newFileIndex(File indexDir, NameUsageMapper mapper) throws IOException {
+  public static NubIndex newFileIndex(File indexDir, NameUsageMapper mapper, UUID nubDatasetKey) throws IOException {
     MMapDirectory dir;
     if (indexDir.exists()) {
       Preconditions.checkArgument(indexDir.isDirectory(), "Given index directory exists but is not a directory");
@@ -166,7 +150,7 @@ public class NubIndex implements AutoCloseable {
       LOG.info("Creating new nub index directory at {}", indexDir.getAbsoluteFile());
       FileUtils.forceMkdir(indexDir);
       dir = new MMapDirectory(indexDir.toPath());
-      load(dir, mapper);
+      load(dir, mapper, nubDatasetKey);
     }
     return new NubIndex(dir);
   }

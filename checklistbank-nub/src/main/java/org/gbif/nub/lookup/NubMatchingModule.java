@@ -1,24 +1,25 @@
 package org.gbif.nub.lookup;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
+import com.google.inject.PrivateModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import org.gbif.api.model.Constants;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.utils.CloseableUtils;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.UUID;
 
 /**
  * Guice module setting up all dependencies to expose the NubMatching service.
@@ -28,23 +29,33 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingModule.class);
   private final File indexDir;
   private final boolean incDeleted;
+  private final UUID nubDatasetKey;
   private List<AutoCloseable> toBeClosed = Lists.newArrayList();
 
   /**
    * Creates a memory based nub index which is built from scratch every time the webservice starts up.
    */
   public NubMatchingModule() {
-    this.indexDir = null;
-    this.incDeleted = false;
+    this(null, false, Constants.NUB_DATASET_KEY);
   }
 
   /**
    * Creates a file based nub index which is built in case the index does not yet exist.
    * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
    */
-  public NubMatchingModule(File indexDir, boolean incDeleted) {
+  private NubMatchingModule(File indexDir, boolean incDeleted) {
+    this(indexDir, incDeleted, Constants.NUB_DATASET_KEY);
+  }
+
+  /**
+   * Creates a file based nub index which is built in case the index does not yet exist.
+   * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
+   * @param nubDatasetKey the dataset key to use for populating the nub index
+   */
+  public NubMatchingModule(File indexDir, boolean incDeleted, UUID nubDatasetKey) {
     this.indexDir = indexDir;
     this.incDeleted = incDeleted;
+    this.nubDatasetKey = nubDatasetKey;
   }
 
   @Override
@@ -62,7 +73,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
       index = NubIndex.newMemoryIndex(mapper);
       LOG.info("Lucene memory index initialized");
     } else {
-      index = NubIndex.newFileIndex(indexDir, mapper);
+      index = NubIndex.newFileIndex(indexDir, mapper, nubDatasetKey);
       LOG.info("Lucene file index initialized at {}", indexDir.getAbsolutePath());
     }
     toBeClosed.add(index);
