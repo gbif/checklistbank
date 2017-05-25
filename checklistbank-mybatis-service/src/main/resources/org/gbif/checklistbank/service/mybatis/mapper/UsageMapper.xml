@@ -38,7 +38,7 @@
   </update>
 
   <update id="deleteSourceTaxonKeyByConstituent">
-    UPDATE name_usage SET source_taxon_key=null WHERE dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' AND constituent_key=#{constituentKey}
+    UPDATE name_usage SET source_taxon_key=null WHERE dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' AND constituent_key=#{uuid}
   </update>
 
 </mapper>
