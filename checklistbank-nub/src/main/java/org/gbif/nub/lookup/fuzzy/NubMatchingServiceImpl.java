@@ -1,5 +1,12 @@
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.*;
+import com.google.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -7,40 +14,18 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Ordering;
-import com.google.inject.Inject;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
@@ -151,6 +136,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
   private NameUsageMatch matchInternal(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
+    MatchingMode mainMatchingMode = strict ? MatchingMode.STRICT : MatchingMode.FUZZY;
+
     if (classification == null) {
       classification = new NameUsageMatch();
     } else {
@@ -169,10 +156,16 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
-      LOG.debug("Unparsable [{}] name [{}]", e.type, scientificName);
+      if (e.type.equals(NameType.OTU)) {
+        // turn off fuzzy matching
+        mainMatchingMode = MatchingMode.STRICT;
+        LOG.debug("Unparsable OTU name, turn off fuzzy matching for {}", scientificName);
+      } else {
+        LOG.debug("Unparsable {} name: {}", e.type, scientificName);
+      }
     }
 
-    NameUsageMatch match1 = match(pn, scientificName, rank, classification, strict ? MatchingMode.STRICT : MatchingMode.FUZZY, verbose);
+    NameUsageMatch match1 = match(pn, scientificName, rank, classification, mainMatchingMode, verbose);
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
       return match1;

@@ -440,7 +440,12 @@ public class NubMatchingServiceImplIT {
     assertMatch("SH021315.07FU", cl, 993730906, new IntRange(90,100));
 
     cl.setFamily("Maldanidae");
-    assertMatch("BOLD:AAX3687", cl, 993172099, new IntRange(98,100));
+    assertMatch("bold:aax3687", cl, 993172099, new IntRange(95,100));
+
+    assertNoMatch("BOLD:AAX3688", cl);
+    assertNoMatch("BOLD:AAY3687", cl);
+    assertNoMatch("COLD:AAX3687", cl);
+    assertNoMatch("AAX3687", cl);
   }
 
   /**
