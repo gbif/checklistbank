@@ -43,6 +43,16 @@
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>**/nub-sources/*.txt</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>**/nub-sources/*.txt</include>
+        </includes>
       </testResource>
     </testResources>
     <plugins>

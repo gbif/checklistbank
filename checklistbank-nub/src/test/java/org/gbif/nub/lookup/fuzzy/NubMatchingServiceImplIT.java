@@ -1,25 +1,20 @@
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.base.Joiner;
+import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.NubMatchingTestModule;
-
-import java.io.IOException;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Joiner;
-import org.apache.commons.lang.math.IntRange;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import javax.annotation.Nullable;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 
 public class NubMatchingServiceImplIT {
@@ -32,14 +27,14 @@ public class NubMatchingServiceImplIT {
     matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new GBIFNameParser());
   }
 
-  private void assertMatch(String name, LinneanClassification query, Integer expectedKey) {
-    assertMatch(name, query, expectedKey, null, new IntRange(1,100));
+  private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey) {
+    return assertMatch(name, query, expectedKey, null, new IntRange(1,100));
   }
-  private void assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
-    assertMatch(name, query, expectedKey, null, confidence);
+  private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
+    return assertMatch(name, query, expectedKey, null, confidence);
   }
-  private void assertMatch(String name, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
-    assertMatch(name, query, expectedKey, type, new IntRange(1,100));
+  private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
+    return assertMatch(name, query, expectedKey, type, new IntRange(1,100));
   }
   private void print(String name, NameUsageMatch best) {
     System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
@@ -54,7 +49,7 @@ public class NubMatchingServiceImplIT {
     }
   }
 
-  private void assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
+  private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
     NameUsageMatch best = matcher.match(name, null, query, false, true);
 
     print(name, best);
@@ -69,6 +64,7 @@ public class NubMatchingServiceImplIT {
       assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
     }
     assertMatchConsistency(best);
+    return best;
   }
 
   private void assertNoMatch(String name, LinneanClassification query) {
@@ -433,6 +429,18 @@ public class NubMatchingServiceImplIT {
   @Ignore("not implemented yet")
   public void testHybrids() throws IOException {
     //TODO: implement
+  }
+
+  @Test
+  public void testOtuMatching() throws IOException {
+    NameUsageMatch cl = new NameUsageMatch();
+    NameUsageMatch m = assertMatch("BOLD:AAX3687", cl, 993172099, new IntRange(90,100));
+    assertEquals("BOLD:AAX3687", m.getScientificName());
+
+    assertMatch("SH021315.07FU", cl, 993730906, new IntRange(90,100));
+
+    cl.setFamily("Maldanidae");
+    assertMatch("BOLD:AAX3687", cl, 993172099, new IntRange(98,100));
   }
 
   /**
