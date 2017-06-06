@@ -12,13 +12,13 @@
  */
 package org.gbif.checklistbank.index.service;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Sets;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.VernacularName;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.api.model.checklistbank.search.*;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
@@ -28,22 +28,17 @@ import org.gbif.checklistbank.index.guice.SearchTestModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.common.search.solr.SolrConstants;
 import org.gbif.utils.file.properties.PropertiesUtil;
-
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Sets;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -186,20 +181,10 @@ public class NameUsageSearchServiceIT {
     assertEquals(4, results.size());
     assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
 
-    // we change the gender epithets
-    results = searchSuggest("Sciurilus pusila");
-    assertEquals(4, results.size());
-    assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
-
-    // we change the gender epithets
-    results = searchSuggest("Sciurilus pussy");
-    assertEquals(4, results.size());
-    assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
-
-    // apply sciname normalizer only to entire names, so the ngrams dont match
-    results = searchSuggest("Sciurilus pusilus");
-    assertEquals(4, results.size());
-    assertEquals("Sciurillus pusillus E. Geoffroy, 1803", results.get(0).getScientificName());
+    // we changed the gender epithets, no stemming in the index anymore
+    assertNoSuggest("Sciurilus pusila");
+    assertNoSuggest("Sciurilus pussy");
+    assertNoSuggest("Sciurilus pusilus");
 
     results = searchSuggest("Sciu");
     assertEquals(27, results.size());
@@ -211,7 +196,11 @@ public class NameUsageSearchServiceIT {
     List<NameUsageSuggestResult> results = searchSuggest(q);
     assertEquals(10, results.size());
     assertEquals("Sciurus vulgaris Linnaeus, 1758", results.get(0).getScientificName());
+  }
 
+  private void assertNoSuggest(String q) {
+    List<NameUsageSuggestResult> results = searchSuggest(q);
+    assertTrue(results.isEmpty());
   }
 
   @Test
