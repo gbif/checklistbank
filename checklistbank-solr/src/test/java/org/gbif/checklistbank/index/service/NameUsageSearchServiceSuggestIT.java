@@ -12,31 +12,28 @@
  */
 package org.gbif.checklistbank.index.service;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
-import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.backfill.SolrTestSetup;
 import org.gbif.checklistbank.index.guice.SearchTestModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
-
-import java.util.List;
-import java.util.Properties;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Properties;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
@@ -89,49 +86,47 @@ public class NameUsageSearchServiceSuggestIT {
 
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(String q, NameUsageSearchParameter facet, Enum<?> facetFilter, Long expectedCount, Integer expectedFacetCounts) {
-    return assertSearch(buildSearch(q, facet, facetFilter), expectedCount, expectedFacetCounts);
+  @Test
+  public void testSuggestStraight() {
+    assertSuggestNone("Bakt");
+    assertSuggestNone("Bacterii");
+    assertSuggestNone("okenil");
+    assertSuggestNone("Bacterion");
+    assertSuggestNone("Bacterius");
+
+    assertSuggest("okeni", 2500009, Rank.SPECIES, "Bacterium okeniilium");
+    assertSuggest("Bacterium ok", 2500009, Rank.SPECIES, "Bacterium okeniilium");
+
+    List<NameUsageSuggestResult> bacteria = assertSuggest("Bacteria", 3, Rank.KINGDOM, "Bacteria");
+    assertEquals(2500002, (int) bacteria.get(1).getKey());
+    assertEquals(2500001, (int) bacteria.get(2).getKey());
+    System.out.println(bacteria.get(3).getScientificName());
+    assertEquals(Rank.SPECIES, bacteria.get(3).getRank());
+
+    assertSuggest("Bacterium", 2500003, Rank.GENUS, "Bacterium");
+
+    List<NameUsageSuggestResult> aborigena = assertSuggest("aborig", 2500005, Rank.SPECIES, "Bacteria aborigena Giglio-Tos, 1910");
+    // does not match the author as partial matches are not allowed
+    assertEquals(1, aborigena.size());
+
+    assertSuggest("aborigena", 2500005, Rank.SPECIES, "Bacteria aborigena Giglio-Tos, 1910");
+
+    aborigena = assertSuggest("Aborigena", 2500005, Rank.SPECIES, "Bacteria aborigena Giglio-Tos, 1910");
+    assertEquals(2500011, (int) aborigena.get(1).getKey());
+    assertEquals("Bacteria marca Aborigena, 1910", aborigena.get(1).getScientificName());
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> assertSearch(NameUsageSearchRequest req, Long expectedCount, Integer expectedFacetCounts) {
-
-    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> response = searchService.search(req);
-
-    // assert
-    if (expectedCount != null) {
-      assertEquals(expectedCount, response.getCount());
-    }
-
-    if (expectedFacetCounts != null) {
-      assertEquals(1, response.getFacets().size());
-      assertEquals(expectedFacetCounts, (Integer) response.getFacets().get(0).getCounts().size());
-    }
-    if (req.getFacets().isEmpty()) {
-      Assert.assertTrue(response.getFacets().isEmpty());
-    }
-
-    return response;
+  private List<NameUsageSuggestResult> assertSuggest(String q, int key, Rank rank, String sciname) {
+    List<NameUsageSuggestResult> results = searchSuggest(q);
+    assertEquals(key, (int) results.get(0).getKey());
+    assertEquals(sciname, results.get(0).getScientificName());
+    assertEquals(rank, results.get(0).getRank());
+    return results;
   }
 
-  private SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(String q, NameUsageSearchParameter facet, Enum<?> filter) {
-    return searchService.search(buildSearch(q, facet, filter));
-  }
-
-  private NameUsageSearchRequest buildSearch(String q, NameUsageSearchParameter facet, Enum<?> filter) {
-
-    // build request
-    NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 10);
-    searchRequest.setQ(q);
-    if (filter != null) {
-      searchRequest.addParameter(facet, filter);
-      searchRequest.addParameter(facet, filter);
-    }
-    if (facet != null) {
-      searchRequest.addFacets(facet);
-    }
-
-    // query
-    return searchRequest;
+  private void assertSuggestNone(String q) {
+    List<NameUsageSuggestResult> results = searchSuggest(q);
+    assertTrue(results.isEmpty());
   }
 
   /**
@@ -140,7 +135,7 @@ public class NameUsageSearchServiceSuggestIT {
   private List<NameUsageSuggestResult> searchSuggest(String q) {
     NameUsageSuggestRequest req = new NameUsageSuggestRequest();
     req.setQ(q);
-    req.setLimit(250);
+    req.setLimit(50);
     req.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());
     return searchService.suggest(req);
   }

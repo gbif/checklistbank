@@ -90,40 +90,35 @@
       </analyzer>
     </fieldType>
 
-    <fieldType name="sciname_tokenized" class="solr.TextField" positionIncrementGap="100">
+    <fieldType name="tokenized" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 
-    <!-- Field type used for autocomplete functionality so we do prefix matches of entire names -->
-    <fieldType name="sciname_ngram" class="solr.TextField">
+    <!-- Field type used for autocomplete functionality so we do prefix matches of entire strings -->
+    <fieldType name="ngram" class="solr.TextField">
      <analyzer type="index">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false" />
        <filter class="solr.LowerCaseFilterFactory"/>
-       <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
+       <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="30"/>
      </analyzer>
      <analyzer type="query">
        <tokenizer class="solr.KeywordTokenizerFactory"/>
-       <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
        <filter class="solr.LowerCaseFilterFactory"/>
      </analyzer>
     </fieldType>
 
-    <!-- Field type used for autocomplete functionality so we do prefix matches of name tokens -->
-    <fieldType name="sciname_ngram_tokenized" class="solr.TextField">
+    <!-- Field type used for autocomplete functionality so we do prefix matches of string tokens -->
+    <fieldType name="ngram_tokenized" class="solr.TextField">
       <analyzer type="index">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="25"/>
+        <filter class="solr.EdgeNGramFilterFactory" minGramSize="1" maxGramSize="20"/>
       </analyzer>
       <analyzer type="query">
         <tokenizer class="solr.StandardTokenizerFactory"/>
-        <filter class="org.gbif.checklistbank.lucene.ScientificNameNormalizerFilterFactory" stemming="false"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
@@ -156,11 +151,11 @@
     <field name="basionym_key" type="int" indexed="false" stored="true"/>
     <field name="basionym" type="sciname" indexed="false" stored="true"/>
 
-    <field name="scientific_name" type="sciname_tokenized" indexed="true" stored="true"/>
+    <field name="scientific_name" type="tokenized" indexed="true" stored="true"/>
     <field name="canonical_name" type="sciname" indexed="true" stored="true"/>
     <!-- ngram fields for auto-suggest functionality -->
-    <field name="canonical_name_ngram" type="sciname_ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
-    <field name="canonical_name_ngram_tokenized" type="sciname_ngram_tokenized" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
+    <field name="canonical_name_ngram" type="ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
+    <field name="canonical_name_ngram_tokenized" type="ngram_tokenized" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
 
     <field name="name_type" type="int" indexed="true" stored="true" docValues="true"/>
     <field name="authorship" type="text" indexed="false" stored="true"/>

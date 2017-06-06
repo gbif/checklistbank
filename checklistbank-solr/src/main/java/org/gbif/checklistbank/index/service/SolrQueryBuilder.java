@@ -12,6 +12,14 @@
  */
 package org.gbif.checklistbank.index.service;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.common.params.DisMaxParams;
+import org.apache.solr.common.params.FacetParams;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
@@ -21,35 +29,18 @@ import org.gbif.api.model.common.search.SearchRequest;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.common.search.solr.QueryUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.common.params.DisMaxParams;
-import org.apache.solr.common.params.FacetParams;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static org.gbif.checklistbank.index.service.SolrMapping.FACET_MAPPING;
-import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_COUNT;
-import static org.gbif.common.search.solr.QueryUtils.DEFAULT_FACET_SORT;
+import static org.gbif.common.search.solr.QueryUtils.*;
 import static org.gbif.common.search.solr.QueryUtils.NOT_OP;
-import static org.gbif.common.search.solr.QueryUtils.PARAMS_JOINER;
-import static org.gbif.common.search.solr.QueryUtils.PARAMS_OR_JOINER;
-import static org.gbif.common.search.solr.QueryUtils.perFieldParamName;
-import static org.gbif.common.search.solr.QueryUtils.toParenthesesQuery;
-import static org.gbif.common.search.solr.QueryUtils.toPhraseQuery;
-import static org.gbif.common.search.solr.SolrConstants.BLANK;
-import static org.gbif.common.search.solr.SolrConstants.DEFAULT_QUERY;
-import static org.gbif.common.search.solr.SolrConstants.NUM_HL_SNIPPETS;
+import static org.gbif.common.search.solr.SolrConstants.*;
 import static org.gbif.ws.util.WebserviceParameter.DEFAULT_SEARCH_PARAM_VALUE;
 
 /**
@@ -62,7 +53,7 @@ public class SolrQueryBuilder {
   private static final Map<NameUsageSearchRequest.QueryField, String> QUERY_FIELDS = ImmutableMap.of(
       NameUsageSearchRequest.QueryField.DESCRIPTION, "description^0.1",
       NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^3",
-      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "canonical_name^5 scientific_name^2 species subgenus family"
+      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "canonical_name^10 scientific_name^2 species subgenus family"
   );
   private static final Map<NameUsageSearchRequest.QueryField, String> PHRASE_FIELDS = ImmutableMap.of(
       NameUsageSearchRequest.QueryField.DESCRIPTION, "description^2",
@@ -70,9 +61,9 @@ public class SolrQueryBuilder {
       NameUsageSearchRequest.QueryField.SCIENTIFIC,  "scientific_name^100 canonical_name^50"
   );
   // boost accepted taxa and scientific names
-  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5 name_type:0^2";
-  private static final String BOOST_FUNCTION = "sub(" + Rank.values().length + ",rank_key)";
-  private static final String SUGGEST_QUERY_FIELDS   = "canonical_name_ngram canonical_name_ngram_tokenized^0.8 canonical_name^10 scientific_name^2";
+  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5 name_type:0^1.5";
+  private static final String BOOST_FUNCTION = "product(2,sub(" + Rank.values().length + ",rank_key))";
+  private static final String SUGGEST_QUERY_FIELDS   = "canonical_name_ngram^10 canonical_name_ngram_tokenized^2 scientific_name";
   private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^50";
 
   private static final Integer FRAGMENT_SIZE = 100;

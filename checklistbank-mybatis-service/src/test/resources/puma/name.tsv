@@ -215,3 +215,15 @@ id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specif
 12100282	root	\N	DOUBTFUL	\N	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:41:31.349016	UNRANKED	f
 999999999	Smilisca puma (Cope, 1885)	Smilisca puma	SCIENTIFIC	Smilisca	\N	puma	\N	\N	\N	t	\N	\N	\N	Cope	1885	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
 999999998	Smilisca Cope, 1865	Smilisca	SCIENTIFIC	Smilisca	\N	\N	\N	\N	\N	t	\N	\N	\N	Cope	1885	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990000	Bacteria	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	KINGDOM	t
+999990001	Bacteria Agassiz, 1846	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	Agassiz	1846	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990002	Bacteria Berthold, 1827	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	Berthold	1827	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990003	Bacterium	Bacterium	SCIENTIFIC	Bacterium	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990004	Bacteria acuminatocercata (Brunner von Wattenwyl, 1907)	Bacteria acuminatocercata	SCIENTIFIC	Bacteria	\N	acuminatocercata	\N	\N	\N	t	\N	\N	\N	Brunner von Wattenwyl	1907	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990005	Bacteria aborigena Giglio-Tos, 1910	Bacteria aborigena	SCIENTIFIC	Bacteria	\N	aborigena	\N	\N	\N	t	\N	Giglio-Tos	1910	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990006	Halobacterium Elazari-Volcani, 1957	Halobacterium	SCIENTIFIC	Halobacterium	\N	\N	\N	\N	\N	t	\N	Elazari-Volcani	1957	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990007	Bacteria canna	Bacteria canna	SCIENTIFIC	Bacteria	\N	canna	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990008	Bacterium aquamarinum	Bacterium aquamarinum	SCIENTIFIC	Bacterium	\N	aquamarinum	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990009	Bacterium okeniilium	Bacterium okeniilium	SCIENTIFIC	Bacterium	\N	okeniilium	\N	\N	\N	t	\N	Elazari-Volcani	1957	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990010	Alcaligenes aquamarinus	Alcaligenes aquamarinus	SCIENTIFIC	Alcaligenes	\N	aquamarinus	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
+999990011	Bacteria marca Aborigena, 1910	Bacteria marca	SCIENTIFIC	Bacteria	\N	marca	\N	\N	\N	t	\N	Aborigena	1910	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
