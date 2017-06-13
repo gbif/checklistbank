@@ -1,5 +1,8 @@
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.VocabularyUtils;
@@ -8,20 +11,14 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class NubIndexTest {
 
@@ -40,7 +37,8 @@ public class NubIndexTest {
     NameParser parser = new GBIFNameParser();
     try(InputStream testFile = Resources.getResource("testNames.txt").openStream()) {
       CSVReader reader = CSVReaderFactory.build(testFile, "UTF8", "\t", null, 0);
-      for (String[] row : reader) {
+      while (reader.hasNext()) {
+        String[] row = reader.next();
         NameUsageMatch n = new NameUsageMatch();
         n.setUsageKey(Integer.valueOf(row[0]));
         n.setScientificName(row[1]);

@@ -1,5 +1,15 @@
 package org.gbif.checklistbank.cli;
 
+import com.codahale.metrics.MetricRegistry;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.checklistbank.cli.importer.Importer;
 import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
@@ -15,6 +25,10 @@ import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.RunnableAdapter;
 import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.file.CompressionUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -28,21 +42,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.codahale.metrics.MetricRegistry;
-import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 @Ignore("manual long running test to discover why we see too many open files in heavy importer cli use")
 public class MultiThreadingCliTest {
@@ -127,8 +126,8 @@ public class MultiThreadingCliTest {
     PrintStream log = System.out;
 
     // init mybatis layer and solr from cfgN instance
-    cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
-    cfgI.solr.serverType = SolrServerType.HTTP;
+    cfgI.solr.setServerHome("http://apps2.gbif-dev.org:8082/checklistbank-solr");
+    cfgI.solr.setServerType(SolrServerType.HTTP);
     Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.solr));
     usageService = inj.getInstance(NameUsageService.class);
     sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

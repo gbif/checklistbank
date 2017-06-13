@@ -1,19 +1,14 @@
 package org.gbif.checklistbank.utils;
 
+import org.apache.commons.io.IOUtils;
 import org.gbif.io.TabWriter;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.junit.Ignore;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.util.Arrays;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 
 /**
  * Manual utility to add an occurrence count column to a tab delimited file with taxonKeys in the first column.
@@ -30,7 +25,8 @@ public class OccMetricsColAppender {
     CSVReader reader = CSVReaderFactory.build(new File(reports, fn), "utf8", "\t", null, 0);
     try (Writer writer = new FileWriter(new File(reports, "2-"+fn))) {
       TabWriter tab = new TabWriter(writer);
-      for (String[] row : reader) {
+      while (reader.hasNext()) {
+        String[] row = reader.next();
         String[] row2 = Arrays.copyOf(row, row.length+1);
         row2[row.length] = count(row[0]);
         tab.write(row2);
