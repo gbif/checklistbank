@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.registry;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
@@ -13,25 +15,18 @@ import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.api.vocabulary.MetadataType;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A simple implementation of a read-only DatasetService of the registry backed by a CSV file.
@@ -39,7 +34,6 @@ import org.slf4j.LoggerFactory;
 public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> implements DatasetService {
   private static final Logger LOG = LoggerFactory.getLogger(DatasetServiceFileImpl.class);
 
-  private final File dataFile;
   private final TreeMap<UUID, Dataset> datasets;
 
   /**
@@ -49,13 +43,13 @@ public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> i
    * dwca url (URL)
    */
   public DatasetServiceFileImpl(File dataFile) {
-    this.dataFile = dataFile;
     datasets = Maps.newTreeMap();
 
     try (InputStream in = new FileInputStream(dataFile)) {
       CSVReader reader = CSVReaderFactory.buildUtf8TabReader(in);
       int endKey = 1;
-      for (String[] row : reader) {
+      while (reader.hasNext()) {
+        String[] row = reader.next();
         if (row != null && row.length >= 3 && !row[0].startsWith("#")) {
           Dataset d = new Dataset();
           d.setType(DatasetType.CHECKLIST);
@@ -178,6 +172,11 @@ public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> i
 
   @Override
   public PagingResponse<Dataset> listDatasetsWithNoEndpoint(@Nullable Pageable page) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Dataset> listByDOI(String doi, @Nullable Pageable page) {
     throw new UnsupportedOperationException();
   }
 

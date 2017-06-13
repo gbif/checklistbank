@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.analysis;
 
+import com.google.common.base.Strings;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
@@ -8,12 +9,10 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistAnalyzedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
-
-import java.io.IOException;
-
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage> {
 
@@ -27,7 +26,7 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
     super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", ChecklistBankServiceMyBatisModule.create(cfg.clb));
     analysisService = getInstance(DatasetAnalysisService.class);
 
-    if (Strings.isNullOrEmpty(cfg.dataset.serverHome)) {
+    if (Strings.isNullOrEmpty(cfg.dataset.getServerHome())) {
       datasetIndexUpdater = null;
     } else {
       datasetIndexUpdater = new DatasetIndexUpdater(cfg.clb, cfg.dataset);

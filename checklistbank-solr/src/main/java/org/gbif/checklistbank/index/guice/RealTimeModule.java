@@ -26,9 +26,9 @@ public class RealTimeModule extends PrivateModule {
   }
 
   public static boolean empty(SolrConfig cfg) {
-    return cfg.serverType == null
-        || Strings.isNullOrEmpty(cfg.serverHome)
-        || (cfg.serverType == SolrServerType.HTTP && !cfg.serverHome.startsWith("http"));
+    return cfg.getServerType() == null
+        || Strings.isNullOrEmpty(cfg.getServerHome())
+        || (cfg.getServerType() == SolrServerType.HTTP && !cfg.getServerHome().startsWith("http"));
     }
 
   @Override

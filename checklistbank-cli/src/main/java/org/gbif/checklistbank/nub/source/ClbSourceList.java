@@ -1,5 +1,8 @@
 package org.gbif.checklistbank.nub.source;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import com.google.inject.Injector;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
@@ -16,18 +19,13 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.utils.file.FileUtils;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Injector;
-import org.neo4j.helpers.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A source for nub sources backed by usage data from checklistbank.
@@ -100,7 +98,8 @@ public class ClbSourceList extends NubSourceList {
         stream = FileUtils.classpathStream(cfg.sourceList.toString());
       }
       CSVReader reader = CSVReaderFactory.build(stream, "UTF-8", "\t", null, 0);
-      for (String[] row : reader) {
+      while(reader.hasNext()) {
+        String[] row = reader.next();
         if (row.length < 1) continue;
         UUID key = UUID.fromString(row[0]);
         if (keys.contains(key)) continue;

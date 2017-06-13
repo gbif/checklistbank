@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.validation;
 
+import com.google.common.base.Joiner;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.Kingdom;
@@ -9,13 +10,11 @@ import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.utils.file.InputStreamUtils;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.google.common.base.Joiner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Production backbone assertions that have to pass before we can replace the backbone with a newer version.
@@ -67,7 +66,8 @@ public class NubAssertions implements NubValidation {
     InputStream tsv = new InputStreamUtils().classpathStream(ASSERTION_FILENAME);
     try {
       CSVReader csv = CSVReaderFactory.buildUtf8TabReader(tsv);
-      for (String[] row : csv) {
+      while(csv.hasNext()) {
+        String[] row = csv.next();
         if (row == null || row.length < 11 || row[0].startsWith("#")) {
           continue;
         }

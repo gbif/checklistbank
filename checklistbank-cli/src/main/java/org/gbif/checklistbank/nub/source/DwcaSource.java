@@ -1,25 +1,24 @@
 package org.gbif.checklistbank.nub.source;
 
+import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.dwca.io.ArchiveFactory;
-import org.gbif.io.DownloadUtil;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.google.common.io.Files;
-import org.apache.commons.io.FileUtils;
+import org.gbif.util.DownloadUtil;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.UUID;
 
 /**
  * A nub source which is backed by a dwca checklist file which gets normalized into neo4j first
