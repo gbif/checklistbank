@@ -153,6 +153,7 @@
 
     <field name="scientific_name" type="tokenized" indexed="true" stored="true"/>
     <field name="canonical_name" type="sciname" indexed="true" stored="true"/>
+    <field name="canonical_name_tokenized" type="tokenized" indexed="true" stored="true"/>
     <!-- ngram fields for auto-suggest functionality -->
     <field name="canonical_name_ngram" type="ngram" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
     <field name="canonical_name_ngram_tokenized" type="ngram_tokenized" indexed="true" stored="false" omitNorms="true" omitTermFreqAndPositions="false"/>
@@ -220,5 +221,6 @@
 
   <copyField source="canonical_name" dest="canonical_name_ngram"/>
   <copyField source="canonical_name" dest="canonical_name_ngram_tokenized"/>
+  <copyField source="canonical_name" dest="canonical_name_tokenized"/>
 
 </schema>
