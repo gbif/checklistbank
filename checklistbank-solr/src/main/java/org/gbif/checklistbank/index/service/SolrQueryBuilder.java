@@ -64,7 +64,7 @@ public class SolrQueryBuilder {
   private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5 name_type:0^1.5";
   private static final String BOOST_FUNCTION = "product(2,sub(" + Rank.values().length + ",rank_key))";
   private static final String SUGGEST_QUERY_FIELDS   = "canonical_name_ngram^10 canonical_name_ngram_tokenized^2 scientific_name";
-  private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^50";
+  private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^10";
 
   private static final Integer FRAGMENT_SIZE = 100;
 
