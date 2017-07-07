@@ -1,62 +1,32 @@
 package org.gbif.checklistbank.ws.resources;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+import com.google.inject.Inject;
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.TableOfContents;
-import org.gbif.api.model.checklistbank.TypeSpecimen;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.model.checklistbank.VernacularName;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.api.model.checklistbank.*;
+import org.gbif.api.model.checklistbank.search.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.model.common.search.SearchRequest;
 import org.gbif.api.model.common.search.SearchResponse;
-import org.gbif.api.service.checklistbank.DescriptionService;
-import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.IdentifierService;
-import org.gbif.api.service.checklistbank.MultimediaService;
-import org.gbif.api.service.checklistbank.NameUsageSearchService;
-import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.api.service.checklistbank.ReferenceService;
-import org.gbif.api.service.checklistbank.SpeciesProfileService;
-import org.gbif.api.service.checklistbank.TypeSpecimenService;
-import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Species resource.
@@ -114,6 +84,10 @@ public class SpeciesResource {
   @GET
   public PagingResponse<NameUsage> list(@Context Locale locale, @QueryParam(DATASET_KEY) Set<UUID> datasetKeys,
                                         @QueryParam("sourceId") String sourceId, @QueryParam("name") String canonicalName, @Context Pageable page) {
+
+    // limit the maximum allowed offset
+    checkDeepPaging(page);
+
     if (datasetKeys == null) {
       datasetKeys = ImmutableSet.of();
     }
@@ -448,8 +422,8 @@ public class SpeciesResource {
    *
    * @throws java.lang.IllegalArgumentException if the offset is considered too high
    */
-  private static void checkDeepPaging(SearchRequest searchRequest) {
-    if (searchRequest.getOffset() > DEEP_PAGING_OFFSET_LIMIT) {
+  private static void checkDeepPaging(Pageable page) {
+    if (page.getOffset() > DEEP_PAGING_OFFSET_LIMIT) {
       throw new IllegalArgumentException("Offset is limited for this operation to " + DEEP_PAGING_OFFSET_LIMIT);
     }
   }

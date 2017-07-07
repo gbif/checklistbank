@@ -184,6 +184,10 @@
       <artifactId>log4j-over-slf4j</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>org.freemarker</groupId>
+      <artifactId>freemarker</artifactId>
+    </dependency>
     <!-- To ship JUL (e.g. Guice) logging to SLF4J -->
     <dependency>
       <groupId>org.slf4j</groupId>
