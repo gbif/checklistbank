@@ -1,5 +1,7 @@
--- update rank type according to extended enum
--- https://github.com/gbif/gbif-api/commit/3826c67276b18dbaf1eae6b35e7334360bf3b9a5
+/*
+ update rank type according to extended enum
+ https://github.com/gbif/gbif-api/commit/3826c67276b18dbaf1eae6b35e7334360bf3b9a5
+*/
 DROP VIEW kname;
 DROP VIEW nub;
 DROP VIEW nub_homonyms;
@@ -7,10 +9,10 @@ DROP FUNCTION groupInfraspecificRanks(rank);
 
 UPDATE name_usage set rank = 'UNRANKED' WHERE rank = 'INFORMAL';
 UPDATE typification set rank = 'UNRANKED' WHERE rank = 'INFORMAL';
--- add INFORMAL counts to UNRANKED in dataset metrics
-UPDATE dataset_metrics set count_by_rank = count_by_rank - array['INFORMAL','UNRANKED'] || ('UNRANKED=>' || ((count_by_rank->'INFORMAL')::int + (count_by_rank->'UNRANKED')::int)::text)::hstore
-WHERE count_by_rank ? 'INFORMAL';
 
+-- add INFORMAL counts to UNRANKED in dataset metrics
+-- liquibase specific note: use double question mark to become a literal ? in the final sql
+UPDATE dataset_metrics set count_by_rank = count_by_rank - array['INFORMAL','UNRANKED'] || ('UNRANKED=>' || ((count_by_rank->'INFORMAL')::int + (count_by_rank->'UNRANKED')::int)::text)::hstore WHERE count_by_rank ?? 'INFORMAL';
 ALTER TABLE name_usage ALTER COLUMN rank type text;
 ALTER TABLE typification ALTER COLUMN rank type text;
 

@@ -276,7 +276,7 @@
     </sql>
   </changeSet>
   <changeSet id="43" author="markus">
-    <sqlFile path="liquibase/rank_enum_update2.sql"/>
+    <sqlFile path="liquibase/rank_enum_update2.sql" />
     <sqlFile path="liquibase/debug_views2.sql"/>
     <sql>
       <![CDATA[
