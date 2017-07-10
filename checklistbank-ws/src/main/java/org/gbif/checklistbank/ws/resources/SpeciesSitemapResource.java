@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
@@ -39,6 +40,8 @@ public class SpeciesSitemapResource {
     private static final Configuration FTL = provideFreemarker();
 
     private final NameUsageMapper nameUsageMapper;
+    private final String portalUrl;
+    private final String apiUrl;
 
 
     /**
@@ -57,8 +60,10 @@ public class SpeciesSitemapResource {
     }
 
     @Inject
-    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper) {
+    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Named("checklistbank.portal.url") String portalUrl, @Named("checklistbank.api.url") String apiUrl) {
         this.nameUsageMapper = nameUsageMapper;
+        this.portalUrl = portalUrl;
+        this.apiUrl = apiUrl;
     }
 
     /**
@@ -69,11 +74,13 @@ public class SpeciesSitemapResource {
     public String sitemapIndex() throws IOException {
         int cnt = nameUsageMapper.count(null);
         int maps = (int) Math.ceil((double) cnt/SITEMAP_SIZE);
-        LOG.info("Requested sitemap index to {} index files", maps);
+        LOG.info("Requested sitemap index to {} index files with {} usages", maps, cnt);
 
         try (Writer writer = new StringWriter()) {
             Map<String, Object> data = Maps.newHashMap();
+            data.put("apiUrl", apiUrl);
             data.put("maps", maps);
+            data.put("cnt", cnt);
             FTL.getTemplate(INDEX_TEMPLATE).process(data, writer);
             return writer.toString();
 
@@ -95,7 +102,9 @@ public class SpeciesSitemapResource {
             Writer writer = new BufferedWriter(new OutputStreamWriter(os, Charsets.UTF_8));
             PagingRequest req = new PagingRequest((page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
             for (int key : nameUsageMapper.list(null, req)) {
-                writer.write(String.format("https://www.gbif.org/species/%s\n", key));
+                writer.write(portalUrl);
+                writer.write(key);
+                writer.write("\n");
             }
             writer.flush();
         };

@@ -6,7 +6,7 @@ import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.index.guice.SearchTestModule;
 import org.gbif.checklistbank.index.guice.SearchModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
+import org.gbif.checklistbank.ws.guice.ChecklistBankWsListener;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -22,11 +22,11 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
-  private static final Logger LOG = LoggerFactory.getLogger(ChecklistBankSearchWsTestModule.class);
+public class ChecklistBankSearchWsTestListener extends ChecklistBankWsListener {
+  private static final Logger LOG = LoggerFactory.getLogger(ChecklistBankSearchWsTestListener.class);
   private static final String PROPERTY_INDEXER_DEFAULT = "checklistbank-indexer-default.properties";
 
-  public ChecklistBankSearchWsTestModule(Properties properties) {
+  public ChecklistBankSearchWsTestListener(Properties properties) {
     super(properties);
   }
 
@@ -51,7 +51,7 @@ public class ChecklistBankSearchWsTestModule extends ChecklistBankWsModule {
 
   /**
    * Starts up a solr server and indexes the test database.
-   * Wrapped in a static method so we can set the solr server in the ChecklistBankSearchWsTestModule
+   * Wrapped in a static method so we can set the solr server in the ChecklistBankSearchWsTestListener
    * which must have a default, empty constructor.
    */
   public static EmbeddedSolrReference setupSolr(Properties properties) {
