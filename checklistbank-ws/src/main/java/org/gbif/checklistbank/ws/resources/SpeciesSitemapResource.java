@@ -103,13 +103,13 @@ public class SpeciesSitemapResource {
             PagingRequest req = new PagingRequest((page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
             for (int key : nameUsageMapper.list(null, req)) {
                 writer.write(portalUrl);
-                writer.write(key);
+                writer.write(String.valueOf(key));
                 writer.write("\n");
             }
             writer.flush();
         };
 
-        return Response.ok(stream).build();
+        return Response.ok(stream, MediaType.TEXT_PLAIN).build();
     }
 
 }
