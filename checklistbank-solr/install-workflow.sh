@@ -19,14 +19,14 @@ mvn --settings profiles.xml -Psolr,$P package -DskipTests assembly:single
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
    echo "Removing content of current Oozie workflow directory"
-   hdfs dfs -rm -f -r /checklistbank-index-builder-$P/*
+   sudo -u hdfs hdfs dfs -rm -f -r /checklistbank-index-builder-$P/*
 else
    echo "Creating workflow directory"
-   hdfs dfs -mkdir /checklistbank-index-builder-$P/
+   sudo -u hdfs hdfs dfs -mkdir /checklistbank-index-builder-$P/
 fi
 echo "Copying new Oozie workflow to HDFS"
-hdfs dfs -copyFromLocal target/oozie-workflow/* /checklistbank-index-builder-$P/
-hdfs dfs -copyFromLocal $P.properties /checklistbank-index-builder-$P/lib/
+sudo -u hdfs hdfs dfs -copyFromLocal target/oozie-workflow/* /checklistbank-index-builder-$P/
+sudo -u hdfs hdfs dfs -copyFromLocal $P.properties /checklistbank-index-builder-$P/lib/
 
 echo "Executing Oozie workflow"
 oozie job --oozie ${oozie_url} -config $P.properties -run
