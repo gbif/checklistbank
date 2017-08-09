@@ -1,6 +1,6 @@
 package org.gbif.checklistbank.ws.client.guice;
 
-import org.gbif.checklistbank.ws.guice.ChecklistBankWsModule;
+import org.gbif.checklistbank.ws.guice.ChecklistBankWsListener;
 
 import java.util.Properties;
 
@@ -17,7 +17,7 @@ public class ClbServer {
 
   public static Server buildServer(Properties clbProps) {
     final Server server = new Server(determinePort());
-    final ChecklistBankWsModule clbWs = new ChecklistBankSearchWsTestModule(clbProps);
+    final ChecklistBankWsListener clbWs = new ChecklistBankSearchWsTestListener(clbProps);
 
     final ServletContextHandler root=new ServletContextHandler(server, "/", ServletContextHandler.NO_SESSIONS);
     root.addEventListener(clbWs);

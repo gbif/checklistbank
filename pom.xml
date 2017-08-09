@@ -9,7 +9,7 @@
 
   <groupId>org.gbif.checklistbank</groupId>
   <artifactId>checklistbank-motherpom</artifactId>
-  <version>2.56-SNAPSHOT</version>
+  <version>2.58-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ChecklistBank Mother POM</name>
@@ -73,6 +73,7 @@
     <curator.version>2.9.0</curator.version>
     <fastutil.version>7.2.1</fastutil.version>
     <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
+    <freemarker.version>2.3.25-incubating</freemarker.version>
     <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
     <guava.version>18.0</guava.version>
     <guice.version>4.0</guice.version>
@@ -764,6 +765,11 @@
 
       <!-- Other -->
       <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
+      </dependency>
+      <dependency>
         <groupId>it.unimi.dsi</groupId>
         <artifactId>fastutil</artifactId>
         <version>${fastutil.version}</version>
@@ -907,6 +913,12 @@
         <classifier>tests</classifier>
         <scope>test</scope>
         <type>test-jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-auth</artifactId>
+        <version>${hadoop.version}</version>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.apache.hadoop</groupId>

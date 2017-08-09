@@ -170,6 +170,15 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <include refid="page"/>
     </select>
 
+    <!--  count all usages -->
+    <select id="count" parameterType="map" resultType="java.lang.Integer">
+        SELECT count(*) FROM name_usage
+        WHERE deleted IS NULL
+        <if test="uuid != null">
+            AND dataset_key=#{uuid,jdbcType=OTHER}
+        </if>
+    </select>
+
     <!--  the maximum usage key used in the nub incl deleted usages -->
     <select id="maxUsageKey" parameterType="map" resultType="java.lang.Integer">
     SELECT max(u.id)

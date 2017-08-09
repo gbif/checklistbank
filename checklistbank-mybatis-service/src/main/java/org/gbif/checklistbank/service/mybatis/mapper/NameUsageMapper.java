@@ -9,6 +9,7 @@ import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.checklistbank.model.ScientificName;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +37,12 @@ public interface NameUsageMapper {
    *
    * @return the name usage ids belonging to the requested page.
    */
-  List<Integer> list(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
+  List<Integer> list(@Nullable @Param("uuid") UUID datasetKey, @Param("page") Pageable page);
+
+  /**
+   * @return the number of non deleted name usages
+   */
+  int count(@Nullable @Param("uuid") UUID datasetKey);
 
   List<NameUsage> listByTaxonId(
       @Param("uuid") UUID datasetKey, @Param("taxonId") String taxonId, @Param("page") Pageable page);
