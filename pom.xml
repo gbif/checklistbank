@@ -479,6 +479,12 @@
         <version>${logstash-logback.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- Required by logback when using EvaluatorFilter -->
+      <dependency>
+          <groupId>org.codehaus.janino</groupId>
+          <artifactId>janino</artifactId>
+          <version>3.0.6</version>
+      </dependency>
 
       <!-- lucene / solr -->
       <dependency>
