@@ -58,4 +58,9 @@ public class OrganizationServiceEmptyImpl extends EmptyNetworkEntityService<Orga
   public List<KeyTitleResult> suggest(@Nullable String q) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public boolean confirmEndorsement(UUID organizationKey, UUID confirmationKey) {
+    throw new UnsupportedOperationException();
+  }
 }

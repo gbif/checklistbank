@@ -35,7 +35,7 @@ import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.utils.ObjectUtils;
-import org.neo4j.kernel.api.index.PreexistingIndexEntryConflictException;
+import org.neo4j.kernel.api.exceptions.index.IndexEntryConflictException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
@@ -403,10 +403,10 @@ public class NeoInserter implements AutoCloseable {
         } catch (RuntimeException e) {
             Throwable t = e.getCause();
             // check if the cause was a broken unique constraint which can only be taxonID in our case
-            if (t != null && t instanceof PreexistingIndexEntryConflictException) {
-                PreexistingIndexEntryConflictException pe = (PreexistingIndexEntryConflictException) t;
-                LOG.error("TaxonID not unique. Value {} used for both node {} and {}", pe.getPropertyValue(), pe.getExistingNodeId(), pe.getAddedNodeId());
-                throw new NotUniqueRuntimeException("TaxonID", pe.getPropertyValue());
+            if (t != null && t instanceof IndexEntryConflictException) {
+                IndexEntryConflictException pe = (IndexEntryConflictException) t;
+                LOG.error("TaxonID not unique. Value {} used for both node {} and {}", pe.getSinglePropertyValue(), pe.getExistingNodeId(), pe.getAddedNodeId());
+                throw new NotUniqueRuntimeException("TaxonID", pe.getSinglePropertyValue());
             } else {
                 throw e;
             }
