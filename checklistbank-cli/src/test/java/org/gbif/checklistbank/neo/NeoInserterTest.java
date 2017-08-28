@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.neo;
 
+import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageContainer;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -12,21 +13,16 @@ import org.gbif.dwc.terms.Term;
 import org.gbif.dwca.io.ArchiveField;
 import org.gbif.dwca.record.RecordImpl;
 import org.gbif.dwca.record.StarRecordImpl;
-
-import java.net.URI;
-import java.util.List;
-
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 
+import java.net.URI;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class NeoInserterTest {
     NeoInserter ins;
@@ -223,10 +219,16 @@ public class NeoInserterTest {
         assertNull(NeoInserter.clean("\\N"));
         assertNull(NeoInserter.clean("NULL"));
         assertNull(NeoInserter.clean("\t "));
+        assertNull(NeoInserter.clean("\u0000"));
+        assertNull(NeoInserter.clean("\u0001"));
+        assertNull(NeoInserter.clean("\u0002"));
 
         assertEquals("Abies", NeoInserter.clean("Abies"));
         assertEquals("öAbies", NeoInserter.clean("öAbies"));
         assertEquals("Abies  mille", NeoInserter.clean(" Abies  mille"));
+        assertEquals("Abies x", NeoInserter.clean("Abies\u0000x"));
+        assertEquals("Abies x", NeoInserter.clean("Abies\u0000\u0000\u0000x"));
+        assertEquals("Abies x", NeoInserter.clean("Abies\u0000\u0001x"));
     }
 
 }

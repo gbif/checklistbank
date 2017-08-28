@@ -1,17 +1,21 @@
 package org.gbif.checklistbank.neo;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.vocabulary.Extension;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.normalizer.ExtensionInterpreter;
 import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
@@ -24,40 +28,25 @@ import org.gbif.common.parsers.TaxStatusParser;
 import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
-import org.gbif.dwc.terms.AcTerm;
-import org.gbif.dwc.terms.DcTerm;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.GbifTerm;
-import org.gbif.dwc.terms.Term;
-import org.gbif.dwc.terms.TermFactory;
+import org.gbif.dwc.terms.*;
 import org.gbif.dwca.io.Archive;
 import org.gbif.dwca.io.ArchiveFactory;
 import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.utils.ObjectUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
 import org.neo4j.kernel.api.index.PreexistingIndexEntryConflictException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static org.gbif.dwc.terms.GbifTerm.datasetKey;
 
@@ -68,6 +57,7 @@ public class NeoInserter implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
     private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
+    private static final Pattern CONTROL_CHAR_PATTERN = Pattern.compile("[\\u0000-\\u001f]+");
     private static final TermFactory TF = TermFactory.instance();
 
     private Archive arch;
@@ -390,7 +380,7 @@ public class NeoInserter implements AutoCloseable {
         if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
             return null;
         }
-        return Strings.emptyToNull(x.trim());
+        return Strings.emptyToNull(CharMatcher.JAVA_ISO_CONTROL.trimAndCollapseFrom(x, ' ').trim());
     }
 
     @Override
