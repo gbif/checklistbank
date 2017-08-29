@@ -1,5 +1,15 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.ObjectUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -13,14 +23,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
-import org.gbif.checklistbank.neo.ImportDb;
-import org.gbif.checklistbank.neo.Labels;
-import org.gbif.checklistbank.neo.NeoInserter;
-import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.checklistbank.neo.NotUniqueException;
-import org.gbif.checklistbank.neo.NotUniqueRuntimeException;
-import org.gbif.checklistbank.neo.RelType;
-import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.*;
 import org.gbif.checklistbank.neo.traverse.NubMatchHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
@@ -29,31 +32,15 @@ import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.ObjectUtils;
 import org.neo4j.graphdb.*;
 import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Reads a good id based dwc archive and produces a neo4j graph from it.
@@ -104,7 +91,7 @@ public class Normalizer extends ImportDb implements Runnable {
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   Map<String, UUID> constituents, IdLookup lookup) {
     return new Normalizer(datasetKey,
-            UsageDao.persistentDao(cfg.neo, datasetKey, false, registry, true),
+            UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
             cfg.archiveDir(datasetKey),
             cfg.neo.batchSize,
             registry, constituents, lookup);

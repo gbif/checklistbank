@@ -1,9 +1,15 @@
 package org.gbif.checklistbank.neo;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
 import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.utils.file.CompressionUtil;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -14,13 +20,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.codahale.metrics.MetricRegistry;
-import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
-import org.junit.Test;
 
 @Ignore("manual long running test to discover why we see too many hanging PageCache threads in neos batch inserter")
 public class MultiThreadingNeoInserterTest {
@@ -39,7 +38,7 @@ public class MultiThreadingNeoInserterTest {
 
         @Override
         public InsertMetadata call() throws Exception {
-            UsageDao dao = UsageDao.persistentDao(cfg.neo, key, false, registry, true);
+            UsageDao dao = UsageDao.persistentDao(cfg.neo, key, registry, true);
             try {
                 NeoInserter ins = dao.createBatchInserter(100);
                 File dwca = cfg.archiveDir(key);

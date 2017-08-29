@@ -57,7 +57,6 @@ public class NeoInserter implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
     private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
-    private static final Pattern CONTROL_CHAR_PATTERN = Pattern.compile("[\\u0000-\\u001f]+");
     private static final TermFactory TF = TermFactory.instance();
 
     private Archive arch;

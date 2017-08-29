@@ -1,5 +1,13 @@
 package org.gbif.checklistbank.neo;
 
+import com.codahale.metrics.MetricRegistry;
+import com.esotericsoftware.kryo.pool.KryoPool;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -15,20 +23,23 @@ import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.neo.printer.DotPrinter;
-import org.gbif.checklistbank.neo.printer.GmlPrinter;
-import org.gbif.checklistbank.neo.printer.ListPrinter;
-import org.gbif.checklistbank.neo.printer.TabPrinter;
-import org.gbif.checklistbank.neo.printer.TreePrinter;
-import org.gbif.checklistbank.neo.printer.TxtPrinter;
-import org.gbif.checklistbank.neo.printer.XmlPrinter;
+import org.gbif.checklistbank.neo.printer.*;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
+import org.neo4j.helpers.collection.Iterators;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -36,32 +47,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
-
-import com.esotericsoftware.kryo.pool.KryoPool;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
-import com.codahale.metrics.MetricRegistry;
-import org.apache.commons.io.FileUtils;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.NotFoundException;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.helpers.Strings;
-import org.neo4j.helpers.collection.Iterators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.
@@ -147,7 +132,7 @@ public class UsageDao implements AutoCloseable {
       cfg.shell = true;
       cfg.port = shellPort;
     }
-    GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false, false);
+    GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false);
     CleanupUtils.registerCleanupHook(storeDir);
 
     return new UsageDao(kvp, storeDir, null, builder, new MetricRegistry());
@@ -164,19 +149,24 @@ public class UsageDao implements AutoCloseable {
   }
 
   /**
-   * @return a readonly dao of an existing neo db
+   * @return a dao of an existing neo db
    */
   public static UsageDao open(NeoConfiguration cfg, UUID datasetKey) {
-    return persistentDao(cfg, datasetKey, true, null, false);
+    return persistentDao(cfg, datasetKey, null, false);
   }
 
+  /**
+   * @return creates a new, empty, persistent dao wiping any data that might have existed for that dataset
+   */
+  public static UsageDao create(NeoConfiguration cfg, UUID datasetKey) {
+    return persistentDao(cfg, datasetKey, null, true);
+  }
   /**
    * A backend that is stored in files inside the configured neo directory.
    *
    * @param eraseExisting if true erases any previous data files
-   * @param readOnly      if true open neo4j in read only mode
    */
-  public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, boolean readOnly, MetricRegistry registry, boolean eraseExisting) {
+  public static UsageDao persistentDao(NeoConfiguration cfg, UUID datasetKey, MetricRegistry registry, boolean eraseExisting) {
     DB kvp = null;
     try {
       final File kvpF = cfg.kvp(datasetKey);
@@ -192,7 +182,7 @@ public class UsageDao implements AutoCloseable {
       kvp = DBMaker.fileDB(kvpF)
           .fileMmapEnableIfSupported()
           .make();
-      GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, readOnly, eraseExisting);
+      GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, eraseExisting);
       return new UsageDao(kvp, storeDir, kvpF, builder, registry);
 
     } catch (Exception e) {

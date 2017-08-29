@@ -5,15 +5,13 @@ import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.source.ClbSourceList;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ManualNubBuild {
     private static final Logger LOG = LoggerFactory.getLogger(ManualNubBuild.class);
@@ -42,18 +40,9 @@ public class ManualNubBuild {
         return cfg;
     }
 
-    private static void build(NubConfiguration cfg) {
-        LOG.info("Build new nub");
-        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
-        NubBuilder builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Lists.newArrayList(UUID.fromString("bf3db7c9-5e5d-4fd0-bd5b-94539eaf9598"))), new IdLookupPassThru(), 1000, 1000);
-        builder.run();
-        dao.close();
-        LOG.info("New backbone ready");
-    }
-
     private static void build(NubConfiguration cfg, UUID ... sources) {
         LOG.info("Build new nub");
-        UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, false, null, true);
+        UsageDao dao = UsageDao.create(cfg.neo, Constants.NUB_DATASET_KEY);
         NubBuilder builder;
         if (sources == null) {
             builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000, 1000);

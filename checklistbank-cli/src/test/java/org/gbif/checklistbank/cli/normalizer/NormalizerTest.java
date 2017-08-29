@@ -1,27 +1,15 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Maps;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.vocabulary.Country;
-import org.gbif.api.vocabulary.Language;
-import org.gbif.api.vocabulary.MediaType;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import com.beust.jcommander.internal.Sets;
-import com.google.common.collect.Maps;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -30,20 +18,23 @@ import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
  */
 public class NormalizerTest extends BaseTest {
+  private static final Logger LOG = LoggerFactory.getLogger(NormalizerTest.class);
 
   private static final String INCERTAE_SEDIS = "Incertae sedis";
 

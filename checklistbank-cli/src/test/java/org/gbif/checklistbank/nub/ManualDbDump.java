@@ -5,15 +5,14 @@ import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.source.ClbSource;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.UUID;
-
-import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ManualDbDump {
   private static final Logger LOG = LoggerFactory.getLogger(ManualDbDump.class);
@@ -36,7 +35,7 @@ public class ManualDbDump {
   private static void dump2file(NeoConfiguration cfg, UUID datasetKey, GraphFormat format) throws Exception {
     File f = new File("/Users/markus/Desktop/repo/tree-"+datasetKey+"."+format.suffix);
     LOG.info("Dump local neo db {} to {} file {}", datasetKey, format, f.getAbsolutePath());
-    UsageDao dao = UsageDao.persistentDao(cfg, datasetKey, true, null, false);
+    UsageDao dao = UsageDao.open(cfg, datasetKey);
     try (Transaction tx = dao.beginTx()) {
        dao.printTree(new BufferedWriter(new FileWriter(f)), GraphFormat.TAB);
     }

@@ -1,5 +1,8 @@
 package org.gbif.checklistbank.cli;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -14,20 +17,6 @@ import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.neo4j.graphdb.Node;
@@ -36,10 +25,17 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import javax.annotation.Nullable;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 /**
  * base class to insert neo integration tests.
@@ -75,7 +71,7 @@ public abstract class BaseTest {
    * @param datasetKey
    */
   protected void openDb(UUID datasetKey) {
-    dao = UsageDao.persistentDao(cfg.neo, datasetKey, false, null, false);
+    dao = UsageDao.open(cfg.neo, datasetKey);
   }
 
   protected void compareStats(NormalizerStats stats) {

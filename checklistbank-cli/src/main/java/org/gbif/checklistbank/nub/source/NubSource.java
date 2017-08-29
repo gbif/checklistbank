@@ -1,5 +1,13 @@
 package org.gbif.checklistbank.nub.source;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
+import com.google.common.io.Files;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
@@ -16,6 +24,11 @@ import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.nameparser.GBIFNameParser;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,20 +36,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
-import com.google.common.io.Files;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A backbone source dataset with some basic metadata that allows to iterate over its source usages.
@@ -107,7 +106,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       // reuse the dao for reading
       dao = initDao;
     } else {
-      initDao = open(false, true);
+      initDao = openOrCreate(true);
     }
     try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
       initNeo(writer);
@@ -335,7 +334,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   @Override
   public CloseableIterator<SrcUsage> iterator() {
     if (dao == null) {
-      dao = open(true, false);
+      dao = openOrCreate(false);
     }
     return new SrcUsageIterator(dao);
   }
@@ -345,14 +344,14 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   }
 
   /**
-   * @return a new read only dao
+   * @return a new or existing dao
    */
-  public UsageDao open(boolean readOnly, boolean eraseExisting) {
+  private UsageDao openOrCreate(boolean eraseExisting) {
     if (useTmpDao) {
       throw new IllegalStateException("Temporary DAOs cannot be opened again");
     }
     watch.reset().start();
-    UsageDao d = UsageDao.persistentDao(cfg, key, readOnly, null, eraseExisting);
+    UsageDao d = UsageDao.persistentDao(cfg, key, null, eraseExisting);
     LOG.debug("Opening DAO in {}ms for dataset {}", watch.elapsed(TimeUnit.MILLISECONDS), key);
     watch.stop();
     return d;

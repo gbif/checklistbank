@@ -1,15 +1,14 @@
 package org.gbif.checklistbank.cli.shell;
 
-import org.gbif.cli.Command;
-import org.gbif.cli.service.ServiceCommand;
-
-import java.io.File;
-
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.Service;
+import org.gbif.cli.Command;
+import org.gbif.cli.service.ServiceCommand;
 import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.GraphDatabaseService;
+
+import java.io.File;
 
 /**
  * Command that opens a neo4j shell server
@@ -46,7 +45,7 @@ public class ShellCommand extends ServiceCommand {
       if (!cfg.neo.shell) {
         cfg.neo.shell = true;
       }
-      neo = cfg.neo.newEmbeddedDb(storeDir, true, false).newGraphDatabase();
+      neo = cfg.neo.newEmbeddedDb(storeDir, false).newGraphDatabase();
       System.out.println("Opening neo4j shell on port " + cfg.neo.port);
     }
 

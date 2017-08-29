@@ -1,5 +1,10 @@
 package org.gbif.checklistbank.neo;
 
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import org.assertj.core.util.Preconditions;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
@@ -12,6 +17,11 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
 import org.gbif.utils.file.FileUtils;
 import org.gbif.utils.text.StringUtils;
+import org.junit.After;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -19,17 +29,6 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.codahale.metrics.MetricRegistry;
-import org.assertj.core.util.Preconditions;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,12 +57,12 @@ public class UsageDaoTest {
     UUID uuid = UUID.randomUUID();
     MetricRegistry reg = new MetricRegistry();
 
-    dao = UsageDao.persistentDao(cfg, uuid, false, reg, true);
+    dao = UsageDao.persistentDao(cfg, uuid, reg, true);
     testDao();
 
     // close and reopen. Make sure data survived
     dao.close();
-    dao = UsageDao.persistentDao(cfg, uuid, false, reg, false);
+    dao = UsageDao.persistentDao(cfg, uuid, reg, false);
     try (Transaction tx = dao.beginTx()) {
       NameUsage u3 = usage(300, Rank.SPECIES);
       Node n3 = dao.create(u3);
