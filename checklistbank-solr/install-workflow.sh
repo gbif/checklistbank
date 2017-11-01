@@ -29,5 +29,5 @@ sudo -u hdfs hdfs dfs -copyFromLocal target/oozie-workflow/* /checklistbank-inde
 sudo -u hdfs hdfs dfs -copyFromLocal $P.properties /checklistbank-index-builder-$P/lib/
 
 echo "Executing Oozie workflow"
-oozie job --oozie ${oozie_url} -config $P.properties -run
+sudo -E -u hdfs oozie job --oozie ${oozie_url} -config $P.properties -run
 

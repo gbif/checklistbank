@@ -66,6 +66,7 @@
         <argument>${wf:conf("hadoop.client.opts")}</argument>
         <argument>${wf:conf("mapred.opts")}</argument>
         <argument>${wf:conf("solr.http.url")}</argument>
+        <env-var>HADOOP_USER_NAME=${wf:user()}</env-var>
         <file>scripts/build_solr_idx.sh</file>
         <archive>solr.zip#solr</archive>
       </shell>
