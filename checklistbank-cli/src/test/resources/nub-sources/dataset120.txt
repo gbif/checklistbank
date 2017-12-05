@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia	
+11	1		PHYLUM	ACCEPTED		Cnidaria	
+12	11		CLASS	ACCEPTED		Hydrozoa	
+14	12		FAMILY	ACCEPTED		Hydractiniidae	
+15	14		FAMILY	SYNONYM		Clavidaenotexisting	
+21	1		PHYLUM	ACCEPTED		Mollusca	
+22	21		CLASS	ACCEPTED		Gastropoda	
+23	22		ORDER	ACCEPTED		Neogastropoda	

@@ -1533,6 +1533,22 @@ public class NubBuilderIT {
   }
 
   /**
+   * 120 = COL
+   * 121 = WORMS
+   * @throws Exception
+   */
+  @Test
+  @Ignore("needs implemented")
+  public void avoidProparteFamilyHomonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(120, 121);
+    src.setSourceRank(120, Rank.PHYLUM);
+
+    build(src);
+
+    assertTree("120 121.txt");
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {
