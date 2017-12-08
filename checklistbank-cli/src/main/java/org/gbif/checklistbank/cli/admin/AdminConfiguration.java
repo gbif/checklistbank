@@ -1,26 +1,25 @@
 package org.gbif.checklistbank.cli.admin;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+import com.google.common.collect.Lists;
+import org.apache.commons.io.LineIterator;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.solr.SolrConfig;
 
+import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.Nullable;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
-import com.google.common.collect.Lists;
-import org.apache.commons.io.LineIterator;
 
 /**
  *
@@ -123,7 +122,7 @@ public class AdminConfiguration {
         LineIterator lines = new LineIterator(new FileReader(keys));
         while (lines.hasNext()) {
           try {
-            result.add(UUID.fromString(lines.nextLine()));
+            result.add(UUID.fromString(lines.nextLine().trim()));
           } catch (IllegalArgumentException e) {
             // ignore
           }

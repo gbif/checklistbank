@@ -1,18 +1,5 @@
 package org.gbif.checklistbank.authorship;
 
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.checklistbank.model.Equality;
-import org.gbif.utils.ObjectUtils;
-import org.gbif.utils.file.FileUtils;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -24,8 +11,20 @@ import com.google.common.io.Resources;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.checklistbank.model.Equality;
+import org.gbif.utils.ObjectUtils;
+import org.gbif.utils.file.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Utility to compare scientific name authorships, i.e. the recombination and basionym author and publishing year.
@@ -43,6 +42,7 @@ public class AuthorComparator {
   private static final Pattern IN = Pattern.compile(" in .+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern EX = Pattern.compile("^.+ ex ", Pattern.CASE_INSENSITIVE);
   private static final Pattern FIL = Pattern.compile("([A-Z][a-z]*)[\\. ]\\s*f(:?il)?\\.?\\b");
+  private static final Pattern SANCT = Pattern.compile(" *: *[A-Z][a-z]+\\.?$");
   private static final Pattern TRANSLITERATIONS = Pattern.compile("([auo])e", Pattern.CASE_INSENSITIVE);
   private static final Pattern SURNAME = Pattern.compile("([a-z]+)(:? filius)?$");
   private static final Pattern FIRST_INITIALS = Pattern.compile("^([a-z]\\s)+");
@@ -173,6 +173,9 @@ public class AuthorComparator {
     }
     // remove in publications
     x = IN.matcher(x).replaceFirst("");
+
+    // remove sanctioning authors
+    x = SANCT.matcher(x).replaceFirst("");
 
     // remove ex authors
     x = EX.matcher(x).replaceFirst("");

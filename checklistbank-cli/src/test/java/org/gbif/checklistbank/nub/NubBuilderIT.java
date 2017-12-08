@@ -318,6 +318,8 @@ public class NubBuilderIT {
   /**
    * Verifies that the backbone patch file in github is in good shape!
    * https://github.com/gbif/backbone-patch
+   *
+   * WARNING! requires online access and working github !!!
    */
   @Test
   public void testBackbonePatch() throws Exception {
@@ -1530,6 +1532,17 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("118 119.txt");
+  }
+
+  /**
+   * Make sure blacklisted names dont make it into the backbone
+   */
+  @Test
+  public void testBlacklist() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(122);
+    build(src);
+
+    assertTree("122.txt");
   }
 
   /**

@@ -45,6 +45,7 @@ import org.gbif.nameparser.GBIFNameParser;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.collection.MapUtils;
+import org.gbif.utils.file.FileUtils;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.collection.Iterators;
@@ -57,11 +58,13 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
   public static final Set<Rank> NUB_RANKS;
+  private final Set<String> blacklist;
 
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -110,6 +113,19 @@ public class NubBuilder implements Runnable {
     this.closeDao = closeDao;
     this.cfg = cfg;
     this.parser = new GBIFNameParser(cfg.parserTimeout);
+
+    Set<String> blacks;
+    try {
+      blacks = FileUtils.streamToSet(getClass().getResourceAsStream("/backbone/blacklist.txt"));
+    } catch (IOException e) {
+      blacks = Sets.newHashSet();
+      LOG.error("Blacklist could not be read");
+    }
+
+    blacklist = blacks
+        .stream()
+        .map(String::toUpperCase)
+        .collect(Collectors.toSet());
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
@@ -965,6 +981,11 @@ public class NubBuilder implements Runnable {
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
     Preconditions.checkNotNull(u.status);
     Preconditions.checkArgument(parent.status.isAccepted());
+    // check blacklist
+    if (blacklist.contains(u.scientificName.toUpperCase())) {
+      throw new IgnoreSourceUsageException("Ignore blacklisted name", u.scientificName);
+    }
+
     // try to parse name
     addParsedNameIfNull(u);
     // match to existing usages

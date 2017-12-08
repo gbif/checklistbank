@@ -1,18 +1,14 @@
 package org.gbif.checklistbank.authorship;
 
+import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.checklistbank.model.Equality;
+import org.junit.Test;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AuthorComparatorTest {
   AuthorComparator comp = AuthorComparator.createWithAuthormap();
@@ -184,6 +180,27 @@ public class AuthorComparatorTest {
     p1.setAuthorship("Mill.");
     p2.setAuthorship("L.");
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+  }
+
+  /**
+   * Ignore the sanctioning author
+   */
+  @Test
+  public void testCompareSanctioning() throws Exception {
+    ParsedName p1 = new ParsedName();
+    ParsedName p2 = new ParsedName();
+
+    p1.setAuthorship("Fr. : Fr.");
+    p2.setAuthorship("Fr.");
+
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p2.setAuthorship("Fr. : Pers.");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p1.setBracketAuthorship("Mill.");
+    p2.setBracketAuthorship("Mill. : Pers.");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
   }
 
   @Test
