@@ -1,0 +1,12 @@
+1			KINGDOM	ACCEPTED		Animalia	
+11	1		PHYLUM	ACCEPTED		Cnidaria	
+12	11		CLASS	ACCEPTED		Hydrozoa	
+13	12		ORDER	ACCEPTED		Anthoathecata	
+14	13		SUBORDER	ACCEPTED		Filifera	
+15	14		FAMILY	ACCEPTED		Hydractiniidae	
+16	15		FAMILY	SYNONYM		Clavidae McCrady, 1859	
+21	1		PHYLUM	ACCEPTED		Mollusca	
+22	21		CLASS	ACCEPTED		Gastropoda	
+23	22		ORDER	ACCEPTED		Neogastropoda	
+25	23		FAMILY	ACCEPTED		Drilliidae Olsson, 1964	
+26	25		FAMILY	SYNONYM		Clavidae Casey, 1904
