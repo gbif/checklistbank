@@ -1,8 +1,10 @@
 package org.gbif.checklistbank.nub.lookup;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +46,8 @@ public class DatasetMatchSummary {
     unparsable.incrementAndGet();
   }
 
-  public void addNoMatch(Rank rank) {
+  public void addNoMatch(@Nullable Rank rank) {
+    rank = MoreObjects.firstNonNull(rank, Rank.UNRANKED);
     usages.incrementAndGet();
     if (usagesByRank.containsKey(rank)) {
       usagesByRank.get(rank).incrementAndGet();
@@ -53,7 +56,8 @@ public class DatasetMatchSummary {
     }
   }
 
-  public void addMatch(Rank rank) {
+  public void addMatch(@Nullable Rank rank) {
+    rank = MoreObjects.firstNonNull(rank, Rank.UNRANKED);
     addNoMatch(rank);
     matches.incrementAndGet();
     if (matchesByRank.containsKey(rank)) {
@@ -92,17 +96,17 @@ public class DatasetMatchSummary {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("DatasetMatch ")
-      .append(datasetKey)
-      .append(": total=")
-      .append(usages.get())
-      .append(", matches=")
-      .append(matches.get())
-      .append(", unparsable=")
-      .append(unparsable.get())
-      .append(", perc=")
-      .append(percMatches())
-      .append(", percLower=")
-      .append(percBackboneRelevantNoMatches());
+        .append(datasetKey)
+        .append(": total=")
+        .append(usages.get())
+        .append(", matches=")
+        .append(matches.get())
+        .append(", unparsable=")
+        .append(unparsable.get())
+        .append(", perc=")
+        .append(percMatches())
+        .append(", percLower=")
+        .append(percBackboneRelevantNoMatches());
     // append by rank details
     sb.append("\n");
     final AtomicInteger zero = new AtomicInteger();

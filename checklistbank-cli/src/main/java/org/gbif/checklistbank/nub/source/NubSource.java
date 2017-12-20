@@ -185,13 +185,13 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       if (nubRanksOnly) {
         if ((u.rank == null || !NubBuilder.NUB_RANKS.contains(u.rank))) {
           // do not persistent a node, just keep the id mapped to the next higher parent with an nub rank
-          nonNubRankUsages.put(u.key, u.parentKey);
+          nonNubRankUsages.put((int) u.key, u.parentKey);
           // we might have created a node already, delete it if there is one
-          if (ids.containsKey(u.key)) {
+          if (ids.containsKey((int) u.key)) {
             Node n = dao.getNeo().getNodeById(ids.get(u.key));
             // delete all relations and relink parent rel to next nub rank
-            while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
-              u.parentKey = nonNubRankUsages.get(u.parentKey);
+            while (u.parentKey != null && nonNubRankUsages.containsKey((int) u.parentKey)) {
+              u.parentKey = nonNubRankUsages.get((int) u.parentKey);
             }
             Node nubParent = null;
             if (u.parentKey != null) {
@@ -213,10 +213,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
         } else {
           // make sure the parent and basionym are nub ranks
-          while (u.parentKey != null && nonNubRankUsages.containsKey(u.parentKey)) {
-            u.parentKey = nonNubRankUsages.get(u.parentKey);
+          while (u.parentKey != null && nonNubRankUsages.containsKey((int) u.parentKey)) {
+            u.parentKey = nonNubRankUsages.get((int) u.parentKey);
           }
-          if (u.originalNameKey != null && nonNubRankUsages.containsKey(u.originalNameKey)) {
+          if (u.originalNameKey != null && nonNubRankUsages.containsKey((int) u.originalNameKey)) {
             u.originalNameKey = null;
           }
         }

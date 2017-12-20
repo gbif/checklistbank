@@ -19,6 +19,7 @@ public class DatasetMatchSummaryTest {
     summary.addNoMatch(Rank.BIOVAR);
     summary.addNoMatch(Rank.SUBGENUS);
     summary.addNoMatch(Rank.UNRANKED);
+    summary.addNoMatch(null);
 
     summary.addMatch(Rank.ORDER);
     summary.addMatch(Rank.FAMILY);
@@ -27,7 +28,7 @@ public class DatasetMatchSummaryTest {
     summary.addMatch(Rank.VARIETY);
     summary.addMatch(Rank.SPECIES);
     summary.addMatch(Rank.SUBSPECIES);
-    summary.addMatch(Rank.UNRANKED);
+    summary.addMatch(null);
 
     System.out.println(summary);
   }
