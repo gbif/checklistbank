@@ -8,7 +8,7 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.junit.BeforeClass;
@@ -34,7 +34,7 @@ public class NubIndexTest {
   public static List<NameUsageMatch> readTestNames() throws IOException {
     List<NameUsageMatch> usages = Lists.newArrayList();
 
-    NameParser parser = new GBIFNameParser();
+    NameParser parser = new NameParserGbifV1();
     try(InputStream testFile = Resources.getResource("testNames.txt").openStream()) {
       CSVReader reader = CSVReaderFactory.build(testFile, "UTF8", "\t", null, 0);
       while (reader.hasNext()) {

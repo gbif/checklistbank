@@ -41,14 +41,14 @@ Plantae
       Fabaceae
       Malvaceae
         Pentapetes Linnaeus, 1753
-          *Blattaria O. Kuntze, 1891
+          *Blattaria O.Kuntze, 1891
       Poaceae
         Trichoneura
           Trichoneura ciliata (Peter) S.M.Phillips
             *$Leptochloa ciliata Peter
             *Trichoneura hirtella Napper
       Scrophulariaceae
-        Blattaria P. Miller, 1754
+        Blattaria P.Miller, 1754
   Oenanthe Linnaeus, 1753
 Protozoa
 Viruses

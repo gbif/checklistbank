@@ -7,17 +7,14 @@ import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.nameparser.GBIFNameParser;
-
+import org.gbif.nameparser.NameParserGbifV1;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameService> {
 
-  private NameParser parser = new GBIFNameParser();
+  private NameParser parser = new NameParserGbifV1();
 
   public ParsedNameServiceMyBatisIT() {
     super(ParsedNameService.class);
@@ -89,6 +86,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
 
   @Test
   public void testReparse() throws Exception {
-    assertEquals(1, service.reparseAll());
+    assertEquals(5, service.reparseAll());
   }
 }

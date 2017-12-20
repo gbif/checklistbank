@@ -20,7 +20,7 @@ import org.gbif.mybatis.type.CountryTypeHandler;
 import org.gbif.mybatis.type.LanguageTypeHandler;
 import org.gbif.mybatis.type.UriTypeHandler;
 import org.gbif.mybatis.type.UuidTypeHandler;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,6 +146,6 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
         .to(DatasetImportServiceMyBatis.class)
         .in(Scopes.SINGLETON);
 
-    bind(NameParser.class).toInstance(new GBIFNameParser(parserTimeout));
+    bind(NameParser.class).toInstance(new NameParserGbifV1(parserTimeout));
   }
 }

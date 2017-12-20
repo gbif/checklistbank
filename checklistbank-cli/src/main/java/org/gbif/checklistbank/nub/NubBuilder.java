@@ -41,7 +41,7 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.collection.MapUtils;
@@ -112,7 +112,7 @@ public class NubBuilder implements Runnable {
     idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
     this.cfg = cfg;
-    this.parser = new GBIFNameParser(cfg.parserTimeout);
+    this.parser = new NameParserGbifV1(cfg.parserTimeout);
 
     Set<String> blacks;
     try {

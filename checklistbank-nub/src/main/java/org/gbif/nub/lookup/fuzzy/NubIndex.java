@@ -22,7 +22,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +38,9 @@ import java.util.UUID;
  * A read only lucene index keeping the core attributes of a nub name usage.
  * The index exposes matching methods that allow to select usages based on their nub key or do fuzzy matches
  * on the canonical name alone.
- *
+ * <p>
  * The index lies at the core of the nub matching service to preselect a list of potential good matches.
- *
+ * <p>
  * The index can either be purely memory based or on the filesystem using a memory mapped OS cache.
  * For the entire nub with roughly 4.5 million usages this index requires 4GB of heap memory if the RAMDirectory is used.
  * The memory mapped file index uses very little heap memory and instead all available memory should be given to the OS
@@ -53,6 +53,7 @@ public class NubIndex implements AutoCloseable {
    * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
    */
   private static final FieldType INT_FIELD_MAX_PRECISION = new FieldType();
+
   static {
     INT_FIELD_MAX_PRECISION.setTokenized(false);
     INT_FIELD_MAX_PRECISION.setOmitNorms(true);
@@ -69,26 +70,26 @@ public class NubIndex implements AutoCloseable {
   private static final String FIELD_RANK = "rank";
   private static final String FIELD_STATUS = "status";
   private static final Map<Rank, String> HIGHER_RANK_ID_FIELD_MAP = ImmutableMap.<Rank, String>builder()
-    .put(Rank.KINGDOM, "k")
-    .put(Rank.PHYLUM, "p")
-    .put(Rank.CLASS, "c")
-    .put(Rank.ORDER, "o")
-    .put(Rank.FAMILY, "f")
-    .put(Rank.GENUS, "g")
-    .put(Rank.SPECIES, "s")
-    .build();
+      .put(Rank.KINGDOM, "k")
+      .put(Rank.PHYLUM, "p")
+      .put(Rank.CLASS, "c")
+      .put(Rank.ORDER, "o")
+      .put(Rank.FAMILY, "f")
+      .put(Rank.GENUS, "g")
+      .put(Rank.SPECIES, "s")
+      .build();
   private static final Map<Rank, String> HIGHER_RANK_FIELD_MAP = ImmutableMap.<Rank, String>builder()
-    .put(Rank.KINGDOM, "kid")
-    .put(Rank.PHYLUM, "pid")
-    .put(Rank.CLASS, "cid")
-    .put(Rank.ORDER, "oid")
-    .put(Rank.FAMILY, "fid")
-    .put(Rank.GENUS, "gid")
-    .put(Rank.SPECIES, "sid")
-    .build();
+      .put(Rank.KINGDOM, "kid")
+      .put(Rank.PHYLUM, "pid")
+      .put(Rank.CLASS, "cid")
+      .put(Rank.ORDER, "oid")
+      .put(Rank.FAMILY, "fid")
+      .put(Rank.GENUS, "gid")
+      .put(Rank.SPECIES, "sid")
+      .build();
 
   private static final ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
-  private static final NameParser parser = new GBIFNameParser();
+  private static final NameParser parser = new NameParserGbifV1();
   private final Directory index;
   private final IndexSearcher searcher;
 
@@ -135,6 +136,7 @@ public class NubIndex implements AutoCloseable {
    * Creates a nub index for the backbone by loading it from the lucene index dir if it exists.
    * If it is not existing a new index directory will be built using the UsageService with given threads.
    * If the indexDir is null the index is never written to the filesytem but just kept in memory.
+   *
    * @param indexDir directory to use as the lucence index directory. If null the index is only kept in memory.
    */
   public static NubIndex newFileIndex(File indexDir, NameUsageMapper mapper, UUID nubDatasetKey) throws IOException {
@@ -157,7 +159,7 @@ public class NubIndex implements AutoCloseable {
 
   public NubIndex(Directory d) throws IOException {
     index = d;
-    DirectoryReader reader= DirectoryReader.open(index);
+    DirectoryReader reader = DirectoryReader.open(index);
     searcher = new IndexSearcher(reader);
   }
 
@@ -195,7 +197,6 @@ public class NubIndex implements AutoCloseable {
     if (analyzedName.length() < 2) {
       return Lists.newArrayList();
     }
-
 
     Term t = new Term(NubIndex.FIELD_CANONICAL_NAME, analyzedName);
     Query q;
@@ -262,7 +263,7 @@ public class NubIndex implements AutoCloseable {
     // higher ranks
     for (Rank r : HIGHER_RANK_FIELD_MAP.keySet()) {
       ClassificationUtils.setHigherRank(u, r, doc.get(HIGHER_RANK_FIELD_MAP.get(r)), toInteger(doc,
-        HIGHER_RANK_ID_FIELD_MAP.get(r)));
+          HIGHER_RANK_ID_FIELD_MAP.get(r)));
     }
 
     u.setRank(Rank.values()[toInt(doc, FIELD_RANK)]);
@@ -283,7 +284,7 @@ public class NubIndex implements AutoCloseable {
    * @param status any status incl null. Will be converted to just 3 accepted, synonym & doubtful
    */
   private static Document toDoc(int key, String sciname, TaxonomicStatus status, Rank rank,
-    LinneanClassification cl, LinneanClassificationKeys clKeys) {
+                                LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
     Optional<String> optCanonical = Optional.ofNullable(parser.parseToCanonical(sciname, rank));
@@ -293,14 +294,10 @@ public class NubIndex implements AutoCloseable {
     doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));
 
     // analyzed name field - this is what we search upon
-    if (canonical != null) {
-      doc.add(new TextField(FIELD_CANONICAL_NAME, canonical, Field.Store.YES));
-    }
+    doc.add(new TextField(FIELD_CANONICAL_NAME, canonical, Field.Store.YES));
 
     // store full name and classification only to return a full match object for hits
-    if (sciname != null) {
-      doc.add(new StoredField(FIELD_SCIENTIFIC_NAME, sciname));
-    }
+    doc.add(new StoredField(FIELD_SCIENTIFIC_NAME, sciname));
 
     // store ids as doc int values, not searchable
     if (clKeys != null) {
@@ -313,7 +310,7 @@ public class NubIndex implements AutoCloseable {
     }
 
     // store higher ranks, not searchable
-    if (cl!= null) {
+    if (cl != null) {
       for (Rank r : HIGHER_RANK_FIELD_MAP.keySet()) {
         String hr = cl.getHigherRank(r);
         if (hr != null) {
@@ -326,7 +323,7 @@ public class NubIndex implements AutoCloseable {
     // this lucene index is not persistent, so not risk in changing ordinal numbers
     doc.add(new StoredField(FIELD_RANK, rank == null ? Rank.UNRANKED.ordinal() : rank.ordinal()));
 
-    // allow only 3 values for status, accepted, doubtful and synonym
+    // allow only 3 values for status: accepted, doubtful and synonym
     if (status == null) {
       status = TaxonomicStatus.DOUBTFUL;
     } else if (status.isSynonym()) {
@@ -344,7 +341,7 @@ public class NubIndex implements AutoCloseable {
 
   private static Integer toInteger(Document doc, String field) {
     IndexableField f = doc.getField(field);
-    if ( f != null) {
+    if (f != null) {
       return (Integer) f.numericValue();
     }
     return null;

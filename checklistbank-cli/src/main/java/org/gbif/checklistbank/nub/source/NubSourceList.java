@@ -1,24 +1,19 @@
 package org.gbif.checklistbank.nub.source;
 
+import com.google.common.collect.Lists;
 import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.FutureIterator;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.*;
+
 /**
- * Base class for nub source lists that deals with the iteratore and async loading of sources.
+ * Base class for nub source lists that deals with the iterators and async loading of sources.
  */
 public class NubSourceList implements CloseableIterable<NubSource> {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);

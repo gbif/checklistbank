@@ -14,7 +14,7 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.RankUtils;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class NubDbTest {
-  final NameParser parser = new GBIFNameParser();
+  final NameParser parser = new NameParserGbifV1();
   private long counter = 1;
 
   @Test

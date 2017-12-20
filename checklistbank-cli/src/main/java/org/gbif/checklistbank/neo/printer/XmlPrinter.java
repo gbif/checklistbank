@@ -4,7 +4,7 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -28,7 +28,7 @@ public class XmlPrinter implements TreePrinter {
 
   public XmlPrinter(Writer writer) {
     this.writer = writer;
-    parser = new GBIFNameParser(250);
+    parser = new NameParserGbifV1(250);
   }
 
   @Override

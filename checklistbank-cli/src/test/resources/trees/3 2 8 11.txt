@@ -45,14 +45,14 @@ Plantae
       Fabaceae
       Malvaceae
         Pentapetes Linnaeus, 1753
-          *Blattaria O. Kuntze, 1891
+          *Blattaria O.Kuntze, 1891
       Poaceae
         Trichoneura
           Trichoneura ciliata (Peter) S.M.Phillips
             *$Leptochloa ciliata Peter
             *Trichoneura hirtella Napper
       Scrophulariaceae
-        Blattaria P. Miller, 1754
+        Blattaria P.Miller, 1754
     Blechnaceae
     Polipodiaceae
     Pteridaceae
@@ -64,20 +64,20 @@ Plantae
         Adiantum hispidulum Sw.
           *Adiantum pedatum Forst.
         $Adiantum myriosorum Bak.
-          *Adiantum pedatum var. glaucinum H. Christ
-          *Adiantum pedatum var. myriosorum (Bak.) H. Christ
-          *Adiantum pedatum var. protrusum H. Christ
+          *Adiantum pedatum var. glaucinum H.Christ
+          *Adiantum pedatum var. myriosorum (Bak.) H.Christ
+          *Adiantum pedatum var. protrusum H.Christ
         Adiantum patens
           Adiantum patens subsp. oatesii (Bak.) Schelpe
-            *Adiantum pedatum A. Peter
+            *Adiantum pedatum A.Peter
           Adiantum patens subsp. patens
         Adiantum pedatum
           Adiantum pedatum subsp. calderi Cody
           Adiantum pedatum subsp. pedatum
-            *Adiantum pedatum var. glaucinum C. Chr.
+            *Adiantum pedatum var. glaucinum C.Chr.
             *Adiantum pedatum var. kamtschaticum Rupr.
-          Adiantum pedatum subsp. subpumilum (W. H. Wagner) Lellinger
-            *$Adiantum pedatum var. subpumilum W. H. Wagner
+          Adiantum pedatum subsp. subpumilum (W.H.Wagner) Lellinger
+            *$Adiantum pedatum var. subpumilum W.H.Wagner
   Oenanthe Linnaeus, 1753
 Protozoa
 Viruses

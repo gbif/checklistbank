@@ -19,14 +19,14 @@ Plantae
           *Lupinus jonesii Blank.
           *Lupinus bakeri subsp. amplus (Greene) L.S.Fleak & D.B.Dunn
           *Lupinus sericeus subsp. marianus (Rydb.) L.S.Fleak & D.B.Dunn
-          *Lupinus sericeus var. marianus (Rydb.) S.L. Welsh
+          *Lupinus sericeus var. marianus (Rydb.) S.L.Welsh
           *Lupinus sericeus var. sericeus
         Lupinus sericeus var. barbiger (S.Watson) S.L.Welsh
           *$Lupinus barbiger S.Watson
         Lupinus sericeus var. jonesii (Rydb.) S.L.Welsh ex Isely
           *Lupinus sericeus var. jonesii (Rydb.) S.L.Welsh
-        Lupinus sericeus var. maximus C.P. Sm. ex Fleak & D.B. Dunn
-          *Lupinus sericeus var. maximus C.P. Sm.
+        Lupinus sericeus var. maximus C.P.Sm. ex Fleak & D.B.Dunn
+          *Lupinus sericeus var. maximus C.P.Sm.
         Lupinus sericeus f. leucanthus B.Boivin
         Lupinus sericeus f. sericeus
       Lupinus sericeus Torr. & A.Gray

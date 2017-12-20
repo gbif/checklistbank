@@ -49,7 +49,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
     IdLookup lookup = IdLookupImpl.temp().load(cfg.clb, false);
-    matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService, publisher);
+    matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService);
   }
 
   @Override
@@ -63,9 +63,10 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
     try {
       LOG.info("Start matching dataset {}", msg.getDatasetUuid());
       matcher.matchDataset(msg.getDatasetUuid());
-      // now also request new metrics from the analysis step
-      send(new ChecklistSyncedMessage(msg.getDatasetUuid(), new Date(), 0, 0));
       LOG.info("Dataset {} matched sucessfully", msg.getDatasetUuid());
+      // now also request new metrics from the analysis step
+      //ChecklistSyncedMessage triggers a new dataset analysis
+      send(new ChecklistSyncedMessage(msg.getDatasetUuid(), new Date(), 0, 0));
 
     } catch (DatasetMatchFailed e) {
       LOG.error("Dataset matching failed for {}", msg.getDatasetUuid(), e);

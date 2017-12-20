@@ -1,29 +1,27 @@
 package org.gbif.checklistbank.authorship;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Another autho comparator test that runs over files of names taken from the real GBIF backbone.
@@ -31,35 +29,48 @@ import static org.junit.Assert.fail;
  * See http://dev.gbif.org/issues/browse/POR-398 for more.
  */
 public class BasionymSorterTest {
-  private final NameParser parser = new GBIFNameParser();
+  private final NameParser parser = new NameParserGbifV1();
   private final BasionymSorter sorter = new BasionymSorter();
+
+  private List<ParsedName> names(String... names) throws Exception {
+    return Arrays.stream(names)
+        .map(n -> {
+          try {
+            return parser.parse(n);
+          } catch (UnparsableException e) {
+            Throwables.propagate(e);
+          }
+          return null;
+        })
+        .collect(Collectors.toList());
+  }
 
   @Test
   public void testGroupPlantBasionyms() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Gymnolomia microcephala var. abbreviata (B.L.Rob. & Greenm.) B.L.Rob. & Greenm.", null));
-    names.add(parser.parse("Leucheria abbreviata (Bertero) Steud.", null));
-    names.add(parser.parse("Centaurea phrygia subsp. abbreviata (K. Koch) Dostál", null));
-    names.add(parser.parse("Centaurea abbreviata (K.Koch) Hand.-Mazz.", null));
-    names.add(parser.parse("Jacea abbreviata (K.Koch) Soják", null));
-    names.add(parser.parse("Artemisia abbreviata (Krasch. ex Korobkov) Krasnob.", null));
-    names.add(parser.parse("Artemisia lagopus subsp. abbreviata Krasch. ex Korobkov", null));
-    names.add(parser.parse("Bigelowia leiosperma var. abbreviata M.E.Jones", null));
-    names.add(parser.parse("Brickellia oblongifolia var. abbreviata A.Gray", null));
-    names.add(parser.parse("Calea abbreviata Pruski & Urbatsch", null));
-    names.add(parser.parse("Centaurea salicifolia subsp. abbreviata K. Koch", null));
-    names.add(parser.parse("Chabraea abbreviata Colla ex Bertero", null));
-    names.add(parser.parse("Chaetanthera stuebelii Hieron. var. abbreviata Cabrera", null));
-    names.add(parser.parse("Conyza abbreviata Wall.", null));
-    names.add(parser.parse("Cousinia abbreviata Tscherneva", null));
-    names.add(parser.parse("Gymnolomia patens var. abbreviata B.L.Rob. & Greenm.", null));
-    names.add(parser.parse("Gynura abbreviata F.G.Davies", null));
-    names.add(parser.parse("Jacea abbreviata subsp. abbreviata", null));
-    names.add(parser.parse("Nassauvia abbreviata Dusén", null));
-    names.add(parser.parse("Nassauvia abbreviata var. abbreviata", null));
-    names.add(parser.parse("Scorzonera latifolia var. abbreviata Lipsch.", null));
-    names.add(parser.parse("Vernonia abbreviata DC.", null));
+    List<ParsedName> names = names(
+        "Gymnolomia microcephala var. abbreviata (B.L.Rob. & Greenm.) B.L.Rob. & Greenm.",
+        "Leucheria abbreviata (Bertero) Steud.",
+        "Centaurea phrygia subsp. abbreviata (K. Koch) Dostál",
+        "Centaurea abbreviata (K.Koch) Hand.-Mazz.",
+        "Jacea abbreviata (K.Koch) Soják",
+        "Artemisia abbreviata (Krasch. ex Korobkov) Krasnob.",
+        "Artemisia lagopus subsp. abbreviata Krasch. ex Korobkov",
+        "Bigelowia leiosperma var. abbreviata M.E.Jones",
+        "Brickellia oblongifolia var. abbreviata A.Gray",
+        "Calea abbreviata Pruski & Urbatsch",
+        "Centaurea salicifolia subsp. abbreviata K. Koch",
+        "Chabraea abbreviata Colla ex Bertero",
+        "Chaetanthera stuebelii Hieron. var. abbreviata Cabrera",
+        "Conyza abbreviata Wall.",
+        "Cousinia abbreviata Tscherneva",
+        "Gymnolomia patens var. abbreviata B.L.Rob. & Greenm.",
+        "Gynura abbreviata F.G.Davies",
+        "Jacea abbreviata subsp. abbreviata",
+        "Nassauvia abbreviata Dusén",
+        "Nassauvia abbreviata var. abbreviata",
+        "Scorzonera latifolia var. abbreviata Lipsch.",
+        "Vernonia abbreviata DC."
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(4, groups.size());
@@ -74,7 +85,7 @@ public class BasionymSorterTest {
           assertEquals(1, g.getRecombinations().size());
           assertNotNull(g.getBasionym());
           break;
-        case "K. Koch":
+        case "K.Koch":
           assertEquals(3, g.getRecombinations().size());
           assertNotNull(g.getBasionym());
           break;
@@ -96,29 +107,29 @@ public class BasionymSorterTest {
    */
   @Test
   public void testGroupPlantBasionyms2() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Triniteurybia aberrans (A. Nelson) Brouillet, Urbatsch & R.P. Roberts", null));
-    names.add(parser.parse("Haplopappus aberrans (A.Nelson) H.M.Hall", null));
-    names.add(parser.parse("Sideranthus aberrans (A.Nelson) Rydb.", null));
-    names.add(parser.parse("Tonestus aberrans (A.Nelson) G.L.Nesom & D.R.Morgan", null));
-    names.add(parser.parse("Hysterionica aberrans (Cabrera) Cabrera", null));
-    names.add(parser.parse("Antennaria luzuloides ssp. aberrans (E.E. Nelson) Bayer & Stebbins", null));
-    names.add(parser.parse("Logfia aberrans (Wagenitz) Anderb.", null));
-    names.add(parser.parse("Antennaria argentea subsp. aberrans", null));
-    names.add(parser.parse("Filago aberrans Wagenitz", null));
-    names.add(parser.parse("Hysterionica aberrans var. aberrans", null));
-    names.add(parser.parse("Hysterionica bakeri var. aberrans Cabrera", null));
-    names.add(parser.parse("Macronema aberrans A.Nelson", null));
-    names.add(parser.parse("Senecio aberrans Greenm.", null));
-    names.add(parser.parse("Taraxacum aberrans Hagend. & al.", null));
+    List<ParsedName> names = names(
+        "Triniteurybia aberrans (A. Nelson) Brouillet, Urbatsch & R.P. Roberts",
+        "Haplopappus aberrans (A.Nelson) H.M.Hall",
+        "Sideranthus aberrans (A.Nelson) Rydb.",
+        "Tonestus aberrans (A.Nelson) G.L.Nesom & D.R.Morgan",
+        "Hysterionica aberrans (Cabrera) Cabrera",
+        "Antennaria luzuloides ssp. aberrans (E.E. Nelson) Bayer & Stebbins",
+        "Logfia aberrans (Wagenitz) Anderb.",
+        "Antennaria argentea subsp. aberrans",
+        "Filago aberrans Wagenitz",
+        "Hysterionica aberrans var. aberrans",
+        "Hysterionica bakeri var. aberrans Cabrera",
+        "Macronema aberrans A.Nelson",
+        "Senecio aberrans Greenm.",
+        "Taraxacum aberrans Hagend. & al."
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(4, groups.size());
     for (BasionymGroup<ParsedName> g : groups) {
       assertFalse(g.getRecombinations().isEmpty());
       switch (g.getRecombinations().get(0).getBracketAuthorship()) {
-        case "A. Nelson":
+        case "A.Nelson":
           assertEquals(4, g.getRecombinations().size());
           assertNotNull(g.getBasionym());
           break;
@@ -126,7 +137,7 @@ public class BasionymSorterTest {
           assertEquals(1, g.getRecombinations().size());
           assertNotNull(g.getBasionym());
           break;
-        case "E.E. Nelson":
+        case "E.E.Nelson":
           assertEquals(1, g.getRecombinations().size());
           assertNull(g.getBasionym());
           break;
@@ -142,17 +153,17 @@ public class BasionymSorterTest {
 
   @Test
   public void testGroupPlantBasionyms3() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
+    List<ParsedName> names = names(
+        "Negundo aceroides subsp. violaceus (G.Kirchn.) W.A.Weber",
+        "Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber",
 
-    names.add( parser.parse("Negundo aceroides subsp. violaceus (G.Kirchn.) W.A.Weber", null) );
-    names.add( parser.parse("Negundo aceroides subsp. violaceus (Kirchner) W.A. Weber", null) );
+        "Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub",
+        "Negundo aceroides subsp. violaceum (Booth ex Kirchner) Holub",
 
-    names.add(parser.parse("Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub", null));
-    names.add(parser.parse("Negundo aceroides subsp. violaceum (Booth ex Kirchner) Holub", null));
-
-    names.add(parser.parse("Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.", null));
-    names.add(parser.parse("Acer violaceum (Kirchner) Simonkai", null));
-    names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
+        "Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.",
+        "Acer violaceum (Kirchner) Simonkai",
+        "Acer negundo var. violaceum (G. Kirchn.) H. Jaeger"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(1, groups.size());
@@ -160,19 +171,19 @@ public class BasionymSorterTest {
     assertFalse(g.getRecombinations().isEmpty());
     assertEquals(6, g.getRecombinations().size());
     assertNotNull(g.getBasionym());
-    assertEquals("G.Kirchn. in Petzold & G.Kirchn.", g.getBasionym().authorshipComplete());
+    assertEquals("G.Kirchn.", g.getBasionym().authorshipComplete());
   }
 
   @Test
   public void testGroupWithDifferentInitials() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
+    List<ParsedName> names = names(
+        "Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub",
+        "Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub",
 
-    names.add(parser.parse("Negundo aceroides subsp. violaceum (Booth ex G.Kirchn.) Holub", null));
-    names.add(parser.parse("Negundo aceroides subsp. violaceum (Booth ex Kirchn.) Holub", null));
-
-    names.add(parser.parse("Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.", null));
-    names.add(parser.parse("Acer violaceum (T.Kirchn.) Simonkai", null));
-    names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
+        "Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.",
+        "Acer violaceum (T.Kirchn.) Simonkai",
+        "Acer negundo var. violaceum (G. Kirchn.) H. Jaeger"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(3, groups.size());
@@ -201,11 +212,11 @@ public class BasionymSorterTest {
 
   @Test
   public void testGroupAuthorTeams() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.", null));
-    names.add(parser.parse("Acer negundo var. californicum (Torr. & Gray) Sarg.", null));
-    names.add(parser.parse("Acer californicum Torr et Gray", null));
+    List<ParsedName> names = names(
+        "Negundo aceroides var. californicum (Torr. & A.Gray) Sarg.",
+        "Acer negundo var. californicum (Torr. & Gray) Sarg.",
+        "Acer californicum Torr et Gray"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(1, groups.size());
@@ -248,12 +259,12 @@ public class BasionymSorterTest {
    */
   @Test
   public void testMultipleBasionyms() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Negundo violaceum G.Kirchn.", null));
-    names.add(parser.parse("Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.", null));
-    names.add(parser.parse("Acer violaceum (G Kirchn.) Simonkai", null));
-    names.add(parser.parse("Acer negundo var. violaceum (G. Kirchn.) H. Jaeger", null));
+    List<ParsedName> names = names(
+        "Negundo violaceum G.Kirchn.",
+        "Negundo aceroides var. violaceum G.Kirchn. in Petzold & G.Kirchn.",
+        "Acer violaceum (G Kirchn.) Simonkai",
+        "Acer negundo var. violaceum (G. Kirchn.) H. Jaeger"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertTrue(groups.isEmpty());
@@ -261,30 +272,30 @@ public class BasionymSorterTest {
 
   @Test
   public void testGroupAnimalBasionyms() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Microtus parvulus (A. H. Howell, 1916)", null));
-    names.add(parser.parse("Microtus pinetorum parvulus (A. H. Howell, 1916)", null));
-    names.add(parser.parse("Pitymys parvulus A. H. Howell, 1916", null));
+    List<ParsedName> names = names(
+        "Microtus parvulus (A. H. Howell, 1916)",
+        "Microtus pinetorum parvulus (A. H. Howell, 1916)",
+        "Pitymys parvulus A. H. Howell, 1916"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(1, groups.size());
     BasionymGroup<ParsedName> g = groups.iterator().next();
     assertEquals(2, g.getRecombinations().size());
     assertNotNull(g.getBasionym());
-    assertEquals("A. H. Howell", g.getBasionym().getAuthorship());
+    assertEquals("A.H.Howell", g.getBasionym().getAuthorship());
     assertEquals("1916", g.getBasionym().getYear());
   }
 
   @Test
   public void testGroupAnimalBasionyms2() throws Exception {
-    List<ParsedName> names = Lists.newArrayList();
-
-    names.add(parser.parse("Heliodoxa rubinoides aequatorialis (Gould, 1860)", null));
-    names.add(parser.parse("Androdon aequatorialis Gould, 1863", null));
-    names.add(parser.parse("Clementoron aequatorialis Gould, 1864", null));
-    // this one is 1 year apart so it matches the first recombination on top!
-    names.add(parser.parse("Campylopterus largipennis aequatorialis Gould, 1861", null));
+    List<ParsedName> names = names(
+        "Heliodoxa rubinoides aequatorialis (Gould, 1860)",
+        "Androdon aequatorialis Gould, 1863",
+        "Clementoron aequatorialis Gould, 1864",
+        // this one is 1 year apart so it matches the first recombination on top!
+        "Campylopterus largipennis aequatorialis Gould, 1861"
+    );
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     // multiple basionyms, no clear group!
@@ -297,6 +308,7 @@ public class BasionymSorterTest {
   }
 
   @Test
+  @Ignore("this takes ages to run and does not test anything specific")
   /**
    * create test files from current nub with this SQL:
    * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5386 order by 1,2) to 'fabaceae.txt'
@@ -314,7 +326,7 @@ public class BasionymSorterTest {
   }
 
   private void assertInRage(int min, int max, String filename) throws Exception {
-    int count = testGroupBasionymFile("names/"+filename);
+    int count = testGroupBasionymFile("names/" + filename);
     assertTrue(filename + " with too little basionym groups", min <= count);
     assertTrue(filename + " with too many basionym groups", max >= count);
   }

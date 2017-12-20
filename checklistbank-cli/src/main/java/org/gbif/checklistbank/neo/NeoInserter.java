@@ -33,7 +33,7 @@ import org.gbif.dwca.io.Archive;
 import org.gbif.dwca.io.ArchiveFactory;
 import org.gbif.dwca.record.Record;
 import org.gbif.dwca.record.StarRecord;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.ObjectUtils;
 import org.neo4j.kernel.api.exceptions.index.IndexEntryConflictException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
@@ -61,7 +61,7 @@ public class NeoInserter implements AutoCloseable {
 
     private Archive arch;
     private Map<String, UUID> constituents;
-    private NameParser nameParser = new GBIFNameParser();
+    private NameParser nameParser = new NameParserGbifV1();
     private RankParser rankParser = RankParser.getInstance();
     private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
     private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();

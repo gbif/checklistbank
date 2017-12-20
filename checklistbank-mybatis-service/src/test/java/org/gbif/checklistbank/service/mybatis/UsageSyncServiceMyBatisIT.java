@@ -1,46 +1,26 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.gbif.api.exception.UnparsableException;
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.vocabulary.CitesAppendix;
-import org.gbif.api.vocabulary.Country;
-import org.gbif.api.vocabulary.Language;
-import org.gbif.api.vocabulary.LifeStage;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.OccurrenceStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.junit.Before;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -54,7 +34,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     super(UsageSyncService.class);
   }
 
-  private static final NameParser PARSER = new GBIFNameParser();
+  private static final NameParser PARSER = new NameParserGbifV1();
   NameUsageService uService;
 
   @Before
@@ -93,7 +73,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     u.setModified(new Date());
     u.getNomenclaturalStatus().add(NomenclaturalStatus.CONSERVED);
     u.getNomenclaturalStatus().add(NomenclaturalStatus.DOUBTFUL);
-    u.setRank(Rank.SUBSPECIES);
+    u.setRank(Rank.SPECIES);
     u.setRemarks("neat neat neat");
     u.setTaxonomicStatus(TaxonomicStatus.DOUBTFUL);
     u.setSourceTaxonKey(674321);

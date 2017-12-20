@@ -1,9 +1,16 @@
 package org.gbif.nub.lookup;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.PrivateModule;
+import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
@@ -12,22 +19,14 @@ import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.nub.lookup.straight.LookupUsageMatch;
 import org.gbif.utils.file.InputStreamUtils;
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.PrivateModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Guice module setting up all dependencies to expose the NubMatching service.
@@ -66,7 +65,7 @@ public class NubMatchingTestModule extends PrivateModule {
   @Provides
   @Singleton
   public NameParser provideParser() {
-    NameParser parser = new GBIFNameParser();
+    NameParser parser = new NameParserGbifV1();
     return parser;
   }
 
@@ -82,9 +81,9 @@ public class NubMatchingTestModule extends PrivateModule {
     ObjectMapper mapper = new ObjectMapper();
     mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-    int id = 0;
+    int id = 1;
     while (id < 275) {
-      String file = "index/nub"+id+".json";
+      String file = "index/nub" + id + ".json";
       InputStream json = isu.classpathStream(file);
       if (json != null) {
         try {

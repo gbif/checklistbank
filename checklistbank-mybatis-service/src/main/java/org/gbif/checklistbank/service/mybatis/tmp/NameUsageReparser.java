@@ -7,7 +7,7 @@ import org.gbif.checklistbank.model.ScientificName;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.concurrent.ExecutorUtils;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
 
-  private final NameParser parser = new GBIFNameParser();
+  private final NameParser parser = new NameParserGbifV1();
   private final ExecutorService exec;
   private final NameUsageMapper usageMapper;
   private final ParsedNameMapper nameMapper;

@@ -18,12 +18,12 @@ id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specif
 100964	Echinosciurus Trouessart, 1880	Echinosciurus	SCIENTIFIC	Echinosciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.254597
 100966	Histriosciurus J. A. Allen, 1915	Histriosciurus	SCIENTIFIC	Histriosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.265981
 100968	Leptosciurus J. A. Allen, 1915	Leptosciurus	SCIENTIFIC	Leptosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.27414
-100970	Macroxus F. Cuvier, 1823	Macroxus	SCIENTIFIC	Macroxus	\N	\N	\N	\N	\N	GENUS	t	F. Cuvier	1823	1823	\N	\N	\N	\N	\N	2011-10-10 15:15:31.281678
-100972	Mesosciurus J. A. Allen, 1915	Mesosciurus	SCIENTIFIC	Mesosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.289689
+100970	Macroxus F. Cuvier, 1823	Macroxus	SCIENTIFIC	Macroxus	\N	\N	\N	\N	\N	GENUS	t	F.Cuvier	1823	1823	\N	\N	\N	\N	\N	2011-10-10 15:15:31.281678
+100972	Mesosciurus J. A. Allen, 1915	Mesosciurus	SCIENTIFIC	Mesosciurus	\N	\N	\N	\N	\N	GENUS	t	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.289689
 100974	Neosciurus Trouessart, 1880	Neosciurus	SCIENTIFIC	Neosciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.297676
 100976	Oreosciurus Ognev, 1935	Oreosciurus	SCIENTIFIC	Oreosciurus	\N	\N	\N	\N	\N	GENUS	t	Ognev	1935	1935	\N	\N	\N	\N	\N	2011-10-10 15:15:31.305643
 100978	Parasciurus Trouessart, 1880	Parasciurus	SCIENTIFIC	Parasciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.313216
-100980	Simosciurus J. A. Allen, 1915	Simosciurus	SCIENTIFIC	Simosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.322179
+100980	Simosciurus J. A. Allen, 1915	Simosciurus	SCIENTIFIC	Simosciurus	\N	\N	\N	\N	\N	GENUS	t	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.322179
 100982	Sciurus vulgaris Linnaeus, 1758	Sciurus vulgaris	SCIENTIFIC	Sciurus	\N	vulgaris	\N	\N	\N	SPECIES	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.335289
 100984	Sciurus fuscorubens Dwigubski, 1804	Sciurus fuscorubens	SCIENTIFIC	Sciurus	\N	fuscorubens	\N	\N	\N	SPECIES	t	Dwigubski	1804	1804	\N	\N	\N	\N	\N	2011-10-10 15:15:31.389444
 100986	Sciurus nadymensis Serebrennikov, 1928	Sciurus nadymensis	SCIENTIFIC	Sciurus	\N	nadymensis	\N	\N	\N	SPECIES	t	Serebrennikov	1928	1928	\N	\N	\N	\N	\N	2011-10-10 15:15:31.397892

@@ -7,7 +7,7 @@ Plantae
   Asteraceae
   Fabaceae
     Albi
-      Albi minki W. Wight
+      Albi minki W.Wight
       Albi tomentosa (Micheli) Standl.
         *$? tomentosa Micheli
         *Albizia tomentosa (Micheli) Standl.

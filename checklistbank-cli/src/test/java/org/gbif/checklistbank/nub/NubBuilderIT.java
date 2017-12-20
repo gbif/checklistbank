@@ -18,7 +18,7 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.*;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
@@ -45,9 +45,9 @@ import static org.junit.Assert.*;
 public class NubBuilderIT {
   private UsageDao dao;
   private Transaction tx;
-  private static final NameParser PARSER = new GBIFNameParser();
+  private static final NameParser PARSER = new NameParserGbifV1();
 
-  private static void log(String msg, Object ... args) {
+  private static void log(String msg, Object... args) {
     System.out.println(String.format(msg, args));
   }
 
@@ -318,7 +318,7 @@ public class NubBuilderIT {
   /**
    * Verifies that the backbone patch file in github is in good shape!
    * https://github.com/gbif/backbone-patch
-   *
+   * <p>
    * WARNING! requires online access and working github !!!
    */
   @Test
@@ -356,8 +356,8 @@ public class NubBuilderIT {
     int t1p = parentOrAccepted(getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).node).usageKey;
     int t2p = parentOrAccepted(getScientific("Trichoneura hirtella Napper", Rank.SPECIES).node).usageKey;
 
-    int b1 = getScientific("Blattaria P. Miller, 1754", Rank.GENUS).usageKey;
-    int b2 = getScientific("Blattaria O. Kuntze, 1891", Rank.GENUS).usageKey;
+    int b1 = getScientific("Blattaria P.Miller, 1754", Rank.GENUS).usageKey;
+    int b2 = getScientific("Blattaria O.Kuntze, 1891", Rank.GENUS).usageKey;
     int b3 = getScientific("Blattaria Voet, 1806", Rank.GENUS).usageKey;
     int b4 = getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey;
 
@@ -384,8 +384,8 @@ public class NubBuilderIT {
     assertEquals(t1p, parentOrAccepted(getScientific("Trichoneura bontocensis Alexander, 1934", Rank.SPECIES).node).usageKey);
     assertEquals(t2p, parentOrAccepted(getScientific("Trichoneura hirtella Napper", Rank.SPECIES).node).usageKey);
 
-    assertEquals(b1, getScientific("Blattaria P. Miller, 1754", Rank.GENUS).usageKey);
-    assertEquals(b2, getScientific("Blattaria O. Kuntze, 1891", Rank.GENUS).usageKey);
+    assertEquals(b1, getScientific("Blattaria P.Miller, 1754", Rank.GENUS).usageKey);
+    assertEquals(b2, getScientific("Blattaria O.Kuntze, 1891", Rank.GENUS).usageKey);
     assertEquals(b3, getScientific("Blattaria Voet, 1806", Rank.GENUS).usageKey);
     assertEquals(b4, getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey);
   }
@@ -544,7 +544,7 @@ public class NubBuilderIT {
           assertEquals("Adiantum hispidulum Sw.", p.parsedName.getScientificName());
           assertEquals((Integer) 104, nu.getSourceTaxonKey());
           break;
-        case "Adiantum pedatum A. Peter":
+        case "Adiantum pedatum A.Peter":
           assertTrue(u.status.isSynonym());
           assertFalse(p.status.isSynonym());
           assertEquals("Adiantum patens subsp. oatesii (Bak.) Schelpe", p.parsedName.getScientificName());
@@ -668,7 +668,7 @@ public class NubBuilderIT {
     assertCanonical("Adiantum capillus-veneris", "L.", null, Rank.SPECIES, Origin.SOURCE);
     assertCanonical("Asplenium adiantum-nigrum", "", null, Rank.SPECIES, Origin.IMPLICIT_NAME);
     assertCanonical("Asplenium adiantum-nigrum yuanum", "(Ching) Viane, Rasbach, Reichstein & Schneller", null, Rank.SUBSPECIES, Origin.SOURCE);
-    assertCanonical("Adiantum moranii", "J. Prado", NamePart.SPECIFIC, Rank.SPECIES, Origin.SOURCE);
+    assertCanonical("Adiantum moranii", "J.Prado", NamePart.SPECIFIC, Rank.SPECIES, Origin.SOURCE);
 
     assertNull(getCanonical("Asplenium adiantum nigrum × septentrionale", Rank.SPECIES));
   }
@@ -696,7 +696,7 @@ public class NubBuilderIT {
     }
     assertEquals(3, counter);
 
-    assertScientific("Abies pindrow (Royle ex D. Don) Royle", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Abies pindrow (Royle ex D.Don) Royle", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertScientific("Abies pindrow Spach", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertScientific("Abies taxifolia C.Presl", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -742,7 +742,7 @@ public class NubBuilderIT {
     NubUsage genus = assertCanonical("Albizia", "", null, Rank.GENUS, Origin.IMPLICIT_NAME, TaxonomicStatus.ACCEPTED, fab);
     NubUsage adianthifolia = assertCanonical("Albizia adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
 
-    assertCanonical("Albi minki", "W. Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+    assertCanonical("Albi minki", "W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
     // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful as sources suggest)
@@ -923,9 +923,10 @@ public class NubBuilderIT {
   /**
    * Nub builds seem to have trouble if the given rank and the name parsed rank differ.
    * Make sure higher taxonomy does not suffer from that.
-   *
+   * <p>
    * order Echiuroidea with family Ikedidae [family]
    * Araneae
+   *
    * @throws Exception
    */
   @Test
@@ -1052,7 +1053,7 @@ public class NubBuilderIT {
   /**
    * Neotetrastichodes flavus is a synonym of Aprostocetus rieki, but also the basionym of Aprostocetus flavus.
    * Expect the basionym to be a synonym of Aprostocetus flavus.
-   *
+   * <p>
    * Leave other accepted species as it was - we could consider to merge them all into a single accepted name...
    */
   @Test
@@ -1071,7 +1072,7 @@ public class NubBuilderIT {
   private void runShell() throws InterruptedException {
     System.out.println("run shell forever ...");
 
-    while(true) {
+    while (true) {
       Thread.sleep(1000);
     }
   }
@@ -1178,9 +1179,8 @@ public class NubBuilderIT {
    * 56=CoL
    * 57=IRMNG
    * 58=IF
-   *
+   * <p>
    * Parmelia tiliacea is created as an implicit name because IRMNG uses "Parmelia tiliacea sensu auct. brit.p.p." which gets ignored as a concept name
-   *
    */
   @Test
   public void testColIfAutonym() throws Exception {
@@ -1194,7 +1194,6 @@ public class NubBuilderIT {
   /**
    * Test nexted infraspecific source taxa.
    * In the nub we do not want nested infraspecific taxa, but attach all accepted infraspecific names to the species directly
-   *
    */
   @Test
   public void testInfraspecificTrees() throws Exception {
@@ -1228,7 +1227,7 @@ public class NubBuilderIT {
   /**
    * Make sure names coming in from sources without a kingdom or classification still contains to existing names in a proper kingdom
    * E.g. Toxostoma rufum in PalaeoDB has no classification and "should" be merged with existing animal Toxostoma rufum (Linnaeus, 1758)
-   *
+   * <p>
    * Examples here use Parmelina quercina for tests
    */
   @Test
@@ -1308,7 +1307,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testCardinalis() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(70,71,72,73,74,75,76);
+    ClasspathSourceList src = ClasspathSourceList.source(70, 71, 72, 73, 74, 75, 76);
     src.setNomenclator(76);
     build(src);
 
@@ -1349,7 +1348,7 @@ public class NubBuilderIT {
     create(5230886, Rank.SUBSPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis clintoni (Banks, 1963)");
 
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(70,71,72,73,74,75,76);
+    ClasspathSourceList src = ClasspathSourceList.source(70, 71, 72, 73, 74, 75, 76);
     src.setNomenclator(76);
     rebuild(src);
 
@@ -1370,7 +1369,7 @@ public class NubBuilderIT {
   @Test
   public void testNameDuplication() throws Exception {
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(82,83,84,85);
+    ClasspathSourceList src = ClasspathSourceList.source(82, 83, 84, 85);
     src.setSourceRank(82, Rank.KINGDOM);
     build(src);
 
@@ -1381,14 +1380,14 @@ public class NubBuilderIT {
    * http://dev.gbif.org/issues/browse/POR-3069
    * Austrorhynchus pectatus pectatus f. Sporn looks already wrong in WoRMS but even worse in GBIF as: Austrorhynchus pectatus null pectatus
    * http://www.marinespecies.org/aphia.php?p=taxdetails&id=154959
-   *
+   * <p>
    * 86=WoRMS
    * 87=TAXREF
    */
   @Test
   public void testNullNames() throws Exception {
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(86,87);
+    ClasspathSourceList src = ClasspathSourceList.source(86, 87);
     build(src);
 
     assertTree("86 87.txt");
@@ -1397,14 +1396,14 @@ public class NubBuilderIT {
 
   /**
    * http://dev.gbif.org/issues/browse/POR-3070
-   *
+   * <p>
    * 88=CoL
    * 89=Orthoptera SPecies File
    * 90=IRMNG
    */
   @Test
   public void testRedundantHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(88,89,90);
+    ClasspathSourceList src = ClasspathSourceList.source(88, 89, 90);
     src.setSourceRank(88, Rank.KINGDOM);
     build(src);
 
@@ -1413,7 +1412,7 @@ public class NubBuilderIT {
 
   /**
    * http://dev.gbif.org/issues/browse/POR-3169
-   *
+   * <p>
    * 104=Palaeodb
    */
   @Test
@@ -1440,7 +1439,7 @@ public class NubBuilderIT {
    * Only one of these 2 should exist, preferrably the Camel-Case
    * Drake-brockmania
    * Drake-Brockmania
-   *
+   * <p>
    * This should be allowed to also exist but always as a synonym of the above!
    * Drakebrockmania
    */
@@ -1545,9 +1544,10 @@ public class NubBuilderIT {
     assertTree("122.txt");
   }
 
-   /**
+  /**
    * 120 = COL
    * 121 = WORMS
+   *
    * @throws Exception
    */
   @Test
@@ -1631,10 +1631,10 @@ public class NubBuilderIT {
    */
   private static Iterable<LookupUsage> allNodes(final UsageDao dao) {
     return () -> StreamUtils.stream(dao.allTaxa())
-            .map(n -> {
-              NubUsage u = dao.readNub(n);
-              return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
-            }).iterator();
+        .map(n -> {
+          NubUsage u = dao.readNub(n);
+          return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
+        }).iterator();
   }
 
   private void assertClassification(NubUsage nub, String... parentNames) {
@@ -1842,7 +1842,7 @@ public class NubBuilderIT {
     private Iterator<NubNode> treeIter;
 
     public TreeAsserter(NubTree tree) {
-      this.treeIter = tree.iterator();
+      treeIter = tree.iterator();
     }
 
     @Override
@@ -1850,7 +1850,7 @@ public class NubBuilderIT {
       NubNode expected = treeIter.next();
       String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
       assertEquals(expected.name, name);
-      assertEquals("Basionym flag wrong for "+name, expected.basionym, n.hasLabel(Labels.BASIONYM));
+      assertEquals("Basionym flag wrong for " + name, expected.basionym, n.hasLabel(Labels.BASIONYM));
     }
 
     @Override
@@ -1863,7 +1863,7 @@ public class NubBuilderIT {
   }
 
   private void assertTree(String filename) throws IOException {
-    System.out.println("assert tree from "+filename);
+    System.out.println("assert tree from " + filename);
     NubTree expected = NubTree.read("trees/" + filename);
 
     // compare trees
@@ -1875,8 +1875,8 @@ public class NubBuilderIT {
     // verify all nodes are walked in the tree and contains the expected numbers
     long neoCnt = Iterables.count(dao.getNeo().getAllNodes());
     // pro parte nodes are counted multiple times, so expected count can be higher than pure number of nodes - but never less!
-    System.out.println("expected nodes: "+expected.getCount());
-    System.out.println("counted nodes: "+neoCnt);
+    System.out.println("expected nodes: " + expected.getCount());
+    System.out.println("counted nodes: " + neoCnt);
     assertTrue(expected.getCount() >= neoCnt);
   }
 

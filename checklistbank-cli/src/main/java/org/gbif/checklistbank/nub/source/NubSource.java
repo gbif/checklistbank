@@ -23,7 +23,7 @@ import org.gbif.checklistbank.neo.traverse.TreeIterables;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.common.parsers.utils.NameParserUtils;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -93,8 +93,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    * Make sure to call this method once before the usage iterator is used!
    *
    * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
-   * @param nubRanksOnly if true skip non nub ranks
-   * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
+   * @param nubRanksOnly       if true skip non nub ranks
+   * @param parseNames         if true parse names and populate SrcUsage.parsedName which will be null otherwise!
    */
   public void init(boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) throws Exception {
     // load data into neo4j
@@ -110,7 +110,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     }
     try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
       initNeo(writer);
-      LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getSkipped());
+      LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms. {} unparsable, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
     }
   }
 
@@ -123,6 +123,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   public class NeoUsageWriter extends TabMapperBase {
     private int counter = 0;
+    private int unparsable = 0;
     private int skipped = 0;
     private Transaction tx;
     private Int2IntMap ids = new Int2IntOpenHashMap();
@@ -136,8 +137,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     /**
      * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
-     * @param nubRanksOnly if true skip non nub ranks
-     * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
+     * @param nubRanksOnly       if true skip non nub ranks
+     * @param parseNames         if true parse names and populate SrcUsage.parsedName which will be null otherwise!
      */
     public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) {
       // the number of columns in our query to consume
@@ -147,7 +148,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       this.nubRanksOnly = nubRanksOnly;
       this.parseNames = parseNames;
       // we only need a parser in case we need to write neo properties or parse names
-      parser = writeNeoProperties || parseNames ? new GBIFNameParser() : null;
+      parser = writeNeoProperties || parseNames ? NameParserUtils.PARSER : null;
       tx = dao.beginTx();
     }
 
@@ -161,13 +162,22 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.status = row[4] == null ? null : TaxonomicStatus.valueOf(row[4]);
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
-      u.publishedIn= row[7];
+      u.publishedIn = row[7];
 
       if (parseNames) {
         u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
+        if (!u.parsedName.isParsed()) {
+          LOG.debug("Failed to parse name {} {}: {}", u.rank, u.key, u.scientificName);
+          unparsable++;
+
+        } else if (!u.parsedName.isAuthorsParsed()) {
+          LOG.debug("Failed to parse authorship {} {}: {}", u.rank, u.key, u.scientificName);
+          unparsable++;
+        }
       }
 
       if (ignoreSynonyms && u.status != null && u.status.isSynonym()) {
+        LOG.debug("Skipping synonym {}: {}", u.key, u.scientificName);
         skipped++;
         return;
       }
@@ -286,10 +296,23 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       tx = dao.beginTx();
     }
 
+    /**
+     * @return number of all usages
+     */
     public int getCounter() {
       return counter;
     }
 
+    /**
+     * @return number of unparsable usages
+     */
+    public int getUnparsable() {
+      return unparsable;
+    }
+
+    /**
+     * @return number of usages skipped and not inlcuded in the neo source
+     */
     public int getSkipped() {
       return skipped;
     }
@@ -301,7 +324,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     public SrcUsageIterator(UsageDao dao) {
       tx = dao.beginTx();
-      this.nodes = TreeIterables.allNodes(dao.getNeo(), null, null, true).iterator();
+      nodes = TreeIterables.allNodes(dao.getNeo(), null, null, true).iterator();
     }
 
     @Override

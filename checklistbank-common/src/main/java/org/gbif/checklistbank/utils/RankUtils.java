@@ -1,10 +1,9 @@
 package org.gbif.checklistbank.utils;
 
+import com.google.common.collect.Lists;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
-
-import com.google.common.collect.Lists;
 
 /**
  *
@@ -28,5 +27,26 @@ public class RankUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * @return true if the ranks given do not contradict each other
+   */
+  public static boolean match(Rank r1, Rank r2) {
+    if (r1 == null || r1 == Rank.UNRANKED ||
+        r2 == null || r2 == Rank.UNRANKED) return true;
+
+    if (r1 == Rank.INFRASPECIFIC_NAME) {
+      return r2.isInfraspecific();
+    } else if (r1 == Rank.INFRASUBSPECIFIC_NAME) {
+      return r2.isInfraspecific() && r2 != Rank.SUBSPECIES;
+
+    } else if (r2 == Rank.INFRASPECIFIC_NAME) {
+      return r1.isInfraspecific();
+    } else if (r2 == Rank.INFRASUBSPECIFIC_NAME) {
+      return r1.isInfraspecific() && r1 != Rank.SUBSPECIES;
+    }
+
+    return r1 == r2;
   }
 }

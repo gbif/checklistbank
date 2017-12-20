@@ -29,7 +29,7 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.nameparser.GBIFNameParser;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.neo4j.graphdb.*;
@@ -51,7 +51,7 @@ public class Normalizer extends ImportDb implements Runnable {
   private static final List<Splitter> COMMON_SPLITTER = Lists.newArrayList();
   private static final Set<Rank> UNKNOWN_RANKS = ImmutableSet.of(Rank.UNRANKED, Rank.OTHER);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
-  private static final NameParser PARSER = new GBIFNameParser();
+  private static final NameParser PARSER = new NameParserGbifV1();
 
   static {
     for (char del : "[|;, ]".toCharArray()) {
