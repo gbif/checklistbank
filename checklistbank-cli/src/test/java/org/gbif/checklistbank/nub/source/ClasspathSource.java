@@ -1,11 +1,10 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.apache.commons.io.IOUtils;
 import org.gbif.utils.file.InputStreamUtils;
 
 import java.io.InputStream;
 import java.util.UUID;
-
-import org.apache.commons.io.IOUtils;
 
 /**
  * NubSource implementation that works on classpath files for testing nub builds and uses an in memory DAO.
@@ -28,7 +27,11 @@ public class ClasspathSource extends NubSource {
   public final int id;
 
   public ClasspathSource(int id) {
-    super(UUID.randomUUID(), "Dataset " + id, true);
+    this(id, false);
+  }
+
+  public ClasspathSource(int id, boolean tmp) {
+    super(UUID.randomUUID(), "Dataset " + id, tmp);
     this.id = id;
   }
 

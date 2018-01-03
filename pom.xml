@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -57,7 +59,7 @@
         <gbif-microservice.version>0.7</gbif-microservice.version>
         <gbif-postal-service.version>0.24</gbif-postal-service.version>
         <registry.version>2.75</registry.version>
-        <name-parser.version>3.0</name-parser.version>
+        <name-parser.version>3.0.1</name-parser.version>
         <gbif-parser.version>0.32</gbif-parser.version>
         <dwca-io.version>1.32</dwca-io.version>
         <!-- external libs -->
@@ -73,7 +75,7 @@
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
         <fastutil.version>7.2.1</fastutil.version>
-        <findbugs-jsr305.version>3.0.1</findbugs-jsr305.version>
+        <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.26-incubating</freemarker.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
         <guava.version>18.0</guava.version>

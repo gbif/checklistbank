@@ -100,17 +100,25 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
     watch.reset().start();
-    UsageDao initDao;
+
+    UsageDao dao;
     if (useTmpDao) {
-      initDao = UsageDao.temporaryDao(128);
-      // reuse the dao for reading
-      dao = initDao;
+      dao = UsageDao.temporaryDao(128);
     } else {
-      initDao = openOrCreate(true);
+      dao = openOrCreate(true);
     }
-    try (NeoUsageWriter writer = new NeoUsageWriter(initDao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
+    try (NeoUsageWriter writer = new NeoUsageWriter(dao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
       initNeo(writer);
       LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms. {} unparsable, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
+    }
+
+    if (useTmpDao) {
+      // reuse the dao for reading
+      this.dao = dao;
+    } else {
+      // close dao if persistent. We will reopen it before its being used
+      // this allows us to preload many thousands of sources without accumulating resources
+      dao.close();
     }
   }
 
@@ -373,10 +381,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     if (useTmpDao) {
       throw new IllegalStateException("Temporary DAOs cannot be opened again");
     }
-    watch.reset().start();
     UsageDao d = UsageDao.persistentDao(cfg, key, null, eraseExisting);
-    LOG.debug("Opening DAO in {}ms for dataset {}", watch.elapsed(TimeUnit.MILLISECONDS), key);
-    watch.stop();
     return d;
   }
 

@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.logging.slf4j.Slf4jLogProvider;
 import org.neo4j.shell.ShellSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import java.util.UUID;
 /**
  *
  */
-@SuppressWarnings("PublicField")
 public class NeoConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoConfiguration.class);
@@ -64,6 +64,7 @@ public class NeoConfiguration {
       FileUtils.deleteQuietly(storeDir);
     }
     GraphDatabaseBuilder builder = new GraphDatabaseFactory()
+        .setUserLogProvider(new Slf4jLogProvider())
         .newEmbeddedDatabaseBuilder(storeDir)
         .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")

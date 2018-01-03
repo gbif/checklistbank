@@ -1562,6 +1562,23 @@ public class NubBuilderIT {
   }
 
   /**
+   * For profiling memory usage of nub builds
+   */
+  @Test
+  @Ignore("for manual profiling only")
+  public void testMemFootprint() throws Exception {
+    List<RandomSource> sources = Lists.newArrayList();
+    for (int x = 0; x < 1000; x++) {
+      sources.add(new RandomSource(50, Kingdom.ANIMALIA));
+      sources.add(new RandomSource(30, Kingdom.PLANTAE));
+      sources.add(new RandomSource(20, Kingdom.FUNGI));
+    }
+
+    NubSourceList src = new NubSourceList(sources, false);
+    build(src);
+  }
+
+  /**
    * builds a new nub and keeps dao open for further test queries.
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {

@@ -10,7 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for nub source lists that deals with the iterators and async loading of sources.
@@ -27,7 +30,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
     exec = Executors.newSingleThreadExecutor(new NamedThreadFactory("source-loader"));
   }
 
-  public NubSourceList(List<? extends NubSource> sources, boolean parseNames) {
+  public NubSourceList(Iterable<? extends NubSource> sources, boolean parseNames) {
     this(parseNames);
     submitSources(sources);
   }
@@ -36,13 +39,14 @@ public class NubSourceList implements CloseableIterable<NubSource> {
    * Call this method from subclasses once to submit all nub resources to this list.
    * The list will be submitted to a background loaders that calls init() on each NubSource asynchroneously.
    */
-  protected void submitSources(List<? extends NubSource> sources) {
-    LOG.info("Found {} backbone sources", sources.size());
+  protected void submitSources(Iterable<? extends NubSource> sources) {
     // submit loader jobs
-    ExecutorCompletionService ecs = new ExecutorCompletionService(exec);
+    int counter = 0;
     for (NubSource src : sources) {
-      futures.add(ecs.submit(new LoadSource(src, parseNames)));
+      counter++;
+      futures.add(exec.submit(new LoadSource(src, parseNames)));
     }
+    LOG.info("Queued {} backbone sources for loading", counter);
   }
 
   @Override

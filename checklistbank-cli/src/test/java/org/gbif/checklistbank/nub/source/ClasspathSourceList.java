@@ -1,12 +1,11 @@
 package org.gbif.checklistbank.nub.source;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 
 /**
@@ -24,55 +23,55 @@ import com.google.common.collect.Maps;
  * <li>nomenclaturalStatus (enum[])</li>
  * <li>scientificName</li>
  * </ul>
- *
+ * <p>
  * The source files can be generated from a CLB postgres db with the following SQL:
  * SELECT u.id, u.parent_fk, u.basionym_fk, u.rank, u.status, u.nom_status, n.scientific_name from name_usage u join name n on u.name_fk=n.id WHERE ...
  */
 public class ClasspathSourceList extends NubSourceList {
-    Map<Integer, NubSource> sourceById = Maps.newHashMap();
+  Map<Integer, NubSource> sourceById = Maps.newHashMap();
 
-    /**
-     * Creates a classpath based source that uses no resources at all.
-     */
-    public static ClasspathSourceList emptySource() {
-        return new ClasspathSourceList();
-    }
+  /**
+   * Creates a classpath based source that uses no resources at all.
+   */
+  public static ClasspathSourceList emptySource() {
+    return new ClasspathSourceList();
+  }
 
-    /**
-     * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
-     */
-    public static ClasspathSourceList source(Integer ... datasetKeys) {
-        List<ClasspathSource> sources = Lists.newArrayList();
-        for (Integer id : datasetKeys) {
-            sources.add(new ClasspathSource(id));
-        }
-        return new ClasspathSourceList(sources);
+  /**
+   * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
+   */
+  public static ClasspathSourceList source(int... datasetKeys) {
+    List<ClasspathSource> sources = Lists.newArrayList();
+    for (Integer id : datasetKeys) {
+      sources.add(new ClasspathSource(id, false));
     }
+    return new ClasspathSourceList(sources);
+  }
 
-    private ClasspathSourceList() {
-        super(false);
-    }
+  private ClasspathSourceList() {
+    super(false);
+  }
 
-    public ClasspathSourceList(List<ClasspathSource> sources) {
-        super(false);
-        for (ClasspathSource src : sources) {
-            sourceById.put(src.id, src);
-        }
-        submitSources(sources);
+  public ClasspathSourceList(List<ClasspathSource> sources) {
+    super(false);
+    for (ClasspathSource src : sources) {
+      sourceById.put(src.id, src);
     }
+    submitSources(sources);
+  }
 
-    /**
-     * Sets the higher rank setting of a given nub source which defaults to family if not set explicitly.
-     */
-    public void setSourceRank(int sourceId, Rank rank) {
-        if (sourceById.containsKey(sourceId)) {
-            sourceById.get(sourceId).ignoreRanksAbove = rank;
-        }
+  /**
+   * Sets the higher rank setting of a given nub source which defaults to family if not set explicitly.
+   */
+  public void setSourceRank(int sourceId, Rank rank) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).ignoreRanksAbove = rank;
     }
+  }
 
-    public void setNomenclator(int sourceId) {
-        if (sourceById.containsKey(sourceId)) {
-            sourceById.get(sourceId).nomenclator = true;
-        }
+  public void setNomenclator(int sourceId) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).nomenclator = true;
     }
+  }
 }
