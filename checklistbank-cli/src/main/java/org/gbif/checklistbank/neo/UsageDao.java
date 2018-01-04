@@ -4,7 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Stopwatch;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +45,6 @@ import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.
@@ -161,6 +159,7 @@ public class UsageDao implements AutoCloseable {
   public static UsageDao create(NeoConfiguration cfg, UUID datasetKey) {
     return persistentDao(cfg, datasetKey, null, true);
   }
+
   /**
    * A backend that is stored in files inside the configured neo directory.
    *
@@ -225,7 +224,7 @@ public class UsageDao implements AutoCloseable {
     }
   };
 
-  private static final Function<Node, String> getScientific= new Function<Node, String>() {
+  private static final Function<Node, String> getScientific = new Function<Node, String>() {
     @Nullable
     @Override
     public String apply(@Nullable Node n) {
@@ -276,7 +275,6 @@ public class UsageDao implements AutoCloseable {
    * Fully closes the dao leaving any potentially existing persistence files untouched.
    */
   public void close() {
-    Stopwatch watch = Stopwatch.createStarted();
     try {
       if (kvp != null && !kvp.isClosed()) {
         kvp.close();
@@ -285,7 +283,7 @@ public class UsageDao implements AutoCloseable {
       LOG.error("Failed to close kvp store {}", kvpStore.getAbsolutePath(), e);
     }
     closeNeo();
-    LOG.debug("Closed DAO in {}ms for directory {}", watch.elapsed(TimeUnit.MILLISECONDS), neoDir.getAbsolutePath());
+    LOG.info("Closed DAO for directory {}", neoDir.getAbsolutePath());
   }
 
   public void closeAndDelete() {
@@ -332,12 +330,11 @@ public class UsageDao implements AutoCloseable {
    * Finds nodes by their canonical name property.
    * Be careful when using this method on large graphs without a schema indexing the canonical name property!
    */
-  public Collection<Node> findByName(String canonicalName){
+  public Collection<Node> findByName(String canonicalName) {
     return Iterators.asCollection(neo.findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, canonicalName));
   }
 
   /**
-   *
    * @param canonicalName
    * @return th matching node, null or NoSuchElementException
    */
@@ -367,7 +364,7 @@ public class UsageDao implements AutoCloseable {
   }
 
   public void store(long key, UsageExtensions ext) {
-    this.extensions.put(key, ext);
+    extensions.put(key, ext);
   }
 
 
@@ -376,7 +373,7 @@ public class UsageDao implements AutoCloseable {
   }
 
   public void store(long key, UsageFacts obj) {
-    this.facts.put(key, obj);
+    facts.put(key, obj);
   }
 
   /**
@@ -459,7 +456,7 @@ public class UsageDao implements AutoCloseable {
   }
 
   public void store(long key, ParsedName pn) {
-    this.names.put(key, pn);
+    names.put(key, pn);
   }
 
   /**
@@ -796,6 +793,6 @@ public class UsageDao implements AutoCloseable {
   }
 
   public ResourceIterator<Relationship> listAllRelationships(RelType type) {
-    return neo.execute("match ()-[pp:"+type.name()+"]->() return pp").columnAs("pp");
+    return neo.execute("match ()-[pp:" + type.name() + "]->() return pp").columnAs("pp");
   }
 }
