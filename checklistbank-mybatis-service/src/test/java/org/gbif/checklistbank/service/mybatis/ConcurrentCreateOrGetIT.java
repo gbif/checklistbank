@@ -1,5 +1,9 @@
 package org.gbif.checklistbank.service.mybatis;
 
+import com.google.common.collect.Lists;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.zaxxer.hikari.HikariDataSource;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.CitationService;
@@ -8,6 +12,8 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.file.properties.PropertiesUtil;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.PrintStream;
 import java.sql.Connection;
@@ -18,13 +24,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.zaxxer.hikari.HikariDataSource;
-import org.junit.Before;
-import org.junit.Test;
 
 public class ConcurrentCreateOrGetIT {
   private static final String PROPERTY_FILE = "checklistbank.properties";
@@ -87,7 +86,7 @@ public class ConcurrentCreateOrGetIT {
       ParsedNameService pservice = getInj().getInstance(ParsedNameService.class);
       CitationService cservice = getInj().getInstance(CitationService.class);
       for (int x = 0; x < 100; x++) {
-        pservice.createOrGet(PARSER.parse(name + " banales" + x, null));
+        pservice.createOrGet(PARSER.parse(name + " " + x + "-banales", null));
         cservice.createOrGet(name + " citation #" + x);
       }
       ParsedName pn = pservice.createOrGet(PARSER.parse(name, null));

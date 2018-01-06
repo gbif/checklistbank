@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import com.google.common.base.Throwables;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -15,19 +16,12 @@ import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nameparser.NameParserGbifV1;
-
-import java.util.UUID;
-
-import com.google.common.base.Throwables;
 import org.junit.Test;
 import org.neo4j.graphdb.Transaction;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 public class NubDbTest {
   final NameParser parser = new NameParserGbifV1();
@@ -135,7 +129,7 @@ public class NubDbTest {
       final NubUsage vp1870 = db.addUsage(verrillactis, buildNub("Verrillactis paguri (Verrill, 1870)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
       final NubUsage vp = db.addUsage(vp1870, buildNub("Verrillactis paguri (Verrill)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       final NubUsage vp1869 = db.addUsage(vp1870, buildNub("Verrillactis paguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.HETEROTYPIC_SYNONYM));
-      final NubUsage vp1896 = db.addUsage(vp1870, buildNub("Verrillactis paguri (Verrill, 1896*a*)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
+      final NubUsage vp1896 = db.addUsage(vp1870, buildNub("Verrillactis paguri (Verrill, 1896a)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
 
       final NubUsage vacc = db.addUsage(verrillactis, buildNub("Verrillactis accepturi (Verrill, 1870)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
       final NubUsage vv = db.addUsage(vacc, buildNub("Verrillactis vagguri (Verrill)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
@@ -145,9 +139,8 @@ public class NubDbTest {
       final NubUsage vacc2 = db.addUsage(verrillactis, buildNub("Verrillactis accepturissimo (Verrill, 1870)", Rank.SPECIES, TaxonomicStatus.ACCEPTED));
       db.addUsage(vacc, buildNub("Verrillactis laguri (Verrill)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       final NubUsage vl = db.addUsage(vacc2, buildNub("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.HETEROTYPIC_SYNONYM));
-      db.addUsage(vacc2, buildNub("Verrillactis laguri (Verrill, 1896*a*)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
+      db.addUsage(vacc2, buildNub("Verrillactis laguri (Verrill, 1896a)", Rank.SPECIES, TaxonomicStatus.SYNONYM));
       tx.success();
-
 
 
       // full name matches
@@ -166,7 +159,7 @@ public class NubDbTest {
           db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.VIRUSES, animalia)
       );
       assertMatch(vl,
-              db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.VIRUSES, animalia)
+          db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis laguri (Verrill, 1869)", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.VIRUSES, animalia)
       );
 
       // wrong rank
@@ -181,7 +174,7 @@ public class NubDbTest {
 
       // single accepted, but wrong kingdom
       assertNoMatch(
-              db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.PLANTAE, animalia)
+          db.findNubUsage(Constants.COL_DATASET_KEY, buildSrc("Verrillactis paguri", Rank.SPECIES, TaxonomicStatus.ACCEPTED), Kingdom.PLANTAE, animalia)
       );
 
       // 3 synonyms, all pointing to the same accepted. Pick first
