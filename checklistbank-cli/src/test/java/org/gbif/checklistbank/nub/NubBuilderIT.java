@@ -634,8 +634,8 @@ public class NubBuilderIT {
     assertScientific("Heliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertEquals(2, listCanonical("Meliopyrgus willi").size());
-    assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
-    assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Meliopyrgus willi Plötz, 1884", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
+    assertScientific("Meliopyrgus willi People, 1974", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertTree("3 2 36.txt");
   }
 
@@ -699,10 +699,10 @@ public class NubBuilderIT {
     assertScientific("Abies pindrow (Royle ex D.Don) Royle", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertScientific("Abies pindrow Spach", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
-    assertScientific("Abies taxifolia C.Presl", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Abies taxifolia Raf.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
+    assertScientific("Abies taxifolia C.Presl", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     assertScientific("Abies taxifolia Drum. ex Gordon", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     assertNotExisting("Abies taxifolia Jeffr. ex Gordon", Rank.SPECIES);
-    assertScientific("Abies taxifolia Raf.", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
 
     assertTree("10 37 38 39.txt");
   }
@@ -940,6 +940,8 @@ public class NubBuilderIT {
   /**
    * Make sure non parsed names get treated well.
    * Parsing can fail due to regex timeouts or badly formed names
+   * This name is known to time out the name parser so its not expected in the tree:
+   * Desmarestia ligulata subsp. muelleri (M.E.Ramirez & A.F.Peters) A.F.Peters, E.C.Yang, A.F.Peters, E.C.Yang, F.C.Küpper & Prud'Homme van Reine, 2014
    */
   @Test
   public void testParsingTimouts() throws Exception {

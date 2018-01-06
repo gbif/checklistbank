@@ -84,6 +84,13 @@
                         <excludes>
                             <exclude>org.neo4j:neo4j-cypher-compiler-1.9_*</exclude>
                             <exclude>org.neo4j:neo4j-cypher-compiler-2.2_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-compiler-2.3_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-compiler-3.1_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-compiler-3.2_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-frontend-2.3_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-frontend-3.1_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-frontend-3.2_*</exclude>
+                            <exclude>org.neo4j:neo4j-cypher-ir-3.2_*</exclude>
                         </excludes>
                     </artifactSet>
                     <filters>
@@ -149,6 +156,26 @@
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
+                <version>${lucene-neo4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-analyzers-common</artifactId>
+                <version>${lucene-neo4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-queryparser</artifactId>
+                <version>${lucene-neo4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-codecs</artifactId>
+                <version>${lucene-neo4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-backward-codecs</artifactId>
                 <version>${lucene-neo4j.version}</version>
             </dependency>
         </dependencies>

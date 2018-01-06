@@ -64,7 +64,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   static {
     cfg.neoRepository = Files.createTempDir();
-    cfg.mappedMemory = 256;
+    cfg.mappedMemory = 128;
   }
 
   public UUID key;

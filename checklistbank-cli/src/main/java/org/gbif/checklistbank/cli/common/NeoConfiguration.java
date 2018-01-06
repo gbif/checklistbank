@@ -67,8 +67,7 @@ public class NeoConfiguration {
         .setUserLogProvider(new Slf4jLogProvider())
         .newEmbeddedDatabaseBuilder(storeDir)
         .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
-        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-        .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "M");
+        .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "m");
     if (shell) {
       LOG.info("Enable neo4j shell on port " + port);
       builder.setConfig(ShellSettings.remote_shell_enabled, "true")

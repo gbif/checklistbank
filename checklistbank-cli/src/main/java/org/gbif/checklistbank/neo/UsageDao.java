@@ -54,7 +54,11 @@ import java.util.UUID;
  * For all the rest it uses a file persistent MapDB hashmap with kryo for quick serialization.
  */
 public class UsageDao implements AutoCloseable {
+
   private static final Logger LOG = LoggerFactory.getLogger(UsageDao.class);
+  private static final KryoPool KPOOL = new KryoPool.Builder(new CliKryoFactory())
+      .softReferences()
+      .build();
 
   private GraphDatabaseService neo;
   private final GraphDatabaseBuilder neoFactory;
@@ -69,7 +73,6 @@ public class UsageDao implements AutoCloseable {
   private final MetricRegistry registry;
   private final File neoDir;
   private final File kvpStore;
-  private final KryoPool pool;
   private final Joiner remarkJoiner = Joiner.on("\n").skipNulls();
 
   /**
@@ -86,9 +89,6 @@ public class UsageDao implements AutoCloseable {
       this.kvp = kvp;
       this.registry = registry;
 
-      pool = new KryoPool.Builder(new CliKryoFactory())
-          .softReferences()
-          .build();
       names = createKvpMap("names", ParsedName.class, 128);
       facts = createKvpMap("facts", UsageFacts.class, 128);
       verbatim = createKvpMap("verbatim", VerbatimNameUsage.class, 512);
@@ -108,7 +108,7 @@ public class UsageDao implements AutoCloseable {
   private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
     return kvp.hashMap(name)
         .keySerializer(Serializer.LONG)
-        .valueSerializer(new MapDbObjectSerializer(clazz, pool, bufferSize))
+        .valueSerializer(new MapDbObjectSerializer(clazz, KPOOL, bufferSize))
         .createOrOpen();
   }
 
@@ -734,7 +734,7 @@ public class UsageDao implements AutoCloseable {
     u.setPublishedIn(nub.publishedIn);
     u.setOrigin(nub.origin);
     if (!nub.sourceIds.isEmpty()) {
-      u.setSourceTaxonKey(nub.sourceIds.get(0));
+      u.setSourceTaxonKey(nub.sourceIds.getInt(0));
     } else if (nub.origin.equals(Origin.SOURCE)) {
       LOG.warn("Source usage without source id found {} {}", u.getKey(), u.getScientificName());
     }

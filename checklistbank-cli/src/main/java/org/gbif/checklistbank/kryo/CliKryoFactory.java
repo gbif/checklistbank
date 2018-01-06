@@ -1,68 +1,21 @@
 package org.gbif.checklistbank.kryo;
 
-import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.TypeSpecimen;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.model.checklistbank.VernacularName;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
-import org.gbif.api.vocabulary.CitesAppendix;
-import org.gbif.api.vocabulary.Country;
-import org.gbif.api.vocabulary.EstablishmentMeans;
-import org.gbif.api.vocabulary.Extension;
-import org.gbif.api.vocabulary.IdentifierType;
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.Language;
-import org.gbif.api.vocabulary.LifeStage;
-import org.gbif.api.vocabulary.MediaType;
-import org.gbif.api.vocabulary.NamePart;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.OccurrenceStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.Sex;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.api.vocabulary.TypeDesignationType;
-import org.gbif.api.vocabulary.TypeStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.model.Classification;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.dwc.terms.AcTerm;
-import org.gbif.dwc.terms.DcElement;
-import org.gbif.dwc.terms.DcTerm;
-import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.EolReferenceTerm;
-import org.gbif.dwc.terms.GbifInternalTerm;
-import org.gbif.dwc.terms.GbifTerm;
-import org.gbif.dwc.terms.IucnTerm;
-import org.gbif.dwc.terms.UnknownTerm;
-import org.gbif.dwc.terms.XmpRightsTerm;
-import org.gbif.dwc.terms.XmpTerm;
+import org.gbif.dwc.terms.*;
+import org.neo4j.kernel.impl.core.NodeProxy;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.UUID;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.pool.KryoFactory;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import org.neo4j.kernel.impl.core.NodeProxy;
+import java.util.*;
 
 
 /**

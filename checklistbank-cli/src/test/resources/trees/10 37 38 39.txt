@@ -7,9 +7,9 @@ Plantae
   Fontinalaceae
     Fontinalis
       Fontinalis antipyretica (C.Müller) W.H.Welch, 1934 [species]
-      Fontinalis antipyretica (Cardot) Warnstorf, 1916 [species]
+      Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891 [species]
         *$? antipyretica Renauld & Cardot [unranked]
-        *Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891 [species]
+        *Fontinalis antipyretica (Cardot) Warnstorf, 1916 [species]
       Fontinalis antipyretica Hedwig, 1801 [species]
   Pinaceae
     Abies

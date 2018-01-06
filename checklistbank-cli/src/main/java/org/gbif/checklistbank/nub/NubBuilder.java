@@ -1,6 +1,9 @@
 package org.gbif.checklistbank.nub;
 
-import com.google.common.base.*;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import com.google.common.collect.*;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
@@ -55,7 +58,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,7 +86,7 @@ public class NubBuilder implements Runnable {
       TaxonomicStatus.SYNONYM, 3,
       TaxonomicStatus.ACCEPTED, 4,
       TaxonomicStatus.DOUBTFUL, 5
-      );
+  );
   private static final Pattern EX_AUTHOR = Pattern.compile("^(.+) ex ", Pattern.CASE_INSENSITIVE);
 
   private final Set<Rank> allowedRanks = Sets.newHashSet();
@@ -112,7 +114,7 @@ public class NubBuilder implements Runnable {
     idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
     this.cfg = cfg;
-    this.parser = new NameParserGbifV1(cfg.parserTimeout);
+    parser = new NameParserGbifV1(cfg.parserTimeout);
 
     Set<String> blacks;
     try {
@@ -208,11 +210,11 @@ public class NubBuilder implements Runnable {
       builtUsageMetrics();
       LOG.info("New backbone built successfully!");
 
-    } catch (AssertionError e){
+    } catch (AssertionError e) {
       LOG.error("Backbone invalid, build failed!", e);
       throw e;
 
-    } catch (RuntimeException e){
+    } catch (RuntimeException e) {
       LOG.error("Fatal error. Backbone build failed!", e);
       db.dao().consistencyNubReport();
       throw e;
@@ -231,7 +233,7 @@ public class NubBuilder implements Runnable {
   /**
    * Goes through all names with ex authors (99% botanical) and creates homotypic synonyms with the ex authorship.
    * Ex authors are publications which published a name earlier than the regular author, but which are illegitimate according to the code, for example a nomen nudum.
-   *
+   * <p>
    * See http://dev.gbif.org/issues/browse/POR-3147
    */
   private void synonymizeExAuthors() {
@@ -283,7 +285,7 @@ public class NubBuilder implements Runnable {
   /**
    * If there are several accepted infraspecific ranks for a given species
    * this method makes sure the species subtree makes sense.
-   *
+   * <p>
    * The same epithet can be used again within a species, at whatever level, only if the names with the re-used epithet
    * are attached to the same type. Thus there can be a form called Poa secunda f. juncifolia as well as
    * the subspecies Poa secunda subsp. juncifolia if, and only if, the type specimen of Poa secunda f. juncifolia
@@ -381,7 +383,7 @@ public class NubBuilder implements Runnable {
         if (!StringUtils.isBlank(normedName)) {
           if (names.containsKey(normedName)) {
             u.issues.add(NameUsageIssue.ORTHOGRAPHIC_VARIANT);
-            u.addRemark("Possible variant of "+names.get(normedName));
+            u.addRemark("Possible variant of " + names.get(normedName));
             db.store(u);
           } else {
             names.put(normedName, u.parsedName.canonicalNameComplete());
@@ -670,6 +672,7 @@ public class NubBuilder implements Runnable {
       for (Kingdom k : Kingdom.values()) {
         NubUsage ku = new NubUsage();
         ku.usageKey = idGen.reissue(k.nubUsageKey());
+        ku.sourceIds.add(ku.usageKey);
         ku.kingdom = k;
         ku.datasetKey = Constants.NUB_DATASET_KEY;
         ku.origin = Origin.SOURCE;
@@ -796,7 +799,7 @@ public class NubBuilder implements Runnable {
               LOG.warn("Genus child {} without genus name part: {} {}", spn, sp.rank, NeoProperties.getScientificName(spn));
               continue;
             }
-            if (!genus.equals(sp.parsedName.getGenusOrAbove())){
+            if (!genus.equals(sp.parsedName.getGenusOrAbove())) {
               sp.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
             }
             db.store(sp);
@@ -809,7 +812,7 @@ public class NubBuilder implements Runnable {
                 LOG.warn("Species child {} without an infraspecific epithet: {} {}", ispn, isp.rank, NeoProperties.getScientificName(ispn));
                 continue;
               }
-              if (!genus.equals(isp.parsedName.getGenusOrAbove()) || !species.equals(isp.parsedName.getInfraSpecificEpithet())){
+              if (!genus.equals(isp.parsedName.getGenusOrAbove()) || !species.equals(isp.parsedName.getInfraSpecificEpithet())) {
                 isp.issues.add(NameUsageIssue.NAME_PARENT_MISMATCH);
                 db.store(isp);
               }
@@ -825,12 +828,12 @@ public class NubBuilder implements Runnable {
     for (NubSource src : sources) {
       try {
         addDataset(src);
-      } catch (Exception e) {
+
+      } catch (Throwable e) {
         LOG.error("Error processing source {}", src.name, e);
+
       } finally {
-        Stopwatch sw = Stopwatch.createStarted();
         src.close();
-        LOG.debug("Closing source {} took {}ms", src.name, sw.elapsed(TimeUnit.MILLISECONDS));
       }
     }
   }
@@ -910,26 +913,28 @@ public class NubBuilder implements Runnable {
   private void processExplicitBasionymRels() {
     try (Transaction tx = db.beginTx()) {
       LOG.info("Processing {} explicit basionym relations from {}", basionymRels.size(), currSrc.name);
-      for (Map.Entry<Long, Integer> entry : basionymRels.entrySet()) {
-        Node n = db.getNode(entry.getKey());
-        Node bas = db.getNode(src2NubKey.get(entry.getValue()));
+      for (Long2IntMap.Entry entry : basionymRels.long2IntEntrySet()) {
+        // is the basionym excluded from the backbone? e.g. unincluded rank
+        if (!src2NubKey.containsKey(entry.getIntValue())) {
+          LOG.warn("Ignore explicit basionym with source ID={} cause its ignored in the Backbone", entry.getIntValue());
+          continue;
+        }
+
         // find basionym node by sourceKey
-        if (n != null && bas != null) {
-          // basionym has not been verified yet, make sure its of rank <= genus and its name type is no placeholder
-          NubUsage basUsage = read(bas);
-          if (!basUsage.rank.isSpeciesOrBelow()) {
-            LOG.warn("Ignore explicit basionym {} of rank {}", basUsage.parsedName.getScientificName(), basUsage.rank);
-            continue;
-          }
-          if (!basUsage.parsedName.getType().isBackboneType()) {
-            LOG.warn("Ignore explicit basionym {} with name type {}", basUsage.parsedName.getScientificName(), basUsage.parsedName.getType());
-            continue;
-          }
-          if (!createBasionymRelationIfNotExisting(bas, n)) {
-            LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), currSrc.name);
-          }
-        } else {
-          LOG.warn("Could not resolve basionym relation for nub {} to source usage {}", entry.getKey(), entry.getValue());
+        Node bas = db.getNode(src2NubKey.get(entry.getIntValue()));
+        Node n = db.getNode(entry.getLongKey());
+        // basionym has not been verified yet, make sure its of rank <= genus and its name type is no placeholder
+        NubUsage basUsage = read(bas);
+        if (!basUsage.rank.isSpeciesOrBelow()) {
+          LOG.warn("Ignore explicit basionym {} of rank {}", basUsage.parsedName.getScientificName(), basUsage.rank);
+          continue;
+        }
+        if (!basUsage.parsedName.getType().isBackboneType()) {
+          LOG.warn("Ignore explicit basionym {} with name type {}", basUsage.parsedName.getScientificName(), basUsage.parsedName.getType());
+          continue;
+        }
+        if (!createBasionymRelationIfNotExisting(bas, n)) {
+          LOG.warn("Nub usage {} already contains a contradicting basionym relation. Ignore basionym {} from source {}", n.getProperty(NeoProperties.SCIENTIFIC_NAME, n.getId()), bas.getProperty(NeoProperties.SCIENTIFIC_NAME, bas.getId()), currSrc.name);
         }
       }
       tx.success();
@@ -1040,10 +1045,11 @@ public class NubBuilder implements Runnable {
         }
       }
 
+
       if (match.isMatch()) {
         if (u.key != null) {
           // remember all original source usage key to nub id mappings per dataset
-          src2NubKey.put((int)u.key, match.usage.node.getId());
+          src2NubKey.put((int) u.key, match.usage.node.getId());
         }
         if (u.originalNameKey != null) {
           // remember basionym relation.
@@ -1068,6 +1074,7 @@ public class NubBuilder implements Runnable {
 
   /**
    * Removes a taxon if it has no accepted children or synonyms
+   *
    * @return true if usage was deleted
    */
   private boolean removeTaxonIfEmpty(NubUsage u) {
@@ -1097,7 +1104,7 @@ public class NubBuilder implements Runnable {
     // make sure parent is accepted
     if (p.status.isSynonym()) {
       LOG.warn("Parent {} of {} is a synonym", p.parsedName.canonicalNameComplete(), u.parsedName.canonicalNameComplete());
-      throw new IllegalStateException("Parent is a synonym"+u.scientificName);
+      throw new IllegalStateException("Parent is a synonym" + u.scientificName);
     }
 
     // make sure we have a parsed genus to deal with implicit names and the kingdom is not viruses as these have no structured name
@@ -1219,7 +1226,7 @@ public class NubBuilder implements Runnable {
             throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
           }
 
-        } else if (Rank.INFRAGENERIC_NAME ==  u.rank && u.parsedName.isBinomial()) {
+        } else if (Rank.INFRAGENERIC_NAME == u.rank && u.parsedName.isBinomial()) {
           // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
           u.rank = Rank.SPECIES;
           LOG.debug("Treat infrageneric name {} as species", u.scientificName);
@@ -1320,9 +1327,9 @@ public class NubBuilder implements Runnable {
       // ACCEPTED
       if (isNewParentApplicable(nub, currNubParent, parent) &&
           (currNubParent.kingdom == Kingdom.INCERTAE_SEDIS
-            || db.existsInClassification(parent.node, currNubParent.node, false)  && currNubParent.rank != parent.rank
+              || db.existsInClassification(parent.node, currNubParent.node, false) && currNubParent.rank != parent.rank
           )
-        ) {
+          ) {
         LOG.debug("Update {} classification with new parent {} {}", nub.parsedName.getScientificName(), parent.rank, parent.parsedName.getScientificName());
         db.createParentRelation(nub, parent);
       }
@@ -1363,12 +1370,12 @@ public class NubBuilder implements Runnable {
    * Make sure we only have at most one accepted name for each homotypical basionym group!
    * An entire group can consist of synonyms without a problem, but they must all refer to the same accepted name.
    * If a previously accepted name needs to be turned into a synonym it will be of type homotypical_synonym.
-   *
+   * <p>
    * As we merge names from different taxonomies it is possible there are multiple accepted names (maybe via a synonym relation) in such a group.
    * We always stick to the first combination with the highest priority and make all others
    * a) synonyms of this if it is accepted
    * b) synonyms of the primary's accepted name if it was a synonym itself
-   *
+   * <p>
    * In case of conflicting accepted names we also flag these names with CONFLICTING_BASIONYM_COMBINATION
    */
   private void consolidateBasionymGroups() {
@@ -1468,7 +1475,7 @@ public class NubBuilder implements Runnable {
 
     if (candidates.size() > 1) {
       // 2. accepted with most usages
-      Map<NubUsage, NubUsage> u2acc= Maps.newHashMap();
+      Map<NubUsage, NubUsage> u2acc = Maps.newHashMap();
       Map<NubUsage, Integer> accCounts = Maps.newHashMap();
       for (NubUsage u : candidates) {
         final NubUsage accepted = u.status.isSynonym() ? db.parent(u) : u;
@@ -1476,7 +1483,7 @@ public class NubBuilder implements Runnable {
         if (!accCounts.containsKey(accepted)) {
           accCounts.put(accepted, 1);
         } else {
-          accCounts.put(accepted, accCounts.get(accepted)+1);
+          accCounts.put(accepted, accCounts.get(accepted) + 1);
         }
       }
       int maxCount = MapUtils.sortByValue(accCounts, Ordering.<Integer>natural().reverse()).values().iterator().next();
