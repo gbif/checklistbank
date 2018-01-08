@@ -1,7 +1,9 @@
 Animalia
   Ikedidae
-    Desmarestia
-      Desmarestia ligula
+    Desma [genus]
+      Desma ligulata [species]
+        Desma ligulata subsp. ligulata [subspecies]
+        Desma ligulata subsp. muelleri A.F.Peters [subspecies]
 Archaea
 Bacteria
 Chromista

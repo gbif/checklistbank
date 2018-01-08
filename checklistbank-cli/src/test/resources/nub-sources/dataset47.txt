@@ -1,6 +1,8 @@
 1			KINGDOM	ACCEPTED		Animalia	
 10	1		FAMILY	ACCEPTED		Ikedidae	
-100	10		SUBSPECIES	ACCEPTED		Desmarestia ligulata subsp. muelleri (M.E.Ramirez & A.F.Peters) A.F.Peters, E.C.Yang, A.F.Peters, E.C.Yang, F.C.Küpper & Prud'Homme van Reine, 2014	
+99	10		SUBSPECIES	ACCEPTED		Desma ligulata subsp. muelleri A.F.Peters
+100	10		SUBSPECIES	ACCEPTED		Desmarestia ligulata subsp. muelleri (M.E.Ramirez & A.F.Peters) A.F.Peters, E.C.Yang, A.F.Peters, E.C.Yang, F.C.Küpper & Prud'Homme van Reine, 2014
 101	10		SPECIES	ACCEPTED		desmarestia ligula	
 102	10		SPECIES	ACCEPTED		Desmarestia Legola	
 103	10		SPECIES	ACCEPTED		Desmarestia playmobilia This Is No Authorname Please Dont Get Processed	
+104	10		SPECIES	ACCEPTED		ligula
