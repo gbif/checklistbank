@@ -41,6 +41,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
 
   /**
    * Creates a file based nub index which is built in case the index does not yet exist.
+   *
    * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
    */
   private NubMatchingModule(File indexDir, boolean incDeleted) {
@@ -49,7 +50,8 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
 
   /**
    * Creates a file based nub index which is built in case the index does not yet exist.
-   * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
+   *
+   * @param indexDir      the directory to keep the lucene index in. If existing the index will be reused
    * @param nubDatasetKey the dataset key to use for populating the nub index
    */
   public NubMatchingModule(File indexDir, boolean incDeleted, UUID nubDatasetKey) {
@@ -62,6 +64,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
   protected void configure() {
     bind(NameUsageMatchingService.class).to(NubMatchingServiceImpl.class).asEagerSingleton();
     expose(NameUsageMatchingService.class);
+    expose(NubMatchingServiceImpl.class);
   }
 
   @Provides

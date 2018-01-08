@@ -20,6 +20,8 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.model.RankedName;
+import org.gbif.nub.lookup.NameUsageMatch2;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 import org.slf4j.Logger;
@@ -101,6 +103,53 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService {
     match.setMatchType(NameUsageMatch.MatchType.HIGHERRANK);
     setAlternatives(match, firstMatch.getAlternatives());
     return match;
+  }
+
+  public NameUsageMatch2 v2(NameUsageMatch m) {
+    NameUsageMatch2 m2 = new NameUsageMatch2();
+    if (m.getUsageKey() != null) {
+      // main usage
+      RankedName u = new RankedName();
+      m2.setUsage(match2rankedName(m));
+      // accepted
+      if (m.isSynonym()) {
+        m2.setSynonym(true);
+        RankedName acc = new RankedName();
+        //TODO: add accepted name & key !!!
+        m2.setAcceptedUsage(acc);
+      }
+      // classification
+      for (Rank r : Rank.LINNEAN_RANKS) {
+        Integer key = ClassificationUtils.getHigherRankKey(m, r);
+        if (key != null) {
+          RankedName ht = new RankedName();
+          ht.setRank(r);
+          ht.setKey(key);
+          ht.setName(ClassificationUtils.getHigherRank(m, r));
+          m2.getClassification().add(ht);
+        }
+      }
+      // diagnostics
+      m2.getDiagnostics().setStatus(m.getStatus());
+      m2.getDiagnostics().setNote(m.getNote());
+      if (m.getAlternatives() != null) {
+        for (NameUsageMatch alt : m.getAlternatives()) {
+          m2.getDiagnostics().getAlternatives().add(v2(alt));
+        }
+      }
+    }
+    return m2;
+  }
+
+  private static RankedName match2rankedName(NameUsageMatch m) {
+    RankedName rn = null;
+    if (m.getUsageKey() != null) {
+      rn = new RankedName();
+      rn.setKey(m.getUsageKey());
+      rn.setName(m.getScientificName());
+      rn.setRank(m.getRank());
+    }
+    return rn;
   }
 
   /**

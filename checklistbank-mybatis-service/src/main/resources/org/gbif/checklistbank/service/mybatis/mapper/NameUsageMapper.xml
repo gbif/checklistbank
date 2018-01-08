@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper">
 
     <!--
@@ -28,15 +29,17 @@ su.id as sid, coalesce(sn.canonical_name,sn.scientific_name) as species,
 u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled, u.deleted, u.remarks, u.issues
 </sql>
 
-  <sql id="selectParsedName">
-    <include refid="select"/>,
-    n.id as name_key, n.scientific_name as name_scientific_name,
-    n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
-    n.notho_type, n.rank as name_rank, n.nom_status as name_nom_status, n.sensu as name_sensu, n.remarks as name_remarks,
-    n.authors_parsed as name_authors_parsed, n.parsed as name_parsed,
-    n.authorship as name_authorship, n.year as name_year,
-    n.bracket_authorship as name_bracket_authorship, n.bracket_year as name_bracket_year
-  </sql>
+    <sql id="selectParsedName">
+        <include refid="select"/>,
+        n.id as name_key, n.scientific_name as name_scientific_name,
+        n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet,
+        n.cultivar_epithet,
+        n.notho_type, n.rank as name_rank, n.nom_status as name_nom_status, n.sensu as name_sensu,
+        n.remarks as name_remarks,
+        n.authors_parsed as name_authors_parsed, n.parsed as name_parsed,
+        n.authorship as name_authorship, n.year as name_year,
+        n.bracket_authorship as name_bracket_authorship, n.bracket_year as name_bracket_year
+    </sql>
 
     <sql id="from"> name_usage u
  JOIN name n ON u.name_fk=n.id
@@ -91,7 +94,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="proParteKey" column="pp_synonym_fk"/>
         <result property="basionymKey" column="basionym_fk"/>
         <result property="taxonomicStatus" column="status"/>
-        <result property="nomenclaturalStatus" column="nom_status" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
+        <result property="nomenclaturalStatus" column="nom_status"
+                typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetNomenclaturalStatusTypeHandler"/>
         <result property="kingdomKey" column="kid"/>
         <result property="phylumKey" column="pid"/>
         <result property="classKey" column="cid"/>
@@ -102,45 +106,47 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="subgenusKey" column="sgid"/>
         <result property="speciesKey" column="sid"/>
         <result property="references" column="references"/>
-        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
+        <result property="issues" column="issues"
+                typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
-  <!--  A mapping to build a ParsedNameUsage extending a NameUsage with a ParsedName instance. -->
-  <resultMap id="parsedUsageResultMap" type="ParsedNameUsage" extends="usageResultMap">
-    <id property="parsedName.key" column="name_key"/>
-    <result property="parsedName.type" column="nameType"/>
-    <result property="parsedName.rank" column="name_rank"/>
-    <result property="parsedName.notho" column="notho_type"/>
+    <!--  A mapping to build a ParsedNameUsage extending a NameUsage with a ParsedName instance. -->
+    <resultMap id="parsedUsageResultMap" type="ParsedNameUsage" extends="usageResultMap">
+        <id property="parsedName.key" column="name_key"/>
+        <result property="parsedName.type" column="nameType"/>
+        <result property="parsedName.rank" column="name_rank"/>
+        <result property="parsedName.notho" column="notho_type"/>
 
-    <result property="parsedName.scientificName" column="name_scientific_name"/>
-    <result property="parsedName.genusOrAbove" column="genus_or_above"/>
-    <result property="parsedName.infraGeneric" column="infra_generic"/>
-    <result property="parsedName.specificEpithet" column="specific_epithet"/>
-    <result property="parsedName.infraSpecificEpithet" column="infra_specific_epithet"/>
-    <result property="parsedName.cultivarEpithet" column="cultivar_epithet"/>
-    <result property="parsedName.nomStatus" column="name_nom_status"/>
-    <result property="parsedName.sensu" column="name_sensu"/>
-    <result property="parsedName.remarks" column="name_remarks"/>
-    <result property="parsedName.authorsParsed" column="name_authors_parsed"/>
-    <result property="parsedName.parsed" column="name_parsed"/>
-    <result property="parsedName.authorship" column="name_authorship"/>
-    <result property="parsedName.year" column="name_year"/>
-    <result property="parsedName.bracketAuthorship" column="name_bracket_authorship"/>
-    <result property="parsedName.bracketYear" column="name_bracket_year"/>
-  </resultMap>
+        <result property="parsedName.scientificName" column="name_scientific_name"/>
+        <result property="parsedName.genusOrAbove" column="genus_or_above"/>
+        <result property="parsedName.infraGeneric" column="infra_generic"/>
+        <result property="parsedName.specificEpithet" column="specific_epithet"/>
+        <result property="parsedName.infraSpecificEpithet" column="infra_specific_epithet"/>
+        <result property="parsedName.cultivarEpithet" column="cultivar_epithet"/>
+        <result property="parsedName.nomStatus" column="name_nom_status"/>
+        <result property="parsedName.sensu" column="name_sensu"/>
+        <result property="parsedName.remarks" column="name_remarks"/>
+        <result property="parsedName.authorsParsed" column="name_authors_parsed"/>
+        <result property="parsedName.parsed" column="name_parsed"/>
+        <result property="parsedName.authorship" column="name_authorship"/>
+        <result property="parsedName.year" column="name_year"/>
+        <result property="parsedName.bracketAuthorship" column="name_bracket_authorship"/>
+        <result property="parsedName.bracketYear" column="name_bracket_year"/>
+    </resultMap>
 
-  <resultMap id="scinameResultMap" type="ScientificName" autoMapping="true">
-      <result property="key" column="id"/>
-      <result property="scientificName" column="scientific_name"/>
-      <result property="rank" column="rank"/>
+    <resultMap id="scinameResultMap" type="RankedName" autoMapping="true">
+        <result property="key" column="id"/>
+        <result property="name" column="scientific_name"/>
+        <result property="rank" column="rank"/>
     </resultMap>
 
 
-  <!--  A mapping to build a NameUsage with just the issue set and the usage key.
-          We need this mapping as mybatis cannot return a typed set with a specific type handler -->
+    <!--  A mapping to build a NameUsage with just the issue set and the usage key.
+            We need this mapping as mybatis cannot return a typed set with a specific type handler -->
     <resultMap id="issueResultMap" type="NameUsage">
         <id property="key" column="id"/>
-        <result property="issues" column="issues" typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
+        <result property="issues" column="issues"
+                typeHandler="org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler"/>
     </resultMap>
 
     <!--  Get by primary key -->
@@ -195,32 +201,35 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         WHERE u.deleted IS NULL AND u.id between #{start} and #{end}
     </select>
 
-  <!--  select all name usages of a dataset
-   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
-  -->
-  <select id="processDataset" parameterType="map" resultMap="parsedUsageResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
-    SELECT
-    <include refid="selectParsedName"/>
-    FROM
-    <include refid="from"/>
-    WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
-  </select>
+    <!--  select all name usages of a dataset
+     Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+    -->
+    <select id="processDataset" parameterType="map" resultMap="parsedUsageResultMap"
+            fetchSize="10000" resultSetType="FORWARD_ONLY">
+        SELECT
+        <include refid="selectParsedName"/>
+        FROM
+        <include refid="from"/>
+        WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
+    </select>
 
-  <!--  select all name usages of a dataset
-   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
-  -->
-  <select id="processAllNames" resultMap="scinameResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    <!--  select all name usages of a dataset
+     Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+    -->
+    <select id="processAllNames" resultMap="scinameResultMap" fetchSize="10000"
+            resultSetType="FORWARD_ONLY">
     SELECT id,rank,scientific_name
     FROM tmp_usage_name
   </select>
 
-  <!--  list root usages -->
+    <!--  list root usages -->
     <select id="listRoot" parameterType="map" resultMap="usageResultMap">
         SELECT
         <include refid="select"/>
         FROM
         <include refid="from"/>
-        WHERE u.deleted IS NULL AND u.parent_fk is null and u.is_synonym=false and u.dataset_key=#{uuid, jdbcType=OTHER}
+        WHERE u.deleted IS NULL AND u.parent_fk is null and u.is_synonym=false and
+        u.dataset_key=#{uuid, jdbcType=OTHER}
         ORDER BY u.rank, n.scientific_name
         <include refid="page"/>
     </select>
@@ -328,7 +337,8 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     #{u.publishedInKey}, #{u.accordingToKey}, #{u.origin}::origin_type,
     #{u.remarks}, #{u.references}, #{u.taxonID}, #{u.sourceTaxonKey}, #{u.modified}, #{u.numDescendants}, now()
   </sql>
-    <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true" keyProperty="u.key" keyColumn="id">
+    <insert id="insert" parameterType="NameUsageWritable" useGeneratedKeys="true"
+            keyProperty="u.key" keyColumn="id">
         INSERT INTO name_usage (
         <if test="u.key != null">id,</if>
         <include refid="writeFields"/>, dataset_key)
@@ -398,7 +408,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         WHERE id=#{key}
     </update>
 
-  <update id="updateName" parameterType="map">
+    <update id="updateName" parameterType="map">
     UPDATE name_usage
     SET name_fk = #{nkey}, modified=now()
     WHERE id=#{key}

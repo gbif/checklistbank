@@ -68,7 +68,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addAlias("Identifier").to(Identifier.class);
     addAlias("NameUsage").to(NameUsage.class);
     addAlias("ParsedNameUsage").to(ParsedNameUsage.class);
-    addAlias("ScientificName").to(ScientificName.class);
+    addAlias("RankedName").to(RankedName.class);
     addAlias("NameUsageContainer").to(NameUsageContainer.class);
     addAlias("NameUsageMediaObject").to(NameUsageMediaObject.class);
     addAlias("NameUsageMetrics").to(NameUsageMetrics.class);

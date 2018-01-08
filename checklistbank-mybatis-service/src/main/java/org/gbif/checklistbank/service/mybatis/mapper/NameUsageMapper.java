@@ -7,7 +7,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.ParsedNameUsage;
-import org.gbif.checklistbank.model.ScientificName;
+import org.gbif.checklistbank.model.RankedName;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -75,7 +75,7 @@ public interface NameUsageMapper {
    *
    * @param handler to process each name with
    */
-  void processAllNames(ResultHandler<ScientificName> handler);
+  void processAllNames(ResultHandler<RankedName> handler);
 
   /**
    * List all related name usages that have a given nubKey.
