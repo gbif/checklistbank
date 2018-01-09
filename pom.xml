@@ -47,7 +47,7 @@
 
         <!-- dependency versions -->
         <dwc-api.version>1.17</dwc-api.version>
-        <gbif-api.version>0.58</gbif-api.version>
+        <gbif-api.version>0.59-SNAPSHOT</gbif-api.version>
         <gbif-cli.version>0.13</gbif-cli.version>
         <gbif-common.version>0.37</gbif-common.version>
         <gbif-common-mybatis.version>0.28</gbif-common-mybatis.version>

@@ -65,6 +65,7 @@ public class NubIndex implements AutoCloseable {
   }
 
   private static final String FIELD_ID = "id";
+  private static final String FIELD_ACCEPTED_ID = "accid";
   private static final String FIELD_CANONICAL_NAME = "canonical";
   private static final String FIELD_SCIENTIFIC_NAME = "sciname";
   private static final String FIELD_RANK = "rank";
@@ -256,6 +257,7 @@ public class NubIndex implements AutoCloseable {
   private static NameUsageMatch fromDoc(Document doc) {
     NameUsageMatch u = new NameUsageMatch();
     u.setUsageKey(toInt(doc, FIELD_ID));
+    u.setAcceptedUsageKey(toInteger(doc, FIELD_ACCEPTED_ID));
 
     u.setScientificName(doc.get(FIELD_SCIENTIFIC_NAME));
     u.setCanonicalName(doc.get(FIELD_CANONICAL_NAME));
@@ -273,17 +275,17 @@ public class NubIndex implements AutoCloseable {
   }
 
   protected static Document toDoc(NameUsage u) {
-    return toDoc(u.getKey(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
+    return toDoc(u.getKey(), u.getAcceptedKey(), u.getScientificName(), u.getTaxonomicStatus(), u.getRank(), u, u);
   }
 
   private static Document toDoc(NameUsageMatch u) {
-    return toDoc(u.getUsageKey(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
+    return toDoc(u.getUsageKey(), u.getAcceptedUsageKey(), u.getScientificName(), u.getStatus(), u.getRank(), u, u);
   }
 
   /**
    * @param status any status incl null. Will be converted to just 3 accepted, synonym & doubtful
    */
-  private static Document toDoc(int key, String sciname, TaxonomicStatus status, Rank rank,
+  private static Document toDoc(int key, Integer acceptedKey, String sciname, TaxonomicStatus status, Rank rank,
                                 LinneanClassification cl, LinneanClassificationKeys clKeys) {
 
     Document doc = new Document();
@@ -292,6 +294,11 @@ public class NubIndex implements AutoCloseable {
 
     // use custom precision step as we do not need range queries and prefer to save memory usage instead
     doc.add(new IntField(FIELD_ID, key, INT_FIELD_MAX_PRECISION));
+
+    // we only store accepted key, no need to index it
+    if (acceptedKey != null) {
+      doc.add(new StoredField(FIELD_ACCEPTED_ID, acceptedKey));
+    }
 
     // analyzed name field - this is what we search upon
     doc.add(new TextField(FIELD_CANONICAL_NAME, canonical, Field.Store.YES));

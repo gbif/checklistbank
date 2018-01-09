@@ -3,6 +3,7 @@ package org.gbif.nub.lookup.fuzzy;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.VocabularyUtils;
@@ -35,21 +36,21 @@ public class NubIndexTest {
     List<NameUsageMatch> usages = Lists.newArrayList();
 
     NameParser parser = new NameParserGbifV1();
-    try(InputStream testFile = Resources.getResource("testNames.txt").openStream()) {
+    try (InputStream testFile = Resources.getResource("testNames.txt").openStream()) {
       CSVReader reader = CSVReaderFactory.build(testFile, "UTF8", "\t", null, 0);
       while (reader.hasNext()) {
         String[] row = reader.next();
         NameUsageMatch n = new NameUsageMatch();
         n.setUsageKey(Integer.valueOf(row[0]));
-        n.setScientificName(row[1]);
+        n.setAcceptedUsageKey(toInt(row[1]));
+        n.setScientificName(row[2]);
         n.setCanonicalName(parser.parseToCanonical(n.getScientificName(), null));
-        n.setFamily(row[2]);
-        n.setOrder(row[3]);
-        n.setClazz(row[4]);
-        n.setPhylum(row[5]);
-        n.setKingdom(row[6]);
-        boolean isSynonym = Boolean.parseBoolean(row[7]);
-        n.setStatus(isSynonym ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
+        n.setFamily(row[3]);
+        n.setOrder(row[4]);
+        n.setClazz(row[5]);
+        n.setPhylum(row[6]);
+        n.setKingdom(row[7]);
+        n.setStatus(n.getAcceptedUsageKey() != null ? TaxonomicStatus.SYNONYM : TaxonomicStatus.ACCEPTED);
         n.setRank(VocabularyUtils.lookupEnum(row[8], Rank.class));
         usages.add(n);
       }
@@ -57,6 +58,10 @@ public class NubIndexTest {
       Preconditions.checkArgument(usages.size() == 10, "Wrong number of test names");
     }
     return usages;
+  }
+
+  private static Integer toInt(String x) {
+    return StringUtils.isBlank(x) ? null : Integer.valueOf(x);
   }
 
   @Test
@@ -67,6 +72,7 @@ public class NubIndexTest {
     assertEquals("Abies alba Mill.", m.getScientificName());
     assertEquals(Rank.SPECIES, m.getRank());
     assertFalse(m.isSynonym());
+    assertNull(m.getAcceptedUsageKey());
 
     m = index.matchByName("Abies alba", true, 2).get(0);
     assertEquals(abiesAlbaKey, m.getUsageKey());

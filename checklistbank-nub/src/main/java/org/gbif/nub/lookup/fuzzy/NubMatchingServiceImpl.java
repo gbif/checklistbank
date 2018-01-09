@@ -113,11 +113,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       RankedName u = new RankedName();
       m2.setUsage(match2rankedName(m));
       // accepted
-      if (m.isSynonym()) {
+      if (m.getAcceptedUsageKey() != null) {
         m2.setSynonym(true);
-        RankedName acc = new RankedName();
-        //TODO: add accepted name & key !!!
-        m2.setAcceptedUsage(acc);
+        NameUsageMatch accM = nubIndex.matchByUsageId(m.getAcceptedUsageKey());
+        m2.setAcceptedUsage(match2rankedName(accM));
       }
       // classification
       for (Rank r : Rank.LINNEAN_RANKS) {
