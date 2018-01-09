@@ -8,7 +8,7 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nub.lookup.NameUsageMatch2;
-import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
+import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,10 +24,10 @@ public class NubResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubResource.class);
 
-  private final NubMatchingServiceImpl matchingService;
+  private final NameUsageMatchingService2 matchingService;
 
   @Inject
-  public NubResource(NubMatchingServiceImpl matchingService) {
+  public NubResource(NameUsageMatchingService2 matchingService) {
     this.matchingService = matchingService;
   }
 

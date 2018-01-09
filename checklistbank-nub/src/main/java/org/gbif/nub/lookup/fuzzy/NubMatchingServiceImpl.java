@@ -22,6 +22,7 @@ import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.model.RankedName;
 import org.gbif.nub.lookup.NameUsageMatch2;
+import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NubMatchingServiceImpl implements NameUsageMatchingService {
+public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsageMatchingService2 {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingServiceImpl.class);
   private static final int MIN_CONFIDENCE = 80;
