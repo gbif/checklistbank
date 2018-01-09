@@ -16,6 +16,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 @Path("/species")
@@ -35,7 +36,7 @@ public class NubResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("match")
   public NameUsageMatch match(@QueryParam("name") String scientificName, @QueryParam("rank") String rank,
-                              LinneanClassification classification,
+                              @Context LinneanClassification classification,
                               @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
     Rank r = parse(Rank.class, rank);
     return matchingService.match(scientificName, r, classification, bool(strict), bool(verbose));
@@ -45,7 +46,7 @@ public class NubResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("match2")
   public NameUsageMatch2 match2(@QueryParam("name") String scientificName, @QueryParam("rank") String rank,
-                                LinneanClassification classification,
+                                @Context LinneanClassification classification,
                                 @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
     Rank r = parse(Rank.class, rank);
     return matchingService.v2(matchingService.match(scientificName, r, classification, bool(strict), bool(verbose)));
