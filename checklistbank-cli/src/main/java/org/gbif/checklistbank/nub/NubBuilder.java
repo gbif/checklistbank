@@ -440,7 +440,6 @@ public class NubBuilder implements Runnable {
 
   }
 
-
   private void validate(NubValidation validator) throws AssertionError {
     try (Transaction tx = db.beginTx()) {
       boolean valid = validator.validate();

@@ -1,26 +1,24 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
+import com.beust.jcommander.ParametersDelegate;
+import com.google.common.collect.Sets;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
-import java.io.File;
-import java.net.URI;
-import java.util.Set;
-import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import com.beust.jcommander.ParametersDelegate;
-import com.google.common.collect.Sets;
+import java.io.File;
+import java.net.URI;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  *
  */
-@SuppressWarnings("PublicField")
 public class NubConfiguration {
 
   @ParametersDelegate
@@ -82,7 +80,7 @@ public class NubConfiguration {
    * If true run validation routines at the end of the nub build, see NubTreeValidation.
    */
   @Valid
-  public boolean validate = false;
+  public boolean validate = true;
 
   /**
    * If true run assertions for a complete production backbone, see NubAssertions.

@@ -1,15 +1,19 @@
 package org.gbif.checklistbank.nub.validation;
 
 import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.checklistbank.neo.traverse.TreeWalker;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoProperties;
+import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.NubDb;
-
-import java.util.Map;
-
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Does some basic verifications on the neo4j nub tree
@@ -74,14 +78,33 @@ public class NubTreeValidation implements NubValidation {
     notExists("Synonym without synonym relation {}", "MATCH (s:SYNONYM) WHERE not (s)-[:SYNONYM_OF]->() RETURN s LIMIT 1");
 
     // verify accepted tree has ranks in proper order
-    try {
-      TreeRankValidation rankVal = new TreeRankValidation();
-      TreeWalker.walkAcceptedTree(db.dao().getNeo(), rankVal);
-    } catch (IllegalStateException e) {
-      LOG.error("TreeRankValidation failed with {}", e.getMessage());
-      valid = false;
-    }
+    validateRanks();
 
     return valid;
   }
+
+  private void validateRanks() {
+    try (Transaction tx = db.beginTx()) {
+      for (Node c : Iterators.loop(db.dao().getNeo().findNodes(Labels.ROOT))) {
+        traverse(c, NeoProperties.getRank(c, null));
+      }
+    }
+  }
+
+  private void traverse(Node p, Rank pr) {
+    for (Node c : Traversals.CHILDREN.traverse(p).nodes()) {
+      Rank cr = NeoProperties.getRank(c, null);
+      if (cr == null) {
+        LOG.error("Missing rank: {}", NeoProperties.getScientificName(c));
+        valid = false;
+
+      } else if (!pr.higherThan(cr)) {
+        LOG.error("Rank mismatch: {} {} CHILD OF {} {}", cr, NeoProperties.getScientificName(c), pr, NeoProperties.getScientificName(p));
+        valid = false;
+      }
+
+      traverse(c, cr);
+    }
+  }
+
 }
