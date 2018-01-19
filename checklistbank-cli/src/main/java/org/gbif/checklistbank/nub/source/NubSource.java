@@ -61,6 +61,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   private static final NeoConfiguration cfg = new NeoConfiguration();
   private final Stopwatch watch = Stopwatch.createUnstarted();
+  // default parser with 1s timeout
+  private NameParser parser = NameParserUtils.PARSER;
 
   static {
     cfg.neoRepository = Files.createTempDir();
@@ -72,7 +74,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public Rank ignoreRanksAbove = Rank.FAMILY;
   public Date created;
   public boolean nomenclator = false;
-  public boolean ignoreSynonyms = false;
+  boolean ignoreSynonyms = false;
 
   private UsageDao dao;
   private final boolean useTmpDao;
@@ -94,9 +96,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    *
    * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
    * @param nubRanksOnly       if true skip non nub ranks
-   * @param parseNames         if true parse names and populate SrcUsage.parsedName which will be null otherwise!
    */
-  public void init(boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) throws Exception {
+  public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
     // load data into neo4j
     LOG.debug("Start loading source data from {} into neo", name);
     watch.reset().start();
@@ -111,10 +112,14 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     }
 
     // NeoUsageWriter will autoclose persistent daos
-    try (NeoUsageWriter writer = new NeoUsageWriter(dao, writeNeoProperties, nubRanksOnly, parseNames, ignoreSynonyms)) {
+    try (NeoUsageWriter writer = new NeoUsageWriter(dao, writeNeoProperties, nubRanksOnly)) {
       initNeo(writer);
       LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms. {} unparsable, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
     }
+  }
+
+  public void setParser(NameParser parser) {
+    this.parser = parser;
   }
 
   public void setNeoRepository(File repository) {
@@ -134,24 +139,18 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     private final UsageDao dao;
     private final boolean writeNeoProperties;
     private final boolean nubRanksOnly;
-    private final boolean parseNames;
-    private final NameParser parser;
 
 
     /**
      * @param writeNeoProperties if true the scientific name and rank will also be added to the neo node properties
      * @param nubRanksOnly       if true skip non nub ranks
-     * @param parseNames         if true parse names and populate SrcUsage.parsedName which will be null otherwise!
      */
-    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly, boolean parseNames, boolean ignoreSynonyms) {
+    public NeoUsageWriter(UsageDao dao, boolean writeNeoProperties, boolean nubRanksOnly) {
       // the number of columns in our query to consume
       super(8);
       this.dao = dao;
       this.writeNeoProperties = writeNeoProperties;
       this.nubRanksOnly = nubRanksOnly;
-      this.parseNames = parseNames;
-      // we only need a parser in case we need to write neo properties or parse names
-      parser = writeNeoProperties || parseNames ? NameParserUtils.PARSER : null;
       tx = dao.beginTx();
     }
 
@@ -166,18 +165,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       u.nomStatus = toNomStatus(row[5]);
       u.scientificName = row[6];
       u.publishedIn = row[7];
-
-      if (parseNames) {
-        u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
-        if (!u.parsedName.isParsed()) {
-          LOG.debug("Failed to parse name {} {}: {}", u.rank, u.key, u.scientificName);
-          unparsable++;
-
-        } else if (!u.parsedName.isAuthorsParsed()) {
-          LOG.debug("Failed to parse authorship {} {}: {}", u.rank, u.key, u.scientificName);
-          unparsable++;
-        }
-      }
 
       if (ignoreSynonyms && u.status != null && u.status.isSynonym()) {
         LOG.debug("Skipping synonym {}: {}", u.key, u.scientificName);
@@ -223,6 +210,16 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
             u.originalNameKey = null;
           }
         }
+      }
+
+      u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
+      if (!u.parsedName.isParsed()) {
+        LOG.debug("Failed to parse name {} {}: {}", u.rank, u.key, u.scientificName);
+        unparsable++;
+
+      } else if (!u.parsedName.isAuthorsParsed()) {
+        LOG.debug("Failed to parse authorship {} {}: {}", u.rank, u.key, u.scientificName);
+        unparsable++;
       }
 
       counter++;

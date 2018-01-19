@@ -72,7 +72,7 @@ public class UsageDaoTest {
   @Test
   public void testTrees() throws Exception {
     try (ClasspathSource src = new ClasspathSource(41, true)) {
-      src.init(true, false, false, false);
+      src.init(true, false);
       dao = src.getDao();
 
       // add pro parte & basionym rel

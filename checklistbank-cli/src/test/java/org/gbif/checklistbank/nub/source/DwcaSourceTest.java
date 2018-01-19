@@ -1,11 +1,10 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.junit.Test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +14,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class DwcaSourceTest {
   public static final URL BACKBONE_PATCH_DWCA;
+
   static {
     try {
       BACKBONE_PATCH_DWCA = new URL("https://github.com/gbif/backbone-patch/archive/master.zip");
@@ -28,7 +28,7 @@ public class DwcaSourceTest {
     DwcaSource src = new DwcaSource("patch checklist", BACKBONE_PATCH_DWCA);
     assertNotNull(src);
 
-    src.init(true, false, false, false);
+    src.init(true, false);
     int counter = 0;
     for (SrcUsage u : src) {
       assertNotNull(u.key);

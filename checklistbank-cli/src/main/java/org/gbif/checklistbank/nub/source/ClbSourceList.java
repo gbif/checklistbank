@@ -38,7 +38,6 @@ public class ClbSourceList extends NubSourceList {
   private final DatasetService datasetService;
   private final OrganizationService organizationService;
   private final InstallationService installationService;
-  private final NubConfiguration cfg;
 
   public static ClbSourceList create(NubConfiguration cfg) {
     Injector regInj = cfg.registry.createRegistryInjector();
@@ -57,17 +56,15 @@ public class ClbSourceList extends NubSourceList {
   }
 
   public ClbSourceList(NubConfiguration cfg, List<NubSource> sources) {
-    super(false);
-    this.cfg = cfg;
-    this.datasetService = null;
-    this.organizationService = null;
-    this.installationService = null;
+    super(cfg);
+    datasetService = null;
+    organizationService = null;
+    installationService = null;
     submitSources(sources);
   }
 
   public ClbSourceList(DatasetService datasetService, OrganizationService organizationService, InstallationService installationService, NubConfiguration cfg) {
-    super(false);
-    this.cfg = cfg;
+    super(cfg);
     this.datasetService = datasetService;
     this.organizationService = organizationService;
     this.installationService = installationService;
@@ -98,7 +95,7 @@ public class ClbSourceList extends NubSourceList {
         stream = FileUtils.classpathStream(cfg.sourceList.toString());
       }
       CSVReader reader = CSVReaderFactory.build(stream, "UTF-8", "\t", null, 0);
-      while(reader.hasNext()) {
+      while (reader.hasNext()) {
         String[] row = reader.next();
         if (row.length < 1) continue;
         UUID key = UUID.fromString(row[0]);

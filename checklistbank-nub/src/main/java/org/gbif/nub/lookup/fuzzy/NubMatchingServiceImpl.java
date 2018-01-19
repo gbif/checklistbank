@@ -320,7 +320,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     for (NameUsageMatch m : matches) {
       // 0 - +100
       final int nameSimilarity = nameSimilarity(canonicalName, m);
-      // -28 - +40
+      // -36 - +40
       final int authorSimilarity = incNegScore(authorSimilarity(pn, m) * 2, 2);
       // -50 - +50
       final int classificationSimilarity = classificationSimilarity(lc, m);

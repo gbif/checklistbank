@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub.source;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,11 @@ public class ClasspathSourceList extends NubSourceList {
    * Creates a classpath based source that uses no resources at all.
    */
   public static ClasspathSourceList emptySource() {
-    return new ClasspathSourceList();
+    return new ClasspathSourceList(Lists.newArrayList());
+  }
+
+  public static ClasspathSourceList sources(Iterable<ClasspathSource> sources) {
+    return new ClasspathSourceList(Lists.newArrayList());
   }
 
   /**
@@ -48,12 +53,8 @@ public class ClasspathSourceList extends NubSourceList {
     return new ClasspathSourceList(sources);
   }
 
-  private ClasspathSourceList() {
-    super(false);
-  }
-
-  public ClasspathSourceList(List<ClasspathSource> sources) {
-    super(false);
+  private ClasspathSourceList(Iterable<ClasspathSource> sources) {
+    super(new NubConfiguration());
     for (ClasspathSource src : sources) {
       sourceById.put(src.id, src);
     }

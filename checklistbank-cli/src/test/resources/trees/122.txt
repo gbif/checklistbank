@@ -1,4 +1,6 @@
 Animalia [kingdom]
+  Cala [genus]
+    Cala ongumaensis [species]
 Archaea [kingdom]
 Bacteria [kingdom]
 Chromista [kingdom]

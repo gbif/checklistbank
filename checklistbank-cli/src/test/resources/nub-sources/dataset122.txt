@@ -3,3 +3,10 @@
 102	1		SPECIES	ACCEPTED		Abies alba
 103	1		SPECIES	ACCEPTED		Unaccepted
 104	1		SPECIES	ACCEPTED		unassigned Asteraceae
+2			KINGDOM	ACCEPTED		Animalia	
+22	2		SPECIES	ACCEPTED		Cala ongumaensis
+23	22		SPECIES	SYNONYM		Calendrella cinerea infrasp. ongumaensis C.H.B. Grant & Mackworth-Praed, 1955	
+24	2		INFRASPECIFIC_NAME	ACCEPTED		Tricholaema leucomelan namaqua W. L. Sclater, 1922	
+25	2		SUBSPECIES	ACCEPTED		Tricholaema leucomelan subsp. namaqua	
+26	2		INFRASPECIFIC_NAME	ACCEPTED		Tricholaema leucomelan infrasp. namaqua 1922	
+27	2		INFRASUBSPECIFIC_NAME	ACCEPTED		Tricholaema leucomelan namaqua W. L. Sclater, 1922	

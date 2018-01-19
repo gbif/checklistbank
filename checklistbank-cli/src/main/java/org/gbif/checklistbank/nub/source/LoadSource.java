@@ -7,19 +7,14 @@ import java.util.concurrent.Callable;
  */
 class LoadSource implements Callable<NubSource> {
   private final NubSource src;
-  private final boolean parseNames;
 
-  /**
-   * @param parseNames if true parse names and populate SrcUsage.parsedName which will be null otherwise!
-   */
-  public LoadSource(NubSource src, boolean parseNames) {
+  public LoadSource(NubSource src) {
     this.src = src;
-    this.parseNames = parseNames;
   }
 
   @Override
   public NubSource call() throws Exception {
-    src.init(false, false, parseNames, src.ignoreSynonyms);
+    src.init(false, false);
     return src;
   }
 }

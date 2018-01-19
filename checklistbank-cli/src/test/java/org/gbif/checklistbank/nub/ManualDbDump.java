@@ -28,16 +28,16 @@ public class ManualDbDump {
     LOG.info("Dump dataset {} from postgres to local neo", datasetKey);
     ClbSource src = new ClbSource(clb, datasetKey, "Checklist " + datasetKey);
     src.setNeoRepository(neo.neoRepository);
-    src.init(true, nubRanksOnly, false, false);
+    src.init(true, nubRanksOnly);
     LOG.info("Postrges dumped");
   }
 
   private static void dump2file(NeoConfiguration cfg, UUID datasetKey, GraphFormat format) throws Exception {
-    File f = new File("/Users/markus/Desktop/repo/tree-"+datasetKey+"."+format.suffix);
+    File f = new File("/Users/markus/Desktop/repo/tree-" + datasetKey + "." + format.suffix);
     LOG.info("Dump local neo db {} to {} file {}", datasetKey, format, f.getAbsolutePath());
     UsageDao dao = UsageDao.open(cfg, datasetKey);
     try (Transaction tx = dao.beginTx()) {
-       dao.printTree(new BufferedWriter(new FileWriter(f)), GraphFormat.TAB);
+      dao.printTree(new BufferedWriter(new FileWriter(f)), GraphFormat.TAB);
     }
     dao.close();
     LOG.info("Neo dumped");

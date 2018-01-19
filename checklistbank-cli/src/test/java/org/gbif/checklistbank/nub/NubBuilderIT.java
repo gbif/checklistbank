@@ -7,6 +7,7 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.StreamUtils;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
@@ -325,11 +326,11 @@ public class NubBuilderIT {
   public void testBackbonePatch() throws Exception {
     List<NubSource> sources = Lists.newArrayList();
     sources.add(new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA));
-    NubSourceList src = new NubSourceList(sources, false);
+    NubSourceList src = new NubSourceList(new NubConfiguration());
+    src.submitSources(sources);
     build(src);
 
-    // commented out as the patch file changes all the time
-    //assertTree("nubpatch.txt");
+    // do not assert tree as the patch file changes all the time
   }
 
   /**
@@ -899,12 +900,13 @@ public class NubBuilderIT {
   @Test
   @Ignore("Manual test for profiling performance issues")
   public void testPerformance() throws Exception {
-    NubSourceList src = new NubSourceList(Lists.newArrayList(
+    NubSourceList src = new NubSourceList(new NubConfiguration());
+    src.submitSources(Lists.newArrayList(
         new RandomSource(200000, Kingdom.ANIMALIA),
         new RandomSource(100, Kingdom.BACTERIA),
         new RandomSource(100, Kingdom.ARCHAEA),
         new RandomSource(20000, Kingdom.FUNGI),
-        new RandomSource(50000, Kingdom.PLANTAE)), false);
+        new RandomSource(50000, Kingdom.PLANTAE)));
     build(src);
   }
 
@@ -1554,6 +1556,7 @@ public class NubBuilderIT {
 
   /**
    * Make sure blacklisted names dont make it into the backbone
+   * https://github.com/gbif/checklistbank/issues/47
    */
   @Test
   public void testBlacklist() throws Exception {
@@ -1561,19 +1564,6 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("122.txt");
-  }
-
-  /**
-   * Make sure misspelled names use the corrected spelling
-   * Calendrella -> Calandrella
-   * https://github.com/gbif/checklistbank/issues/47
-   */
-  @Test
-  public void testMisspellings() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(123);
-    build(src);
-
-    assertTree("123.txt");
   }
 
   /**
@@ -1589,7 +1579,8 @@ public class NubBuilderIT {
       sources.add(new RandomSource(20, Kingdom.FUNGI));
     }
 
-    NubSourceList src = new NubSourceList(sources, false);
+    NubSourceList src = new NubSourceList(new NubConfiguration());
+    src.submitSources(sources);
     build(src);
   }
 

@@ -82,7 +82,7 @@ public class NubMatchingServiceImplIT {
     assertNull(best.getUsageKey());
   }
 
-  protected static void assertMatchConsistency(NameUsageMatch match) {
+  static void assertMatchConsistency(NameUsageMatch match) {
     assertNotNull(match.getConfidence());
     assertNotNull(match.getMatchType());
     if (NameUsageMatch.MatchType.NONE == match.getMatchType()) {

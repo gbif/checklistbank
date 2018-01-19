@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.checklistbank.nub.model.SrcUsage;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -11,19 +10,19 @@ import static org.junit.Assert.assertEquals;
  */
 public class ClasspathSourceTest {
 
-    @Test
-    public void testUsages() throws Exception {
-        ClasspathSource src = new ClasspathSource(1);
-        src.init(false, false, false, false);
+  @Test
+  public void testUsages() throws Exception {
+    ClasspathSource src = new ClasspathSource(1);
+    src.init(false, false);
 
-        int counter = 0;
-        for (SrcUsage u : src) {
-            counter++;
-            System.out.print(u.key + "  ");
-            System.out.print(u.scientificName + " :: ");
-            System.out.println(u.publishedIn);
-        }
-        assertEquals(12, counter);
-
+    int counter = 0;
+    for (SrcUsage u : src) {
+      counter++;
+      System.out.print(u.key + "  ");
+      System.out.print(u.scientificName + " :: ");
+      System.out.println(u.publishedIn);
     }
+    assertEquals(12, counter);
+
+  }
 }

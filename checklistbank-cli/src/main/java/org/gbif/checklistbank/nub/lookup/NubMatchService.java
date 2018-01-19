@@ -65,7 +65,7 @@ public class NubMatchService {
     try (ClbSource src = new ClbSource(cfg, d)) {
       // read in postgres usages
       LOG.info("Copy usages for {} from pg into neo", d.getKey());
-      src.init(false, false, true, false);
+      src.init(false, false);
 
       NubUsage unknown = new NubUsage();
       unknown.usageKey = Kingdom.INCERTAE_SEDIS.nubUsageKey();

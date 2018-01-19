@@ -15,10 +15,8 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
-import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.authorship.BasionymGroup;
@@ -45,7 +43,6 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.collection.MapUtils;
@@ -68,7 +65,6 @@ public class NubBuilder implements Runnable {
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
   public static final Set<Rank> NUB_RANKS;
   private final Set<String> blacklist;
-  private final Map<String, String> misspelings;
 
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -80,7 +76,7 @@ public class NubBuilder implements Runnable {
   }
 
   private final Set<NameType> ignoredNameTypes = Sets.newHashSet(
-      NameType.CANDIDATUS, NameType.CULTIVAR, NameType.INFORMAL, NameType.NO_NAME, NameType.PLACEHOLDER, NameType.NO_NAME
+      NameType.CANDIDATUS, NameType.CULTIVAR, NameType.INFORMAL, NameType.NO_NAME, NameType.PLACEHOLDER
   );
   private final static ImmutableMap<TaxonomicStatus, Integer> STATUS_ORDER = ImmutableMap.of(
       TaxonomicStatus.HOMOTYPIC_SYNONYM, 1,
@@ -95,7 +91,6 @@ public class NubBuilder implements Runnable {
   private final NubDb db;
   private final boolean closeDao;
   private final NubSourceList sources;
-  private final NameParser parser;
   private final NubConfiguration cfg;
   private NubSource currSrc;
   private ParentStack parents;
@@ -116,33 +111,25 @@ public class NubBuilder implements Runnable {
     idGen = new IdGenerator(idLookup, newIdStart);
     this.closeDao = closeDao;
     this.cfg = cfg;
-    parser = new NameParserGbifV1(cfg.parserTimeout);
 
-    Set<String> blacks;
+    Set<String> blacks = Sets.newHashSet();
     try {
-      blacks = FileUtils.streamToSet(getClass().getResourceAsStream("/backbone/blacklist.txt"));
-    } catch (IOException e) {
-      blacks = Sets.newHashSet();
+      LineIterator lines = FileUtils.getLineIterator(getClass().getResourceAsStream("/backbone/blacklist.tsv"));
+      while (lines.hasNext()) {
+        String line = lines.nextLine();
+        // comment?
+        if (line.startsWith("#")) continue;
+        blacks.add(line.split("\t", 2)[0]);
+      }
+    } catch (RuntimeException e) {
       LOG.error("Blacklist could not be read", e);
     }
 
     blacklist = blacks
         .stream()
+        .map(String::trim)
         .map(String::toUpperCase)
         .collect(Collectors.toSet());
-
-    Map<String, String> miss = new HashMap<>();
-    try {
-      LineIterator lines = FileUtils.getLineIterator(getClass().getResourceAsStream("/backbone/misspellings.tsv"));
-      while (lines.hasNext()) {
-        String line = lines.nextLine();
-        String[] parts = FileUtils.TAB_DELIMITED.split(line);
-        miss.put(parts[0].trim().toLowerCase(), parts[1].trim());
-      }
-    } catch (RuntimeException e) {
-      LOG.error("Misspellings could not be read", e);
-    }
-    misspelings = ImmutableMap.copyOf(miss);
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
@@ -881,10 +868,6 @@ public class NubBuilder implements Runnable {
           for (SrcUsage u : batch) {
             // catch errors processing individual records too
             try {
-              if (misspelings.containsKey(u.scientificName.toLowerCase())) {
-                LOG.debug("replace misspelled name {}", u.scientificName);
-                u.scientificName = misspelings.get(u.scientificName.toLowerCase());
-              }
               LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
               sourceUsageCounter++;
               parents.add(u);
@@ -1004,13 +987,11 @@ public class NubBuilder implements Runnable {
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
     Preconditions.checkNotNull(u.status);
     Preconditions.checkArgument(parent.status.isAccepted());
-    // check blacklist
-    if (blacklist.contains(u.scientificName.toUpperCase())) {
-      throw new IgnoreSourceUsageException("Ignore blacklisted name", u.scientificName);
-    }
+    Preconditions.checkNotNull(u.parsedName);
 
-    // try to parse name
-    addParsedNameIfNull(u);
+    // filter out various unwanted names
+    filterUsage(u);
+
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
@@ -1107,7 +1088,7 @@ public class NubBuilder implements Runnable {
   }
 
   private NubUsageMatch createNubUsage(SrcUsage u, Origin origin, NubUsage p) throws IgnoreSourceUsageException {
-    addParsedNameIfNull(u);
+    Preconditions.checkNotNull(u.parsedName);
     // if this is a synonym but the parent is not part of the nub (e.g. cause its a placeholder name) ignore it!
     // http://dev.gbif.org/issues/browse/POR-2990
     if (u.status.isSynonym() && !parents.parentInNub()) {
@@ -1141,31 +1122,27 @@ public class NubBuilder implements Runnable {
         }
 
         // check if implicit species or genus parents are needed
-        SrcUsage implicit = new SrcUsage();
         NubUsage implicitParent = null;
+        SrcUsage implicit = new SrcUsage();
         try {
           if (u.parsedName.getGenusOrAbove() != null) {
+            implicit.parsedName = new ParsedName();
+            implicit.status = TaxonomicStatus.DOUBTFUL;
+            implicit.parsedName.setGenusOrAbove(u.parsedName.getGenusOrAbove());
             if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
               implicit.rank = Rank.GENUS;
-              implicit.scientificName = u.parsedName.getGenusOrAbove();
-              implicit.status = TaxonomicStatus.DOUBTFUL;
-              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
-
             } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
               implicit.rank = Rank.SPECIES;
-              implicit.scientificName = u.parsedName.canonicalSpeciesName();
-              implicit.status = TaxonomicStatus.DOUBTFUL;
-              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+              implicit.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
             }
+            implicit.scientificName = implicit.parsedName.canonicalName();
+            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
           } else {
             LOG.warn("Missing genus in parsed name for {}", u.scientificName);
           }
 
         } catch (IgnoreSourceUsageException e) {
           LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
-
-        } catch (Exception e) {
-          LOG.error("Failed to persistent implicit {} {}", implicit.rank, implicit.scientificName, e);
         }
 
         if (implicitParent != null) {
@@ -1205,71 +1182,70 @@ public class NubBuilder implements Runnable {
     return p;
   }
 
-  private void addParsedNameIfNull(SrcUsage u) throws IgnoreSourceUsageException {
-    if (u.parsedName == null) {
-      try {
-        u.parsedName = parser.parse(u.scientificName, u.rank);
-        // avoid indet names
-        if (ignoredNameTypes.contains(u.parsedName.getType())) {
-          throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);
-        }
-        // avoid incomplete names
-        if ((!StringUtils.isBlank(u.parsedName.getInfraSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getSpecificEpithet()))
-            || !StringUtils.isBlank(u.parsedName.getSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getGenusOrAbove())) {
-          throw new IgnoreSourceUsageException("Ignore incomplete name", u.scientificName);
-        }
-        // avoid taxon concept names
-        if (!StringUtils.isBlank(u.parsedName.getSensu())) {
-          throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
-        }
-        // avoid names with nulls in epithets
-        if ("null".equals(u.parsedName.getSpecificEpithet()) || "null".equals(u.parsedName.getInfraSpecificEpithet())) {
-          throw new IgnoreSourceUsageException("Ignore names with null epithets", u.scientificName);
-        }
-        // consider infraspecific names subspecies
-        if (u.parsedName.getRank() == Rank.INFRASPECIFIC_NAME && u.parsedName.isBinomial() && u.parsedName.getInfraSpecificEpithet() != null) {
-          u.parsedName.setRank(Rank.SUBSPECIES);
-        }
-        // consider parsed rank only for bi/trinomials
-        Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
-        if (pRank != null && pRank != u.rank && !pRank.isUncomparable()) {
-          if (u.rank == null) {
-            LOG.debug("Use parsed rank {}", pRank);
-            u.rank = pRank;
-          } else if (u.rank.isUncomparable()) {
-            LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
-            u.rank = pRank;
-          } else {
-            LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
-            throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
-          }
+  private boolean blacklisted(SrcUsage u) {
+    return blacklist.contains(u.scientificName.toUpperCase()) ||
+        (u.parsedName.canonicalName() != null && blacklist.contains(u.parsedName.canonicalName().toUpperCase()));
+  }
 
-        } else if (Rank.INFRAGENERIC_NAME == u.rank && u.parsedName.isBinomial()) {
-          // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
-          u.rank = Rank.SPECIES;
-          LOG.debug("Treat infrageneric name {} as species", u.scientificName);
-        }
-
-        // strip author names from higher taxa
-        if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
-          clearAuthorship(u.parsedName);
-        }
-
-        //TODO: rebuild name in canonical form - e.g. removes subgenus references
-        //u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
-
-
-      } catch (UnparsableException e) {
-        // allow virus and OTU names in the nub
-        if (e.type == NameType.VIRUS || e.type == NameType.OTU) {
-          u.parsedName = new ParsedName();
-          u.parsedName.setScientificName(u.scientificName);
-          u.parsedName.setType(e.type);
-        } else {
-          throw new IgnoreSourceUsageException("Unparsable " + e.type, u.scientificName);
-        }
-      }
+  /**
+   * Filters out vertain kind of names that we do not want in the backbone
+   * and throws a IgnoreSourceUsageException in such cases.
+   *
+   * @throws IgnoreSourceUsageException
+   */
+  private void filterUsage(SrcUsage u) throws IgnoreSourceUsageException {
+    // avoid unwanted types of names, e.g. indet names
+    if (ignoredNameTypes.contains(u.parsedName.getType())) {
+      throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);
     }
+    // check blacklist
+    if (blacklisted(u)) {
+      throw new IgnoreSourceUsageException("Ignore blacklisted name", u.scientificName);
+    }
+    // avoid incomplete names
+    if ((!StringUtils.isBlank(u.parsedName.getInfraSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getSpecificEpithet()))
+        || !StringUtils.isBlank(u.parsedName.getSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getGenusOrAbove())) {
+      throw new IgnoreSourceUsageException("Ignore incomplete name", u.scientificName);
+    }
+    // avoid taxon concept names
+    if (!StringUtils.isBlank(u.parsedName.getSensu())) {
+      throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
+    }
+    // avoid names with nulls in epithets
+    if ("null".equals(u.parsedName.getSpecificEpithet()) || "null".equals(u.parsedName.getInfraSpecificEpithet())) {
+      throw new IgnoreSourceUsageException("Ignore names with null epithets", u.scientificName);
+    }
+    // consider infraspecific names subspecies
+    if (u.parsedName.getRank() == Rank.INFRASPECIFIC_NAME && u.parsedName.isBinomial() && u.parsedName.getInfraSpecificEpithet() != null) {
+      u.parsedName.setRank(Rank.SUBSPECIES);
+    }
+    // consider parsed rank only for bi/trinomials
+    Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
+    if (pRank != null && pRank != u.rank && !pRank.isUncomparable()) {
+      if (u.rank == null) {
+        LOG.debug("Use parsed rank {}", pRank);
+        u.rank = pRank;
+      } else if (u.rank.isUncomparable()) {
+        LOG.debug("Prefer parsed rank {} over {}", pRank, u.rank);
+        u.rank = pRank;
+      } else {
+        LOG.debug("Rank {} does not match parsed rank {}. Ignore {}", u.rank, pRank, u.scientificName);
+        throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
+      }
+
+    } else if (Rank.INFRAGENERIC_NAME == u.rank && u.parsedName.isBinomial()) {
+      // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
+      u.rank = Rank.SPECIES;
+      LOG.debug("Treat infrageneric name {} as species", u.scientificName);
+    }
+
+    // strip author names from higher taxa
+    if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
+      clearAuthorship(u.parsedName);
+    }
+
+    //TODO: rebuild name in canonical form - e.g. removes subgenus references
+    //u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
   }
 
   private void clearAuthorship(ParsedName pn) {
