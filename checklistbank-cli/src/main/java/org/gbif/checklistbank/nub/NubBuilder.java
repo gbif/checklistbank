@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
@@ -67,6 +68,7 @@ public class NubBuilder implements Runnable {
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
   public static final Set<Rank> NUB_RANKS;
   private final Set<String> blacklist;
+  private final Map<String, String> misspelings;
 
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -121,13 +123,26 @@ public class NubBuilder implements Runnable {
       blacks = FileUtils.streamToSet(getClass().getResourceAsStream("/backbone/blacklist.txt"));
     } catch (IOException e) {
       blacks = Sets.newHashSet();
-      LOG.error("Blacklist could not be read");
+      LOG.error("Blacklist could not be read", e);
     }
 
     blacklist = blacks
         .stream()
         .map(String::toUpperCase)
         .collect(Collectors.toSet());
+
+    Map<String, String> miss = new HashMap<>();
+    try {
+      LineIterator lines = FileUtils.getLineIterator(getClass().getResourceAsStream("/backbone/misspellings.tsv"));
+      while (lines.hasNext()) {
+        String line = lines.nextLine();
+        String[] parts = FileUtils.TAB_DELIMITED.split(line);
+        miss.put(parts[0].trim().toLowerCase(), parts[1].trim());
+      }
+    } catch (RuntimeException e) {
+      LOG.error("Misspellings could not be read", e);
+    }
+    misspelings = ImmutableMap.copyOf(miss);
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
@@ -866,6 +881,10 @@ public class NubBuilder implements Runnable {
           for (SrcUsage u : batch) {
             // catch errors processing individual records too
             try {
+              if (misspelings.containsKey(u.scientificName.toLowerCase())) {
+                LOG.debug("replace misspelled name {}", u.scientificName);
+                u.scientificName = misspelings.get(u.scientificName.toLowerCase());
+              }
               LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
               sourceUsageCounter++;
               parents.add(u);

@@ -1536,17 +1536,6 @@ public class NubBuilderIT {
   }
 
   /**
-   * Make sure blacklisted names dont make it into the backbone
-   */
-  @Test
-  public void testBlacklist() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(122);
-    build(src);
-
-    assertTree("122.txt");
-  }
-
-  /**
    * 120 = COL
    * 121 = WORMS
    *
@@ -1561,6 +1550,30 @@ public class NubBuilderIT {
     build(src);
 
     assertTree("120 121.txt");
+  }
+
+  /**
+   * Make sure blacklisted names dont make it into the backbone
+   */
+  @Test
+  public void testBlacklist() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(122);
+    build(src);
+
+    assertTree("122.txt");
+  }
+
+  /**
+   * Make sure misspelled names use the corrected spelling
+   * Calendrella -> Calandrella
+   * https://github.com/gbif/checklistbank/issues/47
+   */
+  @Test
+  public void testMisspellings() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(123);
+    build(src);
+
+    assertTree("123.txt");
   }
 
   /**
