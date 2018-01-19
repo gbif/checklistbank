@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Fungi	
+8776202	1		SPECIES	ACCEPTED		Mycena tintinnabulum (Paulet) Quél., 1872	
+2			KINGDOM	ACCEPTED		Animalia	
+10	2		SPECIES	ACCEPTED		Puma yagouaroundi	
+11	2		SPECIES	ACCEPTED		Puma yagouaroundi	
+12	2		SPECIES	ACCEPTED		Puma yagouaroundi	
+20	2		SPECIES	ACCEPTED		Puma nonexista	
+21	20		SPECIES	SYNONYM		Puma nonexisti L.	
+22	20		SPECIES	SYNONYM		Puma nonexisti DC.	

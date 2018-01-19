@@ -1579,6 +1579,17 @@ public class NubBuilderIT {
   }
 
   /**
+   * https://github.com/gbif/checklistbank/issues/30
+   */
+  @Test
+  public void test30() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(123, 124);
+    build(src);
+
+    assertTree("123 124.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test

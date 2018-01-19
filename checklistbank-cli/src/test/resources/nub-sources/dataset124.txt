@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Fungi	
+2526958	1		SPECIES	ACCEPTED		Mycena tintinnabulum (Batsch) Quél., 1872	
+7695986	1		SPECIES	ACCEPTED		Mycena tintinabulum (Fr.) Quél.	
+7695986	1		SPECIES	ACCEPTED		Mycena tintinabulum Fr.	
+2			KINGDOM	ACCEPTED		Animalia	
+10	2		SPECIES	ACCEPTED		Puma yagouaroundi	
+22	2		SPECIES	ACCEPTED		Puma nonexisti	

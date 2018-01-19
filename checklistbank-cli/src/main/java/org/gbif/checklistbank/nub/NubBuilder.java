@@ -1142,9 +1142,9 @@ public class NubBuilder implements Runnable {
               implicit.rank = Rank.SPECIES;
               implicit.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
             }
-            implicit.parsedName.setRank(u.rank);
             implicit.scientificName = implicit.parsedName.canonicalName();
             implicit.parsedName.setScientificName(implicit.scientificName);
+            implicit.parsedName.setRank(implicit.rank);
             implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
           } else {
             LOG.warn("Missing genus in parsed name for {}", u.scientificName);

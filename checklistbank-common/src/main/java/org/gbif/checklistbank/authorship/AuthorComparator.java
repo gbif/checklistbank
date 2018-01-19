@@ -123,12 +123,12 @@ public class AuthorComparator {
     }
 
     Equality recomb = compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
-    if (recomb == Equality.DIFFERENT) {
-      // in case the recomb author differs we are done, no need for basionym authorship comparison
+    if (recomb != Equality.UNKNOWN) {
+      // in case the recomb author differs or is the same we are done, no need for basionym authorship comparison
       return recomb;
     }
     Equality original = compare(n1.getBracketAuthorship(), n1.getBracketYear(), n2.getBracketAuthorship(), n2.getBracketYear());
-    if (recomb == Equality.UNKNOWN && original == Equality.UNKNOWN) {
+    if (original == Equality.UNKNOWN) {
       // a common error is missing brackets, so if all is unknown we compare authorship across brackets and return a possible match
       Equality across = Equality.UNKNOWN;
       if (Strings.isNullOrEmpty(n1.getAuthorship()) && Strings.isNullOrEmpty(n1.getYear())) {
