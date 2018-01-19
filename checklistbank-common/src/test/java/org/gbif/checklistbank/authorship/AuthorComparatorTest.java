@@ -22,6 +22,7 @@ public class AuthorComparatorTest {
 
     assertEquals("doring", comp.normalize("Döring"));
     assertEquals("desireno", comp.normalize("Désírèñø"));
+    assertEquals("p m e l de la chapelle", comp.normalize("p m é l de la chapelle"));
 
     assertEquals("a j white", comp.normalize("A.J. White"));
     assertEquals("j a white", comp.normalize("J A  WHITE"));
@@ -51,6 +52,9 @@ public class AuthorComparatorTest {
     assertEquals("muller", comp.normalize("Mueller"));
     assertEquals("moller", comp.normalize("Moeller"));
 
+
+    assertEquals("l filius", comp.normalize("L. f."));
+    assertEquals("l filius", comp.normalize("L.fil."));
     assertEquals("don filius", comp.normalize("Don f."));
     assertEquals("don filius", comp.normalize("Don fil."));
     assertEquals("don filius", comp.normalize("Don fil"));
@@ -99,32 +103,48 @@ public class AuthorComparatorTest {
     assertEquals("c h bipontinus schultz", comp.lookup("schultz bip"));
   }
 
+
   @Test
-  public void extractSurname() throws Exception {
-    assertEquals("doring", comp.extractSurname("doring"));
-    assertEquals("white", comp.extractSurname("a j white"));
-    assertEquals("harvey", comp.extractSurname("white herbert harvey"));
-    assertEquals("colla", comp.extractSurname("l a colla"));
-    assertEquals("yin", comp.extractSurname("w q yin"));
-    assertEquals("kirchner", comp.extractSurname("g kirchner"));
-    assertEquals("reichenbach", comp.extractSurname("h g l reichenbach"));
-    assertEquals("linnaeus", comp.extractSurname("c linnaeus filius"));
+  public void testAuthorParsing() throws Exception {
+    assertAuthor("l", null, "l");
+    assertAuthor("l bolus", "l", "bolus");
+    assertAuthor("f k c g s mark", "f k c g s", "mark");
+    assertAuthor("p m e l de la chapelle", "p m e l", "chapelle");
+    assertAuthor("doring", null, "doring");
+    assertAuthor("a j white", "a j", "white");
+    assertAuthor("white herbert harvey", null, "harvey");
+    assertAuthor("l a colla", "l a", "colla");
+    assertAuthor("w q yin", "w q", "yin");
+    assertAuthor("g kirchner", "g", "kirchner");
+    assertAuthor("h g l reichenbach", "h g l", "reichenbach");
+    assertAuthor("c linnaeus filius", "c", "linnaeus");
+  }
+
+  private void assertAuthor(String full, String initials, String surname) {
+    AuthorComparator.Author a = new AuthorComparator.Author(full);
+    assertEquals(full, a.fullname);
+    assertEquals(initials, a.initials);
+    assertEquals(surname, a.surname);
   }
 
   @Test
   public void firstInitialsDiffer() throws Exception {
-    assertTrue(comp.firstInitialsDiffer("a a mark", "a b mark"));
-    assertFalse(comp.firstInitialsDiffer("k f mark", "k f mark"));
-    assertFalse(comp.firstInitialsDiffer("k f mark", "f k mark"));
-    assertFalse(comp.firstInitialsDiffer("k f mark", "k mark"));
-    assertFalse(comp.firstInitialsDiffer("k mark", "k f mark"));
-    assertFalse(comp.firstInitialsDiffer("f mark", "k f mark"));
-    assertFalse(comp.firstInitialsDiffer("f mark", "f k mark"));
-    assertFalse(comp.firstInitialsDiffer("f mark", "f k c g s mark"));
+    assertTrue(firstInitialsDiffer("a a mark", "a b mark"));
+    assertFalse(firstInitialsDiffer("k f mark", "k f mark"));
+    assertFalse(firstInitialsDiffer("k f mark", "f k mark"));
+    assertFalse(firstInitialsDiffer("k f mark", "k mark"));
+    assertFalse(firstInitialsDiffer("k mark", "k f mark"));
+    assertFalse(firstInitialsDiffer("f mark", "k f mark"));
+    assertFalse(firstInitialsDiffer("f mark", "f k mark"));
+    assertFalse(firstInitialsDiffer("f mark", "f k c g s mark"));
 
-    assertTrue(comp.firstInitialsDiffer("k mark", "f mark"));
-    assertTrue(comp.firstInitialsDiffer("k f mark", "a f mark"));
-    assertTrue(comp.firstInitialsDiffer("a a mark", "a b mark"));
+    assertTrue(firstInitialsDiffer("k mark", "f mark"));
+    assertTrue(firstInitialsDiffer("k f mark", "a f mark"));
+    assertTrue(firstInitialsDiffer("a a mark", "a b mark"));
+  }
+
+  private boolean firstInitialsDiffer(String a1, String a2) {
+    return new AuthorComparator.Author(a1).firstInitialsDiffer(new AuthorComparator.Author(a2));
   }
 
   @Test
@@ -152,7 +172,6 @@ public class AuthorComparatorTest {
 
     p2.setYear("1847");
     assertEquals(Equality.EQUAL, comp.compare(p1, p2));
-
 
 
     p1 = new ParsedName();
@@ -292,6 +311,11 @@ public class AuthorComparatorTest {
     assertAuth("Bruand", "1850", Equality.DIFFERENT, null, "1998");
     assertAuth("Bruand", "1850", Equality.EQUAL, null, "1850");
     assertAuth("Bruand", "1850", Equality.EQUAL, null, "1851");
+
+    // https://github.com/gbif/checklistbank/issues/2
+    assertAuth("L. f.", null, Equality.EQUAL, "L.", null);
+    assertAuth("L.", null, Equality.EQUAL, "L.fil.", null);
+    assertAuth("L. Bolus", null, Equality.EQUAL, "L. Bol.", null);
   }
 
   @Test
