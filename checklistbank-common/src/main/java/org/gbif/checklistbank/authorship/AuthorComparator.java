@@ -410,16 +410,12 @@ public class AuthorComparator {
             return Equality.EQUAL;
           }
 
-        } else if (surname.equals(common) && (other.surname.startsWith(common))
-            || other.surname.equals(common) && (surname.startsWith(common))
+        } else if (!firstInitialsDiffer(other) && (surname.equals(common) && (other.surname.startsWith(common))
+            || other.surname.equals(common) && (surname.startsWith(common)))
             ) {
           // short common surname, matching in full to one of them
           // and in addition existing and not conflicting initials
-          if (firstInitialsDiffer(other)) {
-            return Equality.DIFFERENT;
-          } else {
-            return Equality.EQUAL;
-          }
+          return Equality.EQUAL;
 
         } else if (fullname.equals(common) && (other.surname.startsWith(common))
             || other.fullname.equals(common) && (surname.startsWith(common))
