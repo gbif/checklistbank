@@ -45,6 +45,10 @@ public class NubConfiguration {
   @Valid
   public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
 
+  @NotNull
+  @Valid
+  public URI blacklist = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/blacklist.tsv");
+
   /**
    * Set of dataset, publisher or installation keys from which synonyms should be ignored during nub builds.
    * Defaults to the Plazi organization due to http://dev.gbif.org/issues/browse/POR-3151

@@ -55,10 +55,13 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
@@ -89,9 +92,9 @@ public class NubBuilder implements Runnable {
 
   private final Set<Rank> allowedRanks = Sets.newHashSet();
   private final NubDb db;
-  private final boolean closeDao;
   private final NubSourceList sources;
   private final NubConfiguration cfg;
+  private boolean closeDao = true;
   private NubSource currSrc;
   private ParentStack parents;
   private int sourceUsageCounter = 0;
@@ -103,57 +106,60 @@ public class NubBuilder implements Runnable {
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
 
-  private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart,
-                     boolean closeDao, NubConfiguration cfg) {
+  private NubBuilder(UsageDao dao, NubSourceList sources, IdLookup idLookup, AuthorComparator authorComparator, int newIdStart, NubConfiguration cfg) {
     db = NubDb.create(dao, authorComparator);
     this.sources = sources;
     this.authorComparator = authorComparator;
     idGen = new IdGenerator(idLookup, newIdStart);
-    this.closeDao = closeDao;
     this.cfg = cfg;
 
+    blacklist = readBlacklist(cfg.blacklist)
+        .map(String::trim)
+        .map(String::toUpperCase)
+        .collect(Collectors.toSet());
+  }
+
+  private static Stream<String> readBlacklist(URI source) {
     Set<String> blacks = Sets.newHashSet();
     try {
-      LineIterator lines = FileUtils.getLineIterator(getClass().getResourceAsStream("/backbone/blacklist.tsv"));
+      InputStream stream;
+      if (source.isAbsolute()) {
+        stream = source.toURL().openStream();
+      } else {
+        stream = FileUtils.classpathStream(source.toString());
+      }
+      LineIterator lines = FileUtils.getLineIterator(stream);
       while (lines.hasNext()) {
         String line = lines.nextLine();
         // comment?
         if (line.startsWith("#")) continue;
         blacks.add(line.split("\t", 2)[0]);
       }
-    } catch (RuntimeException e) {
+    } catch (IOException e) {
       LOG.error("Blacklist could not be read", e);
     }
-
-    blacklist = blacks
-        .stream()
-        .map(String::trim)
-        .map(String::toUpperCase)
-        .collect(Collectors.toSet());
+    return blacks.stream();
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
     try {
       IdLookupImpl idLookup = IdLookupImpl.temp().load(cfg.clb, true);
-      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, true, cfg);
+      return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, cfg);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
     }
   }
 
   /**
-   * @param dao the dao to persistent the nub. Will be left open after run() is called.
+   * @param dao the dao to persistent the nub.
    */
-  public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, int parserTimeout) {
-    NubConfiguration cfg = new NubConfiguration();
-    cfg.groupBasionyms = true;
-    cfg.validate = true;
-    cfg.runAssertions = false;
-    cfg.autoImport = false;
-    cfg.neo.batchSize = 5000;
-    cfg.parserTimeout = parserTimeout;
-    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, false, cfg);
+  public static NubBuilder create(UsageDao dao, NubSourceList sources, IdLookup idLookup, int newIdStart, NubConfiguration cfg) {
+    return new NubBuilder(dao, sources, idLookup, idLookup.getAuthorComparator(), newIdStart, cfg);
+  }
+
+  public void setCloseDao(boolean closeDao) {
+    this.closeDao = closeDao;
   }
 
   /**

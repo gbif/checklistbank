@@ -1,5 +1,15 @@
 package org.gbif.checklistbank.cli.importer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.zaxxer.hikari.HikariDataSource;
+import org.apache.solr.client.solrj.SolrClient;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
@@ -21,6 +31,7 @@ import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
 import org.gbif.checklistbank.nub.NubBuilder;
+import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
@@ -30,6 +41,10 @@ import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,27 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Resources;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.zaxxer.hikari.HikariDataSource;
-import org.apache.solr.client.solrj.SolrClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
@@ -106,8 +101,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   @Before
   public void initDwcaRepo() throws Exception {
     iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
-    iCfg.chunkMinSize=10;
-    iCfg.chunkSize=50;
+    iCfg.chunkMinSize = 10;
+    iCfg.chunkSize = 50;
     iCfg.neo = cfg.neo;
 
     initGuice(iCfg);
@@ -254,7 +249,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull("Higher taxon key "+key+" in solr does not exist in postgres", u);
+        assertNotNull("Higher taxon key " + key + " in solr does not exist in postgres", u);
       }
     }
 
@@ -300,7 +295,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull("Higher taxon key "+key+" in solr does not exist in postgres", u);
+        assertNotNull("Higher taxon key " + key + " in solr does not exist in postgres", u);
       }
     }
   }
@@ -333,8 +328,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     NameUsage expected = null;
     for (NameUsage u : resp.getResults()) {
       if (u.getIssues().size() > 0) {
-        System.err.println("Found "+u.toString());
-        System.err.println("Issues are "+u.getIssues());
+        System.err.println("Found " + u.toString());
+        System.err.println("Issues are " + u.getIssues());
         expected = u;
         break;
       }
@@ -386,9 +381,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, 100);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, NubBuilderIT.CFG);
     nb.run();
-    dao.close();
 
     // import
     Importer imp = runImport(Constants.NUB_DATASET_KEY);

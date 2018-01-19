@@ -36,6 +36,7 @@ import org.neo4j.helpers.collection.Iterators;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -44,9 +45,20 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class NubBuilderIT {
+  public static final NubConfiguration CFG = new NubConfiguration();
   private UsageDao dao;
   private Transaction tx;
   private static final NameParser PARSER = new NameParserGbifV1();
+
+  static {
+    CFG.groupBasionyms = true;
+    CFG.validate = true;
+    CFG.runAssertions = false;
+    CFG.autoImport = false;
+    CFG.neo.batchSize = 5000;
+    CFG.parserTimeout = 250;
+    CFG.blacklist = URI.create("blacklist-test.tsv");
+  }
 
   private static void log(String msg, Object... args) {
     System.out.println(String.format(msg, args));
@@ -1589,7 +1601,8 @@ public class NubBuilderIT {
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, 100);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, CFG);
+    nb.setCloseDao(false);
     try {
       nb.run();
     } catch (AssertionError e) {
@@ -1637,7 +1650,8 @@ public class NubBuilderIT {
     dao.close();
     // new, empty DAO
     dao = UsageDao.temporaryDao(100);
-    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1, 100);
+    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1, CFG);
+    nb.setCloseDao(false);
     nb.run();
 
     tx = dao.beginTx();
