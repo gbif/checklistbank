@@ -976,7 +976,7 @@ public class NubBuilderIT {
    * Make sure non parsed names get treated well.
    * Parsing can fail due to regex timeouts or badly formed names
    * This name is known to time out the name parser so its not expected in the tree:
-   * Desmarestia ligulata subsp. muelleri (M.E.Ramirez & A.F.Peters) A.F.Peters, E.C.Yang, A.F.Peters, E.C.Yang, F.C.Küpper & Prud'Homme van Reine, 2014
+   * Desmarestia ligulata subsp. muelleri
    */
   @Test
   public void testParsingTimouts() throws Exception {
