@@ -127,7 +127,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     cfg.neoRepository = repository;
   }
 
-  abstract void initNeo(NeoUsageWriter writer) throws Exception;
+  protected abstract void initNeo(NeoUsageWriter writer) throws Exception;
 
   public class NeoUsageWriter extends TabMapperBase {
     private int counter = 0;

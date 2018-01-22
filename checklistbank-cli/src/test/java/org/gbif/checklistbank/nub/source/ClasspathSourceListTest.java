@@ -42,7 +42,8 @@ public class ClasspathSourceListTest {
       }
       monitor.run();
     }
-    ClasspathSourceList srcList = ClasspathSourceList.sources(sources);
+    ClasspathSourceList srcList = ClasspathSourceList.emptySource();
+    srcList.submitSources(sources);
     monitor.run();
     for (NubSource src : srcList) {
       monitor.run();

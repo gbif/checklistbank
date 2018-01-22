@@ -37,9 +37,11 @@ import org.neo4j.helpers.collection.Iterators;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
+import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -94,12 +96,31 @@ public class NubBuilderIT {
     }
   }
 
+  @Test(expected = RuntimeException.class)
+  public void testSourceException() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.emptySource();
+    src.submitSources(Lists.<ErrorSource>newArrayList(new ErrorSource()));
+    build(src);
+  }
+
+  public static class ErrorSource extends NubSource {
+    public ErrorSource() {
+      super(UUID.randomUUID(), "Error Dataset", true);
+    }
+
+    @Override
+    protected void initNeo(NeoUsageWriter writer) throws Exception {
+      throw new ParseException("I am the chaos monkey", 0);
+    }
+  }
+
   /**
    * The GBIF backbone only accepts mayor linnean ranks above species level.
    * For infraspecific names we only accept subspecies in zoology, but other ranks can treated as synonyms.
    * In botany subspecies, variety or form is an accepted rank.
    */
   @Test
+
   public void testBackboneRanks() throws Exception {
     build(ClasspathSourceList.source(1));
 

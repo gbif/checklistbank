@@ -38,10 +38,6 @@ public class ClasspathSourceList extends NubSourceList {
     return new ClasspathSourceList(Lists.newArrayList());
   }
 
-  public static ClasspathSourceList sources(Iterable<ClasspathSource> sources) {
-    return new ClasspathSourceList(Lists.newArrayList());
-  }
-
   /**
    * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
    */
