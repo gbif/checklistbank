@@ -58,7 +58,7 @@ public class DwcaSource extends NubSource {
   }
 
   @Override
-  void initNeo(NeoUsageWriter writer) throws Exception {
+  public void initNeo(NeoUsageWriter writer) throws Exception {
     UsageDao dao = normalize();
     LOG.info("Import source usages");
     try (Transaction tx = dao.beginTx()) {

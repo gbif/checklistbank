@@ -36,7 +36,7 @@ public class ClasspathSource extends NubSource {
   }
 
   @Override
-  void initNeo(NeoUsageWriter writer) throws Exception {
+  public void initNeo(NeoUsageWriter writer) throws Exception {
     String file = "nub-sources/dataset" + id + ".txt";
     InputStreamUtils isu = new InputStreamUtils();
     try (InputStream is = isu.classpathStream(file)) {
