@@ -130,6 +130,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         }
       }
       // diagnostics
+      m2.getDiagnostics().setMatchType(m.getMatchType());
       m2.getDiagnostics().setStatus(m.getStatus());
       m2.getDiagnostics().setNote(m.getNote());
       if (m.getAlternatives() != null) {
