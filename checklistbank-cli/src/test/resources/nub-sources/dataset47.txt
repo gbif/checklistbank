@@ -4,5 +4,5 @@
 100	10		SUBSPECIES	ACCEPTED		Desmarestia ligulata subsp. muelleri This Is A Real 24/7 Bad-Name € chars and $ freaks & Prud'Homme van Reine, 2014
 101	10		SPECIES	ACCEPTED		desmarestia ligula	
 102	10		SPECIES	ACCEPTED		Desmarestia Legola	
-103	10		SPECIES	ACCEPTED		Desmarestia playmobilia This Is No Authorname Please Dont Get Processed	
+103	10		SPECIES	ACCEPTED		Desmarestia playmobilia This Is No Authorname cause we use lower case and unusual non letter §$%& Dont Get Processed
 104	10		SPECIES	ACCEPTED		ligula
