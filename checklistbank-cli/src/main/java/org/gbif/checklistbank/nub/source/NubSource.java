@@ -213,13 +213,9 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       }
 
       u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
-      if (!u.parsedName.isParsableType()) {
-        if (!u.parsedName.isParsed()) {
-          LOG.debug("Failed to parse {} {}: {}", u.rank, u.key, u.scientificName);
-          unparsable++;
-        }
-      } else {
-        LOG.debug("Unparsable {} {}: {}", u.parsedName.getType(), u.key, u.scientificName);
+      if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
+        LOG.debug("Failed to parse {} {}: {}", u.rank, u.key, u.scientificName);
+        unparsable++;
       }
 
       counter++;
