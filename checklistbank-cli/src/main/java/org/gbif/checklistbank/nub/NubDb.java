@@ -1,14 +1,11 @@
 package org.gbif.checklistbank.nub;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.neo.Labels;
@@ -23,29 +20,15 @@ import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.checklistbank.utils.SymmetricIdentityMatrix;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Preconditions;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.NotFoundException;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
-
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * Wrapper around the dao that etends the dao with nub build specific common operations.
@@ -58,6 +41,7 @@ public class NubDb {
   private final KingdomParser kingdomParser = KingdomParser.getInstance();
   private final Map<Kingdom, NubUsage> kingdoms = Maps.newHashMap();
   private static final SymmetricIdentityMatrix<Kingdom> KINGDOM_MATCH = SymmetricIdentityMatrix.create();
+
   static {
     KINGDOM_MATCH.add(Kingdom.ANIMALIA, Kingdom.PROTOZOA);
     KINGDOM_MATCH.add(Kingdom.ARCHAEA, Kingdom.BACTERIA);
@@ -70,7 +54,7 @@ public class NubDb {
 
   private NubDb(UsageDao dao, AuthorComparator authorComparator, boolean initialize) {
     this.dao = dao;
-    this.authComp = authorComparator;
+    authComp = authorComparator;
     // persistent indices?
     if (initialize) {
       try (Transaction tx = dao.beginTx()) {
@@ -134,9 +118,9 @@ public class NubDb {
    */
   public List<Node> parents(Node n) {
     return Iterables.asList(Traversals.PARENTS
-            .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
-            .traverse(n)
-            .nodes());
+        .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
+        .traverse(n)
+        .nodes());
   }
 
   public Map<Rank, String> parentsMap(Node n) {
@@ -183,11 +167,10 @@ public class NubDb {
     List<NubUsage> doubtful = Lists.newArrayList();
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, normedCanonical))) {
       NubUsage rn = dao.readNub(n);
-      if ( (kingdom == null || kingdom == rn.kingdom)
+      if ((kingdom == null || kingdom == rn.kingdom)
           && (rank == null || rank == rn.rank)
           && (inclSynonyms || rn.status.isAccepted())
-          )
-      {
+          ) {
         if (rn.status == TaxonomicStatus.DOUBTFUL) {
           doubtful.add(rn);
         } else {
@@ -223,7 +206,7 @@ public class NubDb {
         if (!rn.parsedName.hasAuthorship()) {
           canonMatches++;
         }
-      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true)){
+      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true)) {
         doubtful = rn;
       }
     }
@@ -323,7 +306,7 @@ public class NubDb {
     while (iter.hasNext()) {
       if (iter.next().status == TaxonomicStatus.DOUBTFUL) {
         iter.remove();
-      };
+      }
     }
     if (checked.size() == 1) {
       return NubUsageMatch.snap(checked.get(0));
@@ -357,6 +340,7 @@ public class NubDb {
 
   /**
    * Checks if all nubusages are synonyms, have authorship and origin from the same source
+   *
    * @return the source UUID all usages share
    */
   private UUID qualifiedSynonymsFromSingleSource(Collection<NubUsage> usages) {
@@ -391,7 +375,7 @@ public class NubDb {
         return true;
       case UNKNOWN:
         return kingdom != Equality.DIFFERENT && (
-                rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT
+            rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT
         );
     }
     return false;
@@ -412,8 +396,7 @@ public class NubDb {
   // if authors are missing require the classification to not contradict!
   private Equality compareClassification(@Nullable NubUsage currNubParent, NubUsage match) {
     if (currNubParent != null &&
-        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node, true)))
-    {
+        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node, true))) {
       return Equality.EQUAL;
     }
     return Equality.DIFFERENT;
@@ -424,7 +407,7 @@ public class NubDb {
     return (long) res.columnAs("cnt").next();
   }
 
-  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue ... issues) {
+  public NubUsage addUsage(NubUsage parent, SrcUsage src, Origin origin, UUID sourceDatasetKey, NameUsageIssue... issues) {
     NubUsage nub = new NubUsage(src);
     nub.datasetKey = sourceDatasetKey;
     nub.origin = origin;
@@ -587,6 +570,7 @@ public class NubDb {
   /**
    * Converts the given taxon to a synonym of the given accepted usage.
    * All included descendants, both synonyms and accepted children, are also changed to become synonyms of the accepted.
+   *
    * @param u
    * @param accepted
    * @param synStatus
@@ -604,7 +588,7 @@ public class NubDb {
     // change status
     u.status = synStatus;
     // flag issue if given
-    if (issue != null){
+    if (issue != null) {
       u.issues.add(issue);
     }
 
@@ -649,8 +633,12 @@ public class NubDb {
       nub.node.removeLabel(Labels.IMPLICIT);
     }
     // control the exact scientific name style
-    if (nub.parsedName != null && nub.parsedName.isParsableType()) {
-      nub.parsedName.setScientificName(nub.parsedName.canonicalNameComplete());
+    if (nub.parsedName != null && nub.parsedName.isParsableType() && nub.parsedName.isParsed()) {
+      String sciname = nub.parsedName.canonicalNameComplete();
+      if (!sciname.equals(nub.parsedName.getScientificName())) {
+        LOG.debug("Updated scientificName {} to canonical form: {}", nub.parsedName.getScientificName(), sciname);
+        nub.parsedName.setScientificName(sciname);
+      }
     }
     dao.store(nub);
     if (nub.rank == Rank.KINGDOM) {
@@ -685,7 +673,7 @@ public class NubDb {
    * @param n           the node to start the parental hierarchy search from
    * @param searchNodes the nodes to find at least one in the hierarchy
    */
-  private boolean existsInClassificationInternal(Node n, Set<Node>searchNodes) {
+  private boolean existsInClassificationInternal(Node n, Set<Node> searchNodes) {
     if (searchNodes.contains(n)) {
       return true;
     }

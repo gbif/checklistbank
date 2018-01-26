@@ -3,7 +3,7 @@
 3	2		CLASS	ACCEPTED		Insecta	
 4	3		ORDER	ACCEPTED		Coleoptera	
 5	4		FAMILY	ACCEPTED		Staphylinidae	
-10	5		GENUS	ACCEPTED		Trimium AubÃ©, 1833	
+10	5		GENUS	ACCEPTED		Trimium Aubé, 1833
 11	10		SPECIES	ACCEPTED		Trimium brevicorne (Reichenbach, 1816)	
 
 22	1		PHYLUM	ACCEPTED		Ectoprocta	

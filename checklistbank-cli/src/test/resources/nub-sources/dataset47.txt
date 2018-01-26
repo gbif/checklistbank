@@ -1,8 +1,17 @@
-1			KINGDOM	ACCEPTED		Animalia	
-10	1		FAMILY	ACCEPTED		Ikedidae	
-99	10		SUBSPECIES	ACCEPTED		Desma ligulata subsp. muelleri A.F.Peters
-100	10		SUBSPECIES	ACCEPTED		Desmarestia ligulata subsp. muelleri This Is A Real 24/7 Bad-Name € chars and $ freaks & Prud'Homme van Reine, 2014
-101	10		SPECIES	ACCEPTED		desmarestia ligula	
-102	10		SPECIES	ACCEPTED		Desmarestia Legola	
-103	10		SPECIES	ACCEPTED		Desmarestia playmobilia This Is No Authorname cause we use lower case and unusual non letter §$%& Dont Get Processed
-104	10		SPECIES	ACCEPTED		ligula
+1			KINGDOM	ACCEPTED		Fungi	
+8	1		GENUS	ACCEPTED		Mycena Quél.	
+9	1		SPECIES	ACCEPTED		Mycena tintinnabulum (Batsch) Quél., 1872	
+10	1		SPECIES	ACCEPTED		Mycena tintin D%C3%B6ring	
+11	8		SPECIES	ACCEPTED		Mycena tantan Fr©𝌆ck.	
+12	1		SPECIES	ACCEPTED		Myçena tañtän Fr©𝌆ck.	
+13	1		SPECIES	ACCEPTED		Mycena tonton DC12345678#42	
+14	1		SPECIES	ACCEPTED		176Mycena tonton	
+2			KINGDOM	ACCEPTED		Plantae	
+20	2		SPECIES	ACCEPTED		Acer campestre	
+21	2		SPECIES	ACCEPTED		Acer campestre x lobelii	
+22	2		GENUS	ACCEPTED		Zamilon	
+3			KINGDOM	ACCEPTED		Viruses	
+30	3		SPECIES	ACCEPTED		Zamilon virophage	
+31	3		SPECIES	ACCEPTED		Honeysuckle yellow vein betasatellite	
+32	3		SPECIES	ACCEPTED		Sputnik virophage 3	
+	

@@ -1131,7 +1131,13 @@ public class NubBuilder implements Runnable {
         NubUsage implicitParent = null;
         SrcUsage implicit = new SrcUsage();
         try {
-          if (u.parsedName.getGenusOrAbove() != null) {
+          if (!u.parsedName.isParsableType()) {
+            LOG.debug("No implicit name for unparsable {} name: {}", u.parsedName.getType(), u.scientificName);
+
+          } else if (!u.parsedName.isParsed()) {
+            LOG.debug("No implicit name for unparsed {} name: {}", u.parsedName.getType(), u.scientificName);
+
+          } else if (u.parsedName.getGenusOrAbove() != null) {
             implicit.status = TaxonomicStatus.DOUBTFUL;
             implicit.parsedName = new ParsedName();
             implicit.parsedName.setType(NameType.SCIENTIFIC);
@@ -1146,8 +1152,9 @@ public class NubBuilder implements Runnable {
             implicit.parsedName.setScientificName(implicit.scientificName);
             implicit.parsedName.setRank(implicit.rank);
             implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+
           } else {
-            LOG.warn("Missing genus in parsed name for {}", u.scientificName);
+            LOG.warn("NULL genus in parsed {} name: {}", u.parsedName.getType(), u.scientificName);
           }
 
         } catch (IgnoreSourceUsageException e) {
@@ -1221,7 +1228,7 @@ public class NubBuilder implements Runnable {
       throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
     }
     // avoid names with nulls in epithets
-    if ("null".equals(u.parsedName.getSpecificEpithet()) || "null".equals(u.parsedName.getInfraSpecificEpithet())) {
+    if ("null" .equals(u.parsedName.getSpecificEpithet()) || "null" .equals(u.parsedName.getInfraSpecificEpithet())) {
       throw new IgnoreSourceUsageException("Ignore names with null epithets", u.scientificName);
     }
     // consider infraspecific names subspecies
@@ -1242,10 +1249,15 @@ public class NubBuilder implements Runnable {
         throw new IgnoreSourceUsageException("Parsed rank mismatch", u.scientificName);
       }
 
-    } else if (Rank.INFRAGENERIC_NAME == u.rank && u.parsedName.isBinomial()) {
-      // this is an aggregate species rank as we have a binomial & rank=INFRAGENERIC - treat as a species!
+    } else if (Rank.SPECIES_AGGREGATE == u.rank && u.parsedName.isBinomial() && u.parsedName.getInfraSpecificEpithet() == null) {
+      // this is an aggregate species rank and we have a binomial - treat as a species in the backbone!
       u.rank = Rank.SPECIES;
-      LOG.debug("Treat infrageneric name {} as species", u.scientificName);
+      LOG.debug("Treat species aggregate {} as species", u.scientificName);
+    }
+
+    // avoid indet names after rank has been finalized
+    if (u.parsedName.isIndetermined()) {
+      throw new IgnoreSourceUsageException("Ignore indetermined name", u.scientificName);
     }
 
     // strip author names from higher taxa

@@ -601,15 +601,14 @@ public class UsageDao implements AutoCloseable {
    * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
    */
   public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
-    String name = withAuthors ? pn.canonicalNameComplete() : SciNameNormalizer.normalize(pn.canonicalName());
-    if (StringUtils.isBlank(name)) {
-      // this should only ever happen for virus names, log otherwise
-      if (pn.isParsableType()) {
-        LOG.warn("Parsable name found with an empty canonical name string: {}", pn.getScientificName());
+    if (pn.isParsed()) {
+      String name = withAuthors ? pn.canonicalNameComplete() : SciNameNormalizer.normalize(pn.canonicalName());
+      if (!StringUtils.isBlank(name)) {
+        return name;
       }
-      return pn.getScientificName();
+      LOG.error("Parsed {} name found with an empty canonical name string: {}", pn.getType(), pn.getScientificName());
     }
-    return name;
+    return pn.getScientificName();
   }
 
   /**

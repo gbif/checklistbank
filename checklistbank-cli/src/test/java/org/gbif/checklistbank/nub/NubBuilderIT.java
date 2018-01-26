@@ -742,7 +742,7 @@ public class NubBuilderIT {
   }
 
   /**
-   * Avoid seeing a stackoverflow error when trying to persistent missing genus or autonyms
+   * Avoid seeing a stackoverflow error when trying to persist missing genus or autonyms
    * with incomplete names missing a genus but that can be parsed.
    */
   @Test
@@ -973,15 +973,14 @@ public class NubBuilderIT {
   }
 
   /**
-   * Make sure non parsed names get treated well.
-   * Parsing can fail due to regex timeouts or badly formed names
-   * This name is known to time out the name parser so its not expected in the tree:
-   * Desmarestia ligulata subsp. muelleri
+   * Assert behavior for various unparsable names.
+   * There are no implicit names for unparsables, hence classification can miss the genus
    */
   @Test
-  public void testParsingTimouts() throws Exception {
+  public void testUnparsables() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(47);
     build(src);
+
     assertTree("47.txt");
   }
 
@@ -1276,7 +1275,8 @@ public class NubBuilderIT {
   }
 
   /**
-   * Make sure aggregate names such as Achillea millefolium at rank INFRAGENERIC_NAME which are binomials are treated as species.
+   * Make sure aggregate names such as Achillea millefolium at rank SPECIES_AGGREGATE which are binomials are treated as species.
+   * But ignore names at higher ranks such as Achillea pillefolium INFRAGENERIC_NAME.
    */
   @Test
   public void testAggregates() throws Exception {
