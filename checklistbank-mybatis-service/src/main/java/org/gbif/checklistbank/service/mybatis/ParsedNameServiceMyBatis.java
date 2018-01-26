@@ -1,18 +1,17 @@
 package org.gbif.checklistbank.service.mybatis;
 
 
-import org.gbif.api.exception.UnparsableException;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.gbif.api.exception.UnparsableException;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
+import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,14 +53,10 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     ParsedName pn = mapper.getByName(preParsed.getScientificName(), preParsed.getRank());
     if (pn == null) {
       // try to write the name to postgres
-      write(preParsed);
+      mapper.create(preParsed);
       return preParsed;
     }
     return pn;
-  }
-
-  private void write(ParsedName pn) {
-    mapper.create(pn);
   }
 
   @Override

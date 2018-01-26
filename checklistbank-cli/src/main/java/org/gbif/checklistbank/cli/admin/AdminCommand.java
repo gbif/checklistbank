@@ -411,10 +411,7 @@ public class AdminCommand extends BaseCommand {
       NubDb db = NubDb.open(dao, AuthorComparator.createWithoutAuthormap());
 
       validate(dao, new NubTreeValidation(db));
-      LOG.info("Tree validation passed!");
-
       validate(dao, new NubAssertions(db));
-      LOG.info("Nub assertions passed!");
 
     } finally {
       if (dao != null) {
@@ -423,12 +420,13 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
-  private void validate(UsageDao dao, NubValidation validator) throws AssertionError {
+  private void validate(UsageDao dao, NubValidation validator) {
     try (Transaction tx = dao.beginTx()) {
       boolean valid = validator.validate();
-      if (!valid) {
-        LOG.error("Backbone is not valid!");
-        throw new AssertionError("Backbone is not valid!");
+      if (valid) {
+        LOG.info("{} passed!", validator.getClass().getSimpleName());
+      } else {
+        LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
       }
     }
   }

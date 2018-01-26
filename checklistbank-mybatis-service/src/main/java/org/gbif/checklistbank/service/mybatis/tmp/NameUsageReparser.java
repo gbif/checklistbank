@@ -146,7 +146,7 @@ public class NameUsageReparser implements Runnable {
     private void writeNames(List<ScientificParsedName> pNames) {
       for (ScientificParsedName spn : pNames) {
         try {
-          nameMapper.create2(spn.sciname.getKey(), spn.pn);
+          nameMapper.createWithKey(spn.sciname.getKey(), spn.pn);
         } catch (PersistenceException e) {
           Throwable cause = e.getCause() != null ? e.getCause() : e;
           LOG.warn("Failed to persist name {}: {}", spn.pn, cause.getMessage());

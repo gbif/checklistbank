@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper">
 
     <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
@@ -59,23 +60,24 @@
     </select>
 
     <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
-      <bind name="canonical" value="_parameter.pn.canonicalName()" />
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
         INSERT INTO name (<include refid="writeFields"/>)
         VALUES (<include refid="writeValues"/>)
     </insert>
 
-  <insert id="create2" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
-    <bind name="canonical" value="_parameter.pn.canonicalName()" />
-    INSERT INTO name (tmp_usage_name_id, <include refid="writeFields"/>)
-    VALUES (#{key}, <include refid="writeValues"/>)
-  </insert>
-  <insert id="failed" parameterType="map">
+    <insert id="createWithKey" parameterType="ParsedName" useGeneratedKeys="true"
+            keyProperty="pn.key">
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
+        INSERT INTO name (tmp_usage_name_id,<include refid="writeFields"/>)
+        VALUES (#{key},<include refid="writeValues"/>)
+    </insert>
+    <insert id="failed" parameterType="map">
     INSERT INTO tmp_name_failure (tmp_usage_name_id,rank,scientific_name)
     VALUES (#{key}, #{rank}::rank, #{scientific_name})
   </insert>
 
     <update id="update" parameterType="ParsedName" keyProperty="pn.key">
-      <bind name="canonical" value="_parameter.pn.canonicalName()" />
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
         UPDATE name
         SET (<include refid="writeFields"/>) = (<include refid="writeValues"/>)
         WHERE id=#{pn.key}
@@ -101,13 +103,13 @@
 
     <!--  list parsed names per dataset, incl duplicate names -->
     <select id="list" parameterType="map" resultMap="parsedNameResultMap">
-      SELECT
+        SELECT
         <include refid="SELECT"/>
-      FROM
+        FROM
         <include refid="FROM"/>
-      JOIN name_usage u ON u.name_fk=n.id
-      WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
-      ORDER BY u.id
+        JOIN name_usage u ON u.name_fk=n.id
+        WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
+        ORDER BY u.id
         LIMIT #{page.limit}
         OFFSET #{page.offset}
     </select>
