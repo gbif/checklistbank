@@ -105,28 +105,34 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     Preconditions.checkNotNull(usage.getDatasetKey(), "datasetKey must exist");
     Preconditions.checkNotNull(metrics);
 
-    // find previous usageKey based on dataset specific taxonID, the source identifier for all non backbone usages
-    if (!usage.getDatasetKey().equals(Constants.NUB_DATASET_KEY)) {
-      usage.setKey(nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID()));
-    }
+    try {
+      // find previous usageKey based on dataset specific taxonID, the source identifier for all non backbone usages
+      if (!usage.getDatasetKey().equals(Constants.NUB_DATASET_KEY)) {
+        usage.setKey(nameUsageMapper.getKey(usage.getDatasetKey(), usage.getTaxonID()));
+      }
 
-    if (usage.getKey() == null || insert) {
-      usage.setKey(insertNewUsage(usage, pn, metrics));
-      LOG.debug("inserted usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
-    } else {
-      updateUsage(usage, pn, metrics);
-      LOG.debug("updated usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
-    }
+      if (usage.getKey() == null || insert) {
+        usage.setKey(insertNewUsage(usage, pn, metrics));
+        LOG.debug("inserted usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
+      } else {
+        updateUsage(usage, pn, metrics);
+        LOG.debug("updated usage {} with taxonID {} from dataset {}", usage.getKey(), usage.getTaxonID(), usage.getDatasetKey());
+      }
 
-    // count
-    meterUsages.mark();
-    int cnt = counterUsages.incrementAndGet();
-    if (cnt % 10000 == 0) {
-      LogContext.startDataset(usage.getDatasetKey());
-      LOG.info("Synced {} usages, mean rate={}", cnt, meterUsages.getMeanRate());
-      LogContext.endDataset();
+      // count
+      meterUsages.mark();
+      int cnt = counterUsages.incrementAndGet();
+      if (cnt % 10000 == 0) {
+        LogContext.startDataset(usage.getDatasetKey());
+        LOG.info("Synced {} usages, mean rate={}", cnt, meterUsages.getMeanRate());
+        LogContext.endDataset();
+      }
+      return usage.getKey();
+
+    } catch (RuntimeException e) {
+      LOG.error("Error while syncing usage {}: {}", usage.getKey(), pn.getScientificName());
+      throw e;
     }
-    return usage.getKey();
   }
 
 
@@ -401,9 +407,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
   }
 
   @Transactional(
-          executorType = ExecutorType.BATCH,
-          isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-          exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
+      executorType = ExecutorType.BATCH,
+      isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
+      exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
   )
   private void insertNubRelationBatch(UUID datasetKey, Map<Integer, Integer> relations, Iterable<Integer> usageKeyBatch) {
     for (Integer usageKey : usageKeyBatch) {
