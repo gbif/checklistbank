@@ -7,6 +7,7 @@ import com.google.inject.name.Names;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.service.checklistbank.*;
+import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.config.ClbConfiguration;

@@ -4,10 +4,10 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.common.paging.Pageable;
+import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.model.ParsedNameUsage;
-import org.gbif.checklistbank.model.RankedName;
 
 import javax.annotation.Nullable;
 import java.util.List;
