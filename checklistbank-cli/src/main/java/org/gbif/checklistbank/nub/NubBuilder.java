@@ -998,6 +998,9 @@ public class NubBuilder implements Runnable {
     // filter out various unwanted names
     filterUsage(u);
 
+    // update some usage properties, e.g. build a canonical name
+    standardizeUsage(u);
+
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
@@ -1067,6 +1070,27 @@ public class NubBuilder implements Runnable {
       LOG.debug("Ignore {} source usage: {}", u.rank, u.scientificName);
     }
     return match.usage;
+  }
+
+  private void standardizeUsage(SrcUsage u) {
+    // strip author names from higher taxa
+    if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
+      u.parsedName.setAuthorship(null);
+      u.parsedName.setYear(null);
+      u.parsedName.setBracketAuthorship(null);
+      u.parsedName.setBracketYear(null);
+    }
+
+    // rebuild name in canonical form - e.g. removes subgenus references
+    // and aligns scientific name with the actual parsed name,
+    // e.g. for partially parsed names or quadrinomials
+    if (u.parsedName.isParsed()) {
+      String canon = u.parsedName.canonicalNameComplete();
+      if (!canon.equals(u.parsedName.getScientificName())) {
+        LOG.debug("Use canonical name: {} instead of: {}", canon, u.scientificName);
+        u.parsedName.setScientificName(canon);
+      }
+    }
   }
 
   private void delete(NubUsage nub) {
@@ -1267,21 +1291,6 @@ public class NubBuilder implements Runnable {
     if (u.parsedName.isIndetermined()) {
       throw new IgnoreSourceUsageException("Ignore indetermined name", u.scientificName);
     }
-
-    // strip author names from higher taxa
-    if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
-      clearAuthorship(u.parsedName);
-    }
-
-    //TODO: rebuild name in canonical form - e.g. removes subgenus references
-    //u.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
-  }
-
-  private void clearAuthorship(ParsedName pn) {
-    pn.setAuthorship(null);
-    pn.setYear(null);
-    pn.setBracketAuthorship(null);
-    pn.setBracketYear(null);
   }
 
   private void updateNomenclature(NubUsage nub, SrcUsage u) {
