@@ -33,10 +33,10 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <include refid="select"/>,
         n.id as name_key, n.scientific_name as name_scientific_name,
         n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet,
-        n.cultivar_epithet,
+        n.cultivar_epithet, n.strain,
         n.notho_type, n.rank as name_rank, n.nom_status as name_nom_status, n.sensu as name_sensu,
         n.remarks as name_remarks,
-        n.authors_parsed as name_authors_parsed, n.parsed as name_parsed,
+        n.parsed_partially as name_parsed_partially, n.parsed as name_parsed,
         n.authorship as name_authorship, n.year as name_year,
         n.bracket_authorship as name_bracket_authorship, n.bracket_year as name_bracket_year
     </sql>
@@ -123,10 +123,11 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <result property="parsedName.specificEpithet" column="specific_epithet"/>
         <result property="parsedName.infraSpecificEpithet" column="infra_specific_epithet"/>
         <result property="parsedName.cultivarEpithet" column="cultivar_epithet"/>
+        <result property="parsedName.strain" column="strain"/>
         <result property="parsedName.nomStatus" column="name_nom_status"/>
         <result property="parsedName.sensu" column="name_sensu"/>
         <result property="parsedName.remarks" column="name_remarks"/>
-        <result property="parsedName.authorsParsed" column="name_authors_parsed"/>
+        <result property="parsedName.parsedPartially" column="name_parsed_partially"/>
         <result property="parsedName.parsed" column="name_parsed"/>
         <result property="parsedName.authorship" column="name_authorship"/>
         <result property="parsedName.year" column="name_year"/>
