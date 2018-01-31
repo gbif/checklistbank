@@ -1,29 +1,26 @@
 package org.gbif.checklistbank.neo;
 
+import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.cli.model.RankedName;
+import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.neo.traverse.Traversals;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Lists;
+import org.gbif.nameparser.NameParserGbifV1;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
-
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  *
@@ -34,6 +31,7 @@ public class ImportDb {
 
   protected final UUID datasetKey;
   protected final UsageDao dao;
+  protected static final NameParser PARSER = new NameParserGbifV1();
 
   public ImportDb(UUID datasetKey, UsageDao dao) {
     this.datasetKey = datasetKey;
@@ -107,7 +105,7 @@ public class ImportDb {
   protected NameUsageNode create(Origin origin, String sciname, Rank rank, TaxonomicStatus status, boolean isRoot, @Nullable String taxonID, @Nullable String remark) {
     NameUsage u = new NameUsage();
     u.setScientificName(sciname);
-    //TODO: parse name???
+    // or generate via parsed name below???
     u.setCanonicalName(sciname);
     u.setRank(rank);
     u.setOrigin(origin);
@@ -125,8 +123,16 @@ public class ImportDb {
     if (isRoot) {
       n.addLabel(Labels.ROOT);
     }
+
+    // parse name and store it
+    ParsedName pn = PARSER.parseQuietly(u.getScientificName(), u.getRank());
+    dao.store(n.getId(), pn);
+
+    // update canonical and store usage
+    //u.setCanonicalName(pn.canonicalNameWithMarker());
     NameUsageNode nn = new NameUsageNode(n, u, true);
     dao.store(nn, true);
+
     return nn;
   }
 

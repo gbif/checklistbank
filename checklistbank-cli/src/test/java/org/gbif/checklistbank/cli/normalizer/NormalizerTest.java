@@ -4,6 +4,7 @@ import com.beust.jcommander.internal.Sets;
 import com.google.common.collect.Maps;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.BaseTest;
@@ -1132,7 +1133,21 @@ public class NormalizerTest extends BaseTest {
 
     openDb(datasetKey);
     compareStats(stats);
+    verifyParsedNames();
 
     return stats;
+  }
+
+  private void verifyParsedNames() {
+    try (Transaction tx = beginTx()) {
+      for (Node n : dao.getNeo().getAllNodes()) {
+        if (!n.hasLabel(Labels.TAXON)) {
+          continue;
+        }
+        ParsedName pn = dao.readName(n.getId());
+        assertNotNull(pn);
+        assertNotNull(pn.getScientificName());
+      }
+    }
   }
 }
