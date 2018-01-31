@@ -5,6 +5,7 @@ import org.gbif.api.model.checklistbank.ParsedName;
 
 /**
  * Adds a parsed name instance to the name usage class for cases when both are needed.
+ * Uses inheritance so mappers can return this easily.
  */
 public class ParsedNameUsage extends NameUsage {
   private ParsedName parsedName;

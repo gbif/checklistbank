@@ -143,7 +143,7 @@ public class NeoInserterTest {
   }
 
   @Test
-  public void testSetScientificName() throws Exception {
+  public void testParseName() throws Exception {
 
     VerbatimNameUsage v = new VerbatimNameUsage();
     v.setCoreField(DwcTerm.scientificName, "Abies alba Mill., 1982");
@@ -184,7 +184,7 @@ public class NeoInserterTest {
   }
 
   @Test(expected = IgnoreNameUsageException.class)
-  public void testSetScientificNameExc() throws Exception {
+  public void testParseNameExc() throws Exception {
     VerbatimNameUsage v = new VerbatimNameUsage();
     assertName(v, Rank.SPECIES, null, null, NameType.NO_NAME);
   }
@@ -192,7 +192,7 @@ public class NeoInserterTest {
   private NameUsageContainer assertName(VerbatimNameUsage v, Rank rank, String sciname, String canonical, NameType ntype)
       throws IgnoreNameUsageException {
     NameUsageContainer u = new NameUsageContainer();
-    ins.setScientificName(u, v, rank);
+    ins.parseName(u, v, rank);
     if (sciname != null) {
       assertEquals(sciname, u.getScientificName());
     } else {

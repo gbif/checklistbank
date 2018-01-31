@@ -361,7 +361,7 @@ public class NormalizerTest extends BaseTest {
       NameUsage u = getUsageByCanonical("Chaetosphaeria");
       assertUsage("970",
           false,
-          "Chaetosphaeria Tul. & C. Tul.",
+          "Chaetosphaeria Tul. & C.Tul.",
           null,
           null,
           Rank.GENUS,
@@ -405,7 +405,7 @@ public class NormalizerTest extends BaseTest {
           if (r == null) {
             fail("Missing denormed usage " + u.getScientificName());
           } else if (!r.equals(u.getRank())) {
-              fail("Wrong rank for denormed usage "+u.getScientificName());
+            fail("Wrong rank for denormed usage " + u.getScientificName());
           }
         }
       }
@@ -470,9 +470,10 @@ public class NormalizerTest extends BaseTest {
           "Ascomycota",
           "Fungi");
 
+      // author whitespace has changed as this is an assembled name!
       assertUsage("970",
           false,
-          "Chaetosphaeria Tul. & C. Tul.",
+          "Chaetosphaeria Tul. & C.Tul.",
           null,
           null,
           Rank.GENUS,

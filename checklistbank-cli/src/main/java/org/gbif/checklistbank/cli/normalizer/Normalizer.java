@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.ObjectUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameParser;
@@ -76,9 +75,9 @@ public class Normalizer extends ImportDb implements Runnable {
                      MetricRegistry registry, Map<String, UUID> constituents, IdLookup lookup) {
     super(datasetKey, dao);
     this.constituents = constituents;
-    this.relationMeter = registry.meter(Metrics.RELATION_METER);
-    this.metricsMeter = registry.meter(Metrics.METRICS_METER);
-    this.denormedMeter = registry.meter(Metrics.DENORMED_METER);
+    relationMeter = registry.meter(Metrics.RELATION_METER);
+    metricsMeter = registry.meter(Metrics.METRICS_METER);
+    denormedMeter = registry.meter(Metrics.DENORMED_METER);
     this.dwca = dwca;
     this.lookup = lookup;
     this.batchSize = batchSize;
@@ -91,10 +90,10 @@ public class Normalizer extends ImportDb implements Runnable {
   public static Normalizer create(NormalizerConfiguration cfg, UUID datasetKey, MetricRegistry registry,
                                   Map<String, UUID> constituents, IdLookup lookup) {
     return new Normalizer(datasetKey,
-            UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
-            cfg.archiveDir(datasetKey),
-            cfg.neo.batchSize,
-            registry, constituents, lookup);
+        UsageDao.persistentDao(cfg.neo, datasetKey, registry, true),
+        cfg.archiveDir(datasetKey),
+        cfg.neo.batchSize,
+        registry, constituents, lookup);
   }
 
   public static Normalizer create(UUID datasetKey, UsageDao dao, File dwca, IdLookup lookup, int batchSize) {
@@ -155,7 +154,6 @@ public class Normalizer extends ImportDb implements Runnable {
    * Run the normalizer.
    *
    * @param closeDao Should the dao be closed after running or on exception?
-   *
    * @throws NormalizationFailedException
    */
   public void run(boolean closeDao) throws NormalizationFailedException {
@@ -165,8 +163,6 @@ public class Normalizer extends ImportDb implements Runnable {
       batchInsertData();
       // insert neo db relations, create implicit nodes if needed and parse names
       normalize();
-      // parse all names
-      parseNames();
       // match to nub and build metrics
       buildMetricsAndMatchBackbone();
       LOG.info("Normalization succeeded");
@@ -314,7 +310,7 @@ public class Normalizer extends ImportDb implements Runnable {
             try {
               Node p = n.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getStartNode();
               Node p2 = Traversals.findParentWithRank(n, parentRank);
-              if (p.equals(parent) || (p2 !=null && p2.equals(parent))) {
+              if (p.equals(parent) || (p2 != null && p2.equals(parent))) {
                 parent = n;
                 parentRank = hr;
                 found = true;
@@ -529,7 +525,7 @@ public class Normalizer extends ImportDb implements Runnable {
     final long before = metricsMeter.getCount();
     TreeWalker.walkAcceptedTree(dao.getNeo(), null, null, metricsMeter, metricsHandler, matchHandler);
     final long after = metricsMeter.getCount();
-    LOG.info("Walked all {} accepted taxa and built metrics", after-before);
+    LOG.info("Walked all {} accepted taxa and built metrics", after - before);
   }
 
   /**
@@ -620,30 +616,6 @@ public class Normalizer extends ImportDb implements Runnable {
     cleanupRelations();
 
     LOG.info("Relation setup completed, {} nodes processed. Setup rate: {}", counter, relationMeter.getMeanRate());
-  }
-
-  /**
-   * Parses all names and stores them in the DAO
-   * NubMatchHandler relies on this!
-   * @throws NormalizationFailedException
-   */
-  private void parseNames() throws NormalizationFailedException {
-    LOG.info("Start parsing all names ...");
-    try (Transaction tx = dao.beginTx()) {
-      int counter = 0;
-      for (Node n : dao.allNodes()) {
-        // parse name
-        ParsedName pn = PARSER.parseQuietly(NeoProperties.getScientificName(n), NeoProperties.getRank(n, null));
-        dao.store(n.getId(), pn);
-
-        if (counter % 10000 == 0) {
-          LOG.debug("Parsed names for {} nodes", counter);
-          // interrupted? then lets get out of here
-          checkInterrupted();
-        }
-      }
-      tx.success();
-    }
   }
 
   private NameUsage setupRelation(Node n) {

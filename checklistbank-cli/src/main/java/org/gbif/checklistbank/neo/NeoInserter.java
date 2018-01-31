@@ -21,6 +21,7 @@ import org.gbif.checklistbank.cli.normalizer.ExtensionInterpreter;
 import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
 import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
+import org.gbif.checklistbank.model.ParsedNameUsageCompound;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
@@ -138,7 +139,9 @@ public class NeoInserter implements AutoCloseable {
         }
       }
       // convert into a NameUsage interpreting all enums and other needed types
-      NameUsage u = buildUsage(v);
+      // creates a ParsedName from various verbatim options
+      ParsedNameUsageCompound pnu = buildUsage(v);
+      final NameUsage u = pnu.usage;
       UsageExtensions ext = extensionInterpreter.interpret(u, v);
 
       // and batch insert key neo properties used during normalization
@@ -147,8 +150,8 @@ public class NeoInserter implements AutoCloseable {
       // store verbatim instance
       dao.store(nodeId, v);
       dao.store(nodeId, u, false);
+      dao.store(nodeId, pnu.parsedName);
       dao.store(nodeId, ext);
-
 
       meta.incRecords();
       meta.incRank(u.getRank());
@@ -217,7 +220,7 @@ public class NeoInserter implements AutoCloseable {
     }
   }
 
-  private NameUsage buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
+  private ParsedNameUsageCompound buildUsage(VerbatimNameUsage v) throws IgnoreNameUsageException {
     NameUsage u = new NameUsage();
     u.setTaxonID(v.getCoreField(DwcTerm.taxonID));
     u.setOrigin(Origin.SOURCE);
@@ -249,8 +252,8 @@ public class NeoInserter implements AutoCloseable {
     }
     final Rank rank = u.getRank();
 
-    // build best name
-    ParsedName pn = setScientificName(u, v, rank);
+    // build best name and parse it
+    ParsedName pn = parseName(u, v, rank);
 
     // tax status
     String tstatus = v.getCoreField(DwcTerm.taxonomicStatus);
@@ -293,11 +296,11 @@ public class NeoInserter implements AutoCloseable {
         UrlParser.parse(v.getCoreField(DcTerm.source))
     ));
 
-    return u;
+    return new ParsedNameUsageCompound(u, pn);
   }
 
   @VisibleForTesting
-  protected ParsedName setScientificName(NameUsage u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
+  protected ParsedName parseName(NameUsage u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
     ParsedName pn = new ParsedName();
     final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
     try {
@@ -337,12 +340,20 @@ public class NeoInserter implements AutoCloseable {
         pn.setScientificName(pn.fullName());
       }
 
+      // flag partial parsing
+      if (pn.isParsedPartially()) {
+        u.addIssue(NameUsageIssue.PARTIALLY_PARSABLE);
+      }
+
     } catch (UnparsableException e) {
       LOG.debug("Unparsable {} name {}", e.type, e.name);
       pn = new ParsedName();
       pn.setType(e.type);
       pn.setScientificName(sciname);
       pn.setParsed(false);
+      if (e.type.isParsable()) {
+        u.addIssue(NameUsageIssue.UNPARSABLE);
+      }
     }
 
     u.setScientificName(pn.getScientificName());
