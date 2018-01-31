@@ -1,4 +1,4 @@
-id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet, notho_type, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year, nom_status, sensu, remarks, modified, rank, parsed
+id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet, notho_type, parsed_partially, authorship, year, year_int, bracket_authorship, bracket_year, nom_status, sensu, remarks, modified, rank, parsed
 265719	Aeluroidea Flower 1869	Aeluroidea	SCIENTIFIC	Aeluroidea	\N	\N	\N	\N	\N	t	Flower	1869	1869	\N	\N	\N	\N	\N	2016-10-05 16:15:46.759703	SUPERFAMILY	t
 553381	Amniota	Amniota	SCIENTIFIC	Amniota	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 16:17:58.117539	UNRANKED	t
 553385	Amniota (Haeckel 1866)	Amniota	SCIENTIFIC	Amniota	\N	\N	\N	\N	\N	t	\N	\N	\N	Haeckel	1866	\N	\N	\N	2016-10-05 16:17:58.119649	UNRANKED	t
@@ -218,7 +218,7 @@ id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specif
 999990000	Bacteria	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	KINGDOM	t
 999990001	Bacteria Agassiz, 1846	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	Agassiz	1846	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
 999990002	Bacteria Berthold, 1827	Bacteria	SCIENTIFIC	Bacteria	\N	\N	\N	\N	\N	t	\N	Berthold	1827	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
-999990003	Bacterium	Bacterium	SCIENTIFIC	Bacterium	\N	\N	\N	\N	\N	t	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
+999990003	Bacterium	Bacterium	SCIENTIFIC	Bacterium	\N	\N	\N	\N	\N	f	\N	\N	\N	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t
 999990004	Bacteria acuminatocercata (Brunner von Wattenwyl, 1907)	Bacteria acuminatocercata	SCIENTIFIC	Bacteria	\N	acuminatocercata	\N	\N	\N	t	\N	\N	\N	Brunner von Wattenwyl	1907	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
 999990005	Bacteria aborigena Giglio-Tos, 1910	Bacteria aborigena	SCIENTIFIC	Bacteria	\N	aborigena	\N	\N	\N	t	\N	Giglio-Tos	1910	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	SPECIES	t
 999990006	Halobacterium Elazari-Volcani, 1957	Halobacterium	SCIENTIFIC	Halobacterium	\N	\N	\N	\N	\N	t	\N	Elazari-Volcani	1957	\N	\N	\N	\N	\N	2016-10-05 17:26:09.103726	GENUS	t

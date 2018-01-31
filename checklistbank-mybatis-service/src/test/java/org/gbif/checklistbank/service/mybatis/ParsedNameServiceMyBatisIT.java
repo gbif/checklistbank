@@ -30,7 +30,7 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     pn.setType(NameType.SCIENTIFIC);
     assertNull(pn.getKey());
 
-    ParsedName pn2 = service.createOrGet(pn);
+    ParsedName pn2 = service.createOrGet(pn, true);
     assertNotNull(pn2.getKey());
     assertEquals("Abies alba Mill.", pn2.getScientificName());
     assertEquals("Abies alba", pn2.canonicalName());
@@ -38,21 +38,21 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertEquals("alba", pn2.getSpecificEpithet());
     assertEquals("Mill.", pn2.getAuthorship());
 
-    pn = service.createOrGet(parse("Abies alba Mill."));
+    pn = service.createOrGet(parse("Abies alba Mill."), true);
     assertEquals("Abies alba Mill.", pn.getScientificName());
     assertEquals("Abies alba", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
     assertEquals("alba", pn.getSpecificEpithet());
     assertEquals("Mill.", pn.getAuthorship());
 
-    pn = service.createOrGet(parse("Abies sp."));
+    pn = service.createOrGet(parse("Abies sp."), true);
     assertEquals("Abies sp.", pn.getScientificName());
     assertEquals("Abies spec.", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
     assertEquals(Rank.SPECIES, pn.getRank());
     assertNull(pn.getSpecificEpithet());
 
-    pn = service.createOrGet(parse("×Abies Mill."));
+    pn = service.createOrGet(parse("×Abies Mill."), true);
     assertEquals("×Abies Mill.", pn.getScientificName());
     assertEquals("Abies", pn.canonicalName());
     assertEquals("Abies", pn.getGenusOrAbove());
@@ -60,7 +60,7 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
     assertNull(pn.getSpecificEpithet());
     assertEquals(NamePart.GENERIC, pn.getNotho());
 
-    pn = service.createOrGet(parse("? hostilis Gravenhorst, 1829"));
+    pn = service.createOrGet(parse("? hostilis Gravenhorst, 1829"), true);
     assertEquals("? hostilis Gravenhorst, 1829", pn.getScientificName());
     assertEquals("? hostilis", pn.canonicalName());
     assertEquals("?", pn.getGenusOrAbove());

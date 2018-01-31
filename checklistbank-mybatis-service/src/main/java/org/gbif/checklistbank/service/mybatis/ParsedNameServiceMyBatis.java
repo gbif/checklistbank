@@ -32,31 +32,37 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
   }
 
   @Override
-  public ParsedName createOrGet(ParsedName preParsed) {
+  public ParsedName createOrGet(ParsedName preParsed, final boolean update) {
     if (preParsed == null || Strings.isNullOrEmpty(preParsed.getScientificName())) {
       return null;
     }
     Preconditions.checkNotNull(preParsed.getType(), preParsed.getScientificName() + " lacks name type");
 
     try {
-      return createOrGetThrowing(preParsed);
+      return createOrGetThrowing(preParsed, update);
     } catch (PersistenceException e) {
       // we have a unique constraint in the database which can throw an exception when we concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
       LOG.warn("Inserting name >>>{}<<< failed, try to re-read", preParsed.getScientificName());
-      return createOrGetThrowing(preParsed);
+      return createOrGetThrowing(preParsed, update);
     }
   }
 
   @Transactional
-  private ParsedName createOrGetThrowing(ParsedName preParsed) throws PersistenceException {
+  private ParsedName createOrGetThrowing(ParsedName preParsed, boolean update) throws PersistenceException {
     ParsedName pn = mapper.getByName(preParsed.getScientificName(), preParsed.getRank());
     if (pn == null) {
       // try to write the name to postgres
       mapper.create(preParsed);
-      return preParsed;
+    } else if (update && !pn.equals(preParsed)) {
+      // is it different?
+      preParsed.setKey(pn.getKey());
+      mapper.update(preParsed);
+
+    } else {
+      return pn;
     }
-    return pn;
+    return preParsed;
   }
 
   @Override

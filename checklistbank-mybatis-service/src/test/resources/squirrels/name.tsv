@@ -1,46 +1,46 @@
-id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet, notho_type, rank, authors_parsed, authorship, year, year_int, bracket_authorship, bracket_year, nom_status, sensu, remarks, modified
-1	Animalia	Animalia	SCIENTIFIC	Animalia	\N	\N	\N	\N	\N	KINGDOM	t	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:26.584845
-125	Chordata	Chordata	SCIENTIFIC	Chordata	\N	\N	\N	\N	\N	PHYLUM	t	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:26.651732
+id, scientific_name, canonical_name, type, genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet, notho_type, rank, parsed_partially, authorship, year, year_int, bracket_authorship, bracket_year, nom_status, sensu, remarks, modified
+1	Animalia	Animalia	SCIENTIFIC	Animalia	\N	\N	\N	\N	\N	KINGDOM	f	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:26.584845
+125	Chordata	Chordata	SCIENTIFIC	Chordata	\N	\N	\N	\N	\N	PHYLUM	f	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:26.651732
 100033	Undet	\N	NO_NAME	\N	\N	\N	\N	\N	\N	UNRANKED	f	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:25.730801
-100941	Mammalia	Mammalia	SCIENTIFIC	Mammalia	\N	\N	\N	\N	\N	CLASS	t	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:28.857889
-100943	Rodentia Bowdich, 1821	Rodentia	SCIENTIFIC	Rodentia	\N	\N	\N	\N	\N	ORDER	t	Bowdich	1821	1821	\N	\N	\N	\N	\N	2011-10-10 15:15:28.881823
-100944	Sciuridae	Sciuridae	SCIENTIFIC	Sciuridae	\N	\N	\N	\N	\N	FAMILY	t	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:31.105436
-100946	Sciurillus Thomas, 1914	Sciurillus	SCIENTIFIC	Sciurillus	\N	\N	\N	\N	\N	GENUS	t	Thomas	1914	1914	\N	\N	\N	\N	\N	2011-10-10 15:15:31.120587
-100948	Sciurillus pusillus E. Geoffroy, 1803	Sciurillus pusillus	SCIENTIFIC	Sciurillus	\N	pusillus	\N	\N	\N	SPECIES	t	E. Geoffroy	1803	1803	\N	\N	\N	\N	\N	2011-10-10 15:15:31.137376
-100950	Sciurillus pusillus subsp. pusillus E. Geoffroy, 1803	Sciurillus pusillus subsp. pusillus	SCIENTIFIC	Sciurillus	\N	pusillus	pusillus	\N	\N	SUBSPECIES	t	E. Geoffroy	1803	1803	\N	\N	\N	\N	\N	2011-10-10 15:15:31.183986
-100952	Sciurillus pusillus subsp. glaucinus Thomas, 1914	Sciurillus pusillus subsp. glaucinus	SCIENTIFIC	Sciurillus	\N	pusillus	glaucinus	\N	\N	SUBSPECIES	t	Thomas	1914	1914	\N	\N	\N	\N	\N	2011-10-10 15:15:31.19619
-100954	Sciurillus pusillus subsp. kuhlii Gray, 1867	Sciurillus pusillus subsp. kuhlii	SCIENTIFIC	Sciurillus	\N	pusillus	kuhlii	\N	\N	SUBSPECIES	t	Gray	1867	1867	\N	\N	\N	\N	\N	2011-10-10 15:15:31.207008
-100956	Sciurus Linnaeus, 1758	Sciurus	SCIENTIFIC	Sciurus	\N	\N	\N	\N	\N	GENUS	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.215393
-100957	Sciurus Linnaeus, 1758	Sciurus	SCIENTIFIC	Sciurus	\N	\N	\N	\N	\N	SUBGENUS	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.215393
-100958	Aphrontis Schultze, 1893	Aphrontis	SCIENTIFIC	Aphrontis	\N	\N	\N	\N	\N	GENUS	t	Schultze	1893	1893	\N	\N	\N	\N	\N	2011-10-10 15:15:31.229146
-100960	Araeosciurus Nelson, 1899	Araeosciurus	SCIENTIFIC	Araeosciurus	\N	\N	\N	\N	\N	GENUS	t	Nelson	1899	1899	\N	\N	\N	\N	\N	2011-10-10 15:15:31.237613
-100962	Baiosciurus Nelson, 1899	Baiosciurus	SCIENTIFIC	Baiosciurus	\N	\N	\N	\N	\N	GENUS	t	Nelson	1899	1899	\N	\N	\N	\N	\N	2011-10-10 15:15:31.245937
-100964	Echinosciurus Trouessart, 1880	Echinosciurus	SCIENTIFIC	Echinosciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.254597
-100966	Histriosciurus J. A. Allen, 1915	Histriosciurus	SCIENTIFIC	Histriosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.265981
-100968	Leptosciurus J. A. Allen, 1915	Leptosciurus	SCIENTIFIC	Leptosciurus	\N	\N	\N	\N	\N	GENUS	t	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.27414
-100970	Macroxus F. Cuvier, 1823	Macroxus	SCIENTIFIC	Macroxus	\N	\N	\N	\N	\N	GENUS	t	F.Cuvier	1823	1823	\N	\N	\N	\N	\N	2011-10-10 15:15:31.281678
-100972	Mesosciurus J. A. Allen, 1915	Mesosciurus	SCIENTIFIC	Mesosciurus	\N	\N	\N	\N	\N	GENUS	t	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.289689
-100974	Neosciurus Trouessart, 1880	Neosciurus	SCIENTIFIC	Neosciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.297676
-100976	Oreosciurus Ognev, 1935	Oreosciurus	SCIENTIFIC	Oreosciurus	\N	\N	\N	\N	\N	GENUS	t	Ognev	1935	1935	\N	\N	\N	\N	\N	2011-10-10 15:15:31.305643
-100978	Parasciurus Trouessart, 1880	Parasciurus	SCIENTIFIC	Parasciurus	\N	\N	\N	\N	\N	GENUS	t	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.313216
-100980	Simosciurus J. A. Allen, 1915	Simosciurus	SCIENTIFIC	Simosciurus	\N	\N	\N	\N	\N	GENUS	t	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.322179
-100982	Sciurus vulgaris Linnaeus, 1758	Sciurus vulgaris	SCIENTIFIC	Sciurus	\N	vulgaris	\N	\N	\N	SPECIES	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.335289
-100984	Sciurus fuscorubens Dwigubski, 1804	Sciurus fuscorubens	SCIENTIFIC	Sciurus	\N	fuscorubens	\N	\N	\N	SPECIES	t	Dwigubski	1804	1804	\N	\N	\N	\N	\N	2011-10-10 15:15:31.389444
-100986	Sciurus nadymensis Serebrennikov, 1928	Sciurus nadymensis	SCIENTIFIC	Sciurus	\N	nadymensis	\N	\N	\N	SPECIES	t	Serebrennikov	1928	1928	\N	\N	\N	\N	\N	2011-10-10 15:15:31.397892
-100988	Sciurus subalpinus Burg, 1920	Sciurus subalpinus	SCIENTIFIC	Sciurus	\N	subalpinus	\N	\N	\N	SPECIES	t	Burg	1920	1920	\N	\N	\N	\N	\N	2011-10-10 15:15:31.405153
-100990	Sciurus talahutky Brass, 1911	Sciurus talahutky	SCIENTIFIC	Sciurus	\N	talahutky	\N	\N	\N	SPECIES	t	Brass	1911	1911	\N	\N	\N	\N	\N	2011-10-10 15:15:31.41321
-100992	Sciurus vulgaris subsp. vulgaris Linnaeus, 1758	Sciurus vulgaris subsp. vulgaris	SCIENTIFIC	Sciurus	\N	vulgaris	vulgaris	\N	\N	SUBSPECIES	t	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.421521
-100994	Sciurus vulgaris var. alpinus Desmarest, 1822	Sciurus vulgaris var. alpinus	SCIENTIFIC	Sciurus	\N	vulgaris	alpinus	\N	\N	VARIETY	t	Desmarest	1822	1822	\N	\N	\N	\N	\N	2011-10-10 15:15:31.431157
-100996	Sciurus vulgaris subsp. altaicus Serebrennikov, 1928	Sciurus vulgaris subsp. altaicus	SCIENTIFIC	Sciurus	\N	vulgaris	altaicus	\N	\N	SUBSPECIES	t	Serebrennikov	1928	1928	\N	\N	\N	\N	\N	2011-10-10 15:15:31.43981
-100998	Sciurus vulgaris var. arcticus Trouessart, 1906	Sciurus vulgaris var. arcticus	SCIENTIFIC	Sciurus	\N	vulgaris	arcticus	\N	\N	VARIETY	t	Trouessart	1906	1906	\N	\N	\N	\N	\N	2011-10-10 15:15:31.44799
-101000	Sciurus vulgaris subsp. balcanicus Heinrich, 1936	Sciurus vulgaris subsp. balcanicus	SCIENTIFIC	Sciurus	\N	vulgaris	balcanicus	\N	\N	SUBSPECIES	t	Heinrich	1936	1936	\N	\N	\N	\N	\N	2011-10-10 15:15:31.456349
-101002	Sciurus vulgaris subsp. chiliensis Sowerby, 1921	Sciurus vulgaris subsp. chiliensis	SCIENTIFIC	Sciurus	\N	vulgaris	chiliensis	\N	\N	SUBSPECIES	t	Sowerby	1921	1921	\N	\N	\N	\N	\N	2011-10-10 15:15:31.466166
-101004	Sciurus vulgaris subsp. cinerea Hermann, 1804	Sciurus vulgaris subsp. cinerea	SCIENTIFIC	Sciurus	\N	vulgaris	cinerea	\N	\N	SUBSPECIES	t	Hermann	1804	1804	\N	\N	\N	\N	\N	2011-10-10 15:15:31.474769
-101006	Sciurus vulgaris subsp. orientis Thomas, 1906	Sciurus vulgaris subsp. orientis	SCIENTIFIC	Sciurus	\N	vulgaris	orientis	\N	\N	SUBSPECIES	t	Thomas	1906	1906	\N	\N	\N	\N	\N	2011-10-10 15:15:31.482854
-101008	Sciurus vulgaris subsp. rupestris Thomas, 1907	Sciurus vulgaris subsp. rupestris	SCIENTIFIC	Sciurus	\N	vulgaris	rupestris	\N	\N	SUBSPECIES	t	Thomas	1907	1907	\N	\N	\N	\N	\N	2011-10-10 15:15:31.491469
-101010	Tenes Thomas, 1909	Tenes	SCIENTIFIC	Tenes	\N	\N	\N	\N	\N	GENUS	t	Thomas	1909	1909	\N	\N	\N	\N	\N	2011-10-10 15:15:31.499246
-101012	Sciurus (Tenes) anomalus Gmelin, 1778	Sciurus anomalus	SCIENTIFIC	Sciurus	Tenes	anomalus	\N	\N	\N	SPECIES	t	Gmelin	1778	1778	\N	\N	\N	\N	\N	2011-10-10 15:15:31.507477
-101014	Sciuromorpha Brandt, 1855	Sciuromorpha	SCIENTIFIC	Sciuromorpha	\N	\N	\N	\N	\N	SUBORDER	t	Brandt	1855	1855	\N	\N	\N	\N	\N	2011-10-10 15:15:31.540809
-101016	Sciurillinae Moore, 1959	Sciurillinae	SCIENTIFIC	Sciurillinae	\N	\N	\N	\N	\N	SUBFAMILY	t	Moore	1959	1959	\N	\N	\N	\N	\N	2011-10-10 15:15:31.549225
-101018	Sciurinae Fischer de Waldheim, 1817	Sciurinae	SCIENTIFIC	Sciurinae	\N	\N	\N	\N	\N	SUBFAMILY	t	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2011-10-10 15:15:31.5575
-101020	Sciurini Fischer de Waldheim, 1817	Sciurini	SCIENTIFIC	Sciurini	\N	\N	\N	\N	\N	TRIBE	t	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2011-10-10 15:15:31.566559
+100941	Mammalia	Mammalia	SCIENTIFIC	Mammalia	\N	\N	\N	\N	\N	CLASS	f	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:28.857889
+100943	Rodentia Bowdich, 1821	Rodentia	SCIENTIFIC	Rodentia	\N	\N	\N	\N	\N	ORDER	f	Bowdich	1821	1821	\N	\N	\N	\N	\N	2011-10-10 15:15:28.881823
+100944	Sciuridae	Sciuridae	SCIENTIFIC	Sciuridae	\N	\N	\N	\N	\N	FAMILY	f	\N	\N	\N	\N	\N	\N	\N	\N	2011-10-10 15:15:31.105436
+100946	Sciurillus Thomas, 1914	Sciurillus	SCIENTIFIC	Sciurillus	\N	\N	\N	\N	\N	GENUS	f	Thomas	1914	1914	\N	\N	\N	\N	\N	2011-10-10 15:15:31.120587
+100948	Sciurillus pusillus E. Geoffroy, 1803	Sciurillus pusillus	SCIENTIFIC	Sciurillus	\N	pusillus	\N	\N	\N	SPECIES	f	E. Geoffroy	1803	1803	\N	\N	\N	\N	\N	2011-10-10 15:15:31.137376
+100950	Sciurillus pusillus subsp. pusillus E. Geoffroy, 1803	Sciurillus pusillus subsp. pusillus	SCIENTIFIC	Sciurillus	\N	pusillus	pusillus	\N	\N	SUBSPECIES	f	E. Geoffroy	1803	1803	\N	\N	\N	\N	\N	2011-10-10 15:15:31.183986
+100952	Sciurillus pusillus subsp. glaucinus Thomas, 1914	Sciurillus pusillus subsp. glaucinus	SCIENTIFIC	Sciurillus	\N	pusillus	glaucinus	\N	\N	SUBSPECIES	f	Thomas	1914	1914	\N	\N	\N	\N	\N	2011-10-10 15:15:31.19619
+100954	Sciurillus pusillus subsp. kuhlii Gray, 1867	Sciurillus pusillus subsp. kuhlii	SCIENTIFIC	Sciurillus	\N	pusillus	kuhlii	\N	\N	SUBSPECIES	f	Gray	1867	1867	\N	\N	\N	\N	\N	2011-10-10 15:15:31.207008
+100956	Sciurus Linnaeus, 1758	Sciurus	SCIENTIFIC	Sciurus	\N	\N	\N	\N	\N	GENUS	f	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.215393
+100957	Sciurus Linnaeus, 1758	Sciurus	SCIENTIFIC	Sciurus	\N	\N	\N	\N	\N	SUBGENUS	f	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.215393
+100958	Aphrontis Schultze, 1893	Aphrontis	SCIENTIFIC	Aphrontis	\N	\N	\N	\N	\N	GENUS	f	Schultze	1893	1893	\N	\N	\N	\N	\N	2011-10-10 15:15:31.229146
+100960	Araeosciurus Nelson, 1899	Araeosciurus	SCIENTIFIC	Araeosciurus	\N	\N	\N	\N	\N	GENUS	f	Nelson	1899	1899	\N	\N	\N	\N	\N	2011-10-10 15:15:31.237613
+100962	Baiosciurus Nelson, 1899	Baiosciurus	SCIENTIFIC	Baiosciurus	\N	\N	\N	\N	\N	GENUS	f	Nelson	1899	1899	\N	\N	\N	\N	\N	2011-10-10 15:15:31.245937
+100964	Echinosciurus Trouessart, 1880	Echinosciurus	SCIENTIFIC	Echinosciurus	\N	\N	\N	\N	\N	GENUS	f	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.254597
+100966	Histriosciurus J. A. Allen, 1915	Histriosciurus	SCIENTIFIC	Histriosciurus	\N	\N	\N	\N	\N	GENUS	f	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.265981
+100968	Leptosciurus J. A. Allen, 1915	Leptosciurus	SCIENTIFIC	Leptosciurus	\N	\N	\N	\N	\N	GENUS	f	J. A. Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.27414
+100970	Macroxus F. Cuvier, 1823	Macroxus	SCIENTIFIC	Macroxus	\N	\N	\N	\N	\N	GENUS	f	F.Cuvier	1823	1823	\N	\N	\N	\N	\N	2011-10-10 15:15:31.281678
+100972	Mesosciurus J. A. Allen, 1915	Mesosciurus	SCIENTIFIC	Mesosciurus	\N	\N	\N	\N	\N	GENUS	f	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.289689
+100974	Neosciurus Trouessart, 1880	Neosciurus	SCIENTIFIC	Neosciurus	\N	\N	\N	\N	\N	GENUS	f	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.297676
+100976	Oreosciurus Ognev, 1935	Oreosciurus	SCIENTIFIC	Oreosciurus	\N	\N	\N	\N	\N	GENUS	f	Ognev	1935	1935	\N	\N	\N	\N	\N	2011-10-10 15:15:31.305643
+100978	Parasciurus Trouessart, 1880	Parasciurus	SCIENTIFIC	Parasciurus	\N	\N	\N	\N	\N	GENUS	f	Trouessart	1880	1880	\N	\N	\N	\N	\N	2011-10-10 15:15:31.313216
+100980	Simosciurus J. A. Allen, 1915	Simosciurus	SCIENTIFIC	Simosciurus	\N	\N	\N	\N	\N	GENUS	f	J.A.Allen	1915	1915	\N	\N	\N	\N	\N	2011-10-10 15:15:31.322179
+100982	Sciurus vulgaris Linnaeus, 1758	Sciurus vulgaris	SCIENTIFIC	Sciurus	\N	vulgaris	\N	\N	\N	SPECIES	f	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.335289
+100984	Sciurus fuscorubens Dwigubski, 1804	Sciurus fuscorubens	SCIENTIFIC	Sciurus	\N	fuscorubens	\N	\N	\N	SPECIES	f	Dwigubski	1804	1804	\N	\N	\N	\N	\N	2011-10-10 15:15:31.389444
+100986	Sciurus nadymensis Serebrennikov, 1928	Sciurus nadymensis	SCIENTIFIC	Sciurus	\N	nadymensis	\N	\N	\N	SPECIES	f	Serebrennikov	1928	1928	\N	\N	\N	\N	\N	2011-10-10 15:15:31.397892
+100988	Sciurus subalpinus Burg, 1920	Sciurus subalpinus	SCIENTIFIC	Sciurus	\N	subalpinus	\N	\N	\N	SPECIES	f	Burg	1920	1920	\N	\N	\N	\N	\N	2011-10-10 15:15:31.405153
+100990	Sciurus talahutky Brass, 1911	Sciurus talahutky	SCIENTIFIC	Sciurus	\N	talahutky	\N	\N	\N	SPECIES	f	Brass	1911	1911	\N	\N	\N	\N	\N	2011-10-10 15:15:31.41321
+100992	Sciurus vulgaris subsp. vulgaris Linnaeus, 1758	Sciurus vulgaris subsp. vulgaris	SCIENTIFIC	Sciurus	\N	vulgaris	vulgaris	\N	\N	SUBSPECIES	f	Linnaeus	1758	1758	\N	\N	\N	\N	\N	2011-10-10 15:15:31.421521
+100994	Sciurus vulgaris var. alpinus Desmarest, 1822	Sciurus vulgaris var. alpinus	SCIENTIFIC	Sciurus	\N	vulgaris	alpinus	\N	\N	VARIETY	f	Desmarest	1822	1822	\N	\N	\N	\N	\N	2011-10-10 15:15:31.431157
+100996	Sciurus vulgaris subsp. altaicus Serebrennikov, 1928	Sciurus vulgaris subsp. altaicus	SCIENTIFIC	Sciurus	\N	vulgaris	altaicus	\N	\N	SUBSPECIES	f	Serebrennikov	1928	1928	\N	\N	\N	\N	\N	2011-10-10 15:15:31.43981
+100998	Sciurus vulgaris var. arcticus Trouessart, 1906	Sciurus vulgaris var. arcticus	SCIENTIFIC	Sciurus	\N	vulgaris	arcticus	\N	\N	VARIETY	f	Trouessart	1906	1906	\N	\N	\N	\N	\N	2011-10-10 15:15:31.44799
+101000	Sciurus vulgaris subsp. balcanicus Heinrich, 1936	Sciurus vulgaris subsp. balcanicus	SCIENTIFIC	Sciurus	\N	vulgaris	balcanicus	\N	\N	SUBSPECIES	f	Heinrich	1936	1936	\N	\N	\N	\N	\N	2011-10-10 15:15:31.456349
+101002	Sciurus vulgaris subsp. chiliensis Sowerby, 1921	Sciurus vulgaris subsp. chiliensis	SCIENTIFIC	Sciurus	\N	vulgaris	chiliensis	\N	\N	SUBSPECIES	f	Sowerby	1921	1921	\N	\N	\N	\N	\N	2011-10-10 15:15:31.466166
+101004	Sciurus vulgaris subsp. cinerea Hermann, 1804	Sciurus vulgaris subsp. cinerea	SCIENTIFIC	Sciurus	\N	vulgaris	cinerea	\N	\N	SUBSPECIES	f	Hermann	1804	1804	\N	\N	\N	\N	\N	2011-10-10 15:15:31.474769
+101006	Sciurus vulgaris subsp. orientis Thomas, 1906	Sciurus vulgaris subsp. orientis	SCIENTIFIC	Sciurus	\N	vulgaris	orientis	\N	\N	SUBSPECIES	f	Thomas	1906	1906	\N	\N	\N	\N	\N	2011-10-10 15:15:31.482854
+101008	Sciurus vulgaris subsp. rupestris Thomas, 1907	Sciurus vulgaris subsp. rupestris	SCIENTIFIC	Sciurus	\N	vulgaris	rupestris	\N	\N	SUBSPECIES	f	Thomas	1907	1907	\N	\N	\N	\N	\N	2011-10-10 15:15:31.491469
+101010	Tenes Thomas, 1909	Tenes	SCIENTIFIC	Tenes	\N	\N	\N	\N	\N	GENUS	f	Thomas	1909	1909	\N	\N	\N	\N	\N	2011-10-10 15:15:31.499246
+101012	Sciurus (Tenes) anomalus Gmelin, 1778	Sciurus anomalus	SCIENTIFIC	Sciurus	Tenes	anomalus	\N	\N	\N	SPECIES	f	Gmelin	1778	1778	\N	\N	\N	\N	\N	2011-10-10 15:15:31.507477
+101014	Sciuromorpha Brandt, 1855	Sciuromorpha	SCIENTIFIC	Sciuromorpha	\N	\N	\N	\N	\N	SUBORDER	f	Brandt	1855	1855	\N	\N	\N	\N	\N	2011-10-10 15:15:31.540809
+101016	Sciurillinae Moore, 1959	Sciurillinae	SCIENTIFIC	Sciurillinae	\N	\N	\N	\N	\N	SUBFAMILY	f	Moore	1959	1959	\N	\N	\N	\N	\N	2011-10-10 15:15:31.549225
+101018	Sciurinae Fischer de Waldheim, 1817	Sciurinae	SCIENTIFIC	Sciurinae	\N	\N	\N	\N	\N	SUBFAMILY	f	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2011-10-10 15:15:31.5575
+101020	Sciurini Fischer de Waldheim, 1817	Sciurini	SCIENTIFIC	Sciurini	\N	\N	\N	\N	\N	TRIBE	f	Fischer de Waldheim	1817	1817	\N	\N	\N	\N	\N	2011-10-10 15:15:31.566559

@@ -383,7 +383,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     uw.setIssues(u.getIssues());
 
     // lookup or insert name record
-    pn = nameService.createOrGet(pn);
+    pn = nameService.createOrGet(pn, true);
     uw.setNameKey(pn.getKey());
 
     // lookup or insert citation records

@@ -1,111 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
-  <changeSet id="1" author="markus">
-    <sqlFile path="liquibase/clb2.sql"/>
-  </changeSet>
-  <changeSet id="2" author="markus">
-    <sqlFile path="liquibase/col_feedback.sql"/>
-  </changeSet>
-  <changeSet id="3" author="markus">
-    <sqlFile path="liquibase/dc_references.sql"/>
-  </changeSet>
-  <changeSet id="4" author="markus">
-    <sqlFile path="liquibase/root_indices.sql"/>
-  </changeSet>
-  <changeSet id="5" author="markus">
-    <sqlFile path="liquibase/del_nested_set.sql"/>
-  </changeSet>
-  <changeSet id="6" author="markus">
-    <sqlFile path="liquibase/write_usage.sql"/>
-  </changeSet>
-  <changeSet id="7" author="markus">
-    <sqlFile path="liquibase/drop_user_checklists.sql"/>
-  </changeSet>
-  <changeSet id="8" author="markus">
-    <sqlFile path="liquibase/enum_update.sql"/>
-  </changeSet>
-  <changeSet id="9" author="markus">
-    <sqlFile path="liquibase/extension_sync.sql"/>
-  </changeSet>
-  <changeSet id="10" author="markus">
-    <sqlFile path="liquibase/extension_fks.sql"/>
-  </changeSet>
-  <changeSet id="11" author="markus">
-    <sqlFile path="liquibase/name_index.sql"/>
-  </changeSet>
-  <changeSet id="12" author="markus">
-    <sqlFile path="liquibase/issues.sql"/>
-  </changeSet>
-  <changeSet id="13" author="markus">
-    <sqlFile path="liquibase/debug_views.sql"/>
-  </changeSet>
-  <changeSet id="14" author="markus">
-    <sqlFile path="liquibase/hash_indeces.sql"/>
-  </changeSet>
-  <changeSet id="15" author="markus">
-    <sqlFile path="liquibase/issue_metrics.sql"/>
-  </changeSet>
-  <changeSet id="16" author="markus">
-    <sql>create index on name_usage (constituent_key);</sql>
-  </changeSet>
-  <changeSet id="17" author="markus">
-    <sqlFile path="liquibase/rank_enum_update.sql"/>
-  </changeSet>
-  <changeSet id="18" author="markus">
-    <sqlFile path="liquibase/debug_views.sql"/>
-  </changeSet>
-  <changeSet id="19" author="markus">
-    <sql>ALTER TABLE raw_usage RENAME COLUMN smile TO data;</sql>
-  </changeSet>
-  <changeSet id="20" author="markus">
-    <sql>
-      ALTER TABLE name ADD CONSTRAINT scientific_name_unique UNIQUE (scientific_name);
-      ALTER TABLE citation ADD CONSTRAINT citation_unique UNIQUE (citation);
-    </sql>
-  </changeSet>
-  <changeSet id="21" author="markus">
-    <sql>
-      DROP VIEW kname;
-      ALTER TABLE name_usage ALTER COLUMN origin type text;
-      DROP TYPE origin_type;
-      CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION', 'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM', 'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'AUTO_RECOMBINATION');
-      ALTER TABLE name_usage ALTER COLUMN origin type origin_type USING (origin::origin_type);
-    </sql>
-    <sqlFile path="liquibase/debug_views.sql"/>
-  </changeSet>
-  <changeSet id="22" author="markus">
-    <sql>CREATE INDEX ON name_usage (dataset_key, last_interpreted);</sql>
-  </changeSet>
-  <changeSet id="23" author="markus">
-    <sql>
-      ALTER TABLE citation DROP CONSTRAINT citation_unique;
-      DROP INDEX citation_citation_idx;
-      CREATE UNIQUE INDEX ON citation (md5(citation));
+    <changeSet id="1" author="markus">
+        <sqlFile path="liquibase/clb2.sql"/>
+    </changeSet>
+    <changeSet id="2" author="markus">
+        <sqlFile path="liquibase/col_feedback.sql"/>
+    </changeSet>
+    <changeSet id="3" author="markus">
+        <sqlFile path="liquibase/dc_references.sql"/>
+    </changeSet>
+    <changeSet id="4" author="markus">
+        <sqlFile path="liquibase/root_indices.sql"/>
+    </changeSet>
+    <changeSet id="5" author="markus">
+        <sqlFile path="liquibase/del_nested_set.sql"/>
+    </changeSet>
+    <changeSet id="6" author="markus">
+        <sqlFile path="liquibase/write_usage.sql"/>
+    </changeSet>
+    <changeSet id="7" author="markus">
+        <sqlFile path="liquibase/drop_user_checklists.sql"/>
+    </changeSet>
+    <changeSet id="8" author="markus">
+        <sqlFile path="liquibase/enum_update.sql"/>
+    </changeSet>
+    <changeSet id="9" author="markus">
+        <sqlFile path="liquibase/extension_sync.sql"/>
+    </changeSet>
+    <changeSet id="10" author="markus">
+        <sqlFile path="liquibase/extension_fks.sql"/>
+    </changeSet>
+    <changeSet id="11" author="markus">
+        <sqlFile path="liquibase/name_index.sql"/>
+    </changeSet>
+    <changeSet id="12" author="markus">
+        <sqlFile path="liquibase/issues.sql"/>
+    </changeSet>
+    <changeSet id="13" author="markus">
+        <sqlFile path="liquibase/debug_views.sql"/>
+    </changeSet>
+    <changeSet id="14" author="markus">
+        <sqlFile path="liquibase/hash_indeces.sql"/>
+    </changeSet>
+    <changeSet id="15" author="markus">
+        <sqlFile path="liquibase/issue_metrics.sql"/>
+    </changeSet>
+    <changeSet id="16" author="markus">
+        <sql>create index on name_usage (constituent_key);</sql>
+    </changeSet>
+    <changeSet id="17" author="markus">
+        <sqlFile path="liquibase/rank_enum_update.sql"/>
+    </changeSet>
+    <changeSet id="18" author="markus">
+        <sqlFile path="liquibase/debug_views.sql"/>
+    </changeSet>
+    <changeSet id="19" author="markus">
+        <sql>ALTER TABLE raw_usage RENAME COLUMN smile TO data;</sql>
+    </changeSet>
+    <changeSet id="20" author="markus">
+        <sql>
+            ALTER TABLE name ADD CONSTRAINT scientific_name_unique UNIQUE (scientific_name);
+            ALTER TABLE citation ADD CONSTRAINT citation_unique UNIQUE (citation);
+        </sql>
+    </changeSet>
+    <changeSet id="21" author="markus">
+        <sql>
+            DROP VIEW kname;
+            ALTER TABLE name_usage ALTER COLUMN origin type text;
+            DROP TYPE origin_type;
+            CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION',
+            'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM',
+            'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'AUTO_RECOMBINATION');
+            ALTER TABLE name_usage ALTER COLUMN origin type origin_type USING (origin::origin_type);
+        </sql>
+        <sqlFile path="liquibase/debug_views.sql"/>
+    </changeSet>
+    <changeSet id="22" author="markus">
+        <sql>CREATE INDEX ON name_usage (dataset_key, last_interpreted);</sql>
+    </changeSet>
+    <changeSet id="23" author="markus">
+        <sql>
+            ALTER TABLE citation DROP CONSTRAINT citation_unique;
+            DROP INDEX citation_citation_idx;
+            CREATE UNIQUE INDEX ON citation (md5(citation));
 
-      DROP INDEX identifier_identifier_idx;
-      CREATE UNIQUE INDEX ON identifier (identifier);
-    </sql>
-  </changeSet>
-  <changeSet id="24" author="markus">
-    <sql>
-      ALTER TABLE name_usage_metrics DROP COLUMN count_descendants;
-    </sql>
-  </changeSet>
-  <changeSet id="25" author="markus">
-    <sql>
-      ALTER TABLE name_usage ADD COLUMN deleted timestamp;
-    </sql>
-  </changeSet>
+            DROP INDEX identifier_identifier_idx;
+            CREATE UNIQUE INDEX ON identifier (identifier);
+        </sql>
+    </changeSet>
+    <changeSet id="24" author="markus">
+        <sql>
+            ALTER TABLE name_usage_metrics DROP COLUMN count_descendants;
+        </sql>
+    </changeSet>
+    <changeSet id="25" author="markus">
+        <sql>
+            ALTER TABLE name_usage ADD COLUMN deleted timestamp;
+        </sql>
+    </changeSet>
 
-  <changeSet id="26" author="markus">
-    <sql>
-      ALTER TABLE dataset_metrics ADD COLUMN count_by_constituent hstore;
-    </sql>
-  </changeSet>
+    <changeSet id="26" author="markus">
+        <sql>
+            ALTER TABLE dataset_metrics ADD COLUMN count_by_constituent hstore;
+        </sql>
+    </changeSet>
     <changeSet id="27" author="markus">
         <sql>
             CREATE INDEX ON name_usage (deleted) WHERE deleted IS NULL;
@@ -115,7 +117,8 @@
             CREATE INDEX ON name_usage (dataset_key) WHERE deleted IS NULL;
 
             DROP INDEX name_usage_dataset_key_idx1;
-            CREATE INDEX ON name_usage (dataset_key) WHERE deleted IS NULL AND parent_fk IS NULL AND is_synonym = false;
+            CREATE INDEX ON name_usage (dataset_key) WHERE deleted IS NULL AND parent_fk IS NULL AND
+            is_synonym = false;
 
             DROP INDEX name_usage_dataset_key_last_interpreted_idx;
             CREATE INDEX ON name_usage (dataset_key, last_interpreted) WHERE deleted IS NULL;
@@ -143,7 +146,9 @@
 
             ALTER TABLE name_usage ALTER COLUMN origin type text;
             DROP TYPE origin_type;
-            CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION', 'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM', 'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'BASIONYM_PLACEHOLDER');
+            CREATE TYPE origin_type AS ENUM ('OTHER', 'SOURCE', 'DENORMED_CLASSIFICATION',
+            'VERBATIM_PARENT', 'VERBATIM_ACCEPTED', 'VERBATIM_BASIONYM', 'PROPARTE', 'AUTONYM',
+            'IMPLICIT_NAME', 'MISSING_ACCEPTED', 'BASIONYM_PLACEHOLDER');
             ALTER TABLE name_usage ALTER COLUMN origin type origin_type USING (origin::origin_type);
 
             ALTER TABLE name ALTER COLUMN "type" type text;
@@ -151,7 +156,8 @@
             UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='SCINAME';
             UPDATE name SET "type"='SCIENTIFIC' WHERE "type"='WELLFORMED';
             UPDATE name SET "type"='NO_NAME' WHERE "type"='BLACKLISTED';
-            CREATE TYPE name_type AS ENUM ('SCIENTIFIC', 'VIRUS', 'HYBRID', 'INFORMAL', 'CULTIVAR', 'CANDIDATUS', 'DOUBTFUL', 'PLACEHOLDER', 'NO_NAME');
+            CREATE TYPE name_type AS ENUM ('SCIENTIFIC', 'VIRUS', 'HYBRID', 'INFORMAL', 'CULTIVAR',
+            'CANDIDATUS', 'DOUBTFUL', 'PLACEHOLDER', 'NO_NAME');
             ALTER TABLE name ALTER COLUMN "type" type name_type USING ("type"::name_type);
         </sql>
         <sqlFile path="liquibase/debug_views.sql"/>
@@ -163,14 +169,16 @@
     </changeSet>
     <changeSet id="31" author="markus">
         <sql>
-            ALTER table name_usage_metrics add foreign key (usage_fk) references name_usage (id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+            ALTER table name_usage_metrics add foreign key (usage_fk) references name_usage (id) ON
+            DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
         </sql>
     </changeSet>
     <changeSet id="32" author="markus">
         <!-- indices to speed up slow queries from produciton logs -->
         <sql>
             CREATE INDEX ON nub_rel (nub_fk, usage_fk)
-            WHERE dataset_key NOT IN ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02');
+            WHERE dataset_key NOT IN
+            ('cbb6498e-8927-405a-916b-576d00a6289b','cd9fa1dd-d29f-47c6-bac1-31245a9f08e9','16c3f9cb-4b19-4553-ac8e-ebb90003aa02');
         </sql>
     </changeSet>
     <changeSet id="33" author="markus">
@@ -183,9 +191,9 @@
         <!-- add new dataset table: http://dev.gbif.org/issues/browse/POR-2700 -->
         <sql>
             CREATE TABLE dataset (
-                key uuid NOT NULL,
-                title text,
-                PRIMARY KEY (key)
+            key uuid NOT NULL,
+            title text,
+            PRIMARY KEY (key)
             )
         </sql>
     </changeSet>
@@ -198,68 +206,81 @@
             ALTER TABLE raw_usage ADD COLUMN json text;
         </sql>
     </changeSet>
-  <changeSet id="36" author="markus">
-    <!--
-    replace text[] with simple text for issue sets due to a JDBC driver bug :(
-    -->
-    <sql>
-      ALTER TABLE name_usage ALTER COLUMN issues type text;
-    </sql>
-  </changeSet>
+    <changeSet id="36" author="markus">
+        <!--
+        replace text[] with simple text for issue sets due to a JDBC driver bug :(
+        -->
+        <sql>
+            ALTER TABLE name_usage ALTER COLUMN issues type text;
+        </sql>
+    </changeSet>
 
-  <changeSet id="37" author="markus">
-    <!--
-    revert and use text[] again, JDBC driver got fixed!
-    https://github.com/pgjdbc/pgjdbc/issues/517
-    -->
-    <sql>
-      ALTER TABLE name_usage ALTER COLUMN issues type text[] USING issues::text[];
-    </sql>
-  </changeSet>
+    <changeSet id="37" author="markus">
+        <!--
+        revert and use text[] again, JDBC driver got fixed!
+        https://github.com/pgjdbc/pgjdbc/issues/517
+        -->
+        <sql>
+            ALTER TABLE name_usage ALTER COLUMN issues type text[] USING issues::text[];
+        </sql>
+    </changeSet>
 
-  <changeSet id="38" author="markus">
-    <!-- we use the json column now since a while, lets drop the legacy data column -->
-    <sql>
-      ALTER TABLE raw_usage DROP COLUMN data;
-    </sql>
-  </changeSet>
+    <changeSet id="38" author="markus">
+        <!-- we use the json column now since a while, lets drop the legacy data column -->
+        <sql>
+            ALTER TABLE raw_usage DROP COLUMN data;
+        </sql>
+    </changeSet>
 
-  <changeSet id="39" author="markus" runInTransaction="false">
-    <!-- adds new origin value to origin type -->
-    <sql splitStatements="false" stripComments="false">
-      <![CDATA[
+    <changeSet id="39" author="markus" runInTransaction="false">
+        <!-- adds new origin value to origin type -->
+        <sql splitStatements="false" stripComments="false">
+            <![CDATA[
       ALTER TYPE origin_type ADD VALUE IF NOT EXISTS 'EX_AUTHOR_SYNONYM' BEFORE 'OTHER';
       ]]>
-    </sql>
-  </changeSet>
+        </sql>
+    </changeSet>
 
-  <changeSet id="40" author="markus">
-    <!-- adds common backbone view for convenient debugging -->
-    <sql>
-      CREATE VIEW nub as
-      SELECT u.id, n.id as nid, n.scientific_name, u.rank, u.status, u.origin, bu.id as basionym_id, b.scientific_name as basionym, pu.id as parent_id, p.scientific_name as parent, k.canonical_name as kingdom, f.canonical_name as family, u.deleted is not null as deleted, u.source_taxon_key as source_id, u.constituent_key, u.issues
-      FROM name_usage u JOIN name n on u.name_fk=n.id
-        LEFT JOIN name_usage pu on u.parent_fk=pu.id LEFT JOIN name p on pu.name_fk=p.id
-        LEFT JOIN name_usage ku on u.kingdom_fk=ku.id LEFT JOIN name k on ku.name_fk=k.id
-        LEFT JOIN name_usage fu on u.family_fk=fu.id LEFT JOIN name f on fu.name_fk=f.id
-        LEFT JOIN name_usage bu on u.basionym_fk=bu.id LEFT JOIN name b on bu.name_fk=b.id
-      WHERE u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c';
-    </sql>
-  </changeSet>
+    <changeSet id="40" author="markus">
+        <!-- adds common backbone view for convenient debugging -->
+        <sql>
+            CREATE VIEW nub as
+            SELECT u.id, n.id as nid, n.scientific_name, u.rank, u.status, u.origin, bu.id as
+            basionym_id, b.scientific_name as basionym, pu.id as parent_id, p.scientific_name as
+            parent, k.canonical_name as kingdom, f.canonical_name as family, u.deleted is not null
+            as deleted, u.source_taxon_key as source_id, u.constituent_key, u.issues
+            FROM name_usage u JOIN name n on u.name_fk=n.id
+            LEFT JOIN name_usage pu on u.parent_fk=pu.id LEFT JOIN name p on pu.name_fk=p.id
+            LEFT JOIN name_usage ku on u.kingdom_fk=ku.id LEFT JOIN name k on ku.name_fk=k.id
+            LEFT JOIN name_usage fu on u.family_fk=fu.id LEFT JOIN name f on fu.name_fk=f.id
+            LEFT JOIN name_usage bu on u.basionym_fk=bu.id LEFT JOIN name b on bu.name_fk=b.id
+            WHERE u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c';
+        </sql>
+    </changeSet>
 
-  <changeSet id="41" author="markus">
-    <sql>
-      CREATE VIEW nub_homonyms AS
-      SELECT n1.canonical_name, u1.id as id1, u1.rank rank1, n1.scientific_name scientific_name1, u1.is_synonym is_synonym1, u1.status status1, u1.kingdom_fk kingdom1, u1.phylum_fk phylum1, u1.class_fk class1, u1.order_fk order1, u1.family_fk family1, u1.genus_fk genus1,  u2.id as id2, u2.rank rank2, n2.scientific_name scientific_name2, u2.is_synonym is_synonym2, u2.status status2, u2.kingdom_fk kingdom2, u2.phylum_fk phylum2, u2.class_fk class2, u2.order_fk order2, u2.family_fk family2, u2.genus_fk genus2
-      FROM name_usage u1 JOIN name n1 on u1.name_fk=n1.id JOIN name n2 on n1.canonical_name=n2.canonical_name JOIN name_usage u2 on u2.name_fk=n2.id and u2.id!=u1.id
-      WHERE u1.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u2.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u1.deleted is null and u2.deleted is null;
-    </sql>
-  </changeSet>
+    <changeSet id="41" author="markus">
+        <sql>
+            CREATE VIEW nub_homonyms AS
+            SELECT n1.canonical_name, u1.id as id1, u1.rank rank1, n1.scientific_name
+            scientific_name1, u1.is_synonym is_synonym1, u1.status status1, u1.kingdom_fk kingdom1,
+            u1.phylum_fk phylum1, u1.class_fk class1, u1.order_fk order1, u1.family_fk family1,
+            u1.genus_fk genus1, u2.id as id2, u2.rank rank2, n2.scientific_name scientific_name2,
+            u2.is_synonym is_synonym2, u2.status status2, u2.kingdom_fk kingdom2, u2.phylum_fk
+            phylum2, u2.class_fk class2, u2.order_fk order2, u2.family_fk family2, u2.genus_fk
+            genus2
+            FROM name_usage u1 JOIN name n1 on u1.name_fk=n1.id JOIN name n2 on
+            n1.canonical_name=n2.canonical_name JOIN name_usage u2 on u2.name_fk=n2.id and
+            u2.id!=u1.id
+            WHERE u1.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and
+            u2.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u1.deleted is null and
+            u2.deleted is null;
+        </sql>
+    </changeSet>
 
-  <changeSet id="42" author="markus">
-    <!-- adds a convenient function to return the datasetKey of the backbone -->
-    <sql>
-      <![CDATA[
+    <changeSet id="42" author="markus">
+        <!-- adds a convenient function to return the datasetKey of the backbone -->
+        <sql>
+            <![CDATA[
       CREATE FUNCTION nubKey() RETURNS UUID AS $$
         SELECT 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'::uuid
       $$
@@ -273,13 +294,13 @@
       $$
       LANGUAGE SQL;
       ]]>
-    </sql>
-  </changeSet>
-  <changeSet id="43" author="markus">
-    <sqlFile path="liquibase/rank_enum_update2.sql" />
-    <sqlFile path="liquibase/debug_views2.sql"/>
-    <sql>
-      <![CDATA[
+        </sql>
+    </changeSet>
+    <changeSet id="43" author="markus">
+        <sqlFile path="liquibase/rank_enum_update2.sql"/>
+        <sqlFile path="liquibase/debug_views2.sql"/>
+        <sql>
+            <![CDATA[
       CREATE FUNCTION groupInfraspecificRanks(rnk rank) RETURNS rank AS $$
       SELECT CASE WHEN rnk <= 'SPECIES'::rank THEN rnk
         ELSE 'INFRASPECIFIC_NAME'::rank
@@ -287,66 +308,69 @@
       $$
       LANGUAGE SQL;
       ]]>
-    </sql>
-    <!-- use rank in parsed name and make it unique by name & rank -->
-    <sql>
-      ALTER TABLE name DROP CONSTRAINT scientific_name_unique;
-      DROP INDEX name_scientific_name_idx;
-      ALTER TABLE name ADD COLUMN rank rank;
-      ALTER TABLE name DROP COLUMN rank_marker;
-      ALTER TABLE name ADD UNIQUE (scientific_name, rank);
-    </sql>
-  </changeSet>
-  <changeSet id="44" author="markus">
-    <!-- adds a convenient function to return the datasetKey of the CoL -->
-    <sql>
-      <![CDATA[
+        </sql>
+        <!-- use rank in parsed name and make it unique by name & rank -->
+        <sql>
+            ALTER TABLE name DROP CONSTRAINT scientific_name_unique;
+            DROP INDEX name_scientific_name_idx;
+            ALTER TABLE name ADD COLUMN rank rank;
+            ALTER TABLE name DROP COLUMN rank_marker;
+            ALTER TABLE name ADD UNIQUE (scientific_name, rank);
+        </sql>
+    </changeSet>
+    <changeSet id="44" author="markus">
+        <!-- adds a convenient function to return the datasetKey of the CoL -->
+        <sql>
+            <![CDATA[
       CREATE FUNCTION colKey() RETURNS UUID AS $$
         SELECT '7ddf754f-d193-4cc9-b351-99906754a03b'::uuid
       $$
       LANGUAGE SQL
       IMMUTABLE;
       ]]>
-    </sql>
-  </changeSet>
-  <changeSet id="45" author="markus">
-    <!-- adds parsed flag to name table -->
-    <sql>ALTER TABLE name ADD COLUMN parsed boolean</sql>
-  </changeSet>
+        </sql>
+    </changeSet>
+    <changeSet id="45" author="markus">
+        <!-- adds parsed flag to name table -->
+        <sql>ALTER TABLE name ADD COLUMN parsed boolean</sql>
+    </changeSet>
 
-  <changeSet id="46" author="markus">
-    <!--
-    view for backbone taxa to be exported each time a new backbone is built.
-    See API mailing list from 16.11.2016 and backbone-ddl.sql
-    -->
-    <sql>
-      CREATE VIEW v_backbone AS
-      SELECT u.id, u.parent_fk, u.basionym_fk, u.is_synonym, u.status, u.rank, u.nom_status, u.constituent_key, u.origin, u.source_taxon_key,
-      u.kingdom_fk, u.phylum_fk, u.class_fk, u.order_fk, u.family_fk, u.genus_fk, u.species_fk,
-      n.id as name_id, n.scientific_name, n.canonical_name,
-      n.genus_or_above, n.specific_epithet, n.infra_specific_epithet, n.notho_type, n.authorship, n.year, n.bracket_authorship, n.bracket_year,
-      cpi.citation as name_published_in, u.issues
-      FROM name_usage u
-      JOIN name n ON u.name_fk=n.id
-      LEFT JOIN citation cpi ON u.name_published_in_fk=cpi.id
-      WHERE u.dataset_key=nubKey() and u.deleted IS NULL;
-    </sql>
-  </changeSet>
+    <changeSet id="46" author="markus">
+        <!--
+        view for backbone taxa to be exported each time a new backbone is built.
+        See API mailing list from 16.11.2016 and backbone-ddl.sql
+        -->
+        <sql>
+            CREATE VIEW v_backbone AS
+            SELECT u.id, u.parent_fk, u.basionym_fk, u.is_synonym, u.status, u.rank, u.nom_status,
+            u.constituent_key, u.origin, u.source_taxon_key,
+            u.kingdom_fk, u.phylum_fk, u.class_fk, u.order_fk, u.family_fk, u.genus_fk,
+            u.species_fk,
+            n.id as name_id, n.scientific_name, n.canonical_name,
+            n.genus_or_above, n.specific_epithet, n.infra_specific_epithet, n.notho_type,
+            n.authorship, n.year, n.bracket_authorship, n.bracket_year,
+            cpi.citation as name_published_in, u.issues
+            FROM name_usage u
+            JOIN name n ON u.name_fk=n.id
+            LEFT JOIN citation cpi ON u.name_published_in_fk=cpi.id
+            WHERE u.dataset_key=nubKey() and u.deleted IS NULL;
+        </sql>
+    </changeSet>
 
-  <changeSet id="47" author="markus">
-    <!-- add publisher to dataset table -->
-    <sql>
-      ALTER TABLE dataset ADD COLUMN parent UUID;
-      ALTER TABLE dataset ADD COLUMN publisher UUID;
-    </sql>
-  </changeSet>
+    <changeSet id="47" author="markus">
+        <!-- add publisher to dataset table -->
+        <sql>
+            ALTER TABLE dataset ADD COLUMN parent UUID;
+            ALTER TABLE dataset ADD COLUMN publisher UUID;
+        </sql>
+    </changeSet>
 
-  <changeSet id="48" author="markus">
-    <!-- index to get related usages quickly -->
-    <sql>
-      CREATE INDEX on nub_rel(nub_fk, dataset_key, usage_fk);
-    </sql>
-  </changeSet>
+    <changeSet id="48" author="markus">
+        <!-- index to get related usages quickly -->
+        <sql>
+            CREATE INDEX on nub_rel(nub_fk, dataset_key, usage_fk);
+        </sql>
+    </changeSet>
     <changeSet id="49" author="markus">
         <!-- adds a convenient function to return the publisherKey of plazi -->
         <sql>
@@ -362,6 +386,13 @@
     <changeSet id="50" author="markus" runInTransaction="false">
         <sql>
             ALTER TYPE name_type ADD VALUE 'OTU' AFTER 'CANDIDATUS';
+        </sql>
+    </changeSet>
+    <changeSet id="51" author="markus">
+        <sql>
+            ALTER TABLE name RENAME COLUMN authors_parsed TO parsed_partially;
+            ALTER TABLE name ADD COLUMN strain text;
+            UPDATE name SET parsed_partially = false;
         </sql>
     </changeSet>
 </databaseChangeLog>
