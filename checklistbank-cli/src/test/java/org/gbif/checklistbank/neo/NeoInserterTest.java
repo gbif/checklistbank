@@ -180,7 +180,7 @@ public class NeoInserterTest {
     assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.SCIENTIFIC);
 
     v.setCoreField(DwcTerm.scientificNameAuthorship, "Duméril & Bibron 1937");
-    assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron 1937", "Abies alba alpina", NameType.SCIENTIFIC);
+    assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.SCIENTIFIC);
   }
 
   @Test(expected = IgnoreNameUsageException.class)

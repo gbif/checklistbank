@@ -3,9 +3,13 @@
 9	1		SPECIES	ACCEPTED		Mycena tintinnabulum (Batsch) Quél., 1872	
 10	1		SPECIES	ACCEPTED		Mycena tintin D%C3%B6ring	
 11	8		SPECIES	ACCEPTED		Mycena tantan Fr©𝌆ck.	
-12	1		SPECIES	ACCEPTED		Myçena tañtän Fr©𝌆ck.	
+12	1		SPECIES	ACCEPTED		Myçena tañtän Fra𝌆ck.	
 13	1		SPECIES	ACCEPTED		Mycena tonton DC12345678#42	
-14	1		SPECIES	ACCEPTED		176Mycena tonton	
+14	1		SPECIES	ACCEPTED		176Mycena tontan	
+15	1		SPECIES	ACCEPTED		Mycena tañtän Franck.	
+16	8		SPECIES	ACCEPTED		Mycena Fr©𝌆ck. tantin	
+17	11		VARIETY	ACCEPTED		Mycena tantan (Fr©𝌆ck.) var. cretica L.	
+18	11		VARIETY	ACCEPTED		Mycena tantan var. anatolica L.	
 2			KINGDOM	ACCEPTED		Plantae	
 20	2		SPECIES	ACCEPTED		Acer campestre	
 21	2		SPECIES	ACCEPTED		Acer campestre x lobelii	

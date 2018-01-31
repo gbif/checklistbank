@@ -229,7 +229,7 @@ public class AuthorComparatorTest {
     p1.setGenusOrAbove("Platanus");
     p1.setSpecificEpithet("hispanica");
     p1.setNotho(NamePart.SPECIFIC);
-    p1.setAuthorsParsed(false);
+    p1.setParsed(false);
 
     ParsedName p2 = new ParsedName();
     p2.setScientificName("Platanus hispanica Mill. ex Münch.");
@@ -237,7 +237,7 @@ public class AuthorComparatorTest {
     p2.setSpecificEpithet("hispanica");
     p2.setNotho(NamePart.SPECIFIC);
     p2.setAuthorship("Mill. ex Münch.");
-    p2.setAuthorsParsed(true);
+    p2.setParsed(true);
 
     assertEquals(Equality.EQUAL, comp.compare(p1, p2));
   }
@@ -481,12 +481,11 @@ public class AuthorComparatorTest {
   @Test
   public void testUnparsedAuthors() throws Exception {
     ParsedName p3 = new ParsedName();
-    p3.setAuthorsParsed(false);
+    p3.setParsed(false);
     p3.setScientificName("Blattaria Voet, ?, 1806");
     p3.setGenusOrAbove("Blattaria");
 
     ParsedName p4 = new ParsedName();
-    p4.setAuthorsParsed(true);
     p4.setScientificName("Blattaria Weyenbergh, 1874");
     p4.setAuthorship("Weyenbergh");
     p4.setYear("1874");
@@ -500,11 +499,9 @@ public class AuthorComparatorTest {
   @Test
   public void testAlikeAuthors() throws Exception {
     ParsedName p1 = new ParsedName();
-    p1.setAuthorsParsed(true);
     p1.setAuthorship("Voet");
 
     ParsedName p2 = new ParsedName();
-    p2.setAuthorsParsed(true);
     p2.setAuthorship("Weyenbergh");
 
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
@@ -526,15 +523,12 @@ public class AuthorComparatorTest {
   @Test
   public void testTransliterations() throws Exception {
     ParsedName p1 = new ParsedName();
-    p1.setAuthorsParsed(true);
     p1.setAuthorship("Müller");
 
     ParsedName p2 = new ParsedName();
-    p2.setAuthorsParsed(true);
     p2.setAuthorship("Muller");
 
     ParsedName p3 = new ParsedName();
-    p3.setAuthorsParsed(true);
     p3.setAuthorship("Mueller");
 
     assertEquals(Equality.EQUAL, comp.compare(p1, p2));
@@ -561,14 +555,12 @@ public class AuthorComparatorTest {
 
   private void assertAuth(String a1, String y1, String a1b, String y1b, Equality eq, String a2, String y2, String a2b, String y2b) {
     ParsedName p1 = new ParsedName();
-    p1.setAuthorsParsed(true);
     p1.setAuthorship(a1);
     p1.setYear(y1);
     p1.setBracketAuthorship(a1b);
     p1.setBracketYear(y1b);
 
     ParsedName p2 = new ParsedName();
-    p2.setAuthorsParsed(true);
     p2.setAuthorship(a2);
     p2.setYear(y2);
     p2.setBracketAuthorship(a2b);

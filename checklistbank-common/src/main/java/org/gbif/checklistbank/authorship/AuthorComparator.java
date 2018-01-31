@@ -107,16 +107,20 @@ public class AuthorComparator {
     return result;
   }
 
+  private boolean authorshipIsParsed(ParsedName pn) {
+    return pn.isParsed() && !pn.isParsedPartially() || pn.hasAuthorship();
+  }
+
   /**
    * Does a comparison of recombination and basionym authorship using the author compare method once for the recombination authorship and once for the basionym.
    */
   public Equality compare(ParsedName n1, ParsedName n2) {
-    if (!n1.isAuthorsParsed()) {
+    if (!authorshipIsParsed(n1)) {
       // copy parsed name to not alter the original
       n1 = clone(n1);
       parseAuthorship(n1);
     }
-    if (!n2.isAuthorsParsed()) {
+    if (!authorshipIsParsed(n2)) {
       // copy parsed name to not alter the original
       n2 = clone(n2);
       parseAuthorship(n2);
@@ -268,7 +272,7 @@ public class AuthorComparator {
     }
     // copy full name to year, will be extracted/normalized in year comparison
     pn.setYear(pn.getScientificName());
-    pn.setAuthorsParsed(true);
+    pn.setParsedPartially(false);
   }
 
 

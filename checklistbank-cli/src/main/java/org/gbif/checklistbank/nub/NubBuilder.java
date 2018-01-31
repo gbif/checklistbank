@@ -1214,6 +1214,14 @@ public class NubBuilder implements Runnable {
     if (ignoredNameTypes.contains(u.parsedName.getType())) {
       throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);
     }
+    // avoid unparsed names for parsable types
+    if (u.parsedName.getType().isParsable() && !u.parsedName.isParsed()) {
+      throw new IgnoreSourceUsageException("Ignore unparsable " + u.parsedName.getType() + ": ", u.scientificName);
+    }
+    // reject partially parsed monomial
+    if (u.parsedName.isParsedPartially() && !u.parsedName.isBinomial()) {
+      throw new IgnoreSourceUsageException("Ignore partially parsed " + u.parsedName.getRank() + " ", u.scientificName);
+    }
     // check blacklist
     if (blacklisted(u)) {
       throw new IgnoreSourceUsageException("Ignore blacklisted name", u.scientificName);
@@ -1228,7 +1236,7 @@ public class NubBuilder implements Runnable {
       throw new IgnoreSourceUsageException("Ignore taxon concept names", u.scientificName);
     }
     // avoid names with nulls in epithets
-    if ("null" .equals(u.parsedName.getSpecificEpithet()) || "null" .equals(u.parsedName.getInfraSpecificEpithet())) {
+    if ("null".equals(u.parsedName.getSpecificEpithet()) || "null".equals(u.parsedName.getInfraSpecificEpithet())) {
       throw new IgnoreSourceUsageException("Ignore names with null epithets", u.scientificName);
     }
     // consider infraspecific names subspecies
@@ -1279,12 +1287,11 @@ public class NubBuilder implements Runnable {
   private void updateNomenclature(NubUsage nub, SrcUsage u) {
     LOG.debug("Updating nomenclature for {} from source {}", nub.parsedName.getScientificName(), u.parsedName.getScientificName());
     // authorship
-    if (!u.parsedName.authorshipComplete().isEmpty() && (nub.parsedName.authorshipComplete().isEmpty() || currSrc.nomenclator)) {
+    if (u.parsedName.hasAuthorship() && (!nub.parsedName.hasAuthorship() || currSrc.nomenclator)) {
       nub.parsedName.setAuthorship(u.parsedName.getAuthorship());
       nub.parsedName.setYear(u.parsedName.getYear());
       nub.parsedName.setBracketAuthorship(u.parsedName.getBracketAuthorship());
       nub.parsedName.setBracketYear(u.parsedName.getBracketYear());
-      nub.parsedName.setAuthorsParsed(true);
       nub.parsedName.setScientificName(u.parsedName.canonicalNameComplete());
     }
 

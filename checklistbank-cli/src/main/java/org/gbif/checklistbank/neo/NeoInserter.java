@@ -303,13 +303,6 @@ public class NeoInserter implements AutoCloseable {
     try {
       if (sciname != null) {
         pn = nameParser.parse(sciname, rank);
-        // append author if its not part of the name yet
-        String author = v.getCoreField(DwcTerm.scientificNameAuthorship);
-        if (!Strings.isNullOrEmpty(author) && !sciname.contains(author)
-            && (!pn.isAuthorsParsed() || Strings.isNullOrEmpty(pn.getAuthorship()))) {
-          u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
-          pn.setAuthorship(buildAuthorship(v));
-        }
       } else {
         String genus = firstClean(v, GbifTerm.genericName, DwcTerm.genus);
         if (genus == null) {
@@ -320,24 +313,39 @@ public class NeoInserter implements AutoCloseable {
           pn.setGenusOrAbove(genus);
           pn.setSpecificEpithet(v.getCoreField(DwcTerm.specificEpithet));
           pn.setInfraSpecificEpithet(v.getCoreField(DwcTerm.infraspecificEpithet));
-          pn.setAuthorship(buildAuthorship(v));
           pn.setRank(rank);
           pn.setType(NameType.SCIENTIFIC);
           u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
         }
       }
+
+      // try to add an authorship if not yet there
+      String vAuthorship = buildAuthorship(v);
+      if (!Strings.isNullOrEmpty(vAuthorship) && !pn.hasAuthorship()) {
+        ParsedName auth = nameParser.parseQuietly("Abies alba " + vAuthorship, Rank.SPECIES);
+        if (auth.isParsed() && auth.hasAuthorship()) {
+          pn.setAuthorship(auth.getAuthorship());
+          pn.setYear(auth.getYear());
+          pn.setBracketAuthorship(auth.getBracketAuthorship());
+          pn.setBracketYear(auth.getBracketYear());
+          u.addIssue(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED);
+        }
+      }
+
+      // in case we assembled the name from parts update the scientific name field
+      if (u.getIssues().contains(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED)) {
+        pn.setScientificName(pn.fullName());
+      }
+
     } catch (UnparsableException e) {
       LOG.debug("Unparsable {} name {}", e.type, e.name);
       pn = new ParsedName();
       pn.setType(e.type);
       pn.setScientificName(sciname);
+      pn.setParsed(false);
     }
 
-    if (u.getIssues().contains(NameUsageIssue.SCIENTIFIC_NAME_ASSEMBLED)) {
-      u.setScientificName(pn.fullName());
-    } else {
-      u.setScientificName(sciname);
-    }
+    u.setScientificName(pn.getScientificName());
     u.setCanonicalName(Strings.emptyToNull(pn.canonicalName()));
     //TODO: verify name parts and rank
     u.setNameType(pn.getType());
