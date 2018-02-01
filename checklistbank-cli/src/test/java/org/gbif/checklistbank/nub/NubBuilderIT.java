@@ -1611,6 +1611,22 @@ public class NubBuilderIT {
   }
 
   /**
+   * Verify canonical name building.
+   * Subspecies in zoology should not have a marker
+   */
+  @Test
+  public void testNameFormatting() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(125);
+    build(src);
+
+    NubUsage u = assertCanonical("Puma yagouaroundi chilensis", Rank.SUBSPECIES, Origin.SOURCE, null);
+    assertEquals(Rank.SUBSPECIES, u.parsedName.getRank());
+    assertEquals("Puma yagouaroundi chilensis L.", u.parsedName.getScientificName());
+
+    assertTree("125.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test
@@ -1744,7 +1760,7 @@ public class NubBuilderIT {
     if (k != null) {
       assertEquals("wrong kingdom " + k, k, u.kingdom);
     }
-    assertEquals("wrong canonical name for " + canonical, canonical, UsageDao.canonicalOrScientificName(u.parsedName, false));
+    assertEquals("wrong canonical name for " + canonical, canonical, UsageDao.canonicalOrScientificName(u.parsedName));
     for (NameUsageIssue issue : issues) {
       assertTrue("missing issue " + issue, u.issues.contains(issue));
     }
@@ -1754,14 +1770,14 @@ public class NubBuilderIT {
   private NubUsage assertScientific(String sciname, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
     NubUsage u = getScientific(sciname, rank);
     assertNub(u, sciname, null, null, rank, origin, status, parent);
-    assertEquals("wrong scientific name for " + sciname, sciname, UsageDao.canonicalOrScientificName(u.parsedName, true));
+    assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.getScientificName());
     return u;
   }
 
   private NubUsage assertKey(String sciname, Rank rank, Kingdom kingdom, int key) {
     NubUsage u = getScientific(sciname, rank, kingdom);
     assertEquals("wrong key for " + sciname, key, u.usageKey);
-    assertEquals("wrong scientific name for " + sciname, sciname, UsageDao.canonicalOrScientificName(u.parsedName, true));
+    assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.getScientificName());
     assertEquals("wrong kingdom for " + sciname, kingdom, u.kingdom);
     assertEquals("wrong rank for " + sciname, rank, u.rank);
     return u;

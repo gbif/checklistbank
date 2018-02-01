@@ -583,8 +583,8 @@ public class UsageDao implements AutoCloseable {
   public void store(NubUsage nub) {
     nubUsages.put(nub.node.getId(), nub);
     // update neo node properties
-    setProperty(nub.node, NeoProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName, false));
-    setProperty(nub.node, NeoProperties.SCIENTIFIC_NAME, canonicalOrScientificName(nub.parsedName, true));
+    setProperty(nub.node, NeoProperties.CANONICAL_NAME, canonicalOrScientificName(nub.parsedName));
+    setProperty(nub.node, NeoProperties.SCIENTIFIC_NAME, nub.parsedName.getScientificName());
     storeEnum(nub.node, NeoProperties.RANK, nub.rank);
   }
 
@@ -600,9 +600,9 @@ public class UsageDao implements AutoCloseable {
   /**
    * @return the canonical name of a parsed name or the entire scientific name in case the canonical cannot be created (e.g. virus or hybrid names)
    */
-  public static String canonicalOrScientificName(ParsedName pn, boolean withAuthors) {
+  public static String canonicalOrScientificName(ParsedName pn) {
     if (pn.isParsed()) {
-      String name = withAuthors ? pn.canonicalNameComplete() : SciNameNormalizer.normalize(pn.canonicalName());
+      String name = SciNameNormalizer.normalize(pn.canonicalName());
       if (!StringUtils.isBlank(name)) {
         return name;
       }
@@ -725,8 +725,8 @@ public class UsageDao implements AutoCloseable {
     //TODO: add a scientificNameID property to NameUsage
     //nub.scientificNameID
     u.setTaxonID("gbif:" + nub.usageKey);
-    u.setScientificName(canonicalOrScientificName(nub.parsedName, true));
-    u.setCanonicalName(canonicalOrScientificName(nub.parsedName, false));
+    u.setScientificName(nub.parsedName.getScientificName());
+    u.setCanonicalName(canonicalOrScientificName(nub.parsedName));
     u.setRank(nub.rank);
     u.setTaxonomicStatus(nub.status);
     u.setNomenclaturalStatus(nub.nomStatus);

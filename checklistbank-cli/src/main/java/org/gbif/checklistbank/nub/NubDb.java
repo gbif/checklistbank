@@ -16,6 +16,7 @@ import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.checklistbank.utils.SymmetricIdentityMatrix;
 import org.gbif.common.parsers.KingdomParser;
@@ -198,7 +199,7 @@ public class NubDb {
     List<NubUsage> checked = Lists.newArrayList();
     int canonMatches = 0;
     NubUsage doubtful = null;
-    final String name = dao.canonicalOrScientificName(pn, false);
+    final String name = dao.canonicalOrScientificName(pn);
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
       if (matchesNub(pn, rank, kingdom, rn, currNubParent, false)) {
@@ -632,14 +633,25 @@ public class NubDb {
     } else {
       nub.node.removeLabel(Labels.IMPLICIT);
     }
+
+    // strip author names from higher taxa
+    if (nub.rank != null && nub.rank.higherThan(Rank.GENUS)) {
+      nub.parsedName.setAuthorship(null);
+      nub.parsedName.setYear(null);
+      nub.parsedName.setBracketAuthorship(null);
+      nub.parsedName.setBracketYear(null);
+    }
+
     // control the exact scientific name style
-    if (nub.parsedName != null && nub.parsedName.isParsableType() && nub.parsedName.isParsed()) {
-      String sciname = nub.parsedName.canonicalNameComplete();
+    // rebuild name in canonical form - e.g. removes subgenus references, quadrinomials, etc
+    if (nub.parsedName.isParsableType() && nub.parsedName.isParsed()) {
+      String sciname = NameFormatter.scientificName(nub.parsedName, nub.kingdom);
       if (!sciname.equals(nub.parsedName.getScientificName())) {
         LOG.debug("Updated scientificName {} to canonical form: {}", nub.parsedName.getScientificName(), sciname);
         nub.parsedName.setScientificName(sciname);
       }
     }
+
     dao.store(nub);
     if (nub.rank == Rank.KINGDOM) {
       kingdoms.put(nub.kingdom, nub);

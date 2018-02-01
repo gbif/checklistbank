@@ -387,7 +387,7 @@ public class NubBuilder implements Runnable {
     for (Node n : Iterators.loop(iter)) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
-        String normedName = db.dao().canonicalOrScientificName(u.parsedName, false);
+        String normedName = db.dao().canonicalOrScientificName(u.parsedName);
         if (!StringUtils.isBlank(normedName)) {
           if (names.containsKey(normedName)) {
             u.issues.add(NameUsageIssue.ORTHOGRAPHIC_VARIANT);
@@ -498,8 +498,8 @@ public class NubBuilder implements Runnable {
       for (Node n : Iterators.loop(db.dao().allInfraSpecies())) {
         if (!n.hasLabel(Labels.SYNONYM)) {
           NubUsage u = read(n);
-          // check for autonyms
-          if (!u.parsedName.isAutonym()) {
+          // check for autonyms excluding virus names
+          if (u.kingdom != Kingdom.VIRUSES && !u.parsedName.isAutonym()) {
             ParsedName pn = new ParsedName();
             pn.setType(NameType.SCIENTIFIC);
             pn.setGenusOrAbove(u.parsedName.getGenusOrAbove());
@@ -998,9 +998,6 @@ public class NubBuilder implements Runnable {
     // filter out various unwanted names
     filterUsage(u);
 
-    // update some usage properties, e.g. build a canonical name
-    standardizeUsage(u);
-
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
@@ -1070,27 +1067,6 @@ public class NubBuilder implements Runnable {
       LOG.debug("Ignore {} source usage: {}", u.rank, u.scientificName);
     }
     return match.usage;
-  }
-
-  private void standardizeUsage(SrcUsage u) {
-    // strip author names from higher taxa
-    if (u.rank != null && u.rank.higherThan(Rank.GENUS)) {
-      u.parsedName.setAuthorship(null);
-      u.parsedName.setYear(null);
-      u.parsedName.setBracketAuthorship(null);
-      u.parsedName.setBracketYear(null);
-    }
-
-    // rebuild name in canonical form - e.g. removes subgenus references
-    // and aligns scientific name with the actual parsed name,
-    // e.g. for partially parsed names or quadrinomials
-    if (u.parsedName.isParsed()) {
-      String canon = u.parsedName.canonicalNameComplete();
-      if (!canon.equals(u.parsedName.getScientificName())) {
-        LOG.debug("Use canonical name: {} instead of: {}", canon, u.scientificName);
-        u.parsedName.setScientificName(canon);
-      }
-    }
   }
 
   private void delete(NubUsage nub) {
