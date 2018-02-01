@@ -1,0 +1,14 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2			KINGDOM	ACCEPTED		Plantae	
+3			KINGDOM	ACCEPTED		Viruses	
+10	1		SUBSPECIES	ACCEPTED		Puma (Puma) yagouaroundi chilensis L.	
+11	1		VARIETY	ACCEPTED		Cara cara brasiliensis Humb.	
+12	1		VARIETY	ACCEPTED		Cara cara var. punta Humb.	
+13	1		SPECIES	ACCEPTED		Panthera (Puma) negra L.	
+
+20	2		SUBSPECIES	ACCEPTED		Abies alba alpina Quél.	
+21	2		SUBSPECIES	ACCEPTED		Abies alba subsp. montana L.	
+22	2		VARIETY	ACCEPTED		Picea pucca var. vulgaris DC	
+
+30	3		SPECIES	ACCEPTED		Red wild virus	
+31	3		VARIETY	ACCEPTED		Red wild virus from Africa	
