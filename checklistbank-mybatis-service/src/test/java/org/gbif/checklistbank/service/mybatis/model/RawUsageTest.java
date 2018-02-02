@@ -1,12 +1,11 @@
 package org.gbif.checklistbank.service.mybatis.model;
 
 import org.gbif.checklistbank.model.RawUsage;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.UUID;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 public class RawUsageTest {
 
@@ -15,17 +14,18 @@ public class RawUsageTest {
     final int key = 100000001;
     final String json = "xeghwax542tgld@";
     final UUID dkey = UUID.randomUUID();
+    final Date now = new Date();
 
     RawUsage raw = new RawUsage();
     raw.setUsageKey(key);
     raw.setDatasetKey(dkey);
-    raw.setLastCrawled(new Date());
+    raw.setLastCrawled(now);
     raw.setJson(json);
 
     RawUsage raw2 = new RawUsage();
     raw2.setUsageKey(key);
     raw2.setDatasetKey(dkey);
-    raw2.setLastCrawled(new Date());
+    raw2.setLastCrawled(now);
     raw2.setJson(json);
 
     Assert.assertEquals(raw, raw2);
