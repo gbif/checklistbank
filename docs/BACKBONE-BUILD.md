@@ -55,7 +55,8 @@ Registry is not used as the dataset/organisation derived values are stored alrea
    - https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-analysis.yaml
  - `start-clb-matcher.sh`
  - `start-clb-analysis.sh`
- - rematch all: `./clb-admin.sh REMATCH`
+ - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right col perc. coverage
+ - then rematch all the rest: `./clb-admin.sh REMATCH`
  - when complete (no more rabbit messages in clb-matcher & clb-analysis):
  - boma: `pg_dump -U postgres nub_build | gzip > nub.sql.gz`
  - import into uat: 
