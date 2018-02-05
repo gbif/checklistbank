@@ -92,7 +92,7 @@ hdfs dfs -getmerge /user/hive/warehouse/matt.db/occurrence_ids_2018-02-02 occurr
  - `start-clb-matcher.sh`
  - `start-clb-analysis.sh`
  - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right col perc. coverage
- - then rematch all the rest: `./clb-admin.sh REMATCH`
+ - then rematch all the rest: `./clb-admin.sh REMATCH` this takes 1-2 days to complete!!!
  - when complete (no more rabbit messages in clb-matcher & clb-analysis):
  - boma: `pg_dump -U postgres nub_build | gzip > nub.sql.gz`
  - import into uat:
