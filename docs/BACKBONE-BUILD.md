@@ -116,6 +116,7 @@ Warning: Do NOT use prod, it needs to keep running.
 
 ### Occurrence Solr
 Warning: For Solr, we use the prod config BUT the UAT hive database to have it ready with the right number of shards.
+**Build the occurrence HDFS table first**
  - Update the configurations to use hive.db=uat https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
  - Install workflow for PROD on the gateway
 
