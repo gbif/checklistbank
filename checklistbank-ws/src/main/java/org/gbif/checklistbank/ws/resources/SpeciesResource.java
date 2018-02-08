@@ -78,7 +78,6 @@ public class SpeciesResource {
    * @param locale      identifier for a region
    * @param datasetKeys the optional checklist keys to limit paging to
    * @param page        the limit, offset paging information
-   *
    * @return requested list of NameUsage or an empty list if none could be found
    */
   @GET
@@ -92,6 +91,10 @@ public class SpeciesResource {
       datasetKeys = ImmutableSet.of();
     }
     if (Strings.isNullOrEmpty(canonicalName)) {
+      if (datasetKeys.size() > 1) {
+        // https://github.com/gbif/checklistbank/issues/54
+        throw new IllegalArgumentException("Multiple datasetKey parameters are not allowed");
+      }
       return nameUsageService.list(locale,
           datasetKeys.isEmpty() ? null : datasetKeys.iterator().next(), sourceId, page);
     } else {
@@ -105,9 +108,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param locale   identifier for a region
-   *
    * @return requested NameUsage or null if none could be found. List of NameUsage in case of a search.
-   *
    * @see NameUsageService#get(int, Locale)
    */
   @GET
@@ -144,9 +145,7 @@ public class SpeciesResource {
    * @param parentKey parent NameUsage key
    * @param locale    identifier for a region
    * @param page      the limit, offset paging information
-   *
    * @return requested list of NameUsage or an empty list if none could be found
-   *
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
   @GET
@@ -167,9 +166,7 @@ public class SpeciesResource {
    * @param usageKey parent NameUsage key
    * @param locale   identifier for a region
    * @param page     the limit, offset, and count paging information
-   *
    * @return requested list of NameUsage or an empty list if none could be found
-   *
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
   @GET
@@ -184,9 +181,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all VernacularNames
-   *
    * @see VernacularNameService#listByUsage(int, Pageable)
    */
   @GET
@@ -200,9 +195,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all TypeSpecimens
-   *
    * @see TypeSpecimenService#listByUsage(int, Pageable)
    */
   @GET
@@ -216,9 +209,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all SpeciesProfiles
-   *
    * @see SpeciesProfileService#listByUsage(int, Pageable)
    */
   @GET
@@ -232,9 +223,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all References
-   *
    * @see ReferenceService#listByUsage(int, Pageable)
    */
   @GET
@@ -248,7 +237,6 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all Media objects
    */
   @GET
@@ -262,9 +250,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all Descriptions
-   *
    * @see DescriptionService#listByUsage(int, Pageable)
    */
   @GET
@@ -288,9 +274,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all Distributions
-   *
    * @see DistributionService#listByUsage(int, Pageable)
    */
   @GET
@@ -304,7 +288,6 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all Identifier
    */
   @GET
@@ -318,9 +301,7 @@ public class SpeciesResource {
    *
    * @param usageKey    NameUsage key
    * @param datasetKeys The optional list of dataset keys to filter related usages
-   *
    * @return a list of all Related usages
-   *
    */
   @GET
   @Path("{id}/related")
@@ -340,9 +321,7 @@ public class SpeciesResource {
    *
    * @param usageKey NameUsage key
    * @param page     The page and offset and count information
-   *
    * @return a list of all Parents
-   *
    * @see NameUsageService#listParents(int, Locale)
    */
   @GET
@@ -357,9 +336,7 @@ public class SpeciesResource {
    * @param datasetKey UUID or case insensitive shortname of the Checklist to retrieve
    * @param locale     identifier for a region
    * @param page       the limit, offset, and count paging information
-   *
    * @return requested list of NameUsage or an empty list if none could be found
-   *
    * @see NameUsageService#listRoot(UUID, Locale, Pageable)
    */
   @GET
@@ -387,7 +364,7 @@ public class SpeciesResource {
     return tree;
   }
 
-  private void addChildrenRecursively(TreeContainer<UsageCount, Integer> tree, int parent, int rankIdx, Rank ... ranks) {
+  private void addChildrenRecursively(TreeContainer<UsageCount, Integer> tree, int parent, int rankIdx, Rank... ranks) {
     List<UsageCount> children = usageCountMapper.childrenUntilRank(parent, ranks[rankIdx]);
     if (!children.isEmpty()) {
       tree.getChildren().put(parent, children);
