@@ -92,7 +92,7 @@ hdfs dfs -getmerge /user/hive/warehouse/matt.db/occurrence_ids_2018-02-02 occurr
  - `start-clb-matcher.sh`
  - `start-clb-analysis.sh`
  - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right col perc. coverage
- - then rematch all the rest: `./clb-admin.sh REMATCH`
+ - then rematch all the rest: `./clb-admin.sh REMATCH` this takes 1-2 days to complete!!!
  - when complete (no more rabbit messages in clb-matcher & clb-analysis):
  - boma: `pg_dump -U postgres nub_build | gzip > nub.sql.gz`
  - import into uat:
@@ -116,6 +116,7 @@ Warning: Do NOT use prod, it needs to keep running.
 
 ### Occurrence Solr
 Warning: For Solr, we use the prod config BUT the UAT hive database to have it ready with the right number of shards.
+**Build the occurrence HDFS table first**
  - Update the configurations to use hive.db=uat https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
  - Install workflow for PROD on the gateway
 
