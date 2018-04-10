@@ -49,22 +49,23 @@ import static org.gbif.ws.util.WebserviceParameter.DEFAULT_SEARCH_PARAM_VALUE;
 public class SolrQueryBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(SolrQueryBuilder.class);
 
-  private static final String QUERY_PARSER   = "dismax";
+  private static final String QUERY_PARSER = "dismax";
   private static final Map<NameUsageSearchRequest.QueryField, String> QUERY_FIELDS = ImmutableMap.of(
       NameUsageSearchRequest.QueryField.DESCRIPTION, "description^0.1",
-      NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^3",
-      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "canonical_name^10 scientific_name^2 species subgenus family"
+      NameUsageSearchRequest.QueryField.VERNACULAR, "vernacular_name^3",
+      NameUsageSearchRequest.QueryField.SCIENTIFIC, "canonical_name^10 scientific_name^2 species subgenus family"
   );
   private static final Map<NameUsageSearchRequest.QueryField, String> PHRASE_FIELDS = ImmutableMap.of(
       NameUsageSearchRequest.QueryField.DESCRIPTION, "description^2",
-      NameUsageSearchRequest.QueryField.VERNACULAR,  "vernacular_name^20",
-      NameUsageSearchRequest.QueryField.SCIENTIFIC,  "scientific_name^100 canonical_name^50"
+      NameUsageSearchRequest.QueryField.VERNACULAR, "vernacular_name^20",
+      NameUsageSearchRequest.QueryField.SCIENTIFIC, "scientific_name^100 canonical_name^50"
   );
   // boost accepted taxa and scientific names
-  private static final String BOOST_QUERY    = "taxonomic_status_key:0^1.5 name_type:0^1.5";
+  private static final String BOOST_QUERY = "taxonomic_status_key:0^1.5 name_type:0^1.5";
   private static final String BOOST_FUNCTION = "product(2,sub(" + Rank.values().length + ",rank_key))";
-  private static final String SUGGEST_QUERY_FIELDS   = "canonical_name_tokenized^10 canonical_name_ngram^5 canonical_name_ngram_tokenized^2 scientific_name";
-  private static final String SUGGEST_PHRASE_FIELDS  = "canonical_name^10";
+  private static final String SUGGEST_QUERY_FIELDS = "canonical_name_tokenized^10 canonical_name_ngram^5 canonical_name_ngram_tokenized^2 scientific_name";
+  private static final String SUGGEST_PHRASE_FIELDS = "canonical_name^10";
+  private static final SolrQuery.SortClause DEFAULT_SORT = new SolrQuery.SortClause("key", SolrQuery.ORDER.asc);
 
   private static final Integer FRAGMENT_SIZE = 100;
 
@@ -121,6 +122,9 @@ public class SolrQueryBuilder {
     String q = prepareQ(request.getQ());
     if (!Strings.isNullOrEmpty(q)) {
       query.setQuery(q);
+    } else {
+      // otherwise use stable sorting by key (with q we sort by relevance)
+      query.addSort(DEFAULT_SORT);
     }
     // use dismax query parser
     query.set("defType", QUERY_PARSER);
@@ -145,7 +149,7 @@ public class SolrQueryBuilder {
    * Helper method that sets the highlighting parameters.
    *
    * @param searchRequest the searchRequest used to extract the parameters
-   * @param solrQuery this object is modified by adding the facets parameters
+   * @param solrQuery     this object is modified by adding the facets parameters
    */
   private void setHighLightParams(NameUsageSearchRequest searchRequest, SolrQuery solrQuery) {
     if (searchRequest.isHighlight()) {
@@ -233,7 +237,7 @@ public class SolrQueryBuilder {
    * Helper method that sets the parameter for a faceted query.
    *
    * @param searchRequest the searchRequest used to extract the parameters
-   * @param solrQuery this object is modified by adding the facets parameters
+   * @param solrQuery     this object is modified by adding the facets parameters
    */
   private void requestFacets(FacetedSearchRequest<NameUsageSearchParameter> searchRequest, SolrQuery solrQuery) {
 
@@ -245,11 +249,11 @@ public class SolrQueryBuilder {
       solrQuery.setFacetMissing(false);
       solrQuery.setFacetSort(DEFAULT_FACET_SORT.toString().toLowerCase());
 
-      if(searchRequest.getFacetLimit() != null) {
+      if (searchRequest.getFacetLimit() != null) {
         solrQuery.setFacetLimit(searchRequest.getFacetLimit());
       }
 
-      if(searchRequest.getFacetOffset() != null) {
+      if (searchRequest.getFacetOffset() != null) {
         solrQuery.setParam(FacetParams.FACET_OFFSET, searchRequest.getFacetOffset().toString());
       }
 
