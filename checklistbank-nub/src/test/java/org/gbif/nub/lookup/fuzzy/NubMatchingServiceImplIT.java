@@ -573,6 +573,18 @@ public class NubMatchingServiceImplIT {
     assertMatch("Eirone neocaledonica Williams", cl, 4674090, new IntRange(90, 100));
   }
 
+  /**
+   * Allow lower case names
+   * <p>
+   * https://github.com/gbif/portal-feedback/issues/1379
+   */
+  @Test
+  public void testFeedback1379() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setFamily("Helicidae");
+    assertMatch("iberus gualterianus", cl, 4564258, new IntRange(90, 99));
+  }
+
 
   /**
    * The beetle Oreina elegans does not exist in the nub and became a spider instead.

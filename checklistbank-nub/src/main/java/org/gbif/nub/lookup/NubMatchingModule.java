@@ -28,7 +28,6 @@ import java.util.UUID;
 public class NubMatchingModule extends PrivateModule implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingModule.class);
   private final File indexDir;
-  private final boolean incDeleted;
   private final UUID nubDatasetKey;
   private List<AutoCloseable> toBeClosed = Lists.newArrayList();
 
@@ -36,7 +35,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
    * Creates a memory based nub index which is built from scratch every time the webservice starts up.
    */
   public NubMatchingModule() {
-    this(null, false, Constants.NUB_DATASET_KEY);
+    this(null, Constants.NUB_DATASET_KEY);
   }
 
   /**
@@ -44,8 +43,8 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
    *
    * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
    */
-  private NubMatchingModule(File indexDir, boolean incDeleted) {
-    this(indexDir, incDeleted, Constants.NUB_DATASET_KEY);
+  private NubMatchingModule(File indexDir) {
+    this(indexDir, Constants.NUB_DATASET_KEY);
   }
 
   /**
@@ -54,9 +53,8 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
    * @param indexDir      the directory to keep the lucene index in. If existing the index will be reused
    * @param nubDatasetKey the dataset key to use for populating the nub index
    */
-  public NubMatchingModule(File indexDir, boolean incDeleted, UUID nubDatasetKey) {
+  public NubMatchingModule(File indexDir, UUID nubDatasetKey) {
     this.indexDir = indexDir;
-    this.incDeleted = incDeleted;
     this.nubDatasetKey = nubDatasetKey;
   }
 

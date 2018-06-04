@@ -22,7 +22,6 @@ import java.util.UUID;
 public class NubWsListener extends GbifServletListener {
   private static final String APP_CONF_FILE = "checklistbank.properties";
   private static final String INDEX_DIR = "checklistbank.nub.indexDir";
-  private static final String INCL_DELETED = "checklistbank.nub.inclDeleted";
   private static final String NUB_DATASET_KEY = "checklistbank.nub.datasetKey";
   private List<Closeable> toBeClosed = Lists.newArrayList();
 
@@ -38,9 +37,8 @@ public class NubWsListener extends GbifServletListener {
     modules.add(clbMod);
     toBeClosed.add(clbMod);
 
-    boolean incDeleted = PropertiesUtil.propertyAsBool(properties, INCL_DELETED, false);
     UUID datasetKey = UUID.fromString(properties.getProperty(NUB_DATASET_KEY, Constants.NUB_DATASET_KEY.toString()));
-    NubMatchingModule nubMod = new NubMatchingModule(new File(properties.getProperty(INDEX_DIR)), incDeleted, datasetKey);
+    NubMatchingModule nubMod = new NubMatchingModule(new File(properties.getProperty(INDEX_DIR)), datasetKey);
     modules.add(nubMod);
     toBeClosed.add(nubMod);
     // use the line below to run the webservice locally with the json test index data from the nub module
