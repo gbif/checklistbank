@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -45,7 +47,7 @@
 
         <!-- dependency versions -->
         <dwc-api.version>1.17</dwc-api.version>
-        <gbif-api.version>0.60</gbif-api.version>
+        <gbif-api.version>0.67</gbif-api.version>
         <gbif-cli.version>0.13</gbif-cli.version>
         <gbif-common.version>0.37</gbif-common.version>
         <gbif-common-mybatis.version>0.28</gbif-common-mybatis.version>
@@ -57,7 +59,7 @@
         <gbif-microservice.version>0.7</gbif-microservice.version>
         <gbif-postal-service.version>0.24</gbif-postal-service.version>
         <registry.version>2.75</registry.version>
-        <name-parser.version>3.1.1</name-parser.version>
+        <name-parser.version>3.1.2</name-parser.version>
         <gbif-parser.version>0.32</gbif-parser.version>
         <dwca-io.version>1.32</dwca-io.version>
         <!-- external libs -->
@@ -101,7 +103,7 @@
         <mockito.version>1.10.19</mockito.version>
         <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
-        <neo4j.version>3.3.1</neo4j.version>
+        <neo4j.version>3.3.5</neo4j.version>
         <postgresql.version>42.1.1</postgresql.version>
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
