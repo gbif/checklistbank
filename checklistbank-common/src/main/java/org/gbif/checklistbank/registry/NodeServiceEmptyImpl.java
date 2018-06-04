@@ -8,6 +8,8 @@ import org.gbif.api.model.registry.Node;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.service.registry.NodeService;
 import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.TagName;
+import org.gbif.api.vocabulary.TagNamespace;
 
 import java.util.List;
 import java.util.UUID;
@@ -56,6 +58,26 @@ public class NodeServiceEmptyImpl extends EmptyNetworkEntityService<Node> implem
 
   @Override
   public PagingResponse<Dataset> endorsedDatasets(@NotNull UUID nodeKey, @Nullable Pageable page) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Node> listByMachineTag(String namespace, @Nullable String name, @Nullable String value, @Nullable Pageable page) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int addMachineTag(UUID targetEntityKey, TagName tagName, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void deleteMachineTags(UUID targetEntityKey, TagNamespace tagNamespace) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void deleteMachineTags(UUID targetEntityKey, TagName tagName) {
     throw new UnsupportedOperationException();
   }
 }

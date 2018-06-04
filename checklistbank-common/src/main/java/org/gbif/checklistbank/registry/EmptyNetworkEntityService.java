@@ -2,13 +2,7 @@ package org.gbif.checklistbank.registry;
 
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
-import org.gbif.api.model.registry.Comment;
-import org.gbif.api.model.registry.Contact;
-import org.gbif.api.model.registry.Endpoint;
-import org.gbif.api.model.registry.Identifier;
-import org.gbif.api.model.registry.MachineTag;
-import org.gbif.api.model.registry.NetworkEntity;
-import org.gbif.api.model.registry.Tag;
+import org.gbif.api.model.registry.*;
 import org.gbif.api.service.registry.NetworkEntityService;
 import org.gbif.api.vocabulary.IdentifierType;
 
@@ -20,6 +14,8 @@ import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
+import org.gbif.api.vocabulary.TagName;
+import org.gbif.api.vocabulary.TagNamespace;
 
 /**
  * A simple read only implementation of a NetworkEntityService backed by a CSV file.
@@ -183,6 +179,26 @@ public class EmptyNetworkEntityService<T extends NetworkEntity> implements Netwo
 
   @Override
   public List<Tag> listTags(@NotNull UUID taggedEntityKey, @Nullable String owner) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<T> listByMachineTag(String namespace, @Nullable String name, @Nullable String value, @Nullable Pageable page) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int addMachineTag(UUID targetEntityKey, TagName tagName, String value) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void deleteMachineTags(UUID targetEntityKey, TagNamespace tagNamespace) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void deleteMachineTags(UUID targetEntityKey, TagName tagName) {
     throw new UnsupportedOperationException();
   }
 }
