@@ -31,9 +31,9 @@ import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.dwc.terms.*;
 import org.gbif.dwc.Archive;
-import org.gbif.dwc.ArchiveFactory;
-import org.gbif.dwca.record.Record;
-import org.gbif.dwca.record.StarRecord;
+import org.gbif.dwc.DwcFiles;
+import org.gbif.dwc.record.Record;
+import org.gbif.dwc.record.StarRecord;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.ObjectUtils;
 import org.neo4j.kernel.api.exceptions.index.IndexEntryConflictException;
@@ -176,7 +176,7 @@ public class NeoInserter implements AutoCloseable {
     meta = new InsertMetadata();
     try {
       LOG.info("Reading dwc archive from {}", dwca);
-      arch = ArchiveFactory.openArchive(dwca);
+      arch = DwcFiles.fromLocation(dwca.toPath());
       if (!arch.getCore().hasTerm(DwcTerm.taxonID)) {
         LOG.warn("Using core ID for taxonID");
         meta.setCoreIdUsed(true);

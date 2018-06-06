@@ -7,8 +7,8 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.dwc.ArchiveFactory;
-import org.gbif.util.DownloadUtil;
+import org.gbif.dwc.DwcFiles;
+import org.gbif.utils.HttpUtil;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -26,6 +26,7 @@ import java.util.UUID;
  */
 public class DwcaSource extends NubSource {
   private static final Logger LOG = LoggerFactory.getLogger(DwcaSource.class);
+  private static HttpUtil http = new HttpUtil(HttpUtil.newMultithreadedClient(10000,10,2));
 
   private NormalizerConfiguration cfg = new NormalizerConfiguration();
 
@@ -34,7 +35,7 @@ public class DwcaSource extends NubSource {
     initRepos();
     File archiveDir = cfg.archiveDir(key);
     LOG.info("Open dwc archive {}", dwca);
-    ArchiveFactory.openArchive(dwca, archiveDir);
+    DwcFiles.fromCompressed(dwca.toPath(), archiveDir.toPath());
   }
 
   public DwcaSource(String name, URL dwca) throws IOException {
@@ -49,7 +50,7 @@ public class DwcaSource extends NubSource {
   private static File download(URL dwca) throws IOException {
     final File tmp = File.createTempFile("dwca-download", "dwca");
     LOG.info("Download dwca from {} into {}", dwca, tmp);
-    DownloadUtil.download(dwca, tmp);
+    http.download(dwca, tmp);
     return tmp;
   }
 

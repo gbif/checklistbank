@@ -1,18 +1,5 @@
 package org.gbif.checklistbank.cli.crawler;
 
-import org.gbif.api.model.crawler.DwcaValidationReport;
-import org.gbif.api.model.crawler.GenericValidationReport;
-import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.model.registry.Endpoint;
-import org.gbif.api.service.registry.DatasetService;
-import org.gbif.api.vocabulary.EndpointType;
-import org.gbif.checklistbank.cli.common.RabbitBaseService;
-import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
-import org.gbif.common.messaging.api.messages.StartCrawlMessage;
-import org.gbif.dwc.ArchiveFactory;
-import org.gbif.dwc.UnsupportedArchiveException;
-import org.gbif.utils.HttpUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -22,6 +9,18 @@ import java.util.UUID;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
+import org.gbif.api.model.crawler.DwcaValidationReport;
+import org.gbif.api.model.crawler.GenericValidationReport;
+import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.model.registry.Endpoint;
+import org.gbif.api.service.registry.DatasetService;
+import org.gbif.api.vocabulary.EndpointType;
+import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
+import org.gbif.common.messaging.api.messages.StartCrawlMessage;
+import org.gbif.dwc.DwcFiles;
+import org.gbif.dwc.UnsupportedArchiveException;
+import org.gbif.utils.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +94,7 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
       FileUtils.deleteDirectory(archiveDir);
       LOG.debug("Removed previous dwc archive dir {}", dwca.getAbsolutePath());
     }
-    ArchiveFactory.openArchive(dwca, archiveDir);
+    DwcFiles.fromCompressed(dwca.toPath(), archiveDir.toPath());
     LOG.debug("Opened dwc archive successfully for dataset {} at {}", d.getTitle(), dwca, archiveDir.getAbsolutePath());
   }
 

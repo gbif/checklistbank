@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.utils;
 
 import org.apache.commons.io.IOUtils;
-import org.gbif.io.TabWriter;
+import org.gbif.dwc.TabWriter;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.junit.Ignore;

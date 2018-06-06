@@ -93,7 +93,6 @@ public class CliKryoFactory implements KryoFactory {
     kryo.register(DcElement.class);
     kryo.register(DcTerm.class);
     kryo.register(DwcTerm.class);
-    kryo.register(EolReferenceTerm.class);
     kryo.register(GbifInternalTerm.class);
     kryo.register(GbifTerm.class);
     kryo.register(IucnTerm.class);

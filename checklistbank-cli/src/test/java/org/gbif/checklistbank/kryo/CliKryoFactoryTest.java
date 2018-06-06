@@ -19,7 +19,6 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwc.terms.EolReferenceTerm;
 import org.gbif.dwc.terms.GbifTerm;
 import org.gbif.dwc.terms.IucnTerm;
 import org.gbif.dwc.terms.Term;
@@ -59,7 +58,7 @@ public class CliKryoFactoryTest {
                 DwcTerm.scientificName, DwcTerm.associatedOrganisms, DwcTerm.taxonID,
                 DcTerm.title,
                 GbifTerm.canonicalName,
-                IucnTerm.threatStatus, EolReferenceTerm.primaryTitle, new UnknownTerm(URI.create("http://gbif.org/abcdefg"))
+                IucnTerm.threatStatus, new UnknownTerm(URI.create("http://gbif.org/abcdefg"), false)
         );
         assertSerde(terms);
     }

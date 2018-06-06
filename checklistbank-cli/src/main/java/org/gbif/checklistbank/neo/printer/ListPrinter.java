@@ -4,7 +4,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
-import org.gbif.io.TabWriter;
+import org.gbif.dwc.TabWriter;
 
 import java.io.IOException;
 import java.io.Writer;
