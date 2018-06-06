@@ -8,6 +8,7 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
@@ -22,6 +23,8 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -1125,13 +1128,15 @@ public class NormalizerTest extends BaseTest {
     return UUID.fromString(String.format("%08d-c6af-11e2-9b88-00145eb45e9a", x));
   }
 
-  private NormalizerStats normalize(Integer dKey) throws NormalizationFailedException {
+  private NormalizerStats normalize(Integer dKey) throws Exception {
     UUID datasetKey = datasetKey(dKey);
     Normalizer norm = Normalizer.create(cfg, datasetKey);
     norm.run();
     NormalizerStats stats = norm.getStats();
 
     openDb(datasetKey);
+    printTree();
+
     compareStats(stats);
     verifyParsedNames();
 
@@ -1150,4 +1155,10 @@ public class NormalizerTest extends BaseTest {
       }
     }
   }
+
+  private void printTree() throws Exception {
+    Writer writer = new PrintWriter(System.out);
+    dao.printTree(writer, GraphFormat.TEXT);
+  }
+
 }

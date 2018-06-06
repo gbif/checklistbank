@@ -1,4 +1,4 @@
-TaxonID	TaxonomicStatus	TaxonRank	ScientificName	HigherTaxonID	AcceptedTaxonID
+taxonID	taxonomicStatus	taxonRank	scientificName	parentNameUsageID	acceptedNameUsageID
 1	accepted	kingdom	Plantae		
 10	accepted	family	Compositae Giseke	1	NULL
 11	synonym	family	Asteraceae		10
