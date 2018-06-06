@@ -1002,7 +1002,9 @@ public class NubBuilder implements Runnable {
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
     // process only usages not to be ignored and with desired ranks
-    if (!match.ignore && u.rank != null && allowedRanks.contains(u.rank)) {
+    if (!match.ignore && u.rank != null && (
+        allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank
+    )) {
       // from now on a rank is guaranteed!
 
       if (!match.isMatch()) {
