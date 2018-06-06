@@ -92,7 +92,7 @@
         <kryo.version>4.0.1</kryo.version>
         <liquibase.version>3.4.1</liquibase.version>
         <logback.version>1.2.3</logback.version>
-        <logstash-logback.version>4.8</logstash-logback.version>
+        <logstash-logback.version>4.10</logstash-logback.version>
         <mapdb.version>3.0.5</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
         <metainf-services.version>1.6</metainf-services.version>
@@ -583,6 +583,15 @@
                     <exclusion>
                         <artifactId>asm-commons</artifactId>
                         <groupId>org.ow2.asm</groupId>
+                    </exclusion>
+                    <!-- solr 5.4 uses jackson 2.5.4 but logstash wants at least 2.6, we prefer 2.8 -->
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-smile</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

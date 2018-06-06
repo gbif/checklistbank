@@ -30,6 +30,14 @@
     </encoder>
   </appender>
 
+  <appender name="STASH" class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">
+    <appender class="net.logstash.logback.appender.LogstashSocketAppender">
+      <host>private-logstash.gbif.org</host>
+      <port>9999</port>
+      <customFields>{"environment":"dev","class":"webservice","service":"checklistbank-ws"}</customFields>
+    </appender>
+  </appender>
+
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>logs/checklistbank-ws.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
