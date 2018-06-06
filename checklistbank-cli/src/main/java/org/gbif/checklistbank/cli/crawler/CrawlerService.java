@@ -9,8 +9,8 @@ import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
-import org.gbif.dwca.io.ArchiveFactory;
-import org.gbif.dwca.io.UnsupportedArchiveException;
+import org.gbif.dwc.ArchiveFactory;
+import org.gbif.dwc.UnsupportedArchiveException;
 import org.gbif.utils.HttpUtil;
 
 import java.io.File;

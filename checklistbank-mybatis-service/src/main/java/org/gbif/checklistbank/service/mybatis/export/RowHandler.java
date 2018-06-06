@@ -12,7 +12,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.dwc.terms.*;
-import org.gbif.dwca.io.DwcaStreamWriter;
+import org.gbif.dwc.DwcaStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

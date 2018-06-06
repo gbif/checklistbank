@@ -7,7 +7,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.dwca.io.ArchiveFactory;
+import org.gbif.dwc.ArchiveFactory;
 import org.gbif.util.DownloadUtil;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;

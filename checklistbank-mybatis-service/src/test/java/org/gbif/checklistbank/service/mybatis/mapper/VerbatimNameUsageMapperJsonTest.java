@@ -40,12 +40,12 @@ public class VerbatimNameUsageMapperJsonTest {
     v.setCoreField(DwcTerm.taxonRank, "Gattung");
     v.setCoreField(DwcTerm.taxonID, "dqwd23");
     v.setCoreField(GbifTerm.depth, "1200");
-    v.setCoreField(new UnknownTerm(qname1), "1200");
-    v.setCoreField(new UnknownTerm(qname2), null);
+    v.setCoreField(new UnknownTerm(qname1, false), "1200");
+    v.setCoreField(new UnknownTerm(qname2, false), null);
 
     List<Map<Term, String>> vernaculars = Lists.newArrayList();
     vernaculars.add(map(DwcTerm.vernacularName, "Tanne", DcTerm.language, "de"));
-    vernaculars.add(map(DwcTerm.vernacularName, "Fir", DcTerm.language, "en", new UnknownTerm(qname2), ""));
+    vernaculars.add(map(DwcTerm.vernacularName, "Fir", DcTerm.language, "en", new UnknownTerm(qname2, false), ""));
     v.getExtensions().put(Extension.VERNACULAR_NAME, vernaculars);
 
     List<Map<Term, String>> infos = Lists.newArrayList();

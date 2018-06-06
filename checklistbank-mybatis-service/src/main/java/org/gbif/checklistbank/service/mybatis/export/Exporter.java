@@ -11,13 +11,15 @@ import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.mapper.*;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwca.io.DwcaStreamWriter;
+import org.gbif.dwc.DwcaStreamWriter;
+import org.gbif.registry.metadata.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.UUID;
 
 public class Exporter {
@@ -74,6 +76,8 @@ public class Exporter {
   }
 
   private class DwcaExport implements Runnable {
+    private final EMLWriter emlWriter = EMLWriter.newInstance();
+
     private final Dataset dataset;
     private final File dwca;
     private DwcaStreamWriter writer;
@@ -92,7 +96,9 @@ public class Exporter {
         writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, DwcTerm.taxonID, true);
 
         // add EML
-        writer.setMetadata(dataset);
+        StringWriter emlString = new StringWriter();
+        emlWriter.writeTo(dataset, emlString);
+        writer.addMetadata(emlString.toString(), "eml.xml");
 
         // write core taxa
         try (RowHandler.TaxonHandler coreHandler = new RowHandler.TaxonHandler(writer, dataset.getKey())) {
@@ -105,7 +111,9 @@ public class Exporter {
           for (UUID dkey : coreHandler.getConstituents()) {
             Dataset constituent = datasetService.get(dkey);
             if (constituent != null) {
-              writer.addConstituent(constituent);
+              StringWriter constituentEmlString = new StringWriter();
+              emlWriter.writeTo(constituent, constituentEmlString);
+              writer.addConstituent(constituent.getKey().toString(), constituentEmlString.toString());
             }
           }
         }

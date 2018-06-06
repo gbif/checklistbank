@@ -10,7 +10,7 @@ import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
-import org.gbif.dwca.io.ArchiveField;
+import org.gbif.dwc.ArchiveField;
 import org.gbif.dwca.record.RecordImpl;
 import org.gbif.dwca.record.StarRecordImpl;
 import org.junit.Before;

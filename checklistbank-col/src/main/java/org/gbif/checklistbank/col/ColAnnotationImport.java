@@ -3,11 +3,11 @@ package org.gbif.checklistbank.col;
 import org.gbif.checklistbank.model.ColAnnotation;
 import org.gbif.checklistbank.service.ColAnnotationService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.dwca.record.Record;
-import org.gbif.dwca.record.StarRecord;
+import org.gbif.dwc.DwcFiles;
+import org.gbif.dwc.record.Record;
+import org.gbif.dwc.record.StarRecord;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.dwca.io.Archive;
-import org.gbif.dwca.io.ArchiveFactory;
+import org.gbif.dwc.Archive;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.FileUtils;
 import org.gbif.utils.file.properties.PropertiesUtil;
@@ -142,7 +142,7 @@ public class ColAnnotationImport {
     LOG.info("Successfully downloaded {} to {}", url, zip.getAbsolutePath());
 
     // open archive
-    Archive arch = ArchiveFactory.openArchive(zip, dwca);
+    Archive arch = DwcFiles.fromCompressed(zip.toPath(), dwca.toPath());
     return arch;
   }
 
