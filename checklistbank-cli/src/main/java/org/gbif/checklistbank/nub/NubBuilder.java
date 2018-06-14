@@ -874,6 +874,9 @@ public class NubBuilder implements Runnable {
           for (SrcUsage u : batch) {
             // catch errors processing individual records too
             try {
+              // make rank non null
+              if (u.rank == null) u.rank = Rank.UNRANKED;
+
               LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
               sourceUsageCounter++;
               parents.add(u);
@@ -991,8 +994,9 @@ public class NubBuilder implements Runnable {
   }
 
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
-    Preconditions.checkNotNull(u.status);
     Preconditions.checkArgument(parent.status.isAccepted());
+    Preconditions.checkNotNull(u.status);
+    Preconditions.checkNotNull(u.rank);
     Preconditions.checkNotNull(u.parsedName);
 
     // filter out various unwanted names
@@ -1002,11 +1006,7 @@ public class NubBuilder implements Runnable {
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
     // process only usages not to be ignored and with desired ranks
-    if (!match.ignore && u.rank != null && (
-        allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank
-    )) {
-      // from now on a rank is guaranteed!
-
+    if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
       if (!match.isMatch()) {
 
         // remember if we had a doubtful match
@@ -1248,7 +1248,7 @@ public class NubBuilder implements Runnable {
     // consider parsed rank only for bi/trinomials
     Rank pRank = u.parsedName.isBinomial() ? u.parsedName.getRank() : null;
     if (pRank != null && pRank != u.rank && !pRank.isUncomparable()) {
-      if (u.rank == null) {
+      if (u.rank == Rank.UNRANKED) {
         LOG.debug("Use parsed rank {}", pRank);
         u.rank = pRank;
       } else if (u.rank.isUncomparable()) {
