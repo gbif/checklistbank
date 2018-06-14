@@ -55,10 +55,10 @@
         <gbif-common-ws.version>0.42</gbif-common-ws.version>
         <gbif-httputils.version>0.10</gbif-httputils.version>
         <gbif-microservice.version>0.7</gbif-microservice.version>
-        <gbif-postal-service.version>0.24</gbif-postal-service.version>
-        <registry.version>2.75</registry.version>
+        <gbif-postal-service.version>0.25</gbif-postal-service.version>
+        <registry.version>2.85</registry.version>
         <name-parser.version>3.1.5</name-parser.version>
-        <gbif-parser.version>0.32</gbif-parser.version>
+        <gbif-parser.version>0.34</gbif-parser.version>
         <dwca-io.version>2.0-RC1</dwca-io.version>
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
@@ -72,7 +72,7 @@
         <commons-io.version>2.4</commons-io.version>
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
-        <fastutil.version>7.2.1</fastutil.version>
+        <fastutil.version>8.2.1</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.26-incubating</freemarker.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
@@ -89,11 +89,11 @@
         <jersey.version>1.19.4</jersey.version>
         <jsoup.version>1.10.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <kryo.version>4.0.1</kryo.version>
+        <kryo.version>4.0.2</kryo.version>
         <liquibase.version>3.4.1</liquibase.version>
         <logback.version>1.2.3</logback.version>
         <logstash-logback.version>4.10</logstash-logback.version>
-        <mapdb.version>3.0.5</mapdb.version>
+        <mapdb.version>3.0.7</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
         <metainf-services.version>1.6</metainf-services.version>
         <metrics.version>3.1.2</metrics.version>
@@ -102,7 +102,7 @@
         <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
         <neo4j.version>3.3.5</neo4j.version>
-        <postgresql.version>42.1.1</postgresql.version>
+        <postgresql.version>42.2.2  </postgresql.version>
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
