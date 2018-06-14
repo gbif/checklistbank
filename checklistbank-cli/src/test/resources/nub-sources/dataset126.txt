@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia	
+10	1		GENUS	ACCEPTED		Trichuris bainae	
+11	1		GENUS	ACCEPTED		N. giraldo	
+12	1		SPECIES	ACCEPTED		N. piraldo	
+13	1		GENUS	ACCEPTED		B.	
+14	1		SPECIES	ACCEPTED		C. vulgaris	

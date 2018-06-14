@@ -1627,6 +1627,18 @@ public class NubBuilderIT {
   }
 
   /**
+   * Verify binomials with higher rank
+   * and abbreviated namess
+   * https://github.com/gbif/checklistbank/issues/62
+   */
+  @Test
+  public void testAbbrevNames() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(126);
+    build(src);
+    assertTree("126.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test
