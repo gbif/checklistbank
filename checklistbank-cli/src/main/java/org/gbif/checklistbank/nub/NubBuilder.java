@@ -224,7 +224,7 @@ public class NubBuilder implements Runnable {
 
     } catch (RuntimeException e) {
       LOG.error("Fatal error. Backbone build failed!", e);
-      db.dao().consistencyNubReport();
+      //db.dao().consistencyNubReport();
       throw e;
 
     } finally {
@@ -902,6 +902,9 @@ public class NubBuilder implements Runnable {
             } catch (IgnoreSourceUsageException e) {
               LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
+            } catch (RuntimeException e) {
+              LOG.error("Error processing usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
+              throw e;
             }
           }
           tx.success();
