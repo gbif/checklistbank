@@ -138,7 +138,6 @@
         <module>checklistbank-ws-client</module>
         <module>checklistbank-nub</module>
         <module>checklistbank-nub-ws</module>
-        <module>checklistbank-col</module>
         <module>checklistbank-cli</module>
     </modules>
 
