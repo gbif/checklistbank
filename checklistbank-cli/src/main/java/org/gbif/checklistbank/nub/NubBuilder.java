@@ -836,8 +836,12 @@ public class NubBuilder implements Runnable {
       try {
         addDataset(src);
 
-      } catch (Throwable e) {
-        LOG.error("Error processing source {}", src.name, e);
+      } catch (RuntimeException e) {
+          LOG.error("Error processing source {}", src.name);
+          throw e;
+
+      } catch (Exception e) {
+        throw new RuntimeException("Error processing source " + src.name, e);
 
       } finally {
         src.close();
@@ -845,7 +849,7 @@ public class NubBuilder implements Runnable {
     }
   }
 
-  private void addDataset(NubSource source) {
+  private void addDataset(NubSource source) throws Exception {
     LOG.info("Adding {}th source {}", datasetCounter++, source.name);
     currSrc = source;
     priorities.put(source.key, ++maxPriority);
@@ -898,20 +902,11 @@ public class NubBuilder implements Runnable {
             } catch (IgnoreSourceUsageException e) {
               LOG.debug("Ignore usage {} >{}< {}", u.key, u.scientificName, e.getMessage());
 
-            } catch (StackOverflowError e) {
-              // if this happens its time to fix some code!
-              LOG.error("CODE BUG: StackOverflowError processing {} from source {}", u.scientificName, source.name, e);
-              LOG.error("CAUSE: {}", u.parsedName);
-
-            } catch (RuntimeException e) {
-              LOG.error("RuntimeException processing {} from source {}", u.scientificName, source.name, e);
             }
           }
           tx.success();
         }
       }
-    } catch (Exception e) {
-      Throwables.propagate(e);
     }
 
     // process explicit basionym relations
@@ -1139,24 +1134,27 @@ public class NubBuilder implements Runnable {
           } else if (!u.parsedName.isParsed()) {
             LOG.debug("No implicit name for unparsed {} name: {}", u.parsedName.getType(), u.scientificName);
 
-          } else if (u.parsedName.getGenusOrAbove() != null) {
+          } else if (!u.parsedName.isBinomial()) {
+            LOG.debug("No implicit name for monomial: {} {}", u.rank, u.scientificName);
+
+          } else {
             implicit.status = TaxonomicStatus.DOUBTFUL;
             implicit.parsedName = new ParsedName();
             implicit.parsedName.setType(NameType.SCIENTIFIC);
             implicit.parsedName.setGenusOrAbove(u.parsedName.getGenusOrAbove());
-            if (u.rank == Rank.SPECIES && p.rank != Rank.GENUS) {
+            if (u.parsedName.getInfraSpecificEpithet() == null) {
               implicit.rank = Rank.GENUS;
-            } else if (u.rank.isInfraspecific() && p.rank != Rank.SPECIES) {
+            } else {
               implicit.rank = Rank.SPECIES;
               implicit.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
             }
-            implicit.scientificName = implicit.parsedName.canonicalName();
-            implicit.parsedName.setScientificName(implicit.scientificName);
-            implicit.parsedName.setRank(implicit.rank);
-            implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
-
-          } else {
-            LOG.warn("NULL genus in parsed {} name: {}", u.parsedName.getType(), u.scientificName);
+            if (p.rank.higherThan(implicit.rank)) {
+              LOG.info("Implicit {} parent: {}", implicit.rank, implicit);
+              implicit.scientificName = implicit.parsedName.canonicalName();
+              implicit.parsedName.setScientificName(implicit.scientificName);
+              implicit.parsedName.setRank(implicit.rank);
+              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+            }
           }
 
         } catch (IgnoreSourceUsageException e) {
@@ -1213,6 +1211,7 @@ public class NubBuilder implements Runnable {
    */
   private void filterUsage(SrcUsage u) throws IgnoreSourceUsageException {
     // avoid unwanted types of names, e.g. indet names
+    // Expect & filter out informal names here for: indetermined, abbreviated or incomplete
     if (ignoredNameTypes.contains(u.parsedName.getType())) {
       throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);
     }
@@ -1227,11 +1226,6 @@ public class NubBuilder implements Runnable {
     // check blacklist
     if (blacklisted(u)) {
       throw new IgnoreSourceUsageException("Ignore blacklisted name", u.scientificName);
-    }
-    // avoid incomplete names
-    if ((!StringUtils.isBlank(u.parsedName.getInfraSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getSpecificEpithet()))
-        || !StringUtils.isBlank(u.parsedName.getSpecificEpithet()) && StringUtils.isBlank(u.parsedName.getGenusOrAbove())) {
-      throw new IgnoreSourceUsageException("Ignore incomplete name", u.scientificName);
     }
     // avoid taxon concept names
     if (!StringUtils.isBlank(u.parsedName.getSensu())) {
