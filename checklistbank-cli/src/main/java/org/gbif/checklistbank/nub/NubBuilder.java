@@ -1152,10 +1152,10 @@ public class NubBuilder implements Runnable {
               implicit.parsedName.setSpecificEpithet(u.parsedName.getSpecificEpithet());
             }
             if (p.rank.higherThan(implicit.rank)) {
-              LOG.info("Implicit {} parent: {}", implicit.rank, implicit);
               implicit.scientificName = implicit.parsedName.canonicalName();
               implicit.parsedName.setScientificName(implicit.scientificName);
               implicit.parsedName.setRank(implicit.rank);
+              LOG.info("Implicit parent {} {} for usage {} {}", implicit.rank, implicit.scientificName, u.rank, u.scientificName);
               implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
             }
           }

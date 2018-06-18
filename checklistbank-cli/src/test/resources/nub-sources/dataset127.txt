@@ -1,0 +1,42 @@
+105758566				ACCEPTED		Biota	
+106303366	105758566		KINGDOM	ACCEPTED		Chromista	
+106310862	106303366		SUPERORDER	ACCEPTED		Bacillariophycanae	
+106310977	106310862		ORDER	ACCEPTED		Naviculales Bessey, 1907	
+106311103	106310977		FAMILY	ACCEPTED		Pinnulariaceae D.G.Mann, 1990	
+106311038	106310977		FAMILY	ACCEPTED		Naviculaceae Kützing, 1844	
+106311108	106311103		GENUS	ACCEPTED		Pinnularia C.G.Ehrenberg, 1843	
+106311084	106311038		GENUS	ACCEPTED		Navicula J.B.M.Bory de Saint-Vincent, 1822	
+115272675	128307801		SPECIES	SYNONYM		Pinnularia directa W.Smith, 1853	
+128307800	128297566		VARIETY	SYNONYM		Pinnularia directa var. subtilis (Gregory) F.W.Mills, 1934	
+128307801	106311108		VARIETY	ACCEPTED		Pinnularia directa var. directa	
+128307802	128307801		VARIETY	SYNONYM		Pinnularia directa var. directa	
+128307803	128307801		VARIETY	ACCEPTED		Pinnularia directa var. angusta Axentijev, 1926	
+128297566	128307801		VARIETY	DOUBTFUL		Pinnularia subtilis	
+128297306	106311108		SPECIES	ACCEPTED		Pinnularia subtilissima Jousé, 1939	
+128280533	128307801		SPECIES	SYNONYM		Schizonema directum (W.Smith) Kuntze, 1898	
+128307807	128307801		FORM	ACCEPTED		Navicula directa f. alpha Manguin, 1960	
+128082300	128307801		VARIETY	ACCEPTED		Navicula directa var. oceanica Karsten, 1905	
+128082309	128307801		VARIETY	ACCEPTED		Navicula directa var. angusta Grunow, 1880	
+128307805	128307801		FORM	ACCEPTED		Navicula directa f. gamma Manguin, 1960	
+128082298	128307801		VARIETY	ACCEPTED		Navicula directa var. remota Grunow, 1879	
+128082307	128307801		VARIETY	ACCEPTED		Navicula directa var. cuneata Østrup, 1895	
+140703612	128297566		VARIETY	SYNONYM		Navicula directa var. subtilis (Gregory) Cleve, 1883	
+128082306	128307801		VARIETY	ACCEPTED		Navicula directa var. decussatim-striata Grunow, 1883	
+128307806	128307801		FORM	ACCEPTED		Navicula directa f. beta Manguin, 1960	
+128082305	128307801		VARIETY	ACCEPTED		Navicula directa var. derasa Østrup, 1895	
+128082304	128307801		VARIETY	ACCEPTED		Navicula directa var. genuina Cleve, 1895	
+128307804	128307801		FORM	SYNONYM		Navicula directa f. directa	
+128082301	128307801		VARIETY	ACCEPTED		Navicula directa var. lata Østrup, 1895	
+128082303	128307801		VARIETY	ACCEPTED		Navicula directa var. heterostriata Mereschkowsky, 1901	
+128082302	128307801		VARIETY	ACCEPTED		Navicula directa var. javanica Cleve, 1895	
+128307808	128307801		VARIETY	ACCEPTED		Navicula directa var. gianfranceschii Zanon, 1929	
+128082299	128307801		VARIETY	ACCEPTED		Navicula directa var. planctonica Frenguelli, 1928	
+128082297	128307801		VARIETY	ACCEPTED		Navicula directa var. rostrata Heiden, 1928	
+128082308	128307801		VARIETY	ACCEPTED		Navicula directa var. constricta Heiden, 1928	
+115272672	140703478		VARIETY	SYNONYM		Navicula directa var. remota (Grunow) Cleve, 1895	
+115272671	128307801		SPECIES	SYNONYM		Navicula directa (W.Smith) Ralfs, 1861	
+115272674	128307801		VARIETY	ACCEPTED		Navicula directa var. directa	
+115272673	137796955		VARIETY	SYNONYM		Navicula directa var. incus (Grunow) Cleve, 1896	
+137796954	106311084		SPECIES	ACCEPTED		Navicula incus Grunow, 1876	
+137796955	137796954		VARIETY	ACCEPTED		Navicula incus var. incus	
+140703478	106311084		SPECIES	ACCEPTED		Navicula remota Grunow, 1880	
