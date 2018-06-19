@@ -1115,14 +1115,18 @@ public class NubBuilder implements Runnable {
               implicit.scientificName = implicit.parsedName.canonicalName();
               implicit.parsedName.setScientificName(implicit.scientificName);
               implicit.parsedName.setRank(implicit.rank);
-              LOG.info("Implicit parent {} {} for usage {} {}", implicit.rank, implicit.scientificName, u.rank, u.scientificName);
               NubUsage implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
               // in case the implicit parent species is a synonym, better ignore the infraspecies alltogether!
               // http://dev.gbif.org/issues/browse/POR-2780
-              if (implicitParent.status.isSynonym()) {
+              if (implicitParent == null) {
+                LOG.debug("No implicit name {} {}", implicit.rank, implicit.scientificName);
+
+              } else if (implicitParent.status.isSynonym()) {
                 throw new IgnoreSourceUsageException("Ignoring implicit synonym", implicitParent.parsedName.getScientificName());
+
               } else {
                 // use the implicit parent
+                LOG.debug("Implicit parent {} {} for usage {} {}", implicit.rank, implicit.scientificName, u.rank, u.scientificName);
                 p = implicitParent;
               }
             }

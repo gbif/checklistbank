@@ -57,6 +57,6 @@ public class NubSourceList implements CloseableIterable<NubSource> {
 
   @Override
   public void close() {
-    ExecutorUtils.stop(exec, 10, TimeUnit.SECONDS);
+    ExecutorUtils.stop(exec, 1, TimeUnit.SECONDS);
   }
 }
