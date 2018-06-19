@@ -1034,7 +1034,7 @@ public class NubBuilder implements Runnable {
         }
       }
     } else {
-      LOG.debug("Ignore {} source usage: {}", u.rank, u.scientificName);
+      LOG.debug("Ignore {} {}", u.rank, u.scientificName);
     }
     return match.usage;
   }
