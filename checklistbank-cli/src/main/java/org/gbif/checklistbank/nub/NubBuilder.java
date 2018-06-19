@@ -798,6 +798,10 @@ public class NubBuilder implements Runnable {
           // flag non matching names
           for (Node spn : Traversals.CHILDREN.traverse(gn).nodes()) {
             NubUsage sp = db.dao().readNub(spn);
+            // OTU names are special...
+            if (sp.parsedName != null && NameType.OTU == sp.parsedName.getType()) {
+              continue;
+            }
             if (sp.rank != Rank.SPECIES) {
               LOG.warn("Genus child {} is not a species: {} {}", spn, sp.rank, NeoProperties.getScientificName(spn));
               continue;
@@ -815,6 +819,10 @@ public class NubBuilder implements Runnable {
             String species = sp.parsedName.getSpecificEpithet();
             for (Node ispn : Traversals.CHILDREN.traverse(spn).nodes()) {
               NubUsage isp = db.dao().readNub(ispn);
+              // OTU names are special...
+              if (isp.parsedName != null && NameType.OTU == isp.parsedName.getType()) {
+                continue;
+              }
               if (isp.parsedName.getInfraSpecificEpithet() == null) {
                 LOG.warn("Species child {} without an infraspecific epithet: {} {}", ispn, isp.rank, NeoProperties.getScientificName(ispn));
                 continue;
