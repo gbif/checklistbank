@@ -1642,14 +1642,18 @@ public class NubBuilderIT {
    * Test WoRMS case of badly nested varieties combined with a duplicate autonym
    * leading to node NotFoundException
    *
+   * 127=CoL
+   * 128=WoRMS
+   *
    * The main error comes from bad normalization of the WoRMS DwCA and should be tested in the Normalizer.
    * But the nub build should be gracefully dealing with such data as it is currently present in CLB.
    */
   @Test
   public void testIllegalVarWorms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(127);
+    ClasspathSourceList src = ClasspathSourceList.source(127, 128);
+    src.setSourceRank(127, Rank.KINGDOM);
     build(src);
-    assertTree("127.txt");
+    assertTree("127 128.txt");
   }
 
   /**

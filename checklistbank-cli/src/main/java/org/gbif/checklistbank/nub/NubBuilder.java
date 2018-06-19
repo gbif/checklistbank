@@ -950,36 +950,6 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Looks for all implicit names and tries to find a match with author to replace them.
-   * This is done after we added an entire dataset so we can prefer accepted names over doubtful ones.
-   * If we instead would do this on the fly as we add new names we might prefer a doubtful name.
-   */
-  private void replaceImplicitNames() {
-    LOG.info("Replace implicit names for dataset {}", currSrc.name);
-    try (Transaction tx = db.beginTx()) {
-      for (Node n : Iterators.loop(db.dao().allImplicitNames())) {
-        NubUsage nub = read(n);
-        try {
-          NubUsageMatch match = db.findNubUsage(nub.datasetKey, nub.parsedName, nub.rank, nub.status, nub.kingdom, db.parent(nub));
-          if (match.isMatch()) {
-            // replace implicit name with match
-            LOG.debug("Replace implicit name {} with {}", nub.parsedName.fullName(), match.usage.parsedName.fullName());
-            //db.store(nub);
-          }
-        } catch (IgnoreSourceUsageException e) {
-          LOG.warn(e.name, e);
-        }
-      }
-      tx.success();
-    }
-  }
-
-  private void swapName(NubUsage target, NubUsage source) {
-    db.transferChildren(target, source);
-  }
-
-
-  /**
    * @return true if basionym relationship was created
    */
   private boolean createBasionymRelationIfNotExisting(Node basionym, Node n) {
@@ -1128,19 +1098,9 @@ public class NubBuilder implements Runnable {
         }
 
         // check if implicit species or genus parents are needed
-        NubUsage implicitParent = null;
-        SrcUsage implicit = new SrcUsage();
         try {
-          if (!u.parsedName.isParsableType()) {
-            LOG.debug("No implicit name for unparsable {} name: {}", u.parsedName.getType(), u.scientificName);
-
-          } else if (!u.parsedName.isParsed()) {
-            LOG.debug("No implicit name for unparsed {} name: {}", u.parsedName.getType(), u.scientificName);
-
-          } else if (!u.parsedName.isBinomial()) {
-            LOG.debug("No implicit name for monomial: {} {}", u.rank, u.scientificName);
-
-          } else {
+          if (u.parsedName.isParsableType() && u.parsedName.isParsed() && u.parsedName.isBinomial()) {
+            SrcUsage implicit = new SrcUsage();
             implicit.status = TaxonomicStatus.DOUBTFUL;
             implicit.parsedName = new ParsedName();
             implicit.parsedName.setType(NameType.SCIENTIFIC);
@@ -1156,24 +1116,22 @@ public class NubBuilder implements Runnable {
               implicit.parsedName.setScientificName(implicit.scientificName);
               implicit.parsedName.setRank(implicit.rank);
               LOG.info("Implicit parent {} {} for usage {} {}", implicit.rank, implicit.scientificName, u.rank, u.scientificName);
-              implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+              NubUsage implicitParent = processSourceUsage(implicit, Origin.IMPLICIT_NAME, p);
+              // in case the implicit parent species is a synonym, better ignore the infraspecies alltogether!
+              // http://dev.gbif.org/issues/browse/POR-2780
+              if (implicitParent.status.isSynonym()) {
+                throw new IgnoreSourceUsageException("Ignoring implicit synonym", implicitParent.parsedName.getScientificName());
+              } else {
+                // use the implicit parent
+                p = implicitParent;
+              }
             }
           }
 
         } catch (IgnoreSourceUsageException e) {
-          LOG.warn("Ignore implicit {} {}", implicit.rank, implicit.scientificName);
-        }
-
-        if (implicitParent != null) {
-          // in case the implicit parent species is a synonym turn the infraspecies also into a synonym
-          if (implicitParent.status.isSynonym() && implicitParent.rank == Rank.SPECIES) {
-            // http://dev.gbif.org/issues/browse/POR-2780
-            u.status = TaxonomicStatus.SYNONYM;
-            p = db.parent(implicitParent);
-          } else {
-            // use the implicit parent
-            p = implicitParent;
-          }
+          LOG.debug("Ignore implicit {}: {}", e.name, e.getMessage());
+          // now also ignore this source usage
+          throw new IgnoreSourceUsageException("Ignoring source with ignored implicit name " + e.name, u.scientificName);
         }
 
       } else {
