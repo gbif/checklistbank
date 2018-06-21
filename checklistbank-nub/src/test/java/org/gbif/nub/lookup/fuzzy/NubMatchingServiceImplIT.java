@@ -435,10 +435,13 @@ public class NubMatchingServiceImplIT {
   @Test
   public void testOtuMatching() throws IOException {
     NameUsageMatch cl = new NameUsageMatch();
-    NameUsageMatch m = assertMatch("BOLD:AAX3687", cl, 993172099, new IntRange(90, 100));
+
+    assertMatch("SH205817.07FU", cl, 9732858, new IntRange(95, 100));
+
+    NameUsageMatch m = assertMatch("BOLD:AAX3687", cl, 993172099, new IntRange(95, 100));
     assertEquals("BOLD:AAX3687", m.getScientificName());
 
-    assertMatch("SH021315.07FU", cl, 993730906, new IntRange(90, 100));
+    assertMatch("SH021315.07FU", cl, 993730906, new IntRange(95, 100));
 
     cl.setFamily("Maldanidae");
     assertMatch("bold:aax3687", cl, 993172099, new IntRange(95, 100));
@@ -469,9 +472,9 @@ public class NubMatchingServiceImplIT {
     LinneanClassification cl = new NameUsageMatch();
     assertMatch("Inachis io", cl, 5881450, new IntRange(92, 100));
     assertMatch("Inachis io (Linnaeus)", cl, 5881450, new IntRange(95, 100));
-    assertMatch("Inachis io NPV", cl, 8562651, new IntRange(90, 98));
+    assertMatch("Inachis io NPV", cl, 8562651, new IntRange(95, 100));
 
-    assertMatch("Dionychopus amasis GV", cl, 6876449, new IntRange(90, 98));
+    assertMatch("Dionychopus amasis GV", cl, 6876449, new IntRange(95, 100));
     // to lepidoptera genus only
     assertMatch("Dionychopus amasis", cl, 4689754, new IntRange(90, 100));
     // with given kingdom result in no match, GV is part of the name

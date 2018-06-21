@@ -16,10 +16,7 @@ import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.v2.NameUsageMatch2;
 import org.gbif.api.v2.RankedName;
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.NomenclaturalCode;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
@@ -47,6 +44,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private Map<String, NameUsageMatch> hackMap = Maps.newHashMap();
   private final StringSimilarity sim = new ScientificNameSimilarity();
 
+  private static final Set<NameType> STRICT_MATCH_TYPES = ImmutableSet.of(NameType.OTU, NameType.VIRUS, NameType.HYBRID);
   private static final List<Rank> PARSED_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS);
   private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
   public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
@@ -190,6 +188,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private NameUsageMatch matchInternal(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
+    NameType queryNameType;
     MatchingMode mainMatchingMode = strict ? MatchingMode.STRICT : MatchingMode.FUZZY;
 
     if (classification == null) {
@@ -201,6 +200,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       // use name parser to make the name a canonical one
       // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
       pn = parser.parse(scientificName, rank);
+      queryNameType = pn.getType();
       interpretGenus(pn, classification.getGenus());
       scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
       // used parsed rank if not given explicitly
@@ -216,6 +216,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
 
     } catch (UnparsableException e) {
       // hybrid names, virus names & blacklisted ones - dont provide any parsed name
+      queryNameType = e.type;
+      // we assign all OTUs unranked
+      if (NameType.OTU == e.type) {
+        rank = Rank.UNRANKED;
+      }
       if (mainMatchingMode != MatchingMode.STRICT) {
         // turn off fuzzy matching
         mainMatchingMode = MatchingMode.STRICT;
@@ -225,7 +230,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       }
     }
 
-    NameUsageMatch match1 = match(pn, scientificName, rank, classification, mainMatchingMode, verbose);
+    NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, mainMatchingMode, verbose);
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
       return match1;
@@ -240,7 +245,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         if (pn.getInfraSpecificEpithet() != null || (rank != null && rank.isInfraspecific())) {
           // try with species
           String species = pn.canonicalSpeciesName();
-          match = match(null, species, Rank.SPECIES, classification, MatchingMode.FUZZY, verbose);
+          match = match(pn.getType(), null, species, Rank.SPECIES, classification, MatchingMode.FUZZY, verbose);
           if (isMatch(match)) {
             return higherMatch(match, match1);
           }
@@ -250,7 +255,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         // we're not sure if this is really a genus, so don't set the rank
         // we get non species names sometimes like "Chaetognatha eyecount" that refer to a phylum called
         // "Chaetognatha"
-        match = match(null, pn.getGenusOrAbove(), null, classification, MatchingMode.HIGHER, verbose);
+        match = match(pn.getType(), null, pn.getGenusOrAbove(), null, classification, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
@@ -261,7 +266,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       for (Rank qr : PARSED_QUERY_RANK) {
         String name = ClassificationUtils.getHigherRank(classification, qr);
         if (!StringUtils.isEmpty(name)) {
-          match = match(null, name, qr, classification, MatchingMode.HIGHER, verbose);
+          match = match(null, null, name, qr, classification, MatchingMode.HIGHER, verbose);
           if (isMatch(match)) {
             return higherMatch(match, match1);
           }
@@ -273,7 +278,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     for (Rank qr : HIGHER_QUERY_RANK) {
       String name = ClassificationUtils.getHigherRank(classification, qr);
       if (!StringUtils.isEmpty(name)) {
-        match = match(null, name, qr, classification, MatchingMode.HIGHER, verbose);
+        match = match(null, null, name, qr, classification, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
@@ -315,12 +320,12 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
   }
 
-  private List<NameUsageMatch> queryFuzzy(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
+  private List<NameUsageMatch> queryFuzzy(@Nullable NameType queryNameType, ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
     for (NameUsageMatch m : matches) {
-      // 0 - +100
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      // 0 - +120
+      final int nameSimilarity = nameSimilarity(queryNameType, canonicalName, m);
       // -36 - +40
       final int authorSimilarity = incNegScore(authorSimilarity(pn, m) * 2, 2);
       // -50 - +50
@@ -351,7 +356,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
     for (NameUsageMatch m : matches) {
       // 0 - +100
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      final int nameSimilarity = nameSimilarity(null, canonicalName, m);
       // -50 - +50
       final int classificationSimilarity = classificationSimilarity(lc, m);
       // -10 - +5
@@ -373,12 +378,12 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     return matches;
   }
 
-  private List<NameUsageMatch> queryStrict(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
+  private List<NameUsageMatch> queryStrict(@Nullable NameType queryNameType, ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
     for (NameUsageMatch m : matches) {
       // 0 - +120
-      final int nameSimilarity = nameSimilarity(canonicalName, m);
+      final int nameSimilarity = nameSimilarity(queryNameType, canonicalName, m);
       // -28 - +40
       final int authorSimilarity = incNegScore(authorSimilarity(pn, m) * 4, 8);
       // -50 - +50
@@ -414,7 +419,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
    * @return the best match, might contain no usageKey
    */
   @VisibleForTesting
-  protected NameUsageMatch match(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
+  protected NameUsageMatch match(@Nullable NameType queryNameType, @Nullable ParsedName pn, String canonicalName,
+                                 Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
     if (Strings.isNullOrEmpty(canonicalName)) {
       return noMatch(100, "No name given", null);
     }
@@ -428,10 +434,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     List<NameUsageMatch> matches = null;
     switch (mode) {
       case FUZZY:
-        matches = queryFuzzy(pn, canonicalName, rank, lc, verbose);
+        matches = queryFuzzy(queryNameType, pn, canonicalName, rank, lc, verbose);
         break;
       case STRICT:
-        matches = queryStrict(pn, canonicalName, rank, lc, verbose);
+        matches = queryStrict(queryNameType, pn, canonicalName, rank, lc, verbose);
         break;
       case HIGHER:
         matches = queryHigher(pn, canonicalName, rank, lc, verbose);
@@ -588,14 +594,16 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     return no;
   }
 
-  private int nameSimilarity(String canonicalName, NameUsageMatch m) {
+  private int nameSimilarity(@Nullable NameType queryNameType, String canonicalName, NameUsageMatch m) {
     // calculate name distance
     int confidence;
     if (canonicalName.equalsIgnoreCase(m.getCanonicalName())) {
       // straight match
       confidence = 100;
       // binomial straight match? That is pretty trustworthy
-      if (canonicalName.contains(" ")) {
+      if (queryNameType != null && STRICT_MATCH_TYPES.contains(queryNameType)) {
+        confidence += 20;
+      } else if (canonicalName.contains(" ")) {
         confidence += 10;
       }
 

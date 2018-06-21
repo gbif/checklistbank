@@ -1,7 +1,7 @@
 {
 	"usageKey": 993172099,
 	"scientificName": "BOLD:AAX3687",
-	"rank": "SPECIES",
+	"rank": "UNRANKED",
 	"status": "ACCEPTED",
 	"confidence": 98,
 	"matchType": "EXACT",
@@ -9,8 +9,8 @@
 		{
 			"usageKey": 993730906,
 			"scientificName": "SH021315.07FU",
-			"rank": "SPECIES",
-			"status": "SYNONYM",
+			"rank": "UNRANKED",
+			"status": "ACCEPTED",
 			"confidence": 8,
 			"note": "Similarity: name=5; authorship=0; classification=-2; rank=5; status=0",
 			"matchType": "FUZZY",
@@ -26,7 +26,7 @@
 			"familyKey": 1,
 			"genusKey": 1,
 			"speciesKey": 993730906,
-			"synonym": true
+			"synonym": false
 		}
 	],
 	"phylum": "Annelida",
