@@ -45,25 +45,6 @@
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
-        <excludes>
-          <exclude>solr/**</exclude>
-        </excludes>
-      </testResource>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>solr/**</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>solr/conf</directory>
-        <filtering>true</filtering>
-      </testResource>
-      <testResource>
-        <directory>solr/conf</directory>
-        <targetPath>solr/conf</targetPath>
-        <filtering>true</filtering>
       </testResource>
     </testResources>
     <plugins>

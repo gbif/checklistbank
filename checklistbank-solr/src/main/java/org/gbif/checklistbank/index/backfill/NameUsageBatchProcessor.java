@@ -154,11 +154,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   protected Callable<Integer> newJob() {
     if (allIds == null) {
       initKeys();
-      try {
-        init();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
     }
 
     // any new job to be created?
@@ -177,10 +172,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   }
 
   protected abstract Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService);
-
-  protected abstract void init() throws Exception;
-
-  protected abstract void postprocess() throws Exception;
 
   private void initKeys() {
     StopWatch stopWatch = new StopWatch();
@@ -207,8 +198,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     try {
       super.shutdownService(tasksCount);
       LOG.info("All jobs completed.");
-      postprocess();
-      LOG.info("Indexing completed!");
     } catch (Exception e) {
       LOG.error("Error shutingdown the indexer", e);
     }

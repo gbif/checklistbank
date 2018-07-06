@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.index.backfill;
 
+import org.apache.solr.client.solrj.SolrServer;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -53,13 +54,11 @@ public class SolrBackfill extends NameUsageBatchProcessor {
 
   // other injected instances
   private NameUsageDocConverter solrDocumentConverter;
-  private final File indexDir;
-  private EmbeddedSolrReference solrRef;
-  private EmbeddedSolrServer[] writers;
+  private final SolrClient solr;
 
 
   @Inject
-  public SolrBackfill(EmbeddedSolrReference solr,
+  public SolrBackfill(SolrClient solr,
                       @Named(IndexingConfigKeys.THREADS) Integer threads,
                       @Named(IndexingConfigKeys.BATCH_SIZE) Integer batchSize,
                       @Named(IndexingConfigKeys.WRITERS) Integer numWriters,
@@ -72,9 +71,7 @@ public class SolrBackfill extends NameUsageBatchProcessor {
     this.numWriters = numWriters;
     this.solrDocumentConverter = solrDocumentConverter;
     // final solr
-    solrRef = solr;
-    indexDir = new File(getSolrHome(), "parts");
-    LOG.info("Creating solr indices in folder {}", indexDir.getAbsolutePath());
+    this.solr = solr;
   }
 
   /**
@@ -96,117 +93,22 @@ public class SolrBackfill extends NameUsageBatchProcessor {
     System.exit(0);
   }
 
-  private void setupServers() {
-    writers = new EmbeddedSolrServer[numWriters];
-    if (numWriters == 1) {
-      // use main server
-      writers[0] = solrRef.getSolr();
-    } else {
-      // insert others
-      LOG.debug("Setting up {} embedded solr servers ...", numWriters);
-      for (int idx = 0; idx < numWriters; idx++) {
-        writers[idx] = setupSolr(getWriterHome(idx));
-      }
-    }
-  }
-
-  private File getSolrHome() {
-    return new File(solrRef.getSolr().getCoreContainer().getSolrHome());
-  }
-
-  private void mergeIndices() throws IOException, SolrServerException {
-    if (numWriters == 1) {
-      LOG.info("Optimizing single solr index ...");
-      solrRef.getSolr().optimize();
-
-    } else {
-      File solrHome = getSolrHome();
-      // shutdown solr before we can merge into its index
-      solrRef.getSolr().getCoreContainer().shutdown();
-      Path luceneDir = getLuceneDir(solrHome);
-      LOG.debug("Opening main lucene index at {}", luceneDir);
-      FSDirectory mainDir = FSDirectory.open(luceneDir);
-      IndexWriterConfig cfg = new IndexWriterConfig(new StandardAnalyzer());
-      IndexWriter fsWriter = new IndexWriter(mainDir, cfg);
-
-      LOG.info("Start merging of {} solr indices", jobCounter);
-      Directory[] parts = new Directory[jobCounter];
-      for (int idx = 0; idx < jobCounter; idx++) {
-        Path threadDir = getLuceneDir(getWriterHome(idx));
-        LOG.info("Add lucene dir {} for merging", threadDir);
-        parts[idx] = FSDirectory.open(threadDir);
-      }
-      fsWriter.addIndexes(parts);
-      fsWriter.close();
-      mainDir.close();
-      LOG.info("Lucene dirs merged! Startup main solr again");
-
-      //startup solr again, keeping it in the same singleton wrapper that is accessible to the other tests
-      solrRef.setSolr(setupSolr(solrHome));
-    }
-  }
-
-  private File getWriterHome(int thread) {
-    return new File(indexDir, "slice" + thread);
-  }
-
-  private static Path getLuceneDir(File solrHome) {
-    return Paths.get(solrHome.getPath(), "data/index");
-  }
-
-  /**
-   * Setup an embedded solr only for with a given solr home.
-   * Creates a checklistbank solr index schema, solr.xml and all other config files needed.
-   *
-   * @return the created server
-   */
-  private EmbeddedSolrServer setupSolr(File solrHome) {
-
+  @Override
+  protected void shutdownService(int tasksCount) {
+    super.shutdownService(tasksCount);
+    // commit solr
     try {
-      // copy solr resource files
-      ResourcesUtil.copy(solrHome, "solr/", false, "solr.xml");
-      // copy default configurations
-      File conf = new File(solrHome, "conf");
-      ResourcesUtil.copy(conf, "solr/default/", false, "synonyms.txt", "protwords.txt", "stopwords.txt");
-      // copy specific configurations, overwriting above defaults
-      ResourcesUtil.copy(conf, "solr/checklistbank/conf/", false, "schema.xml", "solrconfig.xml");
-
-      // insert container
-      CoreContainer coreContainer = new CoreContainer(solrHome.getAbsolutePath());
-      coreContainer.load();
-
-      EmbeddedSolrServer solrServer = new EmbeddedSolrServer(coreContainer, "");
-      LOG.info("Created embedded solr server with solr dir {}", solrHome.getAbsolutePath());
-
-      // test solr
-      SolrPingResponse solrPingResponse = solrServer.ping();
-      LOG.info("Solr server configured at {}, ping response in {}", solrHome.getAbsolutePath(),
-        solrPingResponse.getQTime());
-
-      return solrServer;
-
-    } catch (Exception e) {
-      throw new IllegalStateException("Solr unavailable", e);
+      solr.commit();
+      LOG.info("Solr server committed. Indexing completed!");
+    } catch (SolrServerException | IOException e) {
+      LOG.error("Error committing solr", e);
     }
   }
 
   @Override
   protected Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService) {
-    // round robin on configured solr servers?
-    final SolrClient solrClient = writers[jobCounter % numWriters];
-    return new NameUsageIndexingJob(solrClient, nameUsageService, startKey, endKey, solrDocumentConverter,
+    return new NameUsageIndexingJob(solr, nameUsageService, startKey, endKey, solrDocumentConverter,
         vernacularNameService, descriptionService, distributionService, speciesProfileService);
-  }
-
-  @Override
-  protected void init() throws Exception {
-    // insert solr servers if multiple writers are configured
-    setupServers();
-  }
-
-  @Override
-  protected void postprocess() throws Exception {
-    mergeIndices();
   }
 
 }

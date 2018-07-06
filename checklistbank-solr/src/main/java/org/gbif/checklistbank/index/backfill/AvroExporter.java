@@ -77,14 +77,4 @@ public class AvroExporter extends NameUsageBatchProcessor {
         vernacularNameService, descriptionService, distributionService, speciesProfileService, nameNode, targetHdfsDir);
   }
 
-  @Override
-  protected void init() throws Exception {
-    // nothing to do
-  }
-
-  @Override
-  protected void postprocess() throws Exception {
-    // nothing to do
-  }
-
 }

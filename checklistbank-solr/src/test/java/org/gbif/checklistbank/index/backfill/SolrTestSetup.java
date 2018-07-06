@@ -30,7 +30,7 @@ public class SolrTestSetup {
     this.rule = rule;
   }
 
-  public void setup() throws Exception {
+  public EmbeddedSolrReference setup() throws Exception {
 
     // run liquibase & dbSetup
     LOG.info("Run liquibase & dbSetup once");
@@ -51,8 +51,10 @@ public class SolrTestSetup {
     Injector injector = Guice.createInjector(new SolrIndexingTestModule(props));
     // Gets the indexer instance
     solrRef = injector.getInstance(EmbeddedSolrReference.class);
+    LOG.info("Setup test solr at {}", solr());
     nameUsageIndexer = injector.getInstance(SolrBackfill.class);
     nameUsageIndexer.run();
+    return solrRef;
   }
 
   public static EmbeddedSolrServer solr() {

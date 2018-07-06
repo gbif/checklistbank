@@ -4,7 +4,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 
 /**
- * Simple wrapper class that can be used as a singleton to reference a exchangeable solr server.
+ * Simple wrapper class that can be used as a singleton to reference a exchangeable embedded solr server.
  * The indexing tests need this so we can shutdown solr and recreate a new index without breaking existing
  * guice bindings.
  */

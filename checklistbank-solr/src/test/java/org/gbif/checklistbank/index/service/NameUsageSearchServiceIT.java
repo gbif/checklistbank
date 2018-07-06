@@ -24,6 +24,7 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.backfill.SolrTestSetup;
+import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.index.guice.SearchTestModule;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.common.search.solr.SolrConstants;
@@ -58,11 +59,11 @@ public class NameUsageSearchServiceIT {
   public static void setup() throws Exception {
     // creates squirrels db and solr index & server using its own injector
     SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.squirrels());
-    setup.setup();
+    EmbeddedSolrReference solrRef = setup.setup();
 
     // insert new injector for this test, reusing existing solr server
     Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
-    Injector injector = Guice.createInjector(new SearchTestModule(props, setup.solr()));
+    Injector injector = Guice.createInjector(new SearchTestModule(props, solrRef.getSolr()));
 
     searchService = injector.getInstance(NameUsageSearchService.class);
   }

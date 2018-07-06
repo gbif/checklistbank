@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * Test the index generation.
  */
-@Ignore("The test sometimes fails in Jenkins for unknown reasons. Appears to be overloaded postgres but needs investigations")
+//@Ignore("The test sometimes fails in Jenkins for unknown reasons. Appears to be overloaded postgres but needs investigations")
 public class SolrBackfillIT {
 
   private static SolrTestSetup setup;
