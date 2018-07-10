@@ -59,7 +59,7 @@
         <registry.version>2.85</registry.version>
         <name-parser.version>3.1.6</name-parser.version>
         <gbif-parser.version>0.35</gbif-parser.version>
-        <dwca-io.version>2.0-RC1</dwca-io.version>
+        <dwca-io.version>2.1</dwca-io.version>
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
@@ -946,5 +946,3 @@
         </dependencies>
     </dependencyManagement>
 </project>
-
-
