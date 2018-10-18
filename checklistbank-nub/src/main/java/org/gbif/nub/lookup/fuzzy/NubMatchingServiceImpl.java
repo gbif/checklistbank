@@ -434,8 +434,6 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     List<NameUsageMatch> matches = null;
     switch (mode) {
       case FUZZY:
-        matches = queryFuzzy(queryNameType, pn, canonicalName, rank, lc, verbose);
-        break;
       case STRICT:
         matches = queryStrict(queryNameType, pn, canonicalName, rank, lc, verbose);
         break;

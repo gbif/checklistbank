@@ -83,7 +83,7 @@
         <hikaricp.version>2.6.3</hikaricp.version>
         <jackson.version>1.9.12</jackson.version>
         <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-        <jackson2.version>2.8.7</jackson2.version>
+        <jackson2.version>2.9.7</jackson2.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.60</jcommander.version>
         <jersey.version>1.19.4</jersey.version>
@@ -108,7 +108,7 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.24</slf4j.version>
         <solr-lucene.version>5.4.1</solr-lucene.version>
-        <tika.version>1.15</tika.version>
+        <tika.version>1.19.1</tika.version>
 
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
@@ -404,11 +404,6 @@
                 <artifactId>jackson-core-asl</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-smile</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -423,11 +418,6 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
                 <version>${jackson2.version}</version>
             </dependency>
             <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
