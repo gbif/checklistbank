@@ -92,7 +92,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       usageService = inj.getInstance(UsageService.class);
       sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
       solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
-      if (!RealTimeModule.empty(iCfg.solr)) {
+      if (!RealTimeModule.empty(cfg.solr)) {
         searchService = new NameUsageSearchServiceImpl(inj.getInstance(SolrClient.class));
       }
     }

@@ -164,7 +164,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       LOG.info("Chunking imports into slices of {} to {}", cfg.chunkMinSize, cfg.chunkSize);
       ChunkingEvaluator chunkingEvaluator = new ChunkingEvaluator(dao, cfg.chunkMinSize, cfg.chunkSize);
       List<Integer> batch = Lists.newArrayList();
-      for (Node n : MultiRootNodeIterator.create(TreeIterablesSorted.findRoot(dao.getNeo()), Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
+      List<Node> roots = TreeIterablesSorted.findRoot(dao.getNeo());
+      LOG.info("{} roots found to import", roots.size());
+      for (Node n : MultiRootNodeIterator.create(roots, Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
         if (chunkingEvaluator.isChunk(n.getId())) {
           LOG.debug("chunk node {} found", n.getId());
           Future<List<Integer>> f = null;
@@ -410,9 +412,9 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         LOG.error("Clb usage key missing for {}: {}", n, NeoProperties.getScientificName(n));
         NubUsage nub = dao.readNub(n);
         if (nub != null) {
-          LOG.info("Nub usage for missing key: {}", nub.toStringComplete());
+          LOG.info("Neo nub usage for missing key: {}", nub.toStringComplete());
         } else {
-          LOG.warn("Nub usage for missing key {} not found", nodeId);
+          LOG.error("Neo nub usage for missing key {} not found", nodeId);
         }
       } catch (Exception e) {
         // ignore, we throw anyways

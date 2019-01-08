@@ -368,7 +368,7 @@ public class Normalizer extends ImportDb implements Runnable {
           cycles.add(taxonID);
 
           NameUsageNode acc = create(Origin.MISSING_ACCEPTED, NormalizerConstants.PLACEHOLDER_NAME, null, TaxonomicStatus.DOUBTFUL, true, null, "Synonym cycle cut for taxonID " + taxonID);
-          createSynonymRel(syn, acc.node);
+          createSynonymRel(syn, acc.node, true);
           sr.delete();
           tx.success();
 
@@ -394,7 +394,7 @@ public class Normalizer extends ImportDb implements Runnable {
           for (Relationship sr : (Collection<Relationship>) row.get("sr")) {
             Node syn = sr.getStartNode();
             addIssueRemark(syn, null, NameUsageIssue.CHAINED_SYNOYM);
-            createSynonymRel(syn, acc);
+            createSynonymRel(syn, acc, false);
             sr.delete();
             chainedSynonyms++;
           }
@@ -488,24 +488,26 @@ public class Normalizer extends ImportDb implements Runnable {
    * Creates a synonym relationship between the given synonym and the accepted node, updating labels accordingly
    * and also moving potentially existing parent_of relations.
    */
-  private void createSynonymRel(Node synonym, Node accepted) {
+  private void createSynonymRel(Node synonym, Node accepted, boolean reuseSynonymParent) {
     synonym.createRelationshipTo(accepted, RelType.SYNONYM_OF);
-    if (synonym.hasRelationship(RelType.PARENT_OF)) {
+    if (reuseSynonymParent && synonym.hasRelationship(RelType.PARENT_OF)) {
       try {
         Relationship rel = synonym.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING);
         if (rel != null) {
-          // check if accepted has a parent relation already
+          // if accepted does not have a parent already use the synonyms parent instead!
+          // Note that this can cause bad trees in case the accepted is a root node, e.g. a kingdom - use with care!
           if (!accepted.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
+            LOG.info("Moving parent relation from synonym {} to former root {}!", synonym, accepted);
             rel.getStartNode().createRelationshipTo(accepted, RelType.PARENT_OF);
             accepted.removeLabel(Labels.ROOT);
           }
         }
       } catch (RuntimeException e) {
         // more than one parent relationship exists, should never be the case, sth wrong!
-        LOG.warn("Synonym {} has multiple parent relationships. Deleting them all!", synonym.getId());
-        //for (Relationship r : synonym.getRelationships(RelType.PARENT_OF)) {
-        //  r.delete();
-        //}
+        LOG.error("Synonym {} has multiple parent relationships. Deleting them all!", synonym.getId());
+        for (Relationship r : synonym.getRelationships(RelType.PARENT_OF)) {
+          r.delete();
+        }
       }
     }
   }

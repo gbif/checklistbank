@@ -346,6 +346,9 @@ public class NeoInserter implements AutoCloseable {
       }
 
     } catch (UnparsableException e) {
+      if (e.type.isParsable()) {
+      
+      }
       LOG.debug("Unparsable {} name {}", e.type, e.name);
       pn = new ParsedName();
       pn.setType(e.type);

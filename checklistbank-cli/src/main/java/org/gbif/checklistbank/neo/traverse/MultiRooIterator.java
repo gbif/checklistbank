@@ -24,7 +24,7 @@ public abstract class MultiRooIterator<T> implements AutoCloseable, ResourceIter
 
   MultiRooIterator(List<Node> roots) {
     this.roots = Ordering.from(new TaxonomicOrder()).sortedCopy(roots).iterator();
-    LOG.debug("Found {} root nodes to iterate over", roots.size());
+    LOG.debug("New iterator with {} root nodes created", roots.size());
   }
 
   @Override

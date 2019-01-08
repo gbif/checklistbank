@@ -112,8 +112,8 @@ public class ManualImport {
 //                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
 
     imp.index("/Users/markus/Desktop/repo",
-            "http://data.canadensys.net/ipt/archive.do?r=vascan",
-            UUID.fromString("3f8a1297-3259-4700-91fc-acc4170b27ce"));
+            "https://plutof.ut.ee/ipt/archive.do?r=unite_sh",
+            UUID.fromString("61a5f178-b5fb-4484-b6d8-9b129739e59d"));
 
 //    imp.index("/Users/markus/Desktop/repo",
 //            "http://www.catalogueoflife.org/DCA_Export/zip/archive-complete.zip",
