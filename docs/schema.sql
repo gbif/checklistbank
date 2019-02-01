@@ -114,6 +114,7 @@ CREATE TYPE life_stage AS ENUM (
     'EMRYO',
     'LARVA',
     'JUVENILE',
+    'PUPA',
     'ADULT',
     'SPOROPHYTE',
     'SPORE',
