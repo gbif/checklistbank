@@ -4,8 +4,10 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
+import org.gbif.api.model.registry.search.KeyTitleResult;
 import org.gbif.api.service.registry.InstallationService;
 
+import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.validation.constraints.NotNull;
@@ -27,6 +29,11 @@ public class InstallationServiceEmptyImpl extends EmptyNetworkEntityService<Inst
 
   @Override
   public PagingResponse<Installation> listNonPublishing(@Nullable Pageable page) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<KeyTitleResult> suggest(@Nullable String s) {
     throw new UnsupportedOperationException();
   }
 }
