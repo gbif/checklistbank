@@ -44,21 +44,21 @@
         <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
         <!-- dependency versions -->
-        <dwc-api.version>1.18</dwc-api.version>
+        <dwc-api.version>1.22</dwc-api.version>
         <gbif-api.version>0.81</gbif-api.version>
         <gbif-cli.version>0.13</gbif-cli.version>
-        <gbif-common.version>0.45</gbif-common.version>
-        <gbif-common-mybatis.version>0.28</gbif-common-mybatis.version>
+        <gbif-common.version>0.47</gbif-common.version>
+        <gbif-common-mybatis.version>0.29</gbif-common-mybatis.version>
         <!-- matches solr 5.4.x -->
-        <gbif-common-search.version>0.33</gbif-common-search.version>
-        <gbif-common-service.version>0.16</gbif-common-service.version>
-        <gbif-common-ws.version>0.42</gbif-common-ws.version>
-        <gbif-httputils.version>0.10</gbif-httputils.version>
-        <gbif-microservice.version>0.7</gbif-microservice.version>
-        <gbif-postal-service.version>0.25</gbif-postal-service.version>
-        <registry.version>2.85</registry.version>
+        <gbif-common-search.version>0.34</gbif-common-search.version>
+        <gbif-common-service.version>0.17</gbif-common-service.version>
+        <gbif-common-ws.version>0.46</gbif-common-ws.version>
+        <gbif-httputils.version>0.12</gbif-httputils.version>
+        <gbif-microservice.version>0.9</gbif-microservice.version>
+        <gbif-postal-service.version>0.31</gbif-postal-service.version>
+        <registry.version>2.113</registry.version>
         <name-parser.version>3.1.6</name-parser.version>
-        <gbif-parser.version>0.35</gbif-parser.version>
+        <gbif-parser.version>0.41</gbif-parser.version>
         <dwca-io.version>2.6</dwca-io.version>
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
@@ -66,15 +66,15 @@
         <assertj.version>3.5.2</assertj.version>
         <avro.version>1.7.7</avro.version>
         <bval.version>0.5</bval.version>
-        <commmons-lang.version>3.5</commmons-lang.version>
+        <commmons-lang.version>3.9</commmons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.4</commons-io.version>
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
-        <fastutil.version>8.2.1</fastutil.version>
+        <fastutil.version>8.2.2</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
-        <freemarker.version>2.3.26-incubating</freemarker.version>
+        <freemarker.version>2.3.28</freemarker.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
         <guava.version>18.0</guava.version>
         <guice.version>4.0</guice.version>
@@ -102,13 +102,13 @@
         <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
         <neo4j.version>3.3.5</neo4j.version>
-        <postgresql.version>42.2.2  </postgresql.version>
+        <postgresql.version>42.2.5</postgresql.version>
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.24</slf4j.version>
         <solr-lucene.version>5.4.1</solr-lucene.version>
-        <tika.version>1.19.1</tika.version>
+        <tika.version>1.21</tika.version>
 
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
