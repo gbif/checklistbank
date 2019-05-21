@@ -58,7 +58,7 @@
         <gbif-postal-service.version>0.31</gbif-postal-service.version>
         <registry.version>2.113</registry.version>
         <name-parser.version>3.1.6</name-parser.version>
-        <gbif-parser.version>0.41</gbif-parser.version>
+        <gbif-parser.version>0.42</gbif-parser.version>
         <dwca-io.version>2.6</dwca-io.version>
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
