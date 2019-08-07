@@ -395,4 +395,9 @@
             UPDATE name SET parsed_partially = false;
         </sql>
     </changeSet>
+    <changeSet id="52" author="markus">
+        <sql>
+            ALTER TYPE name_type ADD VALUE 'BLACKLISTED' AFTER 'NO_NAME';
+        </sql>
+    </changeSet>
 </databaseChangeLog>
