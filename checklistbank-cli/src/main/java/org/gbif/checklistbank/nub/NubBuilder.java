@@ -1172,7 +1172,8 @@ public class NubBuilder implements Runnable {
   }
 
   private boolean blacklisted(SrcUsage u) {
-    return blacklist.contains(u.scientificName.toUpperCase()) ||
+    return u.parsedName.getType() == NameType.BLACKLISTED ||
+        blacklist.contains(u.scientificName.toUpperCase()) ||
         (u.parsedName.canonicalName() != null && blacklist.contains(u.parsedName.canonicalName().toUpperCase()));
   }
 

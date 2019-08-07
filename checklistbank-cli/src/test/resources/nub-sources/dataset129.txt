@@ -1,0 +1,11 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		FAMILY	ACCEPTED		Asteraceae	
+10	2		SPECIES	ACCEPTED		Aster bainae	
+11	2		SPECIES	ACCEPTED		Aster maybe	
+12	2		SPECIES	ACCEPTED		Genus not	
+13	2		SPECIES	ACCEPTED		Genus vulgaris	
+14	2		SUBSPECIES	ACCEPTED		Aster vulgaris subsp. family	
+15	2		SUBSPECIES	ACCEPTED		Angraecum umbrosum subsp. butt	
+16	2		SPECIES	ACCEPTED		Passiflora plumosa Feuillet & Cremers, Proceedings of the Koninklijke Nederlandse Akademie van Wetenschappen, Series C: Biological and Medical Sciences 87 (3): 381, f. 2. 1984	
+17	2		INFRASUBSPECIFIC_NAME	ACCEPTED		Passiflora eglandulosa infrasubsp. the Missouri Botanical Garden	
+18	2		INFRASUBSPECIFIC_NAME	ACCEPTED		Calendrella cinerea ongumaensis	

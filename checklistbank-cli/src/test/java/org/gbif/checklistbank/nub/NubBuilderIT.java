@@ -1655,6 +1655,13 @@ public class NubBuilderIT {
     build(src);
     assertTree("127 128.txt");
   }
+  
+  @Test
+  public void testBlacklistedNames() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(129);
+    build(src);
+    assertTree("129.txt");
+  }
 
   /**
    * For profiling memory usage of nub builds
