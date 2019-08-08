@@ -71,4 +71,11 @@ public class ClasspathSourceList extends NubSourceList {
       sourceById.get(sourceId).nomenclator = true;
     }
   }
+  
+  public void setSupragenericHomonymSource(int sourceId) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).supragenericHomonymSource = true;
+    }
+  }
+  
 }

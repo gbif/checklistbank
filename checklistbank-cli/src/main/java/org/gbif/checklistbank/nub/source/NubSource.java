@@ -74,6 +74,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public Rank ignoreRanksAbove = Rank.FAMILY;
   public Date created;
   public boolean nomenclator = false;
+  public boolean supragenericHomonymSource = false;
   boolean ignoreSynonyms = false;
 
   private UsageDao dao;

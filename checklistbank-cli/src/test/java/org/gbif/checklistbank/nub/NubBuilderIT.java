@@ -1662,6 +1662,15 @@ public class NubBuilderIT {
     build(src);
     assertTree("129.txt");
   }
+  
+  @Test
+  public void testHomonymFamiliesPatch() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(130, 131, 132);
+    src.setSourceRank(130, Rank.PHYLUM);
+    src.setSupragenericHomonymSource(130);
+    build(src);
+    assertTree("130 131 132.txt");
+  }
 
   /**
    * For profiling memory usage of nub builds

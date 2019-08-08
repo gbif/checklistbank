@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Arachnida	
+4	3		FAMILY	ACCEPTED		Cepheidae	
+10	4		SPECIES	ACCEPTED		Arachnus aranea L.	
+11	4		SPECIES	ACCEPTED		Cephus lactata	

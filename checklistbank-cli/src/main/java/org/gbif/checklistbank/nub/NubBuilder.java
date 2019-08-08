@@ -3,7 +3,6 @@ package org.gbif.checklistbank.nub;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.collect.*;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
@@ -983,7 +982,7 @@ public class NubBuilder implements Runnable {
 
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
-      if (!match.isMatch()) {
+      if (!match.isMatch() || currSrc.supragenericHomonymSource) {
 
         // remember if we had a doubtful match
         NubUsage doubtful = match.doubtfulUsage;

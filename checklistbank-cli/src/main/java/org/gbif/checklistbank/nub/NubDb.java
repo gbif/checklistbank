@@ -202,16 +202,28 @@ public class NubDb {
     final String name = dao.canonicalOrScientificName(pn);
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
-      if (matchesNub(pn, rank, kingdom, rn, currNubParent, false)) {
+      if (rank == rn.rank) {
         checked.add(rn);
+      }
+    }
+    
+    // check kingdoms and classification
+    boolean noHomonyms = checked.size() < 2;
+    Iterator<NubUsage> iter = checked.iterator();
+    while (iter.hasNext()) {
+      NubUsage rn = iter.next();
+      if (matchesNub(pn, rank, kingdom, rn, currNubParent, false, noHomonyms)) {
         if (!rn.parsedName.hasAuthorship()) {
           canonMatches++;
         }
-      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true)) {
+      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true, noHomonyms)) {
+        iter.remove();
         doubtful = rn;
+      } else {
+        iter.remove();
       }
     }
-
+    
     if (checked.isEmpty()) {
       // try harder to match to kingdoms by name alone
       if (rank != null && rank.higherThan(Rank.PHYLUM)) {
@@ -264,7 +276,7 @@ public class NubDb {
     // all synonyms pointing to the same accepted? then it wont matter much for snapping
     Node parent = null;
     NubUsage synonym = null;
-    Iterator<NubUsage> iter = checked.iterator();
+    iter = checked.iterator();
     while (iter.hasNext()) {
       NubUsage u = iter.next();
       if (u.status.isAccepted()) {
@@ -359,25 +371,21 @@ public class NubDb {
     return source;
   }
 
-  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, @Nullable NubUsage currNubParent, boolean ignoreAuthor) {
-    if (rank != match.rank) {
-      return false;
-    }
-    // no homonyms above genus level
-    if (rank.isSuprageneric()) {
+  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, @Nullable NubUsage currNubParent, boolean ignoreAuthor, boolean snapSuprageneric) {
+    // no homonyms above genus level unless given in patch file
+    if (rank.isSuprageneric() && snapSuprageneric) {
       return true;
     }
     Equality author = ignoreAuthor ? Equality.UNKNOWN : authComp.compare(pn, match.parsedName);
-    Equality kingdom = compareKingdom(uKingdom, match.kingdom);
     switch (author) {
       case DIFFERENT:
         return false;
       case EQUAL:
         return true;
       case UNKNOWN:
-        return kingdom != Equality.DIFFERENT && (
-            rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT
-        );
+        Equality kingdom = compareKingdom(uKingdom, match.kingdom);
+        return kingdom != Equality.DIFFERENT &&
+            (rank.isSpeciesOrBelow() || compareClassification(currNubParent, match) != Equality.DIFFERENT);
     }
     return false;
   }

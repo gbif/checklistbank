@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Cnidaria	
+3	2		ORDER	ACCEPTED		Rhizostomeae	
+4	3		FAMILY	ACCEPTED		Cepheidae	
+10	4		SPECIES	ACCEPTED		Cephus cephus L.	
+11	4		SPECIES	ACCEPTED		Cephus cacta MD.	

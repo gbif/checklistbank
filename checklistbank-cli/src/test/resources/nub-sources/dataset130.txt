@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Cnidaria	
+3	2		ORDER	ACCEPTED		Rhizostomeae	
+4	1		PHYLUM	ACCEPTED		Arthropoda	
+5	4		CLASS	ACCEPTED		Arachnida	
+10	3		FAMILY	ACCEPTED		Cepheidae Agassiz, 1862	
+11	12		FAMILY	SYNONYM		Cepheidae Berlese, 1896	
+12	5		FAMILY	ACCEPTED		Compactozetidae Luxton, 1988	

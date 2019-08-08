@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 public class ClbSource extends NubSource {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSource.class);
-
+  private static final UUID PATCH_DATASET_KEY = UUID.fromString("daacce49-b206-469b-8dc2-2257719f3afa");
   private final ClbConfiguration clb;
 
   public ClbSource(ClbConfiguration clb, UUID key, String name) {
@@ -24,6 +24,8 @@ public class ClbSource extends NubSource {
 
   public ClbSource(ClbConfiguration clb, Dataset dataset) {
     this(clb, dataset.getKey(), dataset.getTitle());
+    // we allow suprageneric homonyms to be created when found in the backbone patch dataset!
+    supragenericHomonymSource = PATCH_DATASET_KEY.equals(dataset.getKey());
   }
 
   @Override
