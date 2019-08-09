@@ -1666,7 +1666,8 @@ public class NubBuilderIT {
   @Test
   public void testHomonymFamiliesPatch() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(130, 131, 132);
-    src.setSourceRank(130, Rank.PHYLUM);
+    src.setSourceRank(130, Rank.PHYLUM); // backbone patch
+    src.setSourceRank(131, Rank.PHYLUM); // CoL
     src.setSupragenericHomonymSource(130);
     build(src);
     assertTree("130 131 132.txt");

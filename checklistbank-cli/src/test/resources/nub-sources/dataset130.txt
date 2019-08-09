@@ -6,3 +6,8 @@
 10	3		FAMILY	ACCEPTED		Cepheidae Agassiz, 1862	
 11	12		FAMILY	SYNONYM		Cepheidae Berlese, 1896	
 12	5		FAMILY	ACCEPTED		Compactozetidae Luxton, 1988	
+
+6	1		PHYLUM	ACCEPTED		Bivalvia	
+20	4		FAMILY	ACCEPTED		Xylophagidae Fallén, 1810	
+21	22		FAMILY	SYNONYM		Xylophagidae Purchon, 1941	
+22	6		FAMILY	ACCEPTED		Xylophagaidae Purchon, 1941	

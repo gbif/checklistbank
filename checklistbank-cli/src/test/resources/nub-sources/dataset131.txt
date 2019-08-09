@@ -4,3 +4,10 @@
 4	3		FAMILY	ACCEPTED		Cepheidae	
 10	4		SPECIES	ACCEPTED		Cephus cephus L.	
 11	4		SPECIES	ACCEPTED		Cephus cacta MD.	
+
+6	1		PHYLUM	ACCEPTED		Arthropoda	
+7	6		CLASS	ACCEPTED		Insecta	
+8	7		ORDER	ACCEPTED		Diptera	
+9	8		SUPERFAMILY	ACCEPTED		Xylophagoidea	
+20	9		FAMILY	ACCEPTED		Xylophagidae	
+21	20		SPECIES	ACCEPTED		Xylus xylus L.	

@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Wrapper around the dao that etends the dao with nub build specific common operations.
@@ -189,6 +191,63 @@ public class NubDb {
     return findNubUsage(currSource, u.parsedName, u.rank, u.status, uKingdom, currNubParent);
   }
 
+  private class Homonym {
+    final NubUsage usage;
+    final Set<Node> nodes;
+  
+    Homonym(NubUsage usage, Set<Node> nodes) {
+      this.usage = usage;
+      this.nodes = nodes;
+    }
+  }
+  
+  private NubUsage disambiguateHigherRankHomonyms(List<NubUsage> homonyms, NubUsage currNubParent) {
+    if (currNubParent == null) {
+      // pick first
+      NubUsage match = homonyms.get(0);
+      LOG.debug("No parent given for homomym match {}. Pick first", match);
+      return match;
+    }
+    
+    List<Homonym> homs = homonyms.stream()
+        .map(u -> new Homonym(u, new HashSet<>(parents(u.node))))
+        .collect(Collectors.toList());
+    // remove shared nodes, i.e. nodes that exist at least twice
+    Map<Node, AtomicInteger> counts = new HashMap<>();
+    for (Homonym h : homs) {
+      for (Node n : h.nodes) {
+        if (!counts.containsKey(n)) {
+          counts.put(n, new AtomicInteger(1));
+        } else {
+          counts.get(n).incrementAndGet();
+        }
+      }
+    }
+    Set<Node> nonUnique = counts.entrySet().stream()
+        .filter(e -> e.getValue().get() > 1)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toSet());
+    for (Homonym h : homs) {
+      h.nodes.removeAll(nonUnique);
+    }
+    // now the node list for each homonym contains only unique discriminators
+    // see if we can find any
+    List<Node> parentsInclCurr = new ArrayList<>();
+    parentsInclCurr.add(currNubParent.node);
+    parentsInclCurr.addAll(parents(currNubParent.node));
+    for (Node p : parentsInclCurr) {
+      for (Homonym h : homs) {
+        if (h.nodes.contains(p)) {
+          return h.usage;
+        }
+      }
+    }
+    // nothing unique found, just pick the first
+    NubUsage match = homonyms.get(0);
+    LOG.debug("No unique higher homomym match found for {}. Pick first", match);
+    return match;
+  }
+  
   /**
    * Tries to find an already existing nub usage for the given source usage.
    *
@@ -206,21 +265,31 @@ public class NubDb {
         checked.add(rn);
       }
     }
-    
-    // check kingdoms and classification
-    boolean noHomonyms = checked.size() < 2;
-    Iterator<NubUsage> iter = checked.iterator();
-    while (iter.hasNext()) {
-      NubUsage rn = iter.next();
-      if (matchesNub(pn, rank, kingdom, rn, currNubParent, false, noHomonyms)) {
-        if (!rn.parsedName.hasAuthorship()) {
-          canonMatches++;
+  
+    if (rank.isSuprageneric() && checked.size() == 1) {
+      // no homonyms above genus level unless given in patch file
+      // snap to that single higher taxon right away!
+  
+    } else if (rank.isSuprageneric() && checked.size() > 1){
+      // the classification comparison below is rather strict
+      // require a match to one of the higher rank homonyms (the old code even did not allow for higher rank homonyms at all!)
+      return NubUsageMatch.match(disambiguateHigherRankHomonyms(checked, currNubParent));
+      
+    } else {
+      // check kingdoms and classification for all others
+      Iterator<NubUsage> iter = checked.iterator();
+      while (iter.hasNext()) {
+        NubUsage rn = iter.next();
+        if (matchesNub(pn, rank, kingdom, rn, currNubParent, false)) {
+          if (!rn.parsedName.hasAuthorship()) {
+            canonMatches++;
+          }
+        } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true)) {
+          iter.remove();
+          doubtful = rn;
+        } else {
+          iter.remove();
         }
-      } else if ((rn.status == TaxonomicStatus.DOUBTFUL) && rn.parsedName.hasAuthorship() && matchesNub(pn, rank, kingdom, rn, currNubParent, true, noHomonyms)) {
-        iter.remove();
-        doubtful = rn;
-      } else {
-        iter.remove();
       }
     }
     
@@ -276,7 +345,7 @@ public class NubDb {
     // all synonyms pointing to the same accepted? then it wont matter much for snapping
     Node parent = null;
     NubUsage synonym = null;
-    iter = checked.iterator();
+    Iterator<NubUsage> iter = checked.iterator();
     while (iter.hasNext()) {
       NubUsage u = iter.next();
       if (u.status.isAccepted()) {
@@ -371,11 +440,7 @@ public class NubDb {
     return source;
   }
 
-  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, @Nullable NubUsage currNubParent, boolean ignoreAuthor, boolean snapSuprageneric) {
-    // no homonyms above genus level unless given in patch file
-    if (rank.isSuprageneric() && snapSuprageneric) {
-      return true;
-    }
+  private boolean matchesNub(ParsedName pn, Rank rank, Kingdom uKingdom, NubUsage match, @Nullable NubUsage currNubParent, boolean ignoreAuthor) {
     Equality author = ignoreAuthor ? Equality.UNKNOWN : authComp.compare(pn, match.parsedName);
     switch (author) {
       case DIFFERENT:
