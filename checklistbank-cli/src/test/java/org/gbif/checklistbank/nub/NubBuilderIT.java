@@ -1566,6 +1566,12 @@ public class NubBuilderIT {
     src.setSourceRank(118, Rank.PHYLUM);
     src.setSourceRank(119, Rank.GENUS);
     build(src);
+  
+    NubUsage u = assertScientific("BOLD:ABW2624", Rank.SPECIES, Origin.SOURCE, null, null);
+    assertEquals(NameType.OTU, u.parsedName.getType());
+  
+    u = assertScientific("SH002390.07FU", Rank.UNRANKED, Origin.SOURCE, null, null);
+    assertEquals(NameType.OTU, u.parsedName.getType());
 
     assertTree("118 119.txt");
   }
