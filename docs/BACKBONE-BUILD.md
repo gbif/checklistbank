@@ -105,6 +105,11 @@ hdfs dfs -getmerge /user/hive/warehouse/matt.db/occurrence_ids_2018-02-02 occurr
  - export NUB to dwca: `./clb-admin.sh EXPORT --nub`
  - move to rs.gbif.org/datasets/backbone/2017-mm-dd
 
+## Export backbone CSV
+See http://rs.gbif.org/datasets/backbone/readme.html
+ - export csv from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
+ - gzip and move to move to rs.gbif.org/datasets/backbone/2019-mm-dd
+  
 ## Backfill Occurrence maps & cubes
 See https://github.com/gbif/metrics/tree/master/cube
 
