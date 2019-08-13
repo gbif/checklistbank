@@ -42,6 +42,18 @@ public class AdminCommandTest {
     cfg.messaging.password = "clb";
     return cfg;
   }
+  
+  private AdminConfiguration configureNub(AdminConfiguration cfg) throws Exception {
+    configureLocal(cfg);
+  
+    cfg.zookeeper.namespace = "dev_crawler";
+    cfg.zookeeper.connectionString = "c3zk1.gbif-dev.org,c3zk2.gbif-dev.org,c3zk3.gbif-dev.org";
+    cfg.messaging.host = "mq.gbif.org";
+    cfg.messaging.virtualHost = "/users/mdoering";
+    cfg.messaging.username = "clb";
+    cfg.messaging.password = "clb";
+    return cfg;
+  }
 
 
   @Test
@@ -53,7 +65,15 @@ public class AdminCommandTest {
 
     cmd.doRun();
   }
-
+  
+  @Test
+  public void nubMatchAll() throws Exception {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = configureNub( (AdminConfiguration) cmd.getConfigurationObject());
+    cfg.operation = AdminOperation.REMATCH;
+    cmd.doRun();
+  }
+  
   @Test
   public void runUat() throws Exception {
     AdminCommand cmd = new AdminCommand();
