@@ -400,4 +400,47 @@
             ALTER TYPE name_type ADD VALUE 'BLACKLISTED' AFTER 'NO_NAME';
         </sql>
     </changeSet>
+    <changeSet id="53" author="markus">
+        <!--
+        view for flattened linnean ranks of backbone taxa
+        -->
+        <sql>
+            CREATE VIEW v_nub_linnean AS
+            SELECT
+            n.scientific_name,
+            u.rank,
+            u.id,
+            u.status,
+            u.source_taxon_key AS source,
+            u.num_descendants,
+            an.scientific_name AS accepted,
+            fn.scientific_name AS family,
+            orn.scientific_name AS "order",
+            cn.scientific_name AS class,
+            pn.scientific_name AS phylum,
+            kn.scientific_name AS kingdom,
+            n.canonical_name,
+            a.id AS accepted_key,
+            u.family_fk AS family_key,
+            u.order_fk AS order_key,
+            u.class_fk AS class_key,
+            u.phylum_fk AS phylum_key,
+            u.kingdom_fk AS kingdom_key
+            FROM name_usage u
+            JOIN name n ON u.name_fk = n.id
+            LEFT JOIN name_usage a ON u.parent_fk = a.id AND u.is_synonym
+            LEFT JOIN name an ON a.name_fk = an.id
+            LEFT JOIN name_usage f ON u.family_fk = f.id
+            LEFT JOIN name fn ON f.name_fk = fn.id
+            LEFT JOIN name_usage o ON u.order_fk = o.id
+            LEFT JOIN name orn ON o.name_fk = orn.id
+            LEFT JOIN name_usage c ON u.class_fk = c.id
+            LEFT JOIN name cn ON c.name_fk = cn.id
+            LEFT JOIN name_usage p ON u.phylum_fk = p.id
+            LEFT JOIN name pn ON p.name_fk = pn.id
+            LEFT JOIN name_usage k ON u.kingdom_fk = k.id
+            LEFT JOIN name kn ON k.name_fk = kn.id
+            WHERE u.dataset_key = nubkey() AND u.deleted IS NULL;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
