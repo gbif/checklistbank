@@ -1,0 +1,26 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Chordata	
+3	2		CLASS	ACCEPTED		Aves	
+
+4	3		ORDER	ACCEPTED		Passeriformes	
+5	4		FAMILY	ACCEPTED		Paridae	
+6	5		GENUS	ACCEPTED		Parus	
+
+10	6		SPECIES	ACCEPTED		Parus major Linnaeus, 1758	
+11	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major ferghanensis Buturlin, 1912	
+12	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major excelsus Buvry, 1857	
+13	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major major Linnaeus, 1758	
+14	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major karelini Zarudny, 1910	
+15	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major blanfordi Prazak, 1894	
+16	10		INFRASPECIFIC_NAME	ACCEPTED		Parus major bokharensis Lichtenstein, 1823	
+
+7	3		ORDER	ACCEPTED		Charadriiformes	
+8	7		FAMILY	ACCEPTED		Laridae	
+9	8		GENUS	ACCEPTED		Larus	
+
+40	9		SPECIES	ACCEPTED		Larus argentatus Pontoppidan, 1763	
+41	40		INFRASPECIFIC_NAME	ACCEPTED		Larus argentatus argentatus Pontoppidan, 1763	
+42	40		INFRASPECIFIC_NAME	ACCEPTED		Larus argentatus argenteus C. L. Brehm & Schilling, 1822	
+
+45	9		SPECIES	ACCEPTED		Larus smithsonianus Coues, 1862	
+46	45		INFRASPECIFIC_NAME	SYNONYM		Larus argentatus smithsonianus Coues, 1862	

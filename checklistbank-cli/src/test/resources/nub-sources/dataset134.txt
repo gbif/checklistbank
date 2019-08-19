@@ -1,0 +1,26 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+
+3	2		ORDER	ACCEPTED		Passeriformes	
+4	3		FAMILY	ACCEPTED		Paridae	
+10	4		UNRANKED	ACCEPTED		Parus major [major Group]	
+11	4		UNRANKED	ACCEPTED		Parus major [bokharensis Group]	
+12	4		SPECIES	ACCEPTED		Parus major	
+20	4		SUBSPECIES	ACCEPTED		Parus major major	
+21	4		SUBSPECIES	ACCEPTED		Parus major bokharensis	
+
+5	2		ORDER	ACCEPTED		Charadriiformes	
+6	5		FAMILY	ACCEPTED		Laridae	
+40	6		SPECIES	ACCEPTED		Larus argentatus	
+41	6		UNRANKED	ACCEPTED		Larus argentatus argentatus/argenteus	
+42	6		UNRANKED	ACCEPTED		Larus argentatus/glaucoides	
+43	6		UNRANKED	ACCEPTED		Larus argentatus/michahellis	
+44	6		UNRANKED	ACCEPTED		Larus argentatus/fuscus	
+45	6		UNRANKED	ACCEPTED		Larus argentatus vegae	
+46	6		UNRANKED	ACCEPTED		Larus argentatus mongolicus	
+47	6		UNRANKED	ACCEPTED		Larus argentatus smithsonianus	
+50	6		SUBSPECIES	ACCEPTED		Larus argentatus argenteus	
+51	6		SUBSPECIES	ACCEPTED		Larus argentatus mongolicus	
+52	6		SUBSPECIES	ACCEPTED		Larus argentatus argentatus	
+55	6		UNRANKED	ACCEPTED		Larus argentatus x glaucescens	
+56	6		UNRANKED	ACCEPTED		Larus argentatus x fuscus	

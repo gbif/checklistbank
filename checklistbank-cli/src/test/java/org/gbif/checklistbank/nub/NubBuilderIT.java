@@ -1678,6 +1678,16 @@ public class NubBuilderIT {
     build(src);
     assertTree("130 131 132.txt");
   }
+  
+  @Test
+  @Ignore
+  public void testClementsDups() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(133, 134);
+    src.setSourceRank(133, Rank.PHYLUM); // CoL
+    src.setSourceRank(134, Rank.PHYLUM); // Clements Birdlist
+    build(src);
+    assertTree("133 134.txt");
+  }
 
   /**
    * For profiling memory usage of nub builds
