@@ -82,9 +82,9 @@ public class NubMatchHandler implements StartEndHandler {
     LookupUsage match;
     if (pn == null || unparsableMatchTypes.contains(pn.getType())) {
       // try with full scientific name for certain name types (we dont want to match informal or no names)
-      match = lookup.match(nn.usage.getScientificName(), null, null, nn.usage.getRank(), currKingdom);
+      match = lookup.match(nn.usage.getScientificName(), null, null, nn.usage.getRank(), nn.usage.getTaxonomicStatus(), currKingdom);
     } else {
-      match = lookup.match(pn.canonicalName(), pn.getAuthorship(), pn.getYear(), nn.usage.getRank(), currKingdom);
+      match = lookup.match(pn.canonicalName(), pn.getAuthorship(), pn.getYear(), nn.usage.getRank(), nn.usage.getTaxonomicStatus(), currKingdom);
     }
 
     // store nub key

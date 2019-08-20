@@ -9,6 +9,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 
 /**
  * Simple usage representing the minimal nub usage info needed to match names.
@@ -26,24 +27,26 @@ public class LookupUsage implements Comparable<LookupUsage> {
   private String authorship;
   private String year;
   private Rank rank;
+  private TaxonomicStatus status;
   private Kingdom kingdom;
   private boolean deleted;
 
   public LookupUsage() {
   }
 
-  public LookupUsage(int key, String canonical, String authorship, String year, Rank rank, Kingdom kingdom, boolean deleted) {
-    this(key, null, canonical, authorship, year, rank, kingdom, deleted);
+  public LookupUsage(int key, String canonical, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, boolean deleted) {
+    this(key, null, canonical, authorship, year, rank, status, kingdom, deleted);
   }
 
-  public LookupUsage(int key, Int2IntMap proParteKeys, String canonical, String authorship, String year, Rank rank, Kingdom kingdom, boolean deleted) {
+  public LookupUsage(int key, Int2IntMap proParteKeys, String canonical, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, boolean deleted) {
     this.year = year;
     this.authorship = authorship;
     this.canonical = canonical;
     this.key = key;
     this.proParteKeys = proParteKeys;
-    this.kingdom = kingdom;
     this.rank = rank;
+    this.status = status;
+    this.kingdom = kingdom;
     this.deleted = deleted;
   }
 
@@ -82,7 +85,15 @@ public class LookupUsage implements Comparable<LookupUsage> {
   public Int2IntMap getProParteKeys() {
     return proParteKeys;
   }
-
+  
+  public TaxonomicStatus getStatus() {
+    return status;
+  }
+  
+  public void setStatus(TaxonomicStatus status) {
+    this.status = status;
+  }
+  
   public Kingdom getKingdom() {
     return kingdom;
   }
@@ -117,7 +128,7 @@ public class LookupUsage implements Comparable<LookupUsage> {
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, proParteKeys, rank, kingdom, canonical, authorship, year, deleted);
+    return Objects.hash(key, proParteKeys, rank, status, kingdom, canonical, authorship, year, deleted);
   }
 
   @Override
@@ -133,6 +144,7 @@ public class LookupUsage implements Comparable<LookupUsage> {
         && Objects.equals(this.proParteKeys, other.proParteKeys)
         && Objects.equals(this.rank, other.rank)
         && Objects.equals(this.year, other.year)
+        && Objects.equals(this.status, other.status)
         && Objects.equals(this.kingdom, other.kingdom)
         && Objects.equals(this.canonical, other.canonical)
         && Objects.equals(this.authorship, other.authorship)
@@ -145,6 +157,7 @@ public class LookupUsage implements Comparable<LookupUsage> {
         .compare(this.rank, that.rank, Ordering.natural().nullsLast())
         .compare(this.kingdom, that.kingdom, Ordering.natural().nullsLast())
         .compare(this.canonical, that.canonical, Ordering.natural().nullsLast())
+        .compare(this.status, that.status, Ordering.natural().nullsLast())
         .result();
   }
 }

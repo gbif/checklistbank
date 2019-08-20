@@ -1780,7 +1780,7 @@ public class NubBuilderIT {
     return () -> StreamUtils.stream(dao.allTaxa())
         .map(n -> {
           NubUsage u = dao.readNub(n);
-          return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, false);
+          return new LookupUsage(u.usageKey, ObjectUtils.coalesce(u.parsedName.canonicalName(), u.parsedName.getScientificName()), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, false);
         }).iterator();
   }
 

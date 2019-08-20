@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
@@ -50,20 +51,20 @@ public class IdGenerator {
     nextId = idStart;
   }
 
-  public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom) {
-    return issue(canonicalName, authorship, year, rank, kingdom, null);
+  public int issue(String canonicalName, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom) {
+    return issue(canonicalName, authorship, year, rank, status, kingdom, null);
   }
 
-  public int issue(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom, Integer parentKey) {
-    LookupUsage u = lookup.match(canonicalName, authorship, year, rank, kingdom);
+  public int issue(String canonicalName, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, Integer parentKey) {
+    LookupUsage u = lookup.match(canonicalName, authorship, year, rank, status, kingdom);
     int id;
     if (u == null) {
-      id = create(canonicalName, authorship, year, rank, kingdom);
+      id = create(canonicalName, authorship, year, rank, status, kingdom);
 
     } else {
       final int matchKey = keyOrProParte(u, parentKey);
       if (reissued.contains(matchKey) || resurrected.contains(matchKey)) {
-        id = create(canonicalName, authorship, year, rank, kingdom);
+        id = create(canonicalName, authorship, year, rank, status, kingdom);
         LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, matchKey, id);
 
       } else {
@@ -92,10 +93,10 @@ public class IdGenerator {
     return u.getKey();
   }
 
-  private int create(String canonicalName, String authorship, String year, Rank rank, Kingdom kingdom) {
+  private int create(String canonicalName, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom) {
     int id = nextId++;
     LOG.debug("New id {} generated for {} {}", id, rank, name(canonicalName, authorship, year));
-    created.add(new LookupUsage(id, canonicalName, authorship, year, rank, kingdom, false));
+    created.add(new LookupUsage(id, canonicalName, authorship, year, rank, status, kingdom, false));
     return id;
   }
 

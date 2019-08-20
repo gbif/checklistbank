@@ -1535,7 +1535,7 @@ public class NubBuilder implements Runnable {
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
       if (u.rank != Rank.KINGDOM) {
-        u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom);
+        u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
         db.dao().update(entry.getKey(), u);
       }
     }
@@ -1551,7 +1551,7 @@ public class NubBuilder implements Runnable {
           if (acc.usageKey <= 0) {
             LOG.warn("No usage key assigned to {}", acc);
           }
-          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.kingdom, acc.usageKey);
+          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, acc.usageKey);
           LOG.debug("Assign id {} for pro parte relation of primary usage {} {}", ppKey, u.usageKey, u.parsedName.canonicalNameComplete());
           rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
         }

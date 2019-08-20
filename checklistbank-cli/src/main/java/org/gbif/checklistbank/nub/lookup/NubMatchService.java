@@ -77,7 +77,8 @@ public class NubMatchService {
         if (u.parsedName == null || !u.parsedName.isParsed()) {
           summary.addUnparsable();
         }
-        LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, parents.nubKingdom());
+        // ignore status when matching to backbone!!!
+        LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
         if (match != null) {
           summary.addMatch(u.rank);
           // add to relations

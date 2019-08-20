@@ -2,6 +2,7 @@ package org.gbif.nub.lookup.straight;
 
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nub.mapdb.ImmutableListSerializer;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class LookupKryoFactory implements KryoFactory {
 
     // enums
     kryo.register(Rank.class);
+    kryo.register(TaxonomicStatus.class);
     kryo.register(Kingdom.class);
 
     return kryo;

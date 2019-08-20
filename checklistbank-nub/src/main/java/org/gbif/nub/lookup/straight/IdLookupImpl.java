@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
@@ -31,6 +32,7 @@ import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.
@@ -99,7 +101,7 @@ public class IdLookupImpl implements IdLookup {
       LOG.info("Reading existing nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
       try (Writer writer = new UsageWriter()) {
         cm.copyOut("COPY ("
-            + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
+            + "SELECT u.id, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.status, u.kingdom_fk, deleted is not null"
             + " FROM name_usage u join name n ON name_fk=n.id"
             + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is null)"
             + " TO STDOUT WITH NULL ''", writer);
@@ -111,7 +113,7 @@ public class IdLookupImpl implements IdLookup {
       LOG.info("Reading existing pro parte nub usages {}from postgres ...", includeDeleted ? "incl. deleted " : "");
       try (Writer writer = new ProParteUsageWriter()) {
         cm.copyOut("COPY ("
-            + "SELECT u.id, u.parent_fk, u.pp_synonym_fk, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.kingdom_fk, deleted is not null"
+            + "SELECT u.id, u.parent_fk, u.pp_synonym_fk, coalesce(NULLIF(trim(n.canonical_name), ''), n.scientific_name), n.authorship, n.year, u.rank, u.status, u.kingdom_fk, deleted is not null"
             + " FROM name_usage u join name n ON name_fk=n.id"
             + " WHERE dataset_key = '" + Constants.NUB_DATASET_KEY + "'" + delClause + " AND pp_synonym_fk is not null"
             + " ORDER BY pp_synonym_fk)"
@@ -135,13 +137,14 @@ public class IdLookupImpl implements IdLookup {
    * String authorship
    * String year
    * Rank rank
+   * TaxonomicStatus status
    * Kingdom kingdom
    * boolean deleted
    */
   private class UsageWriter extends TabMapperBase {
     public UsageWriter() {
       // the number of columns in our query to consume
-      super(7);
+      super(8);
     }
 
     @Override
@@ -152,8 +155,9 @@ public class IdLookupImpl implements IdLookup {
           row[2],
           row[3],
           Rank.valueOf(row[4]),
-          toKingdom(row[5]),
-          "t".equals(row[6])
+          TaxonomicStatus.valueOf(row[5]),
+          toKingdom(row[6]),
+          "t".equals(row[7])
       );
       add(u);
     }
@@ -169,6 +173,7 @@ public class IdLookupImpl implements IdLookup {
    * String authorship
    * String year
    * Rank rank
+   * TaxonomicStatus status
    * Kingdom kingdom
    * boolean deleted
    */
@@ -178,7 +183,7 @@ public class IdLookupImpl implements IdLookup {
 
     public ProParteUsageWriter() {
       // the number of columns in our query to consume
-      super(9);
+      super(10);
     }
 
     @Override
@@ -202,7 +207,8 @@ public class IdLookupImpl implements IdLookup {
             row[4],
             row[5],
             Rank.valueOf(row[6]),
-            toKingdom(row[7]),
+            TaxonomicStatus.valueOf(row[7]),
+            toKingdom(row[8]),
             deleted
         );
       }
@@ -277,7 +283,7 @@ public class IdLookupImpl implements IdLookup {
 
   @Override
   public LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom) {
-    return match(canonicalName, null, null, rank, kingdom);
+    return match(canonicalName, null, null, rank, TaxonomicStatus.ACCEPTED, kingdom);
   }
 
   @Override
@@ -290,7 +296,7 @@ public class IdLookupImpl implements IdLookup {
   }
 
   @Override
-  public LookupUsage match(final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom) {
+  public LookupUsage match(final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, @Nullable TaxonomicStatus status, Kingdom kingdom) {
     final String canonicalNameNormed = norm(canonicalName);
     if (canonicalNameNormed == null) return null;
 
@@ -328,33 +334,75 @@ public class IdLookupImpl implements IdLookup {
       // Still several matches
       // If we ever had too many bad usages they might block forever a stable id.
       // If only one current id is matched use that!
-      LookupUsage curr = null;
-      int currCounter = 0;
-      for (LookupUsage u : hits) {
-        if (!u.isDeleted()) {
-          currCounter++;
-          curr = u;
-        }
-      }
-      if (currCounter == 1) {
-        LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), curr.getKey(), kingdom, rank, canonicalName, authorship, year);
-        return curr;
+      List<LookupUsage> current = hits.stream()
+          .filter(u -> !u.isDeleted())
+          .collect(Collectors.toList());
+      if (current.size() == 1) {
+        LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), current.get(0).getKey(), kingdom, rank, canonicalName, authorship, year);
+        return current.get(0);
 
-      } else if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
-        // if requested rank & kingdom was clear, use usage with lowest key
-        for (LookupUsage u : hits) {
-          if (curr == null || curr.getKey() > u.getKey()) {
-            curr = u;
+      }
+
+      if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
+        // if requested rank & kingdom was clear, snap better to results utilizing the status and prefering current over deleted usages
+        // use only current matches if possible
+        LookupUsage match = null;
+        if (status != null) {
+          match = matchByStatus(status, current);
+          if (match == null) {
+            match = matchByStatus(status, hits);
           }
         }
-        LOG.debug("Use lowest usage key {} for ambiguous match with {} hits for {} {} {} {} {}", curr.getKey(), hits.size(), kingdom, rank, canonicalName, authorship, year);
-        return curr;
+    
+        if (match == null) {
+          match = selectLowestKey(hits);
+          LOG.debug("Use lowest usage key {} for ambiguous match with {} hits for {} {} {} {} {}", match.getKey(), hits.size(), kingdom, rank, canonicalName, authorship, year);
+        }
+        return match;
       }
+  
     }
     LOG.debug("No match ({} hits) for {} {} {} {} {}", hits.size(), kingdom, rank, canonicalName, authorship, year);
     return null;
   }
-
+  
+  private static LookupUsage selectLowestKey(List<LookupUsage> matches) {
+    LookupUsage match = null;
+    for (LookupUsage u : matches) {
+      if (match == null || match.getKey() > u.getKey()) {
+        match = u;
+      }
+    }
+    return match;
+  }
+  
+  /**
+   * For multiple candidates, filter them by status:
+   *     a) If one matches use that
+   *     b) If multiple match, use lowest id of those
+   *     c) If none matches and candidate to be matched has status of accepted, use lowest existing id of all current matches
+   *     d) If none matches and candidate to be matched has a status that is anything but accepted, issue new id
+   * @param status status to filter by
+   * @return matching usage or null
+   */
+  private LookupUsage matchByStatus(TaxonomicStatus status, List<LookupUsage> candidates) {
+    List<LookupUsage> matches = candidates.stream()
+        .filter(u -> status.equals(u.getStatus()))
+        .collect(Collectors.toList());
+    if (!matches.isEmpty()) {
+      return selectLowestKey(matches);
+    }
+    // no direct status matches. Allow any other for accepted
+    if (TaxonomicStatus.ACCEPTED == status) {
+      return selectLowestKey(candidates);
+    }
+    // no exact status matches. Try to merge all synonym/accepted stati
+    matches = candidates.stream()
+        .filter(u -> status.isAccepted() == u.getStatus().isAccepted())
+        .collect(Collectors.toList());
+    return selectLowestKey(matches);
+  }
+  
   /**
    * Checks candidates for a single unambigous exact match
    */

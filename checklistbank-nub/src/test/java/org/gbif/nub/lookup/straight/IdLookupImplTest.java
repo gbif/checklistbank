@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.gbif.api.vocabulary.TaxonomicStatus.*;
+import static org.gbif.api.vocabulary.Rank.*;
+import static org.gbif.api.vocabulary.Kingdom.*;
 
 public class IdLookupImplTest {
   IdLookup l;
@@ -24,22 +27,22 @@ public class IdLookupImplTest {
 
   public static IdLookup newTestLookup() {
     Collection<LookupUsage> usages = Lists.newArrayList(
-        new LookupUsage(1,  "Animalia", null, null, Rank.KINGDOM, Kingdom.ANIMALIA, false),
-        new LookupUsage(2,  "Oenanthe", "Vieillot", "1816", Rank.GENUS, Kingdom.ANIMALIA, false),
-        new LookupUsage(3,  "Oenanthe", "Linnaeus", "1753", Rank.GENUS, Kingdom.PLANTAE, false),
-        new LookupUsage(4,  "Oenanthe aquatica", "Poir.", null, Rank.SPECIES, Kingdom.PLANTAE, false),
-        new LookupUsage(5,  "Oenanthe aquatica", "Senser", "1957", Rank.SPECIES, Kingdom.PLANTAE, false),
-        new LookupUsage(6,  "Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(7,  "Rodentia", "Bowdich", "1821", Rank.ORDER, Kingdom.ANIMALIA, false),
-        new LookupUsage(8,  "Rodentia", null, null, Rank.GENUS, Kingdom.ANIMALIA, true),
-        new LookupUsage(9,  "Abies alba", null, null, Rank.SPECIES, Kingdom.PLANTAE, false),
-        new LookupUsage(10, "Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(11, "Abies alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(12, "Picea alba", null, "1778", Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(13, "Picea", null, null, Rank.GENUS, Kingdom.PLANTAE, true),
-        new LookupUsage(14, "Carex cayouettei", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(15, "Carex comosa × Carex lupulina", null, null, Rank.SPECIES, Kingdom.PLANTAE, true),
-        new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.VIRUSES, true)
+        new LookupUsage(1,  "Animalia", null, null, KINGDOM, ACCEPTED, ANIMALIA, false),
+        new LookupUsage(2,  "Oenanthe", "Vieillot", "1816", GENUS, ACCEPTED, ANIMALIA, false),
+        new LookupUsage(3,  "Oenanthe", "Linnaeus", "1753", GENUS, ACCEPTED, PLANTAE, false),
+        new LookupUsage(4,  "Oenanthe aquatica", "Poir.", null, SPECIES, ACCEPTED, PLANTAE, false),
+        new LookupUsage(5,  "Oenanthe aquatica", "Senser", "1957", SPECIES, ACCEPTED, PLANTAE, false),
+        new LookupUsage(6,  "Oenanthe aquatica", null, null, SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(7,  "Rodentia", "Bowdich", "1821", ORDER, ACCEPTED, ANIMALIA, false),
+        new LookupUsage(8,  "Rodentia", null, null, GENUS, ACCEPTED, ANIMALIA, true),
+        new LookupUsage(9,  "Abies alba", null, null, SPECIES, ACCEPTED, PLANTAE, false),
+        new LookupUsage(10, "Abies alba", "Mumpf.", null, SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(11, "Abies alba", null, "1778", SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(12, "Picea alba", null, "1778", SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(13, "Picea", null, null, GENUS, ACCEPTED, PLANTAE, true),
+        new LookupUsage(14, "Carex cayouettei", null, null, SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(15, "Carex comosa × Carex lupulina", null, null, SPECIES, ACCEPTED, PLANTAE, true),
+        new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, VIRUSES, true)
     );
     return IdLookupImpl.temp().load(usages);
   }
@@ -68,49 +71,49 @@ public class IdLookupImplTest {
   @Test
   public void testLookup() throws IOException, SQLException {
     assertEquals(16, l.size());
-    assertEquals(1, l.match("Animalia", Rank.KINGDOM, Kingdom.ANIMALIA).getKey());
+    assertEquals(1, l.match("Animalia", KINGDOM, ANIMALIA).getKey());
 
-    assertEquals(7, l.match("Rodentia", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertNull(l.match("Rodentia", Rank.FAMILY, Kingdom.ANIMALIA));
-    assertNull(l.match("Rodentia", Rank.ORDER, Kingdom.PLANTAE));
-    assertNull(l.match("Rodenti", Rank.ORDER, Kingdom.ANIMALIA));
+    assertEquals(7, l.match("Rodentia", ORDER, ANIMALIA).getKey());
+    assertNull(l.match("Rodentia", FAMILY, ANIMALIA));
+    assertNull(l.match("Rodentia", ORDER, PLANTAE));
+    assertNull(l.match("Rodenti", ORDER, ANIMALIA));
 
-    assertEquals(7, l.match("Rodentia", "Bowdich", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", "Bowdich", "1221", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", "Bowdich", null, Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", null, "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", "Bow.", null, Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", "Bow", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(7, l.match("Rodentia", "B", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertNull(l.match("Rodentia", "Mill.", "1823", Rank.ORDER, Kingdom.ANIMALIA));
+    assertEquals(7, l.match("Rodentia", "Bowdich", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", "Bowdich", "1221", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", "Bowdich", null, ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", null, "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", "Bow.", null, ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", "Bow", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(7, l.match("Rodentia", "B", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertNull(l.match("Rodentia", "Mill.", "1823", ORDER, ACCEPTED, ANIMALIA));
 
-    assertEquals(2, l.match("Oenanthe", null, null, Rank.GENUS, Kingdom.ANIMALIA).getKey());
-    assertEquals(2, l.match("Oenanthe", "Vieillot", null, Rank.GENUS, Kingdom.ANIMALIA).getKey());
-    assertEquals(2, l.match("Oenanthe", "V", null, Rank.GENUS, Kingdom.ANIMALIA).getKey());
-    assertEquals(2, l.match("Oenanthe", "Vieillot", null, Rank.GENUS, Kingdom.INCERTAE_SEDIS).getKey());
-    assertEquals(3, l.match("Oenanthe", null, null, Rank.GENUS, Kingdom.PLANTAE).getKey());
-    assertEquals(3, l.match("Œnanthe", null, null, Rank.GENUS, Kingdom.PLANTAE).getKey());
-    assertNull(l.match("Oenanthe", null, null, Rank.GENUS, Kingdom.INCERTAE_SEDIS));
-    assertNull(l.match("Oenanthe", "Camelot", null, Rank.GENUS, Kingdom.ANIMALIA));
+    assertEquals(2, l.match("Oenanthe", null, null, GENUS, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(2, l.match("Oenanthe", "Vieillot", null, GENUS, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(2, l.match("Oenanthe", "V", null, GENUS, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(2, l.match("Oenanthe", "Vieillot", null, GENUS, ACCEPTED, INCERTAE_SEDIS).getKey());
+    assertEquals(3, l.match("Oenanthe", null, null, GENUS, ACCEPTED, PLANTAE).getKey());
+    assertEquals(3, l.match("Œnanthe", null, null, GENUS, ACCEPTED, PLANTAE).getKey());
+    assertNull(l.match("Oenanthe", null, null, GENUS, ACCEPTED, INCERTAE_SEDIS));
+    assertNull(l.match("Oenanthe", "Camelot", null, GENUS, ACCEPTED, ANIMALIA));
 
-    assertEquals(4, l.match("Oenanthe aquatica", "Poir", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(6, l.match("Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertNull(l.match("Oenanthe aquatica", null, null, Rank.SPECIES, Kingdom.FUNGI));
+    assertEquals(4, l.match("Oenanthe aquatica", "Poir", null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(6, l.match("Oenanthe aquatica", null, null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertNull(l.match("Oenanthe aquatica", null, null, SPECIES, ACCEPTED, FUNGI));
 
     // it is allowed to add an author to the single current canonical name if it doesnt have an author yet!
-    assertEquals(9, l.match("Abies alba", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", null, "1789", Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", "Mill.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", "Miller", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", "Döring", "1778", Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(10, l.match("Abies alba", "Mumpf.", null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
+    assertEquals(9, l.match("Abies alba", null, null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(9, l.match("Abies alba", null, "1789", SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(9, l.match("Abies alba", "Mill.", null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(9, l.match("Abies alba", "Miller", null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(9, l.match("Abies alba", "Döring", "1778", SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(10, l.match("Abies alba", "Mumpf.", null, SPECIES, ACCEPTED, PLANTAE).getKey());
 
     // try unparsable names
-    assertEquals(14, l.match("Carex cayouettei", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(15, l.match("Carex comosa × Carex lupulina", null, null, Rank.SPECIES, Kingdom.PLANTAE).getKey());
-    assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.VIRUSES).getKey());
-    assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, Rank.SPECIES, Kingdom.VIRUSES).getKey());
-    assertNull(l.match("Aeropyrum coil-shaped virus", null, null, Rank.UNRANKED, Kingdom.FUNGI));
+    assertEquals(14, l.match("Carex cayouettei", null, null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(15, l.match("Carex comosa × Carex lupulina", null, null, SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, VIRUSES).getKey());
+    assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, SPECIES, ACCEPTED, VIRUSES).getKey());
+    assertNull(l.match("Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, FUNGI));
 
   }
 }

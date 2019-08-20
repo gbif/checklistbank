@@ -18,6 +18,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
+import static org.gbif.api.vocabulary.Kingdom.*;
+import static org.gbif.api.vocabulary.Rank.*;
+import static org.gbif.api.vocabulary.TaxonomicStatus.*;
 
 public class IdLookupImplIT {
 
@@ -31,22 +34,22 @@ public class IdLookupImplIT {
   public void testMatching() throws IOException, InterruptedException {
     matcher = NubMatchingTestModule.provideLookup();
 
-    assertMatch("Abies", "", "", Rank.GENUS, Kingdom.PLANTAE, 1);
+    assertMatch("Abies", "", "", GENUS, PLANTAE, 1);
 
-    assertNoMatch("Abies alba", null, null, Rank.SPECIES, Kingdom.ANIMALIA);
-    assertNoMatch("Abies alba", null, null, Rank.GENUS, Kingdom.PLANTAE);
-    assertNoMatch("Abies alba", null, null, Rank.SUBSPECIES, Kingdom.PLANTAE);
-    assertMatch("Abies alba", null, null, Rank.SPECIES, Kingdom.PLANTAE, 2);
-    assertMatch("Abies alba", "", "", Rank.SPECIES, Kingdom.PLANTAE, 2);
-    assertMatch("Abies alba", "", "1768", Rank.SPECIES, Kingdom.PLANTAE, 2);
-    assertMatch("Abies alba", "Mill.", "", Rank.SPECIES, Kingdom.PLANTAE, 2);
-    assertMatch("Abies alba", "Miller", "", Rank.SPECIES, Kingdom.PLANTAE, 2);
-    assertMatch("Abies alba", "Mill.", "1800", Rank.SPECIES, Kingdom.INCERTAE_SEDIS, 2);
-    assertMatch("Abies alba", "nothing but a year", "1768", Rank.SPECIES, Kingdom.INCERTAE_SEDIS, 2);
-    assertNoMatch("Abies alba", "DC", "", Rank.SPECIES, Kingdom.PLANTAE);
-    assertNoMatch("Abies alba", "DeCandole", "1770", Rank.SPECIES, Kingdom.PLANTAE);
-    assertNoMatch("Abies alba", "Linnaeus", "", Rank.SPECIES, Kingdom.PLANTAE);
-    assertNoMatch("Abies alba", "L.", "1989", Rank.SPECIES, Kingdom.PLANTAE);
+    assertNoMatch("Abies alba", null, null, SPECIES, ANIMALIA);
+    assertNoMatch("Abies alba", null, null, GENUS, PLANTAE);
+    assertNoMatch("Abies alba", null, null, SUBSPECIES, PLANTAE);
+    assertMatch("Abies alba", null, null, SPECIES, PLANTAE, 2);
+    assertMatch("Abies alba", "", "", SPECIES, PLANTAE, 2);
+    assertMatch("Abies alba", "", "1768", SPECIES, PLANTAE, 2);
+    assertMatch("Abies alba", "Mill.", "", SPECIES, PLANTAE, 2);
+    assertMatch("Abies alba", "Miller", "", SPECIES, PLANTAE, 2);
+    assertMatch("Abies alba", "Mill.", "1800", SPECIES, INCERTAE_SEDIS, 2);
+    assertMatch("Abies alba", "nothing but a year", "1768", SPECIES, INCERTAE_SEDIS, 2);
+    assertNoMatch("Abies alba", "DC", "", SPECIES, PLANTAE);
+    assertNoMatch("Abies alba", "DeCandole", "1770", SPECIES, PLANTAE);
+    assertNoMatch("Abies alba", "Linnaeus", "", SPECIES, PLANTAE);
+    assertNoMatch("Abies alba", "L.", "1989", SPECIES, PLANTAE);
   }
 
   @Test
@@ -61,25 +64,25 @@ public class IdLookupImplIT {
 
     IdLookup l = IdLookupImpl.temp().load(cfg, true);
     assertEquals(2, l.size());
-    assertEquals(1, l.match("Animalia", Rank.KINGDOM, Kingdom.ANIMALIA).getKey());
+    assertEquals(1, l.match("Animalia", KINGDOM, ANIMALIA).getKey());
 
-    assertEquals(10, l.match("Rodentia", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertNull(l.match("Rodentia", Rank.FAMILY, Kingdom.ANIMALIA));
-    assertNull(l.match("Rodentia", Rank.ORDER, Kingdom.PLANTAE));
-    assertNull(l.match("Rodenti", Rank.ORDER, Kingdom.ANIMALIA));
+    assertEquals(10, l.match("Rodentia", ORDER, ANIMALIA).getKey());
+    assertNull(l.match("Rodentia", FAMILY, ANIMALIA));
+    assertNull(l.match("Rodentia", ORDER, PLANTAE));
+    assertNull(l.match("Rodenti", ORDER, ANIMALIA));
 
-    assertEquals(10, l.match("Rodentia", "Bowdich", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bowdich", "1221", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bowdich", null, Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", null, "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bow.", null, Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bow", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "B", "1821", Rank.ORDER, Kingdom.ANIMALIA).getKey());
-    assertNull(l.match("Rodentia", "Mill.", "1823", Rank.ORDER, Kingdom.ANIMALIA));
+    assertEquals(10, l.match("Rodentia", "Bowdich", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bowdich", "1221", ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bowdich", null, ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", null, "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bow.", null, ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bow", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "B", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
+    assertNull(l.match("Rodentia", "Mill.", "1823", ORDER , ACCEPTED, ANIMALIA));
   }
 
   private LookupUsage assertMatch(String name, String authorship, String year, Rank rank, Kingdom kingdom, Integer expectedKey) {
-    LookupUsage m = matcher.match(name, authorship, year, rank, kingdom);
+    LookupUsage m = matcher.match(name, authorship, year, rank, ACCEPTED ,kingdom);
     if (expectedKey == null && m == null) {
       // all fine, as expected!
     } else if (m == null) {

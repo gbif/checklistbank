@@ -2,6 +2,7 @@ package org.gbif.nub.lookup.straight;
 
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 
 import java.util.Iterator;
@@ -25,7 +26,7 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
    *
    * @return the matching usage or null
    */
-  LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, Kingdom kingdom);
+  LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, TaxonomicStatus status, Kingdom kingdom);
 
   /**
    * List all usages with the given canonical name regardless of rank, kingdom or authorship
