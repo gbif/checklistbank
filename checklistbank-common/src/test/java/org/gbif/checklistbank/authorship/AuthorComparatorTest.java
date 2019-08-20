@@ -3,6 +3,7 @@ package org.gbif.checklistbank.authorship;
 import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.NamePart;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.model.Equality;
 import org.junit.Test;
 
@@ -239,7 +240,7 @@ public class AuthorComparatorTest {
     p2.setAuthorship("Mill. ex Münch.");
     p2.setParsed(true);
 
-    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+    assertEquals(Equality.UNKNOWN, comp.compare(p1, p2));
   }
 
   @Test
@@ -490,9 +491,9 @@ public class AuthorComparatorTest {
     p4.setAuthorship("Weyenbergh");
     p4.setYear("1874");
 
-    assertEquals(Equality.DIFFERENT, comp.compare(p3, p4));
+    assertEquals(Equality.UNKNOWN, comp.compare(p3, p4));
 
-    p4.setYear("1806");
+    p3.setYear("1874");
     assertEquals(Equality.EQUAL, comp.compare(p3, p4));
   }
 

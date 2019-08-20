@@ -107,25 +107,10 @@ public class AuthorComparator {
     return result;
   }
 
-  private boolean authorshipIsParsed(ParsedName pn) {
-    return pn.isParsed() && !pn.isParsedPartially() || pn.hasAuthorship();
-  }
-
   /**
    * Does a comparison of recombination and basionym authorship using the author compare method once for the recombination authorship and once for the basionym.
    */
   public Equality compare(ParsedName n1, ParsedName n2) {
-    if (!authorshipIsParsed(n1)) {
-      // copy parsed name to not alter the original
-      n1 = clone(n1);
-      parseAuthorship(n1);
-    }
-    if (!authorshipIsParsed(n2)) {
-      // copy parsed name to not alter the original
-      n2 = clone(n2);
-      parseAuthorship(n2);
-    }
-
     Equality recomb = compare(n1.getAuthorship(), n1.getYear(), n2.getAuthorship(), n2.getYear());
     if (recomb != Equality.UNKNOWN) {
       // in case the recomb author differs or is the same we are done, no need for basionym authorship comparison
@@ -257,24 +242,6 @@ public class AuthorComparator {
     }
     return pn2;
   }
-
-  /**
-   * Extract authorship from the name itself as best as we can to at least do some common string comparison
-   */
-  private void parseAuthorship(ParsedName pn) {
-    // try to use full sciname minus the epithets
-    String lastEpithet = ObjectUtils.coalesce(pn.getInfraSpecificEpithet(), pn.getSpecificEpithet(), pn.getGenusOrAbove());
-    if (lastEpithet != null && pn.getScientificName() != null) {
-      int idx = pn.getScientificName().lastIndexOf(lastEpithet);
-      if (idx >= 0) {
-        pn.setAuthorship(pn.getScientificName().substring(idx + lastEpithet.length()));
-      }
-    }
-    // copy full name to year, will be extracted/normalized in year comparison
-    pn.setYear(pn.getScientificName());
-    pn.setParsedPartially(false);
-  }
-
 
   /**
    * Does an author comparison, normalizing the strings and try 3 comparisons:

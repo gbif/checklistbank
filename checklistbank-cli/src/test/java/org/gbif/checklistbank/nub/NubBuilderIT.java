@@ -1680,11 +1680,10 @@ public class NubBuilderIT {
   }
   
   @Test
-  @Ignore
   public void testClementsDups() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(133, 134);
     src.setSourceRank(133, Rank.PHYLUM); // CoL
-    src.setSourceRank(134, Rank.PHYLUM); // Clements Birdlist
+    src.setSourceRank( 134, Rank.PHYLUM); // Clements Birdlist
     build(src);
     assertTree("133 134.txt");
   }
