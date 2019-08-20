@@ -1687,6 +1687,17 @@ public class NubBuilderIT {
     build(src);
     assertTree("133 134.txt");
   }
+  
+  /**
+   * https://github.com/gbif/checklistbank/issues/88
+   */
+  @Test
+  public void testLinnaeus() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(135);
+    src.setSourceRank(135, Rank.PHYLUM);
+    build(src);
+    assertTree("135.txt");
+  }
 
   /**
    * For profiling memory usage of nub builds

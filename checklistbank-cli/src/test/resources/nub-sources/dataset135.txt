@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Aves	
+3	2		ORDER	ACCEPTED		Passeriformes	
+4	3		FAMILY	ACCEPTED		Paridae	
+10	4		SPECIES	ACCEPTED		Parus major Linnæus	
+11	4		SPECIES	ACCEPTED		Parus bokharensis Carl Linnaeus	
+12	4		SPECIES	ACCEPTED		Parus margus Linné	

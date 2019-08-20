@@ -518,7 +518,7 @@ public class NubDb {
         nub.node.getId(),
         nub.origin == null ? "" : nub.origin.name().toLowerCase(),
         nub.status == null ? "" : nub.status.name().toLowerCase(),
-        nub.parsedName == null ? "no parsed nane" : nub.parsedName.getScientificName(),
+        nub.parsedName == null ? "no parsed name" : nub.parsedName.getScientificName(),
         nub.rank,
         parent == null ? "no parent" : "parent " + parent.parsedName.getScientificName()
     );

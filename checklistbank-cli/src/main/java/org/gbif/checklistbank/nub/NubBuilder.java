@@ -90,6 +90,7 @@ public class NubBuilder implements Runnable {
   private static final Pattern EX_AUTHOR = Pattern.compile("^(.+) ex ", Pattern.CASE_INSENSITIVE);
 
   private final Set<Rank> allowedRanks = Sets.newHashSet();
+  private final AuthorNormalizer authorNorm = AuthorNormalizer.create();
   private final NubDb db;
   private final NubSourceList sources;
   private final NubConfiguration cfg;
@@ -1155,6 +1156,9 @@ public class NubBuilder implements Runnable {
 
       }
     }
+    // normalize authors in the Backbone
+    authorNorm.normalize(u);
+    
     // add to nub db
     return NubUsageMatch.match(db.addUsage(p, u, origin, currSrc.key));
   }
