@@ -1698,7 +1698,17 @@ public class NubBuilderIT {
     build(src);
     assertTree("135.txt");
   }
-
+  
+  /**
+   * https://github.com/gbif/checklistbank/issues/88
+   */
+  @Test
+  public void testBoldPlaceholder() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(136);
+    build(src);
+    assertTree("136.txt");
+  }
+  
   /**
    * For profiling memory usage of nub builds
    */
