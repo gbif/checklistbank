@@ -1,6 +1,8 @@
 package org.gbif.checklistbank.nub.validation;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.Kingdom;
@@ -13,8 +15,11 @@ import org.gbif.utils.file.csv.CSVReaderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Production backbone assertions that have to pass before we can replace the backbone with a newer version.
@@ -23,16 +28,31 @@ import java.io.InputStream;
 public class NubAssertions implements NubValidation {
   private static final Logger LOG = LoggerFactory.getLogger(NubAssertions.class);
   private static final String ASSERTION_FILENAME = "backbone/assertions.tsv";
+  private static final String HOMONYM_FILENAME = "backbone/homonyms.csv";
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ");
-
+  
+  private String assertionFile;
+  private String homonymFile;
   private final AssertionEngine assertionEngine;
 
   public NubAssertions(NubDb db) {
     this.assertionEngine = new NeoAssertionEngine(db);
   }
-
+  
   public NubAssertions(NameUsageService pgService) {
     this.assertionEngine = new PgAssertionEngine(pgService);
+  }
+  
+  public void setAssertionFile(File assertionFile) {
+    Preconditions.checkArgument(assertionFile.exists(), "Assertions file does not exist: " + assertionFile.getAbsolutePath());
+    LOG.info("Use external assertions file: " + assertionFile.getAbsolutePath());
+    this.assertionFile = assertionFile.getAbsolutePath();
+  }
+  
+  public void setHomonymFile(File file) {
+    Preconditions.checkArgument(file.exists(), "Homonym file does not exist: " + file.getAbsolutePath());
+    LOG.info("Use external homonym file: " + file.getAbsolutePath());
+    this.homonymFile = file.getAbsolutePath();
   }
 
   @Override
@@ -40,31 +60,25 @@ public class NubAssertions implements NubValidation {
    * This requires an open neo4j transaction!
    */
   public boolean validate() {
-    // populate the reverse key map
     LOG.info("Start nub assertions");
-    // TODO: num accepted in expected range
-
-    // TODO: num accepted per kingdom in expected range
-
-    // TODO: num accepted in Asteraceae, Mammalia, Aves ???
-
-    // TODO: num accepted families, genera
-
-    // run simple file based assertions
+  
+    // run simple file based assertions based on usage ids
     assertFileNames();
-
-    // issues spotted by the open tree of life
-    assertOtolIssues();
-
-    // old assertions from ECAT times
-    oldEcatVerifications();
+  
+    assertFileNameHomonyms();
 
     return assertionEngine.isValid();
   }
 
   private void assertFileNames() {
-    InputStream tsv = new InputStreamUtils().classpathStream(ASSERTION_FILENAME);
+    LOG.info("Run usage assertions");
     try {
+      InputStream tsv;
+      if (assertionFile == null) {
+        tsv = new InputStreamUtils().classpathStream(ASSERTION_FILENAME);
+      } else {
+        tsv = new FileInputStream(assertionFile);
+      }
       CSVReader csv = CSVReaderFactory.buildUtf8TabReader(tsv);
       while(csv.hasNext()) {
         String[] row = csv.next();
@@ -75,19 +89,59 @@ public class NubAssertions implements NubValidation {
       }
 
     } catch (IOException e) {
-      LOG.warn("Failed to read assertion resource {}", ASSERTION_FILENAME, e);
+      LOG.warn("Failed to read assertion resource", e);
     }
-
-    assertFileNameHomonyms();
   }
 
   private void assertFileNameHomonyms() {
-    // http://dev.gbif.org/issues/browse/PF-2445
-    assertionEngine.assertSearchMatch(1, "Zygophyllum apiculatum");
-    // http://dev.gbif.org/issues/browse/POR-389
-    assertionEngine.assertSearchMatch(1, "Albizia", Rank.GENUS);
+    LOG.info("Run homonym assertions");
+    try {
+      InputStream tsv;
+      if (homonymFile == null) {
+        tsv = new InputStreamUtils().classpathStream(HOMONYM_FILENAME);
+      } else {
+        tsv = new FileInputStream(homonymFile);
+      }
+      CSVReader csv = CSVReaderFactory.build(tsv, "utf8", ";", null, 0);
+      while(csv.hasNext()) {
+        String[] row = csv.next();
+        if (row == null || row.length < 3 || row[0].startsWith("#")) {
+          continue;
+        }
+        try {
+          Rank rank= parseRank(row[0]);
+          String name = row[1].trim();
+          Integer cnt = parseInt(row[2]);
+          if (rank == null) {
+            assertionEngine.assertSearchMatch(cnt, name);
+          } else {
+            assertionEngine.assertSearchMatch(cnt, name, rank);
+          }
+    
+        } catch (RuntimeException e) {
+          LOG.error("Failed homonym assertion for {}", SEMICOLON_JOIN.join(row), e);
+        }
+      }
+    
+    } catch (IOException e) {
+      LOG.warn("Failed to read assertion resource", e);
+    }
   }
 
+  private static Integer parseInt(String x) {
+    if (!StringUtils.isBlank(x)) {
+      return Integer.parseInt(x.trim());
+    }
+    return null;
+  }
+  
+  private static Rank parseRank(String x) {
+    if (!StringUtils.isBlank(x)) {
+      return Rank.valueOf(x.trim().toUpperCase());
+    }
+    return null;
+  }
+  
   // ID	name	rank	synonym	kingdom	phylum	class	order	family
   private void assertRow(String[] row) {
     try {
@@ -116,6 +170,7 @@ public class NubAssertions implements NubValidation {
 
   /**
    * Patches from Jonathan: https://github.com/OpenTreeOfLife/reference-taxonomy/blob/master/taxonomies.py#L562
+   * DEACTIVATED AS THEY ARE OUTDATED AND WILL FAIL !!!
    */
   private void assertOtolIssues() {
     // http://iphylo.blogspot.com/2014/03/gbif-liverwort-taxonomy-broken.html
@@ -154,6 +209,7 @@ public class NubAssertions implements NubValidation {
 
   /**
    * From https://gbif-ecat.googlecode.com/svn/trunk/ecat-checklistbank/src/test/java/org/gbif/manualtests/VerifyNub.java
+   * DEACTIVATED AS THEY ARE OUTDATED AND WILL FAIL !!!
    */
   private void oldEcatVerifications() {
     LOG.info("Test kingdoms");

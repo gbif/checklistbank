@@ -83,7 +83,21 @@ public class AdminConfiguration {
   @Valid
   @Parameter(names = {"--nub-ranks-only"}, required = false)
   public boolean nubRanksOnly = false;
-
+  
+  /**
+   * Generic custom file parameter for various routines
+   */
+  @Valid
+  @Parameter(names = {"--file"}, required = false)
+  public File file;
+  
+  /**
+   * Generic custom file parameter for various routines
+   */
+  @Valid
+  @Parameter(names = {"--file2"}, required = false)
+  public File file2;
+  
   /**
    * Do not change any information in checklistbank, just report potential changes, e.g. for reparsed names
    */

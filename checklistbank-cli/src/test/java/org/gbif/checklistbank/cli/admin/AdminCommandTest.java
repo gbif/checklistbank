@@ -67,6 +67,15 @@ public class AdminCommandTest {
   }
   
   @Test
+  public void runAssertion() throws Exception {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = configureUat( (AdminConfiguration) cmd.getConfigurationObject());
+    cfg.operation = AdminOperation.VALIDATE_BACKBONE;
+    
+    cmd.doRun();
+  }
+  
+  @Test
   public void nubMatchAll() throws Exception {
     AdminCommand cmd = new AdminCommand();
     AdminConfiguration cfg = configureNub( (AdminConfiguration) cmd.getConfigurationObject());

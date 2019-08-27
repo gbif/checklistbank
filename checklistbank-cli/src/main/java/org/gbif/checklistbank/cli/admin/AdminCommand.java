@@ -12,6 +12,7 @@ import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
+import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.registry.*;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
@@ -28,6 +29,7 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
@@ -170,7 +172,11 @@ public class AdminCommand extends BaseCommand {
       case VALIDATE_NEO:
         verifyNeo();
         break;
-
+  
+      case VALIDATE_BACKBONE:
+        verifyPg();
+        break;
+      
       case NUB_CHANGED:
         sendNubChanged();
         break;
@@ -390,13 +396,6 @@ public class AdminCommand extends BaseCommand {
    */
   private void reparseNames() {
     new NameUsageReparser(cfg.clb).run();
-
-    //Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    //ParsedNameService nameService = inj.getInstance(ParsedNameService.class);
-    //
-    //LOG.info("Start reparsing all names. This will take a while ...");
-    //int num = nameService.reparseAll();
-    //LOG.info("{} names reparsed", num);
   }
 
   private void dumpToNeo() throws Exception {
@@ -421,7 +420,25 @@ public class AdminCommand extends BaseCommand {
       }
     }
   }
-
+  
+  private void verifyPg() throws Exception {
+    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+    NameUsageService usageService = clbInj.getInstance(NameUsageService.class);
+  
+    NubAssertions validator = new NubAssertions(usageService);
+    if (cfg.file != null) {
+      validator.setAssertionFile(cfg.file);
+    }
+    if (cfg.file2 != null) {
+      validator.setHomonymFile(cfg.file2);
+    }
+    if (validator.validate()) {
+      LOG.info("{} passed!", validator.getClass().getSimpleName());
+    } else {
+      LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
+    }
+  }
+  
   private void validate(UsageDao dao, NubValidation validator) {
     try (Transaction tx = dao.beginTx()) {
       boolean valid = validator.validate();

@@ -84,6 +84,11 @@ public enum AdminOperation {
    * Runs the backbone validation against the local neo4j backbone.
    */
   VALIDATE_NEO(true),
+  
+  /**
+   * Runs the backbone validation against a postgres database.
+   */
+  VALIDATE_BACKBONE(true),
 
   /**
    * Runs a liquibase schema update for the configured database.
