@@ -55,7 +55,14 @@ public class Traversals {
       .evaluator(Evaluators.toDepth(1))
       .evaluator(Evaluators.excludeStartPosition())
       .uniqueness(Uniqueness.NODE_PATH);
-
+  
+  public static final TraversalDescription PARENTS_AND_ACCEPTED = new MonoDirectionalTraversalDescription()
+      .relationships(RelType.PARENT_OF, Direction.INCOMING)
+      .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
+      .relationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)
+      .depthFirst()
+      .evaluator(Evaluators.excludeStartPosition());
+  
   /**
    * Finds all nodes connected via a basionym_of relation regardless of the direction.
    */

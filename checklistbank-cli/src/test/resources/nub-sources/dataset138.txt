@@ -1,0 +1,16 @@
+1			KINGDOM	ACCEPTED		Fungi	
+2	1		PHYLUM	ACCEPTED		Basidiomycota	
+3	2		CLASS	ACCEPTED		Agaricomycetes	
+
+4	3		ORDER	ACCEPTED		Agaricales	
+5	4		FAMILY	ACCEPTED		Cortinariaceae	
+6	5		GENUS	ACCEPTED		Cortinarius	
+10	6		SPECIES	ACCEPTED		Cortinarius aavae Liimat. & Niskanen, 2012	
+11	6		SPECIES	ACCEPTED		Cortinarius abditus Rob.Henry, 1993	
+12	6		SPECIES	ACCEPTED		Cortinarius aberrans Rob.Henry, 1952	
+
+7	3		ORDER	ACCEPTED		Auriculariales	
+8	4		FAMILY	ACCEPTED		Auriculariaceae	
+9	5		GENUS	ACCEPTED		Exidia	
+20	9		SPECIES	ACCEPTED		Exidia aeruginosa P.Roberts, 2006	
+21	9		SPECIES	ACCEPTED		Exidia ambipapillata Lowy, 1964	

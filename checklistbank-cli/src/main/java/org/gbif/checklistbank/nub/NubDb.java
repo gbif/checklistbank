@@ -470,12 +470,15 @@ public class NubDb {
   // if authors are missing require the classification to not contradict!
   private Equality compareClassification(@Nullable NubUsage currNubParent, NubUsage match) {
     if (currNubParent != null &&
-        (currNubParent.equals(incertaeSedis) || existsInClassification(match.node, currNubParent.node, true))) {
+        (currNubParent.equals(incertaeSedis)
+            || existsInClassification(match.node, currNubParent.node, true)
+            || noClassificationContradiction(match.node, currNubParent.node)
+        )) {
       return Equality.EQUAL;
     }
     return Equality.DIFFERENT;
   }
-
+  
   public long countTaxa() {
     Result res = dao.getNeo().execute("MATCH (n) RETURN count(n) as cnt");
     return (long) res.columnAs("cnt").next();
@@ -753,7 +756,47 @@ public class NubDb {
 
     return existsInClassificationInternal(n, searchNodes);
   }
-
+  
+  /**
+   * Compares two classifications for strict matching, i.e. compares the given node and all parent ranks to each other
+   * evaluating missing ranks as matching.
+   *
+   * @return true if the classification does not contradict at all
+   */
+  private boolean noClassificationContradiction(Node match, Node currNubParent) {
+    Map<Rank, Node> p1 = rankMap(match, false);
+    Map<Rank, Node> p2 = rankMap(currNubParent, true);
+    
+    Set<Rank> rankSet = new HashSet<>(p1.keySet());
+    rankSet.addAll(p2.keySet());
+  
+    List<Rank> ranks = new ArrayList<>(rankSet);
+    Collections.sort(ranks);
+    
+    for (Rank r : ranks) {
+      Node cl1 = p1.getOrDefault(r, null);
+      Node cl2 = p2.getOrDefault(r, null);
+      if (cl1 != null && cl2 != null && !cl1.equals(cl2)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private static Map<Rank, Node> rankMap(Node n, boolean includeSelf) {
+    Map<Rank, Node> map = new HashMap<>();
+    for (Node p : Traversals.PARENTS_AND_ACCEPTED.traverse(n).nodes()) {
+      Rank r = NeoProperties.getRank(p, Rank.UNRANKED);
+      map.put(r, p);
+    }
+    if (includeSelf) {
+      Rank r = NeoProperties.getRank(n, Rank.UNRANKED);
+      map.put(r, n);
+    }
+    map.remove(Rank.UNRANKED);
+    return map;
+  }
+  
   /**
    * @param n           the node to start the parental hierarchy search from
    * @param searchNodes the nodes to find at least one in the hierarchy

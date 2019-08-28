@@ -1710,6 +1710,19 @@ public class NubBuilderIT {
   }
   
   /**
+   * https://github.com/gbif/checklistbank/issues/91
+   */
+  @Test
+  public void testSpeciesPatch() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(137, 138);
+    src.setSourceRank(137, Rank.PHYLUM); // backbone patch
+    src.setSourceRank(138, Rank.PHYLUM); // CoL
+    src.setSupragenericHomonymSource(137);
+    build(src);
+    assertTree("137 138.txt");
+  }
+  
+  /**
    * For profiling memory usage of nub builds
    */
   @Test
