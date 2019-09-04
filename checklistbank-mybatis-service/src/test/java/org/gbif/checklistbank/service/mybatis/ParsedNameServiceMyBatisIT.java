@@ -86,6 +86,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameS
 
   @Test
   public void testReparse() throws Exception {
-    assertEquals(5, service.reparseAll());
+    assertEquals(6, service.reparseAll());
   }
 }

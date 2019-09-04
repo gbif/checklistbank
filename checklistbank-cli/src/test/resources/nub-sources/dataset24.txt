@@ -7,9 +7,9 @@
 300	20		SUBSPECIES	ACCEPTED		doliolum	
 400	10		VARIETY	ACCEPTED		Aphaenogaster (Ichnomyrmex) Schwammerdami var. spinipes	
 401	10		SUBSPECIES	ACCEPTED		Ocymyrmex Weitzaeckeri subsp. arnoldi 	
-402	10		SUBSPECIES	ACCEPTED		Solenopsis cf subsp. fugax	
+402	10		SUBSPECIES	ACCEPTED		Solenopsis cf. fugax
 403	10		VARIETY	ACCEPTED		Cerapachys Mayri var. brachynodus	
-404	10		VARIETY	ACCEPTED		Cerapachys mayeri cf var. brachynodus	
+404	10		VARIETY	ACCEPTED		Cerapachys mayeri cf. var. brachynodus
 405	10		SPECIES	ACCEPTED		Cerapachys spec.	
 
 406	10		GENUS	ACCEPTED		unknown genus	

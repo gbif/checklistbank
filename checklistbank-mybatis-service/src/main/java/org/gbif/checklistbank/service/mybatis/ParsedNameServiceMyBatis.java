@@ -98,6 +98,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     int hybrids = 0;
     int virus = 0;
     int placeholder = 0;
+    int blacklisted = 0;
     int noname = 0;
 
     @Override
@@ -128,6 +129,9 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
           case NO_NAME:
             noname++;
             break;
+          case BLACKLISTED:
+            blacklisted++;
+            break;
         }
       }
 
@@ -138,7 +142,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
         changed++;
       }
       if (counter % 100000 == 0) {
-        LOG.info("Reparsed {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}", counter, changed, failed, hybrids, virus, placeholder, noname);
+        LOG.info("Reparsed {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, blacklisted={}, noname={}", counter, changed, failed, hybrids, virus, placeholder, blacklisted, noname);
       }
     }
   }
