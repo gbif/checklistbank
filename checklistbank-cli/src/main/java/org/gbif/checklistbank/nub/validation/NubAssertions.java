@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets;
 public class NubAssertions implements NubValidation {
   private static final Logger LOG = LoggerFactory.getLogger(NubAssertions.class);
   private static final String ASSERTION_FILENAME = "backbone/assertions.tsv";
-  private static final String HOMONYM_FILENAME = "backbone/homonyms.csv";
+  private static final String HOMONYM_FILENAME = "backbone/homonym-assertions.csv";
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ");
   
   private String assertionFile;

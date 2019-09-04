@@ -1679,6 +1679,19 @@ public class NubBuilderIT {
     assertTree("130 131 132.txt");
   }
   
+  /**
+   * https://github.com/gbif/checklistbank/issues/93
+   */
+  @Test
+  public void testColHomonymGenera() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(139, 140, 141);
+    src.setSourceRank(139, Rank.PHYLUM); // backbone patch
+    src.setSourceRank(140, Rank.PHYLUM); // CoL
+    //src.setSupragenericHomonymSource(140);
+    build(src);
+    assertTree("139 140 141.txt");
+  }
+  
   @Test
   public void testClementsDups() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(133, 134);

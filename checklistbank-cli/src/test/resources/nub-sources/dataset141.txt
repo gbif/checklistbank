@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Lepidoptera	
+5	4		FAMILY	ACCEPTED		Arctiidae	
+10	4		SPECIES	ACCEPTED		Sermyla morta Schaus, 1892	
+11	5		SPECIES	ACCEPTED		Sermyla transversa Walker, 1854	

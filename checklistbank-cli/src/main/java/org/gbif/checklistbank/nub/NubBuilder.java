@@ -102,6 +102,7 @@ public class NubBuilder implements Runnable {
   private final IdGenerator idGen;
   private final Int2LongMap src2NubKey = new Int2LongOpenHashMap();
   private final Long2IntMap basionymRels = new Long2IntOpenHashMap(); // node.id -> src.usageKey
+  private final Map<String, String> homonymExclusions;
   private final Map<UUID, Integer> priorities = Maps.newHashMap();
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
@@ -117,6 +118,7 @@ public class NubBuilder implements Runnable {
         .map(String::trim)
         .map(String::toUpperCase)
         .collect(Collectors.toSet());
+    homonymExclusions = readHomonymExclusion();
   }
 
   private static Stream<String> readBlacklist(URI source) {
@@ -139,6 +141,25 @@ public class NubBuilder implements Runnable {
       LOG.error("Blacklist could not be read", e);
     }
     return blacks.stream();
+  }
+  
+  private static Map<String, String> readHomonymExclusion() {
+    Map<String, String> excl = new HashMap<>();
+    try {
+      InputStream stream = FileUtils.classpathStream("backbone/homonym-exclusion.csv");
+      LineIterator lines = FileUtils.getLineIterator(stream);
+      lines.next(); // skip header
+      while (lines.hasNext()) {
+        String line = lines.nextLine();
+        // comment?
+        if (StringUtils.isBlank(line) || line.startsWith("#")) continue;
+        String[] cols = line.split(",", 2);
+        excl.put(cols[0].trim(), cols[1].trim());
+      }
+    } catch (IOException e) {
+      LOG.error("Homonym exclusions could not be read", e);
+    }
+    return excl;
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
@@ -968,6 +989,22 @@ public class NubBuilder implements Runnable {
     }
     return false;
   }
+  
+  private boolean isExcludedHomonym(NubUsage u) {
+    NubUsage parent = db.parent(u);
+    return homonymExclusions.getOrDefault(u.parsedName.canonicalName(), "").equalsIgnoreCase(parent.parsedName.canonicalName());
+  }
+
+  private boolean isExcludedHomonym(SrcUsage u, NubUsage parent) {
+    return homonymExclusions.getOrDefault(u.scientificName, "").equalsIgnoreCase(parent.parsedName.canonicalName());
+  }
+  
+  /**
+   * Only checks if the usage is one of a known homonym pair, but does not assert it needs to be removed.
+   */
+  private boolean isExcludedHomonym(SrcUsage u) {
+    return homonymExclusions.containsKey(u.scientificName);
+  }
 
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
     Preconditions.checkArgument(parent.status.isAccepted());
@@ -993,7 +1030,25 @@ public class NubBuilder implements Runnable {
         if (doubtful != null && u.status == TaxonomicStatus.ACCEPTED) {
           db.transferChildren(match.usage, doubtful);
         }
-
+  
+      } else if (u.status.isAccepted() && match.usage.status.isAccepted() && isExcludedHomonym(u)){
+        // accepted homonym genus. Find out which one needs to be removed
+        if (isExcludedHomonym(match.usage)) {
+          // the previous one was supposed to be removed, keep a reference to it
+          NubUsage prev = match.usage;
+          match = createNubUsage(u, origin, parent);
+          // transfer all previous children to the new one and delete the previous one
+          db.transferChildren(match.usage, prev);
+          LOG.debug("Remove excluded homonym {} moving its children to {}", prev, match.usage);
+          db.dao().delete(prev);
+        } else if (isExcludedHomonym(u, parent)) {
+          // nothing to do, ignore this genus
+          LOG.debug("Ignore excluded homonym {} with parent {}", u, match.usage);
+        } else {
+          // keep both
+          match = createNubUsage(u, origin, parent);
+        }
+  
       } else {
         if (origin == Origin.IMPLICIT_NAME) {
           // do not update or change usages with implicit names
