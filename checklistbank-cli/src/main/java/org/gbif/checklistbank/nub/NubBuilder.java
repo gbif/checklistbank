@@ -1005,6 +1005,37 @@ public class NubBuilder implements Runnable {
   private boolean isExcludedHomonym(SrcUsage u) {
     return homonymExclusions.containsKey(u.scientificName);
   }
+  
+  private NubUsageMatch processHomonymSourceUsage(SrcUsage u, Origin origin, NubUsage parent, NubUsageMatch match) throws IgnoreSourceUsageException {
+    // all homonym usages should be doubtful by default
+    u.status = TaxonomicStatus.DOUBTFUL;
+    if (isExcludedHomonym(match.usage)) {
+      // the previous one was supposed to be removed, keep a reference to it
+      NubUsage prev = match.usage;
+      match = createNubUsage(u, origin, parent);
+      // transfer all previous children to the new one and delete the previous one
+      db.transferChildren(match.usage, prev);
+      LOG.debug("Remove excluded homonym {} moving its children to {}", prev, match.usage);
+      db.dao().delete(prev);
+    } else if (isExcludedHomonym(u, parent)) {
+      // ignore this genus, but make sure the previous one is marked as doubtful
+      updateMatchStatus(match, TaxonomicStatus.DOUBTFUL);
+      LOG.debug("Ignore excluded homonym {} with parent {}", u, match.usage);
+    } else {
+      // keep both
+      updateMatchStatus(match, TaxonomicStatus.DOUBTFUL);
+      match = createNubUsage(u, origin, parent);
+      
+    }
+    return match;
+  }
+  
+  private void updateMatchStatus(NubUsageMatch match, TaxonomicStatus status) {
+    if (match.usage.status != status) {
+      match.usage.status = status;
+      db.store(match.usage);
+    }
+  }
 
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
     Preconditions.checkArgument(parent.status.isAccepted());
@@ -1014,7 +1045,7 @@ public class NubBuilder implements Runnable {
 
     // filter out various unwanted names
     filterUsage(u);
-
+    
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
@@ -1033,21 +1064,7 @@ public class NubBuilder implements Runnable {
   
       } else if (u.status.isAccepted() && match.usage.status.isAccepted() && isExcludedHomonym(u)){
         // accepted homonym genus. Find out which one needs to be removed
-        if (isExcludedHomonym(match.usage)) {
-          // the previous one was supposed to be removed, keep a reference to it
-          NubUsage prev = match.usage;
-          match = createNubUsage(u, origin, parent);
-          // transfer all previous children to the new one and delete the previous one
-          db.transferChildren(match.usage, prev);
-          LOG.debug("Remove excluded homonym {} moving its children to {}", prev, match.usage);
-          db.dao().delete(prev);
-        } else if (isExcludedHomonym(u, parent)) {
-          // nothing to do, ignore this genus
-          LOG.debug("Ignore excluded homonym {} with parent {}", u, match.usage);
-        } else {
-          // keep both
-          match = createNubUsage(u, origin, parent);
-        }
+        match = processHomonymSourceUsage(u, origin, parent, match);
   
       } else {
         if (origin == Origin.IMPLICIT_NAME) {

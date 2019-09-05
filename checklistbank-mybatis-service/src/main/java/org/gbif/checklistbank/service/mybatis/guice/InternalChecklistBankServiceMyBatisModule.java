@@ -90,7 +90,6 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     // mybatis mapper
     addMapperClass(Common.class);
     addMapperClass(CitationMapper.class);
-    addMapperClass(ColAnnotationMapper.class);
     addMapperClass(DatasetMapper.class);
     addMapperClass(DatasetMetricsMapper.class);
     addMapperClass(DescriptionMapper.class);
@@ -137,7 +136,6 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     bind(ParsedNameService.class).to(ParsedNameServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(UsageSyncService.class).to(UsageSyncServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(CitationService.class).to(CitationServiceMyBatis.class).in(Scopes.SINGLETON);
-    bind(ColAnnotationService.class).to(ColAnnotationServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(DatasetAnalysisService.class).to(DatasetAnalysisServiceMyBatis.class).in(Scopes.SINGLETON);
     bind(Integer.class)
         .annotatedWith(Mybatis.class)

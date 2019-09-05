@@ -443,4 +443,10 @@
             WHERE u.dataset_key = nubkey() AND u.deleted IS NULL;
         </sql>
     </changeSet>
+    <changeSet id="54" author="markus">
+        <sql>
+            DROP TABLE col_annotation;
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

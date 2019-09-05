@@ -6,6 +6,10 @@ Fungi
 Plantae
   Asteraceae
     Aster
+    Cerapachys [genus]
+      Cerapachys mayeri [species]
+        Cerapachys mayeri var. brachynodus [variety]
+        Cerapachys mayeri var. mayeri [variety]
     Cichorium
 Protozoa
 Viruses
