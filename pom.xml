@@ -69,7 +69,7 @@
         <commmons-lang.version>3.9</commmons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
-        <commons-io.version>2.4</commons-io.version>
+        <commons-io.version>2.6</commons-io.version>
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
         <fastutil.version>8.2.2</fastutil.version>

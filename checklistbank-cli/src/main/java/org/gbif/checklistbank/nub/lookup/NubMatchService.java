@@ -74,11 +74,21 @@ public class NubMatchService {
       ParentStack parents = new ParentStack(unknown);
       for (SrcUsage u : src) {
         parents.add(u);
-        if (u.parsedName == null || !u.parsedName.isParsed()) {
+        
+        if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
           summary.addUnparsable();
         }
+  
         // ignore status when matching to backbone!!!
-        LookupUsage match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
+        LookupUsage match;
+        if (u.parsedName.isParsed()) {
+          // match by canonically reconstructed name
+          match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
+        } else {
+          // match by full sciname
+          match = nubLookup.match(u.scientificName, u.rank, parents.nubKingdom());
+        }
+        
         if (match != null) {
           summary.addMatch(u.rank);
           // add to relations

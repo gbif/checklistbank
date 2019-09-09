@@ -42,7 +42,9 @@ public class IdLookupImplTest {
         new LookupUsage(13, "Picea", null, null, GENUS, ACCEPTED, PLANTAE, true),
         new LookupUsage(14, "Carex cayouettei", null, null, SPECIES, ACCEPTED, PLANTAE, true),
         new LookupUsage(15, "Carex comosa × Carex lupulina", null, null, SPECIES, ACCEPTED, PLANTAE, true),
-        new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, VIRUSES, true)
+        new LookupUsage(16, "Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, VIRUSES, true),
+        new LookupUsage(17, "BOLD:AAJ6407", null, null, UNRANKED, ACCEPTED, ANIMALIA, false),
+        new LookupUsage(18, "SH486523.07FU", null, null, UNRANKED, SYNONYM, FUNGI, false)
     );
     return IdLookupImpl.temp().load(usages);
   }
@@ -65,12 +67,13 @@ public class IdLookupImplTest {
     assertEquals("carex comosa carex lupulina", IdLookupImpl.norm("Carex comosa × Carex lupulina"));
     assertEquals("aeropyrum coilshaped vira", IdLookupImpl.norm("Aeropyrum coil-shaped virus"));
     assertEquals("†lachnus boneti", IdLookupImpl.norm("†Lachnus bonneti"));
-    assertEquals("malvastrum yelow vein virus satelite dna s", IdLookupImpl.norm("Malvastrum yellow vein virus satellite DNA ß"));
+    assertEquals("bold:aaj6407", IdLookupImpl.norm("BOLD:AAJ6407"));
+    assertEquals("sh486523.07fu", IdLookupImpl.norm("SH486523.07FU"));
   }
 
   @Test
   public void testLookup() throws IOException, SQLException {
-    assertEquals(16, l.size());
+    assertEquals(18, l.size());
     assertEquals(1, l.match("Animalia", KINGDOM, ANIMALIA).getKey());
 
     assertEquals(7, l.match("Rodentia", ORDER, ANIMALIA).getKey());
@@ -115,5 +118,14 @@ public class IdLookupImplTest {
     assertEquals(16, l.match("Aeropyrum coil-shaped virus", null, null, SPECIES, ACCEPTED, VIRUSES).getKey());
     assertNull(l.match("Aeropyrum coil-shaped virus", null, null, UNRANKED, ACCEPTED, FUNGI));
 
+    // BOLD / SH OTUs
+    assertEquals(17, l.match("BOLD:AAJ6407", null, null, SPECIES, ACCEPTED, null).getKey());
+    assertEquals(17, l.match("BOLD:AAJ6407", null, null, UNRANKED, ACCEPTED, ANIMALIA).getKey());
+    assertNull(l.match("BOLD:AAJ6408", null, null, UNRANKED, ACCEPTED, FUNGI));
+
+    assertEquals(18, l.match("SH486523.07FU", null, null, SPECIES, ACCEPTED, null).getKey());
+    assertEquals(18, l.match("SH486523.07FU", null, null, UNRANKED, ACCEPTED, FUNGI).getKey());
+    assertNull(l.match("SH486523.01FU", null, null, UNRANKED, ACCEPTED, FUNGI));
+    
   }
 }
