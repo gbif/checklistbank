@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 import org.gbif.api.model.Constants;
@@ -80,6 +81,15 @@ public class AdminCommandTest {
     AdminCommand cmd = new AdminCommand();
     AdminConfiguration cfg = configureNub( (AdminConfiguration) cmd.getConfigurationObject());
     cfg.operation = AdminOperation.REMATCH;
+    cmd.doRun();
+  }
+  
+  @Test
+  public void nubMatchOne() throws Exception {
+    AdminCommand cmd = new AdminCommand();
+    AdminConfiguration cfg = configureNub( (AdminConfiguration) cmd.getConfigurationObject());
+    cfg.operation = AdminOperation.MATCH;
+    cfg.key = UUID.fromString("61a5f178-b5fb-4484-b6d8-9b129739e59d");
     cmd.doRun();
   }
   
