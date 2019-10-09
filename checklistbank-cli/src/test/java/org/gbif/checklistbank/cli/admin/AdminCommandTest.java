@@ -89,7 +89,8 @@ public class AdminCommandTest {
     AdminCommand cmd = new AdminCommand();
     AdminConfiguration cfg = configureNub( (AdminConfiguration) cmd.getConfigurationObject());
     cfg.operation = AdminOperation.MATCH;
-    cfg.key = UUID.fromString("61a5f178-b5fb-4484-b6d8-9b129739e59d");
+    //cfg.key = UUID.fromString("61a5f178-b5fb-4484-b6d8-9b129739e59d");
+    cfg.key = Constants.COL_DATASET_KEY;
     cmd.doRun();
   }
   

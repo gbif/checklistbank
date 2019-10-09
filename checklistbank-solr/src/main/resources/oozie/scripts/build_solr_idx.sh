@@ -27,13 +27,8 @@ echo "Create new collection $SOLR_COLLECTION_TODAY"
 curl -s """$SOLR_HTTP_URL"/admin/collections?action=CREATE\&name="$SOLR_COLLECTION_TODAY"\&"$SOLR_COLLECTION_OPTS"\&collection.configName="$SOLR_COLLECTION_TODAY"""
 
 
-MR_JAR=solr-map-reduce
-if [[ "$ZK_HOST" == c5* ]]; then
-    MR_JAR=solr-mapreduce-indexer
-fi
-
 echo "Build $SOLR_COLLECTION_TODAY"
-hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/$MR_JAR-*.jar $MAP_RED_OPTS -D mapreduce.job.user.classpath.first=true \
+hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/solr-map-reduce-*.jar $MAP_RED_OPTS -D mapreduce.job.user.classpath.first=true \
 -libjars $HADOOP_LIBJAR \
 --morphline-file avro_solr_morphline.conf \
 --output-dir $OUT_HDFS_DIR \
