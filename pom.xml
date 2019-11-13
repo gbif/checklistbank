@@ -83,7 +83,7 @@
         <hikaricp.version>2.6.3</hikaricp.version>
         <jackson.version>1.9.12</jackson.version>
         <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-        <jackson2.version>2.9.7</jackson2.version>
+        <jackson2.version>2.10.1</jackson2.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.60</jcommander.version>
         <jersey.version>1.19.4</jersey.version>
