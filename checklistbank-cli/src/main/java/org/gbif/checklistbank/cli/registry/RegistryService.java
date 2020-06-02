@@ -1,7 +1,9 @@
 package org.gbif.checklistbank.cli.registry;
 
+import org.gbif.api.jackson.LicenseSerde;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
+import org.gbif.api.vocabulary.License;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
@@ -12,6 +14,9 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
+import org.gbif.common.messaging.DefaultMessagePublisher;
+import org.gbif.common.messaging.DefaultMessageRegistry;
+import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 import org.gbif.utils.ObjectUtils;
 
@@ -23,6 +28,9 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.inject.Key;
 import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,5 +147,23 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   @Override
   public Class<RegistryChangeMessage> getMessageClass() {
     return RegistryChangeMessage.class;
+  }
+
+  @Override
+  protected void startUp() throws Exception {
+    publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
+    ObjectMapper objectMapper = new ObjectMapper();
+    SimpleModule module = new SimpleModule("LicenseModule", Version.unknownVersion());
+    module.addSerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
+    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+    module.addKeySerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
+    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+
+    objectMapper.registerModule(module);
+
+    // dataset messages are slow, long running processes. Only prefetch one message
+    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
+    startUpBeforeListening();
+    listener.listen("clb-registry-change", cfg.poolSize, this);
   }
 }
