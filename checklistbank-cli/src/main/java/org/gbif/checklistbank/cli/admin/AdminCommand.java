@@ -17,7 +17,6 @@ import org.gbif.api.service.registry.*;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
-import org.gbif.checklistbank.cli.analysis.DatasetIndexUpdater;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
@@ -75,7 +74,6 @@ public class AdminCommand extends BaseCommand {
   private NodeService nodeService;
   private Iterable<Dataset> datasets;
   private Exporter exporter;
-  private DatasetIndexUpdater datasetIndexUpdater;
 
   public AdminCommand() {
     super("admin");
@@ -189,10 +187,6 @@ public class AdminCommand extends BaseCommand {
         updateSchema();
         break;
 
-      case DATASET_INDEX:
-        indexDataset();
-        break;
-
       case REMATCH:
         rematchAll();
         break;
@@ -217,16 +211,6 @@ public class AdminCommand extends BaseCommand {
       }
     }
     LOG.info("Sent dataset match message for all {} checklists", counter);
-  }
-
-  private void indexDataset() throws Exception {
-    datasetIndexUpdater = new DatasetIndexUpdater(cfg.clb, cfg.dataset);
-    // the command allows for indexing both, all datasets and just a supplied key
-    if (cfg.key != null || cfg.keys != null) {
-      runDatasetComamnds();
-    } else {
-      datasetIndexUpdater.indexAll();
-    }
   }
 
   private void updateSchema() {
@@ -370,10 +354,6 @@ public class AdminCommand extends BaseCommand {
 
         case EXPORT:
           export(d);
-          break;
-
-        case DATASET_INDEX:
-          datasetIndexUpdater.index(d.getKey());
           break;
 
         default:

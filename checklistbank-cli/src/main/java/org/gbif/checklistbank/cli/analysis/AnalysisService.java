@@ -19,18 +19,11 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisService.class);
 
   private final DatasetAnalysisService analysisService;
-  private final DatasetIndexUpdater datasetIndexUpdater;
 
 
   public AnalysisService(AnalysisConfiguration cfg) {
     super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", ChecklistBankServiceMyBatisModule.create(cfg.clb));
     analysisService = getInstance(DatasetAnalysisService.class);
-
-    if (Strings.isNullOrEmpty(cfg.dataset.getServerHome())) {
-      datasetIndexUpdater = null;
-    } else {
-      datasetIndexUpdater = new DatasetIndexUpdater(cfg.clb, cfg.dataset);
-    }
   }
 
   @Override
@@ -41,9 +34,6 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
   @Override
   protected void process(ChecklistSyncedMessage msg) throws IOException {
     DatasetMetrics metrics = analysisService.analyse(msg.getDatasetUuid(), msg.getCrawlFinished());
-    if (datasetIndexUpdater != null) {
-      datasetIndexUpdater.index(msg.getDatasetUuid());
-    }
 
     send(new ChecklistAnalyzedMessage(msg.getDatasetUuid()));
 
@@ -52,11 +42,4 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
     }
   }
 
-  @Override
-  protected void shutDown() throws Exception {
-    if (datasetIndexUpdater != null) {
-      datasetIndexUpdater.close();
-    }
-    super.shutDown();
-  }
 }
