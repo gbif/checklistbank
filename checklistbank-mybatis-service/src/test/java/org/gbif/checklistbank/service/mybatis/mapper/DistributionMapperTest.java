@@ -13,8 +13,7 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
 
@@ -28,6 +27,24 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         assertTrue(mapper.listByNubUsage(usageKey, new PagingRequest()).isEmpty());
 
         Distribution obj = new Distribution();
+        obj.setAppendixCites(CitesAppendix.II);
+        obj.setCountry(null); //global
+        obj.setEndDayOfYear(1890);
+        obj.setEstablishmentMeans(EstablishmentMeans.NATIVE);
+        obj.setLifeStage(LifeStage.EMRYO);
+        obj.setLocality("location location location");
+        obj.setLocationId("locID");
+        obj.setRemarks("remarks");
+        obj.setStartDayOfYear(1889);
+        obj.setStatus(OccurrenceStatus.COMMON);
+        obj.setTemporal("aha");
+        obj.setThreatStatus(ThreatStatus.CRITICALLY_ENDANGERED);
+        // these should get ignored
+        obj.setSource("sourcy s");
+        obj.setSourceTaxonKey(123);
+        mapper.insert(usageKey, obj, citationKey1);
+
+        obj = new Distribution();
         obj.setAppendixCites(CitesAppendix.II);
         obj.setCountry(Country.ALGERIA);
         obj.setEndDayOfYear(1990);
@@ -43,35 +60,18 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         // these should get ignored
         obj.setSource("sourcy s");
         obj.setSourceTaxonKey(123);
-
         mapper.insert(usageKey, obj, citationKey1);
 
-        Distribution obj2 = mapper.listByChecklistUsage(usageKey, new PagingRequest()).get(0);
-        assertObject(obj, obj2, citation1, null);
+        List<Distribution> list = mapper.listByChecklistUsage(usageKey, new PagingRequest());
+        assertEquals(2, list.size());
+        assertNull(list.get(0).getCountry());
+        assertObject(obj, list.get(1), citation1, null);
 
-
-        obj2 = mapper.listByNubUsage(nubKey, new PagingRequest()).get(0);
+        list = mapper.listByNubUsage(nubKey, new PagingRequest());
+        assertEquals(2, list.size());
         // these are now nub source usage values
-        assertObject(obj, obj2, datasetTitle, usageKey);
-
-
-        List<Distribution> list = mapper.listByChecklistUsageAndCountry(usageKey, null, new PagingRequest());
-        assertTrue(list.isEmpty());
-
-        list = mapper.listByChecklistUsageAndCountry(usageKey, Country.ALGERIA, new PagingRequest());
-        assertObject(obj, list.get(0), citation1, null);
-
-        list = mapper.listByChecklistUsageAndCountry(usageKey, Country.GERMANY, new PagingRequest());
-        assertTrue(list.isEmpty());
-
-        list = mapper.listByNubUsageAndCountry(nubKey, null, new PagingRequest());
-        assertTrue(list.isEmpty());
-
-        list = mapper.listByNubUsageAndCountry(nubKey, Country.ALGERIA, new PagingRequest());
-        assertObject(obj, list.get(0), datasetTitle, usageKey);
-
-        list = mapper.listByNubUsageAndCountry(nubKey, Country.GERMANY, new PagingRequest());
-        assertTrue(list.isEmpty());
+        assertNull(list.get(0).getCountry());
+        assertObject(obj, list.get(1), datasetTitle, usageKey);
     }
 
     private void assertObject(Distribution obj, Distribution obj2, String source, Integer sourceTaxonKey) {

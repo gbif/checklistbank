@@ -46,20 +46,9 @@
     FROM
     <include refid="from"/>
     WHERE d.usage_fk=#{key}
-    ORDER BY d.country, d.id
+    ORDER BY d.country NULLS FIRST, d.id
     <include refid="page"/>
   </select>
-  <select id="listByChecklistUsageAndCountry" parameterType="map" resultMap="distributionResultMap">
-    SELECT
-    <include refid="select"/>
-    FROM
-    <include refid="from"/>
-    WHERE d.usage_fk=#{key} AND <include refid="whereCountry"/>
-    ORDER BY d.id
-    <include refid="page"/>
-  </select>
-
-  <sql id="whereCountry">d.country <if test="country != null">='${country.getIso2LetterCode()}'</if><if test="country == null">IS NULL</if></sql>
 
   <!-- get all distributions by nub usage -->
   <select id="listByNubUsage" parameterType="map" resultMap="distributionResultMap">
@@ -68,16 +57,7 @@
     FROM
     <include refid="fromNub"/>
     WHERE rel.nub_fk=#{key}
-    ORDER BY d.country, d.id
-    <include refid="page"/>
-  </select>
-  <select id="listByNubUsageAndCountry" parameterType="map" resultMap="distributionResultMap">
-    SELECT
-    <include refid="selectNub"/>
-    FROM
-    <include refid="fromNub"/>
-    WHERE rel.nub_fk=#{key} AND <include refid="whereCountry"/>
-    ORDER BY d.id
+    ORDER BY d.country NULLS FIRST, d.id
     <include refid="page"/>
   </select>
 

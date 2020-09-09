@@ -19,8 +19,4 @@ public interface DistributionMapper extends NameUsageComponentMapper<Distributio
 
   void insert(@Param("key") int usageKey, @Param("obj") Distribution distribution, @Param("sourceKey") Integer sourceKey);
 
-  List<Distribution> listByNubUsageAndCountry(@Param("key") int usageKey, @Param("country") Country country, @Param("page") Pageable page);
-
-  List<Distribution> listByChecklistUsageAndCountry(@Param("key") int usageKey, @Param("country") Country country, @Param("page") Pageable page);
-
 }
