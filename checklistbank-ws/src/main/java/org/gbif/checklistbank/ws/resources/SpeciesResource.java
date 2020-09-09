@@ -14,6 +14,7 @@ import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
+import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
@@ -46,7 +47,7 @@ public class SpeciesResource {
   private final ReferenceService referenceService;
   private final MultimediaService imageService;
   private final DescriptionService descriptionService;
-  private final DistributionService distributionService;
+  private final DistributionServiceMyBatis distributionService;
   private final IdentifierService identifierService;
   private final NameUsageSearchService searchService;
   private final UsageCountMapper usageCountMapper;
@@ -66,7 +67,7 @@ public class SpeciesResource {
     this.referenceService = referenceService;
     this.imageService = imageService;
     this.descriptionService = descriptionService;
-    this.distributionService = distributionService;
+    this.distributionService = (DistributionServiceMyBatis) distributionService;
     this.identifierService = identifierService;
     this.searchService = searchService;
     this.usageCountMapper = usageCountMapper;
@@ -279,8 +280,8 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/distributions")
-  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
-    return distributionService.listByUsage(usageKey, page);
+  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathParam("id") int usageKey, @QueryParam("country") String country, @Context Pageable page) {
+    return distributionService.listByUsageAndCountry(usageKey, country, page);
   }
 
   /**

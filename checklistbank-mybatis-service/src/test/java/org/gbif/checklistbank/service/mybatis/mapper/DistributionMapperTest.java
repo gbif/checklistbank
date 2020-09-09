@@ -11,6 +11,8 @@ import org.gbif.api.vocabulary.ThreatStatus;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -51,6 +53,25 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         obj2 = mapper.listByNubUsage(nubKey, new PagingRequest()).get(0);
         // these are now nub source usage values
         assertObject(obj, obj2, datasetTitle, usageKey);
+
+
+        List<Distribution> list = mapper.listByChecklistUsageAndCountry(usageKey, null, new PagingRequest());
+        assertTrue(list.isEmpty());
+
+        list = mapper.listByChecklistUsageAndCountry(usageKey, Country.ALGERIA, new PagingRequest());
+        assertObject(obj, list.get(0), citation1, null);
+
+        list = mapper.listByChecklistUsageAndCountry(usageKey, Country.GERMANY, new PagingRequest());
+        assertTrue(list.isEmpty());
+
+        list = mapper.listByNubUsageAndCountry(nubKey, null, new PagingRequest());
+        assertTrue(list.isEmpty());
+
+        list = mapper.listByNubUsageAndCountry(nubKey, Country.ALGERIA, new PagingRequest());
+        assertObject(obj, list.get(0), datasetTitle, usageKey);
+
+        list = mapper.listByNubUsageAndCountry(nubKey, Country.GERMANY, new PagingRequest());
+        assertTrue(list.isEmpty());
     }
 
     private void assertObject(Distribution obj, Distribution obj2, String source, Integer sourceTaxonKey) {
