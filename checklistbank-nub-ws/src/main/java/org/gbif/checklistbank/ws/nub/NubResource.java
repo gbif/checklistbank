@@ -78,11 +78,12 @@ public class NubResource {
         r, classification, bool(strict), bool(verbose)
     ));
   }
-  
+
   private NameUsageMatch match(String scientificName, String authorship, String specificEpithet, String infraSpecificEpithet,
                        Rank rank, LinneanClassification classification, Boolean strict, Boolean verbose) {
     if (!Strings.isNullOrEmpty(scientificName)) {
-      // maybe add authorship, ignore rest
+      // prefer the given scientificName and add authorship if not there yet.
+      // Ignore atomized name parameters
       scientificName = appendAuthorship(scientificName, authorship);
 
     } else if (classification != null) {
@@ -97,7 +98,7 @@ public class NubResource {
           pn.setInfraSpecificEpithet(infraSpecificEpithet);
           pn.setRank(rank);
           pn.setAuthorship(authorship);
-          scientificName = pn.canonicalName();
+          scientificName = pn.canonicalNameComplete();
         } else {
           rank = clRank;
           scientificName = appendAuthorship(classification.getHigherRank(clRank), authorship);
