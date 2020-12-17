@@ -10,6 +10,6 @@
 112906255	10		FORM	ACCEPTED		Parmelina quercina f. quercina	
 112906251	10		FORM	ACCEPTED		Parmelina quercina f. caperata (Hillmann) S.Y. Kondr.	
 112906253	10	112906148	FORM	ACCEPTED		Parmelina quercina f. pruinosa (Harm.) S.Y. Kondr.	
-112906148	10		FORM	ACCEPTED		Parmelia tiliacea f. pruinosa Harm.	
+112906148	112906253		FORM	SYNONYM		Parmelia tiliacea f. pruinosa Harm.
 112980410	10	112892078	SPECIES	ACCEPTED		Imbricaria quercina (Willd.) DC.	
 112951973	10	112892078	SPECIES	ACCEPTED		Lobaria quercina (Willd.) P. Gaertn., G. Mey. & Scherb.	

@@ -62,6 +62,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * homonym-exclusion.tsv can be used to force names NOT to be a homonym but a single taxon
+ */
 public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
@@ -1455,6 +1458,11 @@ public class NubBuilder implements Runnable {
           //  b) synonyms of the primary's accepted name if it was a synonym itself
           // if there are several usages with the same priority select one according to some defined rules
           final NubUsage primary = findPrimaryUsage(group);
+          if (primary==null) {
+            // we did not find a usage to trust. skip
+            continue;
+          }
+
           // get the accepted usage in case of synonyms
           final NubUsage accepted = primary.status.isSynonym() ? db.parent(primary) : primary;
           final TaxonomicStatus synStatus = primary.status.isSynonym() ? primary.status : TaxonomicStatus.HOMOTYPIC_SYNONYM;
@@ -1494,11 +1502,11 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * From a list of equally trusted usages of a basionym group select one primary usage to trust most.
-   * Selection follows the order:
-   * 1) the accepted usage which most usages link to (from a synonym)
-   * 2) status synonym > accepted > doubtful
-   * 3) highest rank
+   * From a list of usages believed to be homotypic select the most trusted usage.
+   * If there are multiple usages from the most trusted source:
+   *  a) selected a random first one if they all point to the same accepted usage
+   *  b) return NULL if the source contains multiple accepted usages - this is either a bad taxonomy in the source
+   *  or we did a bad basionym detection and we would wrongly lump names.
    */
   private NubUsage findPrimaryUsage(List<NubUsage> basionymGroup) {
     if (basionymGroup == null || basionymGroup.isEmpty()) {
@@ -1508,7 +1516,7 @@ public class NubBuilder implements Runnable {
     if (basionymGroup.size() == 1) {
       return basionymGroup.get(0);
     }
-    // keep shringing this list until we get one!
+    // keep shrinking this list until we get one!
     List<NubUsage> candidates = Lists.newArrayList();
 
     // 1. by dataset priority
@@ -1525,59 +1533,28 @@ public class NubBuilder implements Runnable {
       }
     }
 
+    // now all usages originate from the same dataset!
     if (candidates.size() > 1) {
-      // 2. accepted with most usages
-      Map<NubUsage, NubUsage> u2acc = Maps.newHashMap();
+      final UUID datasetKey = candidates.get(0).datasetKey;
+      // if all remaining usages point to the same accepted taxon it does not matter which we pick
+      // otherwise log warning and do not group names further - we risk to have badly detected basionyms
       Map<NubUsage, Integer> accCounts = Maps.newHashMap();
       for (NubUsage u : candidates) {
         final NubUsage accepted = u.status.isSynonym() ? db.parent(u) : u;
-        u2acc.put(u, accepted);
         if (!accCounts.containsKey(accepted)) {
           accCounts.put(accepted, 1);
         } else {
           accCounts.put(accepted, accCounts.get(accepted) + 1);
         }
       }
-      int maxCount = MapUtils.sortByValue(accCounts, Ordering.<Integer>natural().reverse()).values().iterator().next();
-      Iterator<NubUsage> iter = candidates.iterator();
-      while (iter.hasNext()) {
-        NubUsage u = iter.next();
-        if (accCounts.get(u2acc.get(u)) != maxCount) {
-          iter.remove();
-        }
-      }
-
-      if (candidates.size() > 1) {
-        // 3. by status: syn > acc > doubtful
-        Map<NubUsage, Integer> score = Maps.newHashMap();
-        for (NubUsage u : candidates) {
-          score.put(u, MapUtils.getOrDefault(STATUS_ORDER, u.status, 10));
-        }
-        int maxScore = MapUtils.sortByValue(score).values().iterator().next();
-        iter = candidates.iterator();
-        while (iter.hasNext()) {
-          NubUsage u = iter.next();
-          if (score.get(u) != maxScore) {
-            iter.remove();
-          }
-        }
-
-        if (candidates.size() > 1) {
-          // 4. by higher rank
-          List<Rank> ranks = Lists.newArrayList();
-          for (NubUsage u : candidates) {
-            ranks.add(u.rank);
-          }
-          Collections.sort(ranks);
-          Rank minRank = ranks.get(0);
-          iter = candidates.iterator();
-          while (iter.hasNext()) {
-            NubUsage u = iter.next();
-            if (minRank != u.rank) {
-              iter.remove();
-            }
-          }
-        }
+      if (accCounts.size()>1) {
+        // the same dataset contains multiple accepted. It is either:
+        // a) taxonomically inconsistent
+        // b) has pro parte synonyms
+        // c) we did some bad basionym detection - better back off
+        LOG.info("Skip basionym group {} with {} accepted names out of {} usages from the most trusted dataset {}",
+            candidates.get(0).parsedName.getScientificName(), accCounts.size(), candidates.size(), datasetKey);
+        return null;
       }
     }
 

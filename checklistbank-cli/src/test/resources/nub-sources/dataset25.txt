@@ -4,7 +4,6 @@
 100	10		SPECIES	ACCEPTED		Picris hieracioides	
 101	100		SUBSPECIES	ACCEPTED		Picris hieracioides subsp. hieracioides	
 102	100	103	SUBSPECIES	ACCEPTED		Picris hieracioides subsp. umbellata (Schrank) Ces.	
-103	10		SPECIES	DOUBTFUL		Leontodon umbellatus Schrank	
 
 200	102		VARIETY	HOMOTYPIC_SYNONYM		Picris hieracioides var. umbellata (Schrank) Hegi	
 201	102		SPECIES	HETEROTYPIC_SYNONYM		Picris sonchoides Vest	

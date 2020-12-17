@@ -62,6 +62,9 @@ public class NubConfiguration {
   @Valid
   public boolean groupBasionyms = false;
 
+  @Valid
+  public URI basionymExclusion = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/blacklist.tsv");
+
   /**
    * If false autonyms with no other sibling are removed.
    */

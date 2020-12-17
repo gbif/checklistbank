@@ -1,0 +1,4 @@
+1			KINGDOM	ACCEPTED		Animalia	
+10	1		FAMILY	ACCEPTED		Asteraceae	
+102	10		SPECIES	ACCEPTED		Cicerbita sonchifolia (Vis. & Pančić) Beauverd
+103	10		SPECIES	ACCEPTED		Mycelis sonchifolia (Vis. & Pančić) Hayek	

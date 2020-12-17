@@ -1,24 +1,24 @@
-Animalia
-Archaea
-Bacteria
-Chromista
-Fungi
-Plantae
-  Fontinalaceae
-    Fontinalis
+Animalia [kingdom]
+Archaea [kingdom]
+Bacteria [kingdom]
+Chromista [kingdom]
+Fungi [kingdom]
+Plantae [kingdom]
+  Fontinalaceae [family]
+    Fontinalis [genus]
       Fontinalis antipyretica (C.Müller) W.H.Welch, 1934 [species]
+      Fontinalis antipyretica (Cardot) Warnstorf, 1916 [species]
       Fontinalis antipyretica (Renauld & Cardot) Cardot, 1891 [species]
-        *$? antipyretica Renauld & Cardot [unranked]
-        *Fontinalis antipyretica (Cardot) Warnstorf, 1916 [species]
       Fontinalis antipyretica Hedwig, 1801 [species]
-  Pinaceae
-    Abies
-      Abies pindrow (Royle ex D.Don) Royle
-      Abies pindrow Spach
-      Abies taxifolia C.Presl
-      Abies taxifolia Drum. ex Gordon
-        *Abies taxifolia Drum.
-      Abies taxifolia Raf.
-Protozoa
-Viruses
-incertae sedis
+    $? antipyretica Renauld & Cardot [unranked]
+  Pinaceae [family]
+    Abies [genus]
+      Abies pindrow (Royle ex D.Don) Royle [species]
+      Abies pindrow Spach [species]
+      Abies taxifolia C.Presl [species]
+      Abies taxifolia Drum. ex Gordon [species]
+        *Abies taxifolia Drum. [species]
+      Abies taxifolia Raf. [species]
+Protozoa [kingdom]
+Viruses [kingdom]
+incertae sedis [kingdom]

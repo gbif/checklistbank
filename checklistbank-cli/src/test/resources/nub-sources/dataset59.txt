@@ -6,6 +6,6 @@
 1002	100		VARIETY	ACCEPTED		Parmelina quercina var. kaputta Roberts	
 1003	100		FORM	ACCEPTED		Parmelina quercina f. bertholda Berthold	
 10000	1000		VARIETY	ACCEPTED		Parmelina quercina var. lexina DC.	
-10001	1000		VARIETY	ACCEPTED		Parmelina quercina var. caperata (Hillmann) S.Y. Kondr.	
-100000	10001		FORM	ACCEPTED		Parmelina quercina f. caperata (Hillmann) S.Y. Kondr.	
+10001	1000		VARIETY	ACCEPTED		Parmelina quercina var. cuperata (Hillmann) S.Y. Kondr.
+100000	10001		FORM	ACCEPTED		Parmelina quercina f. ciperata (Hillmann) S.Y. Kondr.
 100001	10001		FORM	ACCEPTED		Parmelina quercina f. pruinosa (Harm.) S.Y. Kondr.	

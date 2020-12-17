@@ -710,7 +710,10 @@ public class NubBuilderIT {
   /**
    * http://dev.gbif.org/issues/browse/POR-2874
    * As found in CoL as of june 2015. 4 times the same moss species name Fontinalis antipyretica with different authors, all accepted.
+   * These are likely chresonyms that slipped through the COL editors attention.
    * This is illegal to the code rules, so just one should be accepted.
+   * Pick one and make all others doubtful.
+   *
    * Abies taxifolia C.Presl
    * Abies taxifolia Drum. ex Gordon
    * Abies taxifolia Jeffr. ex Gordon
@@ -722,13 +725,21 @@ public class NubBuilderIT {
     build(src);
 
     NubUsage genus = assertCanonical("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
-    int counter = 0;
+    int accepted = 0;
+    int doubtful = 0;
     for (NubUsage c : children(genus.node)) {
       assertEquals(Rank.SPECIES, c.rank);
       assertEquals("Fontinalis antipyretica", c.parsedName.canonicalName());
-      counter++;
+      if (c.status==TaxonomicStatus.ACCEPTED) {
+        accepted++;
+      } else if (c.status==TaxonomicStatus.DOUBTFUL) {
+        doubtful++;
+      } else {
+        fail("Fontinalis antipyretica species must be accepted or doubtful");
+      }
     }
-    assertEquals(3, counter);
+    assertEquals(1, accepted);
+    assertEquals(3, doubtful);
 
     assertScientific("Abies pindrow (Royle ex D.Don) Royle", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
     assertScientific("Abies pindrow Spach", Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
@@ -1228,7 +1239,7 @@ public class NubBuilderIT {
   }
 
   /**
-   * Test nexted infraspecific source taxa.
+   * Test nested infraspecific source taxa.
    * In the nub we do not want nested infraspecific taxa, but attach all accepted infraspecific names to the species directly
    */
   @Test
@@ -1314,10 +1325,10 @@ public class NubBuilderIT {
    */
   @Test
   public void testBasionymEpithetStemming() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(67);
+    ClasspathSourceList src = ClasspathSourceList.source(67, 142);
     build(src);
 
-    assertTree("67.txt");
+    assertTree("67 142.txt");
   }
 
   /**
