@@ -386,7 +386,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // import
     Importer imp = runImport(Constants.NUB_DATASET_KEY);
-    assertEquals(67, imp.getSyncCounter());
+    assertEquals(66, imp.getSyncCounter());
     // make sure all usages have preassigned keys, not postgres generated ones!
     assertTrue(usageService.maxUsageKey(Constants.NUB_DATASET_KEY) < Constants.NUB_MAXIMUM_KEY);
     //test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES] CONFLICTING_BASIONYM_COMBINATION
