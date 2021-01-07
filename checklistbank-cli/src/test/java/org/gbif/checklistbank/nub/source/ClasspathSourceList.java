@@ -3,8 +3,11 @@ package org.gbif.checklistbank.nub.source;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 
+import javax.annotation.Nullable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,9 +45,13 @@ public class ClasspathSourceList extends NubSourceList {
    * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
    */
   public static ClasspathSourceList source(int... datasetKeys) {
+    return source(new HashMap<>(), datasetKeys);
+  }
+
+  public static ClasspathSourceList source(Map<Integer, List<RankedName>> exclusions, int... datasetKeys) {
     List<ClasspathSource> sources = Lists.newArrayList();
     for (Integer id : datasetKeys) {
-      sources.add(new ClasspathSource(id, false));
+      sources.add(new ClasspathSource(id, exclusions.get(id), false));
     }
     return new ClasspathSourceList(sources);
   }

@@ -31,7 +31,7 @@ public class DwcaSource extends NubSource {
   private NormalizerConfiguration cfg = new NormalizerConfiguration();
 
   public DwcaSource(String name, File dwca) throws IOException {
-    super(UUID.randomUUID(), name.replaceAll("\\s", " "), false);
+    super(UUID.randomUUID(), name.replaceAll("\\s", " "), null, false);
     initRepos();
     File archiveDir = cfg.archiveDir(key);
     LOG.info("Open dwc archive {}", dwca);

@@ -3,6 +3,7 @@ package org.gbif.checklistbank.cli.nubbuild;
 import com.beust.jcommander.ParametersDelegate;
 import com.google.common.collect.Sets;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -14,8 +15,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URI;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  *
@@ -60,6 +60,14 @@ public class NubConfiguration {
       UUID.fromString("daacce49-b206-469b-8dc2-2257719f3afa"), // backbone patch
       Constants.COL_DATASET_KEY
   );
+
+  /**
+   * Map of source dataset keys to a list of taxon names to be excluded from that source,
+   * so these groups do not make it to the backbone
+   */
+  @NotNull
+  @Valid
+  public Map<UUID, List<RankedName>> excludedTaxa = new HashMap<>();
 
   /**
    * Set of dataset, publisher or installation keys from which synonyms should be ignored during nub builds.

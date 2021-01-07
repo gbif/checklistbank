@@ -13,13 +13,14 @@ import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.TreeIterables;
+import org.gbif.checklistbank.neo.traverse.*;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
@@ -27,14 +28,14 @@ import org.gbif.common.parsers.utils.NameParserUtils;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.traversal.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,6 +70,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     cfg.mappedMemory = 128;
   }
 
+  private final Evaluator exclusionEvaluator;
   public UUID key;
   public String name;
   public Rank ignoreRanksAbove = Rank.FAMILY;
@@ -85,10 +87,16 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    *                  If too many sources are created this can result in a large number of open files!
    *                  Do not use this for production.
    */
-  public NubSource(UUID key, String name, boolean useTmpDao) {
+  public NubSource(UUID key, String name, @Nullable List<RankedName> exclusion, boolean useTmpDao) {
     this.key = key;
     this.name = name;
     this.useTmpDao = useTmpDao;
+    if (exclusion != null && !exclusion.isEmpty()) {
+      exclusionEvaluator = new ExclusionEvaluator(exclusion);
+      LOG.info("Exclude {} taxa from source {} {}", exclusion.size(), key, name);
+    } else {
+      exclusionEvaluator = null;
+    }
   }
 
   /**
@@ -321,7 +329,10 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     public SrcUsageIterator(UsageDao dao) {
       tx = dao.beginTx();
-      nodes = TreeIterables.allNodes(dao.getNeo(), null, null, true).iterator();
+      nodes = MultiRootNodeIterator.create(
+          TreeIterablesSorted.findRoot(dao.getNeo()),
+          exclusionEvaluator == null ? Traversals.TREE : Traversals.TREE.evaluator(exclusionEvaluator)
+      ).iterator();
     }
 
     @Override

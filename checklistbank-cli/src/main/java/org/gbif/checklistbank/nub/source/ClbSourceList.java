@@ -72,7 +72,7 @@ public class ClbSourceList extends NubSourceList {
   }
 
   private static NubSource buildSource(Dataset d, Rank rank, NubConfiguration cfg, boolean ignoreSynonyms) {
-    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle());
+    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), cfg.excludedTaxa.get(d.getKey()));
     src.created = d.getCreated();
     src.ignoreSynonyms = ignoreSynonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();

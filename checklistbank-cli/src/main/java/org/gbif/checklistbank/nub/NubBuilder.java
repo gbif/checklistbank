@@ -20,6 +20,7 @@ import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterator;
@@ -201,7 +202,7 @@ public class NubBuilder implements Runnable {
       addDatasets();
 
       // change current datasource to nub algorithm, avoiding using the last source for algorithmically generated usages
-      currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone algorithm");
+      currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone algorithm", null);
 
       // detect and group basionyms
       groupByBasionym();

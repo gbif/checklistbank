@@ -1,12 +1,16 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.checklistbank.cli.model.RankedName;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,12 +21,20 @@ public class ClbSource extends NubSource {
   private final ClbConfiguration clb;
 
   public ClbSource(ClbConfiguration clb, UUID key, String name) {
-    super(key, name.replaceAll("\\s", " "), false);
+    this(clb, key, name, null);
+  }
+
+  public ClbSource(ClbConfiguration clb, UUID key, String name, @Nullable List<RankedName> exclusion) {
+    super(key, name.replaceAll("\\s", " "), exclusion, false);
     this.clb = clb;
   }
 
+  public ClbSource(ClbConfiguration clb, Dataset dataset, @Nullable List<RankedName> exclusion) {
+    this(clb, dataset.getKey(), dataset.getTitle(), exclusion);
+  }
+
   public ClbSource(ClbConfiguration clb, Dataset dataset) {
-    this(clb, dataset.getKey(), dataset.getTitle());
+    this(clb, dataset, null);
   }
 
   @Override

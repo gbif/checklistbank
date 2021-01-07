@@ -2,11 +2,13 @@ package org.gbif.checklistbank.nub;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.StreamUtils;
 import org.gbif.checklistbank.neo.Labels;
@@ -102,7 +104,7 @@ public class NubBuilderIT {
 
   public static class ErrorSource extends NubSource {
     public ErrorSource() {
-      super(UUID.randomUUID(), "Error Dataset", true);
+      super(UUID.randomUUID(), "Error Dataset", null, true);
     }
 
     @Override
@@ -117,7 +119,6 @@ public class NubBuilderIT {
    * In botany subspecies, variety or form is an accepted rank.
    */
   @Test
-
   public void testBackboneRanks() throws Exception {
     build(ClasspathSourceList.source(1));
 
@@ -687,6 +688,23 @@ public class NubBuilderIT {
     assertEquals(5, micas.size());
 
     assertTree("29 30 31.txt");
+  }
+
+  /**
+   * Exclude 2 families Limoniidae & Poaceae
+   */
+  @Test
+  public void testExclusion() throws Exception {
+    Map<Integer, List<RankedName>> exclusions = new HashMap<>();
+    exclusions.put(2, Lists.newArrayList(
+        new RankedName("Poaceae", Rank.FAMILY),
+        new RankedName("Limoniidae", Rank.FAMILY)
+    ));
+
+    ClasspathSourceList src = ClasspathSourceList.source(exclusions, 2);
+    build(src);
+
+    assertTree("2ex.txt");
   }
 
   @Test

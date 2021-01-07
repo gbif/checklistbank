@@ -24,14 +24,6 @@ public class ManualDbDump {
     return cfg;
   }
 
-  private static void dump2neo(NeoConfiguration neo, ClbConfiguration clb, UUID datasetKey, boolean nubRanksOnly) throws Exception {
-    LOG.info("Dump dataset {} from postgres to local neo", datasetKey);
-    ClbSource src = new ClbSource(clb, datasetKey, "Checklist " + datasetKey);
-    src.setNeoRepository(neo.neoRepository);
-    src.init(true, nubRanksOnly);
-    LOG.info("Postrges dumped");
-  }
-
   private static void dump2file(NeoConfiguration cfg, UUID datasetKey, GraphFormat format) throws Exception {
     File f = new File("/Users/markus/Desktop/repo/tree-" + datasetKey + "." + format.suffix);
     LOG.info("Dump local neo db {} to {} file {}", datasetKey, format, f.getAbsolutePath());

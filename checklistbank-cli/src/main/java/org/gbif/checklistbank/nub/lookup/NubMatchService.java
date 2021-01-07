@@ -62,7 +62,7 @@ public class NubMatchService {
 
     LOG.info("Rematch checklist {} to Backbone", d.getKey());
     Map<Integer, Integer> relations = Maps.newHashMap();
-    try (ClbSource src = new ClbSource(cfg, d)) {
+    try (ClbSource src = new ClbSource(cfg, d, null)) {
       // read in postgres usages
       LOG.info("Copy usages for {} from pg into neo", d.getKey());
       src.init(false, false);
