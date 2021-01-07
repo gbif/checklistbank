@@ -50,7 +50,7 @@ public class ClbSourceList extends NubSourceList {
 
     List<NubSource> sources = Lists.newArrayList();
     for (UUID dKey : sourceDatasetKeys) {
-      sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg.clb, false));
+      sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg, false));
     }
     return new ClbSourceList(cfg, sources);
   }
@@ -68,21 +68,25 @@ public class ClbSourceList extends NubSourceList {
     this.datasetService = datasetService;
     this.organizationService = organizationService;
     this.installationService = installationService;
-    loadSources();
+    submitSources(loadSources());
   }
 
-  private static NubSource buildSource(Dataset d, Rank rank, ClbConfiguration cfg, boolean ignoreSynonyms) {
-    NubSource src = new ClbSource(cfg, d.getKey(), d.getTitle());
+  private static NubSource buildSource(Dataset d, Rank rank, NubConfiguration cfg, boolean ignoreSynonyms) {
+    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle());
     src.created = d.getCreated();
     src.ignoreSynonyms = ignoreSynonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
     if (rank != null) {
       src.ignoreRanksAbove = rank;
     }
+    if (cfg.homonymLists.contains(d.getKey())) {
+      src.supragenericHomonymSource = true;
+      LOG.info("Allow suprageneric homonyms for nub source {}", d.getTitle());
+    }
     return src;
   }
 
-  private void loadSources() {
+  private List<NubSource> loadSources() {
     LOG.info("Loading backbone sources from {}", cfg.sourceList);
 
     Set<UUID> keys = Sets.newHashSet();
@@ -105,7 +109,7 @@ public class ClbSourceList extends NubSourceList {
         Rank rank = row.length > 1 && !StringUtils.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
         Dataset d = datasetService.get(key);
         if (d != null) {
-          sources.add(buildSource(d, rank, cfg.clb, cfg.ignoreSynonyms.contains(key)));
+          sources.add(buildSource(d, rank, cfg, cfg.ignoreSynonyms.contains(key)));
 
         } else {
           // try if its an organization
@@ -115,7 +119,7 @@ public class ClbSourceList extends NubSourceList {
             int counter = 0;
             for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
               if (!keys.contains(d2.getKey())) {
-                sources.add(buildSource(d2, rank, cfg.clb, ignoreSyns));
+                sources.add(buildSource(d2, rank, cfg, ignoreSyns));
                 counter++;
               }
             }
@@ -128,7 +132,7 @@ public class ClbSourceList extends NubSourceList {
               int counter = 0;
               for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
                 if (!keys.contains(d2.getKey())) {
-                  sources.add(buildSource(d2, rank, cfg.clb, ignoreSyns));
+                  sources.add(buildSource(d2, rank, cfg, ignoreSyns));
                   counter++;
                 }
               }
@@ -145,7 +149,7 @@ public class ClbSourceList extends NubSourceList {
       LOG.error("Cannot read nub sources from {}", cfg.sourceList);
       throw new RuntimeException(e);
     }
-    submitSources(sources);
+    return sources;
   }
 
 }

@@ -1,0 +1,13 @@
+1			KINGDOM	ACCEPTED		Plantae	
+10	1		FAMILY	ACCEPTED		Asteraceae	
+102	10		VARIETY	ACCEPTED		Townsendia mensana var. jonesii Beaman	
+103	10		SUBSPECIES	ACCEPTED		Townsendia sana subsp. jonesii (Beaman)	
+201	10		VARIETY	ACCEPTED		Anaphalis sinica var. viscosissima (Honda) Kitam. 	
+203	10		VARIETY	ACCEPTED		Anaphalis sinica var. densata Ling	
+204	10		VARIETY	ACCEPTED		Anaphalis sinica var. sinica	
+205	10		VARIETY	ACCEPTED		Anaphalis sinica var. lanata Ling	
+206	10		VARIETY	ACCEPTED		Anaphalis sinica var. pernivea T.Shimizu 	
+207	10		VARIETY	ACCEPTED		Anaphalis sinica var. morii (Nakai) Ohwi	
+208	10		VARIETY	ACCEPTED		Anaphalis sinica var. remota Ling 	
+209	10		SUBSPECIES	ACCEPTED		Anaphalis sinica subsp. sinica	
+210	10		SUBSPECIES	ACCEPTED		Anaphalis sinica subsp. morii (Nak.) Kitam. 	

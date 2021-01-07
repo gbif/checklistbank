@@ -38,10 +38,7 @@ import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
 import java.text.ParseException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -243,10 +240,10 @@ public class NubBuilderIT {
 
   @Test
   public void testConflictingBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(95, 96);
+    ClasspathSourceList src = ClasspathSourceList.source(95, 97);
     build(src);
 
-    assertTree("95 96.txt");
+    assertTree("95 97.txt");
   }
 
   @Test
@@ -259,10 +256,10 @@ public class NubBuilderIT {
 
   @Test
   public void testConflictingBasionymsOrder() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(97);
+    ClasspathSourceList src = ClasspathSourceList.source(96);
     build(src);
 
-    assertTree("97.txt");
+    assertTree("96.txt");
   }
 
   @Test
@@ -357,11 +354,14 @@ public class NubBuilderIT {
    */
   @Test
   public void testBackbonePatch() throws Exception {
-    List<NubSource> sources = Lists.newArrayList();
-    sources.add(new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA));
-    NubSourceList src = new NubSourceList(new NubConfiguration());
-    src.submitSources(sources);
-    build(src);
+    DwcaSource src = new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA);
+    src.supragenericHomonymSource = true;
+
+    List<NubSource> ns = new ArrayList<>();
+    ns.add(src);
+    NubSourceList srcList = new NubSourceList(new NubConfiguration());
+    srcList.submitSources(ns);
+    build(srcList);
 
     // do not assert tree as the patch file changes all the time
   }
@@ -771,7 +771,7 @@ public class NubBuilderIT {
   }
 
   /**
-   * CoL contains the genus Albizia twice within the plants as an accepted name (Fabaceae & Asteraceae).
+   * CoL used to contain the genus Albizia twice within the plants as an accepted name (Fabaceae & Asteraceae).
    * http://www.catalogueoflife.org/col/details/species/id/17793647/source/tree
    * http://www.catalogueoflife.org/col/details/species/id/11468181/source/tree
    * The backbone should only contain one accepted genus in Fabaceae.
@@ -790,7 +790,8 @@ public class NubBuilderIT {
     assertCanonical("Albi minki", "W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     NubUsage tomentosa = assertCanonical("Albi tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
 
-    // these are recombinations from the Albizia names above and thus get converted into synonyms (not doubtful as sources suggest)
+    // these are recombinations from the Albizia names above
+    // But because they appear in the same source we do not convert them into synonyms
     assertCanonical("Albizia tomentosa", "(Micheli) Standl.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, tomentosa);
     assertCanonical("Albi adianthifolia", "(Schum.) W.Wight", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.HOMOTYPIC_SYNONYM, adianthifolia);
 
@@ -1099,18 +1100,18 @@ public class NubBuilderIT {
 
   /**
    * Neotetrastichodes flavus is a synonym of Aprostocetus rieki, but also the basionym of Aprostocetus flavus.
-   * Expect the basionym to be a synonym of Aprostocetus flavus.
+   * Expect the basionym to be a synonym of Aprostocetus flavus if its present in different sources.
    * <p>
    * Leave other accepted species as it was - we could consider to merge them all into a single accepted name...
    */
   @Test
   public void testOverlappingBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(51);
+    ClasspathSourceList src = ClasspathSourceList.source(51, 144);
     build(src);
 
     printTree();
 
-    assertTree("51.txt");
+    assertTree("51 144.txt");
   }
 
   /**
@@ -1252,10 +1253,10 @@ public class NubBuilderIT {
 
   @Test
   public void testInfraspecificBasionymGrouping() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(60);
+    ClasspathSourceList src = ClasspathSourceList.source(60, 145);
     build(src);
 
-    assertTree("60.txt");
+    assertTree("60 145.txt");
   }
 
   /**

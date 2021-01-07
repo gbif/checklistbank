@@ -28,6 +28,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.neo.traverse.TaxonomicOrderExpander;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
@@ -882,7 +883,7 @@ public class NubBuilder implements Runnable {
   }
 
   private void addDataset(NubSource source) throws Exception {
-    LOG.info("Adding {}th source {}", datasetCounter++, source.name);
+    LOG.info("Adding {}th source {}. Allow suprageneric homonyms={}", datasetCounter++, source.name, source.supragenericHomonymSource);
     currSrc = source;
     priorities.put(source.key, ++maxPriority);
     // clear dataset wide caches
@@ -1552,6 +1553,13 @@ public class NubBuilder implements Runnable {
         // a) taxonomically inconsistent
         // b) has pro parte synonyms
         // c) we did some bad basionym detection - better back off
+        // d) there are doubtfully accepted taxa which we should maybe ignore
+        NubUsage primary = findSingleAccepted(accCounts.keySet());
+        if (primary != null) {
+          LOG.debug("Prefer single accepted {} in basionym group with {} additional doubtful names out of {} usages from the most trusted dataset {}",
+              primary.parsedName.getScientificName(), accCounts.size()-1, candidates.size(), datasetKey);
+          return primary;
+        }
         LOG.info("Skip basionym group {} with {} accepted names out of {} usages from the most trusted dataset {}",
             candidates.get(0).parsedName.getScientificName(), accCounts.size(), candidates.size(), datasetKey);
         return null;
@@ -1559,6 +1567,20 @@ public class NubBuilder implements Runnable {
     }
 
     return candidates.get(0);
+  }
+
+  private NubUsage findSingleAccepted(Collection<NubUsage> usages) {
+    NubUsage acc = null;
+    for (NubUsage nu : usages) {
+      if (nu.status == TaxonomicStatus.ACCEPTED) {
+        if (acc != null) {
+          // we had another accepted before, return none
+          return null;
+        }
+        acc = nu;
+      }
+    }
+    return acc;
   }
 
   /**

@@ -6,6 +6,7 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.api.model.Constants;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
@@ -48,6 +49,17 @@ public class NubConfiguration {
   @NotNull
   @Valid
   public URI blacklist = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/blacklist.tsv");
+
+  /**
+   * Set of dataset keys from which suprageneric homonyms are allowed during nub builds.
+   * Defaults to just the backbone patch and Catalogue of Life.
+   */
+  @NotNull
+  @Valid
+  public Set<UUID> homonymLists = Sets.newHashSet(
+      UUID.fromString("daacce49-b206-469b-8dc2-2257719f3afa"), // backbone patch
+      Constants.COL_DATASET_KEY
+  );
 
   /**
    * Set of dataset, publisher or installation keys from which synonyms should be ignored during nub builds.

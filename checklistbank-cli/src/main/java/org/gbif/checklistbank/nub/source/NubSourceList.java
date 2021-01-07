@@ -47,6 +47,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
       src.setParser(parser);
       futures.add(exec.submit(new LoadSource(src)));
     }
+
     LOG.info("Queued {} backbone sources for loading", counter);
   }
 

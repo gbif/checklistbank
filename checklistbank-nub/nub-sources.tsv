@@ -3,7 +3,8 @@ daacce49-b206-469b-8dc2-2257719f3afa	PHYLUM	GBIF Backbone Patch
 d8fb1600-d636-4b35-aa0d-d4f292c1b424	PHYLUM	FaEu Lepidoptera
 7ddf754f-d193-4cc9-b351-99906754a03b	KINGDOM	Catalogue of Life
 
-8dc469b3-8e61-4f6f-b9db-c70dbbc8858c		ION Taxonomic Hierarchy
+f382f0ce-323a-4091-bb9f-add557f3a9a2		World Checklist of Vascular Plants
+
 80b4b440-eaca-4860-aadf-d0dfdd3e856e		Official Lists and Indexes of Names in Zoology
 52a423d2-0486-4e77-bcee-6350d708d6ff		Prokaryotic Nomenclature Up-to-date
 e01b0cbb-a10a-420c-b5f3-a3b20cc266ad		ICTV Master Species List
@@ -29,11 +30,11 @@ de8934f4-a136-481c-a87a-b0b202b80a31		Dyntaxa - Svensk taxonomisk databas
 aacd816d-662c-49d2-ad1a-97e66e2a2908		Flora of Brazil
 4dd32523-a3a3-43b7-84df-4cda02f15cf7		Dutch Species Register
 a6c6cead-b5ce-4a4e-8cf5-1542ba708dec		Artsnavnebasen
-66dd0960-2d7d-46ee-a491-87b9adcfe7b1		GRIN Taxonomy
 3f8a1297-3259-4700-91fc-acc4170b27ce		Database of Vascular Plants of Canada (VASCAN)
 d9a4eedb-e985-4456-ad46-3df8472e00e8		Plant List
 9ca92552-f23a-41a8-a140-01abaa31c931		ITIS
 0e61f8fe-7d25-4f81-ada7-d970bbb2c6d6		TAXREF
+66dd0960-2d7d-46ee-a491-87b9adcfe7b1		GRIN Taxonomy
 1ec61203-14fa-4fbd-8ee5-a4a80257b45a		The National Checklist of Taiwan
 e1c9e885-9d8c-45b5-9f7d-b710ac2b303b		Endemic species in Taiwan
 90d9e8a6-0ce1-472d-b682-3451095dbc5a		Fauna Europaea
