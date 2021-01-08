@@ -25,6 +25,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
@@ -46,6 +47,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -371,6 +374,10 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     verify16(datasetKey);
   }
 
+  private void printTree() throws Exception {
+    Writer writer = new PrintWriter(System.out);
+    dao.printTree(writer, GraphFormat.TEXT);
+  }
 
   /**
    * Builds a small new nub and imports it, making sure the nub specific data gets through fine
@@ -378,15 +385,19 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   @Test
   public void testNubImport() throws Exception {
     // build nub
-    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51);
+    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51, 144);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
     NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, NubBuilderIT.CFG);
     nb.run();
 
+    openDb(Constants.NUB_DATASET_KEY);
+    printTree();
+    dao.close();
+
     // import
     Importer imp = runImport(Constants.NUB_DATASET_KEY);
-    assertEquals(66, imp.getSyncCounter());
+    assertEquals(67, imp.getSyncCounter());
     // make sure all usages have preassigned keys, not postgres generated ones!
     assertTrue(usageService.maxUsageKey(Constants.NUB_DATASET_KEY) < Constants.NUB_MAXIMUM_KEY);
     //test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES] CONFLICTING_BASIONYM_COMBINATION
