@@ -1,0 +1,17 @@
+0			UNRANKED	ACCEPTED		Biota	
+
+1	0		KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Chordata	
+3	2		CLASS	ACCEPTED		Aves	
+4	3		ORDER	ACCEPTED		Accipitriformes	
+5	4		FAMILY	ACCEPTED		Sagittariidae	
+6	5		GENUS	ACCEPTED		Sagittaria	
+7	6		SPECIES	ACCEPTED		Sagittaria australis Pomp & Wilbert, 1988	
+
+11	0		KINGDOM	ACCEPTED		Chromista	
+12	11		PHYLUM	ACCEPTED		Ciliophora	
+13	12		CLASS	ACCEPTED		Colpodea	
+14	13		ORDER	ACCEPTED		Cyrtolophosidida	
+15	14		FAMILY	ACCEPTED		Sagittariidae	
+16	15		GENUS	ACCEPTED		Sagittarius Hermann, 1783	
+17	16		GENUS	ACCEPTED		Sagittarius serpentarius (J.F.Miller, 1779)	

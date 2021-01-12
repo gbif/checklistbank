@@ -1056,7 +1056,7 @@ public class NubBuilder implements Runnable {
 
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
-      if (!match.isMatch() || currSrc.supragenericHomonymSource) {
+      if (!match.isMatch() || (currSrc.key.equals(match.usage.datasetKey) && currSrc.supragenericHomonymSource)) {
 
         // remember if we had a doubtful match
         NubUsage doubtful = match.doubtfulUsage;

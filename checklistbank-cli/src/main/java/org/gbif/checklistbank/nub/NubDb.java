@@ -267,7 +267,7 @@ public class NubDb {
     }
   
     if (rank.isSuprageneric() && checked.size() == 1) {
-      // no homonyms above genus level unless given in patch file
+      // no homonyms above genus level unless given in configured homonym sources (e.g. backbone patch, col)
       // snap to that single higher taxon right away!
   
     } else if (rank.isSuprageneric() && checked.size() > 1){

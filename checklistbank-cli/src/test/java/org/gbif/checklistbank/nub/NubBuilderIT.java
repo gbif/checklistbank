@@ -351,15 +351,25 @@ public class NubBuilderIT {
    * Verifies that the backbone patch file in github is in good shape!
    * https://github.com/gbif/backbone-patch
    * <p>
+   * This also check the presence of 2 Sagittariidae families,
+   * see https://github.com/gbif/checklistbank/issues/123
+   *
    * WARNING! requires online access and working github !!!
    */
   @Test
   public void testBackbonePatch() throws Exception {
-    DwcaSource src = new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA);
-    src.supragenericHomonymSource = true;
-
     List<NubSource> ns = new ArrayList<>();
-    ns.add(src);
+
+    NubSource patch = new DwcaSource("backbone patch", DwcaSourceTest.BACKBONE_PATCH_DWCA);
+    patch.ignoreRanksAbove = Rank.PHYLUM;
+    patch.supragenericHomonymSource = true;
+    ns.add(patch);
+
+    NubSource col = new ClasspathSource(146); // COL hierarchy for 2x Sagittariidae
+    col.ignoreRanksAbove = Rank.KINGDOM;
+    col.supragenericHomonymSource = true;
+    ns.add(col);
+
     NubSourceList srcList = new NubSourceList(new NubConfiguration());
     srcList.submitSources(ns);
     build(srcList);
