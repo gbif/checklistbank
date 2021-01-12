@@ -375,6 +375,8 @@ public class NubBuilderIT {
     build(srcList);
 
     // do not assert tree as the patch file changes all the time
+    // make sure we only get 2x Sagittariidae
+    assertEquals(2, listCanonical("Sagittariidae").size());
   }
 
   /**
