@@ -76,6 +76,8 @@ public class ClbSourceList extends NubSourceList {
     src.created = d.getCreated();
     src.ignoreSynonyms = ignoreSynonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
+    // we ignore nomenclators superpower for now, see https://github.com/gbif/checklistbank/issues/139
+    src.nomenclator = false;
     if (rank != null) {
       src.ignoreRanksAbove = rank;
     }
