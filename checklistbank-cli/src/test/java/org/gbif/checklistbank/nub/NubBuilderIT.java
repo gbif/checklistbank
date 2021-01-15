@@ -39,6 +39,7 @@ import org.neo4j.helpers.collection.Iterators;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -377,6 +378,26 @@ public class NubBuilderIT {
     // do not assert tree as the patch file changes all the time
     // make sure we only get 2x Sagittariidae
     assertEquals(2, listCanonical("Sagittariidae").size());
+
+    // 1 Ambrosia only, see https://github.com/gbif/checklistbank/issues/143
+    assertEquals(1, listCanonical("Ambrosia").size());
+  }
+
+  @Test
+  @Ignore("for manual debugging only. Depends on external resources")
+  public void testExternal() throws Exception {
+    List<NubSource> ns = new ArrayList<>();
+
+    NubSource patch = new DwcaSource("Official Lists and Indexes of Names in Zoology",
+          new URL("https://github.com/gbif/iczn-lists/archive/master.zip")
+    );
+    //patch.ignoreRanksAbove = Rank.PHYLUM;
+    //patch.supragenericHomonymSource = true;
+    ns.add(patch);
+
+    NubSourceList srcList = new NubSourceList(new NubConfiguration());
+    srcList.submitSources(ns);
+    build(srcList);
   }
 
   /**
