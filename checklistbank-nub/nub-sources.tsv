@@ -4,9 +4,9 @@ daacce49-b206-469b-8dc2-2257719f3afa	PHYLUM	GBIF Backbone Patch
 c815ecb1-b036-4617-b545-1bb65e0339cd	PHYLUM	Pterophoroidea Hobern
 d8fb1600-d636-4b35-aa0d-d4f292c1b424	PHYLUM	FaEu Lepidoptera
 a97f36e5-ded1-49cc-bdec-ac6170fc7b9c	PHYLUM	Genome Taxonomy Database
+aa1bc573-f338-482d-b6aa-f371d57f20f5	PHYLUM	Genome Taxonomy Database supplement
 7ddf754f-d193-4cc9-b351-99906754a03b	KINGDOM	Catalogue of Life
 f382f0ce-323a-4091-bb9f-add557f3a9a2		World Checklist of Vascular Plants
-80b4b440-eaca-4860-aadf-d0dfdd3e856e		Official Lists and Indexes of Names in Zoology
 52a423d2-0486-4e77-bcee-6350d708d6ff		Prokaryotic Nomenclature Up-to-date
 e01b0cbb-a10a-420c-b5f3-a3b20cc266ad		ICTV Master Species List
 2d59e5db-57ad-41ff-97d6-11f5fb264527		World Register of Marine Species
@@ -46,6 +46,7 @@ b267ac9b-6516-458e-bea7-7643842187f7		Catalogue of the type specimens of Polyces
 5c7bf05c-2890-48e8-9b65-a6060cb75d6d		Catalogue of the type specimens of Bufonidae and Megophryidae
 
 046bbc50-cae2-47ff-aa43-729fbf53f7c5		International Plant Names Index
+80b4b440-eaca-4860-aadf-d0dfdd3e856e		Official Lists and Indexes of Names in Zoology
 c8227bb4-4143-443f-8cb2-51f9576aff14	GENUS	ZooBank
 61a5f178-b5fb-4484-b6d8-9b129739e59d		UNITE - Unified system for the DNA based fungal species linked to the classification
 4cec8fef-f129-4966-89b7-4f8439aba058		iBOL/BOLD
@@ -55,4 +56,4 @@ bf3db7c9-5e5d-4fd0-bd5b-94539eaf9598		Index Fungorum
 
 7ce8aef0-9e92-11dc-8738-b8a03c50a862	GENUS	Plazi ORG
 c33ce2f2-c3cc-43a5-a380-fe4526d63650		Paleobiology Database
-6e4c3b6f-0126-4c5f-bd63-fe6ffd3b29fa		Family Cassification Patch
+6e4c3b6f-0126-4c5f-bd63-fe6ffd3b29fa		Family Classification Patch
