@@ -1,15 +1,15 @@
 package org.gbif.checklistbank.ws.nub;
 
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.v2.NameUsageMatch2;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.common.parsers.RankParser;
+import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class NubResource {
                               @QueryParam("infraspecificEpithet") String infraspecificEpithet,
                               @Context LinneanClassification classification,
                               @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
-    Rank r = parse(Rank.class, first(rank, rank2));
+    Rank r = parseRank(first(rank, rank2));
     return match(first(scientificName, scientificName2),
                  first(authorship, authorship2),
                  specificEpithet,
@@ -70,7 +69,7 @@ public class NubResource {
                                 @QueryParam("infraspecificEpithet") String infraspecificEpithet,
                                 @Context LinneanClassification classification,
                                 @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
-    Rank r = parse(Rank.class, first(rank, rank2));
+    Rank r = parseRank(first(rank, rank2));
     return matchingService.v2(match(first(scientificName, scientificName2),
         first(authorship, authorship2),
         specificEpithet,
@@ -137,9 +136,12 @@ public class NubResource {
     return null;
   }
 
-  private <T extends Enum> T parse(Class<T> clazz, String value) throws IllegalArgumentException {
+  private Rank parseRank(String value) throws IllegalArgumentException {
     if (!Strings.isNullOrEmpty(value)) {
-      return VocabularyUtils.lookupEnum(value, clazz);
+      ParseResult<Rank> pr = RankParser.getInstance().parse(value);
+      if (pr.isSuccessful()) {
+        return pr.getPayload();
+      }
     }
     return null;
   }

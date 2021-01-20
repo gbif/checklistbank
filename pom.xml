@@ -44,29 +44,29 @@
         <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
         <!-- dependency versions -->
-        <dwc-api.version>1.22</dwc-api.version>
-        <gbif-api.version>0.84</gbif-api.version>
-        <gbif-cli.version>0.13</gbif-cli.version>
-        <gbif-common.version>0.47</gbif-common.version>
-        <gbif-common-mybatis.version>0.29</gbif-common-mybatis.version>
+        <dwc-api.version>1.30</dwc-api.version>
+        <gbif-api.version>0.135-SNAPSHOT</gbif-api.version>
+        <gbif-cli.version>1.1</gbif-cli.version>
+        <gbif-common.version>0.50</gbif-common.version>
+        <gbif-common-mybatis.version>0.31</gbif-common-mybatis.version>
         <!-- matches solr 5.4.x -->
-        <gbif-common-search.version>0.34</gbif-common-search.version>
+        <gbif-common-search.version>0.35</gbif-common-search.version>
         <gbif-common-service.version>0.17</gbif-common-service.version>
-        <gbif-common-ws.version>0.46</gbif-common-ws.version>
-        <gbif-httputils.version>0.12</gbif-httputils.version>
+        <gbif-common-ws.version>1.12</gbif-common-ws.version>
+        <gbif-httputils.version>0.14</gbif-httputils.version>
         <gbif-microservice.version>0.9</gbif-microservice.version>
-        <gbif-postal-service.version>0.35</gbif-postal-service.version>
-        <registry.version>2.122</registry.version>
+        <gbif-postal-service.version>0.48</gbif-postal-service.version>
+        <registry.version>3.48</registry.version>
         <name-parser.version>3.6.1</name-parser.version>
-        <gbif-parser.version>0.43</gbif-parser.version>
-        <dwca-io.version>2.6</dwca-io.version>
+        <gbif-parser.version>0.54-SNAPSHOT</gbif-parser.version>
+        <dwca-io.version>2.9</dwca-io.version>
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
         <assertj.version>3.5.2</assertj.version>
         <avro.version>1.7.7</avro.version>
         <bval.version>0.5</bval.version>
-        <commmons-lang.version>3.9</commmons-lang.version>
+        <commmons-lang.version>3.10</commmons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.6</commons-io.version>
@@ -76,7 +76,7 @@
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
         <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
-        <guava.version>18.0</guava.version>
+        <guava.version>23.0</guava.version>
         <guice.version>4.0</guice.version>
         <hadoop.version>2.6.0-cdh5.12.0</hadoop.version>
         <hamcrest.version>1.3</hamcrest.version>

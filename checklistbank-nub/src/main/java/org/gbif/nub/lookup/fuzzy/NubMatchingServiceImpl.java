@@ -233,6 +233,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, mainMatchingMode, verbose);
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
+      // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
       return match1;
     }
 
