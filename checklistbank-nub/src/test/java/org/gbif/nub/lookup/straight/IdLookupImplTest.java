@@ -1,21 +1,19 @@
 package org.gbif.nub.lookup.straight;
 
-import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.Rank;
+import com.google.common.collect.Lists;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
-
+import static org.gbif.api.vocabulary.Kingdom.*;
+import static org.gbif.api.vocabulary.Rank.*;
+import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
+import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.gbif.api.vocabulary.TaxonomicStatus.*;
-import static org.gbif.api.vocabulary.Rank.*;
-import static org.gbif.api.vocabulary.Kingdom.*;
 
 public class IdLookupImplTest {
   IdLookup l;
@@ -96,7 +94,7 @@ public class IdLookupImplTest {
     assertEquals(2, l.match("Oenanthe", "Vieillot", null, GENUS, ACCEPTED, INCERTAE_SEDIS).getKey());
     assertEquals(3, l.match("Oenanthe", null, null, GENUS, ACCEPTED, PLANTAE).getKey());
     assertEquals(3, l.match("Œnanthe", null, null, GENUS, ACCEPTED, PLANTAE).getKey());
-    assertNull(l.match("Oenanthe", null, null, GENUS, ACCEPTED, INCERTAE_SEDIS));
+    assertEquals(2, l.match("Oenanthe", null, null, GENUS, ACCEPTED, INCERTAE_SEDIS).getKey());
     assertNull(l.match("Oenanthe", "Camelot", null, GENUS, ACCEPTED, ANIMALIA));
 
     assertEquals(4, l.match("Oenanthe aquatica", "Poir", null, SPECIES, ACCEPTED, PLANTAE).getKey());
@@ -108,7 +106,7 @@ public class IdLookupImplTest {
     assertEquals(9, l.match("Abies alba", null, "1789", SPECIES, ACCEPTED, PLANTAE).getKey());
     assertEquals(9, l.match("Abies alba", "Mill.", null, SPECIES, ACCEPTED, PLANTAE).getKey());
     assertEquals(9, l.match("Abies alba", "Miller", null, SPECIES, ACCEPTED, PLANTAE).getKey());
-    assertEquals(9, l.match("Abies alba", "Döring", "1778", SPECIES, ACCEPTED, PLANTAE).getKey());
+    assertEquals(11, l.match("Abies alba", "Döring", "1778", SPECIES, ACCEPTED, PLANTAE).getKey());
     assertEquals(10, l.match("Abies alba", "Mumpf.", null, SPECIES, ACCEPTED, PLANTAE).getKey());
 
     // try unparsable names

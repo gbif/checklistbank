@@ -160,4 +160,9 @@ public class LookupUsage implements Comparable<LookupUsage> {
         .compare(this.status, that.status, Ordering.natural().nullsLast())
         .result();
   }
+
+  @Override
+  public String toString() {
+    return String.format("%s %s [%s]", canonical, authorship, key);
+  }
 }
