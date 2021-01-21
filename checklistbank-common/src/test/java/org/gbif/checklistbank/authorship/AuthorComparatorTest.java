@@ -319,6 +319,14 @@ public class AuthorComparatorTest {
     assertAuth("L. Bolus", null, Equality.EQUAL, "L. Bol.", null);
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/154
+   */
+  @Test
+  public void testCompareGenusKeyChange() throws Exception {
+    assertAuth("Boie", "1826", Equality.EQUAL, "F.Boie", "1826");
+  }
+
   @Test
   public void testCompareStrict() throws Exception {
     assertFalse(comp.compareStrict(null, null, null, null));

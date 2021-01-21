@@ -304,6 +304,8 @@ public class IdLookupImpl implements IdLookup {
     if (hits == null) return null;
 
     final boolean compareAuthorship = authorship != null || year != null;
+    // track hits with authorship only
+    List<LookupUsage> qualified = new ArrayList<>();
     // filter by rank, kingdom & authorship
     Iterator<LookupUsage> iter = hits.iterator();
     while (iter.hasNext()) {
@@ -316,6 +318,8 @@ public class IdLookupImpl implements IdLookup {
         Equality eq = authComp.compare(authorship, year, u.getAuthorship(), u.getYear());
         if (eq == Equality.DIFFERENT) {
           iter.remove();
+        } else if (eq == Equality.EQUAL) {
+          qualified.add(u);
         }
       }
     }
@@ -331,41 +335,57 @@ public class IdLookupImpl implements IdLookup {
         return exact;
       }
 
-      // Still several matches
-      // If we ever had too many bad usages they might block forever a stable id.
-      // If only one current id is matched use that!
-      List<LookupUsage> current = hits.stream()
-          .filter(u -> !u.isDeleted())
-          .collect(Collectors.toList());
-      if (current.size() == 1) {
-        LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), current.get(0).getKey(), kingdom, rank, canonicalName, authorship, year);
-        return current.get(0);
-
+      LookupUsage match = null;
+      // do we have only one match with authorship?
+      if (qualified.size() == 1) {
+        match = qualified.get(0);
+      } else if (qualified.size()>1) {
+        // pick the current match out of the matches with authorship - if there are any
+        match = preferCurrent(qualified, canonicalName, authorship, year, rank, status, kingdom);
       }
 
-      if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
-        // if requested rank & kingdom was clear, snap better to results utilizing the status and prefering current over deleted usages
-        // use only current matches if possible
-        LookupUsage match = null;
-        if (status != null) {
-          match = matchByStatus(status, current);
-          if (match == null) {
-            match = matchByStatus(status, hits);
-          }
-        }
-    
-        if (match == null) {
-          match = selectLowestKey(hits);
-          LOG.debug("Use lowest usage key {} for ambiguous match with {} hits for {} {} {} {} {}", match.getKey(), hits.size(), kingdom, rank, canonicalName, authorship, year);
-        }
-        return match;
+      // if no clear match try with all
+      if (match == null) {
+        match = preferCurrent(hits, canonicalName, authorship, year, rank, status, kingdom);
       }
-  
+
+      // Still no clear match - pick lowest key
+      if (match == null) {
+        match = selectLowestKey(hits);
+        LOG.debug("Use lowest usage key {} for ambiguous match with {} hits for {} {} {} {} {}", match.getKey(), hits.size(), kingdom, rank, canonicalName, authorship, year);
+      }
+      return match;
     }
     LOG.debug("No match ({} hits) for {} {} {} {} {}", hits.size(), kingdom, rank, canonicalName, authorship, year);
     return null;
   }
-  
+
+  private LookupUsage preferCurrent(List<LookupUsage> hits, final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, @Nullable TaxonomicStatus status, Kingdom kingdom){
+    // Still several matches
+    // If we ever had too many bad usages they might block forever a stable id.
+    // If only one current id is matched use that!
+    List<LookupUsage> current = hits.stream()
+            .filter(u -> !u.isDeleted())
+            .collect(Collectors.toList());
+    if (current.size() == 1) {
+      LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), current.get(0).getKey(), kingdom, rank, canonicalName, authorship, year);
+      return current.get(0);
+    }
+
+    LookupUsage match = null;
+    if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
+      // if requested rank & kingdom was clear, snap better to results utilizing the status and prefering current over deleted usages
+      // use only current matches if possible
+      if (status != null) {
+        match = matchByStatus(status, current);
+        if (match == null) {
+          match = matchByStatus(status, hits);
+        }
+      }
+    }
+    return match;
+  }
+
   private static LookupUsage selectLowestKey(List<LookupUsage> matches) {
     LookupUsage match = null;
     for (LookupUsage u : matches) {

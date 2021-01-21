@@ -2,10 +2,14 @@ package org.gbif.checklistbank.nub;
 
 import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.Rank.*;
+import static org.gbif.api.vocabulary.TaxonomicStatus.*;
+
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
+import java.io.IOException;
 import java.util.Collection;
 
 import com.google.common.collect.Lists;
@@ -43,6 +47,22 @@ public class IdGeneratorTest {
     return IdLookupImpl.temp().load(usages);
   }
 
+  public static IdLookup newMimusLookup() {
+    Collection<LookupUsage> usages = Lists.newArrayList(
+            new LookupUsage(1, "Animalia", null, null, KINGDOM, null, ANIMALIA, false),
+            new LookupUsage(9498764, "Mimus", null, null, GENUS, ACCEPTED, ANIMALIA, false),
+            new LookupUsage(9803710, "Mimus", null, null, GENUS, DOUBTFUL, ANIMALIA, true),
+            new LookupUsage(2494919, "Mimus", "Boie", "1826", GENUS, DOUBTFUL, ANIMALIA, false),
+            new LookupUsage(9032015, "Mimus", "Boie, F,", "1826", GENUS, ACCEPTED, ANIMALIA, true),
+            new LookupUsage(8347560, "Mimus", "Fåhraeus", "1871", GENUS, SYNONYM, ANIMALIA, true),
+            // Pseudofentonia gen. Mimus gets badly parsed into genus Mimus
+            new LookupUsage(1175552, "Mimus", null, null, GENUS, DOUBTFUL, ANIMALIA, false),
+            // Pseudofentonia (Mimus)
+            new LookupUsage(9633312, "Mimus", null, null, GENUS, DOUBTFUL, ANIMALIA, true)
+
+    );
+    return IdLookupImpl.temp().load(usages);
+  }
   /**
    * key, value, key, value, ...
    * pro parte maps have the parent usageKey as key, the pro parte usage key as value
@@ -69,6 +89,16 @@ public class IdGeneratorTest {
     assertEquals(1001, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
     assertEquals(1002, gen.issue("Animalia", null, null, KINGDOM, null, ANIMALIA));
     assertEquals(1003, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/154
+   */
+  @Test
+  public void testMimus() throws IOException, InterruptedException {
+    IdGenerator gen = new IdGenerator(newMimusLookup(), 10000000);
+    assertEquals(9498764, gen.issue("Mimus", null, null, GENUS, ACCEPTED, ANIMALIA));
+    assertEquals(2494919, gen.issue("Mimus", "F.Boie", "1826", GENUS, DOUBTFUL, ANIMALIA));
   }
 
   @Test
