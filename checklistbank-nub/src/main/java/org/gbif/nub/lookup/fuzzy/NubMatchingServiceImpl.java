@@ -321,7 +321,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   }
 
   private List<NameUsageMatch> queryIndex(Rank rank, String canonicalName, boolean fuzzy) {
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
+    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, fuzzy, 50);
     // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
     for (NameUsageMatch m : matches) {
       if (m.getMatchType() == NameUsageMatch.MatchType.EXACT
@@ -624,6 +624,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     } else {
       // fuzzy - be careful!
       confidence = (int) sim.getSimilarity(canonicalName, m.getCanonicalName()) - 5;
+      // fuzzy OTU match? That is dangerous, often one character/number means sth entirely different
+      if (queryNameType == NameType.OTU) {
+        confidence -= 50;
+      }
+
       // modify confidence according to genus comparison in bionomials.
       // slightly trust binomials with a matching genus more, and trust less if we matched a different genus name
       int spaceIdx = m.getCanonicalName().indexOf(" ");
