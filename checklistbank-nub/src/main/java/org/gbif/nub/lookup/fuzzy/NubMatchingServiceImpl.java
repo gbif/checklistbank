@@ -233,7 +233,6 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, mainMatchingMode, verbose);
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
-      // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
       return match1;
     }
 
@@ -321,9 +320,24 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
   }
 
+  private List<NameUsageMatch> queryIndex(Rank rank, String canonicalName, boolean fuzzy) {
+    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
+    // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
+    for (NameUsageMatch m : matches) {
+      if (m.getMatchType() == NameUsageMatch.MatchType.EXACT
+              && rank == Rank.SPECIES_AGGREGATE
+              && m.getRank() != Rank.SPECIES_AGGREGATE) {
+        LOG.warn("Species aggregate match found for {} {}, but not supported in API currently", m.getRank(), m.getScientificName());
+        //TODO: change to MatchType.AGGREGATE once available
+        m.setMatchType(NameUsageMatch.MatchType.EXACT);
+      }
+    }
+    return matches;
+  }
+
   private List<NameUsageMatch> queryFuzzy(@Nullable NameType queryNameType, ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, true, 50);
+    List<NameUsageMatch> matches = queryIndex(rank, canonicalName, true);
     for (NameUsageMatch m : matches) {
       // 0 - +120
       final int nameSimilarity = nameSimilarity(queryNameType, canonicalName, m);
@@ -351,10 +365,9 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     return matches;
   }
 
-
-  private List<NameUsageMatch> queryHigher(ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
+  private List<NameUsageMatch> queryHigher(String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    List<NameUsageMatch> matches = queryIndex(rank, canonicalName, false);
     for (NameUsageMatch m : matches) {
       // 0 - +100
       final int nameSimilarity = nameSimilarity(null, canonicalName, m);
@@ -381,7 +394,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
 
   private List<NameUsageMatch> queryStrict(@Nullable NameType queryNameType, ParsedName pn, String canonicalName, Rank rank, LinneanClassification lc, boolean verbose) {
     // do a lucene matching
-    List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, false, 50);
+    List<NameUsageMatch> matches = queryIndex(rank, canonicalName, false);
     for (NameUsageMatch m : matches) {
       // 0 - +120
       final int nameSimilarity = nameSimilarity(queryNameType, canonicalName, m);
@@ -441,7 +454,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         matches = queryStrict(queryNameType, pn, canonicalName, rank, lc, verbose);
         break;
       case HIGHER:
-        matches = queryHigher(pn, canonicalName, rank, lc, verbose);
+        matches = queryHigher(canonicalName, rank, lc, verbose);
         break;
     }
 
