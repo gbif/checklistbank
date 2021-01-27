@@ -448,5 +448,8 @@
             DROP TABLE col_annotation;
         </sql>
     </changeSet>
+    <changeSet id="55" author="markus">
+        <sqlFile path="liquibase/debug_views3.sql"/>
+    </changeSet>
 
 </databaseChangeLog>
