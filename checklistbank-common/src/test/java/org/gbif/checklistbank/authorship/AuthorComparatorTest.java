@@ -488,6 +488,25 @@ public class AuthorComparatorTest {
   }
 
   @Test
+  public void testAuthorless() throws Exception {
+    ParsedName p1 = new ParsedName();
+
+    ParsedName p2 = new ParsedName();
+
+    ParsedName p3 = new ParsedName();
+    p3.setAuthorship("Weyenbergh");
+
+    ParsedName p4 = new ParsedName();
+    p4.setAuthorship("Weyenbergh");
+    p4.setYear("1874");
+
+    assertEquals(Equality.UNKNOWN, comp.compare(p1, p2));
+    assertEquals(Equality.UNKNOWN, comp.compare(p1, p3));
+    assertEquals(Equality.UNKNOWN, comp.compare(p2, p4));
+    assertEquals(Equality.EQUAL, comp.compare(p3, p4));
+  }
+
+  @Test
   public void testUnparsedAuthors() throws Exception {
     ParsedName p3 = new ParsedName();
     p3.setParsed(false);

@@ -303,27 +303,39 @@ public class IdLookupImpl implements IdLookup {
     List<LookupUsage> hits = usages.get(canonicalNameNormed);
     if (hits == null) return null;
 
-    final boolean compareAuthorship = authorship != null || year != null;
-    // track hits with authorship only
-    List<LookupUsage> qualified = new ArrayList<>();
+    final boolean lookupWithAuthorship = authorship != null || year != null;
+    List<LookupUsage> withAuthormatch = new ArrayList<>();
+    List<LookupUsage> canonicalMatch = new ArrayList<>();
+
     // filter by rank, kingdom & authorship
     Iterator<LookupUsage> iter = hits.iterator();
     while (iter.hasNext()) {
       LookupUsage u = iter.next();
+      boolean matchWithAuthorship = u.getAuthorship() != null || u.getYear() != null;
       // allow uncertain kingdoms and ranks to match
       if (rank != null && !RankUtils.match(rank, u.getRank()) || kingdom != null && !KingdomUtils.match(kingdom, u.getKingdom())) {
         iter.remove();
-      } else if (compareAuthorship) {
-        // authorship comparison was requested!
+      } else {
+        // compare authorship. Only keep unknown matches if no authorship was requested
         Equality eq = authComp.compare(authorship, year, u.getAuthorship(), u.getYear());
         if (eq == Equality.DIFFERENT) {
           iter.remove();
-        } else if (eq == Equality.EQUAL) {
-          qualified.add(u);
+        } else {
+          if (!matchWithAuthorship) {
+            canonicalMatch.add(u);
+          } else if (eq == Equality.EQUAL){
+            withAuthormatch.add(u);
+          }
         }
       }
     }
-    // if no authorship was requested and we got 1 result, a hit!
+
+    if (!withAuthormatch.isEmpty()) {
+      hits = withAuthormatch;
+    } else if (!lookupWithAuthorship && !canonicalMatch.isEmpty()) {
+      hits = canonicalMatch;
+    }
+
     if (hits.size() == 1) {
       return hits.get(0);
 
@@ -335,18 +347,27 @@ public class IdLookupImpl implements IdLookup {
         return exact;
       }
 
-      LookupUsage match = null;
-      // do we have only one match with authorship?
-      if (qualified.size() == 1) {
-        match = qualified.get(0);
-      } else if (qualified.size()>1) {
-        // pick the current match out of the matches with authorship - if there are any
-        match = preferCurrent(qualified, canonicalName, authorship, year, rank, status, kingdom);
+      // Several matches. If we ever had too many bad usages they might block forever a stable id.
+
+      // If only one current id is matched use that!
+      List<LookupUsage> current = hits.stream()
+              .filter(u -> !u.isDeleted())
+              .collect(Collectors.toList());
+      if (current.size() == 1) {
+        LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), current.get(0).getKey(), kingdom, rank, canonicalName, authorship, year);
+        return current.get(0);
       }
 
-      // if no clear match try with all
-      if (match == null) {
-        match = preferCurrent(hits, canonicalName, authorship, year, rank, status, kingdom);
+      // if requested rank & kingdom was clear, snap better to results utilizing the status and prefering current over deleted usages
+      LookupUsage match = null;
+      if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
+        // use only current matches if possible
+        if (status != null) {
+          match = matchByStatus(status, current);
+          if (match == null) {
+            match = matchByStatus(status, hits);
+          }
+        }
       }
 
       // Still no clear match - pick lowest key
@@ -356,7 +377,7 @@ public class IdLookupImpl implements IdLookup {
       }
       return match;
     }
-    LOG.debug("No match ({} hits) for {} {} {} {} {}", hits.size(), kingdom, rank, canonicalName, authorship, year);
+    LOG.debug("No match for {} {} {} {} {}", kingdom, rank, canonicalName, authorship, year);
     return null;
   }
 
