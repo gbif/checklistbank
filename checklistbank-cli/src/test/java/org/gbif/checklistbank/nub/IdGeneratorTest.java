@@ -102,20 +102,31 @@ public class IdGeneratorTest {
   }
 
   @Test
+  public void testDuplicates() throws Exception {
+    // if we had multiple ids for the same canonical in the past we can get them all out again
+    IdGenerator gen = new IdGenerator(newTestLookup(), 1000);
+    // regular canonical match
+    assertEquals(20, gen.issue("Admetidae", null, null, FAMILY, null, ANIMALIA));
+    // this returns now "Troschel", but considered a match
+    assertEquals(17, gen.issue("Admetidae", null, null, FAMILY, null, ANIMALIA));
+    // only now we issue a new id
+    assertEquals(1000, gen.issue("Admetidae", null, null, FAMILY, null, ANIMALIA));
+  }
+
+  @Test
   public void testProParte() throws Exception {
     IdGenerator gen = new IdGenerator(newTestLookup(), 1000);
     // wrong kingdom
     assertEquals(1000, gen.issue("Admetidae", null, null, FAMILY, null, PLANTAE));
     // regular canonical match
     assertEquals(20, gen.issue("Admetidae", null, null, FAMILY, null, ANIMALIA));
-    assertEquals(1001, gen.issue("Admetidae", null, null, FAMILY, null, ANIMALIA));
-    assertEquals(17, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA));
     // pro parte matching
-    assertEquals(1002, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 100));
+    assertEquals(17, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 100));
+    assertEquals(1001, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 100));
     // deleted, but reissued
     assertEquals(18, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 110));
     assertEquals(19, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 111));
-    assertEquals(1003, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 200));
+    assertEquals(1002, gen.issue("Admetidae", "Troschel", null, FAMILY, null, ANIMALIA, 200));
 
     assertEquals(8710209, gen.issue("Bombylius scintillans", "Brunetti", "1909", SPECIES, null, ANIMALIA, 1673124));
     assertEquals(5093664, gen.issue("Bombylius scintillans", "Brunetti", "1909", SPECIES, null, ANIMALIA));

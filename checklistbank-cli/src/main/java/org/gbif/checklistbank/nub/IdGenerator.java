@@ -36,7 +36,9 @@ public class IdGenerator {
   private IdLookup lookup;
   private int nextId;
   private IntSet resurrected = new IntOpenHashSet();
+  private IntSet resurrectedPP = new IntOpenHashSet();
   private IntSet reissued = new IntOpenHashSet();
+  private IntSet reissuedPP = new IntOpenHashSet();
   private List<LookupUsage> created = Lists.newArrayList();
   private final Joiner nameJoiner = Joiner.on(" ").skipNulls();
 
@@ -56,24 +58,34 @@ public class IdGenerator {
   }
 
   public int issue(String canonicalName, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, Integer parentKey) {
-    LookupUsage u = lookup.match(canonicalName, authorship, year, rank, status, kingdom);
+    LookupUsage u = lookup.match(canonicalName, authorship, year, rank, status, kingdom, reissued, resurrected);
     int id;
     if (u == null) {
       id = create(canonicalName, authorship, year, rank, status, kingdom);
 
     } else {
       final int matchKey = keyOrProParte(u, parentKey);
-      if (reissued.contains(matchKey) || resurrected.contains(matchKey)) {
+      final boolean proParte = u.getProParteKeys() != null && !u.getProParteKeys().isEmpty();
+      if (reissued.contains(matchKey) || resurrected.contains(matchKey) || reissuedPP.contains(matchKey) || resurrectedPP.contains(matchKey)) {
         id = create(canonicalName, authorship, year, rank, status, kingdom);
         LOG.warn("{} {} {} was already issued as {}. Generating new id {} instead", kingdom, rank, canonicalName, matchKey, id);
 
       } else {
         id = matchKey;
         if (u.isDeleted()) {
-          resurrected.add(id);
+          if (proParte) {
+            resurrectedPP.add(id);
+          } else {
+            resurrected.add(id);
+          }
           LOG.debug("Resurrected id {} for {} {}", id, rank, name(canonicalName, authorship, year));
+
         } else {
-          reissued.add(id);
+          if (proParte) {
+            reissuedPP.add(id);
+          } else {
+            reissued.add(id);
+          }
           LOG.debug("Reissued id {} for {} {}", id, rank, name(canonicalName, authorship, year));
         }
       }
@@ -138,10 +150,10 @@ public class IdGenerator {
     // also include pro parte usages that are hidden in the main usages proParteKeys property
     streamAll().forEach(u -> {
         if (u.isDeleted()) {
-          if (resurrected.contains(u.getKey())) {
+          if (resurrected.contains(u.getKey()) || resurrectedPP.contains(u.getKey())) {
             res.add(u);
           }
-        } else if (!reissued.contains(u.getKey())) {
+        } else if (!reissued.contains(u.getKey()) && !reissuedPP.contains(u.getKey())) {
           del.add(u);
         }
       }

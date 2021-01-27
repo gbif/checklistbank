@@ -1,5 +1,6 @@
 package org.gbif.nub.lookup.straight;
 
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -26,7 +27,7 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
    *
    * @return the matching usage or null
    */
-  LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, TaxonomicStatus status, Kingdom kingdom);
+  LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, IntSet... ignoreIDs);
 
   /**
    * List all usages with the given canonical name regardless of rank, kingdom or authorship

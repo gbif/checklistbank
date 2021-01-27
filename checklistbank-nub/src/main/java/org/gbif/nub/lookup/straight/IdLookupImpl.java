@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
@@ -295,8 +297,17 @@ public class IdLookupImpl implements IdLookup {
     return Lists.newArrayList();
   }
 
+  private static boolean ignore(int id, IntSet[] ignoreIDs){
+    if (ignoreIDs != null) {
+      for (IntSet set : ignoreIDs) {
+        if (set.contains(id)) return true;
+      }
+    }
+    return false;
+  }
+
   @Override
-  public LookupUsage match(final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, @Nullable TaxonomicStatus status, Kingdom kingdom) {
+  public LookupUsage match(final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, @Nullable TaxonomicStatus status, Kingdom kingdom, IntSet... ignoreIDs) {
     final String canonicalNameNormed = norm(canonicalName);
     if (canonicalNameNormed == null) return null;
 
@@ -311,20 +322,24 @@ public class IdLookupImpl implements IdLookup {
     Iterator<LookupUsage> iter = hits.iterator();
     while (iter.hasNext()) {
       LookupUsage u = iter.next();
-      boolean matchWithAuthorship = u.getAuthorship() != null || u.getYear() != null;
-      // allow uncertain kingdoms and ranks to match
-      if (rank != null && !RankUtils.match(rank, u.getRank()) || kingdom != null && !KingdomUtils.match(kingdom, u.getKingdom())) {
+      if (ignore(u.getKey(), ignoreIDs)) {
         iter.remove();
       } else {
-        // compare authorship. Only keep unknown matches if no authorship was requested
-        Equality eq = authComp.compare(authorship, year, u.getAuthorship(), u.getYear());
-        if (eq == Equality.DIFFERENT) {
+        boolean matchWithAuthorship = u.getAuthorship() != null || u.getYear() != null;
+        // allow uncertain kingdoms and ranks to match
+        if (rank != null && !RankUtils.match(rank, u.getRank()) || kingdom != null && !KingdomUtils.match(kingdom, u.getKingdom())) {
           iter.remove();
         } else {
-          if (!matchWithAuthorship) {
-            canonicalMatch.add(u);
-          } else if (eq == Equality.EQUAL){
-            withAuthormatch.add(u);
+          // compare authorship. Only keep unknown matches if no authorship was requested
+          Equality eq = authComp.compare(authorship, year, u.getAuthorship(), u.getYear());
+          if (eq == Equality.DIFFERENT) {
+            iter.remove();
+          } else {
+            if (!matchWithAuthorship) {
+              canonicalMatch.add(u);
+            } else if (eq == Equality.EQUAL){
+              withAuthormatch.add(u);
+            }
           }
         }
       }
