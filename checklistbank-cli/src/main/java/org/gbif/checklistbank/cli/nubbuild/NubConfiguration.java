@@ -73,6 +73,8 @@ public class NubConfiguration {
    * List of higher wrong homonyms that should be removed, regardless of which source they came from.
    * Map of a canonical name to its direct parent.
    * All other names with the same canonical name, but different parent, are kept.
+   *
+   * See https://github.com/gbif/checklistbank/issues/93 for more background.
    */
   @NotNull
   @Valid

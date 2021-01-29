@@ -64,6 +64,7 @@ public class NubBuilderIT {
         "Calendrella cinerea ongumaensis",	// https://github.com/gbif/checklistbank/issues/47
         "Tricholaema leucomelan namaqua"	// https://github.com/gbif/checklistbank/issues/46
     );
+    CFG.homonymExclusions.put("Setabis", Lists.newArrayList("Riodinidae"));
   }
 
   private static void log(String msg, Object... args) {
