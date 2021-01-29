@@ -71,7 +71,6 @@ public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
   public static final Set<Rank> NUB_RANKS;
-  private final Set<String> blacklist;
 
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -107,7 +106,6 @@ public class NubBuilder implements Runnable {
   private final IdGenerator idGen;
   private final Int2LongMap src2NubKey = new Int2LongOpenHashMap();
   private final Long2IntMap basionymRels = new Long2IntOpenHashMap(); // node.id -> src.usageKey
-  private final Map<String, String> homonymExclusions;
   private final Map<UUID, Integer> priorities = Maps.newHashMap();
   private Integer maxPriority = 0;
   private int datasetCounter = 1;
@@ -118,53 +116,7 @@ public class NubBuilder implements Runnable {
     this.authorComparator = authorComparator;
     idGen = new IdGenerator(idLookup, newIdStart);
     this.cfg = cfg;
-
-    blacklist = readBlacklist(cfg.blacklist)
-        .map(String::trim)
-        .map(String::toUpperCase)
-        .collect(Collectors.toSet());
-    homonymExclusions = readHomonymExclusion();
-  }
-
-  private static Stream<String> readBlacklist(URI source) {
-    Set<String> blacks = Sets.newHashSet();
-    try {
-      InputStream stream;
-      if (source.isAbsolute()) {
-        stream = source.toURL().openStream();
-      } else {
-        stream = FileUtils.classpathStream(source.toString());
-      }
-      LineIterator lines = FileUtils.getLineIterator(stream);
-      while (lines.hasNext()) {
-        String line = lines.nextLine();
-        // comment?
-        if (line.startsWith("#")) continue;
-        blacks.add(line.split("\t", 2)[0]);
-      }
-    } catch (IOException e) {
-      LOG.error("Blacklist could not be read", e);
-    }
-    return blacks.stream();
-  }
-  
-  private static Map<String, String> readHomonymExclusion() {
-    Map<String, String> excl = new HashMap<>();
-    try {
-      InputStream stream = FileUtils.classpathStream("backbone/homonym-exclusion.csv");
-      LineIterator lines = FileUtils.getLineIterator(stream);
-      lines.next(); // skip header
-      while (lines.hasNext()) {
-        String line = lines.nextLine();
-        // comment?
-        if (StringUtils.isBlank(line) || line.startsWith("#")) continue;
-        String[] cols = line.split(",", 2);
-        excl.put(cols[0].trim(), cols[1].trim());
-      }
-    } catch (IOException e) {
-      LOG.error("Homonym exclusions could not be read", e);
-    }
-    return excl;
+    cfg.normalizeConfigs();
   }
 
   public static NubBuilder create(NubConfiguration cfg) {
@@ -997,18 +949,18 @@ public class NubBuilder implements Runnable {
   
   private boolean isExcludedHomonym(NubUsage u) {
     NubUsage parent = db.parent(u);
-    return homonymExclusions.getOrDefault(u.parsedName.canonicalName(), "").equalsIgnoreCase(parent.parsedName.canonicalName());
+    return cfg.isExcludedHomonym(u.parsedName.canonicalName(), parent.parsedName.canonicalName());
   }
 
   private boolean isExcludedHomonym(SrcUsage u, NubUsage parent) {
-    return homonymExclusions.getOrDefault(u.scientificName, "").equalsIgnoreCase(parent.parsedName.canonicalName());
+    return cfg.isExcludedHomonym(u.scientificName, parent.parsedName.canonicalName());
   }
   
   /**
    * Only checks if the usage is one of a known homonym pair, but does not assert it needs to be removed.
    */
   private boolean isExcludedHomonym(SrcUsage u) {
-    return homonymExclusions.containsKey(u.scientificName);
+    return cfg.homonymExclusions.containsKey(u.scientificName);
   }
   
   private NubUsageMatch processHomonymSourceUsage(SrcUsage u, Origin origin, NubUsage parent, NubUsageMatch match) throws IgnoreSourceUsageException {
@@ -1056,7 +1008,12 @@ public class NubBuilder implements Runnable {
 
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
-      if (!match.isMatch() || (fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource && origin != Origin.IMPLICIT_NAME)) {
+      // first check if we deal with a homonym that should be removed - no matter if the source is a supragenericHomonymSource
+      if (match.isMatch() && u.status.isAccepted() && match.usage.status.isAccepted() && isExcludedHomonym(u)){
+        // accepted homonym genus with a previous (homonym) match. Find out which one needs to be removed
+        match = processHomonymSourceUsage(u, origin, parent, match);
+
+      } else if (!match.isMatch() || (fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource && origin != Origin.IMPLICIT_NAME)) {
 
         // remember if we had a doubtful match
         NubUsage doubtful = match.doubtfulUsage;
@@ -1066,11 +1023,7 @@ public class NubBuilder implements Runnable {
         if (doubtful != null && u.status == TaxonomicStatus.ACCEPTED) {
           db.transferChildren(match.usage, doubtful);
         }
-  
-      } else if (u.status.isAccepted() && match.usage.status.isAccepted() && isExcludedHomonym(u)){
-        // accepted homonym genus. Find out which one needs to be removed
-        match = processHomonymSourceUsage(u, origin, parent, match);
-  
+
       } else {
         if (origin == Origin.IMPLICIT_NAME) {
           // do not update or change usages with implicit names
@@ -1253,8 +1206,8 @@ public class NubBuilder implements Runnable {
 
   private boolean blacklisted(SrcUsage u) {
     return u.parsedName.getType() == NameType.BLACKLISTED ||
-        blacklist.contains(u.scientificName.toUpperCase()) ||
-        (u.parsedName.canonicalName() != null && blacklist.contains(u.parsedName.canonicalName().toUpperCase()));
+        cfg.isBlacklisted(u.scientificName) ||
+        (u.parsedName.canonicalName() != null && cfg.isBlacklisted(u.parsedName.canonicalName()));
   }
 
   /**

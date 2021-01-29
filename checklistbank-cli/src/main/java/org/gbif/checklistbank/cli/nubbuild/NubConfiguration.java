@@ -2,10 +2,13 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import com.beust.jcommander.ParametersDelegate;
 import com.google.common.collect.Sets;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
+import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.api.model.Constants;
 
@@ -16,6 +19,7 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -48,7 +52,11 @@ public class NubConfiguration {
 
   @NotNull
   @Valid
-  public URI blacklist = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/blacklist.tsv");
+  public Set<String> blacklist = new HashSet<>();
+
+  public boolean isBlacklisted(String name) {
+    return blacklist.contains(name.trim().toUpperCase());
+  }
 
   /**
    * Set of dataset keys from which suprageneric homonyms are allowed during nub builds.
@@ -60,6 +68,23 @@ public class NubConfiguration {
       UUID.fromString("daacce49-b206-469b-8dc2-2257719f3afa"), // backbone patch
       Constants.COL_DATASET_KEY
   );
+
+  /**
+   * List of higher wrong homonyms that should be removed, regardless of which source they came from.
+   * Map of a canonical name to its direct parent.
+   * All other names with the same canonical name, but different parent, are kept.
+   */
+  @NotNull
+  @Valid
+  public Map<String, List<String>> homonymExclusions = new HashMap<>();
+
+  /**
+   * Checks the homonymExclusion list to see if this combination should be excluded.
+   * @return true if the name with the given parent should be excluded
+   */
+  public boolean isExcludedHomonym(String name, String parent) {
+    return parent != null && homonymExclusions.getOrDefault(name, Collections.EMPTY_LIST).contains(parent.trim().toUpperCase());
+  }
 
   /**
    * Map of source dataset keys to a list of taxon names to be excluded from that source,
@@ -128,4 +153,26 @@ public class NubConfiguration {
   @Min(100)
   public int parserTimeout = 1000;
 
+
+  /**
+   * Trims and changes cases for various sensitive configs, e.g. the blacklist.
+   */
+  public void normalizeConfigs(){
+    blacklist = blacklist.stream()
+      .map(String::trim)
+      .map(String::toUpperCase)
+      .collect(Collectors.toSet());
+
+    for (String cn : homonymExclusions.keySet()) {
+      if (homonymExclusions.get(cn).isEmpty()) {
+        homonymExclusions.remove(cn);
+      } else {
+        homonymExclusions.put(cn, homonymExclusions.get(cn).stream()
+            .map(String::trim)
+            .map(String::toUpperCase)
+            .collect(Collectors.toList())
+        );
+      }
+    }
+  }
 }

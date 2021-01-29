@@ -1,0 +1,305 @@
+messaging:
+  host: mq.gbif.org
+  virtualHost: /users/xxx
+  username: xxx
+  password: xyz
+neo:
+  neoRepository: /tmp/neo
+  mappedMemory: 1024
+clb:
+  serverName: localhost
+  databaseName: clb
+  user: clb
+  password: clb
+
+homonymLists:
+  - daacce49-b206-469b-8dc2-2257719f3afa
+  - 7ddf754f-d193-4cc9-b351-99906754a03b
+
+excludedTaxa:
+  7ddf754f-d193-4cc9-b351-99906754a03b:
+    - rank: FAMILY
+      name: Fabaceae
+
+    - rank: KINGDOM
+      name: Bacteria
+
+    - rank: KINGDOM
+      name: Archaea
+
+blacklist:
+  - Unaccepted
+  - Calendrella cinerea ongumaensis # https://github.com/gbif/checklistbank/issues/47
+  - Tricholaema leucomelan namaqua  # https://github.com/gbif/checklistbank/issues/46
+  - Incertae  # https://github.com/gbif/portal-feedback/issues/1845
+
+homonymExclusions:
+  # order
+  Diplomonadida:
+    - Eopharyngea
+  Piroplasmida:
+    - Miozoa
+  Trichomonadida:
+    - Trichomonadea
+  # families
+  Glossoscolecidae:
+    - Crassiclitellata
+  # genera
+  Abisara:
+    - Riodinidae
+  Actinosphaera:
+    - Watznaueriaceae
+  Aethia:
+    - Lonchocephalidae
+  Alesa:
+    - Riodinidae
+  Anama:
+    - Cerambycidae
+  Ancyluris:
+    - Riodinidae
+  Aniculus:
+    - Paguridea
+  Anteros:
+    - Riodinidae
+  Apodemia:
+    - Riodinidae
+  Argyrogrammana:
+    - Riodinidae
+  Aricoris:
+    - Riodinidae
+  Arpadites:
+    - Trachyceratidae
+  Audre:
+    - Riodinidae
+  Axiagasta:
+    - Geometridae
+  Baeotis:
+    - Riodinidae
+  Barbicornis:
+    - Riodinidae
+  Barroisiceras:
+    - Muniericeratidae
+  Bartramia:
+    - Bryopsida
+  Cadosinopsis:
+    - Thoracosphaeraceae
+  Calephelis:
+    - Riodinidae
+  Calydna:
+    - Riodinidae
+  Caria:
+    - Riodinidae
+  Carterus:
+    - Curculionidae
+  Cerceris:
+    - Masaridae
+  Chaetophora:
+    - Chaetophoraceae
+  Chalodeta:
+    - Riodinidae
+  Chamaelimnas:
+    - Riodinidae
+  Charis:
+    - Riodinidae
+  Chorinea:
+    - Riodinidae
+  Cicada:
+    - Cicadellidae
+  Clionites:
+    - Sandlingitidae
+  Cnemidophorus:
+    - Curculionidae
+  Coccinella:
+    - Hydrophilidae
+  Colaciticus:
+    - Riodinidae
+  Cremna:
+    - Riodinidae
+  Curculionites:
+    - Coleoptera
+  Cyrtia:
+    - Syringothyrididae
+  Dardanus:
+    - Paguridae
+  Dicallaneura:
+    - Riodinidae
+  Discias:
+    - Bresiliidae
+  Dodona:
+    - Riodinidae
+  Ducellieria:
+    - Ducellieriaceae
+  Dysmathia:
+    - Riodinidae
+  Ematurgina:
+    - Riodinidae
+  Emesis:
+    - Riodinidae
+  Endemosarca:
+    - Endemosarcaceae
+  Esthemopsis:
+    - Riodinidae
+  Eurybia:
+    - Riodinidae
+  Euselasia:
+    - Riodinidae
+  Heliodiscus:
+    - Bacillariophyceae
+  Hermathena:
+    - Riodinidae
+  Heteronyx:
+    - Curculionidae
+  Hiatella:
+    - Lyonsiidae
+  Hyphilaria:
+    - Riodinidae
+  Ichneumon:
+    - Eulophidae
+  Imelda:
+    - Riodinidae
+  Ithomeis:
+    - Riodinidae
+  Ithomiola:
+    - Riodinidae
+  Komiella:
+    - Rugosochonetidae
+  Lasaia:
+    - Riodinidae
+  Lemonias:
+    - Riodinidae
+  Lepricornis:
+    - Riodinidae
+  Leucochimona:
+    - Riodinidae
+  Ligniera:
+    - Plasmodiophoraceae
+  Lyropteryx:
+    - Riodinidae
+  Lytoceras:
+    - Tetragonitidae
+  Melanis:
+    - Riodinidae
+  Membranosorus:
+    - Plasmodiophoraceae
+  Menander:
+    - Riodinidae
+  Mesene:
+    - Riodinidae
+  Mesenopsis:
+    - Riodinidae
+  Mesosemia:
+    - Riodinidae
+  Metacharis:
+    - Riodinidae
+  Milvus:
+    - Falconidae
+  Monethe:
+    - Riodinidae
+  Napaea:
+    - Riodinidae
+  Necyria:
+    - Riodinidae
+  Nymphidium:
+    - Riodinidae
+  Octomyxa:
+    - Plasmodiophoraceae
+  Octotoma:
+    - Dryophthoridae
+  Oligomerus:
+    - Ptinidae
+  Omma:
+    - Cupedidae
+  Pachythone:
+    - Riodinidae
+  Panara:
+    - Riodinidae
+  Pandemos:
+    - Riodinidae
+  Paracrangon:
+    - Hippolytidae
+  Parahoplites:
+    - Deshayesitidae
+  Paralaxita:
+    - Riodinidae
+  Pelecanus:
+    - Dinosauria
+  Phaenochitonia:
+    - Riodinidae
+  Planaria:
+    - Nemertea
+  Plasmodiophora:
+    - Plasmodiophoraceae
+  Platyrhynchus:
+    - Attelabidae
+  Pleuridium:
+    - Archidiaceae
+  Polycaena:
+    - Riodinidae
+  Polymyxa:
+    - Plasmodiophoraceae
+  Praetaxila:
+    - Riodinidae
+  Productus:
+    - Aulostegidae
+  Productus:
+    - Linoproductidae
+  Productus:
+    - Productellidae
+  Psorergates:
+    - Cheyletidae
+  Pterographium:
+    - Riodinidae
+  Raphidiophrys:
+    - Raphidiophryidae
+  Rodinia:
+    - Riodinidae
+  Roeberella:
+    - Riodinidae
+  Semomesia:
+    - Riodinidae
+  Setabis:
+    - Riodinidae
+  Siseme:
+    - Riodinidae
+  Sorodiscus:
+    - Plasmodiophoraceae
+  Sphex:
+    - Pompilidae
+  Sphex:
+    - Vespidae
+  Spirifer:
+    - Paeckelmanellidae
+  Spiriferina:
+    - Paraspiriferinidae
+  Spiriferina:
+    - Spiriferellidae
+  Sporomyxa:
+    - Plasmodiophoraceae
+  Stichelia:
+    - Riodinidae
+  Symmachia:
+    - Riodinidae
+  Syrmatia:
+    - Riodinidae
+  Taxila:
+    - Riodinidae
+  Teratophthalma:
+    - Riodinidae
+  Tetramyxa:
+    - Plasmodiophoraceae
+  Tettigonia:
+    - Cicadidae
+  Thalassomyces:
+    - Ellobiopsidae
+  Themone:
+    - Riodinidae
+  Theope:
+    - Riodinidae
+  Vrilletta:
+    - Curculionidae
+  Woronina:
+    - Plasmodiophoraceae
+  Xenandra:
+    - Riodinidae
+  Zelotaea:
+    - Riodinidae

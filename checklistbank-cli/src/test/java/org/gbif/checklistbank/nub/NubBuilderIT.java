@@ -59,7 +59,11 @@ public class NubBuilderIT {
     CFG.autoImport = false;
     CFG.neo.batchSize = 5000;
     CFG.parserTimeout = 250;
-    CFG.blacklist = URI.create("blacklist-test.tsv");
+    CFG.blacklist = Sets.newHashSet(
+        "Unaccepted",
+        "Calendrella cinerea ongumaensis",	// https://github.com/gbif/checklistbank/issues/47
+        "Tricholaema leucomelan namaqua"	// https://github.com/gbif/checklistbank/issues/46
+    );
   }
 
   private static void log(String msg, Object... args) {
