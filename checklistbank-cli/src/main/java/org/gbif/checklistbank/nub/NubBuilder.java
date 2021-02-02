@@ -401,6 +401,14 @@ public class NubBuilder implements Runnable {
             int p1 = priorities.get(u1.datasetKey);
             int p2 = priorities.get(u.datasetKey);
 
+            if (p1==p2) {
+              // both from the same source.
+              // Check if one of them could be the type genus and prefer that, i.e. a similar named parent
+              p1 = -wordStemSize(u1);
+              p2 = -wordStemSize(u);
+              LOG.info("Homonym from the same source {}, prefer {} over {}", u.datasetKey, p2<p1 ? u:u1, p2<p1 ? u1:u);
+            }
+
             if (p2 < p1) {
               // the old usage is from a less trusted source
               u1.status = TaxonomicStatus.DOUBTFUL;
@@ -417,6 +425,12 @@ public class NubBuilder implements Runnable {
         }
       }
     }
+  }
+
+  private int wordStemSize(NubUsage u){
+    NubUsage p = db.parent(u);
+    String common = StringUtils.getCommonPrefix(u.parsedName.getScientificName(), p.parsedName.getScientificName());
+    return common.length();
   }
 
   /**
