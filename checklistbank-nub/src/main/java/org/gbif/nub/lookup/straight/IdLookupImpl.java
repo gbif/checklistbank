@@ -3,9 +3,7 @@ package org.gbif.nub.lookup.straight;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.*;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Kingdom;
@@ -35,6 +33,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.
@@ -509,6 +509,8 @@ public class IdLookupImpl implements IdLookup {
   private class LookupIterator implements Iterator<LookupUsage> {
     private final Iterator<List<LookupUsage>> canonIter;
     private Iterator<LookupUsage> iter = null;
+    private LookupUsage pp = null;
+    private IntIterator ppIter = null;
 
     public LookupIterator() {
       canonIter = usages.values().iterator();
@@ -516,7 +518,7 @@ public class IdLookupImpl implements IdLookup {
 
     @Override
     public boolean hasNext() {
-      return (iter != null && iter.hasNext()) || canonIter.hasNext();
+      return (ppIter != null && ppIter.hasNext()) || (iter != null && iter.hasNext()) || canonIter.hasNext();
     }
 
     @Override
@@ -526,10 +528,31 @@ public class IdLookupImpl implements IdLookup {
 
     @Override
     public LookupUsage next() {
+      if (ppIter != null && ppIter.hasNext()) {
+        return proParteUsage(ppIter.next());
+      }
       if (iter == null || !iter.hasNext()) {
         iter = canonIter.next().iterator();
       }
-      return iter.next();
+      LookupUsage u = iter.next();
+      if (u.getProParteKeys() != null && !u.getProParteKeys().isEmpty()) {
+        pp = u;
+        ppIter = u.getProParteKeys().values().iterator();
+        return proParteUsage(ppIter.next());
+      }
+      return u;
+    }
+
+    private LookupUsage proParteUsage(int val) {
+      LookupUsage ppu = new LookupUsage();
+      ppu.setDeleted(val < 0);
+      ppu.setKey(Math.abs(val));
+      ppu.setKingdom(pp.getKingdom());
+      ppu.setRank(pp.getRank());
+      ppu.setCanonical(pp.getCanonical());
+      ppu.setAuthorship(pp.getAuthorship());
+      ppu.setYear(pp.getYear());
+      return ppu;
     }
   }
 }

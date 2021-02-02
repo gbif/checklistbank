@@ -1,5 +1,8 @@
 package org.gbif.nub.lookup.straight;
 
+import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import org.apache.hadoop.util.IdGenerator;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.Collections;
@@ -16,6 +19,27 @@ import static org.gbif.api.vocabulary.TaxonomicStatus.*;
  *
  */
 public class LookupUsageTest {
+
+  /**
+   * key, value, key, value, ...
+   * pro parte maps have the parent usageKey as key, the pro parte usage key as value
+   */
+  public static Int2IntMap map(int ... kvs) {
+    Int2IntMap m = new Int2IntArrayMap(kvs.length / 2);
+    int idx = 0;
+    while (idx < kvs.length) {
+      m.put(kvs[idx], kvs[idx+1]);
+      idx = idx + 2;
+    }
+    return m;
+  }
+
+  @Test
+  public void testStr() throws Exception {
+    System.out.println(
+      new LookupUsage(443, map(1,2, 3,4), "Abies", "Mill.", "1978", Rank.GENUS, ACCEPTED, PLANTAE, false).toString()
+    );
+  }
 
   @Test
   public void testCompareTo() throws Exception {

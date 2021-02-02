@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Optional;
 
 import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.Rank.*;
@@ -45,6 +46,13 @@ public class IdLookupImplTest {
         new LookupUsage(18, "SH486523.07FU", null, null, UNRANKED, SYNONYM, FUNGI, false)
     );
     return IdLookupImpl.temp().load(usages);
+  }
+
+  @Test
+  public void testIterator() throws Exception {
+    for (LookupUsage u : l) {
+      System.out.println(u);
+    }
   }
 
   @Test

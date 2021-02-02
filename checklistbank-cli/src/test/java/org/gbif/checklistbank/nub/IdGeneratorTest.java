@@ -67,7 +67,7 @@ public class IdGeneratorTest {
    * key, value, key, value, ...
    * pro parte maps have the parent usageKey as key, the pro parte usage key as value
    */
-  private static Int2IntMap map(int ... kvs) {
+  public static Int2IntMap map(int ... kvs) {
     Int2IntMap m = new Int2IntArrayMap(kvs.length / 2);
     int idx = 0;
     while (idx < kvs.length) {

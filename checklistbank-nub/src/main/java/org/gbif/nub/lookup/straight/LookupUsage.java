@@ -157,12 +157,14 @@ public class LookupUsage implements Comparable<LookupUsage> {
         .compare(this.rank, that.rank, Ordering.natural().nullsLast())
         .compare(this.kingdom, that.kingdom, Ordering.natural().nullsLast())
         .compare(this.canonical, that.canonical, Ordering.natural().nullsLast())
+        .compare(this.authorship, that.authorship, Ordering.natural().nullsLast())
         .compare(this.status, that.status, Ordering.natural().nullsLast())
+        .compare(this.key, that.key, Ordering.natural().nullsLast())
         .result();
   }
 
   @Override
   public String toString() {
-    return String.format("%s %s [%s]", canonical, authorship, key);
+    return String.format("%s %s [%s%s]", canonical, authorship, key, proParteKeys!=null && !proParteKeys.isEmpty() ? "/pp"+proParteKeys.size():"");
   }
 }

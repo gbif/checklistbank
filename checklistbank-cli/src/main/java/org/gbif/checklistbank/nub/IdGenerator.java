@@ -11,10 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.Date;
-import java.util.Collections;
-import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -148,41 +145,20 @@ public class IdGenerator {
     List<LookupUsage> del = Lists.newArrayList();
     List<LookupUsage> res = Lists.newArrayList();
     // also include pro parte usages that are hidden in the main usages proParteKeys property
-    streamAll().forEach(u -> {
-        if (u.isDeleted()) {
-          if (resurrected.contains(u.getKey()) || resurrectedPP.contains(u.getKey())) {
-            res.add(u);
-          }
-        } else if (!reissued.contains(u.getKey()) && !reissuedPP.contains(u.getKey())) {
-          del.add(u);
+    for (LookupUsage u : lookup) {
+      if (u.isDeleted()) {
+        if (resurrected.contains(u.getKey()) || resurrectedPP.contains(u.getKey())) {
+          res.add(u);
         }
+      } else if (!reissued.contains(u.getKey()) && !reissuedPP.contains(u.getKey())) {
+        del.add(u);
       }
-    );
+    }
 
     // write report files
     print(del, new File(reportingDir, "deleted.txt"));
     print(res, new File(reportingDir, "resurrected.txt"));
     print(created, new File(reportingDir, "created.txt"));
-  }
-
-  private Stream<LookupUsage> streamAll(){
-    final int characteristics = Spliterator.NONNULL | Spliterator.SIZED | Spliterator.DISTINCT;
-    return StreamSupport.stream(Spliterators.spliterator(lookup.iterator(), lookup.size(), characteristics), false)
-        .flatMap(u -> u.getProParteKeys() == null ? Stream.of(u) : Stream.concat(Stream.of(u), proParteUsages(u)));
-  }
-
-  private static Stream<LookupUsage> proParteUsages(LookupUsage orig) {
-    return StreamSupport.stream(orig.getProParteKeys().values().spliterator(), false).map(val -> {
-      LookupUsage ppu = new LookupUsage();
-      ppu.setDeleted(val < 0);
-      ppu.setKey(Math.abs(val));
-      ppu.setKingdom(orig.getKingdom());
-      ppu.setRank(orig.getRank());
-      ppu.setCanonical(orig.getCanonical());
-      ppu.setAuthorship(orig.getAuthorship());
-      ppu.setYear(orig.getYear());
-      return ppu;
-    });
   }
 
   private void print(List<LookupUsage> usages, File f) throws IOException {
