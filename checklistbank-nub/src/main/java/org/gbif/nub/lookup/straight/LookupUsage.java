@@ -155,10 +155,8 @@ public class LookupUsage implements Comparable<LookupUsage> {
   public int compareTo(LookupUsage that) {
     return ComparisonChain.start()
         .compare(this.rank, that.rank, Ordering.natural().nullsLast())
-        .compare(this.kingdom, that.kingdom, Ordering.natural().nullsLast())
         .compare(this.canonical, that.canonical, Ordering.natural().nullsLast())
         .compare(this.authorship, that.authorship, Ordering.natural().nullsLast())
-        .compare(this.status, that.status, Ordering.natural().nullsLast())
         .compare(this.key, that.key, Ordering.natural().nullsLast())
         .result();
   }

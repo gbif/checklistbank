@@ -55,8 +55,8 @@ public class LookupUsageTest {
     Collections.sort(usages);
 
     assertEquals(88, usages.get(0).getKey());
-    assertEquals(5323, usages.get(1).getKey());
-    assertEquals(443, usages.get(2).getKey());
+    assertEquals(443, usages.get(1).getKey());
+    assertEquals(5323, usages.get(2).getKey());
     assertEquals(23, usages.get(3).getKey());
     assertEquals(3, usages.get(4).getKey());
     assertEquals(13, usages.get(5).getKey());
