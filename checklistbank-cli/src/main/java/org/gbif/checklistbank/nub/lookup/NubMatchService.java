@@ -5,6 +5,7 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.ParentStack;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -83,7 +84,7 @@ public class NubMatchService {
         LookupUsage match;
         if (u.parsedName.isParsed()) {
           // match by canonically reconstructed name
-          match = nubLookup.match(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
+          match = nubLookup.match(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
         } else {
           // match by full sciname
           match = nubLookup.match(u.scientificName, u.rank, parents.nubKingdom());

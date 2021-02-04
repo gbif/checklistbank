@@ -78,7 +78,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       boolean found = false;
       for (Node p : Traversals.PARENTS.traverse(start).nodes()) {
         NubUsage u = db.dao().readNub(p);
-        if (parent.equalsIgnoreCase(u.parsedName.canonicalName()) && (parentRank == null || u.rank.equals(parentRank))) {
+        if (parent.equalsIgnoreCase(NubDb.canonicalOrScientificName(u.parsedName)) && (parentRank == null || u.rank.equals(parentRank))) {
           found = true;
         }
       }
@@ -113,7 +113,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       Node start = nodeById(usageKey);
       for (Node p : Traversals.PARENTS.traverse(start).nodes()) {
         NubUsage u = db.dao().readNub(p);
-        Assert.assertEquals(expected.next(), u.parsedName.canonicalName());
+        Assert.assertEquals(expected.next(), NubDb.canonicalOrScientificName(u.parsedName));
       }
       Assert.assertFalse(expected.hasNext());
     } catch (AssertionError e) {

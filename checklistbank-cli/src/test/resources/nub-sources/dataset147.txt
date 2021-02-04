@@ -1,0 +1,35 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Coccinellidae	
+6	4		FAMILY	ACCEPTED		Corylophidae	
+7	4		FAMILY	ACCEPTED		Hydrophilidae	
+
+10	5		GENUS	ACCEPTED		Coccinella	
+11	5		GENUS	ACCEPTED		Coccidula	
+12	7		GENUS	ACCEPTED		Coccinella	
+13	12		SPECIES	ACCEPTED		Coccinella protogeae Germar, 1837	
+
+
+20	1		PHYLUM	ACCEPTED		Mollusca	
+21	20		CLASS	ACCEPTED		Bivalvia	
+22	20		CLASS	ACCEPTED		Gastropoda	
+
+100			KINGDOM	ACCEPTED		Fungi	
+101	100		PHYLUM	ACCEPTED		Ascomycota	
+102	101		CLASS	ACCEPTED		Candelariomycetes	
+103	102		ORDER	ACCEPTED		Candelariales	
+
+200			KINGDOM	ACCEPTED		Plantae	
+201	200		PHYLUM	ACCEPTED		Rhodophyta	
+202	201		CLASS	ACCEPTED		Florideophyceae Cronquist	
+
+203	202		ORDER	ACCEPTED		Gigartinales F. Schmitz	
+204	203		FAMILY	ACCEPTED		Gracilariaceae Nägeli, 1847	
+205	204		GENUS	ACCEPTED		Gracilaria Greville, 1830	
+206	204		GENUS	ACCEPTED		Gracilariophila Setchell & H.L.Wilson, 1910	
+207	204		GENUS	ACCEPTED		Curdiaea Kützing, 1869	
+208	203		FAMILY	ACCEPTED		Gigartinaceae Kützing, 1843	
+
+213	202		ORDER	ACCEPTED		Gracilariales S. Fredericq & M.H. Hommersand	

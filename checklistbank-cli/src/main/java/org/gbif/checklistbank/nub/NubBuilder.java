@@ -389,7 +389,7 @@ public class NubBuilder implements Runnable {
     for (Node n : nodes) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
-        String name = u.parsedName.canonicalName();
+        String name = NubDb.canonicalOrScientificName(u.parsedName);
         if (u.status == TaxonomicStatus.ACCEPTED && !StringUtils.isBlank(name)) {
           // prefix with rank ordinal to become unique across ranks (ordinal is shorter than full name to save mem)
           String indexedName = u.rank.ordinal() + name;
@@ -490,8 +490,8 @@ public class NubBuilder implements Runnable {
       for (Node n : Iterators.loop(db.dao().allInfraSpecies())) {
         if (!n.hasLabel(Labels.SYNONYM)) {
           NubUsage u = read(n);
-          // check for autonyms excluding virus names
-          if (u.kingdom != Kingdom.VIRUSES && !u.parsedName.isAutonym()) {
+          // check for autonyms excluding virus names or unparsed names (e.g. OTU)
+          if (u.kingdom != Kingdom.VIRUSES && u.parsedName.isParsableType() && u.parsedName.isParsed() && !u.parsedName.isAutonym()) {
             ParsedName pn = new ParsedName();
             pn.setType(NameType.SCIENTIFIC);
             pn.setGenusOrAbove(u.parsedName.getGenusOrAbove());
@@ -560,8 +560,8 @@ public class NubBuilder implements Runnable {
             // key all names by their terminal epithet
             for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
               NubUsage nub = read(c);
-              // ignore all supra specific names and autonyms
-              if (nub.rank.isSpeciesOrBelow() && !c.hasLabel(Labels.AUTONYM)) {
+              // ignore all supra specific names, autonyms and unparsed OTUs
+              if (nub.rank.isSpeciesOrBelow() && !c.hasLabel(Labels.AUTONYM) && nub.parsedName.isParsableType() && nub.parsedName.isParsed()) {
                 String epithet = SciNameNormalizer.stemEpithet(nub.parsedName.getTerminalEpithet());
                 if (!epithets.containsKey(epithet)) {
                   epithets.put(epithet, Lists.newArrayList(nub));
@@ -963,11 +963,11 @@ public class NubBuilder implements Runnable {
   
   private boolean isExcludedHomonym(NubUsage u) {
     NubUsage parent = db.parent(u);
-    return cfg.isExcludedHomonym(u.parsedName.canonicalName(), parent.parsedName.canonicalName());
+    return cfg.isExcludedHomonym(NubDb.canonicalOrScientificName(u.parsedName), NubDb.canonicalOrScientificName(parent.parsedName));
   }
 
   private boolean isExcludedHomonym(SrcUsage u, NubUsage parent) {
-    return cfg.isExcludedHomonym(u.scientificName, parent.parsedName.canonicalName());
+    return cfg.isExcludedHomonym(u.scientificName, NubDb.canonicalOrScientificName(parent.parsedName));
   }
   
   /**
@@ -1578,7 +1578,7 @@ public class NubBuilder implements Runnable {
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
       if (u.rank != Rank.KINGDOM) {
-        u.usageKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
+        u.usageKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
         db.dao().update(entry.getKey(), u);
       }
     }
@@ -1594,8 +1594,8 @@ public class NubBuilder implements Runnable {
           if (acc.usageKey <= 0) {
             LOG.warn("No usage key assigned to {}", acc);
           }
-          int ppKey = idGen.issue(u.parsedName.canonicalName(), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, acc.usageKey);
-          LOG.debug("Assign id {} for pro parte relation of primary usage {} {}", ppKey, u.usageKey, u.parsedName.canonicalNameComplete());
+          int ppKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, acc.usageKey);
+          LOG.debug("Assign id {} for pro parte relation of primary usage {} {}", ppKey, u.usageKey, u.parsedName.getScientificName());
           rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
         }
       }

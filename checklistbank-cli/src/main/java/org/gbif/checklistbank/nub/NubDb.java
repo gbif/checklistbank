@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
@@ -147,6 +148,17 @@ public class NubDb {
    */
   public NubUsageMatch findAcceptedNubUsage(Kingdom kingdom, final String canonical, Rank rank) throws HomonymException {
     return findNubUsage(canonical, rank, kingdom, false);
+  }
+
+  public static String canonicalOrScientificName(ParsedName pn) {
+    if (pn.isParsableType() && pn.isParsed()) {
+      String name = pn.canonicalName();
+      if (!StringUtils.isBlank(name)) {
+        return name;
+      }
+      LOG.error("Parsed {} name found with an empty canonical name string: {}", pn.getType(), pn.getScientificName());
+    }
+    return pn.getScientificName();
   }
 
   public NubUsageMatch findNubUsage(final String canonical, Rank rank, Kingdom kingdom, boolean inclSynonyms) throws HomonymException {

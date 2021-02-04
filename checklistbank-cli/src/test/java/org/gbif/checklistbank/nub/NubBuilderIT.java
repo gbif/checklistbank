@@ -464,6 +464,41 @@ public class NubBuilderIT {
   }
 
   /**
+   * OTU & accepted Coccinella genus
+   * https://github.com/gbif/checklistbank/issues/142
+   * https://github.com/gbif/checklistbank/issues/163
+   *
+   * 147=CoL
+   * 148=BOLD
+   */
+  @Test
+  public void testStableIds2() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(147, 148);
+    src.setSourceRank(147, Rank.KINGDOM);
+    src.setSupragenericHomonymSource(147);
+    build(src);
+
+    int grac = getScientific("Gracilariaceae", Rank.FAMILY).usageKey;
+
+    NubUsage u = getScientific("BOLD:ADR0965", Rank.UNRANKED);
+    assertEquals("BOLD:ADR0965", u.parsedName.getScientificName());
+    int otu = u.usageKey;
+
+    // rebuild nub with additional sources!
+    src = ClasspathSourceList.source(147, 148, 4);
+    src.setSourceRank(147, Rank.KINGDOM);
+    src.setSupragenericHomonymSource(147);
+    rebuild(src);
+
+    //assertTree("3 2 8 11.txt");
+
+    // assert ids havent changed!
+    assertEquals(grac, getScientific("Gracilariaceae", Rank.FAMILY).usageKey);
+    assertEquals(otu, getScientific("BOLD:ADR0965", Rank.UNRANKED).usageKey);
+  }
+
+
+  /**
    * http://dev.gbif.org/issues/browse/POR-3024
    * 77=CoL
    * 78=IRMNG
