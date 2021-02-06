@@ -45,9 +45,9 @@ public class ManualNubBuild {
     UsageDao dao = UsageDao.create(cfg.neo, Constants.NUB_DATASET_KEY);
     NubBuilder builder;
     if (sources == null) {
-      builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000, NubBuilderIT.CFG);
+      builder = NubBuilder.create(dao, ClbSourceList.create(cfg), new IdLookupPassThru(), 1000, NubBuilderIT.defaultConfig());
     } else {
-      builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Arrays.asList(sources)), new IdLookupPassThru(), 1000, NubBuilderIT.CFG);
+      builder = NubBuilder.create(dao, ClbSourceList.create(cfg, Arrays.asList(sources)), new IdLookupPassThru(), 1000, NubBuilderIT.defaultConfig());
     }
     builder.run();
     LOG.info("New backbone ready");

@@ -1,0 +1,20 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+0	2		SUBPHYLUM	ACCEPTED		Hexapoda	
+3	0		CLASS	ACCEPTED		Insecta Linnaeus, 1758	
+4	3		ORDER	ACCEPTED		Coleoptera Linnaeus, 1758	
+5	4		SUBORDER	ACCEPTED		Polyphaga Emery, 1886	
+6	5		SUPERFAMILY	ACCEPTED		Cucujoidea	
+7	6		FAMILY	ACCEPTED		Coccinellidae Latreille, 1807	
+8	7		SUBFAMILY	ACCEPTED		Coccinellinae Latreille, 1807	
+9	8		TRIBE	ACCEPTED		Coccinellini Latreille, 1807	
+
+10	9		GENUS	ACCEPTED		Coccinella Linnaeus, 1758	
+11	10		SPECIES	ACCEPTED		Coccinella hieroglyphica Linnaeus, 1758	
+12	10		SPECIES	ACCEPTED		Coccinella quinquepunctata Linnaeus, 1758	
+13	10		SPECIES	ACCEPTED		Coccinella septempunctata Linnaeus, 1758	
+14	10		SPECIES	ACCEPTED		Coccinella undecimpunctata Linnaeus, 1758	
+
+20	9		GENUS	ACCEPTED		Coccinula Dobzhansky, 1925	
+21	20		SPECIES	ACCEPTED		Coccinula quatuordecimpustulata (Linnaeus, 1758)	
+22	21		SPECIES	SYNONYM		Coccinula quattuordecimpustulata (Linnaeus, 1758)	

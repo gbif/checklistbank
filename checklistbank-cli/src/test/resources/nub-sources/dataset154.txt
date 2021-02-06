@@ -1,0 +1,24 @@
+0			UNRANKED	ACCEPTED		Biota	
+1	0		KINGDOM	ACCEPTED		Animalia	
+
+2	1		PHYLUM	ACCEPTED		Arthropoda von Siebold, 1848	
+12	2		SUBPHYLUM	ACCEPTED		Hexapoda Latreille, 1825	
+3	12		CLASS	ACCEPTED		Insecta Linnaeus, 1758	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Coccinellidae Latreille, 1807	
+
+6	5		GENUS	ACCEPTED		Mononeda Crotch, 1874	
+7	6		GENUS	SYNONYM		Coccinella Hope, 1840	
+8	6		GENUS	SYNONYM		Paramicraspis Hoang, 1983	
+
+10	5		GENUS	ACCEPTED		Coccinella Linnaeus, 1758	
+11	10		GENUS	SYNONYM		Acoccinella Iablokoff-Khnzorian, 1979	
+13	10		GENUS	SYNONYM		Coccionella Voet	
+14	10		GENUS	SYNONYM		Harmoniella Casey, 1908	
+15	10		GENUS	SYNONYM		Chelonitis Weise, 1879	
+
+22	1		PHYLUM	ACCEPTED		Mollusca Linnaeus, 1758	
+23	22		CLASS	ACCEPTED		Mollusca (awaiting allocation)	
+24	23		ORDER	ACCEPTED		Mollusca (awaiting allocation)	
+25	24		FAMILY	ACCEPTED		Mollusca (awaiting allocation)	
+26	25		GENUS	ACCEPTED		Coccinella Herrmannsen, 1847	

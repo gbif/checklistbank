@@ -122,7 +122,8 @@ public class IdLookupImpl implements IdLookup {
             + " TO STDOUT WITH NULL ''", writer);
         LOG.info("Added {} pro parte usages into id lookup", usages.size() - uCount);
       }
-      LOG.info("Loaded existing nub with {} usages and max key {} into id lookup", usages.size(), keyMax);
+
+      LOG.info("Loaded existing nub with {} usages ({} deleted) and max key {} into id lookup", usages.size(), deleted, keyMax);
     }
     return this;
   }
@@ -131,7 +132,6 @@ public class IdLookupImpl implements IdLookup {
   public void close() throws Exception {
     db.close();
   }
-
 
   /**
    * int key
@@ -193,7 +193,7 @@ public class IdLookupImpl implements IdLookup {
       Integer key = toInt(row[0]);
       Integer parentKey = toInt(row[1]);
       Integer proParteKey = toInt(row[2]);
-      boolean deleted = "t".equals(row[8]);
+      boolean deleted = "t".equals(row[9]);
       // only create a new usage if the pro parte key changes
       if (lastProParteKey == null || !lastProParteKey.equals(proParteKey)) {
         // add last if existing

@@ -1,0 +1,10 @@
+0			UNRANKED	ACCEPTED		Biota	
+1	0		KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda von Siebold, 1848	
+12	2		SUBPHYLUM	ACCEPTED		Hexapoda	
+3	12		CLASS	ACCEPTED		Insecta	
+13	3		SUBCLASS	ACCEPTED		Pterygota	
+4	13		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Coccinellidae Latreille, 1807	
+6	5		GENUS	ACCEPTED		Coccinella Linnaeus, 1758	
+7	6		SPECIES	ACCEPTED		Coccinella undecimpunctata Linnaeus, 1758	

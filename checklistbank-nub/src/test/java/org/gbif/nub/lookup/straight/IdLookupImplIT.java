@@ -1,8 +1,22 @@
 package org.gbif.nub.lookup.straight;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import org.apache.hadoop.util.IdGenerator;
+import org.gbif.api.model.Constants;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.model.NameUsageWritable;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.mapper.MapperITBase;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 
@@ -29,6 +43,49 @@ public class IdLookupImplIT {
 
   @Rule
   public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
+
+  @Test
+  public void load() throws Exception {
+    Injector guice = MapperITBase.setupMyBatis(dbSetup);
+    ParsedNameMapper pnMapper = guice.getInstance(ParsedNameMapper.class);
+    NameUsageMapper nuMapper = guice.getInstance(NameUsageMapper.class);
+    UsageMapper uMapper = guice.getInstance(UsageMapper.class);
+
+    // create 3 deleted & 1 non deleted nub usages
+    createName("Dracula bella L.", SPECIES, true, pnMapper, nuMapper, uMapper);
+    createName("Dracula bella Mill.", SPECIES, true, pnMapper, nuMapper, uMapper);
+    createName("Dracula bella DC.", SPECIES, true, pnMapper, nuMapper, uMapper);
+    createName("Dracula bella Engler.", SPECIES, false, pnMapper, nuMapper, uMapper);
+
+    ClbConfiguration cfg = dbSetup.getClbConfiguration();
+    IdLookup l = IdLookupImpl.temp().load(cfg, true);
+    for (LookupUsage u : l) {
+      System.out.println(u);
+    }
+
+    assertEquals(3, l.deletedIds());
+    assertEquals(6, l.size());
+  }
+
+  int createName(String name, Rank rank, boolean deleted, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper) {
+    ParsedName pn = new ParsedName();
+    pn.setType(NameType.SCIENTIFIC);
+    pn.setScientificName(name);
+    pn.setRank(rank);
+    pnMapper.create(pn);
+
+    NameUsageWritable u = new NameUsageWritable();
+    u.setDatasetKey(Constants.NUB_DATASET_KEY);
+    u.setNameKey(pn.getKey());
+    u.setRank(rank);
+    u.setTaxonomicStatus(ACCEPTED);
+    nuMapper.insert(u);
+
+    if (deleted) {
+      uMapper.deleteLogically(u.getKey());
+    }
+    return u.getKey();
+  }
 
   @Test
   public void testMatching() throws IOException, InterruptedException {

@@ -388,7 +388,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51, 144);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, NubBuilderIT.CFG);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, NubBuilderIT.defaultConfig());
     nb.run();
 
     openDb(Constants.NUB_DATASET_KEY);

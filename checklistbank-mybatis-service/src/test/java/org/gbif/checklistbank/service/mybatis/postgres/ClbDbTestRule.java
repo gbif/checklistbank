@@ -2,6 +2,8 @@ package org.gbif.checklistbank.service.mybatis.postgres;
 
 
 import org.gbif.api.model.Constants;
+import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -110,6 +112,11 @@ public class ClbDbTestRule implements TestRule {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public ClbConfiguration getClbConfiguration() throws Exception {
+    ChecklistBankServiceMyBatisModule module = new ChecklistBankServiceMyBatisModule(properties);
+    return module.provideCfg();
   }
 
   @Override

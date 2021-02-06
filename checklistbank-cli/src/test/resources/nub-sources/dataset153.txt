@@ -1,0 +1,27 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		SUBKINGDOM	ACCEPTED		Bilateria	
+3	2		INFRAKINGDOM	ACCEPTED		Protostomia	
+4	3		SUPERPHYLUM	ACCEPTED		Ecdysozoa	
+5	4		PHYLUM	ACCEPTED		Arthropoda	
+6	5		SUBPHYLUM	ACCEPTED		Hexapoda	
+7	6		CLASS	ACCEPTED		Insecta	
+8	7		SUBCLASS	ACCEPTED		Pterygota	
+9	8		INFRACLASS	ACCEPTED		Neoptera	
+10	9		SUPERORDER	ACCEPTED		Holometabola	
+11	10		ORDER	ACCEPTED		Coleoptera Linnaeus, 1758	
+12	11		SUBORDER	ACCEPTED		Polyphaga Emery, 1886	
+13	12		INFRAORDER	ACCEPTED		Cucujiformia Lameere, 1938	
+14	13		SUPERFAMILY	ACCEPTED		Coccinelloidea Latreille, 1807	
+15	14		FAMILY	ACCEPTED		Coccinellidae Latreille, 1807	
+16	15		SUBFAMILY	ACCEPTED		Coccinellinae Latreille, 1807	
+17	16		GENUS	ACCEPTED		Coccinella Linnaeus, 1758	
+20	17		SPECIES	ACCEPTED		Coccinella fulgida Watson, 1954	
+21	17		SPECIES	ACCEPTED		Coccinella hieroglyphica Linnaeus, 1758	
+30	21		SUBSPECIES	ACCEPTED		Coccinella hieroglyphica subsp. humboldtiensis Nunenmacher, 1912	
+31	21		SUBSPECIES	ACCEPTED		Coccinella hieroglyphica subsp. kirbyi Crotch, 1874	
+32	21		SUBSPECIES	ACCEPTED		Coccinella hieroglyphica subsp. mannerheimi Mulsant, 1850	
+22	17		SPECIES	ACCEPTED		Coccinella septempunctata Linnaeus, 1758	
+23	22		SUBSPECIES	ACCEPTED		Coccinella septempunctata subsp. brucki Mulsant, 1866	
+24	22		SUBSPECIES	ACCEPTED		Coccinella septempunctata subsp. septempunctata Linnaeus, 1758	
+25	17		SPECIES	ACCEPTED		Coccinella undecimpunctata Linnaeus, 1758	
+26	25		SUBSPECIES	ACCEPTED		Coccinella undecimpunctata subsp. undecimpunctata Linnaeus, 1758	

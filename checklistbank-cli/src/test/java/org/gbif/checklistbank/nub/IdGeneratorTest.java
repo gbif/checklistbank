@@ -9,12 +9,14 @@ import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import org.gbif.utils.file.FileUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -80,15 +82,28 @@ public class IdGeneratorTest {
   @Test
   public void testIssueId() throws Exception {
     IdGenerator gen = new IdGenerator(newTestLookup(), 1000);
-    assertEquals(1000, gen.issue("Dracula", null, null, GENUS, null, PLANTAE));
-    assertEquals(1, gen.issue("Animalia", null, null, KINGDOM, null, ANIMALIA));
-    assertEquals(8, gen.issue("Rodentia", null, null, GENUS, null, ANIMALIA));
-    // external issueing
-    gen.reissue(14);
-    // was issued already!
-    assertEquals(1001, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
-    assertEquals(1002, gen.issue("Animalia", null, null, KINGDOM, null, ANIMALIA));
-    assertEquals(1003, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
+
+    File dir = FileUtils.createTempDir();
+    try {
+      gen.writeReports(dir);
+
+      assertEquals(1000, gen.issue("Dracula", null, null, GENUS, null, PLANTAE));
+      assertEquals(1, gen.issue("Animalia", null, null, KINGDOM, null, ANIMALIA));
+      assertEquals(8, gen.issue("Rodentia", null, null, GENUS, null, ANIMALIA));
+      // external issueing
+      gen.reissue(14);
+      // was issued already!
+      assertEquals(1001, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
+      assertEquals(1002, gen.issue("Animalia", null, null, KINGDOM, null, ANIMALIA));
+      assertEquals(1003, gen.issue("Carex cayouettei", null, null, SPECIES, null, PLANTAE));
+
+      FileUtils.deleteDirectoryRecursively(dir);
+      gen.writeReports(dir);
+
+
+    } finally {
+      FileUtils.deleteDirectoryRecursively(dir);
+    }
   }
 
   /**

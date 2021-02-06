@@ -1,0 +1,18 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Coccinellidae Latreille, 1807	
+6	5		SUBFAMILY	ACCEPTED		Coccinellinae Latreille, 1807	
+7	5		TRIBE	ACCEPTED		Coccidulini Mulsant, 1846	
+8	5		TRIBE	ACCEPTED		Coccinellini Latreille, 1807	
+
+9	5		GENUS	ACCEPTED		Coccidula Kugelann, 1798	
+10	9		SPECIES	ACCEPTED		Coccidula lepida LeConte, 1852	
+11	5		GENUS	ACCEPTED		Coccinella Linnaeus, 1758	
+12	11		SPECIES	ACCEPTED		Coccinella septempunctata Linnaeus, 1758	
+13	11		SPECIES	ACCEPTED		Coccinella fulgida Watson, 1954	
+14	11		SUBSPECIES	ACCEPTED		Coccinella hieroglyphica subsp. humboldtiensis Nunenmacher, 1912	
+15	11		SUBSPECIES	ACCEPTED		Coccinella hieroglyphica subsp. kirbyi Crotch, 1874	
+16	11		SUBSPECIES	ACCEPTED		Coccinella prolongata subsp. prolongata Crotch, 1873	
+17	11		SUBSPECIES	ACCEPTED		Coccinella undecimpunctata subsp. undecimpunctata Linnaeus, 1758	

@@ -64,12 +64,16 @@ public class MapperITBase<T> {
 
   @Before
   public void init() throws Exception {
-    Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(sbSetup.getProperties()), 500, 2);
-    injector = Guice.createInjector(module);
+    injector = setupMyBatis(sbSetup);
     mapper = injector.getInstance(mapperClass);
     if (initData) {
       initData();
     }
+  }
+
+  public static Injector setupMyBatis(ClbDbTestRule rule) {
+    Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(rule.getProperties()), 500, 2);
+    return Guice.createInjector(module);
   }
 
   private void initData() throws Exception {

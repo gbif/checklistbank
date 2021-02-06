@@ -6,13 +6,12 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class ParentStackTest {
 
   @Test
-  public void testClear() throws Exception {
+  public void testStack() throws Exception {
     ParentStack parents = new ParentStack(null);
 
     assertEquals(0, parents.size());
@@ -24,12 +23,18 @@ public class ParentStackTest {
     parents.put(nub);
     assertNull(parents.nubParent());
 
+    assertFalse(parents.isDoubtful());
+    parents.markSubtreeAsDoubtful(); // doubtful key=2
+    assertTrue(parents.isDoubtful());
+
     parents.add(src(3, 2));
     assertEquals(3, parents.size());
     assertEquals(nub, parents.nubParent());
+    assertTrue(parents.isDoubtful());
 
-    parents.add(src(4, 1));
+    parents.add(src(4, 1)); // this removes all but the first key
     assertEquals(2, parents.size());
+    assertFalse(parents.isDoubtful());
     assertNull(parents.nubParent());
   }
 

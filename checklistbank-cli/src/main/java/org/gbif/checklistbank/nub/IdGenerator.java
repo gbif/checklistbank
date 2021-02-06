@@ -150,8 +150,10 @@ public class IdGenerator {
         if (resurrected.contains(u.getKey()) || resurrectedPP.contains(u.getKey())) {
           res.add(u);
         }
-      } else if (!reissued.contains(u.getKey()) && !reissuedPP.contains(u.getKey())) {
-        del.add(u);
+      } else {
+        if (!reissued.contains(u.getKey()) && !reissuedPP.contains(u.getKey())) {
+          del.add(u);
+        }
       }
     }
 

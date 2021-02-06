@@ -1,12 +1,11 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -19,6 +18,7 @@ public class ParentStack {
   private LinkedList<SrcUsage> parents = Lists.newLinkedList();
   private NubUsage currParent;
   private Kingdom currKingdom;
+  private Integer doubtfulKey = null;
   private final NubUsage unknownKingdom;
 
   public ParentStack(NubUsage unknownKingdom) {
@@ -49,7 +49,6 @@ public class ParentStack {
    * If the parentKey of the new usage matches the currently last source usage on the stack it is simply added.
    * Otherwise the current stack is reduced as long until the parentKey matches the key of the last usage on the stack
    * @param src
-   * @return the matching nub node of the source parentKey
    */
   public void add(SrcUsage src) {
     if (src.parentKey == null) {
@@ -65,6 +64,10 @@ public class ParentStack {
           // remove last parent until we find the real one
           SrcUsage p = parents.removeLast();
           nubMap.remove(p.key);
+          // reset doubtful marker if the taxon gets removed from the stack
+          if (doubtfulKey != null && doubtfulKey.equals(p.key)) {
+            doubtfulKey = null;
+          }
         }
       }
       if (parents.isEmpty()) {
@@ -95,6 +98,30 @@ public class ParentStack {
     return false;
   }
 
+  public boolean parentsContain(List<String> names) {
+    for (SrcUsage u : parents) {
+      for (String name : names) {
+        if (u.scientificName.equalsIgnoreCase(name) || u.parsedName.canonicalName().equalsIgnoreCase(name)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Sets the doubtful flag for the current usage and all its descendants.
+   */
+  public void markSubtreeAsDoubtful() {
+    if (!parents.isEmpty() && doubtfulKey == null) {
+      doubtfulKey = parents.getLast().key;
+    }
+  }
+
+  public boolean isDoubtful() {
+    return doubtfulKey != null;
+  }
+
   public LinkedList<SrcUsage> getParents() {
     return parents;
   }
@@ -112,5 +139,6 @@ public class ParentStack {
     parents.clear();
     currParent = null;
     currKingdom = Kingdom.INCERTAE_SEDIS;
+    doubtfulKey = null;
   }
 }

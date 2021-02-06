@@ -212,12 +212,24 @@ public class NubDb {
       this.nodes = nodes;
     }
   }
-  
+
+  private NubUsage firstHighestEncountered(List<NubUsage> usages) {
+    int max = 0;
+    NubUsage curr = null;
+    for (NubUsage u : usages) {
+      if (curr == null || max < u.sourceIds.size()) {
+        curr = u;
+        max = u.sourceIds.size();
+      }
+    }
+    return curr;
+  }
+
   private NubUsage disambiguateHigherRankHomonyms(List<NubUsage> homonyms, NubUsage currNubParent) {
     if (currNubParent == null) {
-      // pick first
-      NubUsage match = homonyms.get(0);
-      LOG.debug("No parent given for homomym match {}. Pick first", match);
+      // pick most frequently encountered or first one
+      NubUsage match = firstHighestEncountered(homonyms);
+      LOG.debug("No parent given for homomym match {}. Pick first most frequent", match);
       return match;
     }
     

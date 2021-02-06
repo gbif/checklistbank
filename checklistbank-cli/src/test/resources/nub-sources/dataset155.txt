@@ -1,0 +1,16 @@
+110			GENUS	ACCEPTED		Coccinella	
+111	110		SPECIES	ACCEPTED		Coccinella 6maculata Fabricius, 1781	
+112	110		SPECIES	ACCEPTED		Coccinella transversalis Fabricius, 1781	
+113	110		SPECIES	ACCEPTED		Coccinella bimaculata Pontoppidan, 1763	
+
+1			KINGDOM	ACCEPTED		Animalia Linnæus, 1758	
+3	1		CLASS	ACCEPTED		Insecta Linnæus, 1758	
+4	3		ORDER	ACCEPTED		Coleoptera Linnæus, 1758	
+5	4		GENUS	ACCEPTED		Coccinella Linnæus, 1758	
+10	5		SPECIES	ACCEPTED		Coccinella 2-punctata Linnæus, 1758	
+11	5		SPECIES	ACCEPTED		Coccinella 22-punctata Linnæus, 1758	
+12	5		SPECIES	ACCEPTED		Coccinella hebræa Linnæus, 1758	
+13	5		SPECIES	ACCEPTED		Coccinella hieroglyphica Linnæus, 1758	
+14	5		SPECIES	ACCEPTED		Coccinella unipunctata Linnæus, 1758	
+15	5		SPECIES	ACCEPTED		Coccinella 2-puſtulata Linnæus, 1758	
+16	5		SPECIES	ACCEPTED		Coccinella spec. Linnæus, 1758	

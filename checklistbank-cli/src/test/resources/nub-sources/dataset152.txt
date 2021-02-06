@@ -1,0 +1,10 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Insecta	
+4	3		ORDER	ACCEPTED		Coleoptera	
+5	4		FAMILY	ACCEPTED		Coccinellidae	
+10	5		GENUS	ACCEPTED		Coccinella	
+12	10		SPECIES	ACCEPTED		Coccinella hieroglyphica Linnaeus, 1758	
+13	10		SPECIES	ACCEPTED		Coccinella quinquepunctata Linnaeus, 1758	
+14	10		SPECIES	ACCEPTED		Coccinella septempunctata Linnaeus, 1758	
+15	10		SPECIES	ACCEPTED		Coccinella undecimpunctata Linnaeus, 1758	

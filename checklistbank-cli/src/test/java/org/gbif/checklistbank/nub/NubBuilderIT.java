@@ -2,7 +2,6 @@ package org.gbif.checklistbank.nub;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
@@ -38,7 +37,6 @@ import org.neo4j.helpers.collection.Iterators;
 
 import javax.annotation.Nullable;
 import java.io.*;
-import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
@@ -47,24 +45,27 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.*;
 
 public class NubBuilderIT {
-  public static final NubConfiguration CFG = new NubConfiguration();
+  public NubConfiguration cfg = new NubConfiguration();
   private UsageDao dao;
   private Transaction tx;
   private static final NameParser PARSER = new NameParserGbifV1();
 
-  static {
-    CFG.groupBasionyms = true;
-    CFG.validate = true;
-    CFG.runAssertions = false;
-    CFG.autoImport = false;
-    CFG.neo.batchSize = 5000;
-    CFG.parserTimeout = 250;
-    CFG.blacklist = Sets.newHashSet(
-        "Unaccepted",
-        "Calendrella cinerea ongumaensis",	// https://github.com/gbif/checklistbank/issues/47
-        "Tricholaema leucomelan namaqua"	// https://github.com/gbif/checklistbank/issues/46
-    );
-    CFG.homonymExclusions.put("Setabis", Lists.newArrayList("Riodinidae"));
+  public static NubConfiguration defaultConfig() {
+      NubConfiguration cfg = new NubConfiguration();
+      cfg.groupBasionyms = true;
+      cfg.validate = true;
+      cfg.runAssertions = false;
+      cfg.autoImport = false;
+      cfg.neo.batchSize = 5000;
+      cfg.parserTimeout = 250;
+      cfg.blacklist = Sets.newHashSet(
+              "Unaccepted",
+              "Calendrella cinerea ongumaensis",	// https://github.com/gbif/checklistbank/issues/47
+              "Tricholaema leucomelan namaqua"	// https://github.com/gbif/checklistbank/issues/46
+      );
+      cfg.homonymExclusions = new HashMap<>();
+      cfg.homonymExclusions.put("Setabis", Lists.newArrayList("Riodinidae"));
+      return cfg;
   }
 
   private static void log(String msg, Object... args) {
@@ -75,6 +76,7 @@ public class NubBuilderIT {
   public void init() {
     // add shell port (standard is 1337, but already taken on OSX) to open the neo4j shell server for debugging!!!
     dao = UsageDao.temporaryDao(128);
+    cfg = defaultConfig();
   }
 
   @After
@@ -470,13 +472,35 @@ public class NubBuilderIT {
    *
    * 147=CoL
    * 148=BOLD
+   * 149=WORMS
+   * 150=Checklist of Beetles of Canada and Alaska
+   * 151=Dyntaxa
+   * 152=Dutch Species Register
+   * 153=ITIS
+   * 154=IRMNG
+   * 155=ZooBank
+   * 156=Plazi https://www.gbif.org/dataset/a5b00837-8dfa-46ec-828c-fbaffb41ec69
+   * 157=Plazi https://www.gbif.org/dataset/c19789c1-c9be-4c54-b130-e1c8e861b2be
+   * 158=Plazi https://www.gbif.org/dataset/f7175382-787c-4bb8-a95f-a6bb704becd0
    */
   @Test
   public void testStableIds2() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(147, 148);
+    int[] sourceKeys = new int[]{147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158};
+    ClasspathSourceList src = ClasspathSourceList.source(sourceKeys);
     src.setSourceRank(147, Rank.KINGDOM);
+    src.setSourceRank(151, Rank.GENUS);
     src.setSupragenericHomonymSource(147);
+
+    // add Coccinella exclude configs for COL during rebuild only!!!
+    cfg.homonymExclusions.put("Coccinella", Lists.newArrayList("Hydrophilidae", "Mollusca"));
     build(src);
+
+    // 1 Coccinella only
+    NubUsage coccinella = getCanonical("Coccinella", Rank.GENUS);
+    assertEquals("Coccinella", coccinella.parsedName.getScientificName());
+    assertEquals("Linnaeus, 1758", coccinella.parsedName.getAuthorship());
+
+    assertTree("147 148 149 150 151 152 153 154 155 156 157 158.txt");
 
     int grac = getScientific("Gracilariaceae", Rank.FAMILY).usageKey;
 
@@ -485,12 +509,10 @@ public class NubBuilderIT {
     int otu = u.usageKey;
 
     // rebuild nub with additional sources!
-    src = ClasspathSourceList.source(147, 148, 4);
+    src = ClasspathSourceList.source(sourceKeys);
     src.setSourceRank(147, Rank.KINGDOM);
     src.setSupragenericHomonymSource(147);
     rebuild(src);
-
-    //assertTree("3 2 8 11.txt");
 
     // assert ids havent changed!
     assertEquals(grac, getScientific("Gracilariaceae", Rank.FAMILY).usageKey);
@@ -1861,7 +1883,7 @@ public class NubBuilderIT {
    */
   private void build(NubSourceList src, @Nullable File treeOutput) throws Exception {
     Stopwatch watch = Stopwatch.createUnstarted();
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, CFG);
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, cfg);
     nb.setCloseDao(false);
     try {
       nb.run();
@@ -1910,7 +1932,7 @@ public class NubBuilderIT {
     dao.close();
     // new, empty DAO
     dao = UsageDao.temporaryDao(100);
-    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1, CFG);
+    NubBuilder nb = NubBuilder.create(dao, src, previousIds, previousIds.getKeyMax() + 1, cfg);
     nb.setCloseDao(false);
     nb.run();
 

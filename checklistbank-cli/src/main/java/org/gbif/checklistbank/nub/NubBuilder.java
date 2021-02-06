@@ -891,6 +891,7 @@ public class NubBuilder implements Runnable {
               if (TaxonomicStatus.ACCEPTED == u.status && (currSrc.nomenclator || parent.status.isSynonym())) {
                 u.status = TaxonomicStatus.DOUBTFUL;
               }
+
               if (parent.status.isSynonym()) {
                 // use accepted instead
                 parent = db.parent(parent);
@@ -961,52 +962,13 @@ public class NubBuilder implements Runnable {
     return false;
   }
   
-  private boolean isExcludedHomonym(NubUsage u) {
-    NubUsage parent = db.parent(u);
-    return cfg.isExcludedHomonym(NubDb.canonicalOrScientificName(u.parsedName), NubDb.canonicalOrScientificName(parent.parsedName));
-  }
-
-  private boolean isExcludedHomonym(SrcUsage u, NubUsage parent) {
-    return cfg.isExcludedHomonym(u.scientificName, NubDb.canonicalOrScientificName(parent.parsedName));
-  }
-  
   /**
    * Only checks if the usage is one of a known homonym pair, but does not assert it needs to be removed.
    */
   private boolean isExcludedHomonym(SrcUsage u) {
-    return cfg.homonymExclusions.containsKey(u.scientificName);
+    return cfg.homonymExclusions.containsKey(u.scientificName) && parents.parentsContain(cfg.homonymExclusions.get(u.scientificName));
   }
-  
-  private NubUsageMatch processHomonymSourceUsage(SrcUsage u, Origin origin, NubUsage parent, NubUsageMatch match) throws IgnoreSourceUsageException {
-    // all homonym usages should be doubtful by default
-    u.status = TaxonomicStatus.DOUBTFUL;
-    if (isExcludedHomonym(match.usage)) {
-      // the previous one was supposed to be removed, keep a reference to it
-      NubUsage prev = match.usage;
-      match = createNubUsage(u, origin, parent);
-      // transfer all previous children to the new one and delete the previous one
-      db.transferChildren(match.usage, prev);
-      LOG.debug("Remove excluded homonym {} moving its children to {}", prev, match.usage);
-      db.dao().delete(prev);
-    } else if (isExcludedHomonym(u, parent)) {
-      // ignore this genus, but make sure the previous one is marked as doubtful
-      updateMatchStatus(match, TaxonomicStatus.DOUBTFUL);
-      LOG.debug("Ignore excluded homonym {} with parent {}", u, match.usage);
-    } else {
-      // keep both
-      updateMatchStatus(match, TaxonomicStatus.DOUBTFUL);
-      match = createNubUsage(u, origin, parent);
-      
-    }
-    return match;
-  }
-  
-  private void updateMatchStatus(NubUsageMatch match, TaxonomicStatus status) {
-    if (match.usage.status != status) {
-      match.usage.status = status;
-      db.store(match.usage);
-    }
-  }
+
 
   private NubUsage processSourceUsage(SrcUsage u, Origin origin, NubUsage parent) throws IgnoreSourceUsageException {
     Preconditions.checkArgument(parent.status.isAccepted());
@@ -1016,18 +978,41 @@ public class NubBuilder implements Runnable {
 
     // filter out various unwanted names
     filterUsage(u);
-    
+
+    // check excluded homonyms
+    // If so, place below kingdom for further rematching and mark children doubtful in parent stack!
+    if (isExcludedHomonym(u)) {
+      Kingdom k = parents.nubKingdom();
+      LOG.info("Move excluded homonym {} to kingdom {} and mark descendants doubtful", u, k);
+      parents.markSubtreeAsDoubtful();
+      parent = db.kingdom(k);
+      origin = Origin.IMPLICIT_NAME; // this makes sure it gets later merged into the other homonym(s)
+      if (u.parsedName.isParsed()) {
+        u.parsedName.setAuthorship(null);
+        u.parsedName.setYear(null);
+        u.parsedName.setBracketAuthorship(null);
+        u.parsedName.setBracketYear(null);
+        u.scientificName = u.parsedName.canonicalName();
+        u.parsedName.setScientificName(u.scientificName);
+      }
+      //throw new IgnoreSourceUsageException("Ignore excluded homonym and mark descendants doubtful", u.scientificName);
+    }
+
+    // mark doubtful cause source parent was marked, e.g. excluded homonym?
+    if (u.status.isAccepted() && parents.isDoubtful()) {
+      u.status = TaxonomicStatus.DOUBTFUL;
+    }
+
     // match to existing usages
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
     // process only usages not to be ignored and with desired ranks
     if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
-      // first check if we deal with a homonym that should be removed - no matter if the source is a supragenericHomonymSource
-      if (match.isMatch() && u.status.isAccepted() && match.usage.status.isAccepted() && isExcludedHomonym(u)){
-        // accepted homonym genus with a previous (homonym) match. Find out which one needs to be removed
-        match = processHomonymSourceUsage(u, origin, parent, match);
 
-      } else if (!match.isMatch() || (fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource && origin != Origin.IMPLICIT_NAME)) {
+      if (!match.isMatch() || (
+              fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource &&
+                      origin != Origin.IMPLICIT_NAME && match.usage.origin != Origin.IMPLICIT_NAME
+      )) {
 
         // remember if we had a doubtful match
         NubUsage doubtful = match.doubtfulUsage;
