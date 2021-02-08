@@ -498,7 +498,7 @@ public class NubBuilderIT {
     // 1 accepted Coccinella only
     NubUsage coccinella = getCanonical("Coccinella", Rank.GENUS, TaxonomicStatus.ACCEPTED);
     assertEquals("Coccinella Linnaeus, 1758", coccinella.parsedName.getScientificName());
-    assertEquals("Linnaeus, 1758", coccinella.parsedName.getAuthorship());
+    assertEquals("Linnaeus, 1758", coccinella.parsedName.authorshipComplete());
 
     assertTree("147 148 149 150 151 152 153 154 155 156 157 158.txt");
 
