@@ -495,8 +495,8 @@ public class NubBuilderIT {
     cfg.homonymExclusions.put("Coccinella", Lists.newArrayList("Hydrophilidae", "Mollusca"));
     build(src);
 
-    // 1 Coccinella only
-    NubUsage coccinella = getCanonical("Coccinella", Rank.GENUS);
+    // 1 accepted Coccinella only
+    NubUsage coccinella = getCanonical("Coccinella", Rank.GENUS, TaxonomicStatus.ACCEPTED);
     assertEquals("Coccinella", coccinella.parsedName.getScientificName());
     assertEquals("Linnaeus, 1758", coccinella.parsedName.getAuthorship());
 
@@ -2099,28 +2099,38 @@ public class NubBuilderIT {
   }
 
   private NubUsage getScientific(String sciname, Rank rank, Kingdom kingdom) {
-    return getOne(listScientific(sciname), rank, kingdom, sciname);
+    return getOne(listScientific(sciname), rank, kingdom, null, sciname);
   }
 
   private NubUsage getScientific(String sciname, Rank rank) {
-    return getOne(listScientific(sciname), rank, null, sciname);
+    return getOne(listScientific(sciname), rank, null, null, sciname);
   }
 
   private NubUsage getCanonical(String canonical, Rank rank) {
-    return getOne(listCanonical(canonical), rank, null, canonical);
+    return getOne(listCanonical(canonical), rank, null, null, canonical);
+  }
+
+  private NubUsage getCanonical(String canonical, Rank rank, TaxonomicStatus status) {
+    return getOne(listCanonical(canonical), rank, null, status, canonical);
   }
 
   private NubUsage getCanonical(String canonical, Rank rank, Kingdom k) {
-    return getOne(listCanonical(canonical), rank, k, canonical);
+    return getOne(listCanonical(canonical), rank, k, null, canonical);
   }
 
-  private NubUsage getOne(List<NubUsage> usages, Rank rank, @Nullable Kingdom k, String name) {
+  private NubUsage getCanonical(String canonical, Rank rank, @Nullable Kingdom k, @Nullable TaxonomicStatus status) {
+    return getOne(listCanonical(canonical), rank, k, status, canonical);
+  }
+
+  private NubUsage getOne(List<NubUsage> usages, Rank rank, @Nullable Kingdom k, @Nullable TaxonomicStatus status, String name) {
     Iterator<NubUsage> iter = usages.iterator();
     while (iter.hasNext()) {
       NubUsage u = iter.next();
       if (u.rank != rank) {
         iter.remove();
       } else if (k != null && u.kingdom != k) {
+        iter.remove();
+      } else if (status != null && u.status != status) {
         iter.remove();
       }
     }
@@ -2129,7 +2139,7 @@ public class NubBuilderIT {
     } else if (usages.size() == 1) {
       return usages.get(0);
     }
-    throw new IllegalStateException("Too many usages for " + rank + " " + name);
+    throw new IllegalStateException("Too many usages for " + status + " " + rank + " " + name);
   }
 
   private NubUsage get(Node n) {

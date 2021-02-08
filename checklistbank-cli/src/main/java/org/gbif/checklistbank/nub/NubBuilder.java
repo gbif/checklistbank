@@ -847,6 +847,23 @@ public class NubBuilder implements Runnable {
         src.close();
       }
     }
+    LOG.info("Remove solitary, excluded homonyms");
+    int counter = 0;
+    try (Transaction tx = db.beginTx()) {
+      for (Kingdom k : Kingdom.values()) {
+        NubUsage ku = db.kingdom(k);
+        for (Node n : Traversals.CHILDREN.traverse(ku.node).nodes()) {
+          NubUsage u = db.dao().readNub(n);
+          if (u.origin == Origin.IMPLICIT_NAME) {
+            counter++;
+            delete(u);
+            LOG.info("Remove excluded homonym {}", u);
+          }
+        }
+        tx.success();
+      }
+      LOG.info("Removed {} excluded homonyms", counter);
+    }
   }
 
   private void addDataset(NubSource source) throws Exception {
@@ -966,7 +983,13 @@ public class NubBuilder implements Runnable {
    * Only checks if the usage is one of a known homonym pair, but does not assert it needs to be removed.
    */
   private boolean isExcludedHomonym(SrcUsage u) {
-    return cfg.homonymExclusions.containsKey(u.scientificName) && parents.parentsContain(cfg.homonymExclusions.get(u.scientificName));
+    Set<String> keys = Sets.newHashSet(u.scientificName, u.parsedName.canonicalName());
+    for (String name : keys) {
+      if (name != null && cfg.homonymExclusions.containsKey(name)) {
+        return parents.parentsContain(cfg.homonymExclusions.get(name));
+      }
+    }
+    return false;
   }
 
 
@@ -982,6 +1005,9 @@ public class NubBuilder implements Runnable {
     // check excluded homonyms
     // If so, place below kingdom for further rematching and mark children doubtful in parent stack!
     if (isExcludedHomonym(u)) {
+      if (u.status.isSynonym()) {
+        throw new IgnoreSourceUsageException("Ignore excluded homonym synonym ", u.scientificName);
+      }
       Kingdom k = parents.nubKingdom();
       LOG.info("Move excluded homonym {} to kingdom {} and mark descendants doubtful", u, k);
       parents.markSubtreeAsDoubtful();
@@ -995,7 +1021,6 @@ public class NubBuilder implements Runnable {
         u.scientificName = u.parsedName.canonicalName();
         u.parsedName.setScientificName(u.scientificName);
       }
-      //throw new IgnoreSourceUsageException("Ignore excluded homonym and mark descendants doubtful", u.scientificName);
     }
 
     // mark doubtful cause source parent was marked, e.g. excluded homonym?
