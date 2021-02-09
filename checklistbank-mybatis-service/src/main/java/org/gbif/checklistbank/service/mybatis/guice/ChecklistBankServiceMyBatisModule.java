@@ -127,6 +127,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule impl
     expose(CitationService.class);
     expose(DatasetAnalysisService.class);
     expose(UsageCountMapper.class);
+    expose(DistributionService.class);
 
     expose(DatasetImportService.class).annotatedWith(Mybatis.class);
     expose(UsageSyncService.class);
