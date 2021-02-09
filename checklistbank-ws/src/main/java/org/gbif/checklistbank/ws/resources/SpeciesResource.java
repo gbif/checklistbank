@@ -12,9 +12,10 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
-import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
@@ -52,6 +53,9 @@ public class SpeciesResource {
   private final NameUsageSearchService searchService;
   private final UsageCountMapper usageCountMapper;
 
+  //Used instead of DistributionService to avoid upgrading GBIF API.
+  private final DistributionMapper distributionMapper;
+
 
   @Inject
   public SpeciesResource(
@@ -59,7 +63,8 @@ public class SpeciesResource {
       TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
       ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
       DistributionService distributionService, IdentifierService identifierService, NameUsageSearchService searchService,
-      UsageCountMapper usageCountMapper) {
+      UsageCountMapper usageCountMapper,
+      DistributionMapper distributionMapper) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
     this.typeSpecimenService = typeSpecimenService;
@@ -71,6 +76,7 @@ public class SpeciesResource {
     this.identifierService = identifierService;
     this.searchService = searchService;
     this.usageCountMapper = usageCountMapper;
+    this.distributionMapper = distributionMapper;
   }
 
   /**
@@ -329,6 +335,19 @@ public class SpeciesResource {
   @Path("{id}/parents")
   public List<NameUsage> listParentsByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page) {
     return nameUsageService.listParents(usageKey, locale);
+  }
+
+  /**
+   * This retrieves the IUCN Redlist Category of a nub usage key.
+   *
+   * @param usageKey NameUsage key
+   * @return the category or null if it doesn't have one
+   */
+  @GET
+  @Path("{id}/iucnRedListCategory")
+  public ThreatStatus getIucnRedListCategory(@PathParam("id") int usageKey) {
+    String category = distributionMapper.getIucnRedListCategory(usageKey);
+    return category != null? ThreatStatus.valueOf(category) : null;
   }
 
   /**

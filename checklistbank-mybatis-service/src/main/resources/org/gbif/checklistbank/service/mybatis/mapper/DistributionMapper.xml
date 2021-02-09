@@ -79,6 +79,13 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
+  <select id="getIucnRedListCategory" parameterType="map" resultType="string">
+    SELECT d.threat_status
+    FROM  distribution d
+    JOIN nub_rel rel ON rel.usage_fk=d.usage_fk
+    WHERE d.usage_fk=#{key} AND rel.dataset_key='19491596-35ae-4a91-9a98-85cf505f1bd3'
+  </select>
+
   <!--  select all distributions of a dataset
   Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
   -->
