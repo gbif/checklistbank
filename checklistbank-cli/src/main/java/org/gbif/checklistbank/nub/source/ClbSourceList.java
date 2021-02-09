@@ -3,7 +3,6 @@ package org.gbif.checklistbank.nub.source;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Injector;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Organization;
@@ -13,16 +12,11 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.utils.file.FileUtils;
-import org.gbif.utils.file.csv.CSVReader;
-import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +44,9 @@ public class ClbSourceList extends NubSourceList {
 
     List<NubSource> sources = Lists.newArrayList();
     for (UUID dKey : sourceDatasetKeys) {
-      sources.add(buildSource(datasetService.get(dKey), Rank.FAMILY, cfg, false));
+      NubSourceConfig ns = new NubSourceConfig();
+      ns.key = dKey;
+      sources.add(buildSource(datasetService.get(dKey), cfg, ns));
     }
     return new ClbSourceList(cfg, sources);
   }
@@ -71,17 +67,17 @@ public class ClbSourceList extends NubSourceList {
     submitSources(loadSources());
   }
 
-  private static NubSource buildSource(Dataset d, Rank rank, NubConfiguration cfg, boolean ignoreSynonyms) {
-    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), cfg.excludedTaxa.get(d.getKey()));
+  private static NubSource buildSource(Dataset d, NubConfiguration cfg, NubSourceConfig sourceConfig) {
+    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), cfg.excluded.get(d.getKey()));
     src.created = d.getCreated();
-    src.ignoreSynonyms = ignoreSynonyms;
+    src.ignoreSynonyms = !sourceConfig.synonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
     // we ignore nomenclators superpower for now, see https://github.com/gbif/checklistbank/issues/139
     src.nomenclator = false;
-    if (rank != null) {
-      src.ignoreRanksAbove = rank;
+    if (sourceConfig.rank != null) {
+      src.ignoreRanksAbove = sourceConfig.rank;
     }
-    if (cfg.homonymLists.contains(d.getKey())) {
+    if (sourceConfig.homonyms) {
       src.supragenericHomonymSource = true;
       LOG.info("Allow suprageneric homonyms for nub source {}", d.getTitle());
     }
@@ -89,68 +85,53 @@ public class ClbSourceList extends NubSourceList {
   }
 
   private List<NubSource> loadSources() {
-    LOG.info("Loading backbone sources from {}", cfg.sourceList);
+    LOG.info("Loading backbone sources from {} config entries", cfg.sources.size());
 
     Set<UUID> keys = Sets.newHashSet();
     List<NubSource> sources = Lists.newArrayList();
-    try {
-      InputStream stream;
-      if (cfg.sourceList.isAbsolute()) {
-        stream = cfg.sourceList.toURL().openStream();
-      } else {
-        stream = FileUtils.classpathStream(cfg.sourceList.toString());
+
+    for (NubSourceConfig sd : cfg.sources) {
+      if (keys.contains(sd.key)) {
+        LOG.warn("Duplicate source {} {} skipped", sd.key, sd.title);
+        continue;
       }
-      CSVReader reader = CSVReaderFactory.build(stream, "UTF-8", "\t", null, 0);
-      while (reader.hasNext()) {
-        String[] row = reader.next();
-        if (row.length < 1) continue;
-        UUID key = UUID.fromString(row[0]);
-        if (keys.contains(key)) continue;
-        keys.add(key);
+      keys.add(sd.key);
+      Dataset d = datasetService.get(sd.key);
+      if (d != null) {
+        sources.add(buildSource(d, cfg, sd));
 
-        Rank rank = row.length > 1 && !StringUtils.isBlank(row[1]) ? Rank.valueOf(row[1]) : null;
-        Dataset d = datasetService.get(key);
-        if (d != null) {
-          sources.add(buildSource(d, rank, cfg, cfg.ignoreSynonyms.contains(key)));
-
+      } else {
+        // try if its an organization
+        Organization org = organizationService.get(sd.key);
+        if (org != null) {
+          int counter = 0;
+          for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
+            if (!keys.contains(d2.getKey())) {
+              sources.add(buildSource(d2, cfg, sd));
+              counter++;
+            }
+          }
+          LOG.info("Found {} nub sources published by organization {} {}", counter, org.getKey(), org.getTitle());
         } else {
-          // try if its an organization
-          Organization org = organizationService.get(key);
-          if (org != null) {
-            boolean ignoreSyns = cfg.ignoreSynonyms.contains(key);
+          // try an installation
+          Installation inst = installationService.get(sd.key);
+          if (inst != null) {
             int counter = 0;
-            for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
+            for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
               if (!keys.contains(d2.getKey())) {
-                sources.add(buildSource(d2, rank, cfg, ignoreSyns));
+                sources.add(buildSource(d2, cfg, sd));
                 counter++;
               }
             }
-            LOG.info("Found {} new nub sources published by organization {} {}", counter, org.getKey(), org.getTitle());
-          } else {
-            // try an installation
-            Installation inst = installationService.get(key);
-            if (inst != null) {
-              boolean ignoreSyns = cfg.ignoreSynonyms.contains(key);
-              int counter = 0;
-              for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
-                if (!keys.contains(d2.getKey())) {
-                  sources.add(buildSource(d2, rank, cfg, ignoreSyns));
-                  counter++;
-                }
-              }
-              LOG.info("Found {} new nub sources hosted by installation {} {}", counter, inst.getKey(), inst.getTitle());
+            LOG.info("Found {} nub sources hosted by installation {} {}", counter, inst.getKey(), inst.getTitle());
 
-            } else {
-              LOG.warn("Unknown nub source {}. Ignore", key);
-            }
+          } else {
+            LOG.warn("Unknown nub source {} {}. Ignore", sd.key, sd.title);
           }
         }
       }
-
-    } catch (Exception e) {
-      LOG.error("Cannot read nub sources from {}", cfg.sourceList);
-      throw new RuntimeException(e);
     }
+
     return sources;
   }
 

@@ -11,9 +11,9 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
-import java.net.URI;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -102,7 +102,9 @@ public class ClbSourceListTest {
     cfg.clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
     cfg.clb.user = props.getProperty("checklistbank.db.dataSource.user");
     cfg.clb.password = props.getProperty("checklistbank.db.dataSource.password");
-    cfg.sourceList = URI.create("nub-test-sources.txt");
+    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels", Rank.PHYLUM));
+    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984")));
+
     src = new ClbSourceList(ds, os, is, cfg);
   }
 
