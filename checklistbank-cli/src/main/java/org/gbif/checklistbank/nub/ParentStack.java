@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub;
 
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -101,7 +102,8 @@ public class ParentStack {
   public boolean parentsContain(List<String> names) {
     for (SrcUsage u : parents) {
       for (String name : names) {
-        if (u.scientificName.equalsIgnoreCase(name) || u.parsedName.canonicalName().equalsIgnoreCase(name)) {
+        if (StringUtils.trimToEmpty(u.scientificName).equalsIgnoreCase(name) ||
+                StringUtils.trimToEmpty(u.parsedName.canonicalName()).equalsIgnoreCase(name)) {
           return true;
         }
       }
