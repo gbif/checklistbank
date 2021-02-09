@@ -53,14 +53,6 @@ public class NubConfiguration {
   }
 
   /**
-   * Map of source dataset keys to a list of taxon names to be excluded from that source,
-   * so these groups do not make it to the backbone. This applies to all its decendants - different to how the blacklist behaves.
-   */
-  @NotNull
-  @Valid
-  public Map<UUID, List<RankedName>> excluded = new HashMap<>();
-
-  /**
    * List of higher wrong homonyms that should be removed, regardless of which source they came from.
    * Map of a canonical name to its direct parent.
    * All other names with the same canonical name, but different parent, are kept.

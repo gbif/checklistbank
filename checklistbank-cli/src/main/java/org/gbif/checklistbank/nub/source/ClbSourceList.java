@@ -68,7 +68,7 @@ public class ClbSourceList extends NubSourceList {
   }
 
   private static NubSource buildSource(Dataset d, NubConfiguration cfg, NubSourceConfig sourceConfig) {
-    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), cfg.excluded.get(d.getKey()));
+    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), sourceConfig.exclude);
     src.created = d.getCreated();
     src.ignoreSynonyms = !sourceConfig.synonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
@@ -92,7 +92,7 @@ public class ClbSourceList extends NubSourceList {
 
     for (NubSourceConfig sd : cfg.sources) {
       if (keys.contains(sd.key)) {
-        LOG.warn("Duplicate source {} {} skipped", sd.key, sd.title);
+        LOG.warn("Duplicate source {} skipped", sd.key);
         continue;
       }
       keys.add(sd.key);
@@ -126,7 +126,7 @@ public class ClbSourceList extends NubSourceList {
             LOG.info("Found {} nub sources hosted by installation {} {}", counter, inst.getKey(), inst.getTitle());
 
           } else {
-            LOG.warn("Unknown nub source {} {}. Ignore", sd.key, sd.title);
+            LOG.warn("Unknown nub source {}. Ignore", sd.key);
           }
         }
       }

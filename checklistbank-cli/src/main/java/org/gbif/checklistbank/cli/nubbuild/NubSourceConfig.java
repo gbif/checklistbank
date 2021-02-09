@@ -1,8 +1,11 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.model.RankedName;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class NubSourceConfig {
@@ -14,15 +17,13 @@ public class NubSourceConfig {
         this.key = key;
     }
 
-    public NubSourceConfig(UUID key, String title, Rank rank) {
+    public NubSourceConfig(UUID key, Rank rank) {
         this.key = key;
-        this.title = title;
         this.rank = rank;
     }
 
-    public NubSourceConfig(UUID key, String title, Rank rank, boolean homonyms, boolean synonyms) {
+    public NubSourceConfig(UUID key, Rank rank, boolean homonyms, boolean synonyms) {
         this.key = key;
-        this.title = title;
         this.rank = rank;
         this.homonyms = homonyms;
         this.synonyms = synonyms;
@@ -34,11 +35,6 @@ public class NubSourceConfig {
      */
     @NotNull
     public UUID key;
-
-    /**
-     * A purely informative title to manage the lists better by humans.
-     */
-    public String title;
 
     /**
      * Maximum rank to be considered for addition to the backbone.
@@ -56,5 +52,11 @@ public class NubSourceConfig {
      * E.g. Plazi organization due to http://dev.gbif.org/issues/browse/POR-3151
      */
     public boolean synonyms = true;
+
+    /**
+     * List of taxon names to be excluded from that source,
+     * so these groups do not make it to the backbone. This applies to all its descendants - different to how the blacklist behaves.
+     */
+    public List<RankedName> exclude = new ArrayList<>();
 
 }

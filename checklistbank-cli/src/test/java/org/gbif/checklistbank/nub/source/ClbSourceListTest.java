@@ -102,7 +102,7 @@ public class ClbSourceListTest {
     cfg.clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
     cfg.clb.user = props.getProperty("checklistbank.db.dataSource.user");
     cfg.clb.password = props.getProperty("checklistbank.db.dataSource.password");
-    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels", Rank.PHYLUM));
+    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), Rank.PHYLUM));
     cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984")));
 
     src = new ClbSourceList(ds, os, is, cfg);
