@@ -12,20 +12,18 @@ clb:
   user: clb
   password: clb
 
-homonymLists:
-  - daacce49-b206-469b-8dc2-2257719f3afa
-  - 7ddf754f-d193-4cc9-b351-99906754a03b
-
-excludedTaxa:
-  7ddf754f-d193-4cc9-b351-99906754a03b:
-    - rank: FAMILY
-      name: Fabaceae
-
-    - rank: KINGDOM
-      name: Bacteria
-
-    - rank: KINGDOM
-      name: Archaea
+sources:
+  - key: daacce49-b206-469b-8dc2-2257719f3afa
+    homonyms: true
+  - key: 7ddf754f-d193-4cc9-b351-99906754a03b
+    homonyms: true
+    exclude:
+      - rank: FAMILY
+        name: Fabaceae
+      - rank: KINGDOM
+        name: Bacteria
+      - rank: KINGDOM
+        name: Archaea
 
 blacklist:
   - Unaccepted

@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
 import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.File;
 
 import static org.junit.Assert.*;
 
@@ -25,5 +28,12 @@ public class NubConfigurationTest {
         assertFalse(cfg.isBlacklisted("Calendrella cinerea"));
 
         assertTrue(cfg.isExcludedHomonym("Glossoscolecidae", "Crassiclitellata"));
+    }
+
+    @Test
+    @Ignore("manual local test to make sure config file is readable")
+    public void testNubConfig() throws Exception {
+        NubConfiguration cfg = CFG_MAPPER.readValue(new File("/Users/markus/code/gbif/gbif-configuration/cli/nub/config/clb-nub.yaml"), NubConfiguration.class);
+        cfg.normalizeConfigs();
     }
 }

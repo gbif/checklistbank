@@ -1,23 +1,17 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
 import com.beust.jcommander.ParametersDelegate;
-import com.google.common.collect.Sets;
-import org.gbif.api.vocabulary.NameType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
-import org.gbif.checklistbank.nub.model.NubUsage;
-import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.api.model.Constants;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.File;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,7 +42,7 @@ public class NubConfiguration {
 
   @NotNull
   @Valid
-  public URI sourceList = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/nub-sources.tsv");
+  public List<NubSourceConfig> sources = new ArrayList<>();
 
   @NotNull
   @Valid
@@ -57,17 +51,6 @@ public class NubConfiguration {
   public boolean isBlacklisted(String name) {
     return blacklist.contains(name.trim().toUpperCase());
   }
-
-  /**
-   * Set of dataset keys from which suprageneric homonyms are allowed during nub builds.
-   * Defaults to just the backbone patch and Catalogue of Life.
-   */
-  @NotNull
-  @Valid
-  public Set<UUID> homonymLists = Sets.newHashSet(
-      UUID.fromString("daacce49-b206-469b-8dc2-2257719f3afa"), // backbone patch
-      Constants.COL_DATASET_KEY
-  );
 
   /**
    * List of higher wrong homonyms that should be removed, regardless of which source they came from.
@@ -89,28 +72,10 @@ public class NubConfiguration {
   }
 
   /**
-   * Map of source dataset keys to a list of taxon names to be excluded from that source,
-   * so these groups do not make it to the backbone
-   */
-  @NotNull
-  @Valid
-  public Map<UUID, List<RankedName>> excludedTaxa = new HashMap<>();
-
-  /**
-   * Set of dataset, publisher or installation keys from which synonyms should be ignored during nub builds.
-   * Defaults to the Plazi organization due to http://dev.gbif.org/issues/browse/POR-3151
-   */
-  @Valid
-  public Set<UUID> ignoreSynonyms = Sets.newHashSet(UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
-
-  /**
    * If true algorithmic detecting and grouping of basionyms is executed.
    */
   @Valid
   public boolean groupBasionyms = false;
-
-  @Valid
-  public URI basionymExclusion = URI.create("https://raw.githubusercontent.com/gbif/checklistbank/master/checklistbank-nub/blacklist.tsv");
 
   /**
    * If false autonyms with no other sibling are removed.

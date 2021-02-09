@@ -65,11 +65,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * homonym-exclusion.tsv can be used to force names NOT to be a homonym but a single taxon
+ * We use Origin.VERBATIM_ACCEPTED here to mark excluded homonyms that have not been updated with other sources.
+ * In the future consider to add a new origin value to the API vocabulary.
  */
 public class NubBuilder implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuilder.class);
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
+  static final Set<Origin> IGNORABLE_ORIGINS = Sets.newHashSet(Origin.IMPLICIT_NAME, Origin.VERBATIM_ACCEPTED);
   public static final Set<Rank> NUB_RANKS;
 
   static {
@@ -714,7 +716,7 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Flags emtpy genera or removes them if they have an IMPLICIT origin
+   * Flags emtpy genera or removes them if they have an ignorable origin
    */
   private void flagEmptyGenera() {
     LOG.info("flag empty genera as doubtful");
@@ -722,7 +724,7 @@ public class NubBuilder implements Runnable {
       for (Node gen : Iterators.loop(db.dao().allGenera())) {
         if (!gen.hasRelationship(RelType.PARENT_OF, Direction.OUTGOING)) {
           NubUsage nub = read(gen);
-          if (nub.origin == Origin.IMPLICIT_NAME) {
+          if (IGNORABLE_ORIGINS.contains(nub.origin)) {
             // remove this genus as it was created by the nub builder as an implicit genus name for a species we seem to have moved or deleted since
             if (removeTaxonIfEmpty(nub)) {
               continue;
@@ -854,7 +856,7 @@ public class NubBuilder implements Runnable {
         NubUsage ku = db.kingdom(k);
         for (Node n : Traversals.CHILDREN.traverse(ku.node).nodes()) {
           NubUsage u = db.dao().readNub(n);
-          if (u.origin == Origin.IMPLICIT_NAME) {
+          if (u.origin == Origin.VERBATIM_ACCEPTED) {
             counter++;
             delete(u);
             LOG.info("Remove excluded homonym {}", u);
@@ -1012,7 +1014,7 @@ public class NubBuilder implements Runnable {
       LOG.info("Move excluded homonym {} to kingdom {} and mark descendants doubtful", u, k);
       parents.markSubtreeAsDoubtful();
       parent = db.kingdom(k);
-      origin = Origin.IMPLICIT_NAME; // this makes sure it gets later merged into the other homonym(s)
+      origin = Origin.VERBATIM_ACCEPTED; // we hijack origin.verbatim_parent to mark homonym
       if (u.parsedName.isParsed()) {
         u.parsedName.setAuthorship(null);
         u.parsedName.setYear(null);
@@ -1036,7 +1038,7 @@ public class NubBuilder implements Runnable {
 
       if (!match.isMatch() || (
               fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource &&
-                      origin != Origin.IMPLICIT_NAME && match.usage.origin != Origin.IMPLICIT_NAME
+                      !IGNORABLE_ORIGINS.contains(origin) && !IGNORABLE_ORIGINS.contains(match.usage.origin)
       )) {
 
         // remember if we had a doubtful match
@@ -1049,8 +1051,8 @@ public class NubBuilder implements Runnable {
         }
 
       } else {
-        if (origin == Origin.IMPLICIT_NAME) {
-          // do not update or change usages with implicit names
+        if (IGNORABLE_ORIGINS.contains(origin)) {
+          // do not update or change usages with implicit names or excluded homonyms
           return match.usage;
         }
 
