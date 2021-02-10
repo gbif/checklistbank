@@ -12,6 +12,6 @@ public interface DistributionMapper extends NameUsageComponentMapper<Distributio
 
   void insert(@Param("key") int usageKey, @Param("obj") Distribution distribution, @Param("sourceKey") Integer sourceKey);
 
-  String getIucnRedListCategory(@Param("key") int usageKey);
+  String getIucnRedListCategory(@Param("key") int nubKey);
 
 }

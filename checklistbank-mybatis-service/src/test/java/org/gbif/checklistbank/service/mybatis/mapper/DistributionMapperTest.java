@@ -74,6 +74,16 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         assertObject(obj, list.get(1), datasetTitle, usageKey);
     }
 
+    @Test
+    public void testIUCN() throws Exception {
+        // setting up proper test data is quite an effort. We only test here that the sql does not throw errors...
+
+        // no usage
+        assertNull(mapper.getIucnRedListCategory(99999999));
+        // no mapped IUCN species
+        assertNull(mapper.getIucnRedListCategory(100000000));
+    }
+
     private void assertObject(Distribution obj, Distribution obj2, String source, Integer sourceTaxonKey) {
         assertEquals(obj.getAppendixCites(), obj2.getAppendixCites());
         assertEquals(obj.getCountry(), obj2.getCountry());
