@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.Constants;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -12,8 +13,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.sql.Date;
 import java.util.*;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
@@ -48,6 +47,20 @@ public class IdGenerator {
     this.lookup = lookup;
     Preconditions.checkArgument(idStart < Constants.NUB_MAXIMUM_KEY, "Lowest current backbone id exceeds maximum nub id limit");
     nextId = idStart;
+  }
+
+  /**
+   * Tries to reissue a non deleted id based on exact matches with authorship
+   * @return existing id or 0 if nothing matches
+   */
+  public int reissue(ParsedName pn, Rank rank, Kingdom kingdom) {
+    LookupUsage u = lookup.exactCurrentMatch(NubDb.canonicalOrScientificName(pn), pn.getAuthorship(), pn.getYear(), rank, kingdom, reissued);
+    if (u != null) {
+      reissued.add(u.getKey());
+      LOG.debug("Reissued id {} for {} {}", u.getKey(), rank, pn.getScientificName());
+      return u.getKey();
+    }
+    return 0;
   }
 
   public int issue(String canonicalName, String authorship, String year, Rank rank, TaxonomicStatus status, Kingdom kingdom) {

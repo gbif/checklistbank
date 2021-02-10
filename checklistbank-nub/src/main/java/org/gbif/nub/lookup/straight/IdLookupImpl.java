@@ -396,30 +396,36 @@ public class IdLookupImpl implements IdLookup {
     return null;
   }
 
-  private LookupUsage preferCurrent(List<LookupUsage> hits, final String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, @Nullable TaxonomicStatus status, Kingdom kingdom){
-    // Still several matches
-    // If we ever had too many bad usages they might block forever a stable id.
-    // If only one current id is matched use that!
-    List<LookupUsage> current = hits.stream()
-            .filter(u -> !u.isDeleted())
-            .collect(Collectors.toList());
-    if (current.size() == 1) {
-      LOG.debug("{} matches, but only 1 current usage {} for {} {} {} {} {}", hits.size(), current.get(0).getKey(), kingdom, rank, canonicalName, authorship, year);
-      return current.get(0);
-    }
+  /**
+   * Try to match exactly kingdom, rank, canonical name, authorship and year on current, non deleted names only.
+   * Note that authorship is the combination authorship only, basionym authors are entirely ignored!
+   * @return match or null
+   */
+  @Override
+  public LookupUsage exactCurrentMatch(final String canonicalName, String authorship, @Nullable String year, Rank rank, Kingdom kingdom, IntSet... ignoreIDs) {
+    final String canonicalNameNormed = norm(canonicalName);
+    if (canonicalNameNormed == null) return null;
 
-    LookupUsage match = null;
-    if (rank != Rank.UNRANKED && kingdom != Kingdom.INCERTAE_SEDIS) {
-      // if requested rank & kingdom was clear, snap better to results utilizing the status and prefering current over deleted usages
-      // use only current matches if possible
-      if (status != null) {
-        match = matchByStatus(status, current);
-        if (match == null) {
-          match = matchByStatus(status, hits);
-        }
-      }
+    List<LookupUsage> hits = usages.get(canonicalNameNormed);
+    if (hits == null) return null;
+
+    // filter by rank, kingdom, authorship and only allow current, non deleted matches
+    hits.removeIf(u -> ignore(u.getKey(), ignoreIDs) ||
+            u.isDeleted() ||
+            rank != null && !RankUtils.match(rank, u.getRank()) ||
+            kingdom != null && !KingdomUtils.match(kingdom, u.getKingdom()) ||
+            !Objects.equals(canonicalName, u.getCanonical()) ||
+            !Objects.equals(authorship, u.getAuthorship()) ||
+            !Objects.equals(year, u.getYear())
+    );
+
+    if (hits.size() == 1) {
+      return hits.get(0);
+
+    } else if (hits.size() > 1) {
+      LOG.debug("{} exact matches for {} {} {} {} {}", hits.size(), kingdom, rank, canonicalName, authorship, year);
     }
-    return match;
+    return null;
   }
 
   private static LookupUsage selectLowestKey(List<LookupUsage> matches) {

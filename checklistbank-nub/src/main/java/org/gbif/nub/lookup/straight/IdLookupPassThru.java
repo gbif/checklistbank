@@ -31,6 +31,11 @@ public class IdLookupPassThru implements IdLookup {
   }
 
   @Override
+  public LookupUsage exactCurrentMatch(String canonicalName, String authorship, @org.jetbrains.annotations.Nullable String year, Rank rank, Kingdom kingdom, IntSet... ignoreIDs) {
+    return null;
+  }
+
+  @Override
   public List<LookupUsage> match(String canonicalName) {
     return Lists.newArrayList();
   }

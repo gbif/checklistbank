@@ -29,9 +29,11 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
    */
   LookupUsage match(String canonicalName, @Nullable String authorship, @Nullable String year, Rank rank, TaxonomicStatus status, Kingdom kingdom, IntSet... ignoreIDs);
 
-  /**
-   * List all usages with the given canonical name regardless of rank, kingdom or authorship
-   */
+  LookupUsage exactCurrentMatch(String canonicalName, String authorship, @Nullable String year, Rank rank, Kingdom kingdom, IntSet... ignoreIDs);
+
+    /**
+     * List all usages with the given canonical name regardless of rank, kingdom or authorship
+     */
   List<LookupUsage> match(String canonicalName);
 
   /**

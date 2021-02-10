@@ -59,6 +59,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1584,16 +1585,28 @@ public class NubBuilder implements Runnable {
 
   /**
    * Assigns a unique usageKey to all nodes by matching a usage to the previous backbone to keep stable identifiers.
+   * Implements a three pass strategy of keys with
+   *  - first pass only reassigns existing ids with full, exact name matches
+   *  - second pass matches just remaining accepted names
+   *  - third pass matches all remaining ones
    */
   private void assignUsageKeys() {
-    LOG.info("Assigning final clb ids to all nub usages...");
+    LOG.info("Assigning final clb ids to usages with authorship using exact matches to previous ids ...");
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
-      if (u.rank != Rank.KINGDOM) {
-        u.usageKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
-        db.dao().update(entry.getKey(), u);
+      if (u.rank != Rank.KINGDOM && u.parsedName.isParsed() && u.parsedName.hasAuthorship()) {
+        u.usageKey = idGen.reissue(u.parsedName, u.rank, u.kingdom);
+        if (u.usageKey != 0) {
+          db.dao().update(entry.getKey(), u);
+        }
       }
     }
+
+    LOG.info("Assigning final clb ids to accepted usages ...");
+    assignUsageKeys(u -> u.status == TaxonomicStatus.ACCEPTED);
+
+    LOG.info("Assigning final clb ids to all remaining usages ...");
+    assignUsageKeys(u -> true);
 
     // for pro parte synonyms we need to assign extra keys, one per relation!
     // http://dev.gbif.org/issues/browse/POR-2872
@@ -1612,6 +1625,16 @@ public class NubBuilder implements Runnable {
         }
       }
       tx.success();
+    }
+  }
+
+  private void assignUsageKeys(Predicate<NubUsage> filter){
+    for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
+      NubUsage u = entry.getValue();
+      if (u.rank != Rank.KINGDOM && u.usageKey==0 && filter.test(u)) {
+        u.usageKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
+        db.dao().update(entry.getKey(), u);
+      }
     }
   }
 
