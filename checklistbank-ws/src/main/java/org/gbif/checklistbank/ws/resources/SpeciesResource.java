@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -349,7 +349,7 @@ public class SpeciesResource {
   @Path("{id}/iucnRedListCategory")
   public Map<String,String> getIucnRedListCategory(@PathParam("id") int usageKey) {
     String category = distributionMapper.getIucnRedListCategory(usageKey);
-    Map<String,String> cat = new HashMap<>();
+    Map<String,String> cat = new LinkedHashMap<>();
     if (category != null) {
       ThreatStatus status = ThreatStatus.valueOf(category);
       cat.put("category", status.name());
