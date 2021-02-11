@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.*;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -14,6 +15,7 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.checklistbank.utils.KingdomUtils;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
@@ -398,32 +400,31 @@ public class IdLookupImpl implements IdLookup {
 
   /**
    * Try to match exactly kingdom, rank, canonical name, authorship and year on current, non deleted names only.
-   * Note that authorship is the combination authorship only, basionym authors are entirely ignored!
    * @return match or null
    */
   @Override
-  public LookupUsage exactCurrentMatch(final String canonicalName, String authorship, @Nullable String year, Rank rank, Kingdom kingdom, IntSet... ignoreIDs) {
-    final String canonicalNameNormed = norm(canonicalName);
-    if (canonicalNameNormed == null) return null;
+  public LookupUsage exactCurrentMatch(final ParsedName pn, Kingdom kingdom, IntSet... ignoreIDs) {
+    final String canonicalName = norm(NameFormatter.canonicalOrScientificName(pn));
+    if (canonicalName == null) return null;
 
-    List<LookupUsage> hits = usages.get(canonicalNameNormed);
+    List<LookupUsage> hits = usages.get(canonicalName);
     if (hits == null) return null;
 
     // filter by rank, kingdom, authorship and only allow current, non deleted matches
     hits.removeIf(u -> ignore(u.getKey(), ignoreIDs) ||
             u.isDeleted() ||
-            rank != null && !RankUtils.match(rank, u.getRank()) ||
+            pn.getRank() != null && !RankUtils.match(pn.getRank(), u.getRank()) ||
             kingdom != null && !KingdomUtils.match(kingdom, u.getKingdom()) ||
             !Objects.equals(canonicalName, u.getCanonical()) ||
-            !Objects.equals(authorship, u.getAuthorship()) ||
-            !Objects.equals(year, u.getYear())
+            !Objects.equals(pn.getAuthorship(), u.getAuthorship()) ||
+            !Objects.equals(pn.getYear(), u.getYear())
     );
 
     if (hits.size() == 1) {
       return hits.get(0);
 
     } else if (hits.size() > 1) {
-      LOG.debug("{} exact matches for {} {} {} {} {}", hits.size(), kingdom, rank, canonicalName, authorship, year);
+      LOG.debug("{} exact matches for {} {} {} {} {}", hits.size(), kingdom, pn.getRank(), canonicalName, pn.getAuthorship(), pn.getYear());
     }
     return null;
   }

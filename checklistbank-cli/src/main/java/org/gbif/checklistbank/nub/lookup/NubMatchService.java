@@ -11,6 +11,7 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.LookupUsage;
@@ -84,7 +85,7 @@ public class NubMatchService {
         LookupUsage match;
         if (u.parsedName.isParsed()) {
           // match by canonically reconstructed name
-          match = nubLookup.match(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
+          match = nubLookup.match(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
         } else {
           // match by full sciname
           match = nubLookup.match(u.scientificName, u.rank, parents.nubKingdom());

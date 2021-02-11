@@ -1,10 +1,13 @@
 package org.gbif.checklistbank.utils;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NomenclaturalCode;
 import org.gbif.api.vocabulary.Rank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -12,6 +15,8 @@ import java.util.Map;
  * Utilities to format a parsed name
  */
 public class NameFormatter {
+  private static final Logger LOG = LoggerFactory.getLogger(NameFormatter.class);
+
   private NameFormatter() {
   }
 
@@ -69,4 +74,14 @@ public class NameFormatter {
     return sciname;
   }
 
+  public static String canonicalOrScientificName(ParsedName pn) {
+    if (pn.isParsableType() && pn.isParsed()) {
+      String name = pn.canonicalName();
+      if (!StringUtils.isBlank(name)) {
+        return name;
+      }
+      LOG.error("Parsed {} name found with an empty canonical name string: {}", pn.getType(), pn.getScientificName());
+    }
+    return pn.getScientificName();
+  }
 }

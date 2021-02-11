@@ -54,7 +54,7 @@ public class IdGenerator {
    * @return existing id or 0 if nothing matches
    */
   public int reissue(ParsedName pn, Rank rank, Kingdom kingdom) {
-    LookupUsage u = lookup.exactCurrentMatch(NubDb.canonicalOrScientificName(pn), pn.getAuthorship(), pn.getYear(), rank, kingdom, reissued);
+    LookupUsage u = lookup.exactCurrentMatch(pn, kingdom, reissued);
     if (u != null) {
       reissued.add(u.getKey());
       LOG.debug("Reissued id {} for {} {}", u.getKey(), rank, pn.getScientificName());

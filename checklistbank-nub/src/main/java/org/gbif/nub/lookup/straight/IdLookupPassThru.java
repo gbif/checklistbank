@@ -1,6 +1,7 @@
 package org.gbif.nub.lookup.straight;
 
 import it.unimi.dsi.fastutil.ints.IntSet;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
@@ -31,7 +32,7 @@ public class IdLookupPassThru implements IdLookup {
   }
 
   @Override
-  public LookupUsage exactCurrentMatch(String canonicalName, String authorship, @org.jetbrains.annotations.Nullable String year, Rank rank, Kingdom kingdom, IntSet... ignoreIDs) {
+  public LookupUsage exactCurrentMatch(ParsedName name, Kingdom kingdom, IntSet... ignoreIDs) {
     return null;
   }
 

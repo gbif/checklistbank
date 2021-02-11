@@ -43,6 +43,7 @@ import org.gbif.checklistbank.nub.source.NubSourceList;
 import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
@@ -392,7 +393,7 @@ public class NubBuilder implements Runnable {
     for (Node n : nodes) {
       if (!n.hasLabel(Labels.SYNONYM)) {
         NubUsage u = read(n);
-        String name = NubDb.canonicalOrScientificName(u.parsedName);
+        String name = NameFormatter.canonicalOrScientificName(u.parsedName);
         if (u.status == TaxonomicStatus.ACCEPTED && !StringUtils.isBlank(name)) {
           // prefix with rank ordinal to become unique across ranks (ordinal is shorter than full name to save mem)
           String indexedName = u.rank.ordinal() + name;
@@ -1619,7 +1620,7 @@ public class NubBuilder implements Runnable {
           if (acc.usageKey <= 0) {
             LOG.warn("No usage key assigned to {}", acc);
           }
-          int ppKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, acc.usageKey);
+          int ppKey = idGen.issue(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom, acc.usageKey);
           LOG.debug("Assign id {} for pro parte relation of primary usage {} {}", ppKey, u.usageKey, u.parsedName.getScientificName());
           rel.setProperty(NeoProperties.USAGE_KEY, ppKey);
         }
@@ -1632,7 +1633,7 @@ public class NubBuilder implements Runnable {
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
       if (u.rank != Rank.KINGDOM && u.usageKey==0 && filter.test(u)) {
-        u.usageKey = idGen.issue(NubDb.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
+        u.usageKey = idGen.issue(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
         db.dao().update(entry.getKey(), u);
       }
     }

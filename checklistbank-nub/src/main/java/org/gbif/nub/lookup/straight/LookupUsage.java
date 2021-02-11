@@ -66,6 +66,10 @@ public class LookupUsage implements Comparable<LookupUsage> {
     this.year = year;
   }
 
+  public boolean hasAuthorship() {
+    return authorship != null || year != null;
+  }
+
   public String getCanonical() {
     return canonical;
   }

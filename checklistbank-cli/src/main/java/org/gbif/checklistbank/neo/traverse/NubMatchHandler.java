@@ -8,6 +8,7 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nub.lookup.straight.IdLookup;
@@ -85,7 +86,7 @@ public class NubMatchHandler implements StartEndHandler {
       // try with full scientific name for certain name types (we dont want to match informal or no names)
       match = lookup.match(nn.usage.getScientificName(), null, null, nn.usage.getRank(), nn.usage.getTaxonomicStatus(), currKingdom);
     } else {
-      match = lookup.match(NubDb.canonicalOrScientificName(pn), pn.getAuthorship(), pn.getYear(), nn.usage.getRank(), nn.usage.getTaxonomicStatus(), currKingdom);
+      match = lookup.match(NameFormatter.canonicalOrScientificName(pn), pn.getAuthorship(), pn.getYear(), nn.usage.getRank(), nn.usage.getTaxonomicStatus(), currKingdom);
     }
 
     // store nub key

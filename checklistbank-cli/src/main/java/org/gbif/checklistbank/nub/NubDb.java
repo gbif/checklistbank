@@ -150,17 +150,6 @@ public class NubDb {
     return findNubUsage(canonical, rank, kingdom, false);
   }
 
-  public static String canonicalOrScientificName(ParsedName pn) {
-    if (pn.isParsableType() && pn.isParsed()) {
-      String name = pn.canonicalName();
-      if (!StringUtils.isBlank(name)) {
-        return name;
-      }
-      LOG.error("Parsed {} name found with an empty canonical name string: {}", pn.getType(), pn.getScientificName());
-    }
-    return pn.getScientificName();
-  }
-
   public NubUsageMatch findNubUsage(final String canonical, Rank rank, Kingdom kingdom, boolean inclSynonyms) throws HomonymException {
     List<NubUsage> usages = listNubUsages(canonical, rank, kingdom, inclSynonyms, true);
 

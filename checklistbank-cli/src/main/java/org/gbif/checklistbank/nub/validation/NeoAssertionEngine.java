@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import org.gbif.checklistbank.utils.NameFormatter;
 import org.junit.Assert;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.NotFoundException;
@@ -78,7 +79,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       boolean found = false;
       for (Node p : Traversals.PARENTS.traverse(start).nodes()) {
         NubUsage u = db.dao().readNub(p);
-        if (parent.equalsIgnoreCase(NubDb.canonicalOrScientificName(u.parsedName)) && (parentRank == null || u.rank.equals(parentRank))) {
+        if (parent.equalsIgnoreCase(NameFormatter.canonicalOrScientificName(u.parsedName)) && (parentRank == null || u.rank.equals(parentRank))) {
           found = true;
         }
       }
@@ -113,7 +114,7 @@ public class NeoAssertionEngine implements AssertionEngine {
       Node start = nodeById(usageKey);
       for (Node p : Traversals.PARENTS.traverse(start).nodes()) {
         NubUsage u = db.dao().readNub(p);
-        Assert.assertEquals(expected.next(), NubDb.canonicalOrScientificName(u.parsedName));
+        Assert.assertEquals(expected.next(), NameFormatter.canonicalOrScientificName(u.parsedName));
       }
       Assert.assertFalse(expected.hasNext());
     } catch (AssertionError e) {
