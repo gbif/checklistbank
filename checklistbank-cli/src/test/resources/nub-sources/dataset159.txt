@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Plantae	
+5	1		FAMILY	ACCEPTED		Pinaceae	
+10	5		GENUS	ACCEPTED		Abies Mill.	
+12	10		SPECIES	ACCEPTED		Abies bracteata (D.Don) Poit.	
+13	12		SPECIES	SYNONYM		Picea bracteata (D.Don) Loudon	
+14	10		SPECIES	ACCEPTED		Abies concolor (Gordon & Glend.) Hildebr.	
+15	14		SPECIES	SYNONYM		Pinus concolor (Gordon & Glend.) Engelm.	

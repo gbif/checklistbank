@@ -519,6 +519,27 @@ public class NubBuilderIT {
     assertEquals(otu, getScientific("BOLD:ADR0965", Rank.UNRANKED).usageKey);
   }
 
+  @Test
+  public void testStableIdsBasionymPlaceholder() throws Exception {
+    int[] sourceKeys = new int[]{159};
+    ClasspathSourceList src = ClasspathSourceList.source(sourceKeys);
+    build(src);
+
+    // basionym placeholder
+    NubUsage bp = getScientific("? bracteata D.Don", Rank.UNRANKED);
+    assertEquals("? bracteata D.Don", bp.parsedName.getScientificName());
+    assertEquals(Origin.BASIONYM_PLACEHOLDER, bp.origin);
+    int bpID = bp.usageKey;
+
+    assertTree("159.txt");
+
+    // rebuild nub with additional sources!
+    src = ClasspathSourceList.source(sourceKeys);
+    rebuild(src);
+
+    // assert ids havent changed!
+    assertEquals(bpID, getScientific("? bracteata D.Don", Rank.UNRANKED).usageKey);
+  }
 
   /**
    * http://dev.gbif.org/issues/browse/POR-3024

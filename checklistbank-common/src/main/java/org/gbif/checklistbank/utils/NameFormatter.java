@@ -75,7 +75,7 @@ public class NameFormatter {
   }
 
   public static String canonicalOrScientificName(ParsedName pn) {
-    if (pn.isParsableType() && pn.isParsed()) {
+    if (pn.isParsed()) {
       String name = pn.canonicalName();
       if (!StringUtils.isBlank(name)) {
         return name;
