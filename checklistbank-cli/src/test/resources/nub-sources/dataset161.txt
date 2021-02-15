@@ -1,0 +1,8 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Chordata Haeckel, 1874	
+3	2		SUBPHYLUM	ACCEPTED		Vertebrata Lamarck, 1801	
+4	3		CLASS	ACCEPTED		Aves Linnaeus, 1758	
+5	4		ORDER	ACCEPTED		Aves (awaiting allocation)	
+6	5		FAMILY	ACCEPTED		Aves (awaiting allocation)	
+10	6		GENUS	ACCEPTED		Incertae sedis	
+11	10		GENUS	SYNONYM		Ixodes Blyth, 1846	

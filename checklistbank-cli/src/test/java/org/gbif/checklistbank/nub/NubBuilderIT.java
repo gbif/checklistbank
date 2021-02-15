@@ -542,6 +542,31 @@ public class NubBuilderIT {
   }
 
   /**
+   * https://github.com/gbif/portal-feedback/issues/2732
+   * 160=CoL
+   * 161=IRMNG
+   * 162=Plazi
+   */
+  @Test
+  public void ixodes() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(160, 161, 162);
+    src.setSourceRank(160, Rank.KINGDOM);
+    src.setSourceRank(162, Rank.GENUS);
+    src.setSourceIgnoreSynonyms(162, true);
+    cfg.homonymExclusions.put("Ixodes", Lists.newArrayList("Aves"));
+    build(src);
+
+    // plazi genus is blocked, just the ticks one is left
+    NubUsage u = getCanonical("Ixodes", Rank.GENUS);
+    assertEquals("Ixodes Latreille, 1795", u.parsedName.canonicalNameComplete());
+    assertEquals("Ixodes Latreille, 1795", u.parsedName.getScientificName());
+    assertEquals("Ixodidae", parentOrAccepted(u.node).parsedName.getScientificName());
+
+    // plazi species still there
+    assertEquals("Ixodes granulatus Supino, 1897", getCanonical("Ixodes granulatus", Rank.SPECIES).parsedName.canonicalNameComplete());
+  }
+
+  /**
    * http://dev.gbif.org/issues/browse/POR-3024
    * 77=CoL
    * 78=IRMNG

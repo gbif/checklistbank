@@ -1,0 +1,10 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		CLASS	ACCEPTED		Arachnida	
+5	3		FAMILY	ACCEPTED		Ixodidae	
+10	5		GENUS	ACCEPTED		Ixodes Latreille, 1795	
+12	10		SPECIES	ACCEPTED		Ixodes abrocomae Lahille, 1916	
+13	10		SPECIES	ACCEPTED		Ixodes acuminatus Neumann, 1901	
+14	10		SPECIES	ACCEPTED		Ixodes acutitarsus Karsch, 1880	
+22	1		PHYLUM	ACCEPTED		Chordata	
+23	22		CLASS	ACCEPTED		Aves	

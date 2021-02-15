@@ -73,6 +73,12 @@ public class ClasspathSourceList extends NubSourceList {
     }
   }
 
+  public void setSourceIgnoreSynonyms(int sourceId, boolean ignoreSynonyms) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).ignoreSynonyms = ignoreSynonyms;
+    }
+  }
+
   public void setNomenclator(int sourceId) {
     if (sourceById.containsKey(sourceId)) {
       sourceById.get(sourceId).nomenclator = true;

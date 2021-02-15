@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Chordata	
+4	2		CLASS	ACCEPTED		Aves	
+5	4		ORDER	ACCEPTED		Aves (awaiting allocation)	
+6	5		FAMILY	ACCEPTED		Aves (awaiting allocation)	
+10	6		GENUS	ACCEPTED		Ixodes	
+11	10		SPECIES	ACCEPTED		Ixodes acutitarsus Karsch, 1880	
+12	10		SPECIES	ACCEPTED		Ixodes collaris Hornok, Gorfol, Estok, Tu & Kontschan, 2016	
+13	10		SPECIES	ACCEPTED		Ixodes granulatus Supino, 1897	
