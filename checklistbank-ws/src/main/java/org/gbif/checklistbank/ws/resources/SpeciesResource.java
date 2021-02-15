@@ -348,12 +348,14 @@ public class SpeciesResource {
   @GET
   @Path("{id}/iucnRedListCategory")
   public Map<String,String> getIucnRedListCategory(@PathParam("id") int usageKey) {
-    String category = distributionMapper.getIucnRedListCategory(usageKey);
+    Map<String,String> category = distributionMapper.getIucnRedListCategory(usageKey);
     Map<String,String> cat = new LinkedHashMap<>();
     if (category != null) {
-      ThreatStatus status = ThreatStatus.valueOf(category);
+      ThreatStatus status = ThreatStatus.valueOf(category.get("threat_status"));
       cat.put("category", status.name());
       cat.put("code", status.getCode());
+      cat.put("iucnRedListName", category.get("scientific_name"));
+      cat.put("iucnRedListSpeciesKey", category.get("species_key"));
     }
     return cat;
   }
