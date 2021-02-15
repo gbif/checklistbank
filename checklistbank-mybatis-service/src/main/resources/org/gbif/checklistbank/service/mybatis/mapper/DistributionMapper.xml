@@ -39,6 +39,12 @@
     <association property="value" javaType="Distribution" resultMap="distributionResultMap" />
   </resultMap>
 
+  <resultMap id="iucnRedListCategoryResultMap" type="IucnRedListCategory" autoMapping="true">
+    <result property="category" column="threat_status"/>
+    <result property="iucnRedListSpeciesKey" column="species_key"/>
+    <result property="iucnRedListName" column="scientific_name"/>
+  </resultMap>
+
   <!-- get all distributions linked to one usage -->
   <select id="listByChecklistUsage" parameterType="map" resultMap="distributionResultMap">
     SELECT
@@ -79,7 +85,7 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
-  <select id="getIucnRedListCategory" parameterType="map" resultType="map">
+  <select id="getIucnRedListCategory" parameterType="map" resultType="iucnRedListCategoryResultMap">
     SELECT d.threat_status, iucn.species_fk AS species_key, n.scientific_name
     FROM nub_rel rel
       JOIN name_usage iucn ON iucn.id=rel.usage_fk

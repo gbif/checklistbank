@@ -85,7 +85,7 @@ public class InternalChecklistBankServiceMyBatisModule extends MyBatisModule {
     addAlias("UsageRelated").to(UsageRelated.class);
     addAlias("VerbatimNameUsage").to(VerbatimNameUsage.class);
     addAlias("VernacularName").to(VernacularName.class);
-
+    addAlias("IucnRedListCategory").to(IucnRedListCategory.class);
 
     // mybatis mapper
     addMapperClass(Common.class);
