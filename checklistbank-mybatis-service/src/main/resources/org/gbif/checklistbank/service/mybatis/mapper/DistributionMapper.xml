@@ -79,10 +79,11 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
-  <select id="getIucnRedListCategory" parameterType="map" resultType="string">
-    SELECT d.threat_status
+  <select id="getIucnRedListCategory" parameterType="map" resultType="map">
+    SELECT d.threat_status, iucn.species_fk AS species_key, n.scientific_name
     FROM nub_rel rel
       JOIN name_usage iucn ON iucn.id=rel.usage_fk
+      JOIN name n ON iucn.name_fk=n.id
       JOIN distribution d ON d.usage_fk= CASE WHEN iucn.is_synonym THEN iucn.parent_fk ELSE iucn.id END
     WHERE rel.nub_fk=#{key} AND rel.dataset_key='19491596-35ae-4a91-9a98-85cf505f1bd3'
     LIMIT 1
