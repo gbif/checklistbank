@@ -41,8 +41,11 @@
 
   <resultMap id="iucnRedListCategoryResultMap" type="IucnRedListCategory" autoMapping="true">
     <result property="category" column="threat_status"/>
-    <result property="iucnRedListSpeciesKey" column="species_key"/>
-    <result property="iucnRedListName" column="scientific_name"/>
+    <result property="usageKey" column="species_key"/>
+    <result property="scientificName" column="scientific_name"/>
+    <result property="taxonomicStatus" column="taxonomic_status"/>
+    <result property="acceptedName" column="accepted_name"/>
+    <result property="acceptedUsageKey" column="accepted_usage_key"/>
   </resultMap>
 
   <!-- get all distributions linked to one usage -->
@@ -86,11 +89,15 @@
   </select>
 
   <select id="getIucnRedListCategory" parameterType="map" resultMap="iucnRedListCategoryResultMap">
-    SELECT d.threat_status, iucn.species_fk AS species_key, n.scientific_name
+    SELECT d.threat_status, iucn.species_fk AS species_key, n.scientific_name, iucn.status,
+    CASE WHEN iucn.is_synonym THEN par.species_fk ELSE null END as accepted_key,
+    CASE WHEN iucn.is_synonym THEN parn.scientific_name ELSE null END as accepted_name
     FROM nub_rel rel
-      JOIN name_usage iucn ON iucn.id=rel.usage_fk
-      JOIN name n ON iucn.name_fk=n.id
-      JOIN distribution d ON d.usage_fk= CASE WHEN iucn.is_synonym THEN iucn.parent_fk ELSE iucn.id END
+    JOIN name_usage iucn ON iucn.id=rel.usage_fk
+    JOIN name n ON iucn.name_fk=n.id
+    JOIN distribution d ON d.usage_fk= CASE WHEN iucn.is_synonym THEN iucn.parent_fk ELSE iucn.id END
+    LEFT JOIN name_usage par on iucn.parent_fk=par.id
+    LEFT JOIN name parn on par.name_fk=parn.id
     WHERE rel.nub_fk=#{key} AND rel.dataset_key='19491596-35ae-4a91-9a98-85cf505f1bd3'
     LIMIT 1
   </select>

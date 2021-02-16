@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.model;
 
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 
 import java.util.Objects;
@@ -11,9 +12,15 @@ public class IucnRedListCategory {
 
   private ThreatStatus category;
 
-  private Integer iucnRedListSpeciesKey;
+  private Integer usageKey;
 
-  private String iucnRedListName;
+  private String scientificName;
+
+  private TaxonomicStatus taxonomicStatus;
+
+  private String acceptedName;
+
+  private String acceptedUsageKey;
 
   public ThreatStatus getCategory() {
     return category;
@@ -27,20 +34,44 @@ public class IucnRedListCategory {
     return category.getCode();
   }
 
-  public Integer getIucnRedListSpeciesKey() {
-    return iucnRedListSpeciesKey;
+  public Integer getUsageKey() {
+    return usageKey;
   }
 
-  public void setIucnRedListSpeciesKey(Integer iucnRedListSpeciesKey) {
-    this.iucnRedListSpeciesKey = iucnRedListSpeciesKey;
+  public void setUsageKey(Integer usageKey) {
+    this.usageKey = usageKey;
   }
 
-  public String getIucnRedListName() {
-    return iucnRedListName;
+  public String getScientificName() {
+    return scientificName;
   }
 
-  public void setIucnRedListName(String iucnRedListName) {
-    this.iucnRedListName = iucnRedListName;
+  public void setScientificName(String scientificName) {
+    this.scientificName = scientificName;
+  }
+
+  public TaxonomicStatus getTaxonomicStatus() {
+    return taxonomicStatus;
+  }
+
+  public void setTaxonomicStatus(TaxonomicStatus taxonomicStatus) {
+    this.taxonomicStatus = taxonomicStatus;
+  }
+
+  public String getAcceptedName() {
+    return acceptedName;
+  }
+
+  public void setAcceptedName(String acceptedName) {
+    this.acceptedName = acceptedName;
+  }
+
+  public String getAcceptedUsageKey() {
+    return acceptedUsageKey;
+  }
+
+  public void setAcceptedUsageKey(String acceptedUsageKey) {
+    this.acceptedUsageKey = acceptedUsageKey;
   }
 
   @Override
@@ -49,12 +80,16 @@ public class IucnRedListCategory {
     if (o == null || getClass() != o.getClass()) return false;
     IucnRedListCategory that = (IucnRedListCategory) o;
     return category == that.category
-           && Objects.equals(iucnRedListSpeciesKey, that.iucnRedListSpeciesKey)
-           && Objects.equals(iucnRedListName, that.iucnRedListName);
+           && Objects.equals(usageKey, that.usageKey)
+           && Objects.equals(scientificName,
+                             that.scientificName)
+           && taxonomicStatus == that.taxonomicStatus
+           && Objects.equals(acceptedName, that.acceptedName)
+           && Objects.equals(acceptedUsageKey, that.acceptedUsageKey);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(category, iucnRedListSpeciesKey, iucnRedListName);
+    return Objects.hash(category, usageKey, scientificName, taxonomicStatus, acceptedName, acceptedUsageKey);
   }
 }
