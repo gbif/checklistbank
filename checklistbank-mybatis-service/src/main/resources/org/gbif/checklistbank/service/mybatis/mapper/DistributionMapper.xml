@@ -85,7 +85,7 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
-  <select id="getIucnRedListCategory" parameterType="map" resultType="iucnRedListCategoryResultMap">
+  <select id="getIucnRedListCategory" parameterType="map" resultMap="iucnRedListCategoryResultMap">
     SELECT d.threat_status, iucn.species_fk AS species_key, n.scientific_name
     FROM nub_rel rel
       JOIN name_usage iucn ON iucn.id=rel.usage_fk
