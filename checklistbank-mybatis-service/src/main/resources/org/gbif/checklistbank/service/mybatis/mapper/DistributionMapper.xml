@@ -43,9 +43,9 @@
     <result property="category" column="threat_status"/>
     <result property="usageKey" column="species_key"/>
     <result property="scientificName" column="scientific_name"/>
-    <result property="taxonomicStatus" column="taxonomic_status"/>
+    <result property="taxonomicStatus" column="status"/>
     <result property="acceptedName" column="accepted_name"/>
-    <result property="acceptedUsageKey" column="accepted_usage_key"/>
+    <result property="acceptedUsageKey" column="accepted_key"/>
   </resultMap>
 
   <!-- get all distributions linked to one usage -->
