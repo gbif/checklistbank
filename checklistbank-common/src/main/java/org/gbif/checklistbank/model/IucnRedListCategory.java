@@ -19,12 +19,12 @@ public class IucnRedListCategory {
     return category;
   }
 
-  public String getCode() {
-    return category.getCode();
-  }
-
   public void setCategory(ThreatStatus category) {
     this.category = category;
+  }
+
+  public String getCode() {
+    return category.getCode();
   }
 
   public Integer getIucnRedListSpeciesKey() {
