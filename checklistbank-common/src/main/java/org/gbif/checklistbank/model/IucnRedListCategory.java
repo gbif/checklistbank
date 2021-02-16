@@ -20,7 +20,7 @@ public class IucnRedListCategory {
 
   private String acceptedName;
 
-  private String acceptedUsageKey;
+  private Integer acceptedUsageKey;
 
   public ThreatStatus getCategory() {
     return category;
@@ -66,11 +66,11 @@ public class IucnRedListCategory {
     this.acceptedName = acceptedName;
   }
 
-  public String getAcceptedUsageKey() {
+  public Integer getAcceptedUsageKey() {
     return acceptedUsageKey;
   }
 
-  public void setAcceptedUsageKey(String acceptedUsageKey) {
+  public void setAcceptedUsageKey(Integer acceptedUsageKey) {
     this.acceptedUsageKey = acceptedUsageKey;
   }
 
