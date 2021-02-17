@@ -13,6 +13,7 @@ import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
@@ -347,15 +348,8 @@ public class SpeciesResource {
    */
   @GET
   @Path("{id}/iucnRedListCategory")
-  public Map<String,String> getIucnRedListCategory(@PathParam("id") int usageKey) {
-    String category = distributionMapper.getIucnRedListCategory(usageKey);
-    Map<String,String> cat = new LinkedHashMap<>();
-    if (category != null) {
-      ThreatStatus status = ThreatStatus.valueOf(category);
-      cat.put("category", status.name());
-      cat.put("code", status.getCode());
-    }
-    return cat;
+  public IucnRedListCategory getIucnRedListCategory(@PathParam("id") int usageKey) {
+    return distributionMapper.getIucnRedListCategory(usageKey);
   }
 
   /**
