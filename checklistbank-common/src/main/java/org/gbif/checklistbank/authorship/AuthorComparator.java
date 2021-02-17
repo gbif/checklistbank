@@ -23,8 +23,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Utility to compare scientific name authorships, i.e. the recombination and basionym author and publishing year.
@@ -101,7 +103,24 @@ public class AuthorComparator {
       // if authors are not the same we allow a positive year comparison to override it as author comparison is very difficult
       Equality yresult = new YearComparator(year1, year2).compare();
       if (yresult != Equality.UNKNOWN) {
-        result = yresult;
+        if (yresult == Equality.DIFFERENT || authors1 == null || authors2 == null) {
+          result = yresult;
+        } else {
+          // year EQUAL, i.e. very close by
+          // also make sure we have at least one capital char overlap between the 2 authorships
+          Set<Character> upper1 = authors1.chars()
+                  .filter(Character::isUpperCase)
+                  .mapToObj(c -> (char) c)
+                  .collect(Collectors.toSet());
+          Set<Character> upper2 = authors2.chars()
+                  .filter(Character::isUpperCase)
+                  .mapToObj(c -> (char) c)
+                  .collect(Collectors.toSet());
+          upper1.retainAll(upper2);
+          if (!upper1.isEmpty()) {
+            result = yresult;
+          }
+        }
       }
     }
     return result;

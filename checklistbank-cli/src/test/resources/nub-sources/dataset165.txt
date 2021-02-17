@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Mollusca	
+4	2		CLASS	ACCEPTED		Gastropoda Cuvier, 1795	
+5	4		ORDER	ACCEPTED		Architaenioglossa Haller, 1890	
+6	5		FAMILY	ACCEPTED		Cyclophoridae Gray, 1847	
+10	6		GENUS	ACCEPTED		Cyathopoma W.T.Blanford & H.F.Blanford, 1861	
+11	10		GENUS	SYNONYM		Jerdonia W.T.Blanford & H.F.Blanford, 1861	

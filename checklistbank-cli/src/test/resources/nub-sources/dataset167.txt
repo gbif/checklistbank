@@ -1,0 +1,27 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Mollusca Linnaeus, 1758	
+4	2		CLASS	ACCEPTED		Mollusca (awaiting allocation)	
+5	4		ORDER	ACCEPTED		Mollusca (awaiting allocation)	
+6	5		FAMILY	ACCEPTED		Mollusca (awaiting allocation)	
+10	6		GENUS	ACCEPTED		Jerdonia Blanford, 1861	
+11	6		GENUS	ACCEPTED		Abbadia Bourguignat, 1883	
+
+22	1		PHYLUM	ACCEPTED		Chordata Haeckel, 1874	
+23	22		SUBPHYLUM	ACCEPTED		Vertebrata Lamarck, 1801	
+24	23		CLASS	ACCEPTED		Aves Linnaeus, 1758	
+25	24		ORDER	ACCEPTED		Aves (awaiting allocation)	
+26	25		FAMILY	ACCEPTED		Aves (awaiting allocation)	
+27	26		GENUS	ACCEPTED		Jerdonia Hume, 1870	
+
+44	23		CLASS	ACCEPTED		Actinopterygii Klein, 1885	
+45	44		ORDER	ACCEPTED		Cypriniformes	
+46	45		FAMILY	ACCEPTED		Cobitidae	
+47	46		GENUS	ACCEPTED		Lepidocephalichthys Bleeker, 1863	
+48	47		GENUS	SYNONYM		Jerdonia Day, 1871	
+
+31			KINGDOM	ACCEPTED		Plantae Haeckel, 1866	
+32	31		PHYLUM	ACCEPTED		Tracheophyta Sinnott, 1935	
+34	32		CLASS	ACCEPTED		Magnoliopsida	
+35	34		ORDER	ACCEPTED		Lamiales	
+36	35		FAMILY	ACCEPTED		Scrophulariaceae de Jussieu, 1789	
+37	36		GENUS	ACCEPTED		Jerdonia R.Wight, 1848	

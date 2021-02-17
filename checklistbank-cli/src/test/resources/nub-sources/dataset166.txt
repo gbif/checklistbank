@@ -1,0 +1,7 @@
+1			KINGDOM	ACCEPTED		Plantae	
+2	1		PHYLUM	ACCEPTED		Tracheophyta	
+4	2		CLASS	ACCEPTED		Magnoliopsida	
+5	4		ORDER	ACCEPTED		Lamiales	
+6	5		FAMILY	ACCEPTED		Gesneriaceae	
+10	6		GENUS	ACCEPTED		Jerdonia Wight	
+11	10		SPECIES	ACCEPTED		Jerdonia indica Wight	

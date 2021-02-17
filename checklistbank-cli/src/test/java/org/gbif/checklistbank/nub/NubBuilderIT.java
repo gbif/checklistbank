@@ -567,6 +567,36 @@ public class NubBuilderIT {
   }
 
   /**
+   * https://github.com/gbif/portal-feedback/issues/2732
+   * 163=CoL
+   * 164=WCVP
+   * 165=WoRMS
+   * 166=ITIS
+   * 167=IRMNG
+   * 168=IPNI
+   * 169=ZooBank
+   */
+  @Test
+  public void jerdonia() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(163, 164, 165, 166, 167, 168, 169);
+    src.setSourceRank(163, Rank.KINGDOM);
+    //cfg.homonymExclusions.put("Ixodes", Lists.newArrayList("Aves"));
+    build(src);
+
+    assertTree("163 164 165 166 167 168 169.txt");
+
+    // plazi genus is blocked, just the ticks one is left
+    NubUsage u = getCanonical("Jerdonia", Rank.GENUS);
+
+    assertEquals("Ixodes Latreille, 1795", u.parsedName.canonicalNameComplete());
+    assertEquals("Ixodes Latreille, 1795", u.parsedName.getScientificName());
+    assertEquals("Ixodidae", parentOrAccepted(u.node).parsedName.getScientificName());
+
+    // plazi species still there
+    assertEquals("Ixodes granulatus Supino, 1897", getCanonical("Ixodes granulatus", Rank.SPECIES).parsedName.canonicalNameComplete());
+  }
+
+  /**
    * http://dev.gbif.org/issues/browse/POR-3024
    * 77=CoL
    * 78=IRMNG
