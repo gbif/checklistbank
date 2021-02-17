@@ -102,7 +102,8 @@ public class IdLookupImplIT {
     assertMatch("Abies alba", "Mill.", "", SPECIES, PLANTAE, 2);
     assertMatch("Abies alba", "Miller", "", SPECIES, PLANTAE, 2);
     assertMatch("Abies alba", "Mill.", "1800", SPECIES, INCERTAE_SEDIS, 2);
-    assertMatch("Abies alba", "nothing but a year", "1768", SPECIES, INCERTAE_SEDIS, 2);
+    assertMatch("Abies alba", "M", "1768", SPECIES, INCERTAE_SEDIS, 2);
+    assertNoMatch("Abies alba", "nothing but a year", "1768", SPECIES, INCERTAE_SEDIS);
     assertNoMatch("Abies alba", "DC", "", SPECIES, PLANTAE);
     assertNoMatch("Abies alba", "DeCandole", "1770", SPECIES, PLANTAE);
     assertNoMatch("Abies alba", "Linnaeus", "", SPECIES, PLANTAE);
