@@ -200,6 +200,23 @@ public class AuthorComparatorTest {
     p1.setAuthorship("Mill.");
     p2.setAuthorship("L.");
     assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+
+    // https://github.com/gbif/portal-feedback/issues/2724
+    p1.setAuthorship("Day");
+    p1.setYear("1871");
+    p2.setAuthorship("Hume");
+    p2.setYear("1870");
+    assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
+
+    p2.setAuthorship(null);
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p2.setAuthorship("D.Hume");
+    assertEquals(Equality.EQUAL, comp.compare(p1, p2));
+
+    p2.setAuthorship("D.Hume");
+    p2.setYear("1879");
+    assertEquals(Equality.DIFFERENT, comp.compare(p1, p2));
   }
 
   /**
