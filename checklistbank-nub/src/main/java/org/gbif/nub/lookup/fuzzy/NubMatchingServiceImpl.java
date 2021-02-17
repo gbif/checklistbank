@@ -648,11 +648,16 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   protected int classificationSimilarity(LinneanClassification query, LinneanClassification reference) {
     // kingdom is super important
     int rate = htComp.compareHigherRank(Rank.KINGDOM, query, reference, 5, -10, -1);
-    // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
-    if (rate == -10 && htComp.isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE)
-        && htComp.isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)) {
-      //TODO: decrease this to 30 once the backbone is in a better state again !!!
-      rate = -51;
+    if (rate == -10) {
+      // plant and animal kingdoms are better delimited than Chromista, Fungi, etc. , so punish those mismatches higher
+      if (htComp.isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE)
+          && htComp.isInKingdoms(reference, Kingdom.ANIMALIA, Kingdom.PLANTAE)) {
+        rate = -51;
+        // plant and animal kingdoms should not be confused with Bacteria, Archaea or Viruses
+      } else if (htComp.isInKingdoms(query, Kingdom.ANIMALIA, Kingdom.PLANTAE)
+              && htComp.isInKingdoms(reference, Kingdom.BACTERIA, Kingdom.ARCHAEA, Kingdom.VIRUSES)) {
+        rate = -31;
+      }
     }
     // we rarely ever have a virus name, punish these a little more to avoid false virus matches
     if (htComp.isInKingdoms(reference, Kingdom.VIRUSES)) {
