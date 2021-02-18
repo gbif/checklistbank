@@ -585,6 +585,20 @@ public class NubBuilderIT {
     assertTree("163 164 165 166 167 168 169.txt");
   }
 
+
+  /**
+   * 170=CoL
+   * 171=Danish National List
+   */
+  @Test
+  public void speciesAuthorErrors() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(170, 171);
+    src.setSourceRank(170, Rank.KINGDOM);
+    build(src);
+
+    assertTree("170 171.txt");
+  }
+
   /**
    * http://dev.gbif.org/issues/browse/POR-3024
    * 77=CoL

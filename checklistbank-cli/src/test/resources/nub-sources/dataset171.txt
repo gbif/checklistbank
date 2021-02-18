@@ -1,0 +1,10 @@
+1			KINGDOM	ACCEPTED		Fungi	
+2	1		PHYLUM	ACCEPTED		Basidiomycota	
+4	2		CLASS	ACCEPTED		Agaricomycetes	
+5	4		ORDER	ACCEPTED		Russulales	
+6	5		FAMILY	ACCEPTED		Russulaceae	
+7	6		GENUS	ACCEPTED		Lactarius	
+8	7		SPECIES	ACCEPTED		Lactarius necator (Bull.) P.Karst.	
+9	8		SPECIES	SYNONYM		Lactarius plumbeus (Bull.) Fr.	
+10	7		SPECIES	ACCEPTED		Lactarius flexuosus Gray
+
