@@ -26,11 +26,13 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
@@ -40,12 +42,17 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.Iterators;
 
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -372,6 +379,46 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
     // verify
     verify16(datasetKey);
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/161
+   */
+  @Test
+  public void testSpeciesKeyNull() throws Exception {
+    final UUID datasetKey = NormalizerTest.datasetKey(24);
+
+    // insert neo db
+    NormalizerStats stats = insertNeo(datasetKey);
+    assertEquals(444, stats.getCount());
+    assertEquals(444, stats.getCountByOrigin(Origin.SOURCE));
+
+    // check
+    openDb(datasetKey);
+    try (Transaction tx = dao.getNeo().beginTx()) {
+      for (Node n : Iterators.loop(dao.allSpecies())) {
+        NameUsage spu = dao.readUsage(n, true);
+        if (spu.getTaxonomicStatus() == null || !spu.getTaxonomicStatus().isSynonym()) {
+          UsageFacts facts = dao.readFacts(n.getId());
+          assertEquals(spu.getKey(), ClassificationUtils.getHigherRankKey(facts.classification, spu.getRank()));
+        }
+      }
+    } finally {
+      dao.close();
+    }
+
+    // import into pg
+    runImport(datasetKey);
+
+    // verify speciesKey exist for all accepted species
+    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 1000));
+    for (NameUsage u : resp.getResults()) {
+      if (!u.isSynonym()) {
+        if (u.getRank() != null && u.getRank().isLinnean()) {
+          assertEquals(u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
+        }
+      }
+    }
   }
 
   private void printTree() throws Exception {

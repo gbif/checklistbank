@@ -95,6 +95,13 @@ public class UsageMetricsHandler implements StartEndHandler {
         UsageFacts facts = new UsageFacts();
         facts.metrics = metrics;
         facts.classification = classification;
+        // add this rank AGAIN to its current classification to fix an issue with parents being the same rank
+        // see https://github.com/gbif/checklistbank/issues/161
+        // we will remove it again after we persisted it
+        if (u.getRank() != null && u.getRank().isLinnean()) {
+            ClassificationUtils.setHigherRankKey(classification, u.getRank(), (int) n.getId());
+            ClassificationUtils.setHigherRank(classification, u.getRank(), u.getCanonicalOrScientificName());
+        }
         dao.store(n.getId(), facts);
 
         // remove this rank from current classification
