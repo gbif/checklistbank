@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.ParentStack;
@@ -27,13 +28,15 @@ import java.util.UUID;
 public class NubMatchService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchService.class);
   protected final ClbConfiguration cfg;
+  private final NeoConfiguration neo;
   protected IdLookup nubLookup;
   private final DatasetImportService sqlService;
   private final DatasetImportService solrService;
   private int counter = 0;
 
-  public NubMatchService(ClbConfiguration cfg, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService solrService) {
+  public NubMatchService(ClbConfiguration cfg, NeoConfiguration neo, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService solrService) {
     this.cfg = cfg;
+    this.neo = neo;
     this.nubLookup = nubLookup;
     this.sqlService = sqlService;
     this.solrService = solrService;
@@ -64,7 +67,7 @@ public class NubMatchService {
 
     LOG.info("Rematch checklist {} to Backbone", d.getKey());
     Map<Integer, Integer> relations = Maps.newHashMap();
-    try (ClbSource src = new ClbSource(cfg, d, null)) {
+    try (ClbSource src = new ClbSource(cfg, neo, d, null)) {
       // read in postgres usages
       LOG.info("Copy usages for {} from pg into neo", d.getKey());
       src.init(false, false);

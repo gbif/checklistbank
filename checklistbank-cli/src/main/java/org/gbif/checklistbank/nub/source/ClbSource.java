@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -20,21 +21,21 @@ public class ClbSource extends NubSource {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSource.class);
   private final ClbConfiguration clb;
 
-  public ClbSource(ClbConfiguration clb, UUID key, String name) {
-    this(clb, key, name, null);
+  public ClbSource(ClbConfiguration clb, NeoConfiguration neo, UUID key, String name) {
+    this(clb, neo, key, name, null);
   }
 
-  public ClbSource(ClbConfiguration clb, UUID key, String name, @Nullable List<RankedName> exclusion) {
-    super(key, name.replaceAll("\\s", " "), exclusion, false);
+  public ClbSource(ClbConfiguration clb, NeoConfiguration neo, UUID key, String name, @Nullable List<RankedName> exclusion) {
+    super(key, name.replaceAll("\\s", " "), exclusion, false, neo);
     this.clb = clb;
   }
 
-  public ClbSource(ClbConfiguration clb, Dataset dataset, @Nullable List<RankedName> exclusion) {
-    this(clb, dataset.getKey(), dataset.getTitle(), exclusion);
+  public ClbSource(ClbConfiguration clb, NeoConfiguration neo, Dataset dataset, @Nullable List<RankedName> exclusion) {
+    this(clb, neo, dataset.getKey(), dataset.getTitle(), exclusion);
   }
 
-  public ClbSource(ClbConfiguration clb, Dataset dataset) {
-    this(clb, dataset, null);
+  public ClbSource(ClbConfiguration clb, NeoConfiguration neo, Dataset dataset) {
+    this(clb, neo, dataset, null);
   }
 
   @Override

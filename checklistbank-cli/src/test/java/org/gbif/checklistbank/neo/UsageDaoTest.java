@@ -13,10 +13,12 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
 import org.gbif.utils.text.StringUtils;
 import org.junit.After;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -31,6 +33,10 @@ import static org.junit.Assert.assertEquals;
 
 public class UsageDaoTest {
   private final static Random RND = new Random();
+
+  @ClassRule
+  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+
   UsageDao dao;
 
   @After
@@ -71,7 +77,7 @@ public class UsageDaoTest {
 
   @Test
   public void testTrees() throws Exception {
-    try (ClasspathSource src = new ClasspathSource(41, true)) {
+    try (ClasspathSource src = new ClasspathSource(41, true, neoRepo.cfg)) {
       src.init(true, false);
       dao = src.getDao();
 

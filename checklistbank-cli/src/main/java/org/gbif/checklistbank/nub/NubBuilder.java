@@ -75,6 +75,7 @@ public class NubBuilder implements Runnable {
   private static final Joiner SEMICOLON_JOIN = Joiner.on("; ").skipNulls();
   static final Set<Origin> IGNORABLE_ORIGINS = Sets.newHashSet(Origin.IMPLICIT_NAME, Origin.VERBATIM_ACCEPTED);
   public static final Set<Rank> NUB_RANKS;
+  private static final ClbSource NUB_SRC = new ClbSource(null, null, Constants.NUB_DATASET_KEY, "Backbone algorithm", null);
 
   static {
     List<Rank> ranks = Lists.newArrayList(Rank.LINNEAN_RANKS);
@@ -158,7 +159,7 @@ public class NubBuilder implements Runnable {
       addDatasets();
 
       // change current datasource to nub algorithm, avoiding using the last source for algorithmically generated usages
-      currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone algorithm", null);
+      currSrc = NUB_SRC;
 
       // detect and group basionyms
       groupByBasionym();
@@ -671,7 +672,7 @@ public class NubBuilder implements Runnable {
   private void addKingdoms() {
     try (Transaction tx = db.beginTx()) {
       LOG.info("Adding kingdom");
-      currSrc = new ClbSource(null, Constants.NUB_DATASET_KEY, "Backbone kingdoms");
+      currSrc = NUB_SRC;
       for (Kingdom k : Kingdom.values()) {
         NubUsage ku = new NubUsage();
         ku.usageKey = idGen.reissue(k.nubUsageKey());

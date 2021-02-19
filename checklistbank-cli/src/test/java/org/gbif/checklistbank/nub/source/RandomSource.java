@@ -1,6 +1,8 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.utils.text.StringUtils;
 
 import java.util.Random;
@@ -28,8 +30,8 @@ public class RandomSource extends NubSource {
   private final Kingdom kingdom;
   private Random rnd = new Random();
 
-  public RandomSource(int size, Kingdom kingdom) {
-    super(UUID.randomUUID(), "Random dataset " + kingdom, null, true);
+  public RandomSource(int size, Kingdom kingdom, NeoConfiguration neo) {
+    super(UUID.randomUUID(), "Random dataset " + kingdom, null, true, neo);
     this.size = size;
     this.kingdom = kingdom;
   }

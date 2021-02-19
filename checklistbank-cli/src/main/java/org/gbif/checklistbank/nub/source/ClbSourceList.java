@@ -68,7 +68,7 @@ public class ClbSourceList extends NubSourceList {
   }
 
   private static NubSource buildSource(Dataset d, NubConfiguration cfg, NubSourceConfig sourceConfig) {
-    NubSource src = new ClbSource(cfg.clb, d.getKey(), d.getTitle(), sourceConfig.exclude);
+    NubSource src = new ClbSource(cfg.clb, cfg.neo, d.getKey(), d.getTitle(), sourceConfig.exclude);
     src.created = d.getCreated();
     src.ignoreSynonyms = !sourceConfig.synonyms;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();

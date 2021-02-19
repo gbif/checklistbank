@@ -49,7 +49,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
     IdLookup lookup = IdLookupImpl.temp().load(cfg.clb, false);
-    matcher = new NubMatchService(cfg.clb, lookup, sqlImportService, solrImportService);
+    matcher = new NubMatchService(cfg.clb, cfg.neo, lookup, sqlImportService, solrImportService);
   }
 
   @Override

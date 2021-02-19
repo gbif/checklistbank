@@ -380,8 +380,7 @@ public class AdminCommand extends BaseCommand {
 
   private void dumpToNeo() throws Exception {
     LOG.info("Start dumping dataset {} from postgres into neo4j", cfg.key);
-    ClbSource src = new ClbSource(cfg.clb, cfg.key, "Checklist " + cfg.key, null);
-    src.setNeoRepository(cfg.neo.neoRepository);
+    ClbSource src = new ClbSource(cfg.clb, cfg.neo, cfg.key, "Checklist " + cfg.key, null);
     src.init(true, cfg.nubRanksOnly);
   }
 

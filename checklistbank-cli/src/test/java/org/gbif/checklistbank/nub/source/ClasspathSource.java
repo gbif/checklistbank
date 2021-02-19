@@ -1,7 +1,9 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.apache.commons.io.IOUtils;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
+import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.utils.file.InputStreamUtils;
 
 import javax.annotation.Nullable;
@@ -29,16 +31,16 @@ import java.util.UUID;
 public class ClasspathSource extends NubSource {
   public final int id;
 
-  public ClasspathSource(int id) {
-    this(id, false);
+  public ClasspathSource(int id, NeoConfiguration neo) {
+    this(id, false, neo);
   }
 
-  public ClasspathSource(int id, boolean tmp) {
-    this(id, null, tmp);
+  public ClasspathSource(int id, boolean tmp, NeoConfiguration neo) {
+    this(id, null, tmp, neo);
   }
 
-  public ClasspathSource(int id, @Nullable List<RankedName> exclusion, boolean tmp) {
-    super(UUID.randomUUID(), "Dataset " + id, exclusion, tmp);
+  public ClasspathSource(int id, @Nullable List<RankedName> exclusion, boolean tmp, NeoConfiguration neo) {
+    super(UUID.randomUUID(), "Dataset " + id, exclusion, tmp, neo);
     this.id = id;
   }
 

@@ -120,6 +120,12 @@ public class NubConfiguration {
   @Min(100)
   public int parserTimeout = 1000;
 
+  public NubConfiguration() {
+  }
+
+  public NubConfiguration(NeoConfiguration neo) {
+    this.neo = neo;
+  }
 
   /**
    * Trims and changes cases for various sensitive configs, e.g. the blacklist.

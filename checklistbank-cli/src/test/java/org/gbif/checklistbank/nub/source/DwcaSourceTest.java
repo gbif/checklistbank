@@ -1,6 +1,9 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.gbif.checklistbank.nub.NeoTmpRepoRule;
+import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -23,9 +26,12 @@ public class DwcaSourceTest {
     }
   }
 
+  @Rule
+  public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+
   @Test
   public void testPatch() throws Exception {
-    DwcaSource src = new DwcaSource("patch checklist", BACKBONE_PATCH_DWCA);
+    DwcaSource src = new DwcaSource("patch checklist", BACKBONE_PATCH_DWCA, neoRepo.cfg);
     assertNotNull(src);
 
     src.init(true, false);

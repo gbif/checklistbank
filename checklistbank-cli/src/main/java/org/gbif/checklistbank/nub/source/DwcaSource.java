@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.neo.UsageDao;
@@ -27,24 +28,26 @@ import java.util.UUID;
 public class DwcaSource extends NubSource {
   private static final Logger LOG = LoggerFactory.getLogger(DwcaSource.class);
   private static HttpUtil http = new HttpUtil(HttpUtil.newMultithreadedClient(10000,10,2));
+  // we use a different key for the dwca normalizer so we dont clash with the real nubsource key
+  private final UUID normalizerKey = UUID.randomUUID();
 
   private NormalizerConfiguration cfg = new NormalizerConfiguration();
 
-  public DwcaSource(String name, File dwca) throws IOException {
-    super(UUID.randomUUID(), name.replaceAll("\\s", " "), null, false);
+  public DwcaSource(String name, File dwca, NeoConfiguration neo) throws IOException {
+    super(UUID.randomUUID(), name.replaceAll("\\s", " "), null, false, neo);
     initRepos();
-    File archiveDir = cfg.archiveDir(key);
+    File archiveDir = cfg.archiveDir(normalizerKey);
     LOG.info("Open dwc archive {}", dwca);
     DwcFiles.fromCompressed(dwca.toPath(), archiveDir.toPath());
   }
 
-  public DwcaSource(String name, URL dwca) throws IOException {
-    this(name, download(dwca));
+  public DwcaSource(String name, URL dwca, NeoConfiguration neo) throws IOException {
+    this(name, download(dwca), neo);
   }
 
   private void initRepos() {
     cfg.archiveRepository = Files.createTempDir();
-    cfg.neo.neoRepository = Files.createTempDir();
+    cfg.neo = super.cfg;
   }
 
   private static File download(URL dwca) throws IOException {
@@ -89,10 +92,10 @@ public class DwcaSource extends NubSource {
    * read dwca stream and normalize it
    */
   private UsageDao normalize() {
-    LOG.info("Normalize dwca");
-    Normalizer normalizer = Normalizer.create(cfg, key);
+    LOG.info("Normalize dwca, key={}", normalizerKey);
+    Normalizer normalizer = Normalizer.create(cfg, normalizerKey);
     normalizer.run();
-    return UsageDao.open(cfg.neo, key);
+    return UsageDao.open(cfg.neo, normalizerKey);
   }
 
   @Override

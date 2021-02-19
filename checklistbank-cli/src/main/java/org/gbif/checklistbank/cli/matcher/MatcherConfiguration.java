@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.matcher;
 
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -37,6 +38,11 @@ public class MatcherConfiguration {
   @Valid
   @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
+  public NeoConfiguration neo = new NeoConfiguration();
 
   @ParametersDelegate
   @Valid

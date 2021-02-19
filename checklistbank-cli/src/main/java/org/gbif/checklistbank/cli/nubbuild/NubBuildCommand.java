@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
@@ -31,6 +32,13 @@ public class NubBuildCommand extends BaseCommand {
 
   @Override
   protected void doRun() {
+    LOG.info("Clean neo repository in {}", cfg.neo.neoRepository);
+    try {
+      FileUtils.cleanDirectory(cfg.neo.neoRepository);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to clean neo repository", e);
+    }
+
     NubBuilder builder = NubBuilder.create(cfg);
     builder.run();
     builder.report(cfg.reportDir);

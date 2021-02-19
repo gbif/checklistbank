@@ -29,10 +29,12 @@ import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
 import org.gbif.checklistbank.neo.UsageDao;
+import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
@@ -45,10 +47,7 @@ import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -81,6 +80,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private DatasetImportService solrService;
   private NameUsageSearchService searchService;
   private HikariDataSource hds;
+
+  @ClassRule
+  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Rule
   public ClbDbTestRule dbSetup = ClbDbTestRule.empty();
@@ -432,10 +434,12 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   @Test
   public void testNubImport() throws Exception {
     // build nub
-    ClasspathSourceList src = ClasspathSourceList.source(3, 2, 15, 16, 51, 144);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 2, 15, 16, 51, 144);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, NubBuilderIT.defaultConfig());
+    NubConfiguration cfg = NubBuilderIT.defaultConfig();
+    cfg.neo = neoRepo.cfg;
+    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, cfg);
     nb.run();
 
     openDb(Constants.NUB_DATASET_KEY);

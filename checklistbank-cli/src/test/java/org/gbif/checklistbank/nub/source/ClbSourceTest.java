@@ -4,8 +4,11 @@ import com.google.common.collect.Lists;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.nub.NeoTmpRepoRule;
+import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -22,6 +25,9 @@ public class ClbSourceTest {
   @Rule
   public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
 
+  @Rule
+  public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+
   private ClbConfiguration config(){
     // use default prod API
     Properties props = dbSetup.getProperties();
@@ -35,7 +41,7 @@ public class ClbSourceTest {
 
   @Test
   public void testUsages() throws Exception {
-    try (ClbSource src = new ClbSource(config(), UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels")) {
+    try (ClbSource src = new ClbSource(config(), neoRepo.cfg, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels")) {
       src.ignoreRanksAbove = Rank.SPECIES;
       src.init(true, false);
       int counter = 0;
@@ -52,7 +58,7 @@ public class ClbSourceTest {
   public void testExclusion() throws Exception {
     // exclude an entire subfamily subtree
     RankedName subfam = new RankedName("Sciurinae", Rank.SUBFAMILY);
-    try (ClbSource src = new ClbSource(config(), UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels", Lists.newArrayList(subfam))) {
+    try (ClbSource src = new ClbSource(config(), neoRepo.cfg, UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), "squirrels", Lists.newArrayList(subfam))) {
       src.ignoreRanksAbove = Rank.SPECIES;
       src.init(true, false);
       int counter = 0;

@@ -60,17 +60,11 @@ import java.util.concurrent.TimeUnit;
 public abstract class NubSource implements CloseableIterable<SrcUsage> {
   private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
-  private static final NeoConfiguration cfg = new NeoConfiguration();
+  protected final NeoConfiguration cfg;
   private final Stopwatch watch = Stopwatch.createUnstarted();
+  private final Evaluator exclusionEvaluator;
   // default parser with 1s timeout
   private NameParser parser = NameParserUtils.PARSER;
-
-  static {
-    cfg.neoRepository = Files.createTempDir();
-    cfg.mappedMemory = 128;
-  }
-
-  private final Evaluator exclusionEvaluator;
   public UUID key;
   public String name;
   public Rank ignoreRanksAbove = Rank.FAMILY;
@@ -78,7 +72,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
   public boolean nomenclator = false;
   public boolean supragenericHomonymSource = false;
   boolean ignoreSynonyms = false;
-
   private UsageDao dao;
   private final boolean useTmpDao;
 
@@ -87,7 +80,8 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    *                  If too many sources are created this can result in a large number of open files!
    *                  Do not use this for production.
    */
-  public NubSource(UUID key, String name, @Nullable List<RankedName> exclusion, boolean useTmpDao) {
+  public NubSource(UUID key, String name, @Nullable List<RankedName> exclusion, boolean useTmpDao, NeoConfiguration cfg) {
+    this.cfg = cfg;
     this.key = key;
     this.name = name;
     this.useTmpDao = useTmpDao;
@@ -129,11 +123,6 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   public void setParser(NameParser parser) {
     this.parser = parser;
-  }
-
-  public void setNeoRepository(File repository) {
-    Preconditions.checkArgument(repository.isDirectory());
-    cfg.neoRepository = repository;
   }
 
   protected abstract void initNeo(NeoUsageWriter writer) throws Exception;

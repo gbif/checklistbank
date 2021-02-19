@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub.source;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 
@@ -38,26 +39,26 @@ public class ClasspathSourceList extends NubSourceList {
    * Creates a classpath based source that uses no resources at all.
    */
   public static ClasspathSourceList emptySource() {
-    return new ClasspathSourceList(Lists.newArrayList());
+    return new ClasspathSourceList(null, Lists.newArrayList());
   }
 
   /**
    * Creates a classpath based source that uses just the specieid classpath resources under /nub-sources
    */
-  public static ClasspathSourceList source(int... datasetKeys) {
-    return source(new HashMap<>(), datasetKeys);
+  public static ClasspathSourceList source(NeoConfiguration neo, int... datasetKeys) {
+    return source(neo, new HashMap<>(), datasetKeys);
   }
 
-  public static ClasspathSourceList source(Map<Integer, List<RankedName>> exclusions, int... datasetKeys) {
+  public static ClasspathSourceList source(NeoConfiguration neo, Map<Integer, List<RankedName>> exclusions, int... datasetKeys) {
     List<ClasspathSource> sources = Lists.newArrayList();
     for (Integer id : datasetKeys) {
-      sources.add(new ClasspathSource(id, exclusions.get(id), false));
+      sources.add(new ClasspathSource(id, exclusions.get(id), false, neo));
     }
-    return new ClasspathSourceList(sources);
+    return new ClasspathSourceList(neo, sources);
   }
 
-  private ClasspathSourceList(Iterable<ClasspathSource> sources) {
-    super(new NubConfiguration());
+  private ClasspathSourceList(NeoConfiguration neo, Iterable<ClasspathSource> sources) {
+    super(new NubConfiguration(neo));
     for (ClasspathSource src : sources) {
       sourceById.put(src.id, src);
     }
