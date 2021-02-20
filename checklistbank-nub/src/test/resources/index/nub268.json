@@ -1,0 +1,23 @@
+{
+    "canonicalName": "Lacerta bilineata indet",
+    "class": "Reptilia",
+    "classKey": 358,
+    "confidence": 98,
+    "family": "Lacertidae",
+    "familyKey": 5201,
+    "genus": "Lacerta",
+    "genusKey": 2469780,
+    "kingdom": "Animalia",
+    "kingdomKey": 1,
+    "order": "Squamata",
+    "orderKey": 715,
+    "phylum": "Chordata",
+    "phylumKey": 44,
+    "rank": "SUBSPECIES",
+    "scientificName": "Lacerta bilineata indet (Elbing, 2001)",
+    "species": "Lacerta bilineata",
+    "speciesKey": 6159242,
+    "status": "ACCEPTED",
+    "synonym": false,
+    "usageKey": 6159243
+}

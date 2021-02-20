@@ -610,6 +610,20 @@ public class NubMatchingServiceImplIT {
     assertMatch("Oreina elegans", cl, 6757727, NameUsageMatch.MatchType.HIGHERRANK);
   }
 
+  /**
+   * indet is used in occurrences not as an epithet but to indicate indeterminate names, like spec. is used.
+   * Make sure we never fuzzy match those, but allow for exact matches as there are a few true names out there.
+   * Peperomia indet != Peperomia induta
+   * Lacerta bilineata indet (Elbing, 2001) good!
+   */
+  @Test
+  public void testIndet() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    assertMatch("Peperomia induta", cl, 4189260, new IntRange(95, 100));
+    assertMatch("Peperomia indet", cl, 3086367, NameUsageMatch.MatchType.HIGHERRANK);
+    assertMatch("Lacerta bilineata indet", cl, 6159243, new IntRange(95, 100));
+  }
+
 
   /**
    * http://gbif.blogspot.com/2015/03/improving-gbif-backbone-matching.html

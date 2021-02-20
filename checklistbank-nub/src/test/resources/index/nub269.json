@@ -1,0 +1,22 @@
+{
+    "canonicalName": "Peperomia",
+    "class": "Magnoliopsida",
+    "classKey": 220,
+    "confidence": 94,
+    "family": "Piperaceae",
+    "familyKey": 6678,
+    "genus": "Peperomia",
+    "genusKey": 3086367,
+    "kingdom": "Plantae",
+    "kingdomKey": 6,
+    "matchType": "EXACT",
+    "order": "Piperales",
+    "orderKey": 404,
+    "phylum": "Tracheophyta",
+    "phylumKey": 7707728,
+    "rank": "GENUS",
+    "scientificName": "Peperomia Ruiz & Pav.",
+    "status": "ACCEPTED",
+    "synonym": false,
+    "usageKey": 3086367
+}

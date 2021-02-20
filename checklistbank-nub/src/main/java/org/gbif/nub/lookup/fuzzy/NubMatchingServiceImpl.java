@@ -349,9 +349,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       final int rankSimilarity = rankSimilarity(rank, m.getRank());
       // -5 - +1
       final int statusScore = STATUS_SCORE.get(m.getStatus());
+      // -25 - 0
+      final int fuzzyMatchUnlikely = fuzzyMatchUnlikelyhood(canonicalName, m);
 
       // preliminary total score, -5 - 20 distance to next best match coming below!
-      m.setConfidence(nameSimilarity + authorSimilarity + classificationSimilarity + rankSimilarity + statusScore);
+      m.setConfidence(nameSimilarity + authorSimilarity + classificationSimilarity + rankSimilarity + statusScore + fuzzyMatchUnlikely);
 
       if (verbose) {
         addNote(m, "Similarity: name=" + nameSimilarity);
@@ -359,6 +361,9 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         addNote(m, "classification=" + classificationSimilarity);
         addNote(m, "rank=" + rankSimilarity);
         addNote(m, "status=" + statusScore);
+        if (fuzzyMatchUnlikely<0) {
+          addNote(m, "fuzzy match unlikely=" + fuzzyMatchUnlikely);
+        }
       }
     }
 
@@ -606,6 +611,16 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     no.setNote(note);
     setAlternatives(no, alternatives);
     return no;
+  }
+
+  private int fuzzyMatchUnlikelyhood(String canonicalName, NameUsageMatch m) {
+    // ignore fuzzy matches with a terminal epithet of "indet" meaning usually indeterminate
+    if (m.getMatchType() == NameUsageMatch.MatchType.FUZZY
+            && m.getRank().isSpeciesOrBelow()
+            && canonicalName.endsWith(" indet")) {
+      return -25;
+    }
+    return 0;
   }
 
   private int nameSimilarity(@Nullable NameType queryNameType, String canonicalName, NameUsageMatch m) {
