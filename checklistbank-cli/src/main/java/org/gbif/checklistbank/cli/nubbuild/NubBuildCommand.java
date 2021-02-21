@@ -32,11 +32,13 @@ public class NubBuildCommand extends BaseCommand {
 
   @Override
   protected void doRun() {
-    LOG.info("Clean neo repository in {}", cfg.neo.neoRepository);
-    try {
-      FileUtils.cleanDirectory(cfg.neo.neoRepository);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to clean neo repository", e);
+    if (cfg.neo.neoRepository.exists()) {
+      LOG.info("Clean neo repository in {}", cfg.neo.neoRepository);
+      try {
+        FileUtils.cleanDirectory(cfg.neo.neoRepository);
+      } catch (IOException e) {
+        throw new IllegalStateException("Failed to clean neo repository", e);
+      }
     }
 
     NubBuilder builder = NubBuilder.create(cfg);
