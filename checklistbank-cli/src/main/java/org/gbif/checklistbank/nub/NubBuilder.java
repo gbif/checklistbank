@@ -205,7 +205,7 @@ public class NubBuilder implements Runnable {
       LOG.error("Backbone invalid, build failed!", e);
       throw e;
 
-    } catch (RuntimeException e) {
+    } catch (Throwable e) {
       LOG.error("Fatal error. Backbone build failed!", e);
       //db.dao().consistencyNubReport();
       throw e;
@@ -872,7 +872,7 @@ public class NubBuilder implements Runnable {
   }
 
   private void addDataset(NubSource source) throws Exception {
-    LOG.info("Adding {}th source {}. Allow suprageneric homonyms={}", datasetCounter++, source.name, source.supragenericHomonymSource);
+    LOG.info("Adding {}th source {} {}. Allow suprageneric homonyms={}", datasetCounter++, source.key, source.name, source.supragenericHomonymSource);
     currSrc = source;
     priorities.put(source.key, ++maxPriority);
     // clear dataset wide caches

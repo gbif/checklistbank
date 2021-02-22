@@ -102,7 +102,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    */
   public void init(boolean writeNeoProperties, boolean nubRanksOnly) throws Exception {
     // load data into neo4j
-    LOG.debug("Start loading source data from {} into neo", name);
+    LOG.debug("Start loading source data from {} {} into neo", key, name);
     watch.reset().start();
 
     UsageDao dao;
@@ -117,7 +117,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     // NeoUsageWriter will autoclose persistent daos
     try (NeoUsageWriter writer = new NeoUsageWriter(dao, writeNeoProperties, nubRanksOnly)) {
       initNeo(writer);
-      LOG.info("Loaded nub source data {} with {} usages into neo4j in {}ms. {} unparsable, skipping {}", name, writer.getCounter(), watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
+      LOG.info("Loaded nub source with {} usages from {} {} into neo4j in {}ms. {} unparsable, skipping {}", writer.getCounter(), key, name, watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
     }
   }
 
