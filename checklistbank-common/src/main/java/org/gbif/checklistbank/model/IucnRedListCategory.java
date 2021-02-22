@@ -31,7 +31,7 @@ public class IucnRedListCategory {
   }
 
   public String getCode() {
-    return category.getCode();
+    return category != null? category.getCode() : null;
   }
 
   public Integer getUsageKey() {
