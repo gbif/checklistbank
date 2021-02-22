@@ -1,17 +1,18 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
-import org.gbif.api.vocabulary.CitesAppendix;
-import org.gbif.api.vocabulary.Country;
-import org.gbif.api.vocabulary.EstablishmentMeans;
-import org.gbif.api.vocabulary.LifeStage;
-import org.gbif.api.vocabulary.OccurrenceStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.vocabulary.*;
 
+import org.gbif.checklistbank.model.NameUsageWritable;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -74,9 +75,59 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         assertObject(obj, list.get(1), datasetTitle, usageKey);
     }
 
+    private Integer setupSpecies(UUID datasetKey, Integer parentKey, TaxonomicStatus status) {
+        ParsedName pn = new ParsedName();
+        pn.setType(NameType.SCIENTIFIC);
+        pn.setGenusOrAbove("Abies");
+        pn.setSpecificEpithet("alba-"+UUID.randomUUID().toString().replaceAll("-",""));
+        pn.setRank(Rank.SPECIES);
+        pn.setScientificName(pn.getGenusOrAbove()+" "+pn.getSpecificEpithet());
+        getInstance(ParsedNameMapper.class).create(pn);
+
+        NameUsageWritable uw = new NameUsageWritable();
+        uw.setDatasetKey(datasetKey);
+        uw.setParentKey(parentKey);
+        uw.setOrigin(Origin.SOURCE);
+        uw.setTaxonomicStatus(status);
+        uw.setSynonym(status.isSynonym());
+        uw.setRank(pn.getRank());
+        uw.setNameKey(pn.getKey());
+        getInstance(NameUsageMapper.class).insert(uw);
+
+        return uw.getKey();
+    }
+
+    private void setupIucnNubRel(int usageKey, int nubKey) {
+        getInstance(NubRelMapper.class).insert(DistributionMapper.iucnDatasetKey, usageKey, nubKey);
+    }
+
     @Test
     public void testIUCN() throws Exception {
-        // setting up proper test data is quite an effort. We only test here that the sql does not throw errors...
+        // setup NUB usages
+        int nub1 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
+        int nub2 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
+        int nub3 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
+
+        // setup IUCN record and matching nub relation
+        int acc1 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED);
+        int acc2 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED);
+        int syn = setupSpecies(DistributionMapper.iucnDatasetKey, acc2, TaxonomicStatus.HETEROTYPIC_SYNONYM);
+
+        Distribution d = new Distribution();
+        d.setLocality("global");
+        d.setThreatStatus(ThreatStatus.CRITICALLY_ENDANGERED);
+        mapper.insert(acc1, d, null);
+        d.setThreatStatus(ThreatStatus.VULNERABLE);
+        mapper.insert(acc2, d, null);
+
+        // map acc1 to an accepted nub usage, but
+        setupIucnNubRel(acc1, nub1);
+        setupIucnNubRel(acc2, nub2);
+        setupIucnNubRel(syn, nub3);
+
+        assertEquals(ThreatStatus.CRITICALLY_ENDANGERED, mapper.getIucnRedListCategory(nub1).getCategory());
+        assertEquals(ThreatStatus.VULNERABLE, mapper.getIucnRedListCategory(nub2).getCategory());
+        assertEquals(ThreatStatus.VULNERABLE, mapper.getIucnRedListCategory(nub3).getCategory());
 
         // no usage
         assertNull(mapper.getIucnRedListCategory(99999999));

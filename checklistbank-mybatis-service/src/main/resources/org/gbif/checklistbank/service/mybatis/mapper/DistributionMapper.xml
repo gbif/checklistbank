@@ -93,7 +93,7 @@
       LEFT JOIN name_usage acc ON iucn.parent_fk=acc.id AND iucn.is_synonym
       LEFT JOIN name accn ON acc.name_fk=accn.id
       LEFT JOIN distribution d ON d.usage_fk=iucn.id
-      LEFT JOIN distribution dacc ON dacc.usage_fk=accn.id
+      LEFT JOIN distribution dacc ON dacc.usage_fk=acc.id
     WHERE rel.nub_fk=#{key} AND rel.dataset_key='19491596-35ae-4a91-9a98-85cf505f1bd3'
     LIMIT 1
   </select>
