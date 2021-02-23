@@ -119,6 +119,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       initNeo(writer);
       LOG.info("Loaded nub source with {} usages from {} {} into neo4j in {}ms. {} unparsable, skipping {}", writer.getCounter(), key, name, watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
     }
+
   }
 
   public void setParser(NameParser parser) {
@@ -280,6 +281,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
       tx.success();
       tx.close();
       if (!useTmpDao) {
+        dao.compact();
         dao.close();
       }
     }

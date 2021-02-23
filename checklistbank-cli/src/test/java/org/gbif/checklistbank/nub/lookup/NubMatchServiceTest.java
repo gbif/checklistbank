@@ -23,7 +23,7 @@ public class NubMatchServiceTest {
     clb.serverName = "pg1.gbif.org";
     clb.databaseName = "prod_checklistbank";
     clb.user = "clb";
-    clb.password = "%BBJu2MgstXJ";
+    clb.password = "";
 
     NeoConfiguration neo = new NeoConfiguration();
     neo.neoRepository = new File(FileUtils.getTempDirectory(), "clb");

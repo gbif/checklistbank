@@ -24,7 +24,7 @@ public class NeoConfiguration {
 
   @NotNull
   @Parameter(names = "--neo-repo")
-  public File neoRepository;
+  public File neoRepository = new File("/tmp/neo");
 
   @NotNull
   @Parameter(names = "--neo-batchsize")

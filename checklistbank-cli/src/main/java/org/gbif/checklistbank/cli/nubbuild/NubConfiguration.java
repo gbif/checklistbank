@@ -33,6 +33,11 @@ public class NubConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
+  public NeoConfiguration neoSources = new NeoConfiguration();
+
+  @ParametersDelegate
+  @Valid
+  @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
 
   @ParametersDelegate

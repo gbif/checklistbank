@@ -28,10 +28,10 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
+import org.gbif.nub.mapdb.MapDbUtils;
+import org.mapdb.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.helpers.collection.Iterators;
@@ -63,13 +63,13 @@ public class UsageDao implements AutoCloseable {
   private GraphDatabaseService neo;
   private final GraphDatabaseBuilder neoFactory;
   private final DB kvp;
-  private final Map<Long, ParsedName> names;
-  private final Map<Long, UsageFacts> facts;
-  private final Map<Long, VerbatimNameUsage> verbatim;
-  private final Map<Long, NameUsage> usages;
-  private final Map<Long, UsageExtensions> extensions;
-  private final Map<Long, SrcUsage> srcUsages;
-  private final Map<Long, NubUsage> nubUsages;
+  private final HTreeMap<Long, ParsedName> names;
+  private final HTreeMap<Long, UsageFacts> facts;
+  private final HTreeMap<Long, VerbatimNameUsage> verbatim;
+  private final HTreeMap<Long, NameUsage> usages;
+  private final HTreeMap<Long, UsageExtensions> extensions;
+  private final HTreeMap<Long, SrcUsage> srcUsages;
+  private final HTreeMap<Long, NubUsage> nubUsages;
   private final MetricRegistry registry;
   private final File neoDir;
   private final File kvpStore;
@@ -105,7 +105,7 @@ public class UsageDao implements AutoCloseable {
     }
   }
 
-  private <T> Map<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
+  private <T> HTreeMap<Long, T> createKvpMap(String name, Class<T> clazz, int bufferSize) {
     return kvp.hashMap(name)
         .keySerializer(Serializer.LONG)
         .valueSerializer(new MapDbObjectSerializer(clazz, KPOOL, bufferSize))
@@ -178,9 +178,7 @@ public class UsageDao implements AutoCloseable {
       }
       FileUtils.forceMkdir(kvpF.getParentFile());
       LOG.debug("Use KVP store {}", kvpF.getAbsolutePath());
-      kvp = DBMaker.fileDB(kvpF)
-          .fileMmapEnableIfSupported()
-          .make();
+      kvp = MapDbUtils.fileDB(kvpF).make();
       GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, eraseExisting);
       return new UsageDao(kvp, storeDir, kvpF, builder, registry);
 
@@ -706,7 +704,7 @@ public class UsageDao implements AutoCloseable {
   public int convertNubUsages() {
     LOG.info("Converting all nub usages into name usages ...");
     int counter = 0;
-    for (Map.Entry<Long, NubUsage> nub : nubUsages.entrySet()) {
+    for (Map.Entry<Long, NubUsage> nub : nubUsages.getEntries()) {
       usages.put(nub.getKey(), convert(nub.getValue()));
       counter++;
     }
@@ -778,7 +776,7 @@ public class UsageDao implements AutoCloseable {
 
     try (Transaction tx = neo.beginTx()) {
       int kvpCounter = 0;
-      for (long id : nubUsages.keySet()) {
+      for (long id : nubUsages.getKeys()) {
         kvpCounter++;
         try {
           neo.getNodeById(id);
@@ -793,5 +791,19 @@ public class UsageDao implements AutoCloseable {
 
   public ResourceIterator<Relationship> listAllRelationships(RelType type) {
     return neo.execute("match ()-[pp:" + type.name() + "]->() return pp").columnAs("pp");
+  }
+
+  /**
+   * Compact mapdb memory usage.
+   */
+  public void compact() {
+    kvp.commit();
+    MapDbUtils.compact(names);
+    MapDbUtils.compact(facts);
+    MapDbUtils.compact(verbatim);
+    MapDbUtils.compact(usages);
+    MapDbUtils.compact(extensions);
+    MapDbUtils.compact(srcUsages);
+    MapDbUtils.compact(nubUsages);
   }
 }

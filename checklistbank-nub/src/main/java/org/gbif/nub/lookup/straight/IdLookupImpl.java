@@ -19,9 +19,8 @@ import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
+import org.gbif.nub.mapdb.MapDbUtils;
+import org.mapdb.*;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ public class IdLookupImpl implements IdLookup {
   private static final Logger LOG = LoggerFactory.getLogger(IdLookupImpl.class);
 
   private final DB db;
-  private final Map<String, List<LookupUsage>> usages;
+  private final HTreeMap<String, List<LookupUsage>> usages;
   private final AuthorComparator authComp;
   private int keyMax = 0;
   private int counter = 0;
@@ -57,18 +56,14 @@ public class IdLookupImpl implements IdLookup {
    * Creates or opens a persistent lookup store.
    */
   public static IdLookupImpl persistent(File db) {
-    return new IdLookupImpl(DBMaker.fileDB(db)
-        .fileMmapEnableIfSupported()
-        .make());
+    return new IdLookupImpl(MapDbUtils.fileDB(db).make());
   }
 
   /**
    * Creates or opens a persistent lookup store.
    */
   public static IdLookupImpl temp() {
-    return new IdLookupImpl(DBMaker.tempFileDB()
-        .fileMmapEnableIfSupported()
-        .make());
+    return new IdLookupImpl(MapDbUtils.tmpFileDB().make());
   }
 
   private IdLookupImpl(DB db) {
@@ -89,6 +84,7 @@ public class IdLookupImpl implements IdLookup {
       add(u);
       counter++;
     }
+    commit();
     LOG.info("Use {} existing nub with max key {} into id lookup", counter, keyMax);
     return this;
   }
@@ -127,7 +123,13 @@ public class IdLookupImpl implements IdLookup {
 
       LOG.info("Loaded existing nub with {} usages ({} deleted) and max key {} into id lookup", usages.size(), deleted, keyMax);
     }
+    commit();
     return this;
+  }
+
+  private void commit() {
+    MapDbUtils.compact(usages);
+    db.commit();
   }
 
   @Override

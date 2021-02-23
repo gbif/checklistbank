@@ -6,6 +6,9 @@ messaging:
 neo:
   neoRepository: /tmp/neo
   mappedMemory: 1024
+neoSources:
+  neoRepository: /tmp/neo
+  mappedMemory: 128
 clb:
   serverName: localhost
   databaseName: clb

@@ -2,6 +2,7 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
+import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
 import org.gbif.cli.Command;
@@ -30,16 +31,21 @@ public class NubBuildCommand extends BaseCommand {
     return cfg;
   }
 
-  @Override
-  protected void doRun() {
-    if (cfg.neo.neoRepository.exists()) {
-      LOG.info("Clean neo repository in {}", cfg.neo.neoRepository);
+  private void cleanRepo(NeoConfiguration cfg) {
+    if (cfg.neoRepository.exists()) {
+      LOG.info("Clean neo repositories in {}", cfg.neoRepository);
       try {
-        FileUtils.cleanDirectory(cfg.neo.neoRepository);
+        FileUtils.cleanDirectory(cfg.neoRepository);
       } catch (IOException e) {
         throw new IllegalStateException("Failed to clean neo repository", e);
       }
     }
+  }
+
+  @Override
+  protected void doRun() {
+    cleanRepo(cfg.neo);
+    cleanRepo(cfg.neoSources);
 
     NubBuilder builder = NubBuilder.create(cfg);
     builder.run();
