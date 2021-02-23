@@ -3,6 +3,7 @@ package org.gbif.checklistbank.nub;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.collect.UnmodifiableIterator;
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
@@ -10,6 +11,7 @@ import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.iterable.StreamUtils;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
@@ -19,6 +21,7 @@ import org.gbif.checklistbank.neo.traverse.StartEndHandler;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
+import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.*;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
@@ -53,22 +56,22 @@ public class NubBuilderIT {
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   public static NubConfiguration defaultConfig() {
-      NubConfiguration cfg = new NubConfiguration();
-      cfg.groupBasionyms = true;
-      cfg.validate = true;
-      cfg.runAssertions = false;
-      cfg.autoImport = false;
-      cfg.neo = neoRepo.cfg;
-      cfg.neo.batchSize = 5000;
-      cfg.parserTimeout = 250;
-      cfg.blacklist = Sets.newHashSet(
-              "Unaccepted",
-              "Calendrella cinerea ongumaensis",	// https://github.com/gbif/checklistbank/issues/47
-              "Tricholaema leucomelan namaqua"	// https://github.com/gbif/checklistbank/issues/46
-      );
-      cfg.homonymExclusions = new HashMap<>();
-      cfg.homonymExclusions.put("Setabis", Lists.newArrayList("Riodinidae"));
-      return cfg;
+    NubConfiguration cfg = new NubConfiguration();
+    cfg.groupBasionyms = true;
+    cfg.validate = true;
+    cfg.runAssertions = false;
+    cfg.autoImport = false;
+    cfg.neo = neoRepo.cfg;
+    cfg.neo.batchSize = 5000;
+    cfg.parserTimeout = 250;
+    cfg.blacklist = Sets.newHashSet(
+        "Unaccepted",
+        "Calendrella cinerea ongumaensis",  // https://github.com/gbif/checklistbank/issues/47
+        "Tricholaema leucomelan namaqua"  // https://github.com/gbif/checklistbank/issues/46
+    );
+    cfg.homonymExclusions = new HashMap<>();
+    cfg.homonymExclusions.put("Setabis", Lists.newArrayList("Riodinidae"));
+    return cfg;
   }
 
   private static void log(String msg, Object... args) {
@@ -140,9 +143,44 @@ public class NubBuilderIT {
     assertTrue(listCanonical("Francisella tularensis tularensis").isEmpty());
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/165
+   */
+  @Test
+  @Ignore("Manual test to debug memory usage of the nub source only")
+  public void debugSourcesMemory() throws Exception {
+    RandomSourceList sources = RandomSourceList.source(neoRepo.cfg, 10, 10000);
+    // just iterate over sources and close them just as the builder does, but do not use them for anything
+    for (NubSource src : sources) {
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        UnmodifiableIterator<List<SrcUsage>> batchIter = com.google.common.collect.Iterators.partition(iter, cfg.neo.batchSize);
+        while (batchIter.hasNext()) {
+          List<SrcUsage> batch = batchIter.next();
+          for (SrcUsage u : batch) {
+            System.out.println(u.key + " -> " + u.scientificName);
+          }
+        }
+      } finally {
+        src.close();
+      }
+    }
+  }
+
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/165
+   */
+  @Test
+  @Ignore("Manual test to debug memory usage")
+  public void debugNubMemoryUsage() throws Exception {
+    RandomSourceList sources = RandomSourceList.source(neoRepo.cfg, 10, 10000);
+    // do a real build
+    build(sources);
+  }
+
   @Test
   public void testUnknownKingdom() throws Exception {
-    build(ClasspathSourceList.source(neoRepo.cfg,4));
+    build(ClasspathSourceList.source(neoRepo.cfg, 4));
 
     NubUsage k = assertCanonical(Kingdom.INCERTAE_SEDIS.scientificName(), Rank.KINGDOM, Origin.SOURCE, TaxonomicStatus.DOUBTFUL, null);
     NubUsage f = assertCanonical("Popeliaceae", Rank.FAMILY, Origin.SOURCE, TaxonomicStatus.ACCEPTED, k);
@@ -152,7 +190,7 @@ public class NubBuilderIT {
 
   @Test
   public void testUpdateAuthorship() throws Exception {
-    build(ClasspathSourceList.source(neoRepo.cfg,1, 5, 6));
+    build(ClasspathSourceList.source(neoRepo.cfg, 1, 5, 6));
 
     assertCanonical("Lepiota seminuda", "Miller", Rank.SPECIES, Origin.SOURCE);
     assertCanonical("Lepiota nuda elegans", "DC.", Rank.SUBSPECIES, Origin.SOURCE);
@@ -171,7 +209,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testWormsSubgenera() throws Exception {
-    build(ClasspathSourceList.source(neoRepo.cfg,43));
+    build(ClasspathSourceList.source(neoRepo.cfg, 43));
 
     NubUsage genus = assertCanonical("Hyalonema", "Gray, 1832", Rank.GENUS, Origin.SOURCE);
     assertCanonical("Hyalonema grandancora", "Lendenfeld, 1915", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, genus);
@@ -185,7 +223,7 @@ public class NubBuilderIT {
   @Test
   @Ignore("manual verification only")
   public void testFullFamilies() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,91);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 91);
     src.setSourceRank(91, Rank.CLASS);
     build(src, new File("/Users/markus/nub-synonyms.txt"));
   }
@@ -195,7 +233,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testMergeBasionymGroup() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,25, 26);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 25, 26);
     build(src);
 
     NubUsage spec = getCanonical("Picris hieracioides", Rank.SPECIES);
@@ -221,7 +259,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testOrthographicVariants() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,92, 93);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 92, 93);
     build(src);
 
     assertTree("92 93.txt");
@@ -233,7 +271,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testMissingRecombAuthors() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,94);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 94);
     build(src);
 
     assertTree("94.txt");
@@ -244,7 +282,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSynonymizedAutonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,95);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 95);
     build(src);
 
     assertTree("95.txt");
@@ -252,7 +290,7 @@ public class NubBuilderIT {
 
   @Test
   public void testConflictingBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,95, 97);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 95, 97);
     build(src);
 
     assertTree("95 97.txt");
@@ -260,7 +298,7 @@ public class NubBuilderIT {
 
   @Test
   public void testConflictingBasionymsFlipped() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,96, 97);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 96, 97);
     build(src);
 
     assertTree("96 97.txt");
@@ -268,7 +306,7 @@ public class NubBuilderIT {
 
   @Test
   public void testConflictingBasionymsOrder() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,96);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 96);
     build(src);
 
     assertTree("96.txt");
@@ -276,7 +314,7 @@ public class NubBuilderIT {
 
   @Test
   public void testPreferAcceptedQualifiedName() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,99);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 99);
     build(src);
 
     assertTree("99.txt");
@@ -284,7 +322,7 @@ public class NubBuilderIT {
 
   @Test
   public void testNamesWithSubgenus() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,100);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 100);
     build(src);
 
     assertTree("100.txt");
@@ -296,7 +334,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testExAuthorSynonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,101);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 101);
     build(src);
 
     assertTree("101.txt");
@@ -304,7 +342,7 @@ public class NubBuilderIT {
 
   @Test
   public void testAutonymHomonym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,102, 103);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 102, 103);
     build(src);
 
     assertTree("102 103.txt");
@@ -317,7 +355,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testImplicitNameHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,98);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 98);
     build(src);
 
     assertTree("98.txt");
@@ -329,7 +367,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testDiacriticNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,27);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 27);
     build(src);
 
     assertEquals(2, countSpecies());
@@ -342,7 +380,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testExplicitBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,20, 21);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 20, 21);
     build(src);
 
     assertEquals(1, Iterables.count(getCanonical("Mustela martes", Rank.SPECIES).node.getRelationships(RelType.BASIONYM_OF)));
@@ -364,7 +402,7 @@ public class NubBuilderIT {
    * <p>
    * This also check the presence of 2 Sagittariidae families,
    * see https://github.com/gbif/checklistbank/issues/123
-   *
+   * <p>
    * WARNING! requires online access and working github !!!
    */
   @Test
@@ -402,7 +440,7 @@ public class NubBuilderIT {
     List<NubSource> ns = new ArrayList<>();
 
     NubSource patch = new DwcaSource("Official Lists and Indexes of Names in Zoology",
-          new URL("https://github.com/gbif/iczn-lists/archive/master.zip"), cfg.neo
+        new URL("https://github.com/gbif/iczn-lists/archive/master.zip"), cfg.neo
     );
     //patch.ignoreRanksAbove = Rank.PHYLUM;
     //patch.supragenericHomonymSource = true;
@@ -418,7 +456,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testStableIds() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,3, 2);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 2);
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
@@ -443,7 +481,7 @@ public class NubBuilderIT {
     int b4 = getScientific("Blattaria Weyenbergh, 1874", Rank.GENUS).usageKey;
 
     // rebuild nub with additional sources!
-    src = ClasspathSourceList.source(neoRepo.cfg,3, 2, 8, 11);
+    src = ClasspathSourceList.source(neoRepo.cfg, 3, 2, 8, 11);
     src.setSourceRank(3, Rank.KINGDOM);
     rebuild(src);
 
@@ -475,7 +513,7 @@ public class NubBuilderIT {
    * OTU & accepted Coccinella genus
    * https://github.com/gbif/checklistbank/issues/142
    * https://github.com/gbif/checklistbank/issues/163
-   *
+   * <p>
    * 147=CoL
    * 148=BOLD
    * 149=WORMS
@@ -492,7 +530,7 @@ public class NubBuilderIT {
   @Test
   public void testStableIds2() throws Exception {
     int[] sourceKeys = new int[]{147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158};
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,sourceKeys);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, sourceKeys);
     src.setSourceRank(147, Rank.KINGDOM);
     src.setSourceRank(151, Rank.GENUS);
     src.setSupragenericHomonymSource(147);
@@ -515,7 +553,7 @@ public class NubBuilderIT {
     int otu = u.usageKey;
 
     // rebuild nub with additional sources!
-    src = ClasspathSourceList.source(neoRepo.cfg,sourceKeys);
+    src = ClasspathSourceList.source(neoRepo.cfg, sourceKeys);
     src.setSourceRank(147, Rank.KINGDOM);
     src.setSupragenericHomonymSource(147);
     rebuild(src);
@@ -528,7 +566,7 @@ public class NubBuilderIT {
   @Test
   public void testStableIdsBasionymPlaceholder() throws Exception {
     int[] sourceKeys = new int[]{159};
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,sourceKeys);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, sourceKeys);
     build(src);
 
     // basionym placeholder
@@ -540,7 +578,7 @@ public class NubBuilderIT {
     assertTree("159.txt");
 
     // rebuild nub with additional sources!
-    src = ClasspathSourceList.source(neoRepo.cfg,sourceKeys);
+    src = ClasspathSourceList.source(neoRepo.cfg, sourceKeys);
     rebuild(src);
 
     // assert ids havent changed!
@@ -555,7 +593,7 @@ public class NubBuilderIT {
    */
   @Test
   public void ixodes() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,160, 161, 162);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 160, 161, 162);
     src.setSourceRank(160, Rank.KINGDOM);
     src.setSourceRank(162, Rank.GENUS);
     src.setSourceIgnoreSynonyms(162, true);
@@ -584,7 +622,7 @@ public class NubBuilderIT {
    */
   @Test
   public void jerdonia() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,163, 164, 165, 166, 167, 168, 169);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 163, 164, 165, 166, 167, 168, 169);
     src.setSourceRank(163, Rank.KINGDOM);
     build(src);
 
@@ -598,7 +636,7 @@ public class NubBuilderIT {
    */
   @Test
   public void speciesAuthorErrors() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,170, 171);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 170, 171);
     src.setSourceRank(170, Rank.KINGDOM);
     build(src);
 
@@ -615,7 +653,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testUpdateAuthors() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,77, 78, 79, 80, 81);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 77, 78, 79, 80, 81);
     src.setSourceRank(77, Rank.KINGDOM);
     src.setNomenclator(81);
     build(src);
@@ -633,7 +671,7 @@ public class NubBuilderIT {
 
   @Test
   public void testUpdateClassification() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,3, 5, 7);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 5, 7);
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
@@ -651,7 +689,7 @@ public class NubBuilderIT {
 
   @Test
   public void testCreateImplicitGenus() throws Exception {
-    build(ClasspathSourceList.source(neoRepo.cfg,1));
+    build(ClasspathSourceList.source(neoRepo.cfg, 1));
 
     NubUsage genusF = assertCanonical("Lepiota", Rank.GENUS, Origin.IMPLICIT_NAME, Kingdom.FUNGI, null);
     assertCanonical("Lepiota seminuda", Rank.SPECIES, Origin.SOURCE, genusF);
@@ -671,7 +709,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testCreateImplicitAutonym() throws Exception {
-    build(ClasspathSourceList.source(neoRepo.cfg,1));
+    build(ClasspathSourceList.source(neoRepo.cfg, 1));
 
     List<NubUsage> nudas = listCanonical("Lepiota nuda nuda");
     assertEquals(2, nudas.size());
@@ -701,7 +739,7 @@ public class NubBuilderIT {
 
   @Test
   public void testHigherClassification() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,3);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3);
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
@@ -716,7 +754,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testIncertaeSedis() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,34, 105);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 34, 105);
     build(src);
 
     assertTree("34 105.txt");
@@ -728,7 +766,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testIncertaeSedisSynonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,42);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 42);
     build(src);
 
     assertTree("42.txt");
@@ -736,7 +774,7 @@ public class NubBuilderIT {
 
   @Test
   public void testColAdiantumSynonym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,8);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 8);
     src.setSourceRank(8, Rank.PHYLUM);
     build(src);
 
@@ -783,7 +821,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSpeciesInSynonymGenus() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,11, 12);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 11, 12);
     build(src);
 
     NubUsage oct = assertCanonical("Octopus", "Cuvier, 1797", null, Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -818,7 +856,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,3, 2);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 2);
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
@@ -836,7 +874,7 @@ public class NubBuilderIT {
 
   @Test
   public void testHomonym2() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,3, 2, 36);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 2, 36);
     src.setSourceRank(3, Rank.KINGDOM);
     build(src);
 
@@ -856,7 +894,7 @@ public class NubBuilderIT {
 
   @Test
   public void testGenusHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,29, 30, 31);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 29, 30, 31);
     src.setSourceRank(29, Rank.PHYLUM);
     build(src);
 
@@ -881,7 +919,7 @@ public class NubBuilderIT {
         new RankedName("Limoniidae", Rank.FAMILY)
     ));
 
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,exclusions, 2);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, exclusions, 2);
     build(src);
 
     assertTree("2ex.txt");
@@ -889,7 +927,7 @@ public class NubBuilderIT {
 
   @Test
   public void testHybrids() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,9);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 9);
     src.setSourceRank(9, Rank.PHYLUM);
     build(src);
 
@@ -911,7 +949,7 @@ public class NubBuilderIT {
    * These are likely chresonyms that slipped through the COL editors attention.
    * This is illegal to the code rules, so just one should be accepted.
    * Pick one and make all others doubtful.
-   *
+   * <p>
    * Abies taxifolia C.Presl
    * Abies taxifolia Drum. ex Gordon
    * Abies taxifolia Jeffr. ex Gordon
@@ -919,7 +957,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testMultipleAcceptedNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,10, 37, 38, 39);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 10, 37, 38, 39);
     build(src);
 
     NubUsage genus = assertCanonical("Fontinalis", "", null, Rank.GENUS, Origin.IMPLICIT_NAME);
@@ -928,9 +966,9 @@ public class NubBuilderIT {
     for (NubUsage c : children(genus.node)) {
       assertEquals(Rank.SPECIES, c.rank);
       assertEquals("Fontinalis antipyretica", c.parsedName.canonicalName());
-      if (c.status==TaxonomicStatus.ACCEPTED) {
+      if (c.status == TaxonomicStatus.ACCEPTED) {
         accepted++;
-      } else if (c.status==TaxonomicStatus.DOUBTFUL) {
+      } else if (c.status == TaxonomicStatus.DOUBTFUL) {
         doubtful++;
       } else {
         fail("Fontinalis antipyretica species must be accepted or doubtful");
@@ -956,7 +994,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testIncompleteNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,24);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 24);
     src.setSourceRank(24, Rank.FAMILY);
     build(src);
 
@@ -977,7 +1015,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testAlbiziaCoL() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,13);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 13);
     src.setSourceRank(13, Rank.FAMILY);
     build(src);
 
@@ -1015,7 +1053,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSecSynonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,28);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 28);
     src.setSourceRank(28, Rank.FAMILY);
     build(src);
 
@@ -1032,7 +1070,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSynonymsWithDifferentAuthors() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,14);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 14);
     build(src);
 
     // we should only have one accepted Geotrupes stercorarius as one name lacks the combination author!
@@ -1066,7 +1104,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testInterrankHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,19);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 19);
     src.setSourceRank(19, Rank.PHYLUM);
     build(src);
 
@@ -1085,7 +1123,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testWormsSubgenusAlternateRepresentations() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,18);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 18);
     build(src);
 
     NubUsage gen = assertCanonical("Hyalonema", Rank.GENUS, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -1106,7 +1144,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testColAndIpni() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,32, 33);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 32, 33);
     src.setSourceRank(32, Rank.PHYLUM);
     src.setNomenclator(33);
     build(src);
@@ -1119,7 +1157,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSpecNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,44);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 44);
     build(src);
 
     assertTree("44.txt");
@@ -1131,7 +1169,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testUniqueFamilies() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,45);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 45);
     src.setSourceRank(45, Rank.PHYLUM);
     build(src);
 
@@ -1160,7 +1198,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testAvoidCanonicalSynonym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,17);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 17);
     build(src);
     assertEquals(1, listCanonical("Fuligo septica").size());
   }
@@ -1176,7 +1214,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testHigherRanksWithAwkwardsSuffices() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,46);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 46);
     src.setSourceRank(46, Rank.KINGDOM);
     build(src);
     assertTree("46.txt");
@@ -1188,7 +1226,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testUnparsables() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,47);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 47);
     build(src);
 
     assertTree("47.txt");
@@ -1199,7 +1237,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testProParteSynonym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,15, 16);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 15, 16);
     build(src);
 
     NubUsage u = assertCanonical("Poa pubescens", "Lej.", null, Rank.SPECIES, Origin.SOURCE, TaxonomicStatus.PROPARTE_SYNONYM, null);
@@ -1254,7 +1292,7 @@ public class NubBuilderIT {
 
   @Test
   public void testBeeBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,40);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 40);
     src.setSourceRank(40, Rank.PHYLUM);
     build(src);
 
@@ -1273,7 +1311,7 @@ public class NubBuilderIT {
   @Test
   public void testMultipleOriginals() throws Exception {
     // data from catalog of life=48, IRMNG=49
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,48, 50);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 48, 50);
     build(src);
 
     printTree();
@@ -1288,7 +1326,7 @@ public class NubBuilderIT {
   @Test
   public void testMultipleOriginals2() throws Exception {
     // data from catalog of life=49, IRMNG=50
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,49, 50);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 49, 50);
     build(src);
 
     printTree();
@@ -1304,7 +1342,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testOverlappingBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,51, 144);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 51, 144);
     build(src);
 
     printTree();
@@ -1328,7 +1366,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testVirusNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,22, 23);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 22, 23);
     src.setSourceRank(22, Rank.ORDER);
     src.setSourceRank(23, Rank.GENUS);
     build(src);
@@ -1352,7 +1390,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testGenusYears() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,35);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 35);
     build(src);
 
     // Heliopyrgus
@@ -1395,7 +1433,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testInfraspeciesRanks() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,53);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 53);
     build(src);
 
     assertCanonical("Lupinus sericeus flavus", Rank.SUBSPECIES, Origin.SOURCE, TaxonomicStatus.ACCEPTED, null);
@@ -1413,7 +1451,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testColItisIpniMerger() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,52, 54, 55);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 52, 54, 55);
     src.setNomenclator(55);
     build(src);
 
@@ -1430,7 +1468,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testColIfAutonym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,56, 57, 58);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 56, 57, 58);
     src.setNomenclator(58);
     build(src);
 
@@ -1443,7 +1481,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testInfraspecificTrees() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,59);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 59);
     build(src);
 
     assertTree("59.txt");
@@ -1451,7 +1489,7 @@ public class NubBuilderIT {
 
   @Test
   public void testInfraspecificBasionymGrouping() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,60, 145);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 60, 145);
     build(src);
 
     assertTree("60 145.txt");
@@ -1463,7 +1501,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testAutonymColBasionym() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,61, 62);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 61, 62);
     src.setNomenclator(62);
     build(src);
 
@@ -1478,7 +1516,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testInsertaeSedisDuplicates() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,58, 63);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 58, 63);
     build(src);
 
     assertTree("58 63.txt");
@@ -1490,7 +1528,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testAggregates() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,64);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 64);
     build(src);
 
     assertTree("64.txt");
@@ -1501,7 +1539,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testSubgenusRemoval() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,65);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 65);
     build(src);
 
     assertTree("65.txt");
@@ -1513,7 +1551,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testBadPlaziHierarchy() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,66);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 66);
     build(src);
 
     assertTree("66.txt");
@@ -1524,7 +1562,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testBasionymEpithetStemming() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,67, 142);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 67, 142);
     build(src);
 
     assertTree("67 142.txt");
@@ -1535,7 +1573,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testMantodeaBasionyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,68);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 68);
     build(src);
 
     assertTree("68.txt");
@@ -1554,7 +1592,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testCardinalis() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,70, 71, 72, 73, 74, 75, 76);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 70, 71, 72, 73, 74, 75, 76);
     src.setNomenclator(76);
     build(src);
 
@@ -1595,7 +1633,7 @@ public class NubBuilderIT {
     create(5230886, Rank.SUBSPECIES, Kingdom.ANIMALIA, "Cardinalis cardinalis clintoni (Banks, 1963)");
 
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,70, 71, 72, 73, 74, 75, 76);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 70, 71, 72, 73, 74, 75, 76);
     src.setNomenclator(76);
     rebuild(src);
 
@@ -1616,7 +1654,7 @@ public class NubBuilderIT {
   @Test
   public void testNameDuplication() throws Exception {
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,82, 83, 84, 85);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 82, 83, 84, 85);
     src.setSourceRank(82, Rank.KINGDOM);
     build(src);
 
@@ -1634,7 +1672,7 @@ public class NubBuilderIT {
   @Test
   public void testNullNames() throws Exception {
     // rebuild nub
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,86, 87);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 86, 87);
     build(src);
 
     assertTree("86 87.txt");
@@ -1650,7 +1688,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testRedundantHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,88, 89, 90);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 88, 89, 90);
     src.setSourceRank(88, Rank.KINGDOM);
     build(src);
 
@@ -1664,7 +1702,7 @@ public class NubBuilderIT {
    */
   @Test
   public void avoidKingdomSpeciesSynonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,104);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 104);
     build(src);
 
     assertTree("104.txt");
@@ -1675,7 +1713,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testGenusNormilization() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,106, 107);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 106, 107);
     build(src);
 
     assertTree("106 107.txt");
@@ -1694,7 +1732,7 @@ public class NubBuilderIT {
   @Ignore("NubBuilder needs code change first")
   public void testDrakeBrockmania() throws Exception {
 
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,108, 109, 110);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 108, 109, 110);
     src.setSourceRank(108, Rank.PHYLUM);
     build(src);
 
@@ -1703,7 +1741,7 @@ public class NubBuilderIT {
 
   @Test
   public void testColInfraspecificRank() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,111);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 111);
     build(src);
 
     assertTree("111.txt");
@@ -1716,7 +1754,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testDifferentKingdoms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,112, 113);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 112, 113);
     // type specimen list
     src.setSourceRank(113, Rank.SPECIES);
     build(src);
@@ -1729,7 +1767,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testBadSpeciesSynonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,114);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 114);
     src.setSourceRank(114, Rank.PHYLUM);
     build(src);
 
@@ -1741,7 +1779,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testNamePublishedIn() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,115);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 115);
     src.setSourceRank(115, Rank.PHYLUM);
     build(src);
 
@@ -1758,7 +1796,7 @@ public class NubBuilderIT {
   @Test
   @Ignore
   public void testNewSpeciesInHomonymGenus() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,116, 117);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 116, 117);
     src.setSourceRank(116, Rank.PHYLUM);
     src.setSourceRank(117, Rank.GENUS);
     src.setNomenclator(117);
@@ -1772,14 +1810,14 @@ public class NubBuilderIT {
    */
   @Test
   public void testOtuNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,118, 119);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 118, 119);
     src.setSourceRank(118, Rank.PHYLUM);
     src.setSourceRank(119, Rank.GENUS);
     build(src);
-  
+
     NubUsage u = assertScientific("BOLD:ABW2624", Rank.SPECIES, Origin.SOURCE, null, null);
     assertEquals(NameType.OTU, u.parsedName.getType());
-  
+
     u = assertScientific("SH002390.07FU", Rank.UNRANKED, Origin.SOURCE, null, null);
     assertEquals(NameType.OTU, u.parsedName.getType());
 
@@ -1795,7 +1833,7 @@ public class NubBuilderIT {
   @Test
   @Ignore("needs implemented")
   public void avoidProparteFamilyHomonyms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,120, 121);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 120, 121);
     src.setSourceRank(120, Rank.PHYLUM);
 
     build(src);
@@ -1809,7 +1847,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testBlacklist() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,122);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 122);
     build(src);
 
     assertTree("122.txt");
@@ -1820,7 +1858,7 @@ public class NubBuilderIT {
    */
   @Test
   public void test30() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,123, 124);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 123, 124);
     build(src);
 
     assertTree("123 124.txt");
@@ -1832,7 +1870,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testNameFormatting() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,125);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 125);
     build(src);
 
     NubUsage u = assertCanonical("Puma yagouaroundi chilensis", Rank.SUBSPECIES, Origin.SOURCE, null);
@@ -1849,7 +1887,7 @@ public class NubBuilderIT {
    */
   @Test
   public void testAbbrevNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,126);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 126);
     build(src);
     assertTree("126.txt");
   }
@@ -1857,94 +1895,94 @@ public class NubBuilderIT {
   /**
    * Test WoRMS case of badly nested varieties combined with a duplicate autonym
    * leading to node NotFoundException
-   *
+   * <p>
    * 127=CoL
    * 128=WoRMS
-   *
+   * <p>
    * The main error comes from bad normalization of the WoRMS DwCA and should be tested in the Normalizer.
    * But the nub build should be gracefully dealing with such data as it is currently present in CLB.
    */
   @Test
   public void testIllegalVarWorms() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,127, 128);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 127, 128);
     src.setSourceRank(127, Rank.KINGDOM);
     build(src);
     assertTree("127 128.txt");
   }
-  
+
   @Test
   public void testBlacklistedNames() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,129);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 129);
     build(src);
     assertTree("129.txt");
   }
-  
+
   @Test
   public void testHomonymFamiliesPatch() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,130, 131, 132);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 130, 131, 132);
     src.setSourceRank(130, Rank.PHYLUM); // backbone patch
     src.setSourceRank(131, Rank.PHYLUM); // CoL
     src.setSupragenericHomonymSource(130);
     build(src);
     assertTree("130 131 132.txt");
   }
-  
+
   /**
    * https://github.com/gbif/checklistbank/issues/93
    */
   @Test
   public void testColHomonymGenera() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,139, 140, 141);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 139, 140, 141);
     src.setSourceRank(139, Rank.PHYLUM); // backbone patch
     src.setSourceRank(140, Rank.PHYLUM); // CoL
     //src.setSupragenericHomonymSource(140);
     build(src);
     assertTree("139 140 141.txt");
   }
-  
+
   @Test
   public void testClementsDups() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,133, 134);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 133, 134);
     src.setSourceRank(133, Rank.PHYLUM); // CoL
-    src.setSourceRank( 134, Rank.PHYLUM); // Clements Birdlist
+    src.setSourceRank(134, Rank.PHYLUM); // Clements Birdlist
     build(src);
     assertTree("133 134.txt");
   }
-  
+
   /**
    * https://github.com/gbif/checklistbank/issues/88
    */
   @Test
   public void testLinnaeus() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,135);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 135);
     src.setSourceRank(135, Rank.PHYLUM);
     build(src);
     assertTree("135.txt");
   }
-  
+
   /**
    * https://github.com/gbif/checklistbank/issues/88
    */
   @Test
   public void testBoldPlaceholder() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,136);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 136);
     build(src);
     assertTree("136.txt");
   }
-  
+
   /**
    * https://github.com/gbif/checklistbank/issues/91
    */
   @Test
   public void testSpeciesPatch() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg,137, 138);
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 137, 138);
     src.setSourceRank(137, Rank.PHYLUM); // backbone patch
     src.setSourceRank(138, Rank.PHYLUM); // CoL
     src.setSupragenericHomonymSource(137);
     build(src);
     assertTree("137 138.txt");
   }
-  
+
   /**
    * For profiling memory usage of nub builds
    */

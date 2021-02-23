@@ -842,8 +842,8 @@ public class NubBuilder implements Runnable {
         addDataset(src);
 
       } catch (RuntimeException e) {
-          LOG.error("Error processing source {}", src.name);
-          throw e;
+        LOG.error("Error processing source {}", src.name);
+        throw e;
 
       } catch (Exception e) {
         throw new RuntimeException("Error processing source " + src.name, e);
