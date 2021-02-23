@@ -147,18 +147,25 @@ public class NubBuilderIT {
    * https://github.com/gbif/checklistbank/issues/165
    */
   @Test
+  @Ignore("Manual test to debug memory usage")
+  public void debugNubMemoryUsage() throws Exception {
+    RandomSourceList sources = RandomSourceList.source(3, neoRepo.cfg, 10, 10000);
+    // do a real build
+    build(sources);
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/165
+   */
+  @Test
   @Ignore("Manual test to debug memory usage of the nub source only")
   public void debugSourcesMemory() throws Exception {
-    RandomSourceList sources = RandomSourceList.source(neoRepo.cfg, 10, 10000);
+    RandomSourceList sources = RandomSourceList.source(2, neoRepo.cfg, 10, 10000);
     // just iterate over sources and close them just as the builder does, but do not use them for anything
     for (NubSource src : sources) {
       try (CloseableIterator<SrcUsage> iter = src.iterator()) {
-        UnmodifiableIterator<List<SrcUsage>> batchIter = com.google.common.collect.Iterators.partition(iter, cfg.neo.batchSize);
-        while (batchIter.hasNext()) {
-          List<SrcUsage> batch = batchIter.next();
-          for (SrcUsage u : batch) {
-            System.out.println(u.key + " -> " + u.scientificName);
-          }
+        for (SrcUsage u : Iterators.loop(iter)) {
+          System.out.println(u.key + " -> " + u.scientificName);
         }
       } finally {
         src.close();
@@ -166,16 +173,26 @@ public class NubBuilderIT {
     }
   }
 
-
   /**
+   * Test sources directly without the async loader
    * https://github.com/gbif/checklistbank/issues/165
    */
   @Test
-  @Ignore("Manual test to debug memory usage")
-  public void debugNubMemoryUsage() throws Exception {
-    RandomSourceList sources = RandomSourceList.source(neoRepo.cfg, 10, 10000);
-    // do a real build
-    build(sources);
+  @Ignore("Manual test to debug memory usage of the nub source only")
+  public void debugSourcesMemory2() throws Exception {
+    final Random rnd = new Random();
+    for (int num = 1; num<10000; num++) {
+      Kingdom k = Kingdom.byNubUsageKey(rnd.nextInt(9));
+      RandomSource src = new RandomSource(10, k, neoRepo.cfg);
+      src.init(true, false);
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        for (SrcUsage u : Iterators.loop(iter)) {
+          System.out.println(u.key + " -> " + u.scientificName);
+        }
+      } finally {
+        src.close();
+      }
+    }
   }
 
   @Test

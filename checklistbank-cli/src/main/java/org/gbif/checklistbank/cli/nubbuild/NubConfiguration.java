@@ -35,6 +35,8 @@ public class NubConfiguration {
   @NotNull
   public NeoConfiguration neoSources = new NeoConfiguration();
 
+  public int sourceLoaderThreads = 2;
+
   @ParametersDelegate
   @Valid
   @NotNull

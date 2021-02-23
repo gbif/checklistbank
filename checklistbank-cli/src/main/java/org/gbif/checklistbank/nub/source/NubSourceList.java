@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.checklistbank.iterable.FutureIterator;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
@@ -18,6 +17,8 @@ import java.util.concurrent.*;
 /**
  * Base class for nub source lists that deals with the iterators and async loading of sources,
  * preserving the original source order.
+ *
+ * Note that you can only iterate the list once as the sources will be removed afterwards to free memory!
  */
 public class NubSourceList implements CloseableIterable<NubSource> {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
@@ -29,7 +30,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
   public NubSourceList(NubConfiguration cfg) {
     this.cfg = cfg;
     parser = new NameParserGbifV1(cfg.parserTimeout);
-    exec = new ThreadPoolExecutor(0, 2,
+    exec = new ThreadPoolExecutor(0, cfg.sourceLoaderThreads,
         100L, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<Runnable>(),
         new NamedThreadFactory("source-loader"));
@@ -60,4 +61,43 @@ public class NubSourceList implements CloseableIterable<NubSource> {
   public void close() {
     ExecutorUtils.stop(exec, 1, TimeUnit.SECONDS);
   }
+
+  /**
+   * A simple wrapper for a list of futures providing an iterator for their results.
+   * This allows to process futures in the order as they were originally submitted.
+   */
+  class FutureIterator<T> implements Iterator<T> {
+    private final Iterator<Future<T>> iter;
+    private Future<T> curr;
+
+    public FutureIterator(Iterable<Future<T>> futures) {
+      iter = futures.iterator();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return iter.hasNext();
+    }
+
+    @Override
+    public T next() {
+      curr = iter.next();
+      try {
+        T obj = curr.get();
+        // loaded, remove from sources to free up memory
+        // see https://github.com/gbif/checklistbank/issues/165
+        remove();
+        //futures.remove(curr);
+        return obj;
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public void remove() {
+      iter.remove();
+    }
+  }
+
 }

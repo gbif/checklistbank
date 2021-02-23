@@ -16,7 +16,7 @@ public class RandomSourceList extends NubSourceList {
   /**
    * Creates a random source list based on given dataset keys.
    */
-  public static RandomSourceList source(NeoConfiguration neo, int datasetSize, int numDatasets) {
+  public static RandomSourceList source(int loaderThreads, NeoConfiguration neo, int datasetSize, int numDatasets) {
     List<RandomSource> sources = new ArrayList<>(numDatasets);
     Random rnd = new Random();
     while (numDatasets>1) {
@@ -24,11 +24,13 @@ public class RandomSourceList extends NubSourceList {
       sources.add(new RandomSource(datasetSize, k, neo));
       numDatasets--;
     }
-    return new RandomSourceList(neo, sources);
+    NubConfiguration cfg = new NubConfiguration(neo);
+    cfg.sourceLoaderThreads=loaderThreads;
+    return new RandomSourceList(cfg, sources);
   }
 
-  private RandomSourceList(NeoConfiguration neo, Iterable<RandomSource> sources) {
-    super(new NubConfiguration(neo));
+  private RandomSourceList(NubConfiguration cfg, Iterable<RandomSource> sources) {
+    super(cfg);
     submitSources(sources);
   }
   

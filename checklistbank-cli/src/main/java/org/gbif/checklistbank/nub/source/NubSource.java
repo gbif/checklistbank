@@ -82,7 +82,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    */
   public NubSource(UUID key, String name, @Nullable List<RankedName> exclusion, boolean useTmpDao, NeoConfiguration cfg) {
     this.cfg = cfg;
-    this.key = key;
+    this.key = Preconditions.checkNotNull(key);
     this.name = name;
     this.useTmpDao = useTmpDao;
     if (exclusion != null && !exclusion.isEmpty()) {
@@ -385,4 +385,16 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
     }
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    NubSource srcUsages = (NubSource) o;
+    return Objects.equals(key, srcUsages.key);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(key);
+  }
 }

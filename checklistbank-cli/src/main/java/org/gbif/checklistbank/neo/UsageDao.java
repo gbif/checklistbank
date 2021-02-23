@@ -281,6 +281,7 @@ public class UsageDao implements AutoCloseable {
       LOG.error("Failed to close kvp store {}", kvpStore.getAbsolutePath(), e);
     }
     closeNeo();
+    System.gc(); // explicit GC, see https://github.com/gbif/checklistbank/issues/165
     LOG.info("Closed DAO for directory {}", neoDir.getAbsolutePath());
   }
 
