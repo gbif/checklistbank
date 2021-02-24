@@ -23,22 +23,17 @@ public class NeoConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(NeoConfiguration.class);
 
   @NotNull
-  @Parameter(names = "--neo-repo")
   public File neoRepository = new File("/tmp/neo");
 
   @NotNull
-  @Parameter(names = "--neo-batchsize")
   public int batchSize = 10000;
 
   @Min(0)
-  @Parameter(names = "--neo-mapped-memory")
   public int mappedMemory = 128;
 
   @Min(1000)
-  @Parameter(names = {"--neo-shell-port"}, required = false)
   public int port = 1337;
 
-  @Parameter(names = {"--neo-shell"}, required = false)
   public boolean shell = false;
 
   public File neoDir(UUID datasetKey) {
