@@ -351,7 +351,7 @@ public class SpeciesResource {
   @Path("{id}/iucnRedListCategory")
   public IucnRedListCategory getIucnRedListCategory(@PathParam("id") int usageKey) {
     IucnRedListCategory iucn = distributionMapper.getIucnRedListCategory(usageKey);
-    return iucn.getCategory() == null ? null : iucn;
+    return iucn == null || iucn.getCategory() == null ? null : iucn;
   }
 
   /**
