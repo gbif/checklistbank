@@ -342,6 +342,7 @@ public class SpeciesResource {
 
   /**
    * This retrieves the IUCN Redlist Category of a nub usage key.
+   * If the matching IUCN usage does not contain a category null is returned.
    *
    * @param usageKey NameUsage key
    * @return the category or null if it doesn't have one
@@ -349,7 +350,8 @@ public class SpeciesResource {
   @GET
   @Path("{id}/iucnRedListCategory")
   public IucnRedListCategory getIucnRedListCategory(@PathParam("id") int usageKey) {
-    return distributionMapper.getIucnRedListCategory(usageKey);
+    IucnRedListCategory iucn = distributionMapper.getIucnRedListCategory(usageKey);
+    return iucn.getCategory() == null ? null : iucn;
   }
 
   /**
