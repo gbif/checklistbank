@@ -97,6 +97,7 @@ public class AdminCommand extends BaseCommand {
     setKnownKey("col", Constants.COL_DATASET_KEY);
     setKnownKey("nub", Constants.NUB_DATASET_KEY);
     setKnownKey("plazi", UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
+    setKnownKey("iucn", UUID.fromString("19491596-35ae-4a91-9a98-85cf505f1bd3"));
   }
 
   private void setKnownKey(String name, UUID key) {

@@ -123,6 +123,12 @@ public class AdminConfiguration {
   public boolean plazi = false;
 
   /**
+   * If true sets the IUCN redlist dataset key in the key config
+   */
+  @Parameter(names = {"--iucn"}, required = false)
+  public boolean iucn = false;
+
+  /**
    * Returns the directory with the decompressed archive folder created by the dwca downloader.
    */
   public File archiveDir(UUID datasetKey) {

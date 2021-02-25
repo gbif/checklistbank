@@ -126,7 +126,10 @@ public class NubMatchService {
             d.getKey()
         );
         sqlService.insertNubRelations(d.getKey(), relations);
-        solrService.insertNubRelations(d.getKey(), relations);
+        if (solrService != null) {
+          LOG.warn("No SOLR service configured to update matches in search index for dataset {}!", d.getKey());
+          solrService.insertNubRelations(d.getKey(), relations);
+        }
         counter++;
       } else {
         LOG.warn("No sql service configured to persist the matches for dataset {}!", d.getKey());
