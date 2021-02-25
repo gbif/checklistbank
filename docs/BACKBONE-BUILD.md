@@ -1,129 +1,66 @@
 # Rebuild Backbone & put it into production
 
-## Build new backbone on UAT
+## Build new backbone on backbonebuild-vh
 
-### build neo4j backbone
- - stop all UAT clis as the backbone build needs 40g memory, growing with more sources
- - configure nub builder to use prod db & registry services for reading source data https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-nub.yaml
- - run neo4j nub build via `./clb-buildnub.sh`
+### Build Neo4J backbone
+ - Configure NUB builder to use prod DB & registry services for reading source data https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-nub.yaml
+ - Run Neo4J NUB build via `./clb-buildnub.sh`
 
-### import into postgres
- - dump prod clb db and import into boma (for faster writes) as db nub_build
- - configure clb importer to use boma nub_build db https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-importer.yaml
+### Import into Postgres
+ - If this is an RC backbone build, stop production CLB CLIs.
+ - Copy the production database to backbonebuild-vh (temporary VM with plenty of fast storage and RAM)
+ - Dump prod CLB DB and import into PostgreSQL on backbonebuild-vh as DB clb
+ - Configure CLB importer to use this DB https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-importer.yaml
  - `./start-clb-importer.sh`
- - issue message to import neo4j backbone into postgres: `./clb-admin.sh IMPORT --nub`
- - once imported, dump boma nub_build and copy to uat_checklistbank
+ - Issue message to import Neo4J backbone into postgres: `./clb-admin.sh IMPORT --nub`
+ - Once imported, dump backbonebuild-vh clb DB and copy to pg1.gbif-uat.org uat_checklistbank
  - `./stop-clb.sh`
 
-### rebuild nub lookup index on ws.gbif-uat.org
+(TODO: Reinterpreting the IUCN checklist.)
+
+### Rebuild NUB lookup index on ws.gbif-uat.org
  - `cd /usr/local/gbif/services/checklistbank-nub-ws/2.xx/1234567`
  - `./stop.sh`
  - `rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nub_idx`
  - `./start.sh`
  - wait until the logs indicate the index build was finished (~1h).
 
-## Reprocess occurrences
-Processing uses the geocode-ws and checklistbank-nub-ws.
-Registry is not used as the dataset/organisation derived values are stored already when generating the verbatim view: http://api.gbif-uat.org/v1/occurrence/996799163/verbatim
-
-### Stop PROD
- - Stop crawling & interpreting on PROD
- - Stop Oozie HDFS occurrence table coordinator
-
-### Prepare UAT
- - copy hbase tables from prod:
-
-```
-ssh mblissett@c5gateway-vh.gbif.org
-sudo -u hbase hbase shell
-> snapshot 'prod_d_occurrence', 'prod_d_occurrence_2018-02-02'
-> snapshot 'prod_d_occurrence_counter', 'prod_d_occurrence_counter_2018-02-02'
-> snapshot 'prod_d_occurrence_lookup', 'prod_d_occurrence_lookup_2018-02-02'
-sudo -u hdfs hbase org.apache.hadoop.hbase.snapshot.ExportSnapshot -snapshot prod_d_occurrence_2018-02-02 -copy-to hdfs://c4master1-vh:8020/hbase -mappers 36
-sudo -u hdfs hbase org.apache.hadoop.hbase.snapshot.ExportSnapshot -snapshot prod_d_occurrence_counter_2018-02-02 -copy-to hdfs://c4master1-vh:8020/hbase -mappers 9
-sudo -u hdfs hbase org.apache.hadoop.hbase.snapshot.ExportSnapshot -snapshot prod_d_occurrence_lookup_2018-02-02 -copy-to hdfs://c4master1-vh:8020/hbase -mappers 9
-
-ssh mblissett@c4gateway-vh.gbif.org
-sudo -u hdfs hdfs dfs -chown -R hbase /hbase/.hbase-snapshot
-sudo -u hdfs hdfs dfs -chown -R hbase '/hbase/archive/data/default/prod_d_*'
-sudo -u hbase hbase shell
-> disable 'uat_occurrence'
-> disable 'uat_occurrence_counter'
-> disable 'uat_occurrence_lookup'
-> drop 'uat_occurrence'
-> drop 'uat_occurrence_counter'
-> drop 'uat_occurrence_lookup'
-> clone_snapshot 'prod_d_occurrence_2018-02-02', 'uat_occurrence'
-> clone_snapshot 'prod_d_occurrence_counter_2018-02-02', 'uat_occurrence_counter'
-> clone_snapshot 'prod_d_occurrence_lookup_2018-02-02', 'uat_occurrence_lookup'
-```
-
- - Deploy release version of occurrence-ws, checklistbank-ws & checklistbank-nub-ws to UAT
- - Change UAT processor-interpreted config to use new HBase table if necessary (`uat_occurrence` is used above)
- - Update occurrence and clb related clis
- - Delete rabbit MQ queues (on UAT)
- - Change UAT [processor-interpreted config](https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/processor-interpreted.yaml) to use new HBase table
- - Synchronize configuration and CLIs on C4 nodes if they are also to be used for processing (e.g. rsync uatcrawler1-vh:/home/crap to c4n{1..9}:/home/crap)
- - Start 3-4 processors on each node with: `start-processor-interpreted.sh`
-
-### Get all gbifids
- - export all ID from HBase to a file `ids`, store in `/mnt/auto/misc/<something>/`
-
-```
-hive
-> CREATE TABLE matt.occurrence_ids_2018-02-02
-> ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' AS
-> SELECT gbifid FROM uat.occurrence_hbase;
-
-hdfs dfs -getmerge /user/hive/warehouse/matt.db/occurrence_ids_2018-02-02 occurrence_ids_2018-02-02.tsv
-```
-
-### Issue interpretation messages
- - As "crap" user on uatcrawler1-vh:
- - `cd /mnt/auto/misc/<something>/`
- - `split -l 1000000 ids ids-`
- - start a screen session: `screen -S interpret`
- - `cd ~/util; ./interpret-occurrences -e uat /mnt/auto/misc/<something>/ids-*`
+## Reprocess occurrences on UAT
+Processing uses checklistbank-nub-ws, via the KVS cache.
+ - Ensure release version of pipelines CLIs, checklistbank-ws & checklistbank-nub-ws are deployed in UAT
+ - Stop all pipelines CLIs
+ - Create a new `name_usage_YYYYMMDD_kv` table in HBase:
+   ```
+   create 'name_usage_20210225_kv', {NAME => 'v', BLOOMFILTER => 'ROW', DATA_BLOCK_ENCODING => 'FAST_DIFF', COMPRESSION => 'SNAPPY'},{SPLITS => ['1','2','3','4','5','6','7','8']}
+   ```
+ - See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT: `curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | curl -u user:password -H 'Content-Type: application/json' -X POST -d@- 'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&useLastSuccessful=true&reason=New+backbone'` (not bothering with a new index etc; it's OK if we have mixed data visible for a while on UAT).
 
 ## Rematch checklists
- - Change CLB matcher & analysis configs to use bomas nub_build:
-   - https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-matcher.yaml
-   - https://github.com/gbif/gbif-configuration/blob/master/cli/uat/config/clb-analysis.yaml
+ - Change CLB matcher & analysis configs to use backbonebuild-vh's clb DB:
+   - https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-matcher.yaml
+   - https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-analysis.yaml
  - `start-clb-matcher.sh`
  - `start-clb-analysis.sh`
- - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right col perc. coverage
+ - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right CoL percentage coverage
  - then rematch all the rest: `./clb-admin.sh REMATCH` this takes 1-2 days to complete!!!
  - when complete (no more rabbit messages in clb-matcher & clb-analysis):
- - boma: `pg_dump -U postgres nub_build | gzip > nub.sql.gz`
- - import into uat:
-   - scp file to camelot
+ - backbonebuild-vh: `pg_dump -U postgres nub_build | gzip > nub.sql.gz`
+ - import into UAT:
+   - scp file to pg1.gbif-uat.org
    - `gunzip -c nub.sql.gz | psql -U postgres uat_checklistbank`
 
-
 ## Export backbone DwC-A
- - import from nub_build dump
- - export NUB to dwca: `./clb-admin.sh EXPORT --nub`
- - move to rs.gbif.org/datasets/backbone/2017-mm-dd
+ - import from backbonebuild-vh clb DB dump
+ - export NUB to DWCA: `./clb-admin.sh EXPORT --nub`
+ - move to rs.gbif.org/datasets/backbone/yyyy-mm-dd
 
 ## Export backbone CSV
 See http://rs.gbif.org/datasets/backbone/readme.html
- - export csv from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
- - gzip and move to move to rs.gbif.org/datasets/backbone/2019-mm-dd
+ - export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
+ - gzip and move to move to rs.gbif.org/datasets/backbone/yyyy-mm-dd
   
 ## Backfill Occurrence maps & cubes
 See https://github.com/gbif/metrics/tree/master/cube
-
-## Rebuild Occurrence HDFS and Solr
-### Occurrence HDFS table
-Warning: Do NOT use prod, it needs to keep running.
- - Update the configurations for UAT using the new HBase table: https://github.com/gbif/gbif-configuration/blob/master/occurrence-download/profiles.xml
- - Install the workflow for UAT on the gateway https://github.com/gbif/occurrence/tree/master/occurrence-download
-
-### Occurrence Solr
-Warning: For Solr, we use the prod config BUT the UAT hive database to have it ready with the right number of shards.
-**Build the occurrence HDFS table first**
- - Update the configurations to use hive.db=uat https://github.com/gbif/gbif-configuration/blob/master/occurrence-index-builder/prod.properties
- - Install workflow for PROD on the gateway
 
 ### Map builds
  - Update configurations if table names have changed.
@@ -131,18 +68,18 @@ Warning: For Solr, we use the prod config BUT the UAT hive database to have it r
 
 ## Final prod deployment
 ### Prepare CLB
- - import uat dump into prod:
+ - import UAT dump into prod:
    - `gunzip -c nub.sql.gz | psql -U postgres prod_checklistbank`
    - psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
  - copy nub index from `ws.gbif.uat.org/usr/local/gbif/services/checklistbank-nub-ws/nubidx` to `ws.gbif.org/usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW`
  - update webservice configs
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
- - build new prod solr index without aliasing to prod_checklistbank
+ - reinterpret production occurences into a new index: https://github.com/gbif/pipelines/blob/dev/gbif/pipelines/interpretation-docs/full-reinterpretation-with-new-occurrence-index.md
 
 ### Deploy CLB
  - prod deploy of checklistbank-nub-ws
- - swap nub index within checklistbank-nub-ws:
+ - swap NUB index within checklistbank-nub-ws:
     - ./stop.sh
     - rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nubidx
     - mv /usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW /usr/local/gbif/services/checklistbank-nub-ws/nubidx
@@ -150,7 +87,7 @@ Warning: For Solr, we use the prod config BUT the UAT hive database to have it r
  - prod deploy of checklistbank-ws
  - alias to new solr collection
     - ./stop.sh
-    - `curl -s "http://c4n1.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank_2017_02_22"`
+    - `curl -s "http://c5n1.gbif.org:8983/solr/admin/collections?action=CREATEALIAS&name=prod_checklistbank&collections=prod_checklistbank_2017_02_22"`
     - ./start.sh
 
 ### Deploy Occurrences WS
