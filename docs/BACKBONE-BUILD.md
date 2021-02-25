@@ -33,7 +33,7 @@ Processing uses checklistbank-nub-ws, via the KVS cache.
    ```
    create 'name_usage_20210225_kv', {NAME => 'v', BLOOMFILTER => 'ROW', DATA_BLOCK_ENCODING => 'FAST_DIFF', COMPRESSION => 'SNAPPY'},{SPLITS => ['1','2','3','4','5','6','7','8']}
    ```
- - See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT: `curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | curl -iu username:password -X POST 'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&reason=New+backbone' (not bothering with a new index etc; it's OK if we have mixed data visible for a while on UAT).
+ - See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT: `curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | curl -iu username:password -X POST 'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&reason=New+backbone` (not bothering with a new index etc; it's OK if we have mixed data visible for a while on UAT).
 
 ## Rematch checklists
  - Change CLB matcher & analysis configs to use backbonebuild-vh's clb DB:
