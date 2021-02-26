@@ -11,6 +11,7 @@ import org.gbif.checklistbank.model.ParsedNameUsage;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -110,8 +111,17 @@ public interface NameUsageMapper {
   NameUsage getIssues(@Param("key") int usageKey);
 
   /**
+   * @return list all usage keys that have a BACKBONE_MATCH_NONE issue.
+   */
+  Set<Integer> listNoMatchUsageKeys(@Param("uuid") UUID datasetKey);
+
+  /**
    * Update the name usage issues with the given set
    */
   void updateIssues(@Param("key") int usageKey, @Param("issues") Set<NameUsageIssue> issues);
+
+  void addIssue(@Param("key") int usageKey, @Param("issue") NameUsageIssue issue);
+
+  void removeIssue(@Param("key") int usageKey, @Param("issue") NameUsageIssue issue);
 
 }

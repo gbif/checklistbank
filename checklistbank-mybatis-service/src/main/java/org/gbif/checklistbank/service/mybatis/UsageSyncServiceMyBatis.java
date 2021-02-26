@@ -395,14 +395,19 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
 
   @Override
   public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
+    LOG.info("Remove previous nub matches for dataset {}", datasetKey);
     nubRelMapper.deleteByDataset(datasetKey);
     // for CoL with its instable ids remove previous source keys from nub
     if (Constants.COL_DATASET_KEY.equals(datasetKey)) {
       LOG.info("Updating Catalogue of Life source taxa in the backbone");
       usageMapper.deleteSourceTaxonKeyByConstituent(datasetKey);
     }
+    LOG.info("Load all no match flags");
+    Set<Integer> previousNoMatches = nameUsageMapper.listNoMatchUsageKeys(datasetKey);
+
+    LOG.debug("Insert {} nub matches for dataset {}", relations.size(), datasetKey);
     for (List<Integer> batch : Iterables.partition(relations.keySet(), 10000)) {
-      insertNubRelationBatch(datasetKey, relations, batch);
+      insertNubRelationBatch(datasetKey, relations, batch, previousNoMatches);
     }
   }
 
@@ -411,19 +416,19 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
       isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
       exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
   )
-  private void insertNubRelationBatch(UUID datasetKey, Map<Integer, Integer> relations, Iterable<Integer> usageKeyBatch) {
+  private void insertNubRelationBatch(UUID datasetKey, Map<Integer, Integer> relations, Iterable<Integer> usageKeyBatch, Set<Integer> previousNoMatches) {
+    LOG.debug("Insert batch of {} nub matches for dataset {}", relations.size(), datasetKey);
     for (Integer usageKey : usageKeyBatch) {
-      Set<NameUsageIssue> issues = nameUsageMapper.getIssues(usageKey).getIssues();
       if (relations.get(usageKey) == null) {
         // no match, add issue if not existing yet
-        if (!issues.contains(NameUsageIssue.BACKBONE_MATCH_NONE)) {
-          issues.add(NameUsageIssue.BACKBONE_MATCH_NONE);
-          nameUsageMapper.updateIssues(usageKey, issues);
+        if (!previousNoMatches.contains(usageKey)) {
+          nameUsageMapper.addIssue(usageKey, NameUsageIssue.BACKBONE_MATCH_NONE);
         }
 
       } else {
-        if (issues.remove(NameUsageIssue.BACKBONE_MATCH_NONE) || issues.remove(NameUsageIssue.BACKBONE_MATCH_FUZZY)) {
-          nameUsageMapper.updateIssues(usageKey, issues);
+        // match, remove issue if it existed before
+        if (previousNoMatches.contains(usageKey)) {
+          nameUsageMapper.removeIssue(usageKey, NameUsageIssue.BACKBONE_MATCH_NONE);
         }
         nubRelMapper.insert(datasetKey, usageKey, relations.get(usageKey));
         // for CoL with its instable ids update source key

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.*;
@@ -20,7 +21,9 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -46,6 +49,13 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
   public void testDeleteDataset() throws Exception {
     int num = service.deleteDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
     assertEquals(44, num);
+  }
+
+  @Test
+  public void nubRelations() throws Exception {
+    Map<Integer, Integer> rels = new HashMap<>();
+    rels.put(1,1);
+    service.insertNubRelations(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rels);
   }
 
   @Test

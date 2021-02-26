@@ -403,9 +403,28 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         WHERE id = #{key}
     </select>
 
+    <select id="listNoMatchUsageKeys" parameterType="map" resultType="Integer">
+        SELECT id
+        FROM name_usage
+        WHERE dataset_key=#{uuid, jdbcType=OTHER}
+            AND issues @> array['BACKBONE_MATCH_NONE']
+    </select>
+
     <update id="updateIssues" parameterType="map">
         UPDATE name_usage
         SET issues = #{issues, typeHandler=org.gbif.checklistbank.service.mybatis.postgres.ArraySetIssueTypeHandler}
+        WHERE id=#{key}
+    </update>
+
+    <update id="addIssue" parameterType="map">
+        UPDATE name_usage
+        SET issues = array_append(issues, #{issue})
+        WHERE id=#{key}
+    </update>
+
+    <update id="removeIssue" parameterType="map">
+        UPDATE name_usage
+        SET issues = array_remove(issues, #{issue})
         WHERE id=#{key}
     </update>
 
