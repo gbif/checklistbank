@@ -39,11 +39,6 @@ public class AdminConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public SolrConfig dataset = new SolrConfig();
-
-  @ParametersDelegate
-  @Valid
-  @NotNull
   public ClbConfiguration clb = new ClbConfiguration();
 
   @ParametersDelegate
@@ -97,7 +92,14 @@ public class AdminConfiguration {
   @Valid
   @Parameter(names = {"--file2"}, required = false)
   public File file2;
-  
+
+  /**
+   * Nub lookup service used for testing content, see NUB_CHECK operation
+   */
+  @Valid
+  @Parameter(names = {"--nubws"}, required = false)
+  public String nubws = "http://api.gbif.org/v1/species/match";
+
   /**
    * Do not change any information in checklistbank, just report potential changes, e.g. for reparsed names
    */

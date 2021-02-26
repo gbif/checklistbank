@@ -1,49 +1,28 @@
-package org.gbif.checklistbank.ws.nub;
+package org.gbif.checklistbank.cli.admin;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.utils.file.FileUtils;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.apache.commons.lang3.StringUtils;
+public class NubCheck {
+  final NameUsageMatchingService client;
 
-public class DeployedNubLookupCorrectnessTest {
-
-  private static final List<String> WS_URLS = ImmutableList.of(
-//    "http://mogo.gbif.org:8080/ws-nub/nub/",
-//    "http://boma.gbif.org:8080/ws-nub/nub/",
-    "http://ecat-dev.gbif.org:8080/nub-ws/nub/"
-  );
-
-  private List<NameUsageMatchingService> CLIENTS = Lists.newArrayList();
-
-  public DeployedNubLookupCorrectnessTest() {
-    final String wsProp = "checklistbank.match.ws.url";
-
-    for (String url : WS_URLS) {
-      Properties props = new Properties();
-      props.setProperty(wsProp, url);
-
-      ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, true);
-      Injector injector = Guice.createInjector(mod);
-      CLIENTS.add(injector.getInstance(NameUsageMatchingService.class));
-    }
+  public NubCheck(NameUsageMatchingService service) {
+    this.client = service;
   }
 
-  private void testNubLookup() throws IOException {
+  public void testFile(File test) throws IOException {
     CSVReader reader = CSVReaderFactory.build(FileUtils.getClasspathFile("lookup_checks.txt"), "UTF-8", ",", '"', 1);
 
     while (reader.hasNext()) {
@@ -89,35 +68,32 @@ public class DeployedNubLookupCorrectnessTest {
   private void testQuery(Integer targetNubId, LinneanClassification cl, String scientificName, String authorship, Rank rank) {
 
     List<NameUsageMatch> results = Lists.newArrayList();
-    for (NameUsageMatchingService client : CLIENTS) {
-      NameUsageMatch lookup = null;
-      try {
-        lookup = client.match(scientificName, rank, cl, false, true);
-        results.add(lookup);
+    NameUsageMatch lookup = null;
+    try {
+      lookup = client.match(scientificName, rank, cl, false, true);
+      results.add(lookup);
 
-        boolean gotMatch;
-        if (targetNubId == null) {
-          gotMatch = lookup.getUsageKey() == null;
-        } else {
-          gotMatch = lookup.getUsageKey() != null && lookup.getUsageKey().equals(targetNubId);
-        }
-        if (rank != null && rank.isSuprageneric()){
-          if (lookup.getSpeciesKey()!=null || lookup.getSpecies()!=null){
-            System.err.println(
-              "Lookup for "+rank.name()+" [" + scientificName +"] contains non null species "+lookup.getSpecies()+" [" + lookup.getSpeciesKey() + "]");
-          }
-        }
-        if (gotMatch) {
-          System.out.println(
-            "Lookup good for sciName [" + scientificName + "] nubID [" + targetNubId + "] - " + client.toString());
-        } else {
-          System.err.println(
-            "Lookup mismatch for sciName [" + scientificName +"] - wanted [" + targetNubId + "], got [" + (lookup == null ? null : lookup.getUsageKey()) + "] - [" + client.toString() + "]");
-        }
-      } catch (Exception e) {
-        System.err.println("Webservice ERROR: " + e.getMessage());
+      boolean gotMatch;
+      if (targetNubId == null) {
+        gotMatch = lookup.getUsageKey() == null;
+      } else {
+        gotMatch = lookup.getUsageKey() != null && lookup.getUsageKey().equals(targetNubId);
       }
-
+      if (rank != null && rank.isSuprageneric()){
+        if (lookup.getSpeciesKey()!=null || lookup.getSpecies()!=null){
+          System.err.println(
+              "Lookup for "+rank.name()+" [" + scientificName +"] contains non null species "+lookup.getSpecies()+" [" + lookup.getSpeciesKey() + "]");
+        }
+      }
+      if (gotMatch) {
+        System.out.println(
+            "Lookup good for sciName [" + scientificName + "] nubID [" + targetNubId + "] - " + client.toString());
+      } else {
+        System.err.println(
+            "Lookup mismatch for sciName [" + scientificName +"] - wanted [" + targetNubId + "], got [" + (lookup == null ? null : lookup.getUsageKey()) + "] - [" + client.toString() + "]");
+      }
+    } catch (Exception e) {
+      System.err.println("Webservice ERROR: " + e.getMessage());
     }
 
     for (NameUsageMatch outer : results) {
@@ -192,10 +168,4 @@ public class DeployedNubLookupCorrectnessTest {
     return match;
   }
 
-  public static void main(String[] args) throws IOException {
-    DeployedNubLookupCorrectnessTest instance = new DeployedNubLookupCorrectnessTest();
-    System.out.println("Starting lookup test");
-    instance.testNubLookup();
-    System.out.println("Finished lookup test");
-  }
 }

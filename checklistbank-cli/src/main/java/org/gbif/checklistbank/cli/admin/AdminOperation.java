@@ -61,6 +61,11 @@ public enum AdminOperation {
   NUB_CHANGED(true),
 
   /**
+   * Checks
+   */
+  NUB_CHECK(true),
+
+  /**
    * Updates the backbone dataset metadata based on the current dataset metrics
    */
   UPDATE_NUB_DATASET(true),

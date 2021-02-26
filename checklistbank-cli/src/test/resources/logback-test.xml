@@ -22,6 +22,9 @@
   <logger name="org.apache.ibatis" level="WARN"/>
   <logger name="java.sql" level="WARN"/>
 
+  <logger name="org.apache.http" level="DEBUG" />Y
+  <logger name="org.apache.http.wire" level="ERROR" />Y
+
   <logger name="org.gbif.dwc" level="ERROR"/>
   <logger name="ch.qos.logback" level="WARN"/>
   <logger name="org.gbif.nameparser" level="WARN"/>

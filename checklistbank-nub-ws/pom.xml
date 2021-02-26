@@ -187,19 +187,6 @@
             <artifactId>jul-to-slf4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!-- TESTS -->
-        <dependency>
-            <groupId>org.gbif</groupId>
-            <artifactId>dwca-io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.gbif.checklistbank</groupId>
-            <artifactId>checklistbank-ws-client</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
 </project>

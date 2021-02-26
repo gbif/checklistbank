@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.admin;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -12,6 +13,7 @@ import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
+import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.registry.*;
 import org.gbif.api.util.iterables.Iterables;
@@ -28,7 +30,6 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
@@ -46,6 +47,7 @@ import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -55,6 +57,7 @@ import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Properties;
 import java.util.UUID;
 
 /**
@@ -180,6 +183,10 @@ public class AdminCommand extends BaseCommand {
         sendNubChanged();
         break;
 
+      case NUB_CHECK:
+        nubCheck();
+        break;
+
       case UPDATE_NUB_DATASET:
         updateNubDataset();
         break;
@@ -195,6 +202,19 @@ public class AdminCommand extends BaseCommand {
       default:
         throw new UnsupportedOperationException();
     }
+  }
+
+  private void nubCheck() throws Exception {
+    Preconditions.checkNotNull(cfg.file, "file config required for test data");
+
+    Properties props = new Properties();
+    final String wsProp = "checklistbank.match.ws.url";
+    props.setProperty(wsProp, Preconditions.checkNotNull(cfg.nubws, "nubws config required"));
+
+    ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, true);
+    Injector injector = Guice.createInjector(mod);
+    NameUsageMatchingService src = injector.getInstance(NameUsageMatchingService.class);
+    new NubCheck(src).testFile(cfg.file);
   }
 
   private void rematchAll() throws Exception {
