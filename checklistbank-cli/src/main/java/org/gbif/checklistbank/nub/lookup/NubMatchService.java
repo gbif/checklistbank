@@ -6,6 +6,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.ParentStack;
 import org.gbif.checklistbank.nub.model.NubUsage;
@@ -77,37 +78,40 @@ public class NubMatchService {
       unknown.kingdom = Kingdom.INCERTAE_SEDIS;
       // this is a taxonomically sorted iteration. We remember the parent kingdom using the ParentStack
       ParentStack parents = new ParentStack(unknown);
-      for (SrcUsage u : src) {
-        parents.add(u);
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        while (iter.hasNext()) {
+          SrcUsage u = iter.next();
+          parents.add(u);
         
-        if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
-          summary.addUnparsable();
-        }
-  
-        // ignore status when matching to backbone!!!
-        LookupUsage match;
-        if (u.parsedName.isParsed()) {
-          // match by canonically reconstructed name
-          match = nubLookup.match(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
-        } else {
-          // match by full sciname
-          match = nubLookup.match(u.scientificName, u.rank, parents.nubKingdom());
-        }
-        
-        if (match != null) {
-          summary.addMatch(u.rank);
-          // add to relations
-          relations.put(u.key, match.getKey());
-          // store current kingdom in parent stack for further nub lookups of children
-          NubUsage nub = new NubUsage();
-          nub.kingdom = match.getKingdom();
-          parents.put(nub);
+          if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
+            summary.addUnparsable();
+          }
 
-        } else {
-          summary.addNoMatch(u.rank);
-          LOG.debug("No match for {} in dataset {}. Parsed name: {}", u, d.getKey(), u.parsedName);
-          // also store no matches as nulls so we can flag an issue
-          relations.put(u.key, null);
+          // ignore status when matching to backbone!!!
+          LookupUsage match;
+          if (u.parsedName.isParsed()) {
+            // match by canonically reconstructed name
+            match = nubLookup.match(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, null, parents.nubKingdom());
+          } else {
+            // match by full sciname
+            match = nubLookup.match(u.scientificName, u.rank, parents.nubKingdom());
+          }
+
+          if (match != null) {
+            summary.addMatch(u.rank);
+            // add to relations
+            relations.put(u.key, match.getKey());
+            // store current kingdom in parent stack for further nub lookups of children
+            NubUsage nub = new NubUsage();
+            nub.kingdom = match.getKingdom();
+            parents.put(nub);
+
+          } else {
+            summary.addNoMatch(u.rank);
+            LOG.debug("No match for {} in dataset {}. Parsed name: {}", u, d.getKey(), u.parsedName);
+            // also store no matches as nulls so we can flag an issue
+            relations.put(u.key, null);
+          }
         }
       }
 

@@ -1,5 +1,6 @@
 package org.gbif.checklistbank.nub.source;
 
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -36,10 +37,13 @@ public class DwcaSourceTest {
 
     src.init(true, false);
     int counter = 0;
-    for (SrcUsage u : src) {
-      assertNotNull(u.key);
-      assertNotNull(u.scientificName);
-      counter++;
+    try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+      while (iter.hasNext()) {
+        SrcUsage u = iter.next();
+        assertNotNull(u.key);
+        assertNotNull(u.scientificName);
+        counter++;
+      }
     }
     assertTrue(counter > 30);
     src.close();

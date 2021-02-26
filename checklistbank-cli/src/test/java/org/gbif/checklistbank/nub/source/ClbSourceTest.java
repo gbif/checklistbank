@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.model.SrcUsage;
@@ -45,10 +46,13 @@ public class ClbSourceTest {
       src.ignoreRanksAbove = Rank.SPECIES;
       src.init(true, false);
       int counter = 0;
-      for (SrcUsage u : src) {
-        counter++;
-        System.out.print(u.key + "  ");
-        System.out.println(u.scientificName);
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        while (iter.hasNext()) {
+          SrcUsage u = iter.next();
+          counter++;
+          System.out.print(u.key + "  ");
+          System.out.println(u.scientificName);
+        }
       }
       assertEquals(44, counter);
     }
@@ -62,10 +66,13 @@ public class ClbSourceTest {
       src.ignoreRanksAbove = Rank.SPECIES;
       src.init(true, false);
       int counter = 0;
-      for (SrcUsage u : src) {
-        counter++;
-        System.out.print(u.key + "  ");
-        System.out.println(u.scientificName);
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        while (iter.hasNext()) {
+          SrcUsage u = iter.next();
+          counter++;
+          System.out.print(u.key + "  ");
+          System.out.println(u.scientificName);
+        }
       }
       assertEquals(12, counter);
     }

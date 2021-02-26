@@ -27,6 +27,7 @@ import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.common.parsers.utils.NameParserUtils;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluator;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  * Implement the abstract initNeo method to supply such a tab delimited stream to the NeoUsageWriter instance.
  */
 
-public abstract class NubSource implements CloseableIterable<SrcUsage> {
+public abstract class NubSource implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(NubSource.class);
 
   protected final NeoConfiguration cfg;
@@ -316,7 +317,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
   public class SrcUsageIterator implements CloseableIterator<SrcUsage> {
     private final Transaction tx;
-    private final Iterator<Node> nodes;
+    private final ResourceIterator<Node> nodes;
 
     public SrcUsageIterator(UsageDao dao) {
       tx = dao.beginTx();
@@ -343,6 +344,7 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
 
     @Override
     public void close() {
+      nodes.close();
       tx.success();
       tx.close();
     }
@@ -352,8 +354,11 @@ public abstract class NubSource implements CloseableIterable<SrcUsage> {
    * Returns a neo db backed iterator over all usages.
    * The iteration is in taxonomic order, starting with the highest root taxa and walks
    * the taxonomic tree in depth order first, including synonyms.
+   *
+   * WARN: you need to close this iterator to free up all neo4j resources.
+   * Otherwise this will lead to a memory leak!
+   * This is why we do not implement the convenient iterables interface in NubSOurce (anymore).
    */
-  @Override
   public CloseableIterator<SrcUsage> iterator() {
     if (dao == null) {
       dao = openOrCreate(false);

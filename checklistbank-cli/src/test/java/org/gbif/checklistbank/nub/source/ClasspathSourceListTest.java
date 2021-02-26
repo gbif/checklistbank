@@ -2,6 +2,7 @@ package org.gbif.checklistbank.nub.source;
 
 import com.google.common.collect.Lists;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
@@ -53,8 +54,11 @@ public class ClasspathSourceListTest {
     for (NubSource src : srcList) {
       monitor.run();
       int counter = 0;
-      for (SrcUsage u : src) {
-        counter++;
+      try (CloseableIterator<SrcUsage> iter = src.iterator()) {
+        while (iter.hasNext()) {
+          SrcUsage u = iter.next();
+          counter++;
+        }
       }
       System.out.println(counter + " usages in source " + src.name);
       src.close();
