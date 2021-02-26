@@ -23,7 +23,7 @@ public class NubCheck {
   }
 
   public void testFile(File test) throws IOException {
-    CSVReader reader = CSVReaderFactory.build(FileUtils.getClasspathFile("lookup_checks.txt"), "UTF-8", ",", '"', 1);
+    CSVReader reader = CSVReaderFactory.build(test, "UTF-8", ",", '"', 0);
 
     while (reader.hasNext()) {
       String[] row = reader.next();
