@@ -418,13 +418,13 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
 
     <update id="addIssue" parameterType="map">
         UPDATE name_usage
-        SET issues = array_append(issues, #{issue})
+        SET issues = array_append(issues, #{issue}::text)
         WHERE id=#{key}
     </update>
 
     <update id="removeIssue" parameterType="map">
         UPDATE name_usage
-        SET issues = array_remove(issues, #{issue})
+        SET issues = array_remove(issues, #{issue}::text)
         WHERE id=#{key}
     </update>
 
