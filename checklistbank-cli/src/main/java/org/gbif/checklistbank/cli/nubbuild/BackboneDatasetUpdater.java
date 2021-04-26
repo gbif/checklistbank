@@ -46,7 +46,7 @@ public class BackboneDatasetUpdater {
   private final OrganizationService organizationService;
   private final NetworkService networkService;
   @VisibleForTesting
-  protected static final Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\s*The following +\\d* *sources from the.+$", Pattern.DOTALL);
+  protected static final Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\s*The following +\\d* *sources have been used .+$", Pattern.DOTALL);
 
   public BackboneDatasetUpdater(DatasetService datasetService, OrganizationService organizationService, NetworkService networkService) {
     this.datasetService = datasetService;
@@ -87,7 +87,6 @@ public class BackboneDatasetUpdater {
       new TaxonomicCoverage(k.scientificName(), null, new InterpretedEnum<String, Rank>("Kingdom", Rank.KINGDOM));
     }
     nub.setTaxonomicCoverages(Lists.newArrayList(new TaxonomicCoverages("All life", taxa)));
-    nub.setRights("CC0 1.0");
 
     LOG.info("Aggregating all Plazi datasets");
     int plaziDatasets = 0;
@@ -118,9 +117,9 @@ public class BackboneDatasetUpdater {
     description.append(SOURCE_LIST_PATTERN.matcher(nub.getDescription()).replaceAll(""));
 
     // append new source list
-    description.append("\n\nThe following " + constituents.size() + " sources from the " +
-        "<a href='http://www.gbif.org/network/" + Constants.NUB_NETWORK_KEY + "'>GBIF Backbone network</a> " +
-        "have been used to assemble the GBIF backbone:\n");
+
+    description.append("\n\nThe following " + constituents.size() + " sources have been used to assemble the GBIF backbone " +
+        "with number of names given in brackets:\n");
     description.append("<ul>");
     for (NubConstituent nc : constituents) {
       description.append("<li>" + nc.title+ " - " + nc.count+ " names</li>");
