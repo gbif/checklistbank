@@ -89,17 +89,21 @@ public class BackboneDatasetUpdater {
     nub.setTaxonomicCoverages(Lists.newArrayList(new TaxonomicCoverages("All life", taxa)));
     nub.setRights("CC0 1.0");
 
+    LOG.info("Aggregating all Plazi datasets");
+    int plaziDatasets = 0;
     int plaziCounts = 0;
     List<NubConstituent> constituents = Lists.newArrayList();
     for (Map.Entry<UUID, Integer> src : metrics.getCountByConstituent().entrySet()) {
       Dataset d = datasetService.get(src.getKey());
       if (d.getPublishingOrganizationKey().equals(Constants.PLAZI_ORG_KEY)) {
         plaziCounts += src.getValue();
+        plaziDatasets += 1;
       } else {
         constituents.add(new NubConstituent(src.getKey(), d.getTitle(), src.getValue()));
       }
     }
     // add plazi
+    LOG.info("Found {} datasets with {} records from Plazi", plaziDatasets, plaziCounts);
     if (plaziCounts > 0) {
       Organization plazi = organizationService.get(Constants.PLAZI_ORG_KEY);
       constituents.add(new NubConstituent(Constants.PLAZI_ORG_KEY, plazi.getTitle(), plaziCounts));
@@ -131,6 +135,7 @@ public class BackboneDatasetUpdater {
       writer.close();
       InputStream stream = new ByteArrayInputStream(writer.getBuffer().toString().getBytes(Charsets.UTF_8));
       datasetService.insertMetadata(Constants.NUB_DATASET_KEY, stream);
+      LOG.info("Updated backbone metadata successfully");
     } catch (RuntimeException | IOException e) {
       LOG.error("Failed to update backbone dataset metadata", e);
     }
