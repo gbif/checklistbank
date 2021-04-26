@@ -20,7 +20,7 @@ import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.nubchanged.BackboneDatasetUpdater;
+import org.gbif.checklistbank.cli.nubbuild.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.neo.UsageDao;

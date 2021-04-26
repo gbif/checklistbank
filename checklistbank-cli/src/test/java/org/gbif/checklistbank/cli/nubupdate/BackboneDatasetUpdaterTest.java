@@ -1,5 +1,6 @@
-package org.gbif.checklistbank.cli.nubchanged;
+package org.gbif.checklistbank.cli.nubupdate;
 
+import org.gbif.checklistbank.cli.nubbuild.BackboneDatasetUpdater;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

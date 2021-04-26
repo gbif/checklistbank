@@ -55,16 +55,11 @@ Processing uses checklistbank-nub-ws, via the KVS cache.
    - scp file to pg1.gbif-uat.org
    - `sudo -u postgres pg_restore --clean --dbname uat_checklistbank --jobs 8 /var/lib/pgsql/11/backups/clb-2021-03-03.dump`
 
-## Export backbone DwC-A
- - import from backbonebuild-vh clb DB dump
- - export NUB to DWCA: `./clb-admin.sh EXPORT --nub`
- - move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
-
 ## Export backbone CSV
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
- - export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
- - gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
-  
+- export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
+- gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
+ 
 ## Backfill Occurrence maps & cubes
 See https://github.com/gbif/metrics/tree/master/cube
 
@@ -107,3 +102,14 @@ See https://github.com/gbif/metrics/tree/master/cube
 The dataset index contains information about taxa used in occurrence and checklist datasets which is updated nightly by an Oozie coordinator job. That job needs to be redeployed with updated configs to use the latest clb and occ settings:
  - update https://github.com/gbif/gbif-configuration/blob/master/registry-index-builder/prod.properties
  - execute `c4gateway-vh:.../registry/registry-index-builder/install-coordinator.sh prod TOKEN`
+
+
+## Update prod backbone metadata
+This updates the prod registry! Only do this when we went live.
+This needs to be done before the DWCA export though, as that should include the updated metadata
+- `./admin.sh UPDATE_NUB_DATASET`
+
+## Export backbone DwC-A
+- import from backbonebuild-vh clb DB dump
+- export NUB to DWCA: `./clb-admin.sh EXPORT --nub`
+- move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd

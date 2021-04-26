@@ -1,9 +1,11 @@
-package org.gbif.checklistbank.cli.nubchanged;
+package org.gbif.checklistbank.cli.nubbuild;
 
+import com.google.common.base.Preconditions;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.common.InterpretedEnum;
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.model.registry.Network;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.model.registry.eml.TaxonomicCoverage;
 import org.gbif.api.model.registry.eml.TaxonomicCoverages;
@@ -36,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Updates the Backbone dataset metadata in the registry.
  */
 public class BackboneDatasetUpdater {
   private static final Logger LOG = LoggerFactory.getLogger(BackboneDatasetUpdater.class);
@@ -73,7 +75,8 @@ public class BackboneDatasetUpdater {
   }
 
   public Dataset updateBackboneDataset(DatasetMetrics metrics) {
-    LOG.info("Updating backbone dataset metadata");
+    Preconditions.checkNotNull(metrics, "No metrics found");
+    LOG.info("Updating backbone dataset metadata based on metrics from {}", metrics.getCreated());
 
     // update existing metadata (all fixed metadata is curated manually in the registry
     // lets load it first
@@ -133,18 +136,24 @@ public class BackboneDatasetUpdater {
     }
 
     // update backbone sources network
-    Set<UUID> constituentKeys = Sets.newHashSet(metrics.getCountByConstituent().keySet());
-    LOG.info("Updating backbone source network with {} constituents", constituentKeys.size());
-    for (Dataset d : Iterables.networkDatasets(Constants.NUB_NETWORK_KEY, null, networkService)) {
-      if (!constituentKeys.remove(d.getKey())) {
-        LOG.debug("Remove backbone source network constituent {} {}", d.getKey(), d.getTitle());
-        networkService.removeConstituent(Constants.NUB_NETWORK_KEY, d.getKey());
+    Network network = networkService.get(Constants.NUB_NETWORK_KEY);
+    if (network == null) {
+      LOG.warn("Backbone source network {} is missing in the registry", Constants.NUB_NETWORK_KEY);
+
+    } else {
+      Set<UUID> constituentKeys = Sets.newHashSet(metrics.getCountByConstituent().keySet());
+      LOG.info("Updating backbone source network with {} constituents", constituentKeys.size());
+      for (Dataset d : Iterables.networkDatasets(Constants.NUB_NETWORK_KEY, null, networkService)) {
+        if (!constituentKeys.remove(d.getKey())) {
+          LOG.debug("Remove backbone source network constituent {} {}", d.getKey(), d.getTitle());
+          networkService.removeConstituent(Constants.NUB_NETWORK_KEY, d.getKey());
+        }
       }
-    }
-    // now add the remaining ones
-    for (UUID datasetKey : constituentKeys) {
-      LOG.debug("Add new backbone source network constituent {}", datasetKey);
-      networkService.addConstituent(Constants.NUB_NETWORK_KEY, datasetKey);
+      // now add the remaining ones
+      for (UUID datasetKey : constituentKeys) {
+        LOG.debug("Add new backbone source network constituent {}", datasetKey);
+        networkService.addConstituent(Constants.NUB_NETWORK_KEY, datasetKey);
+      }
     }
 
     return nub;
