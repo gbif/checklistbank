@@ -41,15 +41,6 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
   /**
    * Creates a file based nub index which is built in case the index does not yet exist.
    *
-   * @param indexDir the directory to keep the lucene index in. If existing the index will be reused
-   */
-  private NubMatchingModule(File indexDir) {
-    this(indexDir, Constants.NUB_DATASET_KEY);
-  }
-
-  /**
-   * Creates a file based nub index which is built in case the index does not yet exist.
-   *
    * @param indexDir      the directory to keep the lucene index in. If existing the index will be reused
    * @param nubDatasetKey the dataset key to use for populating the nub index
    */

@@ -1,4 +1,4 @@
-package org.gbif.checklistbank.cli.nubupdate;
+package org.gbif.checklistbank.cli.nubbuild;
 
 import org.gbif.checklistbank.cli.nubbuild.BackboneDatasetUpdater;
 import org.junit.Test;
