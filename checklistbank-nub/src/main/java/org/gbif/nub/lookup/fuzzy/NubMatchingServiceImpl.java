@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.gbif.api.exception.UnparsableException;
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
@@ -85,12 +86,15 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   }
 
   private void initHackMap() {
-    LOG.debug("Add entries to hackmap ...");
-    try {
-      hackMap.put("radiolaria", nubIndex.matchByUsageId(7));
-      hackMap.put("hepatic", nubIndex.matchByUsageId(9));
-    } catch (Exception e) {
-      LOG.debug("Hackmap entry not existing, skip", e.getMessage());
+    //TODO: load the map from configs
+    if (nubIndex.getDatasetKey() != null && nubIndex.getDatasetKey().equals(Constants.NUB_DATASET_KEY)) {
+      LOG.debug("Add entries to hackmap for GBIF Backbone ...");
+      try {
+        hackMap.put("radiolaria", nubIndex.matchByUsageId(7));
+        hackMap.put("hepatic", nubIndex.matchByUsageId(9));
+      } catch (Exception e) {
+        LOG.debug("Hackmap entry not existing, skip", e.getMessage());
+      }
     }
   }
 
@@ -327,7 +331,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       if (m.getMatchType() == NameUsageMatch.MatchType.EXACT
               && rank == Rank.SPECIES_AGGREGATE
               && m.getRank() != Rank.SPECIES_AGGREGATE) {
-        LOG.warn("Species aggregate match found for {} {}, but not supported in API currently", m.getRank(), m.getScientificName());
+        LOG.warn("Species aggregate match found for {} {}, but use type EXACT until supported in API", m.getRank(), m.getScientificName());
         //TODO: change to MatchType.AGGREGATE once available
         m.setMatchType(NameUsageMatch.MatchType.EXACT);
       }

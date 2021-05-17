@@ -91,6 +91,7 @@ public class NubIndex implements AutoCloseable {
 
   private static final ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
   private static final NameParser parser = new NameParserGbifV1();
+  private final UUID datasetKey;
   private final Directory index;
   private final IndexSearcher searcher;
 
@@ -111,7 +112,7 @@ public class NubIndex implements AutoCloseable {
   public static NubIndex newMemoryIndex(NameUsageMapper mapper) throws IOException {
     RAMDirectory dir = new RAMDirectory();
     load(dir, mapper, Constants.NUB_DATASET_KEY);
-    return new NubIndex(dir);
+    return new NubIndex(Constants.NUB_DATASET_KEY, dir);
   }
 
   public static NubIndex newMemoryIndex(Iterable<NameUsageMatch> usages) throws IOException {
@@ -130,7 +131,7 @@ public class NubIndex implements AutoCloseable {
     }
     writer.close();
     LOG.info("Finished building nub index with {} usages", counter);
-    return new NubIndex(dir);
+    return new NubIndex(null, dir);
   }
 
   /**
@@ -155,15 +156,19 @@ public class NubIndex implements AutoCloseable {
       dir = new MMapDirectory(indexDir.toPath());
       load(dir, mapper, nubDatasetKey);
     }
-    return new NubIndex(dir);
+    return new NubIndex(nubDatasetKey, dir);
   }
 
-  public NubIndex(Directory d) throws IOException {
+  public NubIndex(UUID datasetKey, Directory d) throws IOException {
     index = d;
+    this.datasetKey = datasetKey;
     DirectoryReader reader = DirectoryReader.open(index);
     searcher = new IndexSearcher(reader);
   }
 
+  public UUID getDatasetKey() {
+    return datasetKey;
+  }
 
   public NameUsageMatch matchByUsageId(Integer usageID) {
 
