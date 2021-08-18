@@ -561,12 +561,19 @@ public class NubBuilder implements Runnable {
           if (!fam.status.isSynonym()) {
             Map<String, List<NubUsage>> epithets = Maps.newHashMap();
             Map<String, Set<String>> epithetBridges = Maps.newHashMap();
+            Set<String> ignore = cfg.basionymExclusions.get(fam.parsedName.canonicalName());
             LOG.debug("Discover basionyms in family {}", fam.parsedName.canonicalNameComplete());
             // key all names by their terminal epithet
             for (Node c : Traversals.DESCENDANTS.traverse(n).nodes()) {
               NubUsage nub = read(c);
               // ignore all supra specific names, autonyms and unparsed OTUs
               if (nub.rank.isSpeciesOrBelow() && !c.hasLabel(Labels.AUTONYM) && nub.parsedName.isParsableType() && nub.parsedName.isParsed()) {
+                // configured to be ignored?
+                if (ignore != null && ignore.contains(nub.parsedName.getTerminalEpithet())){
+                  LOG.info("Ignore epithet {} in family {} because of configs", nub.parsedName.getTerminalEpithet(), fam.parsedName.canonicalNameComplete());
+                  continue;
+                }
+
                 String epithet = SciNameNormalizer.stemEpithet(nub.parsedName.getTerminalEpithet());
                 if (!epithets.containsKey(epithet)) {
                   epithets.put(epithet, Lists.newArrayList(nub));

@@ -85,6 +85,13 @@ public class NubConfiguration {
   public boolean groupBasionyms = false;
 
   /**
+   * List of epithets, organised by families, which should be ignored during the automated basionym grouping/detection.
+   */
+  @NotNull
+  @Valid
+  public Map<String, Set<String>> basionymExclusions = new HashMap<>();
+
+  /**
    * If false autonyms with no other sibling are removed.
    */
   @Valid
