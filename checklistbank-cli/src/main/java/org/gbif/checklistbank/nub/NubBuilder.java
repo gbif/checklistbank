@@ -1247,13 +1247,16 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Filters out vertain kind of names that we do not want in the backbone
+   * Filters out certain kind of names that we do not want in the backbone
    * and throws a IgnoreSourceUsageException in such cases.
    *
    * @throws IgnoreSourceUsageException
    */
   private void filterUsage(SrcUsage u) throws IgnoreSourceUsageException {
     // avoid unwanted types of names, e.g. indet names
+    if (u.status == TaxonomicStatus.MISAPPLIED) {
+      throw new IgnoreSourceUsageException("Ignore misapplied name", u.scientificName);
+    }
     // Expect & filter out informal names here for: indetermined, abbreviated or incomplete
     if (ignoredNameTypes.contains(u.parsedName.getType())) {
       throw new IgnoreSourceUsageException("Ignore " + u.parsedName.getType() + " name", u.scientificName);

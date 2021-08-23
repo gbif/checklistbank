@@ -2000,6 +2000,13 @@ public class NubBuilderIT {
     assertTree("137 138.txt");
   }
 
+  @Test
+  public void misapplied() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 172);
+    build(src);
+    assertTree("172.txt");
+  }
+
   /**
    * For profiling memory usage of nub builds
    */

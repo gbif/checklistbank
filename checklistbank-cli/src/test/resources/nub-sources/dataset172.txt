@@ -1,0 +1,9 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Nematoda	
+4	2		ORDER	ACCEPTED		Rhabditida
+6	4		FAMILY	ACCEPTED		Aphelenchoididae	
+7	6		GENUS	ACCEPTED		BursaphelenchusFuchs, 1937	
+9	7		SPECIES	ACCEPTED		Bursaphelenchus xylophilus (Steiner & Bührer, 1934)	
+18	7		SPECIES	ACCEPTED		Bursaphelenchus mucronatus Mamiya & Enda, 1979	
+10	18		SPECIES	MISAPPLIED		Bursaphelenchus xylophilus	
+11	7		SPECIES	MISAPPLIED		Bursaphelenchus xanthus	
