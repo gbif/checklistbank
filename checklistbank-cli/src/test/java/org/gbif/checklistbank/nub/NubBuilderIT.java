@@ -1868,6 +1868,7 @@ public class NubBuilderIT {
   @Test
   public void testBlacklist() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 122);
+    src.includeOTUs(122);
     build(src);
 
     assertTree("122.txt");
