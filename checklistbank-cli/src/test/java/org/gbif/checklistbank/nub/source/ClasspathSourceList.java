@@ -91,5 +91,10 @@ public class ClasspathSourceList extends NubSourceList {
       sourceById.get(sourceId).supragenericHomonymSource = true;
     }
   }
-  
+
+  public void includeOTUs(int sourceId) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).includeOTUs = true;
+    }
+  }
 }

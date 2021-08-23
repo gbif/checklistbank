@@ -3,7 +3,6 @@ package org.gbif.checklistbank.nub.source;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
-import com.google.common.io.Files;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -14,17 +13,20 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
-import org.gbif.checklistbank.iterable.CloseableIterable;
 import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.*;
+import org.gbif.checklistbank.neo.traverse.ExclusionEvaluator;
+import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
+import org.gbif.checklistbank.neo.traverse.Traversals;
+import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.common.parsers.utils.NameParserUtils;
+import org.gbif.api.vocabulary.NameType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -34,9 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,6 +76,7 @@ public abstract class NubSource implements AutoCloseable {
   public Date created;
   public boolean nomenclator = false;
   public boolean supragenericHomonymSource = false;
+  public boolean includeOTUs = false;
   boolean ignoreSynonyms = false;
   private UsageDao dao;
   private final boolean useTmpDao;
@@ -216,6 +221,12 @@ public abstract class NubSource implements AutoCloseable {
       if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
         LOG.debug("Failed to parse {} {}: {}", u.rank, u.key, u.scientificName);
         unparsable++;
+      }
+
+      if (!includeOTUs && u.parsedName.getType() == NameType.OTU) {
+        LOG.debug("Skipping OTU {}: {}", u.key, u.scientificName);
+        skipped++;
+        return;
       }
 
       counter++;

@@ -54,6 +54,12 @@ public class NubSourceConfig {
     public boolean synonyms = true;
 
     /**
+     * If true marks a source from which OTU names can be taken.
+     * Default is not to use OTUs
+     */
+    public boolean OTU = false;
+
+    /**
      * List of taxon names to be excluded from that source,
      * so these groups do not make it to the backbone. This applies to all its descendants - different to how the blacklist behaves.
      */

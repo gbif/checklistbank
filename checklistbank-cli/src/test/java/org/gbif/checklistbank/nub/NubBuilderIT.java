@@ -551,6 +551,7 @@ public class NubBuilderIT {
     src.setSourceRank(147, Rank.KINGDOM);
     src.setSourceRank(151, Rank.GENUS);
     src.setSupragenericHomonymSource(147);
+    src.includeOTUs(148);
 
     // add Coccinella exclude configs for COL during rebuild only!!!
     cfg.homonymExclusions.put("Coccinella", Lists.newArrayList("Hydrophilidae", "Mollusca"));
@@ -573,6 +574,7 @@ public class NubBuilderIT {
     src = ClasspathSourceList.source(neoRepo.cfg, sourceKeys);
     src.setSourceRank(147, Rank.KINGDOM);
     src.setSupragenericHomonymSource(147);
+    src.includeOTUs(148);
     rebuild(src);
 
     // assert ids havent changed!
@@ -1830,6 +1832,8 @@ public class NubBuilderIT {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 118, 119);
     src.setSourceRank(118, Rank.PHYLUM);
     src.setSourceRank(119, Rank.GENUS);
+    src.includeOTUs(118);
+    src.includeOTUs(119);
     build(src);
 
     NubUsage u = assertScientific("BOLD:ABW2624", Rank.SPECIES, Origin.SOURCE, null, null);
@@ -1983,6 +1987,7 @@ public class NubBuilderIT {
   @Test
   public void testBoldPlaceholder() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 136);
+    src.includeOTUs(136);
     build(src);
     assertTree("136.txt");
   }
