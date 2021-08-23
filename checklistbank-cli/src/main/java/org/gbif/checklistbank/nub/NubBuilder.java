@@ -1266,7 +1266,7 @@ public class NubBuilder implements Runnable {
       throw new IgnoreSourceUsageException("Ignore unparsable " + u.parsedName.getType() + ": ", u.scientificName);
     }
     // reject partially parsed monomial
-    if (u.parsedName.isParsedPartially() && !u.parsedName.isBinomial()) {
+    if (u.parsedName.getType().isParsable() && u.parsedName.isParsedPartially() && !u.parsedName.isBinomial()) {
       throw new IgnoreSourceUsageException("Ignore partially parsed " + u.parsedName.getRank() + " ", u.scientificName);
     }
     // check blacklist

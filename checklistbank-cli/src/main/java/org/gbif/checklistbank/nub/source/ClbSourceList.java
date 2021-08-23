@@ -71,6 +71,7 @@ public class ClbSourceList extends NubSourceList {
     NubSource src = new ClbSource(cfg.clb, cfg.neoSources, d.getKey(), d.getTitle(), sourceConfig.exclude);
     src.created = d.getCreated();
     src.ignoreSynonyms = !sourceConfig.synonyms;
+    src.nameTypeMapping = sourceConfig.nameTypeMapping;
     src.nomenclator = DatasetSubtype.NOMENCLATOR_AUTHORITY == d.getSubtype();
     // we ignore nomenclators superpower for now, see https://github.com/gbif/checklistbank/issues/139
     src.nomenclator = false;

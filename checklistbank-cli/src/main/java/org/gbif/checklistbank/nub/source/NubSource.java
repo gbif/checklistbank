@@ -37,10 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -78,6 +75,7 @@ public abstract class NubSource implements AutoCloseable {
   public boolean supragenericHomonymSource = false;
   public boolean includeOTUs = false;
   boolean ignoreSynonyms = false;
+  Map<NameType, NameType> nameTypeMapping;
   private UsageDao dao;
   private final boolean useTmpDao;
 
@@ -221,6 +219,11 @@ public abstract class NubSource implements AutoCloseable {
       if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
         LOG.debug("Failed to parse {} {}: {}", u.rank, u.key, u.scientificName);
         unparsable++;
+      }
+
+      // custom name type mapping for fine control mostly of OTU names e.g. GTDB
+      if (nameTypeMapping != null && nameTypeMapping.containsKey(u.parsedName.getType())) {
+        u.parsedName.setType(nameTypeMapping.get(u.parsedName.getType()));
       }
 
       if (!includeOTUs && u.parsedName.getType() == NameType.OTU) {

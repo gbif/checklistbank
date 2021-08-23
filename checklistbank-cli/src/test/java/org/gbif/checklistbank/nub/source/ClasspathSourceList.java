@@ -2,6 +2,7 @@ package org.gbif.checklistbank.nub.source;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
@@ -95,6 +96,12 @@ public class ClasspathSourceList extends NubSourceList {
   public void includeOTUs(int sourceId) {
     if (sourceById.containsKey(sourceId)) {
       sourceById.get(sourceId).includeOTUs = true;
+    }
+  }
+
+  public void setNameTypeMapping(int sourceId, Map<NameType, NameType> mapping) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).nameTypeMapping = mapping;
     }
   }
 }

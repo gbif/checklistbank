@@ -2,11 +2,10 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.model.RankedName;
+import org.gbif.api.vocabulary.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class NubSourceConfig {
 
@@ -58,6 +57,12 @@ public class NubSourceConfig {
      * Default is not to use OTUs
      */
     public boolean OTU = false;
+
+    /**
+     * Custom mapping of name types to be applied to this source only.
+     * Allows to correct badly detected informal etc names.
+     */
+    public Map<NameType, NameType> nameTypeMapping = new HashMap<>();
 
     /**
      * List of taxon names to be excluded from that source,

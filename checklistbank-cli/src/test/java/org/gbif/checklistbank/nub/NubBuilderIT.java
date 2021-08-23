@@ -1,10 +1,10 @@
 package org.gbif.checklistbank.nub;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.collect.UnmodifiableIterator;
-import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
@@ -23,7 +23,6 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.*;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
@@ -2010,6 +2009,22 @@ public class NubBuilderIT {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 172);
     build(src);
     assertTree("172.txt");
+  }
+
+  @Test
+  public void nameTypeMapping() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 173);
+    src.setSourceRank(173, Rank.PHYLUM);
+    src.includeOTUs(173);
+    src.setNameTypeMapping(173,  new ImmutableMap.Builder<NameType, NameType>()
+        .put(NameType.INFORMAL, NameType.OTU)
+        .put(NameType.HYBRID, NameType.OTU)
+        .put(NameType.PLACEHOLDER, NameType.OTU)
+        .put(NameType.BLACKLISTED, NameType.OTU)
+        .build()
+    );
+    build(src);
+    assertTree("173.txt");
   }
 
   /**
