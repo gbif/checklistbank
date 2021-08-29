@@ -20,6 +20,7 @@ import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
@@ -235,6 +236,18 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
 
     NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, mainMatchingMode, verbose);
+    // use genus higher match instead of fuzzy one?
+    // https://github.com/gbif/portal-feedback/issues/2930
+    if (match1.getMatchType() == NameUsageMatch.MatchType.FUZZY &&
+        match1.getRank() != null && match1.getRank().isSpeciesOrBelow() &&
+        pn != null && !Objects.equals(pn.getGenusOrAbove(), match1.getGenus()) &&
+        nextAboveGenusDiffers(classification, match1)
+    ) {
+      NameUsageMatch genusMatch = match(pn.getType(), null, pn.getGenusOrAbove(), Rank.GENUS, classification, MatchingMode.HIGHER, verbose);
+      if (isMatch(genusMatch) && genusMatch.getRank() == Rank.GENUS) {
+        return higherMatch(genusMatch, match1);
+      }
+    }
     // for strict matching do not try higher ranks
     if (isMatch(match1) || strict) {
       return match1;
@@ -292,6 +305,17 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     // if finally we cant find anything, return empty match object - but not null!
     LOG.debug("No match for name {}", scientificName);
     return noMatch(100, match1.getNote(), verbose ? match1.getAlternatives() : null);
+  }
+
+  private boolean nextAboveGenusDiffers(LinneanClassification cl, LinneanClassification cl2) {
+    for (Rank r = RankUtils.nextHigherLinneanRank(Rank.GENUS); r != null; r = RankUtils.nextHigherLinneanRank(r)) {
+      String h1 = cl.getHigherRank(r);
+      String h2 = cl2.getHigherRank(r);
+      if (h1 != null && h2 != null) {
+        return !Objects.equals(h1, h2);
+      }
+    }
+    return false;
   }
 
   private void cleanClassification(LinneanClassification cl) {

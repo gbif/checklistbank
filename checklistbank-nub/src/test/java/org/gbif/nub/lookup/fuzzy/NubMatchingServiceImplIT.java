@@ -696,4 +696,29 @@ public class NubMatchingServiceImplIT {
   }
 
 
+  /**
+   * https://github.com/gbif/portal-feedback/issues/2930
+   */
+  @Test
+  public void higherOverFuzzy() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    // Stolas
+    NameUsageMatch m = assertMatch("Stolas costaricensis", cl, 4734997, new IntRange(90, 99));
+    assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
+
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Arthropoda");
+    cl.setClazz("Insecta");
+    // Stelis costaricensis
+    m = assertMatch("Stolas costaricensis", cl, 1334265, new IntRange(90, 99));
+    assertEquals(NameUsageMatch.MatchType.FUZZY , m.getMatchType());
+
+    // Stolas again
+    cl.setOrder("Coleoptera");
+    cl.setFamily("Chrysomelidae");
+    m = assertMatch("Stolas costaricensis", cl, 4734997, new IntRange(95, 100));
+    assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
+  }
+
+
 }
