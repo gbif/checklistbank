@@ -86,6 +86,9 @@ public class ClbSourceList extends NubSourceList {
       src.includeOTUs = true;
       LOG.info("Allow OTU names for nub source {}", d.getTitle());
     }
+    if (sourceConfig.defaultParent != null) {
+      src.defaultParent = sourceConfig.defaultParent;
+    }
     return src;
   }
 

@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -29,7 +28,6 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.neo.traverse.TaxonomicOrderExpander;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.neo.traverse.UsageMetricsHandler;
@@ -47,8 +45,6 @@ import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
-import org.gbif.utils.collection.MapUtils;
-import org.gbif.utils.file.FileUtils;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.collection.Iterators;
@@ -57,14 +53,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * We use Origin.VERBATIM_ACCEPTED here to mark excluded homonyms that have not been updated with other sources.
@@ -106,6 +98,7 @@ public class NubBuilder implements Runnable {
   private boolean closeDao = true;
   private NubSource currSrc;
   private ParentStack parents;
+  private NubUsage unknownKingdom;
   private int sourceUsageCounter = 0;
   private final AuthorComparator authorComparator;
   private final IdGenerator idGen;
@@ -153,7 +146,8 @@ public class NubBuilder implements Runnable {
   public void run() {
     try {
       addKingdoms();
-      parents = new ParentStack(db.kingdom(Kingdom.INCERTAE_SEDIS));
+      unknownKingdom = db.kingdom(Kingdom.INCERTAE_SEDIS);
+      parents = new ParentStack(unknownKingdom);
 
       // main work importing all source checklists
       addDatasets();
@@ -878,10 +872,27 @@ public class NubBuilder implements Runnable {
     }
   }
 
+  private void setUnknownNubParent(NubSource source) {
+    parents.setDefaultParent(unknownKingdom); // default
+    RankedName unknown = source.getDefaultParent();
+    if (unknown != null) {
+      try (Transaction tx = db.beginTx()) {
+        NubUsageMatch match = db.findNubUsage(unknown.name, unknown.rank, null, false);
+        if (match.isMatch()) {
+          LOG.info("Using default parent {} for source {} ", unknown, source.key);
+          parents.setDefaultParent(match.usage);
+        }
+      } catch (HomonymException e) {
+        LOG.warn("Source {} configured with default parent {} which is a homonym", source.key, unknown);
+      }
+    }
+  }
+
   private void addDataset(NubSource source) throws Exception {
     LOG.info("Adding {}th source {} {}. Allow suprageneric homonyms={}", datasetCounter++, source.key, source.name, source.supragenericHomonymSource);
     currSrc = source;
     priorities.put(source.key, ++maxPriority);
+    setUnknownNubParent(source);
     // clear dataset wide caches
     parents.clear();
     basionymRels.clear();
@@ -1062,7 +1073,10 @@ public class NubBuilder implements Runnable {
 
       } else {
         if (IGNORABLE_ORIGINS.contains(origin)) {
-          // do not update or change usages with implicit names or excluded homonyms
+          // do not update or change usages with implicit names or excluded homonyms - unless the existing one is also an implicit name!
+          if (origin == Origin.IMPLICIT_NAME && match.usage.origin == Origin.IMPLICIT_NAME) {
+            updateNub(match.usage, u, origin, parent);
+          }
           return match.usage;
         }
 

@@ -1,0 +1,14 @@
+0			UNRANKED	ACCEPTED		Biota	
+1	0		KINGDOM	ACCEPTED		Bacteria	
+2	0		KINGDOM	ACCEPTED		Animalia	
+3	0		KINGDOM	ACCEPTED		Plantae	
+
+11	2		FAMILY	ACCEPTED		Hernariidae	
+12	3		FAMILY	ACCEPTED		Asteraceae	
+13	3		FAMILY	ACCEPTED		Fabaceae	
+
+110	13		SPECIES	ACCEPTED		Vicia faba	
+111	13		SPECIES	ACCEPTED		Astragalus angustifolius	
+112	12		SPECIES	ACCEPTED		Vicia vulgaris	
+113			SPECIES	ACCEPTED		Astragalus tocinea	
+114			SPECIES	ACCEPTED		Astra malaga	

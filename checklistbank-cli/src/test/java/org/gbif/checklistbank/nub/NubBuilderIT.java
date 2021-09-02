@@ -2028,6 +2028,25 @@ public class NubBuilderIT {
     assertTree("173.txt");
   }
 
+
+  @Test
+  public void defaultParents() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 174);
+    src.setSourceRank(174, Rank.PHYLUM);
+    src.setDefaultParent(174,  Rank.KINGDOM, "Fungi");
+    build(src);
+    assertTree("174.txt");
+  }
+
+  @Test
+  public void defaultParents2() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 174);
+    src.setSourceRank(174, Rank.PHYLUM);
+    src.setDefaultParent(174,  Rank.KINGDOM, "Plantae");
+    build(src);
+    assertTree("174b.txt");
+  }
+
   /**
    * For profiling memory usage of nub builds
    */

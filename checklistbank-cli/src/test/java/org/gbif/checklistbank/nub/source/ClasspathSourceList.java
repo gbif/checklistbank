@@ -75,6 +75,12 @@ public class ClasspathSourceList extends NubSourceList {
     }
   }
 
+  public void setDefaultParent(int sourceId, Rank rank, String name) {
+    if (sourceById.containsKey(sourceId)) {
+      sourceById.get(sourceId).defaultParent = new RankedName(name, rank);
+    }
+  }
+
   public void setSourceIgnoreSynonyms(int sourceId, boolean ignoreSynonyms) {
     if (sourceById.containsKey(sourceId)) {
       sourceById.get(sourceId).ignoreSynonyms = ignoreSynonyms;

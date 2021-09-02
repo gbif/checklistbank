@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.nub;
 
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.vocabulary.Kingdom;
-import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
@@ -20,18 +20,22 @@ public class ParentStack {
   private NubUsage currParent;
   private Kingdom currKingdom;
   private Integer doubtfulKey = null;
-  private final NubUsage unknownKingdom;
+  private NubUsage defaultParent;
 
-  public ParentStack(NubUsage unknownKingdom) {
-    this.unknownKingdom = unknownKingdom;
-    currKingdom = Kingdom.INCERTAE_SEDIS;
+  public ParentStack(NubUsage defaultParent) {
+    setDefaultParent(defaultParent);
+  }
+
+  void setDefaultParent(NubUsage defaultParent) {
+    this.defaultParent = defaultParent;
+    currKingdom = Preconditions.checkNotNull(defaultParent.kingdom, "default parent needs to have a kingdom");
   }
 
   /**
    * Returns the current lowest nub parent node. If no parent was set the unknown kingdom is returned, never null.
    */
   public NubUsage nubParent() {
-    return currParent == null ? unknownKingdom : currParent;
+    return currParent == null ? defaultParent : currParent;
   }
 
   /**
@@ -140,7 +144,7 @@ public class ParentStack {
     nubMap.clear();
     parents.clear();
     currParent = null;
-    currKingdom = Kingdom.INCERTAE_SEDIS;
+    currKingdom = defaultParent.kingdom;
     doubtfulKey = null;
   }
 }

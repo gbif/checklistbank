@@ -59,6 +59,11 @@ public class NubSourceConfig {
     public boolean OTU = false;
 
     /**
+     * Name to use as the parent for all incertae sedis names when they snap to the backbone.
+     */
+    public RankedName defaultParent;
+
+    /**
      * Custom mapping of name types to be applied to this source only.
      * Allows to correct badly detected informal etc names.
      */

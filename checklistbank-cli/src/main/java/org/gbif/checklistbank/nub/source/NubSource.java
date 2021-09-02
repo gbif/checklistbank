@@ -8,9 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.iterable.CloseableIterator;
@@ -23,10 +21,11 @@ import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
 import org.gbif.checklistbank.nub.NubBuilder;
+import org.gbif.checklistbank.nub.ParentStack;
+import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.common.parsers.utils.NameParserUtils;
-import org.gbif.api.vocabulary.NameType;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -75,6 +74,7 @@ public abstract class NubSource implements AutoCloseable {
   public boolean supragenericHomonymSource = false;
   public boolean includeOTUs = false;
   boolean ignoreSynonyms = false;
+  public RankedName defaultParent;
   Map<NameType, NameType> nameTypeMapping;
   private UsageDao dao;
   private final boolean useTmpDao;
@@ -124,6 +124,14 @@ public abstract class NubSource implements AutoCloseable {
       LOG.info("Loaded nub source with {} usages from {} {} into neo4j in {}ms. {} unparsable, skipping {}", writer.getCounter(), key, name, watch.elapsed(TimeUnit.MILLISECONDS), writer.getUnparsable(), writer.getSkipped());
     }
 
+  }
+
+  public RankedName getDefaultParent() {
+    return defaultParent;
+  }
+
+  public void setDefaultParent(Rank rank, String canonicalName) {
+    this.defaultParent = new RankedName(canonicalName, rank);
   }
 
   public void setParser(NameParser parser) {
