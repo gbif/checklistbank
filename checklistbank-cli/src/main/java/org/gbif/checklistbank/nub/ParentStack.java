@@ -144,7 +144,7 @@ public class ParentStack {
     nubMap.clear();
     parents.clear();
     currParent = null;
-    currKingdom = defaultParent.kingdom;
     doubtfulKey = null;
+    currKingdom = defaultParent.kingdom;
   }
 }

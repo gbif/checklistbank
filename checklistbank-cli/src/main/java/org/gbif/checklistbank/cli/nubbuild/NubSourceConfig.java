@@ -59,9 +59,10 @@ public class NubSourceConfig {
     public boolean OTU = false;
 
     /**
+     * The taxonomic scope of the source dataset.
      * Name to use as the parent for all incertae sedis names when they snap to the backbone.
      */
-    public RankedName defaultParent;
+    public RankedName scope;
 
     /**
      * Custom mapping of name types to be applied to this source only.

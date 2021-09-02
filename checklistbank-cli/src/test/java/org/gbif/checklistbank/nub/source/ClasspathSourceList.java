@@ -8,7 +8,6 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +76,7 @@ public class ClasspathSourceList extends NubSourceList {
 
   public void setDefaultParent(int sourceId, Rank rank, String name) {
     if (sourceById.containsKey(sourceId)) {
-      sourceById.get(sourceId).defaultParent = new RankedName(name, rank);
+      sourceById.get(sourceId).scope = new RankedName(name, rank);
     }
   }
 

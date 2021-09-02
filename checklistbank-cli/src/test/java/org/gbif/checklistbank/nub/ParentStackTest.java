@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.nub;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
@@ -12,16 +13,18 @@ public class ParentStackTest {
 
   @Test
   public void testStack() throws Exception {
-    ParentStack parents = new ParentStack(null);
+    NubUsage king = new NubUsage();
+    king.kingdom = Kingdom.ANIMALIA;
+    ParentStack parents = new ParentStack(king);
 
     assertEquals(0, parents.size());
-    assertNull(parents.nubParent());
+    assertNotNull(parents.nubParent());
 
     parents.add(src(1, null));
     parents.add(src(2, 1));
     NubUsage nub = nub("nub#3");
     parents.put(nub);
-    assertNull(parents.nubParent());
+    assertNotNull(parents.nubParent());
 
     assertFalse(parents.isDoubtful());
     parents.markSubtreeAsDoubtful(); // doubtful key=2
@@ -35,7 +38,7 @@ public class ParentStackTest {
     parents.add(src(4, 1)); // this removes all but the first key
     assertEquals(2, parents.size());
     assertFalse(parents.isDoubtful());
-    assertNull(parents.nubParent());
+    assertNotNull(parents.nubParent());
   }
 
   private SrcUsage src(int key, Integer parentKey) {

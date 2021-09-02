@@ -874,7 +874,7 @@ public class NubBuilder implements Runnable {
 
   private void setUnknownNubParent(NubSource source) {
     parents.setDefaultParent(unknownKingdom); // default
-    RankedName unknown = source.getDefaultParent();
+    RankedName unknown = source.getScope();
     if (unknown != null) {
       try (Transaction tx = db.beginTx()) {
         NubUsageMatch match = db.findNubUsage(unknown.name, unknown.rank, null, false);

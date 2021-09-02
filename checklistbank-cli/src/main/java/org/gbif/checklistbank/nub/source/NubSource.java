@@ -21,8 +21,6 @@ import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
 import org.gbif.checklistbank.nub.NubBuilder;
-import org.gbif.checklistbank.nub.ParentStack;
-import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.common.parsers.utils.NameParserUtils;
@@ -74,7 +72,7 @@ public abstract class NubSource implements AutoCloseable {
   public boolean supragenericHomonymSource = false;
   public boolean includeOTUs = false;
   boolean ignoreSynonyms = false;
-  public RankedName defaultParent;
+  public RankedName scope;
   Map<NameType, NameType> nameTypeMapping;
   private UsageDao dao;
   private final boolean useTmpDao;
@@ -126,12 +124,8 @@ public abstract class NubSource implements AutoCloseable {
 
   }
 
-  public RankedName getDefaultParent() {
-    return defaultParent;
-  }
-
-  public void setDefaultParent(Rank rank, String canonicalName) {
-    this.defaultParent = new RankedName(canonicalName, rank);
+  public RankedName getScope() {
+    return scope;
   }
 
   public void setParser(NameParser parser) {
