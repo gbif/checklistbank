@@ -727,10 +727,10 @@ public class NubMatchingServiceImplIT {
   public void subgenusJacea() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
-
-    NameUsageMatch m = assertMatch("Centaurea subg. Jacea", cl, 3127469, new IntRange(94, 99));
-    assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
-    assertEquals("Centaurea" , m.getCanonicalName());
+    // THIS SETS the genus too
+    NameUsageMatch m = assertMatch("Centaurea subg. Jacea", cl, 3148240, new IntRange(94, 99));
+    assertEquals(NameUsageMatch.MatchType.EXACT , m.getMatchType());
+    assertEquals("Jacea" , m.getCanonicalName());
   }
 
 }

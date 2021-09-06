@@ -208,6 +208,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       queryNameType = pn.getType();
       interpretGenus(pn, classification.getGenus());
       scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
+      // parsed genus provided for a name lower than genus?
+      if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfrageneric() ) {
+        classification.setGenus(pn.getGenusOrAbove());
+      }
       // used parsed rank if not given explicitly
       if (rank == null) {
         rank = pn.getRank();
@@ -711,6 +715,9 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     rate += htComp.compareHigherRank(Rank.CLASS, query, reference, 15, -10, 0);
     rate += htComp.compareHigherRank(Rank.ORDER, query, reference, 15, -10, 0);
     rate += htComp.compareHigherRank(Rank.FAMILY, query, reference, 25, -15, 0);
+    // we compare the genus only for minimal adjustments as it is part of the binomen usually
+    // it helps to disambiguate in some cases though
+    rate += htComp.compareHigherRank(Rank.GENUS, query, reference, 2, 1, 0);
 
     return minMax(-60, 50, rate);
   }
