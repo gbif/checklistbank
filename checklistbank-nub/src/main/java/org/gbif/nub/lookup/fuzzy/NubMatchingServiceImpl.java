@@ -255,10 +255,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
 
 
     // try to MATCH TO HIGHER RANKS if we can
-    // include species or genus only matches ?
+    // include species or genus only matches from parsed name?
     NameUsageMatch match;
     if (pn != null && pn.getGenusOrAbove() != null) {
-      if (pn.getSpecificEpithet() != null || (rank != null && rank.isSpeciesOrBelow())) {
+      if (pn.getSpecificEpithet() != null || (rank != null && rank.isInfrageneric())) {
         if (pn.getInfraSpecificEpithet() != null || (rank != null && rank.isInfraspecific())) {
           // try with species
           String species = pn.canonicalSpeciesName();

@@ -720,5 +720,17 @@ public class NubMatchingServiceImplIT {
     assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/192
+   */
+  @Test
+  public void subgenusJacea() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Plantae");
+
+    NameUsageMatch m = assertMatch("Centaurea subg. Jacea", cl, 3127469, new IntRange(94, 99));
+    assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
+    assertEquals("Centaurea" , m.getCanonicalName());
+  }
 
 }
