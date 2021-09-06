@@ -336,6 +336,17 @@ public class NubBuilderIT {
     assertTree("99.txt");
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/180
+   */
+  @Test
+  public void testPreferAcceptedQualifiedNameMulitpleSources() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 175, 99);
+    build(src);
+
+    assertTree("99 175.txt");
+  }
+
   @Test
   public void testNamesWithSubgenus() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 100);

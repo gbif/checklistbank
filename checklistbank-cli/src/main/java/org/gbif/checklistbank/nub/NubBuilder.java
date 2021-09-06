@@ -19,6 +19,7 @@ import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
+import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
@@ -53,6 +54,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -1066,8 +1068,10 @@ public class NubBuilder implements Runnable {
         NubUsage doubtful = match.doubtfulUsage;
         // persistent new nub usage if there wasnt any yet
         match = createNubUsage(u, origin, parent);
-        // check if we had a doubtful or implicit & accepted name match
-        if (doubtful != null && u.status == TaxonomicStatus.ACCEPTED) {
+        // if we had a doubtful/implicit genus/species usage from the same source & accepted name matched to a concrete kingdom
+        // prefer the newly created genus or species
+        if (doubtful != null && fromCurrentSource(doubtful) && (doubtful.rank == Rank.GENUS || doubtful.rank == Rank.SPECIES) &&
+            u.status == TaxonomicStatus.ACCEPTED && match.usage.kingdom != Kingdom.INCERTAE_SEDIS) {
           db.transferChildren(match.usage, doubtful);
         }
 
