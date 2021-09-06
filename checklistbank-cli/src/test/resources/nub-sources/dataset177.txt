@@ -1,0 +1,16 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		PHYLUM	ACCEPTED		Arthropoda	
+3	2		SUBCLASS	ACCEPTED		Arachnida	
+4	3		SUPERORDER	ACCEPTED		Acariformes	
+5	4		ORDER	ACCEPTED		Sarcoptiformes	
+6	3		ORDER	ACCEPTED		Araneae	
+7	3		ORDER	ACCEPTED		Opiliones Sundevall, 1833	
+8	3		ORDER	ACCEPTED		Scorpiones	
+10	6		FAMILY	ACCEPTED		Araneidae	
+11	6		FAMILY	ACCEPTED		Archaeidae	
+20	7		SUBORDER	ACCEPTED		Eupnoi	
+21	7		FAMILY	ACCEPTED		Archaeometidae Petrunkevitch, 1949	
+22	20		SUPERFAMILY	ACCEPTED		Caddoidea Banks, 1893	
+23	22		FAMILY	ACCEPTED		Caddidae Banks, 1893	
+100	10		GENUS	ACCEPTED		Araneus	
+ 

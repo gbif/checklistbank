@@ -2051,11 +2051,24 @@ public class NubBuilderIT {
 
   @Test
   public void defaultParents2() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 174);
-    src.setSourceRank(174, Rank.PHYLUM);
-    src.setDefaultParent(174,  Rank.KINGDOM, "Plantae");
+  }
+
+
+  /**
+   * Snap subclass to class if matching
+   * https://github.com/gbif/portal-feedback/issues/3579
+   *
+   * 176=Patch
+   * 177=COL
+   * 178=other
+   **/
+  @Test
+  public void testArachnidaSubclass() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 176, 177, 178);
+    src.setSourceRank(176, Rank.PHYLUM);
+    src.setSourceRank(177, Rank.PHYLUM);
     build(src);
-    assertTree("174b.txt");
+    assertTree("176 177 178.txt");
   }
 
   /**

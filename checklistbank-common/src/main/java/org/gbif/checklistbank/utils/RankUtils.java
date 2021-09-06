@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -27,6 +29,21 @@ public class RankUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Ignore super- or sub- prefixes of a rank and returns the main Linnean rank if it can be found, the rank as was given otherwise.
+   */
+  public static Rank linneanBaseRank(Rank rank) {
+    if (rank != null) {
+      String name = rank.name();
+      Pattern PREFIX = Pattern.compile("^(?:super|sub|infra)(.+)$", Pattern.CASE_INSENSITIVE);
+      Matcher m = PREFIX.matcher(name);
+      if (m.find()) {
+        return Rank.valueOf(m.group(1).toUpperCase());
+      }
+    }
+    return rank;
   }
 
   /**

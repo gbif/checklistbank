@@ -18,6 +18,7 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.NameFormatter;
+import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.checklistbank.utils.SymmetricIdentityMatrix;
 import org.gbif.common.parsers.KingdomParser;
@@ -33,6 +34,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import static org.gbif.checklistbank.utils.RankUtils.linneanBaseRank;
 
 /**
  * Wrapper around the dao that etends the dao with nub build specific common operations.
@@ -260,7 +263,18 @@ public class NubDb {
     LOG.debug("No unique higher homomym match found for {}. Pick first", match);
     return match;
   }
-  
+
+  private static boolean contains(Collection<NubUsage> usages, Rank rank) {
+    if (rank != null) {
+      for (NubUsage u : usages) {
+        if (u.rank == rank) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   /**
    * Tries to find an already existing nub usage for the given source usage.
    *
@@ -274,11 +288,15 @@ public class NubDb {
     final String name = dao.canonicalOrScientificName(pn);
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
-      if (rank == rn.rank) {
+      if (linneanBaseRank(rank) == linneanBaseRank(rn.rank)) {
         checked.add(rn);
       }
     }
-  
+    // wipe out bad ranks if we have multiple matches
+    if (checked.size() > 1 && rank != null && contains(checked, rank)) {
+      checked.removeIf(u -> u.rank != rank);
+    }
+
     if (rank.isSuprageneric() && checked.size() == 1) {
       // no homonyms above genus level unless given in configured homonym sources (e.g. backbone patch, col)
       // snap to that single higher taxon right away!
