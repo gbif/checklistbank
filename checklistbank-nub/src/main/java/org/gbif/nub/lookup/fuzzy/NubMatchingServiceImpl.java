@@ -209,7 +209,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       interpretGenus(pn, classification.getGenus());
       scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
       // parsed genus provided for a name lower than genus?
-      if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfrageneric() ) {
+      if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfragenericStrictly() ) {
         classification.setGenus(pn.getGenusOrAbove());
       }
       // used parsed rank if not given explicitly

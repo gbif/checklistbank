@@ -279,7 +279,7 @@ public class NubMatchingServiceImplIT {
 
     // Amphibia is a homonym genus, but also and most prominently a class!
     cl = new NameUsageMatch();
-    // non existing "species" name. Amphibia could either be the genus or the class, who knows...
+    // non existing "species" name. Amphibia could either be the genus or the class. As we
     assertNoMatch("Amphibia eyecount", cl);
 
     // first try a match against the algae genus
@@ -585,7 +585,7 @@ public class NubMatchingServiceImplIT {
   public void testFeedback1379() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setFamily("Helicidae");
-    assertMatch("iberus gualterianus", cl, 4564258, new IntRange(90, 99));
+    assertMatch("iberus gualterianus", cl, 4564258, new IntRange(95, 100));
   }
 
 
