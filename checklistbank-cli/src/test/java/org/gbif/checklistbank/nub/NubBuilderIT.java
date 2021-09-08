@@ -2072,6 +2072,36 @@ public class NubBuilderIT {
   }
 
   /**
+   * COL contains via Systema Dipterorum "duplicate" names that differ only by having the subgenus cited.
+   * Make sure these are recognized as a single name in the nub.
+   *
+   * 179=COL
+   */
+  @Test
+  public void subgenusDupe() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 179);
+    src.setSourceRank(179, Rank.PHYLUM);
+    build(src);
+    assertTree("179.txt");
+  }
+
+  /**
+   * COL sometimes contains weird or wrong classifications.
+   * This test makes sure we can override these manually in the patch files.
+   *
+   * 180=patch
+   * 181=COL
+   */
+  @Test
+  public void modifyGenusClassification() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 180, 181);
+    src.setSourceRank(180, Rank.PHYLUM);
+    src.setSourceRank(181, Rank.PHYLUM);
+    build(src);
+    assertTree("180 181.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test

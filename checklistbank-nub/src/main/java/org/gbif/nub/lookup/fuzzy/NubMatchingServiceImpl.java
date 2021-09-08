@@ -244,7 +244,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     // https://github.com/gbif/portal-feedback/issues/2930
     if (match1.getMatchType() == NameUsageMatch.MatchType.FUZZY &&
         match1.getRank() != null && match1.getRank().isSpeciesOrBelow() &&
-        pn != null && !Objects.equals(pn.getGenusOrAbove(), match1.getGenus()) &&
+        pn != null && !match1.getCanonicalName().startsWith(pn.getGenusOrAbove()+" ") &&
         nextAboveGenusDiffers(classification, match1)
     ) {
       NameUsageMatch genusMatch = match(pn.getType(), null, pn.getGenusOrAbove(), Rank.GENUS, classification, MatchingMode.HIGHER, verbose);

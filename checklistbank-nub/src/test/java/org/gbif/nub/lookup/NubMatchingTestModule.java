@@ -82,7 +82,7 @@ public class NubMatchingTestModule extends PrivateModule {
     mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     int id = 1;
-    while (id < 275) {
+    while (id < 280) {
       String file = "index/nub" + id + ".json";
       InputStream json = isu.classpathStream(file);
       if (json != null) {

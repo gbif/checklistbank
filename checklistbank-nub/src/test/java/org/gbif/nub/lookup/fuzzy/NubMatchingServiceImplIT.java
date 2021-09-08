@@ -728,9 +728,28 @@ public class NubMatchingServiceImplIT {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom("Plantae");
     // THIS SETS the genus too
-    NameUsageMatch m = assertMatch("Centaurea subg. Jacea", cl, 3148240, new IntRange(94, 99));
-    assertEquals(NameUsageMatch.MatchType.EXACT , m.getMatchType());
+    NameUsageMatch m = assertMatch("Centaurea subg. Jacea", cl, 3148240, NameUsageMatch.MatchType.EXACT);
     assertEquals("Jacea" , m.getCanonicalName());
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/196
+   */
+  @Test
+  public void mycenaFllavoalba() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Fungi");
+    cl.setPhylum("Basidiomycota");
+    cl.setClazz("Agaricomycetes");
+    cl.setOrder("Agaricales");
+    cl.setFamily("Mycenaceae");
+    cl.setGenus("Mycena");
+    cl.setSpecies("flavoalba");
+
+    NameUsageMatch m = assertMatch("Mycena flavoalba (Fr.) Quel.", cl, 4911770, NameUsageMatch.MatchType.EXACT);
+    assertEquals("Mycena flavoalba" , m.getCanonicalName());
+
+    m = assertMatch("Mycena flavoalba (Fr.) Quél.", cl, 4911770, NameUsageMatch.MatchType.EXACT);
   }
 
 }

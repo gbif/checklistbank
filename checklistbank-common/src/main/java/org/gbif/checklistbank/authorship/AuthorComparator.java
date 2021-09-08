@@ -178,6 +178,9 @@ public class AuthorComparator {
     if (StringUtils.isBlank(x)) {
       return null;
     }
+    // fold to ascii
+    x = org.gbif.utils.text.StringUtils.foldToAscii(x);
+
     // remove in publications
     x = IN.matcher(x).replaceFirst("");
 
@@ -193,11 +196,8 @@ public class AuthorComparator {
     // normalize and
     x = AND.matcher(x).replaceAll(", ");
 
-    // remove ex authors
+    // remove transliterations of öüä to oua followed by e
     x = TRANSLITERATIONS.matcher(x).replaceAll("$1");
-
-    // fold to ascii
-    x = org.gbif.utils.text.StringUtils.foldToAscii(x);
 
     // replace all punctuation but commas
     x = PUNCTUATION.matcher(x).replaceAll(" ");

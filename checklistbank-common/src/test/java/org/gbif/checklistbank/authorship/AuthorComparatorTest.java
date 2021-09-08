@@ -21,6 +21,8 @@ public class AuthorComparatorTest {
     assertNull(comp.normalize("."));
     assertNull(comp.normalize(" (-) "));
 
+    assertEquals("quel", comp.normalize("Quél."));
+
     assertEquals("doring", comp.normalize("Döring"));
     assertEquals("desireno", comp.normalize("Désírèñø"));
     assertEquals("p m e l de la chapelle", comp.normalize("p m é l de la chapelle"));
