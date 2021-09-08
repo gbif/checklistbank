@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Insecta	
+3	2		FAMILY	ACCEPTED		Lauxaniidae	
+4	3		GENUS	ACCEPTED		Culex	
+5	6		SPECIES	SYNONYM		Culex tarsalis Coquillett, 1896	
+6	4		SPECIES	ACCEPTED		Culex (Culex) tarsalis Coquillett, 1896	

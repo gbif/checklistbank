@@ -1,0 +1,16 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2	1		CLASS	ACCEPTED		Insecta	
+3	2		ORDER	ACCEPTED		Diptera	
+4	3		FAMILY	ACCEPTED		Lauxaniidae	
+5	4		GENUS	ACCEPTED		Trigonometopus	
+6	5		SUBGENUS	ACCEPTED		Culex	
+
+14	3		FAMILY	ACCEPTED		Culicidae	
+15	14		SUBFAMILY	ACCEPTED		Culicinae	
+16	15		TRIBE	ACCEPTED		Culicini	
+17	16		GENUS	ACCEPTED		Culex	
+16	5		SUBGENUS	ACCEPTED		Culex	
+
+
+10	4		SPECIES	ACCEPTED		Culex (Culex) tarsalis Coquillett, 1896	
+11	10		SPECIES	SYNONYM		Culex tarsalis Coquillett, 1896	
