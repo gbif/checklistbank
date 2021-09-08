@@ -2086,22 +2086,6 @@ public class NubBuilderIT {
   }
 
   /**
-   * COL sometimes contains weird or wrong classifications.
-   * This test makes sure we can override these manually in the patch files.
-   *
-   * 180=patch
-   * 181=COL
-   */
-  @Test
-  public void modifyGenusClassification() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 180, 181);
-    src.setSourceRank(180, Rank.PHYLUM);
-    src.setSourceRank(181, Rank.PHYLUM);
-    build(src);
-    assertTree("180 181.txt");
-  }
-
-  /**
    * For profiling memory usage of nub builds
    */
   @Test
