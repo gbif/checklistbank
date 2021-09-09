@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  *
  */
 public class RankUtils {
+  private static final Pattern PREFIX = Pattern.compile("^(SUPER|SUB(?:TER)?|INFRA|GIGA|MAGN|GRAND|MIR|NAN|HYPO|MIN|PARV|MEGA|EPI)");
   private static List<Rank> LINNEAN_RANKS_REVERSE = Lists.reverse(Rank.LINNEAN_RANKS);
 
   public static Rank nextLowerLinneanRank(Rank rank) {
@@ -36,11 +37,24 @@ public class RankUtils {
    */
   public static Rank linneanBaseRank(Rank rank) {
     if (rank != null) {
-      String name = rank.name();
-      Pattern PREFIX = Pattern.compile("^(?:super|sub|infra)(.+)$", Pattern.CASE_INSENSITIVE);
-      Matcher m = PREFIX.matcher(name);
-      if (m.find()) {
-        return Rank.valueOf(m.group(1).toUpperCase());
+      switch (rank) {
+        case INFRAGENERIC_NAME:
+          return Rank.GENUS;
+        case SPECIES_AGGREGATE:
+          return Rank.SPECIES;
+        case INFRASPECIFIC_NAME:
+        case SUBSPECIES:
+        case INFRASUBSPECIFIC_NAME:
+        case VARIETY:
+        case FORM:
+        case SUBFORM:
+          return Rank.INFRASPECIFIC_NAME;
+        default:
+          String name = rank.name();
+          Matcher m = PREFIX.matcher(name);
+          if (m.find()) {
+            return Rank.valueOf(m.replaceFirst("").toUpperCase());
+          }
       }
     }
     return rank;

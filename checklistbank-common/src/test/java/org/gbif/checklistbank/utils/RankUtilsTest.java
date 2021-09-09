@@ -5,8 +5,20 @@ import org.gbif.api.vocabulary.Rank;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class RankUtilsTest {
+
+  @Test
+  public void linneanBaseRank() throws Exception {
+    for (Rank r : Rank.values()) {
+      assertNotNull(RankUtils.linneanBaseRank(r));
+    }
+    assertEquals(Rank.ORDER, RankUtils.linneanBaseRank(Rank.MAGNORDER));
+    assertEquals(Rank.FAMILY, RankUtils.linneanBaseRank(Rank.SUPERFAMILY));
+    assertEquals(Rank.FAMILY, RankUtils.linneanBaseRank(Rank.SUBFAMILY));
+    assertEquals(Rank.GENUS, RankUtils.linneanBaseRank(Rank.SUBGENUS));
+  }
 
   @Test
   public void testNextLowerLinneanRank() throws Exception {

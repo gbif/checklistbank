@@ -35,8 +35,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.gbif.checklistbank.utils.RankUtils.linneanBaseRank;
-
 /**
  * Wrapper around the dao that etends the dao with nub build specific common operations.
  */
@@ -288,7 +286,7 @@ public class NubDb {
     final String name = dao.canonicalOrScientificName(pn);
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
-      if (linneanBaseRank(rank) == linneanBaseRank(rn.rank)) {
+      if (rank == null || RankUtils.linneanBaseRank(rank) == RankUtils.linneanBaseRank(rn.rank)) {
         checked.add(rn);
       }
     }
