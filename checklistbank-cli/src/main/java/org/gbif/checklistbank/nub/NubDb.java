@@ -286,7 +286,8 @@ public class NubDb {
     final String name = dao.canonicalOrScientificName(pn);
     for (Node n : Iterators.loop(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.CANONICAL_NAME, name))) {
       NubUsage rn = dao.readNub(n);
-      if (rank == null || RankUtils.linneanBaseRank(rank) == RankUtils.linneanBaseRank(rn.rank)) {
+      // snap to
+      if (rank == null || rank == rn.rank || rank.isSuprageneric() && RankUtils.linneanBaseRank(rank) == RankUtils.linneanBaseRank(rn.rank)) {
         checked.add(rn);
       }
     }
