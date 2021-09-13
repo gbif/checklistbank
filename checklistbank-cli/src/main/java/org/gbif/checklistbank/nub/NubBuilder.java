@@ -929,11 +929,11 @@ public class NubBuilder implements Runnable {
 
               NubUsage parent = parents.nubParent();
               // replace accepted taxa with doubtful ones for all nomenclators and for synonym parents
+              // and allow to manually configure a doubtful status
               // http://dev.gbif.org/issues/browse/POR-2780
-              if (TaxonomicStatus.ACCEPTED == u.status && (currSrc.nomenclator || parent.status.isSynonym())) {
+              if (TaxonomicStatus.ACCEPTED == u.status && (cfg.isDoubtful(u.scientificName) || currSrc.nomenclator || parent.status.isSynonym())) {
                 u.status = TaxonomicStatus.DOUBTFUL;
               }
-
               if (parent.status.isSynonym()) {
                 // use accepted instead
                 parent = db.parent(parent);

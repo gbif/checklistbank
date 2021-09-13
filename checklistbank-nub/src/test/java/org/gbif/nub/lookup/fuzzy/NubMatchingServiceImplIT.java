@@ -752,7 +752,6 @@ public class NubMatchingServiceImplIT {
     m = assertMatch("Mycena flavoalba (Fr.) Quél.", cl, 4911770, NameUsageMatch.MatchType.EXACT);
   }
 
-
   /**
    * https://github.com/gbif/checklistbank/issues/200
    */
