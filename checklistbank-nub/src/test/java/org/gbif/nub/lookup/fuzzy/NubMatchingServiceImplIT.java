@@ -752,4 +752,16 @@ public class NubMatchingServiceImplIT {
     m = assertMatch("Mycena flavoalba (Fr.) Quél.", cl, 4911770, NameUsageMatch.MatchType.EXACT);
   }
 
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/200
+   */
+  @Test
+  public void merganser() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+
+    NameUsageMatch m = assertMatch("Mergus merganser Linnaeus, 1758", cl, 2498370, NameUsageMatch.MatchType.EXACT);
+    assertEquals("Mergus merganser" , m.getCanonicalName());
+  }
+
 }
