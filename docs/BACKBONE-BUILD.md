@@ -1,28 +1,33 @@
 # Rebuild Backbone & Deploy it to Production
 
 ## Build new backbone on backbonebuild-vh
+We use `backbonebuild-vh` with its local postgres database to build a new backbone and also run the matching and species API from there so we don't need to copy the database around to a different environment. The configs for `backbonebuild-vh` are located in the `nub` environment cli folder.
+
+### Copy ChecklistBank database from prod
+Stop CLB CLIs on prod, dump the prod database and recreate it under the name `clb` on `backbonebuild-vh`.
+All the following work is done as crap user on `backbonebuild-vh`, mostly in the bin directory:
 
 ### Build Neo4J backbone
- - Configure NUB builder to use prod DB & registry services for reading source data https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-nub.yaml
+ - Review configs at https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/
  - Run Neo4J NUB build via `./clb-buildnub.sh`
+ - `./start-clb-importer.sh` to automatically insert the neo4j nub into postgres once the build is done
+ - `./start-clb-analysis.sh` 
+ - `./stop-clb.sh` once completed
+ - archive nub.log
 
-### Import into Postgres
- - If this is an RC backbone build, stop production CLB CLIs.
- - Copy the production database to backbonebuild-vh (temporary VM with plenty of fast storage and RAM)
- - Dump prod CLB DB and import into PostgreSQL on backbonebuild-vh as DB clb
- - Configure CLB importer to use this DB https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-importer.yaml
- - `./start-clb-importer.sh`
- - Issue message to import Neo4J backbone into postgres: `./clb-admin.sh IMPORT --nub`
- - Once imported, dump backbonebuild-vh clb DB and copy to pg1.gbif-uat.org uat_checklistbank
- - `./stop-clb.sh`
-
-(TODO: Reinterpreting the IUCN checklist.)
-
-### Rebuild NUB lookup index on ws.gbif-uat.org
- - `systemctl stop checklistbank-nub-ws`
- - `rm -Rf /usr/local/gbif/services/checklistbank-nub-ws/nub_idx`
- - `systemctl start checklistbank-nub-ws`
+### Rebuild NUB lookup index
+ - `stop-nub-ws.sh`
+ - `rm -Rf ~/nub_idx`
+ - `start-nub-ws.sh`
  - wait until the logs indicate the index build was finished (~1h).
+
+### Rematch IUCN
+The IUCN checklist is queried to assign a redlist status to occurrences.
+It needs to be matched to the latest backbone before the occurrence processing can run.
+ - `./start-clb-matcher.sh`
+ - `./start-clb-analysis.sh` 
+ - `./clb-admin MATCH --iucn` 
+
 
 ## Reprocess occurrences on UAT
 Processing uses checklistbank-nub-ws, via the KVS cache.
@@ -42,9 +47,8 @@ Processing uses checklistbank-nub-ws, via the KVS cache.
    (this doesn't reuses the existing ES index, see the pipelines documentation for alternatives).
 
 ## Rematch checklists
- - Change CLB matcher & analysis configs to use backbonebuild-vh's clb DB:
-   - https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-matcher.yaml
-   - https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/clb-analysis.yaml
+Also do this on `backbonebuild-vh` as crap user.
+If not already running start the matcher cli:
  - `start-clb-matcher.sh`
  - `start-clb-analysis.sh`
  - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right CoL percentage coverage
