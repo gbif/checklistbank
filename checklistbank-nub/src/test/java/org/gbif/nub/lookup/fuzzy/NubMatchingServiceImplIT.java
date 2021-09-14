@@ -2,10 +2,14 @@ package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.IntRange;
+import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
+import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.nameparser.api.NameParser;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -21,10 +25,11 @@ public class NubMatchingServiceImplIT {
 
   private static NubMatchingServiceImpl matcher;
   private static final Joiner CLASS_JOINER = Joiner.on("; ").useForNull("???");
+  private static final NameParserGbifV1 parser = new NameParserGbifV1();
 
   @BeforeClass
   public static void buildMatcher() throws IOException {
-    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new NameParserGbifV1());
+    matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), parser);
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey) {
@@ -109,7 +114,7 @@ public class NubMatchingServiceImplIT {
       assertNotNull(match.getUsageKey());
       assertNotNull(match.getScientificName());
 
-      if (match.getRank() != null) {
+      if (match.getRank() != null && isParsed(match)) {
         Rank rank = match.getRank();
         if (rank.isSuprageneric()) {
           assertNull(match.getSpecies());
@@ -145,6 +150,17 @@ public class NubMatchingServiceImplIT {
     }
   }
 
+  private static boolean isParsed(NameUsageMatch x) {
+    if (x.getScientificName() != null) {
+      try {
+        ParsedName pn = parser.parse(x.getScientificName(), x.getRank());
+        return pn.isParsed();
+
+      } catch (UnparsableException e) {
+      }
+    }
+    return false;
+  }
   private void assertNubIdNotNullAndNotEqualToAnyHigherRank(NameUsageMatch x) {
     assertNotNull(x.getUsageKey());
     assertFalse(x.getUsageKey().equals(x.getKingdomKey()));
@@ -585,7 +601,8 @@ public class NubMatchingServiceImplIT {
   public void testFeedback1379() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     cl.setFamily("Helicidae");
-    assertMatch("iberus gualterianus", cl, 4564258, new IntRange(95, 100));
+    assertMatch("iberus gualtieranus", cl, 4564258, new IntRange(95, 100));
+    assertMatch("Iberus gualterianus", cl, 4564258, new IntRange(98, 100));
   }
 
 
@@ -761,6 +778,22 @@ public class NubMatchingServiceImplIT {
 
     NameUsageMatch m = assertMatch("Mergus merganser Linnaeus, 1758", cl, 2498370, NameUsageMatch.MatchType.EXACT);
     assertEquals("Mergus merganser" , m.getCanonicalName());
+
+    // All uppper case, https://github.com/gbif/checklistbank/issues/175
+    m = assertMatch("MERGUS MERGANSER", cl, 2498370, NameUsageMatch.MatchType.EXACT);
+    assertEquals("Mergus merganser" , m.getCanonicalName());
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/175
+   */
+  @Test
+  public void otuIncasitive() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+
+    assertMatch("AAA536-G10 sp003284565", cl, 10701019, NameUsageMatch.MatchType.EXACT);
+    assertMatch("aaa536-g10 sp003284565", cl, 10701019, NameUsageMatch.MatchType.EXACT);
+    assertMatch("Aaa536-g10 sp003284565", cl, 10701019, NameUsageMatch.MatchType.EXACT);
   }
 
 }

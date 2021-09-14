@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -201,41 +203,56 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     } else {
       cleanClassification(classification);
     }
-    try {
-      // use name parser to make the name a canonical one
-      // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
-      pn = parser.parse(scientificName, rank);
-      queryNameType = pn.getType();
-      interpretGenus(pn, classification.getGenus());
-      scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
-      // parsed genus provided for a name lower than genus?
-      if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfragenericStrictly() ) {
-        classification.setGenus(pn.getGenusOrAbove());
-      }
-      // used parsed rank if not given explicitly
-      if (rank == null) {
-        rank = pn.getRank();
-      }
-      // hybrid names, virus names, OTU & blacklisted ones don't provide any parsed name
-      if (mainMatchingMode != MatchingMode.STRICT && !pn.getType().isParsable()) {
-        // turn off fuzzy matching
-        mainMatchingMode = MatchingMode.STRICT;
-        LOG.debug("Unparsable {} name, turn off fuzzy matching for {}", pn.getType(), scientificName);
-      }
 
-    } catch (UnparsableException e) {
-      // hybrid names, virus names & blacklisted ones - dont provide any parsed name
-      queryNameType = e.type;
-      // we assign all OTUs unranked
-      if (NameType.OTU == e.type) {
-        rank = Rank.UNRANKED;
-      }
+    // treat names that are all upper or lower case special - they cannot be parsed properly so rather use them as they are!
+    if (scientificName.toLowerCase().equals(scientificName) || scientificName.toUpperCase().equals(scientificName)) {
+      LOG.debug("All upper or lower case name found. Don't try to parse: {}", scientificName);
+      queryNameType = null;
       if (mainMatchingMode != MatchingMode.STRICT) {
         // turn off fuzzy matching
         mainMatchingMode = MatchingMode.STRICT;
-        LOG.debug("Unparsable {} name, turn off fuzzy matching for {}", e.type, scientificName);
-      } else {
-        LOG.debug("Unparsable {} name: {}", e.type, scientificName);
+      }
+      if (rank == null) {
+        rank = Rank.UNRANKED;
+      }
+
+    } else {
+      try {
+        // use name parser to make the name a canonical one
+        // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
+        pn = parser.parse(scientificName, rank);
+        queryNameType = pn.getType();
+        interpretGenus(pn, classification.getGenus());
+        scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
+        // parsed genus provided for a name lower than genus?
+        if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfragenericStrictly() ) {
+          classification.setGenus(pn.getGenusOrAbove());
+        }
+        // used parsed rank if not given explicitly
+        if (rank == null) {
+          rank = pn.getRank();
+        }
+        // hybrid names, virus names, OTU & blacklisted ones don't provide any parsed name
+        if (mainMatchingMode != MatchingMode.STRICT && !pn.getType().isParsable()) {
+          // turn off fuzzy matching
+          mainMatchingMode = MatchingMode.STRICT;
+          LOG.debug("Unparsable {} name, turn off fuzzy matching for {}", pn.getType(), scientificName);
+        }
+
+      } catch (UnparsableException e) {
+        // hybrid names, virus names & blacklisted ones - dont provide any parsed name
+        queryNameType = e.type;
+        // we assign all OTUs unranked
+        if (NameType.OTU == e.type) {
+          rank = Rank.UNRANKED;
+        }
+        if (mainMatchingMode != MatchingMode.STRICT) {
+          // turn off fuzzy matching
+          mainMatchingMode = MatchingMode.STRICT;
+          LOG.debug("Unparsable {} name, turn off fuzzy matching for {}", e.type, scientificName);
+        } else {
+          LOG.debug("Unparsable {} name: {}", e.type, scientificName);
+        }
       }
     }
 
@@ -723,8 +740,9 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   }
 
 
+  @VisibleForTesting
   // rate ranks from -25 to +5, zero if nothing is know
-  private int rankSimilarity(Rank query, Rank ref) {
+  protected static int rankSimilarity(Rank query, Rank ref) {
     int similarity = 0;
     if (ref != null) {
       // rate ranks lower that are not represented in the canonical, e.g. cultivars
@@ -744,27 +762,33 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         if (query.equals(ref)) {
           similarity += 10;
 
-        } else if (Rank.INFRASPECIFIC_NAME == query && ref.isInfraspecific()
-            || Rank.INFRASPECIFIC_NAME == ref && query.isInfraspecific()) {
-          // unspecific infraspecific rank
+        } else if (
+            either(query, ref, r -> r == Rank.INFRASPECIFIC_NAME, Rank::isInfraspecific) ||
+            either(query, ref, r -> r == Rank.INFRASUBSPECIFIC_NAME, Rank::isInfrasubspecific) ||
+            either(query, ref, r -> r == Rank.INFRAGENERIC_NAME, Rank::isInfrageneric)
+        ) {
+          // unspecific rank matching its group
           similarity += 5;
 
-        } else if (Rank.INFRASUBSPECIFIC_NAME == query && ref.isInfraspecific() && ref != Rank.SUBSPECIES
-            || Rank.INFRASUBSPECIFIC_NAME == ref && query.isInfraspecific() && query != Rank.SUBSPECIES) {
-          // unspecific infrasubspecific rank
-          similarity += 5;
+        } else if (either(query, ref, r -> r == Rank.INFRAGENERIC_NAME, r -> r == Rank.GENUS)) {
+          similarity += 4;
 
-        } else if (query.isUncomparable()) {
-          // uncomparable query ranks
-          similarity -= 5;
+        } else if (either(query, ref, not(Rank::notOtherOrUnknown))) {
+          // unranked
+          similarity = 0;
 
-        } else if (ref == Rank.SPECIES && query.isInfraspecific() || ref.isSupraspecific() && query.isSpeciesOrBelow()
-            || query == Rank.SPECIES && ref.isInfraspecific() || query.isSupraspecific() && ref.isSpeciesOrBelow()) {
-          // not good, different number of epithets means rather unalike
+        } else if (either(query, ref, (r1, r2) -> r1 == Rank.SPECIES && r2 == Rank.SPECIES_AGGREGATE)) {
+          similarity += 2;
+
+        } else if (either(query,ref, (r1, r2) ->
+            (r1 == Rank.SPECIES || r1 == Rank.SPECIES_AGGREGATE) && r2.isInfraspecific() ||
+            r1.isSupraspecific() && r1 != Rank.SPECIES_AGGREGATE && r2.isSpeciesOrBelow()
+        )) {
+          // not good, different number of epithets means very unalike
           similarity -= 25;
 
         } else {
-          // rate lower the further away the ranks are
+          // GENERIC: rate lower the further away the ranks are
           similarity -= Math.abs(ref.ordinal() - query.ordinal());
         }
       }
@@ -774,6 +798,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       similarity -= 1;
     }
     return minMax(-25, 5, similarity);
+  }
+
+  private static Predicate<Rank> not(Predicate<Rank> predicate) {
+    return predicate.negate();
+  }
+
+  private static boolean either(Rank r1, Rank r2, Predicate<Rank> p) {
+    return p.test(r1) || p.test(r2);
+  }
+
+  private static boolean either(Rank r1, Rank r2, BiFunction<Rank, Rank, Boolean> evaluator) {
+    return evaluator.apply(r1, r2) || evaluator.apply(r2, r1);
+  }
+
+  private static boolean either(Rank r1, Rank r2, Predicate<Rank> p1, Predicate<Rank> p2) {
+    return p1.test(r1) && p2.test(r2) || p2.test(r1) && p1.test(r2);
   }
 
   // rate kingdoms from -10 to +10, zero if nothing is know

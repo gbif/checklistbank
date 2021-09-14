@@ -1,11 +1,13 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.gbif.api.vocabulary.Rank.*;
 
 public class NubMatchingServiceImplTest {
 
@@ -21,6 +23,20 @@ public class NubMatchingServiceImplTest {
     pn.setGenusOrAbove("P.");
     NubMatchingServiceImpl.interpretGenus(pn, "Felis");
     assertEquals("P. concolor", pn.canonicalName());
+  }
+
+  @Test
+  public void rankSimilarity() throws Exception {
+    assertEquals(5, NubMatchingServiceImpl.rankSimilarity(FAMILY, FAMILY));
+    assertEquals(5, NubMatchingServiceImpl.rankSimilarity(SPECIES, SPECIES));
+    assertEquals(-1, NubMatchingServiceImpl.rankSimilarity(GENUS, SUBGENUS));
+    assertEquals(2, NubMatchingServiceImpl.rankSimilarity(SPECIES, SPECIES_AGGREGATE));
+    assertEquals(5, NubMatchingServiceImpl.rankSimilarity(UNRANKED, UNRANKED));
+    assertEquals(-1, NubMatchingServiceImpl.rankSimilarity(UNRANKED, null));
+    assertEquals(0, NubMatchingServiceImpl.rankSimilarity(FAMILY, UNRANKED));
+    assertEquals(0, NubMatchingServiceImpl.rankSimilarity(SPECIES, UNRANKED));
+    assertEquals(-9, NubMatchingServiceImpl.rankSimilarity(SUBSPECIES, VARIETY));
+    assertEquals(2, NubMatchingServiceImpl.rankSimilarity(SUBSPECIES, INFRASPECIFIC_NAME));
   }
 
   @Test
