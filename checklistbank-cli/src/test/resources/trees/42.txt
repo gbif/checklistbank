@@ -111,3 +111,5 @@ incertae sedis
       Idolomorpha madagascariensis Westwood, 1889
       Idolomorpha sagitta Sjostedt, 1900
   Eremiaphilidae
+  Markusidae [family]
+    *Serkania vulgaris DC. [species]

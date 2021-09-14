@@ -1,4 +1,5 @@
-1			ORDER	ACCEPTED		Mantodea	
+0			KINGDOM	ACCEPTED		Incertae Sedis
+1			ORDER	ACCEPTED		Mantodea
 2	1		FAMILY	ACCEPTED		Acanthopidae	
 322	1		FAMILY	ACCEPTED		Empusidae	
 323	322		SUBFAMILY	ACCEPTED		Blepharodinae	
@@ -117,3 +118,11 @@
 436	430		SPECIES	ACCEPTED		Incertae sedis	
 437	436		SPECIES	SYNONYM		Cephalomantis gracilis Gistel, 1856	
 438	1		FAMILY	ACCEPTED		Eremiaphilidae	
+500	0		FAMILY	ACCEPTED		Incertae Sedis
+501			FAMILY	ACCEPTED		Markusidae
+502	0		SPECIES	ACCEPTED		Markusa unplaced
+503			SPECIES	ACCEPTED		Markusi unplaced
+504	0		SPECIES	SYNONYM		Markusa heterosa L.
+505	500		SPECIES	SYNONYM		Serkania vulgaris L.
+506	502		SPECIES	SYNONYM		Serkania vulgaris Mill.
+507	501		SPECIES	SYNONYM		Serkania vulgaris DC.
