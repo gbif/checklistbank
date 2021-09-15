@@ -796,4 +796,13 @@ public class NubMatchingServiceImplIT {
     assertMatch("Aaa536-g10 sp003284565", cl, 10701019, NameUsageMatch.MatchType.EXACT);
   }
 
+  @Test
+  public void npe() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+
+    assertNoMatch(null, cl);
+    assertNoMatch("", cl);
+    assertNoMatch("null", cl);
+  }
+
 }

@@ -205,7 +205,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
 
     // treat names that are all upper or lower case special - they cannot be parsed properly so rather use them as they are!
-    if (scientificName.toLowerCase().equals(scientificName) || scientificName.toUpperCase().equals(scientificName)) {
+    if (scientificName != null && (scientificName.toLowerCase().equals(scientificName) || scientificName.toUpperCase().equals(scientificName))) {
       LOG.debug("All upper or lower case name found. Don't try to parse: {}", scientificName);
       queryNameType = null;
       if (mainMatchingMode != MatchingMode.STRICT) {
