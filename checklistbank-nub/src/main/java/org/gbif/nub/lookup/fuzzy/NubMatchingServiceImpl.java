@@ -192,7 +192,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   /**
    * Real method doing the work
    */
-  private NameUsageMatch matchInternal(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
+  private NameUsageMatch matchInternal(@Nullable String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
     NameType queryNameType;
@@ -487,7 +487,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
    * @return the best match, might contain no usageKey
    */
   @VisibleForTesting
-  protected NameUsageMatch match(@Nullable NameType queryNameType, @Nullable ParsedName pn, String canonicalName,
+  protected NameUsageMatch match(@Nullable NameType queryNameType, @Nullable ParsedName pn, @Nullable String canonicalName,
                                  Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
     if (Strings.isNullOrEmpty(canonicalName)) {
       return noMatch(100, "No name given", null);
