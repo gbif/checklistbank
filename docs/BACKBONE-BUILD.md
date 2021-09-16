@@ -2,6 +2,8 @@
 
 ## Build new backbone on backbonebuild-vh
 We use `backbonebuild-vh` with its local postgres database to build a new backbone and also run the matching and species API from there so we don't need to copy the database around to a different environment. The configs for `backbonebuild-vh` are located in the `nub` environment cli folder.
+This setup skips UAT and reviews the backbone with the help of the review tools only.
+
 
 ### Copy ChecklistBank database from prod
 Stop CLB CLIs on prod, dump the prod database and recreate it under the name `clb` on `backbonebuild-vh`.
@@ -53,17 +55,12 @@ If not already running start the matcher cli:
  - `start-clb-analysis.sh`
  - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right CoL percentage coverage
  - then rematch all the rest: `./clb-admin.sh REMATCH` this takes 1-2 days to complete!!!
- - when complete (no more Rabbit messages in clb-matcher & clb-analysis):
- - backbonebuild-vh: `sudo -u postgres pg_dump -U postgres -Fc -Z1 clb > /var/lib/pgsql/11/backups/clb-2021-03-03.dump`
- - import into UAT:
-   - scp file to pg1.gbif-uat.org
-   - `sudo -u postgres pg_restore --clean --dbname uat_checklistbank --jobs 8 /var/lib/pgsql/11/backups/clb-2021-03-03.dump`
 
 ## Export backbone CSV
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 - export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
 - gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
- 
+
 ## Backfill Occurrence maps & cubes
 See https://github.com/gbif/metrics/tree/master/cube
 
@@ -72,15 +69,17 @@ See https://github.com/gbif/metrics/tree/master/cube
  - Either way, either let the scheduler run its course, or start the jobs manually.
 
 ## Final prod deployment
+
 ### Prepare CLB
- - import UAT dump into prod:
-   - `sudo -u postgres pg_restore --clean --dbname prod_checklistbank --jobs 8 /var/lib/pgsql/11/backups/clb-2021-03-08.dump`
+ - backbonebuild-vh: `sudo -u postgres pg_dump -U postgres -Fc -Z1 clb > /var/lib/pgsql/11/backups/clb-2021-03-03.dump`
+ - import dump into prod:
+   - scp file to pg1.gbif.org
+   - `sudo -u postgres pg_restore --clean --dbname prod_checklistbank2 --jobs 8 /var/lib/pgsql/11/backups/clb-2021-03-08.dump`
    - `sudo -u postgres psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
- - copy NUB index from `ws.gbif.uat.org:/usr/local/gbif/services/checklistbank-nub-ws/nubidx` to `ws.gbif.org:/usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW`
+ - copy NUB index from `backbonebuild-vh:/home/crap/nubidx` to `ws.gbif.org:/usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW`
  - update webservice configs
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
- - reinterpret production occurences into a new index: https://github.com/gbif/pipelines/blob/dev/gbif/pipelines/interpretation-docs/full-reinterpretation-with-new-occurrence-index.md
 
 ### Deploy CLB WS
  - prod deploy of checklistbank-nub-ws
