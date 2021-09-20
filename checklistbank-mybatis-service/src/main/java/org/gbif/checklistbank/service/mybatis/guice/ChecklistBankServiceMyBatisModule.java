@@ -20,6 +20,7 @@ import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.mybatis.guice.MyBatisModule;
 import org.gbif.service.guice.PrivateServiceModule;
@@ -129,6 +130,7 @@ public class ChecklistBankServiceMyBatisModule extends PrivateServiceModule impl
     expose(DatasetAnalysisService.class);
     expose(UsageCountMapper.class);
     expose(DistributionMapper.class);
+    expose(NubRelMapper.class);
 
     expose(DatasetImportService.class).annotatedWith(Mybatis.class);
     expose(UsageSyncService.class);
