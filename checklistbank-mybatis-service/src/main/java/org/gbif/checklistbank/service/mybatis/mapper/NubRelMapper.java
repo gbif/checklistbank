@@ -3,6 +3,8 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 import java.util.UUID;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
+import org.gbif.checklistbank.model.NubMapping;
 
 public interface NubRelMapper {
 
@@ -12,4 +14,5 @@ public interface NubRelMapper {
 
   void deleteByDataset(@Param("uuid") UUID datasetKey);
 
+  Cursor<NubMapping> process(@Param("uuid") UUID datasetKey);
 }

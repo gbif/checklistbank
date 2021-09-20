@@ -3,6 +3,8 @@ package org.gbif.checklistbank.ws.resources;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import org.apache.ibatis.cursor.Cursor;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.checklistbank.search.*;
@@ -14,9 +16,11 @@ import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.IucnRedListCategory;
+import org.gbif.checklistbank.model.NubMapping;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
+import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
@@ -58,6 +62,7 @@ public class SpeciesResource {
 
   //Used instead of DistributionService to avoid upgrading GBIF API.
   private final DistributionMapper distributionMapper;
+  private final NubRelMapper nubRelMapper;
 
 
   @Inject
@@ -67,7 +72,7 @@ public class SpeciesResource {
       ReferenceService referenceService, MultimediaService imageService, DescriptionService descriptionService,
       DistributionService distributionService, IdentifierService identifierService, NameUsageSearchService searchService,
       UsageCountMapper usageCountMapper,
-      DistributionMapper distributionMapper) {
+      DistributionMapper distributionMapper, NubRelMapper nubRelMapper) {
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
     this.typeSpecimenService = typeSpecimenService;
@@ -80,6 +85,7 @@ public class SpeciesResource {
     this.searchService = searchService;
     this.usageCountMapper = usageCountMapper;
     this.distributionMapper = distributionMapper;
+    this.nubRelMapper = nubRelMapper;
   }
 
   /**
@@ -111,6 +117,15 @@ public class SpeciesResource {
       return nameUsageService.listByCanonicalName(locale, canonicalName, page,
           datasetKeys.isEmpty() ? null : datasetKeys.toArray(new UUID[datasetKeys.size()]));
     }
+  }
+
+  @GET
+  @Path("mapping")
+  public Iterable<NubMapping> mappings(@QueryParam(DATASET_KEY) UUID datasetKey) {
+    if (datasetKey == null) {
+      throw new IllegalArgumentException("DatasetKey is a required parameter");
+    }
+    return nubRelMapper.process(datasetKey);
   }
 
   /**
