@@ -3,10 +3,6 @@ package org.gbif.checklistbank.ws.resources;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.checklistbank.search.*;
@@ -16,7 +12,6 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NubMapping;
 import org.gbif.checklistbank.model.TreeContainer;
@@ -24,7 +19,6 @@ import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
-import org.gbif.checklistbank.ws.jersey.StreamBodyWriter;
 import org.gbif.ws.server.interceptor.NullToNotFound;
 import org.gbif.ws.util.ExtraMediaTypes;
 import org.slf4j.Logger;
@@ -33,16 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Species resource.
@@ -128,11 +113,13 @@ public class SpeciesResource {
 
   @GET
   @Path("mapping")
-  public Cursor<NubMapping> mappings(@QueryParam(DATASET_KEY) UUID datasetKey) {
+  public List<NubMapping> mappings(@QueryParam(DATASET_KEY) UUID datasetKey) {
     if (datasetKey == null) {
       throw new IllegalArgumentException("DatasetKey is a required parameter");
     }
-    return nubRelMapper.process(datasetKey);
+    List<NubMapping> result = new ArrayList<>();
+    nubRelMapper.process(datasetKey).forEach(result::add);
+    return result;
   }
 
   /**
