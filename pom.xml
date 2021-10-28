@@ -112,6 +112,10 @@
 
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+
+        <!-- Sonar -->
+        <sonar.language>java</sonar.language>
+        <sonar.projectName>GBIF ChecklistBank</sonar.projectName>
     </properties>
 
     <repositories>

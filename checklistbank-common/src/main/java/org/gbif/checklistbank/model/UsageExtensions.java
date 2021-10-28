@@ -22,7 +22,6 @@ public class UsageExtensions {
     public List<NameUsageMediaObject> media = Lists.newArrayList();
     public List<Reference> referenceList = Lists.newArrayList();
     public List<SpeciesProfile> speciesProfiles = Lists.newArrayList();
-    public List<NameUsage> synonyms = Lists.newArrayList();
     public List<TypeSpecimen> typeSpecimens = Lists.newArrayList();
     public List<VernacularName> vernacularNames = Lists.newArrayList();
 
@@ -37,13 +36,12 @@ public class UsageExtensions {
                 Objects.equals(media, that.media) &&
                 Objects.equals(referenceList, that.referenceList) &&
                 Objects.equals(speciesProfiles, that.speciesProfiles) &&
-                Objects.equals(synonyms, that.synonyms) &&
                 Objects.equals(typeSpecimens, that.typeSpecimens) &&
                 Objects.equals(vernacularNames, that.vernacularNames);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptions, distributions, identifiers, media, referenceList, speciesProfiles, synonyms, typeSpecimens, vernacularNames);
+        return Objects.hash(descriptions, distributions, identifiers, media, referenceList, speciesProfiles, typeSpecimens, vernacularNames);
     }
 }
