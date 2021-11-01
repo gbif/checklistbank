@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
-        <version>37</version>
+        <version>56</version>
     </parent>
 
     <groupId>org.gbif.checklistbank</groupId>
@@ -35,7 +35,9 @@
 
     <properties>
         <jdkLevel>1.8</jdkLevel>
+        <!-- GBIF Motherpom -->
         <release.tagNameBase>checklistbank</release.tagNameBase>
+        <main.basedir>${project.basedir}</main.basedir>
 
         <!-- datasource defaults, time in milliseconds -->
         <checklistbank.db.poolSize>8</checklistbank.db.poolSize>
@@ -101,7 +103,7 @@
         <mockito.version>1.10.19</mockito.version>
         <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
-        <neo4j.version>3.3.5</neo4j.version>
+        <neo4j.version>3.3.9</neo4j.version>
         <postgresql.version>42.2.5</postgresql.version>
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
@@ -121,7 +123,7 @@
     <repositories>
         <repository>
             <id>gbif-all</id>
-            <url>http://repository.gbif.org/content/groups/gbif</url>
+            <url>https://repository.gbif.org/content/groups/gbif</url>
         </repository>
         <repository>
             <id>cloudera-release</id>

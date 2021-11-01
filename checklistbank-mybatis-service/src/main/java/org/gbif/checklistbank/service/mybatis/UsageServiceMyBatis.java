@@ -6,7 +6,9 @@ import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
 import org.gbif.checklistbank.service.mybatis.postgres.IntArrayPgWriter;
 
+import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -40,14 +42,14 @@ public class UsageServiceMyBatis implements UsageService {
 
   @Override
   public List<Integer> listAll() {
-    try (Connection con = ds.getConnection()){
+    try (Connection con = ds.getConnection();
+         IntArrayPgWriter intMapper = new IntArrayPgWriter()
+    ){
       ProxyConnection hikari = (ProxyConnection) con;
       PGConnection pgcon = hikari.unwrap(PGConnection.class);
-      IntArrayPgWriter intMapper = new IntArrayPgWriter();
       pgcon.getCopyAPI().copyOut("copy (SELECT id FROM name_usage WHERE deleted IS NULL) TO STDOUT WITH NULL '' ", intMapper);
       return intMapper.result();
-    } catch (Exception e) {
-      LOG.error("Failed to load all usage ids", e);
+    } catch (IOException | SQLException e) {
       throw new RuntimeException("Exception while loading usage ids", e);
     }
   }

@@ -8,7 +8,6 @@
     <version>2.94-SNAPSHOT</version>
   </parent>
 
-
   <artifactId>checklistbank-solr</artifactId>
   <packaging>jar</packaging>
 
@@ -275,7 +274,7 @@
   <repositories>
     <repository>
       <id>gbif-all</id>
-      <url>http://repository.gbif.org/content/groups/gbif</url>
+      <url>https://repository.gbif.org/content/groups/gbif</url>
     </repository>
   </repositories>
 

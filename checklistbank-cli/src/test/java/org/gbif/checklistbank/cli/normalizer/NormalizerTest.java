@@ -1044,15 +1044,6 @@ public class NormalizerTest extends BaseTest {
   }
 
   /**
-   * Tests the EOL media extension
-   */
-  @Test
-  @Ignore
-  public void testEolMedia() throws Exception {
-
-  }
-
-  /**
    * http://dev.gbif.org/issues/browse/POR-2819
    */
   @Test
