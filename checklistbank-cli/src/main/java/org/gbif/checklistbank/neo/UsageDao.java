@@ -272,6 +272,7 @@ public class UsageDao implements AutoCloseable {
   /**
    * Fully closes the dao leaving any potentially existing persistence files untouched.
    */
+  @Override
   public void close() {
     try {
       if (kvp != null && !kvp.isClosed()) {

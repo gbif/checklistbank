@@ -84,6 +84,7 @@ public class SuffixArray {
       return text.charAt(index + i);
     }
 
+    @Override
     public int compareTo(Suffix that) {
       if (this == that) return 0;  // optimization
       int N = Math.min(this.length(), that.length());
@@ -94,6 +95,7 @@ public class SuffixArray {
       return this.length() - that.length();
     }
 
+    @Override
     public String toString() {
       return text.substring(index);
     }

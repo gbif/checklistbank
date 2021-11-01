@@ -142,6 +142,7 @@ public class Normalizer extends ImportDb implements Runnable {
    *
    * @throws NormalizationFailedException
    */
+  @Override
   public void run() throws NormalizationFailedException {
     //default behavior
     run(true);

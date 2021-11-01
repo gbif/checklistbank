@@ -19,6 +19,7 @@ public class ReferenceServiceMyBatis extends NameUsageComponentServiceMyBatis<Re
     super(referenceMapper);
   }
 
+  @Override
   public Map<Integer, List<Reference>> listRange(int usageKeyStart, int usageKeyEnd) {
     throw new UnsupportedOperationException("listRange not supported");
   }

@@ -5,6 +5,7 @@ import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class SrcUsage {
@@ -21,22 +22,24 @@ public class SrcUsage {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (!(o instanceof SrcUsage)) return false;
     SrcUsage srcUsage = (SrcUsage) o;
-    return Objects.equals(key, srcUsage.key) &&
-        Objects.equals(parentKey, srcUsage.parentKey) &&
-        Objects.equals(originalNameKey, srcUsage.originalNameKey) &&
-        Objects.equals(scientificName, srcUsage.scientificName) &&
-        Objects.equals(publishedIn, srcUsage.publishedIn) &&
-        Objects.equals(parsedName, srcUsage.parsedName) &&
-        Objects.equals(rank, srcUsage.rank) &&
-        Objects.equals(status, srcUsage.status) &&
-        Objects.equals(nomStatus, srcUsage.nomStatus);
+    return Objects.equals(key, srcUsage.key)
+           && Objects.equals(parentKey, srcUsage.parentKey)
+           && Objects.equals(originalNameKey, srcUsage.originalNameKey)
+           && Objects.equals(scientificName, srcUsage.scientificName)
+           && Objects.equals(publishedIn, srcUsage.publishedIn)
+           && Objects.equals(parsedName, srcUsage.parsedName)
+           && rank == srcUsage.rank
+           && status == srcUsage.status
+           && Arrays.equals(nomStatus, srcUsage.nomStatus);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(key, parentKey, originalNameKey, scientificName, publishedIn, parsedName, rank, status, nomStatus);
+    int result = Objects.hash(key, parentKey, originalNameKey, scientificName, publishedIn, parsedName, rank, status);
+    result = 31 * result + Arrays.hashCode(nomStatus);
+    return result;
   }
 
   @Override

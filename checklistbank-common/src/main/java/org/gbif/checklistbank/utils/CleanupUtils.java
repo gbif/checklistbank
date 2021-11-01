@@ -12,6 +12,7 @@ public class CleanupUtils {
     public static void registerCleanupHook(final File f) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
+            @Override
             public void run() {
                 if (f.exists()) {
                     LOG.debug("Deleting file {}", f.getAbsolutePath());

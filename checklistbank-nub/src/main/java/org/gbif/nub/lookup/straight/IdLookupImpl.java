@@ -263,6 +263,7 @@ public class IdLookupImpl implements IdLookup {
     return keyMax;
   }
 
+  @Override
   public AuthorComparator getAuthorComparator() {
     return authComp;
   }

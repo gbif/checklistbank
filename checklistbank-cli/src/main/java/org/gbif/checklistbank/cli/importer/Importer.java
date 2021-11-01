@@ -109,6 +109,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
         cfg);
   }
 
+  @Override
   public void run() {
     LOG.info("Start importing checklist");
     try {

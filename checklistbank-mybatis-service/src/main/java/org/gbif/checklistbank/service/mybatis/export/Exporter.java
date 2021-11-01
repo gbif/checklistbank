@@ -89,6 +89,7 @@ public class Exporter {
       this.dwca = new File(repository, dataset.getKey().toString() + ".zip");
     }
 
+    @Override
     public void run() {
       LOG.info("Start exporting checklist {} into DwC-A at {}", dataset.getKey(), dwca.getAbsolutePath());
       File tmp = Files.createTempDir();

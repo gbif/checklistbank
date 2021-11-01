@@ -142,58 +142,72 @@ public class NameUsageWritable implements LinneanClassificationKeys {
         this.basionymKey = basionymKey;
     }
 
+    @Override
     public Integer getKingdomKey() {
         return kingdomKey;
     }
 
+    @Override
     public void setKingdomKey(Integer kingdomKey) {
         this.kingdomKey = kingdomKey;
     }
 
+    @Override
     public Integer getPhylumKey() {
         return phylumKey;
     }
 
+    @Override
     public void setPhylumKey(Integer phylumKey) {
         this.phylumKey = phylumKey;
     }
 
+    @Override
     public Integer getClassKey() {
         return classKey;
     }
 
+    @Override
     public void setClassKey(Integer classKey) {
         this.classKey = classKey;
     }
 
+    @Override
     public Integer getOrderKey() {
         return orderKey;
     }
 
+    @Override
     public void setOrderKey(Integer orderKey) {
         this.orderKey = orderKey;
     }
 
+    @Override
     public Integer getFamilyKey() {
         return familyKey;
     }
 
+    @Override
     public void setFamilyKey(Integer familyKey) {
         this.familyKey = familyKey;
     }
 
+    @Override
     public Integer getGenusKey() {
         return genusKey;
     }
 
+    @Override
     public void setGenusKey(Integer genusKey) {
         this.genusKey = genusKey;
     }
 
+    @Override
     public Integer getSubgenusKey() {
         return subgenusKey;
     }
 
+    @Override
     public void setSubgenusKey(Integer subgenusKey) {
         this.subgenusKey = subgenusKey;
     }
@@ -204,10 +218,12 @@ public class NameUsageWritable implements LinneanClassificationKeys {
         return ClassificationUtils.getHigherRankKey(this, rank);
     }
 
+    @Override
     public Integer getSpeciesKey() {
         return speciesKey;
     }
 
+    @Override
     public void setSpeciesKey(Integer speciesKey) {
         this.speciesKey = speciesKey;
     }

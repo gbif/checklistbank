@@ -95,7 +95,7 @@
         <liquibase.version>3.4.1</liquibase.version>
         <logback.version>1.2.3</logback.version>
         <logstash-logback.version>4.10</logstash-logback.version>
-        <mapdb.version>3.0.5</mapdb.version>
+        <mapdb.version>3.0.8</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
         <metainf-services.version>1.6</metainf-services.version>
         <metrics.version>3.1.2</metrics.version>

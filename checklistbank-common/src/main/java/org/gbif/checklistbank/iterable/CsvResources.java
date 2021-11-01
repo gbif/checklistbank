@@ -1,20 +1,18 @@
 package org.gbif.checklistbank.iterable;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.stream.Stream;
-
 import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
-import org.gbif.utils.file.InputStreamUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 public class CsvResources {
-  private static final Splitter csvSplitter = Splitter.on(";").trimResults();
-  
+
   public static Stream<String[]> stream(String resourceName) throws IOException {
     URL url = Resources.getResource(resourceName);
     return stream(url.openStream());

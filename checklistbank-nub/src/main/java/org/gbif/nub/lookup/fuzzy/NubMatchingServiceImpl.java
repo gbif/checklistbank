@@ -111,6 +111,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     return match;
   }
 
+  @Override
   public NameUsageMatch2 v2(NameUsageMatch m) {
     NameUsageMatch2 m2 = new NameUsageMatch2();
     if (m.getUsageKey() != null) {
