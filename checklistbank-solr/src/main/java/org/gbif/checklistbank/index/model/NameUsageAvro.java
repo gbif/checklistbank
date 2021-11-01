@@ -121,7 +121,9 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
 
   @Override
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
-  // Used by DatumWriter.  Applications should not call. 
+
+  // Used by DatumWriter.  Applications should not call.
+  @Override
   public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return key;
@@ -177,6 +179,7 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
   }
   // Used by DatumReader.  Applications should not call. 
   @SuppressWarnings(value="unchecked")
+  @Override
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: key = (java.lang.Integer)value$; break;
