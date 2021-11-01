@@ -41,6 +41,7 @@ public class AvroExporterIT {
     try {
       ClbDbTestRule rule = ClbDbTestRule.squirrels();
       rule.apply(new Statement() {
+        @Override
         public void evaluate() throws Throwable {
           // do nothing
         }

@@ -28,7 +28,6 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 import org.gbif.nub.mapdb.MapDbUtils;
 import org.mapdb.*;
@@ -127,7 +126,7 @@ public class UsageDao implements AutoCloseable {
     NeoConfiguration cfg = new NeoConfiguration();
     cfg.mappedMemory = mappedMemory;
     if (shellPort != null) {
-      cfg.shell = true;
+      cfg.bolt = true;
       cfg.port = shellPort;
     }
     GraphDatabaseBuilder builder = cfg.newEmbeddedDb(storeDir, false);

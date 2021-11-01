@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.iterable;
 
-import com.google.common.base.Splitter;
 import com.google.common.io.Resources;
 
 import java.io.BufferedReader;

@@ -144,7 +144,7 @@ public class MultiThreadingCliTest {
     st.close();
     cn.close();
 
-    ExecutorCompletionService<UUID> ecs = new ExecutorCompletionService(Executors.<UUID>newFixedThreadPool(threads));
+    ExecutorCompletionService<UUID> ecs = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threads));
     LinkedList<Future<UUID>> futures = Lists.newLinkedList();
 
     log.println("Start creating normalization tasks");

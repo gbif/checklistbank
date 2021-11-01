@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
  */
+@Ignore
 public class NormalizerLeakDebugging {
   static final String DWCA_RESOURCE = "/dwcas/00000001-c6af-11e2-9b88-00145eb45e9a";
   static final String[] FILES = new String[]{"taxa.txt"};

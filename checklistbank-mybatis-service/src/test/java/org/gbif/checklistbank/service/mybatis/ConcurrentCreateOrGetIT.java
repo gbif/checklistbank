@@ -112,7 +112,7 @@ public class ConcurrentCreateOrGetIT {
     st.close();
     cn.close();
 
-    ExecutorCompletionService<ParsedName> ecs = new ExecutorCompletionService<>(Executors.<ParsedName>newFixedThreadPool(threads));
+    ExecutorCompletionService<ParsedName> ecs = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threads));
     LinkedList<Future<ParsedName>> futures = Lists.newLinkedList();
 
     for (int i = 0; i < tasks; i++) {

@@ -36,6 +36,7 @@ import org.gbif.dwc.record.Record;
 import org.gbif.dwc.record.StarRecord;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.ObjectUtils;
+import org.neo4j.io.layout.DatabaseLayout;
 import org.neo4j.kernel.api.exceptions.index.IndexEntryConflictException;
 import org.neo4j.kernel.lifecycle.LifecycleException;
 import org.neo4j.unsafe.batchinsert.BatchInserter;

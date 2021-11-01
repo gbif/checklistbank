@@ -15,6 +15,7 @@ public class RunnableAdapter<T> implements Callable<T> {
         this.result = result;
     }
 
+    @Override
     public T call() {
         task.run();
         return result;

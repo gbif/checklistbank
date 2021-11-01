@@ -74,6 +74,7 @@
         <commons-io.version>2.6</commons-io.version>
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
+        <eclipse-collections.version>10.4.0</eclipse-collections.version>
         <fastutil.version>8.2.2</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
@@ -103,7 +104,7 @@
         <mockito.version>1.10.19</mockito.version>
         <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
-        <neo4j.version>3.3.9</neo4j.version>
+        <neo4j.version>3.5.29</neo4j.version>
         <postgresql.version>42.2.5</postgresql.version>
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
@@ -383,12 +384,12 @@
             </dependency>
             <dependency>
                 <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-shell</artifactId>
+                <artifactId>neo4j-slf4j</artifactId>
                 <version>${neo4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.neo4j</groupId>
-                <artifactId>neo4j-slf4j</artifactId>
+                <artifactId>neo4j-bolt</artifactId>
                 <version>${neo4j.version}</version>
             </dependency>
 
@@ -786,6 +787,21 @@
                 <groupId>org.mapdb</groupId>
                 <artifactId>mapdb</artifactId>
                 <version>${mapdb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections</artifactId>
+                <version>${eclipse-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-api</artifactId>
+                <version>${eclipse-collections.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.collections</groupId>
+                <artifactId>eclipse-collections-forkjoin</artifactId>
+                <version>${eclipse-collections.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jsoup</groupId>

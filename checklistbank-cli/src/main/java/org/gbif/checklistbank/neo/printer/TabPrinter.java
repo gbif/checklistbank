@@ -45,19 +45,19 @@ public class TabPrinter implements TreePrinter {
       if (n.hasLabel(Labels.SYNONYM)) {
         // we can have multiple accepted parents for pro parte synonyms
         Set<Long> parentKeys = Sets.newHashSet();
-        for (Relationship synRel : n.getRelationships(RelType.SYNONYM_OF, Direction.OUTGOING)) {
+        for (Relationship synRel : n.getRelationships(Direction.OUTGOING, RelType.SYNONYM_OF)) {
           parentKeys.add(synRel.getOtherNode(n).getId());
         }
-        for (Relationship synRel : n.getRelationships(RelType.PROPARTE_SYNONYM_OF, Direction.OUTGOING)) {
+        for (Relationship synRel : n.getRelationships(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
           parentKeys.add(synRel.getOtherNode(n).getId());
         }
         row[1] = ID_CONCAT.join(parentKeys);
       } else {
-        if (n.hasRelationship(RelType.PARENT_OF, Direction.INCOMING)) {
+        if (n.hasRelationship(Direction.INCOMING, RelType.PARENT_OF)) {
           row[1] = String.valueOf(n.getSingleRelationship(RelType.PARENT_OF, Direction.INCOMING).getOtherNode(n).getId());
         }
       }
-      if (n.hasRelationship(RelType.BASIONYM_OF, Direction.INCOMING)) {
+      if (n.hasRelationship(Direction.INCOMING, RelType.BASIONYM_OF)) {
         row[2] = String.valueOf(n.getSingleRelationship(RelType.BASIONYM_OF, Direction.INCOMING).getOtherNode(n).getId());
       }
       if (n.hasProperty(NeoProperties.RANK)) {

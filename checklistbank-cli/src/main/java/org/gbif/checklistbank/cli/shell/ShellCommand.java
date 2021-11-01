@@ -11,8 +11,9 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import java.io.File;
 
 /**
- * Command that opens a neo4j shell server
- * ./neo4j-shell -port 8082
+ * Command that opens an embedded neo4j with a bolt connector so it can be accessed remotely-
+ * For example with the neo4j browser or the cypher-shell:
+ * ./cypher-shell -u neo4j -p <password>
  */
 @MetaInfServices(Command.class)
 public class ShellCommand extends ServiceCommand {
@@ -41,12 +42,10 @@ public class ShellCommand extends ServiceCommand {
       Preconditions.checkArgument(storeDir.exists(), "No neo4j store directory existing at " + storeDir.getAbsolutePath());
       System.out.println("Connecting to neo4j store at " + storeDir.getAbsolutePath());
 
-      // shell command without shell makes no sense
-      if (!cfg.neo.shell) {
-        cfg.neo.shell = true;
-      }
+      // shell command without bolt makes no sense
+      cfg.neo.bolt = true;
       neo = cfg.neo.newEmbeddedDb(storeDir, false).newGraphDatabase();
-      System.out.println("Opening neo4j shell on port " + cfg.neo.port);
+      System.out.println("Opening neo4j bolt connector on port " + cfg.neo.port);
     }
 
     @Override

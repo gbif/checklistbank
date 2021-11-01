@@ -128,6 +128,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   }
 
   @After
+  @Override
   public void close() throws Exception {
     if (sqlService != null) {
       sqlService.close();

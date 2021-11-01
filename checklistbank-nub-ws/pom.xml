@@ -40,7 +40,6 @@
                 <configuration>
                     <stopKey>stop</stopKey>
                     <stopPort>15327</stopPort>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
                 </configuration>
             </plugin>
             <plugin>
@@ -92,17 +91,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!--
-             Disable the cargo profile from the motherpom to prevend jenkins from deploying to staging
-             To deploy the nub lookup with maven cargo override this setting on the command line
-            -->
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
             </plugin>
         </plugins>
     </build>

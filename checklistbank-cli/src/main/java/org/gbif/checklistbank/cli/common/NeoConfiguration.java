@@ -1,12 +1,12 @@
 package org.gbif.checklistbank.cli.common;
 
-import com.beust.jcommander.Parameter;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.configuration.BoltConnector;
+import org.neo4j.kernel.configuration.Settings;
 import org.neo4j.logging.slf4j.Slf4jLogProvider;
-import org.neo4j.shell.ShellSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +32,9 @@ public class NeoConfiguration {
   public int mappedMemory = 128;
 
   @Min(1000)
-  public int port = 1337;
+  public int port = 7687;
 
-  public boolean shell = false;
+  public boolean bolt = false;
 
   public File neoDir(UUID datasetKey) {
     return new File(neoRepository, datasetKey.toString());
@@ -63,12 +63,14 @@ public class NeoConfiguration {
         .newEmbeddedDatabaseBuilder(storeDir)
         .setConfig(GraphDatabaseSettings.keep_logical_logs, "false")
         .setConfig(GraphDatabaseSettings.pagecache_memory, mappedMemory + "m");
-    if (shell) {
-      LOG.info("Enable neo4j shell on port " + port);
-      builder.setConfig(ShellSettings.remote_shell_enabled, "true")
-          .setConfig(ShellSettings.remote_shell_port, String.valueOf(port))
-          // listen to all IPs, not localhost only
-          .setConfig(ShellSettings.remote_shell_host, "0.0.0.0");
+    if (bolt) {
+      LOG.info("Enable neo4j bolt protocol on port " + port);
+      BoltConnector bolt = new BoltConnector("bolt-shell");
+      builder
+          .setConfig( bolt.type, "BOLT" )
+          .setConfig( bolt.enabled, Settings.TRUE)
+          .setConfig( bolt.listen_address, "0.0.0.0:"+port)
+          .setConfig(bolt.encryption_level, BoltConnector.EncryptionLevel.OPTIONAL.toString());
     }
     return builder;
   }

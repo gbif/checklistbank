@@ -36,6 +36,7 @@ public class SolrTestSetup {
     LOG.info("Run liquibase & dbSetup once");
     try {
       rule.apply(new Statement() {
+        @Override
         public void evaluate() throws Throwable {
           // do nothing
         }

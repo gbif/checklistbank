@@ -27,6 +27,7 @@ public abstract class WsClientNameUsageComponentTest<T extends NameUsageExtensio
     when(resourceBuilder.get(eq(client.tPage))).thenReturn(getMockResponse());
   }
 
+  @Override
   protected PagingResponse<T> getMockResponse() {
     PagingResponse<T> results = super.getMockResponse();
     for (T obj : results.getResults()) {
