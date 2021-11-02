@@ -74,7 +74,7 @@
         <commons-io.version>2.6</commons-io.version>
         <!-- make sure curator is the same as in microservices -->
         <curator.version>2.9.0</curator.version>
-        <eclipse-collections.version>10.4.0</eclipse-collections.version>
+        <eclipse-collections.version>9.2.0</eclipse-collections.version>
         <fastutil.version>8.2.2</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
@@ -794,19 +794,10 @@
                 <artifactId>mapdb</artifactId>
                 <version>${mapdb.version}</version>
             </dependency>
+            <!-- mapdb and neo4j rely on eclipse collections but interfer -->
             <dependency>
                 <groupId>org.eclipse.collections</groupId>
                 <artifactId>eclipse-collections</artifactId>
-                <version>${eclipse-collections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.collections</groupId>
-                <artifactId>eclipse-collections-api</artifactId>
-                <version>${eclipse-collections.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.collections</groupId>
-                <artifactId>eclipse-collections-forkjoin</artifactId>
                 <version>${eclipse-collections.version}</version>
             </dependency>
             <dependency>
