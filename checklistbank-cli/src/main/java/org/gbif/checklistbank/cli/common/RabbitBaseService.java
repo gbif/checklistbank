@@ -94,7 +94,8 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
    */
   protected void initMetrics(MetricRegistry registry) {
     registry.registerAll(new MemoryUsageGaugeSet());
-    registry.register(Metrics.OPEN_FILES, new FileDescriptorRatioGauge());
+    // this is broken in Java11 - we need to update metrics and thus Dropwizard!
+    //registry.register(Metrics.OPEN_FILES, new FileDescriptorRatioGauge());
   }
 
   @Override

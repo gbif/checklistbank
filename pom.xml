@@ -34,7 +34,7 @@
     </distributionManagement>
 
     <properties>
-        <jdkLevel>1.8</jdkLevel>
+        <java.version>1.8</java.version>
         <!-- GBIF Motherpom -->
         <release.tagNameBase>checklistbank</release.tagNameBase>
         <main.basedir>${project.basedir}</main.basedir>

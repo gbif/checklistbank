@@ -36,11 +36,7 @@
       </resource>
     </resources>
     <testResources>
-      <!-- squirrels db files & mybatis.properties -->
-      <testResource>
-        <directory>../checklistbank-mybatis-service/src/test/resources</directory>
-        <filtering>true</filtering>
-      </testResource>
+      <!-- squirrels db files & mybatis.properties via mybatis test jar -->
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
