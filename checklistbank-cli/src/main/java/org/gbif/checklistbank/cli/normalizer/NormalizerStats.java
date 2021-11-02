@@ -1,14 +1,13 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.google.common.base.Objects;
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.List;
 import java.util.Map;
-
-import com.google.common.base.Objects;
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 /**
  * Statistics of a checklist normalization result.

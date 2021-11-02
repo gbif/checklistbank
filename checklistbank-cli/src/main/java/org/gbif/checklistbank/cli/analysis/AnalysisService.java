@@ -1,6 +1,5 @@
 package org.gbif.checklistbank.cli.analysis;
 
-import com.google.common.base.Strings;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;

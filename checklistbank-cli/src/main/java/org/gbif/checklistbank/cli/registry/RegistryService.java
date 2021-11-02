@@ -1,5 +1,12 @@
 package org.gbif.checklistbank.cli.registry;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.google.inject.Key;
+import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
 import org.gbif.api.jackson.LicenseSerde;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
@@ -19,20 +26,12 @@ import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 import org.gbif.utils.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
-import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and

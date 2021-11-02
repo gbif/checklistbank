@@ -3,9 +3,7 @@ package org.gbif.checklistbank.cli.model;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.vocabulary.NameUsageIssue;
-
 import org.neo4j.graphdb.Node;
-import org.neo4j.helpers.Strings;
 
 /**
  * Simple wrapper to hold a neo node together with a NameUsage.

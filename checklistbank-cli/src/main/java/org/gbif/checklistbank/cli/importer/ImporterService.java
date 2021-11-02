@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.importer;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Key;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
@@ -15,15 +17,12 @@ import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisM
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Key;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMessage> {
 

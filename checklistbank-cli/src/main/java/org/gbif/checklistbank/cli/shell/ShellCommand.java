@@ -3,9 +3,7 @@ package org.gbif.checklistbank.cli.shell;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.Service;
-import org.gbif.cli.Command;
 import org.gbif.cli.service.ServiceCommand;
-import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.File;
@@ -15,7 +13,6 @@ import java.io.File;
  * For example with the neo4j browser or the cypher-shell:
  * ./cypher-shell -u neo4j -p <password>
  */
-@MetaInfServices(Command.class)
 public class ShellCommand extends ServiceCommand {
   private final ShellConfiguration cfg = new ShellConfiguration();
 

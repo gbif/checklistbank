@@ -1,14 +1,13 @@
 package org.gbif.checklistbank.cli.shell;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 
-import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
+import java.util.UUID;
 
 /**
  *

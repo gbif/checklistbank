@@ -1,7 +1,6 @@
 package org.gbif.checklistbank.cli.model;
 
 import org.gbif.api.vocabulary.Rank;
-
 import org.neo4j.graphdb.Node;
 
 import java.util.Objects;

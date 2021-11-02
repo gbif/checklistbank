@@ -1,8 +1,8 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.model.RankedName;
-import org.gbif.api.vocabulary.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.*;

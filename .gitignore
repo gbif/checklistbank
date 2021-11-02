@@ -4,6 +4,7 @@
 target/
 .DS_Store
 checklistbank*/logs
+checklistbank.log
 clb-tree.txt
 nub.log
 nubidx

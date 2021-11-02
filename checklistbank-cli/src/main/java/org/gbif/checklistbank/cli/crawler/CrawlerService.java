@@ -1,11 +1,5 @@
 package org.gbif.checklistbank.cli.crawler;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.util.Optional;
-import java.util.UUID;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
@@ -23,6 +17,12 @@ import org.gbif.dwc.UnsupportedArchiveException;
 import org.gbif.utils.HttpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and

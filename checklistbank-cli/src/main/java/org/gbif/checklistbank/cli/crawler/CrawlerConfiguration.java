@@ -1,17 +1,16 @@
 package org.gbif.checklistbank.cli.crawler;
 
-import org.gbif.checklistbank.config.RegistryServiceConfiguration;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
 import org.gbif.checklistbank.config.GangliaConfiguration;
+import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
-import java.io.File;
-import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
+import java.io.File;
+import java.util.UUID;
 
 /**
  *

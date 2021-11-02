@@ -98,7 +98,6 @@
         <logstash-logback.version>4.10</logstash-logback.version>
         <mapdb.version>3.0.8</mapdb.version>
         <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
-        <metainf-services.version>1.6</metainf-services.version>
         <metrics.version>3.1.2</metrics.version>
         <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
         <mockito.version>1.10.19</mockito.version>
@@ -115,6 +114,7 @@
 
         <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
@@ -129,6 +129,12 @@
         <repository>
             <id>cloudera-release</id>
             <url>https://repository.gbif.org/repository/cloudera-release/</url>
+        </repository>
+        <repository>
+            <!-- this is needed for modern mavens which block plain http.
+             The old solr dep we use still uses http -->
+            <id>maven-restlet</id>
+            <url>https://maven.restlet.org/</url>
         </repository>
     </repositories>
 
@@ -823,14 +829,6 @@
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
-            </dependency>
-            <!-- false positive from maven dep:analyze -->
-            <dependency>
-                <groupId>org.kohsuke.metainf-services</groupId>
-                <artifactId>metainf-services</artifactId>
-                <version>${metainf-services.version}</version>
-                <!-- This is the proper declaration. For details see the homepage of the project. -->
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.beust</groupId>

@@ -1,23 +1,22 @@
 package org.gbif.checklistbank.cli.common;
 
-import org.gbif.checklistbank.config.GangliaConfiguration;
-import org.gbif.checklistbank.logging.LogContext;
-import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
-import org.gbif.common.messaging.config.MessagingConfiguration;
-
-import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
-
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Sets;
 import com.google.inject.Module;
+import org.gbif.checklistbank.config.GangliaConfiguration;
+import org.gbif.checklistbank.logging.LogContext;
+import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
+import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
 
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
   private static final Logger LOG = LoggerFactory.getLogger(RabbitDatasetService.class);

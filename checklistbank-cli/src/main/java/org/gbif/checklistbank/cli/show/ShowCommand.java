@@ -5,8 +5,6 @@ import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.cli.BaseCommand;
-import org.gbif.cli.Command;
-import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -17,7 +15,6 @@ import java.util.Collection;
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
  */
-@MetaInfServices(Command.class)
 public class ShowCommand extends BaseCommand {
     private final ShowConfiguration cfg = new ShowConfiguration();
 

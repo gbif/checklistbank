@@ -1,23 +1,19 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.cli.BaseCommand;
-import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
-
-import java.io.IOException;
-
-import com.google.common.base.Throwables;
-import org.kohsuke.MetaInfServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@MetaInfServices(Command.class)
+import java.io.IOException;
+
 public class NubBuildCommand extends BaseCommand {
   private static final Logger LOG = LoggerFactory.getLogger(NubBuildCommand.class);
   private final NubConfiguration cfg = new NubConfiguration();

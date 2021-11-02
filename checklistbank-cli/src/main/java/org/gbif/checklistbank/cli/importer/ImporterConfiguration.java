@@ -1,5 +1,7 @@
 package org.gbif.checklistbank.cli.importer;
 
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -10,9 +12,6 @@ import org.gbif.common.search.solr.SolrConfig;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
 
 /**
  *

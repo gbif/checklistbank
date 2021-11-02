@@ -1,13 +1,12 @@
 package org.gbif.checklistbank.cli.normalizer;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.dwc.terms.Term;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.google.common.collect.Maps;
-import com.google.common.base.Splitter;
 
 /**
  * Settings uses during the insert of the dwc archive into neo.

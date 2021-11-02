@@ -1,9 +1,5 @@
 package org.gbif.checklistbank.cli.common;
 
-import java.io.IOException;
-import javax.annotation.Nullable;
-import javax.validation.constraints.Min;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Strings;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,6 +9,10 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+import java.io.IOException;
 
 /**
  * A configuration class which can be used to get all the details needed to persistent a connection to ZooKeeper needed by

@@ -37,17 +37,15 @@ import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankService
 import org.gbif.checklistbank.service.mybatis.liquibase.DbSchemaUpdater;
 import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
+import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.cli.BaseCommand;
-import org.gbif.cli.Command;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.*;
-import org.kohsuke.MetaInfServices;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -63,7 +61,6 @@ import java.util.UUID;
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
  */
-@MetaInfServices(Command.class)
 public class AdminCommand extends BaseCommand {
   private static final Logger LOG = LoggerFactory.getLogger(AdminCommand.class);
   private static final String DWCA_SUFFIX = ".dwca";

@@ -10,7 +10,6 @@ import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.common.search.solr.SolrConfig;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;

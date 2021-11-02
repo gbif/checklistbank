@@ -1,14 +1,10 @@
 package org.gbif.checklistbank.cli.nubbuild;
 
 import com.beust.jcommander.ParametersDelegate;
-import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
-import org.gbif.checklistbank.neo.traverse.TaxonomicOrder;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.common.parsers.TaxStatusParser;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
