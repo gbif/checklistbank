@@ -122,7 +122,9 @@ public class UsageDao implements AutoCloseable {
     DB kvp = DBMaker.memoryDB()
         .make();
 
-    File storeDir = Files.createTempDir();
+    // neo seems to create a lock file in the *parent* dir of the storage
+    // to avoid lock problems with concurrent tests use a nested folder
+    File storeDir = new File(Files.createTempDir(), "db");
     NeoConfiguration cfg = new NeoConfiguration();
     cfg.mappedMemory = mappedMemory;
     if (shellPort != null) {
