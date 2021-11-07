@@ -9,6 +9,11 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.bytes.ByteOpenHashSet;
+import it.unimi.dsi.fastutil.bytes.ByteSet;
+import it.unimi.dsi.fastutil.ints.Int2BooleanMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -36,6 +41,7 @@ import org.gbif.dwc.record.Record;
 import org.gbif.dwc.record.StarRecord;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.ObjectUtils;
+import org.gbif.utils.collection.CompactHashSet;
 import org.neo4j.io.layout.DatabaseLayout;
 import org.neo4j.kernel.api.exceptions.index.IndexEntryConflictException;
 import org.neo4j.kernel.lifecycle.LifecycleException;
@@ -47,8 +53,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.gbif.dwc.terms.GbifTerm.datasetKey;
@@ -75,6 +82,9 @@ public class NeoInserter implements AutoCloseable {
   private final Meter insertMeter;
   private final Map<Term, Extension> extensions;
   private final UsageDao dao;
+  // neo4js unique constraint exceptions are swallowed by the batch insert so we need to track uniqueness ourselves
+  // not good for memory footprint...but we try our best in using fastutils and a compact utf8 byte buffer instead of a string
+  private final ObjectSet<ByteBuffer> taxonIDs;
 
   private NeoInserter(UsageDao dao, File storeDir, int batchSize, @Nullable Meter insertMeter) throws IOException {
     Preconditions.checkNotNull(dao, "DAO required");
@@ -88,6 +98,7 @@ public class NeoInserter implements AutoCloseable {
     for (Extension e : Extension.values()) {
       extensions.put(TF.findTerm(e.getRowType()), e);
     }
+    taxonIDs = new ObjectOpenHashSet<>();
   }
 
   public static NeoInserter create(UsageDao dao, File storeDir, int batchSize, @Nullable MetricRegistry registry) throws IOException {
@@ -109,12 +120,21 @@ public class NeoInserter implements AutoCloseable {
 
   @VisibleForTesting
   protected void insertStarRecord(StarRecord star) throws NormalizationFailedException {
-
     try {
       VerbatimNameUsage v = new VerbatimNameUsage();
 
       // set core props
       Record core = star.core();
+      final String id =  taxonID(core);
+      // check taxonIDs are unique!
+      if (id != null) {
+        ByteBuffer idAsBytes = ByteBuffer.wrap(id.getBytes(StandardCharsets.UTF_8)).asReadOnlyBuffer();
+        if (taxonIDs.contains(idAsBytes)) {
+          throw new NormalizationFailedException("taxonID value "+id+" is not unique");
+        } else {
+          taxonIDs.add(idAsBytes);
+        }
+      }
       for (Term t : core.terms()) {
         String val = clean(core.value(t));
         if (val != null) {
@@ -122,7 +142,7 @@ public class NeoInserter implements AutoCloseable {
         }
       }
       // make sure this is last to override already put taxonID keys
-      v.setCoreField(DwcTerm.taxonID, taxonID(core));
+      v.setCoreField(DwcTerm.taxonID, id);
       // readUsage extensions data
       for (Map.Entry<Term, Extension> ext : extensions.entrySet()) {
         if (star.hasExtension(ext.getKey())) {
@@ -409,43 +429,21 @@ public class NeoInserter implements AutoCloseable {
   @Override
   public void close() throws NotUniqueRuntimeException {
     try {
-      try {
-        // define indices
-        LOG.info("Building lucene index taxonID ...");
-        //TODO: neo4j batchinserter does not seem to evaluate the unique constraint. Duplicates pass thru (see tests) !!!
-        inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NeoProperties.TAXON_ID).create();
-        LOG.info("Building lucene index scientific name ...");
-        inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.SCIENTIFIC_NAME).create();
-        LOG.info("Building lucene index canonical name ...");
-        inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
-      } finally {
-        // this is when lucene indices are build and thus throws RuntimeExceptions when unique constraints are broken
-        // we catch these exceptions below
-        inserter.shutdown();
-      }
-
-    } catch (LifecycleException e) {
-      // likely a bad neo4j error, see https://github.com/neo4j/neo4j/issues/10738
-      Throwable t = e.getCause();
-      // check if the cause was a broken unique constraint which can only be taxonID in our case
-      if (t != null && t instanceof IllegalStateException) {
-        LOG.error("Bad neo4j LifecycleException. Assume this is caused by non unique TaxonID. Cause: {}", t);
-        // we assume it was a broken unique constraint which can only be taxonID in our case
-        throw new NotUniqueRuntimeException("TaxonID", "<unknown>");
-      } else {
-        throw e;
-      }
-
-    } catch (RuntimeException e) {
-      Throwable t = e.getCause();
-      // check if the cause was a broken unique constraint which can only be taxonID in our case
-      if (t != null && t instanceof IndexEntryConflictException) {
-        IndexEntryConflictException pe = (IndexEntryConflictException) t;
-        LOG.error("TaxonID not unique. Value {} used for both node {} and {}", pe.getSinglePropertyValue(), pe.getExistingNodeId(), pe.getAddedNodeId());
-        throw new NotUniqueRuntimeException("TaxonID", pe.getSinglePropertyValue());
-      } else {
-        throw e;
-      }
+      // define indices
+      LOG.info("Building lucene index taxonID ...");
+      // neo4j batchinserter does not evaluate the unique constraint properly. Duplicates pass thru (see tests) !!!
+      // hence we just build a regular index and rely on our own in memory tracking of all ids!!!
+      //inserter.createDeferredConstraint(Labels.TAXON).assertPropertyIsUnique(NeoProperties.TAXON_ID).create();
+      inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.TAXON_ID).create();
+      LOG.info("Building lucene index scientific name ...");
+      inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.SCIENTIFIC_NAME).create();
+      LOG.info("Building lucene index canonical name ...");
+      inserter.createDeferredSchemaIndex(Labels.TAXON).on(NeoProperties.CANONICAL_NAME).create();
+    } finally {
+      // this is when lucene indices are build and thus throws RuntimeExceptions when unique constraints are broken
+      // we catch these exceptions below
+      inserter.shutdown();
+      taxonIDs.clear();
     }
     LOG.info("Neo batch inserter closed, data flushed to disk. Opening regular neo db again ...", meta.getRecords());
     dao.openNeo();

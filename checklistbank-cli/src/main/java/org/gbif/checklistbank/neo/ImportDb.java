@@ -22,9 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.util.*;
 
-/**
- *
- */
+
 public class ImportDb {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImportDb.class);
@@ -43,11 +41,7 @@ public class ImportDb {
    * @return the single matching node with the taxonID or null
    */
   protected Node nodeByTaxonId(String taxonID) {
-//      try {
     return Iterators.singleOrNull(dao.getNeo().findNodes(Labels.TAXON, NeoProperties.TAXON_ID, taxonID));
-//      } catch (NoSuchElementException e) {
-//          throw new NotUniqueException(taxonID, "TaxonID not unique: " + taxonID);
-//      }
   }
 
   /**
@@ -129,7 +123,6 @@ public class ImportDb {
     dao.store(n.getId(), pn);
 
     // update canonical and store usage
-    //u.setCanonicalName(pn.canonicalNameWithMarker());
     NameUsageNode nn = new NameUsageNode(n, u, true);
     dao.store(nn, true);
 

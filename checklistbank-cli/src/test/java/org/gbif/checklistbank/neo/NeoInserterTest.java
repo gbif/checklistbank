@@ -7,6 +7,7 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.normalizer.IgnoreNameUsageException;
+import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.dwc.terms.DcTerm;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.terms.Term;
@@ -16,6 +17,7 @@ import org.gbif.dwc.record.StarRecordImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 
@@ -119,10 +121,10 @@ public class NeoInserterTest {
     }
   }
 
-  @Test(expected = NotUniqueRuntimeException.class)
+  @Test(expected = NormalizationFailedException.class)
   public void testTaxonIDNotUnique() throws Exception {
-
-    addColumn(DwcTerm.taxonID, "1");
+    final String ID = "1";
+    addColumn(DwcTerm.taxonID, ID);
     addColumn(DwcTerm.scientificName, "Abies alba Mill., 1982");
     StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
     RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
@@ -132,7 +134,7 @@ public class NeoInserterTest {
 
     values = Lists.newArrayList();
     fields = Lists.newArrayList();
-    addColumn(DwcTerm.taxonID, "1");
+    addColumn(DwcTerm.taxonID, ID);
     addColumn(DwcTerm.scientificName, "Picea alba");
     rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
     rec.setRow(values.toArray(new String[]{}));

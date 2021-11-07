@@ -27,6 +27,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
@@ -489,6 +490,15 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     // 1st import
     runImport(datasetKey);
     assertTrue(usageService.maxUsageKey(datasetKey) > Constants.NUB_MAXIMUM_KEY);
+  }
+
+  @Test(expected = NormalizationFailedException.class)
+  public void testNonUniqueTaxonID() throws Exception {
+    final UUID datasetKey = NormalizerTest.datasetKey(25);
+
+    // insert neo db
+    NormalizerStats stats = insertNeo(datasetKey);
+    assertEquals(3, stats.getCount());
   }
 
   private void verify16(UUID datasetKey) {
