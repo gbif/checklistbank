@@ -46,6 +46,7 @@
         <checklistbank.db.connectionTimeout>5000</checklistbank.db.connectionTimeout>
 
         <!-- dependency versions -->
+        <depgraph-maven-plugin>3.3.0</depgraph-maven-plugin>
         <dwc-api.version>1.22</dwc-api.version>
         <gbif-api.version>0.84</gbif-api.version>
         <gbif-cli.version>0.13</gbif-cli.version>
@@ -154,6 +155,11 @@
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>com.github.ferstl</groupId>
+                    <artifactId>depgraph-maven-plugin</artifactId>
+                    <version>${depgraph-maven-plugin}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
