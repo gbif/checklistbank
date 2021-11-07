@@ -37,7 +37,7 @@ public class NeoConfiguration {
   public boolean bolt = false;
 
   public File neoDir(UUID datasetKey) {
-    return new File(neoRepository, datasetKey.toString());
+    return new File(neoRepository, datasetKey.toString() + File.separator + "db");
   }
 
   /**
