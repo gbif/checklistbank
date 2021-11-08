@@ -403,6 +403,48 @@
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j-cypher</artifactId>
                 <version>${neo4j.version}</version>
+                <!-- we exceed the 65535 maximum file limit for old jars so we need to exclude unused files.
+                 Neo4j contributes over 35.000 files with most of it being hardly used cypher.
+                 Cypher supports different syntax versions and we only need the latest.
+                 -->
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-compiler-2.3</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-compiler-3.1</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-compiler-3.2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-frontend-2.3</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-frontend-3.1</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-frontend-3.2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-ir-3.2</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-ir-3.3</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.neo4j</groupId>
+                        <artifactId>neo4j-cypher-ir-3.4</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.neo4j</groupId>
