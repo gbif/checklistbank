@@ -98,7 +98,7 @@
         <logback.version>1.2.3</logback.version>
         <logstash-logback.version>4.10</logstash-logback.version>
         <mapdb.version>3.0.8</mapdb.version>
-        <maven-shade-plugin.version>2.4.1</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <metrics.version>3.1.2</metrics.version>
         <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
         <mockito.version>1.10.19</mockito.version>
@@ -112,10 +112,6 @@
         <slf4j.version>1.7.24</slf4j.version>
         <solr-lucene.version>5.4.1</solr-lucene.version>
         <tika.version>1.21</tika.version>
-
-        <!-- This plugin is used by search, solr and ws-client project to share test artifacts-->
-        <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
@@ -156,9 +152,19 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>${maven-shade-plugin.version}</version>
+                </plugin>
+                <plugin>
                     <groupId>com.github.ferstl</groupId>
                     <artifactId>depgraph-maven-plugin</artifactId>
                     <version>${depgraph-maven-plugin}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>${avro.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.liquibase</groupId>

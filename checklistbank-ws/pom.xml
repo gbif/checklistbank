@@ -38,13 +38,11 @@
         <configuration>
           <stopKey>stop</stopKey>
           <stopPort>15327</stopPort>
-          <scanIntervalSeconds>10</scanIntervalSeconds>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven-shade-plugin.version}</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -63,12 +61,6 @@
                 </transformer>
               </transformers>
               <filters>
-                <filter>
-                  <artifact>org.jruby:jruby-complete</artifact>
-                  <excludes>
-                    <exclude>org/joda/**</exclude>
-                  </excludes>
-                </filter>
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
