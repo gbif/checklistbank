@@ -24,6 +24,9 @@ public class ImporterServiceIT {
     cfg.neo.neoRepository = neoTmp;
 
     ImporterService imp = new ImporterService(cfg);
+    System.out.println("Startup");
     imp.startUp();
+    System.out.println("Shutdown");
+    imp.shutDown();
   }
 }

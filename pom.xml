@@ -99,6 +99,7 @@
         <logstash-logback.version>4.10</logstash-logback.version>
         <mapdb.version>3.0.8</mapdb.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+        <maven-release-plugin.version>3.0.0-M4</maven-release-plugin.version>
         <metrics.version>3.1.2</metrics.version>
         <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
         <mockito.version>1.10.19</mockito.version>

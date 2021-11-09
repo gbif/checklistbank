@@ -381,7 +381,6 @@ public class NubBuilderIT {
    * At least properly accepted ones should be preferred over doubtful ones.
    */
   @Test
-  @Ignore("Needs adaptions to Neo4j 3.5")
   public void testImplicitNameHomonyms() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 98);
     build(src);
