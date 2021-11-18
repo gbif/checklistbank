@@ -1,16 +1,23 @@
 package org.gbif.checklistbank.cli.importer;
 
 
+import com.google.common.base.Preconditions;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
+import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
@@ -24,29 +31,62 @@ import com.codahale.metrics.MetricRegistry;
 import org.junit.Ignore;
 import org.postgresql.core.BaseConnection;
 
+import javax.annotation.Nullable;
+
 @Ignore("A manual test class")
 /**
  * Test to manually index an external checklist and download, normalize and import it.
  * For importing it uses the test resource yaml config file where you can turn on solr if needed!
  */
-public class ManualImport {
+public class ManualImport implements AutoCloseable {
   UUID datasetKey;
   private NormalizerConfiguration nCfg;
   private ImporterConfiguration iCfg;
+  private final File repo;
+  private final IdLookup lookup;
 
-  public void index(String repo, String url, UUID datasetKey) throws Exception {
+  public ManualImport(String repoDir, @Nullable ClbConfiguration nub) throws Exception {
+    this.repo = new File(Preconditions.checkNotNull(repoDir));
+    if (!repo.exists()) {
+      repo.mkdirs();
+    }
+    if (nub == null) {
+      System.out.println("Do not use matching");
+      lookup = new IdLookupPassThru();
+    } else {
+      File lookupDB = new File(repo, "lookup.db");
+      boolean existed = lookupDB.exists();
+      IdLookupImpl db = IdLookupImpl.persistent(lookupDB);
+      lookup = db;
+      if (!existed) {
+        System.out.println("Load lookup db for matching");
+        db.load(nub, false);
+      } else {
+        System.out.println("Use existing lookup db from "+lookupDB.getAbsolutePath());
+      }
+    }
+  }
+
+  public void index(String url, UUID datasetKey, boolean truncate) throws Exception {
     this.datasetKey = datasetKey;
-    init(repo, false);
+    init(truncate);
     download(url);
     normalize();
     sync();
   }
 
-  private void init(String repo, boolean truncate) throws IOException, SQLException {
+  public void index(File dwca, UUID datasetKey, boolean truncate) throws Exception {
+    this.datasetKey = datasetKey;
+    init( truncate);
+    copy(dwca);
+    normalize();
+    sync();
+  }
+
+  private void init(boolean truncate) throws IOException, SQLException {
     System.out.println("Init environment for dataset " + datasetKey);
-    File tmp = new File(repo);
-    File dwca = new File(tmp, "dwca");
-    File neo = new File(tmp, "neo");
+    File dwca = new File(repo, "dwca");
+    File neo = new File(repo, "neo");
 
     final ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
     nCfg = new NormalizerConfiguration();
@@ -87,9 +127,22 @@ public class ManualImport {
     System.out.println("Decompressed archive to " + nCfg.archiveDir(datasetKey));
   }
 
+  private void copy(File fileOrFolder) throws IOException {
+    File archiveFolder = nCfg.archiveDir(datasetKey);
+    archiveFolder.mkdirs();
+    if (fileOrFolder.isDirectory()) {
+      System.out.println("Copy dwc archive folder to " + nCfg.archiveDir(datasetKey));
+      FileUtils.copyDirectory(fileOrFolder, archiveFolder);
+
+    } else {
+      System.out.println("Copy dwc archive file to " + nCfg.archiveDir(datasetKey));
+      FileUtils.copyFileToDirectory(fileOrFolder, archiveFolder);
+    }
+  }
+
   private void normalize() {
     MetricRegistry registry = new MetricRegistry();
-    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), new IdLookupPassThru());
+    Normalizer norm = Normalizer.create(nCfg, datasetKey, registry, Maps.<String, UUID>newHashMap(), lookup);
     norm.run();
     NormalizerStats stats = norm.getStats();
     System.out.println(stats);
@@ -102,22 +155,31 @@ public class ManualImport {
     iit.close();
   }
 
+  @Override
+  public void close() throws Exception {
+    lookup.close();
+  }
+
+
+
   public static void main(String[] args) throws Exception {
-    ManualImport imp = new ManualImport();
+    ClbConfiguration nub = new ClbConfiguration();
+    nub.serverName = "pg1.gbif.org";
+    nub.databaseName = "prod_checklistbank2";
+    nub.user = "clb";
+    nub.password = "";
 
-//    imp.index("/Users/markus/nub-repo", "", Constants.NUB_DATASET_KEY);
+    try (ManualImport imp = new ManualImport("/Users/markus/Downloads/repo", nub)) {
 
-//      imp.index("/Users/markus/Desktop/repo",
-//                "http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
+//      imp.index("http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
 //                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
 
-    imp.index("/Users/markus/Desktop/repo",
-            "https://plutof.ut.ee/ipt/archive.do?r=unite_sh",
-            UUID.fromString("61a5f178-b5fb-4484-b6d8-9b129739e59d"));
+      imp.index(new File("/Users/markus/Downloads/ncbi.csv"),
+          UUID.fromString("61a5f178-b5fb-4484-b6d8-111111111111"), true);
+    }
 
-//    imp.index("/Users/markus/Desktop/repo",
-//            "http://www.catalogueoflife.org/DCA_Export/zip/archive-complete.zip",
-//            UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
 
   }
+
+
 }
