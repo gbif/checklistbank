@@ -42,8 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.
@@ -641,6 +643,29 @@ public class UsageDao implements AutoCloseable {
     putIfNotNull(props, NeoProperties.CANONICAL_NAME, u.getCanonicalName());
     putIfNotNull(props, NeoProperties.RANK, u.getRank());
     return props;
+  }
+
+  public static class FullUsage {
+    public final long nodeID;
+    public final NameUsage usage;
+    public final VerbatimNameUsage verbatim;
+    public final ParsedName name;
+    public final UsageExtensions extensions;
+
+    FullUsage(long nodeID, NameUsage usage, VerbatimNameUsage verbatim, ParsedName name, UsageExtensions extensions) {
+      this.nodeID = nodeID;
+      this.usage = usage;
+      this.verbatim = verbatim;
+      this.name = name;
+      this.extensions = extensions;
+    }
+  }
+  public Stream<FullUsage> streamUsages() {
+    return usages.entrySet().stream()
+          .map(e -> {
+            final long id = e.getKey();
+            return new FullUsage(id, e.getValue(), verbatim.get(id), names.get(id), extensions.get(id));
+          });
   }
 
   public ResourceIterator<Node> allTaxa() {

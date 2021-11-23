@@ -7,12 +7,14 @@ import com.google.common.io.Files;
 import org.assertj.core.util.Preconditions;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
+import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
@@ -50,6 +52,29 @@ public class UsageDaoTest {
   public void tmpUsageDao() throws Exception {
     dao = UsageDao.temporaryDao(10);
     testDao();
+  }
+
+  @Test
+  public void tmpStreamALl() throws Exception {
+    dao = UsageDao.temporaryDao(100);
+    try (Transaction tx = dao.beginTx()) {
+      for (int i = 1; i<100; i++) {
+        NameUsage u = new NameUsage();
+        u.setOrigin(Origin.SOURCE);
+        u.setScientificName("Abies alba Mill.");
+        u.setRank(Rank.SPECIES);
+        u.setAuthorship("Mill.");
+        long id = dao.create(u).getId();
+        dao.store(id, new UsageFacts());
+        if (id%2==0) {
+          dao.store(id, new VerbatimNameUsage());
+        }
+      }
+    }
+    dao.compact();
+    dao.streamUsages().parallel().forEach(u -> {
+      System.out.println(String.format("%s %s", u.nodeID, u.usage.getScientificName()));
+    });
   }
 
   @Test

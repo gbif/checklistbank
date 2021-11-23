@@ -97,7 +97,7 @@ public class NubMatchHandler implements StartEndHandler {
         LOG.debug("Nub match {} complementing kingdom: {}", nn.usage.getScientificName(), currKingdom);
       }
     } else {
-      LOG.debug("Failed nub match: {} {}", nn.usage.getRank(), nn.usage.getScientificName());
+      LOG.debug("Failed nub match: {} {}  -  TaxonID={}", nn.usage.getRank(), nn.usage.getScientificName(), nn.usage.getTaxonID());
       nn.usage.setNubKey(null);
       nn.addIssue(NameUsageIssue.BACKBONE_MATCH_NONE);
     }

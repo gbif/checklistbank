@@ -171,11 +171,14 @@ public class ManualImport implements AutoCloseable {
 
     try (ManualImport imp = new ManualImport("/Users/markus/Downloads/repo", nub)) {
 
-//      imp.index("http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
-//                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"));
+      imp.index("https://ipt.gbif.es/archive.do?r=especiessn_zoologiaugr",
+          UUID.fromString("515c1dc0-b712-4fff-bc40-2b2ef2f9ecb9"), true);
 
-      imp.index(new File("/Users/markus/Downloads/ncbi.csv"),
-          UUID.fromString("61a5f178-b5fb-4484-b6d8-111111111111"), true);
+//      imp.index("http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
+//                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"), true);
+
+//  imp.index(new File("/Users/markus/Downloads/ncbi.csv"),
+//    UUID.fromString("61a5f178-b5fb-4484-b6d8-111111111111"), true);
     }
 
 
