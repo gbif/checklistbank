@@ -15,6 +15,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.UsageFacts;
+import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.source.ClasspathSource;
@@ -58,8 +59,9 @@ public class UsageDaoTest {
   public void tmpStreamALl() throws Exception {
     dao = UsageDao.temporaryDao(100);
     try (Transaction tx = dao.beginTx()) {
-      for (int i = 1; i<100; i++) {
+      for (int i = 1; i<=100; i++) {
         NameUsage u = new NameUsage();
+        u.setKey(i);
         u.setOrigin(Origin.SOURCE);
         u.setScientificName("Abies alba Mill.");
         u.setRank(Rank.SPECIES);
@@ -69,16 +71,19 @@ public class UsageDaoTest {
         if (id%2==0) {
           dao.store(id, new VerbatimNameUsage());
         }
+        if (id%3==0) {
+          dao.store(id, new UsageExtensions());
+        }
       }
     }
-    dao.compact();
     dao.streamUsages().parallel().forEach(u -> {
       System.out.println(String.format("%s %s", u.nodeID, u.usage.getScientificName()));
     });
+    assertEquals(100, dao.streamUsages().count());
   }
 
   @Test
-  public void persistenUsageDao() throws Exception {
+  public void persistentUsageDao() throws Exception {
     NeoConfiguration cfg = new NeoConfiguration();
     cfg.neoRepository = Files.createTempDir();
 
