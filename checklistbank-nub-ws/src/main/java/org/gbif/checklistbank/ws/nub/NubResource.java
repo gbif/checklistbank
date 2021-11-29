@@ -3,17 +3,24 @@ package org.gbif.checklistbank.ws.nub;
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.v2.NameUsageMatch2;
+import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
+import org.gbif.nub.lookup.straight.IdLookup;
+import org.gbif.nub.lookup.straight.IdLookupPassThru;
+import org.gbif.nub.lookup.straight.LookupUsage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -34,10 +41,25 @@ public class NubResource {
     Collections.reverse(REVERSED_DWC_RANKS);
   }
   private final NameUsageMatchingService2 matchingService;
+  private final IdLookup lookup;
 
   @Inject
-  public NubResource(NameUsageMatchingService2 matchingService) {
+  public NubResource(NameUsageMatchingService2 matchingService, IdLookup lookup) {
     this.matchingService = matchingService;
+    this.lookup = lookup;
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("lookup")
+  public LookupUsage lookup(@QueryParam("name") String canonicalName,
+                            @QueryParam("authorship") String authorship,
+                            @QueryParam("year") String year,
+                            @QueryParam("rank") Rank rank,
+                            @QueryParam("status") TaxonomicStatus status,
+                            @QueryParam("kingdom") Kingdom kingdom,
+                            @QueryParam("verbose") Boolean verbose) {
+    return lookup.match(canonicalName, authorship, year, rank, status, kingdom);
   }
 
   @GET

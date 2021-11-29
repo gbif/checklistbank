@@ -1,6 +1,5 @@
 package org.gbif.nub.mapdb;
 
-import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Store;

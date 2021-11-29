@@ -38,7 +38,7 @@ public class NubWsListener extends GbifServletListener {
     toBeClosed.add(clbMod);
 
     UUID datasetKey = UUID.fromString(properties.getProperty(NUB_DATASET_KEY, Constants.NUB_DATASET_KEY.toString()));
-    NubMatchingModule nubMod = new NubMatchingModule(new File(properties.getProperty(INDEX_DIR)), datasetKey);
+    NubMatchingModule nubMod = new NubMatchingModule(new File(properties.getProperty(INDEX_DIR)), datasetKey, properties);
     modules.add(nubMod);
     toBeClosed.add(nubMod);
     // use the line below to run the webservice locally with the json test index data from the nub module

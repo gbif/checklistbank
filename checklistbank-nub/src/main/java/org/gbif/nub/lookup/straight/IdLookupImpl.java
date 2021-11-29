@@ -3,7 +3,9 @@ package org.gbif.nub.lookup.straight;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -20,7 +22,9 @@ import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 import org.gbif.nub.mapdb.MapDbUtils;
-import org.mapdb.*;
+import org.mapdb.DB;
+import org.mapdb.HTreeMap;
+import org.mapdb.Serializer;
 import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
@@ -34,8 +38,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.
@@ -60,7 +62,7 @@ public class IdLookupImpl implements IdLookup {
   }
 
   /**
-   * Creates or opens a persistent lookup store.
+   * Creates a new persistent lookup store using some temp file.
    */
   public static IdLookupImpl temp() {
     return new IdLookupImpl(MapDbUtils.tmpFileDB().make());
@@ -286,11 +288,6 @@ public class IdLookupImpl implements IdLookup {
       deleted++;
     }
     keyMax = Math.max(keyMax, u.getMaxKey());
-  }
-
-  @Override
-  public LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom) {
-    return match(canonicalName, null, null, rank, TaxonomicStatus.ACCEPTED, kingdom);
   }
 
   @Override

@@ -21,7 +21,9 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
    *
    * @return the matching usage or null
    */
-  LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom);
+  default LookupUsage match(String canonicalName, Rank rank, Kingdom kingdom) {
+    return match(canonicalName, null, null, rank, TaxonomicStatus.ACCEPTED, kingdom);
+  }
 
   /**
    * Lookup a usage by all possible parameters but the parentKey which was added very recently.
@@ -32,9 +34,10 @@ public interface IdLookup extends Iterable<LookupUsage>, AutoCloseable {
 
   LookupUsage exactCurrentMatch(ParsedName name, Kingdom kingdom, IntSet... ignoreIDs);
 
-    /**
-     * List all usages with the given canonical name regardless of rank, kingdom or authorship
-     */
+  /**
+   * List all usages with the given canonical name regardless of rank, kingdom or authorship
+   */
+  @Deprecated
   List<LookupUsage> match(String canonicalName);
 
   /**
