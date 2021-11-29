@@ -57,8 +57,7 @@ public class NubResource {
                             @QueryParam("year") String year,
                             @QueryParam("rank") Rank rank,
                             @QueryParam("status") TaxonomicStatus status,
-                            @QueryParam("kingdom") Kingdom kingdom,
-                            @QueryParam("verbose") Boolean verbose) {
+                            @QueryParam("kingdom") Kingdom kingdom) {
     return lookup.match(canonicalName, authorship, year, rank, status, kingdom);
   }
 
