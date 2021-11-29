@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -113,13 +114,15 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
       lookup = IdLookupImpl.temp().load(cfg, false);
 
     } else {
-      File ldb = new File(indexDir, "lookupDB");
+      File ldb = new File(indexDir.getParentFile(), "nublookupDB");
       if (ldb.exists()) {
         LOG.info("Opening lookup db at {}", ldb.getAbsolutePath());
+        lookup = IdLookupImpl.persistent(ldb);
       } else {
+        FileUtils.forceMkdir(ldb.getParentFile());
         LOG.info("Creating Lookup db at {}", ldb.getAbsolutePath());
+        lookup = IdLookupImpl.persistent(ldb).load(cfg, false);
       }
-      lookup = IdLookupImpl.persistent(ldb);
     }
     toBeClosed.add(lookup);
     return lookup;
