@@ -1,22 +1,25 @@
-# Rebuild Backbone & Deploy it to Production
+# Build a new GBIF Backbone Taxonomy and deploy it to production
 
 This procedure builds a new backbone on backbonebuild-vh and exposes the required webservices from there directly to run occurrence processing.
 We skip reviewing on UAT but instead rely on the [taxonomy review tool](http://labs.gbif.org/taxonomy-review-v4).
 
 ## Build new backbone on backbonebuild-vh
 We use `backbonebuild-vh` with its local postgres database to build a new backbone and also run the matching and species API from there so we don't need to copy the database around to a different environment. The configs for `backbonebuild-vh` are located in the `nub` environment cli folder.
+
 This setup skips UAT and reviews the backbone with the help of the review tools only.
 
 
 ### Copy ChecklistBank database from prod
-Stop CLB CLIs on prod, dump the prod database and recreate it under the name `clb` on `backbonebuild-vh`.
+ - If this is a release (or release candidate) backbone build, stop production CLB CLIs.
+ - Dump prod CLB DB and import into PostgreSQL on backbonebuild-vh as DB clb
+
 All the following work is done as crap user on `backbonebuild-vh`, mostly in the bin directory:
 
 ### Build Neo4J backbone
  - Review configs at https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/
  - Run Neo4J NUB build via `./clb-buildnub.sh`
  - `./start-clb-importer` to automatically insert the neo4j nub into postgres once the build is done
- - `./start-clb-analysis` 
+ - `./start-clb-analysis`
  - `./stop-clb` once completed
  - archive `nub.log`
 
@@ -87,6 +90,7 @@ This needs to be done before the DWCA export though, as that should include the 
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 - export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
 - gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
+- explain the changes in a document at [backbone-builds](https://github.com/gbif/checklistbank/tree/master/docs/backbone-builds) for use in the [release notes](https://www.gbif.org/release-notes).
 
 ### Copy logs
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
@@ -95,31 +99,23 @@ See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 
 # OCCURRENCES
 
-
-## Reprocess occurrences on UAT
+## Reprocess occurrences
 Processing uses checklistbank-nub-ws, via the KVS cache.
-- Ensure release version of pipelines CLIs, checklistbank-ws & checklistbank-nub-ws are deployed in UAT
-- Stop all pipelines CLIs
-- Either `truncate_preserve 'name_usage_kv'`, or create a new `name_usage_YYYYMMDD_kv` table in HBase:
+- Ensure release version of checklistbank-ws and checklistbank-nub-ws are deployed and running on backbonebuild-vh.
+- Activate the new-backbone Varnish configuration, which directs requests from machines used to do reinterpretation to the backbonebuild-vh webservices.
+- Ensure any occurrence ingestion has completed then stop crawler CLIs.
+- `truncate_preserve 'name_usage_kv'`, or (if preferred) create a new `name_usage_YYYYMMDD_kv` table in HBase and update configurations to use this:
   ```
   create 'name_usage_20210225_kv', {NAME => 'v', BLOOMFILTER => 'ROW', DATA_BLOCK_ENCODING => 'FAST_DIFF', COMPRESSION => 'SNAPPY'},{SPLITS => ['1','2','3','4','5','6','7','8']}
   ```
-- See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT:
-  ```
-  curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | \
-  jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | \
-  curl -u user:password -H 'Content-Type: application/json' -X POST -d@- \
-      'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&useLastSuccessful=true&reason=New+backbone'
-  ````
-  (this doesn't reuses the existing ES index, see the pipelines documentation for alternatives).
+- Use the [Pipelines reinterpretation pipeline](https://github.com/gbif/pipelines-jenkins-reinterpretation/) to run a reinterpretation, on the appropriate environment, choosing a new index if required.
+  - In UAT, typically we would reinterpret in-place,
+  - In production, we increment the index letter and build a new index, then swap over once it is completed.
 
-## Backfill Occurrence maps & cubes
-See https://github.com/gbif/metrics/tree/master/cube
 
-### Map builds
+## Backfill Occurrence maps
 - Update configurations if table names have changed.
-- Either way, either let the scheduler run its course, or start the jobs manually.
+- Let the scheduler run its course, or (if preferred) start the jobs manually.
 
 ## Deploy other WS
 - Deploy metrics-ws, vectortile-server, occurrence-ws, registry-ws (as required)
-
