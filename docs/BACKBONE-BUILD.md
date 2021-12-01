@@ -1,5 +1,8 @@
 # Rebuild Backbone & Deploy it to Production
 
+This procedure builds a new backbone on backbonebuild-vh and exposes the required webservices from there directly to run occurrence processing.
+We skip reviewing on UAT but instead rely on the [taxonomy review tool](http://labs.gbif.org/taxonomy-review-v4).
+
 ## Build new backbone on backbonebuild-vh
 We use `backbonebuild-vh` with its local postgres database to build a new backbone and also run the matching and species API from there so we don't need to copy the database around to a different environment. The configs for `backbonebuild-vh` are located in the `nub` environment cli folder.
 This setup skips UAT and reviews the backbone with the help of the review tools only.
@@ -12,63 +15,34 @@ All the following work is done as crap user on `backbonebuild-vh`, mostly in the
 ### Build Neo4J backbone
  - Review configs at https://github.com/gbif/gbif-configuration/blob/master/cli/nub/config/
  - Run Neo4J NUB build via `./clb-buildnub.sh`
- - `./start-clb-importer.sh` to automatically insert the neo4j nub into postgres once the build is done
- - `./start-clb-analysis.sh` 
- - `./stop-clb.sh` once completed
- - archive nub.log
+ - `./start-clb-importer` to automatically insert the neo4j nub into postgres once the build is done
+ - `./start-clb-analysis` 
+ - `./stop-clb` once completed
+ - archive `nub.log`
 
-### Rebuild NUB lookup index
- - `stop-nub-ws.sh`
- - `rm -Rf ~/nub_idx`
- - `start-nub-ws.sh`
+### Rebuild NUB lookup index & mapdb
+ - `./stop-nub-ws`
+ - `rm -Rf ~/nubidx`
+ - `rm ~/nublookupDB`
+ - `./start-nub-ws.sh`
  - wait until the logs indicate the index build was finished (~1h).
 
-### Rematch IUCN
-The IUCN checklist is queried to assign a redlist status to occurrences.
-It needs to be matched to the latest backbone before the occurrence processing can run.
- - `./start-clb-matcher.sh`
- - `./start-clb-analysis.sh` 
- - `./clb-admin MATCH --iucn` 
+This exposes the nub matching service on port 9000:
+http://backbonebuild-vh.gbif.org:9000/species/match?verbose=true&name=Abies
 
+### Rematch checklists
+With a new backbone all checklists must be rematched. The COL dataset must come first as the metrics make use of it for each other dataset.
+The IUCN checklist is queried to assign a redlist status to occurrences, so occurrence processing must not start before it is rematched.
 
-## Reprocess occurrences on UAT
-Processing uses checklistbank-nub-ws, via the KVS cache.
- - Ensure release version of pipelines CLIs, checklistbank-ws & checklistbank-nub-ws are deployed in UAT
- - Stop all pipelines CLIs
- - Either `truncate_preserve 'name_usage_kv'`, or create a new `name_usage_YYYYMMDD_kv` table in HBase:
-   ```
-   create 'name_usage_20210225_kv', {NAME => 'v', BLOOMFILTER => 'ROW', DATA_BLOCK_ENCODING => 'FAST_DIFF', COMPRESSION => 'SNAPPY'},{SPLITS => ['1','2','3','4','5','6','7','8']}
-   ```
- - See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT:
-   ```
-   curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | \
-   jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | \
-   curl -u user:password -H 'Content-Type: application/json' -X POST -d@- \
-       'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&useLastSuccessful=true&reason=New+backbone'
-   ````
-   (this doesn't reuses the existing ES index, see the pipelines documentation for alternatives).
-
-## Rematch checklists
-Also do this on `backbonebuild-vh` as crap user.
 If not already running start the matcher cli:
- - `start-clb-matcher.sh`
- - `start-clb-analysis.sh`
- - rematch CoL first: `./clb-admin.sh MATCH --col` so subsequent dataset analysis contains the right CoL percentage coverage
- - then rematch all the rest: `./clb-admin.sh REMATCH` this takes 1-2 days to complete!!!
+- `./start-clb-matcher.sh`
+- `./start-clb-analysis.sh`
+- `./clb-admin MATCH --col` rematch CoL first so subsequent dataset analysis contains the right CoL percentage coverage
+- `./clb-admin MATCH --iucn`
+- then rematch all the rest: `./clb-admin REMATCH` this takes 10-20h to complete.
 
-## Export backbone CSV
-See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
-- export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
-- gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
 
-## Backfill Occurrence maps & cubes
-See https://github.com/gbif/metrics/tree/master/cube
-
-### Map builds
- - Update configurations if table names have changed.
- - Either way, either let the scheduler run its course, or start the jobs manually.
-
-## Final prod deployment
+## Prod deployment
 
 ### Prepare CLB
  - backbonebuild-vh: `sudo -u postgres pg_dump -U postgres -Fc -Z1 clb > /var/lib/pgsql/11/backups/clb-2021-03-03.dump`
@@ -77,6 +51,7 @@ See https://github.com/gbif/metrics/tree/master/cube
    - `sudo -u postgres pg_restore --clean --dbname prod_checklistbank2 --jobs 8 /var/lib/pgsql/11/backups/clb-2021-03-08.dump`
    - `sudo -u postgres psql -U clb prod_checklistbank -c 'VACUUM ANALYZE'
  - copy NUB index from `backbonebuild-vh:/home/crap/nubidx` to `ws.gbif.org:/usr/local/gbif/services/checklistbank-nub-ws/nubidxNEW`
+ - copy nublookupDB index from `backbonebuild-vh:/home/crap/nublookupDB` to `ws.gbif.org:/usr/local/gbif/services/checklistbank-nub-ws/nublookupDBNEW`
  - update webservice configs
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
@@ -98,21 +73,53 @@ See https://github.com/gbif/metrics/tree/master/cube
    systemctl start checklistbank-ws
    ````
 
-### Deploy other WS
- - Deploy metrics-ws, vectortile-server, occurrence-ws, registry-ws (as required)
-
-### Deploy Dataset index coordinator job
-The dataset index contains information about taxa used in occurrence and checklist datasets which is updated nightly by an Oozie coordinator job. That job needs to be redeployed with updated configs to use the latest clb and occ settings:
- - update https://github.com/gbif/gbif-configuration/blob/master/registry-index-builder/prod.properties
- - execute `c4gateway-vh:.../registry/registry-index-builder/install-coordinator.sh prod TOKEN`
-
-
-## Update prod backbone metadata
+### Update prod backbone metadata
 This updates the prod registry! Only do this when we went live.
 This needs to be done before the DWCA export though, as that should include the updated metadata
 - `./admin.sh UPDATE_NUB_DATASET`
 
-## Export backbone DwC-A
+### Export backbone DwC-A
 - import from backbonebuild-vh clb DB dump
 - export NUB to DWCA: `./clb-admin.sh EXPORT --nub`
 - move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
+
+### Export backbone CSV
+See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
+- export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
+- gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
+
+### Copy logs
+See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
+
+
+
+# OCCURRENCES
+
+
+## Reprocess occurrences on UAT
+Processing uses checklistbank-nub-ws, via the KVS cache.
+- Ensure release version of pipelines CLIs, checklistbank-ws & checklistbank-nub-ws are deployed in UAT
+- Stop all pipelines CLIs
+- Either `truncate_preserve 'name_usage_kv'`, or create a new `name_usage_YYYYMMDD_kv` table in HBase:
+  ```
+  create 'name_usage_20210225_kv', {NAME => 'v', BLOOMFILTER => 'ROW', DATA_BLOCK_ENCODING => 'FAST_DIFF', COMPRESSION => 'SNAPPY'},{SPLITS => ['1','2','3','4','5','6','7','8']}
+  ```
+- See [pipelines documentation](https://github.com/gbif/pipelines/tree/dev/gbif/pipelines/interpretation-docs), but on UAT:
+  ```
+  curl -Ss 'http://api.gbif-uat.org/v1/occurrence/search?limit=0&facet=datasetKey&facetLimit=50000' | \
+  jq '{ datasetsToInclude: [ .facets[].counts[].name ] }' | \
+  curl -u user:password -H 'Content-Type: application/json' -X POST -d@- \
+      'https://api.gbif-uat.org/v1/pipelines/history/run?steps=VERBATIM_TO_INTERPRETED&useLastSuccessful=true&reason=New+backbone'
+  ````
+  (this doesn't reuses the existing ES index, see the pipelines documentation for alternatives).
+
+## Backfill Occurrence maps & cubes
+See https://github.com/gbif/metrics/tree/master/cube
+
+### Map builds
+- Update configurations if table names have changed.
+- Either way, either let the scheduler run its course, or start the jobs manually.
+
+## Deploy other WS
+- Deploy metrics-ws, vectortile-server, occurrence-ws, registry-ws (as required)
+
