@@ -65,6 +65,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
 
   @Override
   protected void configure() {
+    bind(IdLookup.class).toInstance(provideLookup());
     bind(NubMatchingServiceImpl.class).asEagerSingleton();
 
     bind(NameUsageMatchingService.class).to(NubMatchingServiceImpl.class);
@@ -101,31 +102,34 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
     return comp;
   }
 
-  @Provides
-  @Singleton
-  public IdLookup provideLookup() throws IOException, SQLException {
-    IdLookup lookup;
-    if (cfg == null) {
-      LOG.info("Using a pass through lookup");
-      lookup = new IdLookupPassThru();
+  private IdLookup provideLookup() {
+    try {
+      IdLookup lookup;
+      if (cfg == null) {
+        LOG.info("Using a pass through lookup");
+        lookup = new IdLookupPassThru();
 
-    } else if (indexDir == null) {
-      LOG.info("Building a new temporary lookup db");
-      lookup = IdLookupImpl.temp().load(cfg, false);
+      } else if (indexDir == null) {
+        LOG.info("Building a new temporary lookup db");
+        lookup = IdLookupImpl.temp().load(cfg, false);
 
-    } else {
-      File ldb = new File(indexDir.getParentFile(), "nublookupDB");
-      if (ldb.exists()) {
-        LOG.info("Opening lookup db at {}", ldb.getAbsolutePath());
-        lookup = IdLookupImpl.persistent(ldb);
       } else {
-        FileUtils.forceMkdir(ldb.getParentFile());
-        LOG.info("Creating Lookup db at {}", ldb.getAbsolutePath());
-        lookup = IdLookupImpl.persistent(ldb).load(cfg, false);
+        File ldb = new File(indexDir.getParentFile(), "nublookupDB");
+        if (ldb.exists()) {
+          LOG.info("Opening lookup db at {}", ldb.getAbsolutePath());
+          lookup = IdLookupImpl.persistent(ldb);
+        } else {
+          FileUtils.forceMkdir(ldb.getParentFile());
+          LOG.info("Creating Lookup db at {}", ldb.getAbsolutePath());
+          lookup = IdLookupImpl.persistent(ldb).load(cfg, false);
+        }
       }
+      toBeClosed.add(lookup);
+      return lookup;
+      
+    } catch (SQLException | IOException e) {
+      throw new RuntimeException(e);
     }
-    toBeClosed.add(lookup);
-    return lookup;
   }
 
   @Override
