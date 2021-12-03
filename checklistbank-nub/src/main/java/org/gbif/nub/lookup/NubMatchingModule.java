@@ -126,7 +126,7 @@ public class NubMatchingModule extends PrivateModule implements Closeable {
       }
       toBeClosed.add(lookup);
       return lookup;
-      
+
     } catch (SQLException | IOException e) {
       throw new RuntimeException(e);
     }
