@@ -68,7 +68,6 @@ cd /home/mdoering/checklistbank/checklistbank-solr
 git pull
 ./install-workflow.sh prod token
   ````
- - 
 
 ### Deploy CLB WS
  - prod deploy of checklistbank-nub-ws
@@ -94,12 +93,12 @@ This needs to be done before the DWCA export though, as that should include the 
 
 ### Export backbone DwC-A
 - import from backbonebuild-vh clb DB dump
-- export NUB to DWCA: `./clb-admin.sh EXPORT --nub`
+- export NUB to DWCA: `./clb-admin EXPORT --nub`
 - move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
 
 ### Export backbone CSV
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
-- export CSV from postgres: ` \copy (select * from v_backbone) to 'simple.txt'`
+- export CSV from postgres: `\copy (select * from v_backbone) to 'simple.txt'`
 - gzip and move to move to https://hosted-datasets.gbif.org/datasets/backbone/yyyy-mm-dd
 - explain the changes in a document at [backbone-builds](https://github.com/gbif/checklistbank/tree/master/docs/backbone-builds) for use in the [release notes](https://www.gbif.org/release-notes).
 

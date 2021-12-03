@@ -37,6 +37,3 @@ hadoop --config /etc/hadoop/conf/ jar $SOLR_HOME/dist/solr-map-reduce-*.jar $MAP
 --zk-host $ZK_HOST \
 --collection $SOLR_COLLECTION_TODAY \
 --go-live
-
-echo "Create alias $SOLR_COLLECTION for $SOLR_COLLECTION_TODAY"
-curl -s """$SOLR_HTTP_URL"/admin/collections?action=CREATEALIAS\&name="$SOLR_COLLECTION"\&collections="$SOLR_COLLECTION_TODAY"""
