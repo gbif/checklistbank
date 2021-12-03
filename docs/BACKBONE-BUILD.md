@@ -90,7 +90,7 @@ git pull
 ### Update prod backbone metadata
 This updates the prod registry! Only do this when we went live.
 This needs to be done before the DWCA export though, as that should include the updated metadata
-- `./admin.sh UPDATE_NUB_DATASET`
+- `./clb-admin UPDATE_NUB_DATASET`
 
 ### Export backbone DwC-A
 - import from backbonebuild-vh clb DB dump
@@ -106,6 +106,8 @@ See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 ### Copy logs
 See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 
+### Write blog post
+See https://hosted-datasets.gbif.org/datasets/backbone/readme.html
 
 
 # OCCURRENCES
