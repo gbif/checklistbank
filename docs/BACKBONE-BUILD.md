@@ -59,6 +59,17 @@ If not already running start the matcher cli:
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-ws/prod/application.properties
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
 
+### Rebuild solr index
+We build a new solr index for prod using oozie and the backbonebuild database, but do not yet change the production alias which will be done when we deploy the services.
+
+ - ssh c5gateway.gbif.org
+  ````
+cd /home/mdoering/checklistbank/checklistbank-solr
+git pull
+./install-workflow.sh prod token
+  ````
+ - 
+
 ### Deploy CLB WS
  - prod deploy of checklistbank-nub-ws
  - swap NUB index within checklistbank-nub-ws:
