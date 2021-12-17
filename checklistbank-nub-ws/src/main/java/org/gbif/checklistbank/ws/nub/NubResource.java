@@ -168,7 +168,7 @@ public class NubResource {
   }
 
   private boolean bool(Boolean bool) {
-    return bool == null ? false : bool;
+    return bool != null && bool;
   }
 
 }
