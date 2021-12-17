@@ -1,28 +1,45 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.ws.resources;
+
+import org.gbif.api.model.common.paging.PagingRequest;
+import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+
+import java.io.*;
+import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import com.google.inject.name.Named;
+
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
-import org.gbif.api.model.common.paging.PagingRequest;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.*;
-import java.util.Map;
 
 /**
  * Species sitemap resource producing text sitemaps for all checklist bank name usages.
@@ -30,7 +47,11 @@ import java.util.Map;
  *
  * see https://www.sitemaps.org/protocol.html
  */
-@Path("/sitemap/species")
+@RestController
+@RequestMapping(
+  value = "/sitemap/species",
+  produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
+)
 public class SpeciesSitemapResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeciesSitemapResource.class);
@@ -59,7 +80,7 @@ public class SpeciesSitemapResource {
         return fm;
     }
 
-    @Inject
+    @Autowired
     public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Named("checklistbank.portal.url") String portalUrl, @Named("checklistbank.api.url") String apiUrl) {
         this.nameUsageMapper = nameUsageMapper;
         this.portalUrl = portalUrl;
@@ -69,8 +90,7 @@ public class SpeciesSitemapResource {
     /**
      * Generate a sitemap index to all sitemaps.
      */
-    @GET
-    @Produces(MediaType.APPLICATION_XML)
+    @GetMapping(produces = MediaType.APPLICATION_XML)
     public String sitemapIndex() throws IOException {
         int cnt = nameUsageMapper.count(null);
         int maps = (int) Math.ceil((double) cnt/SITEMAP_SIZE);
@@ -92,15 +112,13 @@ public class SpeciesSitemapResource {
     /**
      * Generate a single text sitemap with 50k entries.
      */
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("{page}")
-    public Response sitemap(@PathParam("page") int page) {
+    @GetMapping(path= "{page}", produces =MediaType.TEXT_PLAIN)
+    public Response sitemap(@PathVariable("page") int page) {
         Preconditions.checkArgument(page > 0, "Page parameter must be positive");
 
         StreamingOutput stream = os -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(os, Charsets.UTF_8));
-            PagingRequest req = new PagingRequest((page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
+            PagingRequest req = new PagingRequest((long) (page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
             for (int key : nameUsageMapper.list(null, req)) {
                 writer.write(portalUrl);
                 writer.write(String.valueOf(key));

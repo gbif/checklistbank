@@ -1,8 +1,19 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.ws.resources;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.inject.Inject;
+import org.gbif.api.annotation.NullToNotFound;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.checklistbank.search.*;
@@ -19,21 +30,31 @@ import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
-import org.gbif.ws.server.interceptor.NullToNotFound;
-import org.gbif.ws.util.ExtraMediaTypes;
+
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import java.util.*;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
+
 
 /**
  * Species resource.
  */
-@Path("/species")
-@Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
+@RestController
+@RequestMapping(
+  value = "/species",
+  produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
+)
 public class SpeciesResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(SpeciesResource.class);
@@ -57,7 +78,7 @@ public class SpeciesResource {
   private final NubRelMapper nubRelMapper;
 
 
-  @Inject
+  @Autowired
   public SpeciesResource(
       NameUsageService nameUsageService, VernacularNameService vernacularNameService,
       TypeSpecimenService typeSpecimenService, SpeciesProfileService speciesProfileService,
@@ -88,9 +109,9 @@ public class SpeciesResource {
    * @param page        the limit, offset paging information
    * @return requested list of NameUsage or an empty list if none could be found
    */
-  @GET
-  public PagingResponse<NameUsage> list(@Context Locale locale, @QueryParam(DATASET_KEY) Set<UUID> datasetKeys,
-                                        @QueryParam("sourceId") String sourceId, @QueryParam("name") String canonicalName, @Context Pageable page) {
+  @GetMapping
+  public PagingResponse<NameUsage> list(Locale locale, @RequestParam(DATASET_KEY) Set<UUID> datasetKeys,
+                                        @RequestParam("sourceId") String sourceId, @RequestParam("name") String canonicalName, @RequestParam Pageable page) {
 
     // limit the maximum allowed offset
     checkDeepPaging(page);
@@ -111,9 +132,8 @@ public class SpeciesResource {
     }
   }
 
-  @GET
-  @Path("mapping")
-  public List<NubMapping> mappings(@QueryParam(DATASET_KEY) UUID datasetKey) {
+  @GetMapping("mapping")
+  public List<NubMapping> mappings(@RequestParam(DATASET_KEY) UUID datasetKey) {
     if (datasetKey == null) {
       throw new IllegalArgumentException("DatasetKey is a required parameter");
     }
@@ -130,31 +150,27 @@ public class SpeciesResource {
    * @return requested NameUsage or null if none could be found. List of NameUsage in case of a search.
    * @see NameUsageService#get(int, Locale)
    */
-  @GET
-  @Path("{id}")
+  @GetMapping("{id}")
   @NullToNotFound
-  public NameUsage get(@PathParam("id") int usageKey, @Context Locale locale) {
+  public NameUsage get(@PathVariable("id") int usageKey, Locale locale) {
     return nameUsageService.get(usageKey, locale);
   }
 
-  @GET
-  @Path("{id}/metrics")
+  @GetMapping("{id}/metrics")
   @NullToNotFound
-  public NameUsageMetrics getMetrics(@PathParam("id") int usageKey) {
+  public NameUsageMetrics getMetrics(@RequestParam("id") int usageKey) {
     return nameUsageService.getMetrics(usageKey);
   }
 
-  @GET
-  @Path("{id}/name")
+  @GetMapping("{id}/name")
   @NullToNotFound
-  public ParsedName getParsedName(@PathParam("id") int usageKey) {
+  public ParsedName getParsedName(@RequestParam("id") int usageKey) {
     return nameUsageService.getParsedName(usageKey);
   }
 
-  @GET
-  @Path("{id}/verbatim")
+  @GetMapping("{id}/verbatim")
   @NullToNotFound
-  public VerbatimNameUsage getVerbatim(@PathParam("id") int usageKey) {
+  public VerbatimNameUsage getVerbatim(@RequestParam("id") int usageKey) {
     return nameUsageService.getVerbatim(usageKey);
   }
 
@@ -167,15 +183,13 @@ public class SpeciesResource {
    * @return requested list of NameUsage or an empty list if none could be found
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
-  @GET
-  @Path("{id}/children")
-  public PagingResponse<NameUsage> listChildren(@PathParam("id") int parentKey, @Context Locale locale, @Context Pageable page) {
+  @GetMapping("{id}/children")
+  public PagingResponse<NameUsage> listChildren(@RequestParam("id") int parentKey, Locale locale, Pageable page) {
     return nameUsageService.listChildren(parentKey, locale, page);
   }
 
-  @GET
-  @Path("{id}/childrenAll")
-  public List<UsageCount> listAllChildren(@PathParam("id") int parentKey) {
+  @GetMapping("{id}/childrenAll")
+  public List<UsageCount> listAllChildren(@RequestParam("id") int parentKey) {
     return usageCountMapper.children(parentKey);
   }
 
@@ -188,9 +202,8 @@ public class SpeciesResource {
    * @return requested list of NameUsage or an empty list if none could be found
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
-  @GET
-  @Path("{id}/synonyms")
-  public PagingResponse<NameUsage> listSynonyms(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page) {
+  @GetMapping("{id}/synonyms")
+  public PagingResponse<NameUsage> listSynonyms(@RequestParam("id") int usageKey, Locale locale, Pageable page) {
     return nameUsageService.listSynonyms(usageKey, locale, page);
   }
 
@@ -203,9 +216,8 @@ public class SpeciesResource {
    * @return a list of all VernacularNames
    * @see VernacularNameService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/vernacularNames")
-  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/vernacularNames")
+  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@RequestParam("id") int usageKey, Pageable page) {
     return vernacularNameService.listByUsage(usageKey, page);
   }
 
@@ -217,9 +229,8 @@ public class SpeciesResource {
    * @return a list of all TypeSpecimens
    * @see TypeSpecimenService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/typeSpecimens")
-  public PagingResponse<TypeSpecimen> listTypeSpecimensByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/typeSpecimens")
+  public PagingResponse<TypeSpecimen> listTypeSpecimensByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return typeSpecimenService.listByUsage(usageKey, page);
   }
 
@@ -231,9 +242,8 @@ public class SpeciesResource {
    * @return a list of all SpeciesProfiles
    * @see SpeciesProfileService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/speciesProfiles")
-  public PagingResponse<SpeciesProfile> listSpeciesProfilesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/speciesProfiles")
+  public PagingResponse<SpeciesProfile> listSpeciesProfilesByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return speciesProfileService.listByUsage(usageKey, page);
   }
 
@@ -245,9 +255,8 @@ public class SpeciesResource {
    * @return a list of all References
    * @see ReferenceService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/references")
-  public PagingResponse<Reference> listReferencesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/references")
+  public PagingResponse<Reference> listReferencesByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return referenceService.listByUsage(usageKey, page);
   }
 
@@ -258,9 +267,8 @@ public class SpeciesResource {
    * @param page     The page and offset and count information
    * @return a list of all Media objects
    */
-  @GET
-  @Path("{id}/media")
-  public PagingResponse<NameUsageMediaObject> listImagesByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/media")
+  public PagingResponse<NameUsageMediaObject> listImagesByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return imageService.listByUsage(usageKey, page);
   }
 
@@ -272,19 +280,17 @@ public class SpeciesResource {
    * @return a list of all Descriptions
    * @see DescriptionService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/descriptions")
-  public PagingResponse<Description> listDescriptionsByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/descriptions")
+  public PagingResponse<Description> listDescriptionsByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return descriptionService.listByUsage(usageKey, page);
   }
 
   /**
    * This retrieves a table of contents for all descriptions of a name usage from ChecklistBank.
    */
-  @GET
-  @Path("{id}/toc")
+  @GetMapping("{id}/toc")
   @NullToNotFound
-  public TableOfContents get(@PathParam("id") Integer key) {
+  public TableOfContents get(@PathVariable("id") Integer key) {
     return descriptionService.getToc(key);
   }
 
@@ -296,9 +302,8 @@ public class SpeciesResource {
    * @return a list of all Distributions
    * @see DistributionService#listByUsage(int, Pageable)
    */
-  @GET
-  @Path("{id}/distributions")
-  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/distributions")
+  public PagingResponse<Distribution> listDistributionsByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return distributionService.listByUsage(usageKey, page);
   }
 
@@ -309,9 +314,8 @@ public class SpeciesResource {
    * @param page     The page and offset and count information
    * @return a list of all Identifier
    */
-  @GET
-  @Path("{id}/identifier")
-  public PagingResponse<Identifier> listIdentifierByNameUsage(@PathParam("id") int usageKey, @Context Pageable page) {
+  @GetMapping("{id}/identifier")
+  public PagingResponse<Identifier> listIdentifierByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return identifierService.listByUsage(usageKey, page);
   }
 
@@ -322,16 +326,14 @@ public class SpeciesResource {
    * @param datasetKeys The optional list of dataset keys to filter related usages
    * @return a list of all Related usages
    */
-  @GET
-  @Path("{id}/related")
-  public PagingResponse<NameUsage> listRelatedByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page,
-                                                          @QueryParam(DATASET_KEY) Set<UUID> datasetKeys) {
+  @GetMapping("{id}/related")
+  public PagingResponse<NameUsage> listRelatedByNameUsage(@PathVariable("id") int usageKey, Locale locale, Pageable page,
+                                                          @RequestParam(DATASET_KEY) Set<UUID> datasetKeys) {
     return nameUsageService.listRelated(usageKey, locale, page, datasetKeys.toArray(new UUID[datasetKeys.size()]));
   }
 
-  @GET
-  @Path("{id}/combinations")
-  public List<NameUsage> listCombinations(@PathParam("id") int basionymKey, @Context Locale locale) {
+  @GetMapping("{id}/combinations")
+  public List<NameUsage> listCombinations(@PathVariable("id") int basionymKey, Locale locale) {
     return nameUsageService.listCombinations(basionymKey, locale);
   }
 
@@ -343,9 +345,8 @@ public class SpeciesResource {
    * @return a list of all Parents
    * @see NameUsageService#listParents(int, Locale)
    */
-  @GET
-  @Path("{id}/parents")
-  public List<NameUsage> listParentsByNameUsage(@PathParam("id") int usageKey, @Context Locale locale, @Context Pageable page) {
+  @GetMapping("{id}/parents")
+  public List<NameUsage> listParentsByNameUsage(@PathVariable("id") int usageKey, Locale locale, Pageable page) {
     return nameUsageService.listParents(usageKey, locale);
   }
 
@@ -356,9 +357,8 @@ public class SpeciesResource {
    * @param usageKey NameUsage key
    * @return the category or null if it doesn't have one
    */
-  @GET
-  @Path("{id}/iucnRedListCategory")
-  public IucnRedListCategory getIucnRedListCategory(@PathParam("id") int usageKey) {
+  @GetMapping("{id}/iucnRedListCategory")
+  public IucnRedListCategory getIucnRedListCategory(@PathVariable("id") int usageKey) {
     IucnRedListCategory iucn = distributionMapper.getIucnRedListCategory(usageKey);
     return iucn == null || iucn.getCategory() == null ? null : iucn;
   }
@@ -372,20 +372,17 @@ public class SpeciesResource {
    * @return requested list of NameUsage or an empty list if none could be found
    * @see NameUsageService#listRoot(UUID, Locale, Pageable)
    */
-  @GET
-  @Path("root/{datasetKey}")
-  public PagingResponse<NameUsage> listRootUsages(@PathParam(DATASET_KEY) UUID datasetKey, @Context Locale locale, @Context Pageable page) {
+  @GetMapping("root/{datasetKey}")
+  public PagingResponse<NameUsage> listRootUsages(@PathVariable(DATASET_KEY) UUID datasetKey, Locale locale, Pageable page) {
     return nameUsageService.listRoot(datasetKey, locale, page);
   }
 
-  @GET
-  @Path("rootAll/{datasetKey}")
-  public List<UsageCount> root(@PathParam("datasetKey") UUID datasetKey) {
+  @GetMapping("rootAll/{datasetKey}")
+  public List<UsageCount> root(@PathVariable("datasetKey") UUID datasetKey) {
     return usageCountMapper.root(datasetKey);
   }
 
-  @GET
-  @Path("rootNub")
+  @GetMapping("rootNub")
   public TreeContainer<UsageCount, Integer> rootNub() {
     TreeContainer<UsageCount, Integer> tree = new TreeContainer<>();
     // kingdoms
@@ -409,18 +406,16 @@ public class SpeciesResource {
     }
   }
 
-  @GET
-  @Path("search")
-  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(@Context NameUsageSearchRequest searchRequest) {
+  @GetMapping("search")
+  public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(NameUsageSearchRequest searchRequest) {
     // POR-2801
     // protect SOLR against deep paging requests which blow heap
     checkDeepPaging(searchRequest);
     return searchService.search(searchRequest);
   }
 
-  @Path("suggest")
-  @GET
-  public List<NameUsageSuggestResult> suggest(@Context NameUsageSuggestRequest searchSuggestRequest) {
+  @GetMapping("suggest")
+  public List<NameUsageSuggestResult> suggest(NameUsageSuggestRequest searchSuggestRequest) {
     // POR-2801
     // protect SOLR against deep paging requests which blow heap
     checkDeepPaging(searchSuggestRequest);

@@ -1,43 +1,57 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.ws.util.LineReader;
-import org.gbif.ws.util.ExtraMediaTypes;
 
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.inject.Inject;
-import com.sun.jersey.multipart.FormDataParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The scientific name parser exposed in the API.
  */
-@Path("/parser/name")
-@Produces({MediaType.APPLICATION_JSON, ExtraMediaTypes.APPLICATION_JAVASCRIPT})
+@RestController
+@RequestMapping(
+  value = "/parser/name",
+  produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
+)
 public class NameParserResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(NameParserResource.class);
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n').omitEmptyStrings().trimResults();
   private final NameParser parser;
 
-  @Inject
+  @Autowired
   public NameParserResource(NameParser parser) {
     this.parser = parser;
   }
@@ -45,16 +59,15 @@ public class NameParserResource {
   /**
    * Parsing names as GET query parameters.
    */
-  @GET
-  public List<ParsedName> parseGet(@QueryParam("name") List<String> names) {
+  @GetMapping
+  public List<ParsedName> parseGet(@RequestParam("name") List<String> names) {
     return parse(names.iterator());
   }
 
   /**
    * Parsing names as a json array.
    */
-  @POST
-  @Consumes(MediaType.APPLICATION_JSON)
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   public List<ParsedName> parseJson(List<String> names) {
     return parse(names.iterator());
   }
@@ -65,14 +78,13 @@ public class NameParserResource {
    * curl -F names=@scientific_names.txt http://apidev.gbif.org/parser/name
    * </pre>
    */
-  @POST
-  @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public List<ParsedName> parseFile(@FormDataParam("names") InputStream namesFile) throws UnsupportedEncodingException {
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public List<ParsedName> parseFile(@RequestParam("names") MultipartFile namesFile) throws IOException {
     if (namesFile == null) {
       LOG.debug("No names file uploaded");
       return Lists.newArrayList();
     }
-    LineReader iter = new LineReader(namesFile, Charset.forName("UTF8"));
+    LineReader iter = new LineReader(namesFile.getInputStream(), StandardCharsets.UTF_8);
     return parse(iter.iterator());
   }
 
@@ -84,8 +96,7 @@ public class NameParserResource {
    * curl POST -H "Content-Type:text/plain" --data-binary @scientific_names.txt http://apidev.gbif.org/parser/name
    * </pre>
    */
-  @POST
-  @Consumes(MediaType.TEXT_PLAIN)
+  @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
   public List<ParsedName> parsePlainText(String names) {
     return parse(NEW_LINE_SPLITTER.split(Strings.nullToEmpty(names)).iterator());
   }
