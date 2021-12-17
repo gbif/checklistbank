@@ -90,10 +90,6 @@
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-ganglia</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-    </dependency>
 
     <!-- test scope -->
     <dependency>

@@ -63,6 +63,16 @@
         <name-parser.version>3.7.1-SNAPSHOT</name-parser.version>
         <gbif-parser.version>0.57-SNAPSHOT</gbif-parser.version>
         <dwca-io.version>2.11</dwca-io.version>
+
+        <!-- Spring -->
+        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+        <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
+        <spring-cloud-openfeign.version>2.2.6.RELEASE</spring-cloud-openfeign.version>
+        <mybatis-spring-boot-starter.version>2.1.0</mybatis-spring-boot-starter.version>
+        <mybatis-spring-boot-starter-test.version>2.0.0</mybatis-spring-boot-starter-test.version>
+        <feign.version>10.11</feign.version>
+        <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
+
         <!-- external libs -->
         <amqp-client.version>3.1.4</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
@@ -79,15 +89,11 @@
         <fastutil.version>8.2.2</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
-        <grizzly-servlet-webserver.version>1.9.61</grizzly-servlet-webserver.version>
         <guava.version>18.0</guava.version>
-        <guice.version>4.0</guice.version>
         <hadoop.version>2.6.0-cdh5.16.2</hadoop.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hikaricp.version>2.6.3</hikaricp.version>
-        <jackson.version>1.9.12</jackson.version>
-        <jackson-datatype-guava.version>1.9.2</jackson-datatype-guava.version>
-        <jackson2.version>2.9.7</jackson2.version>
+        <jackson.version>2.11.3</jackson.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.60</jcommander.version>
         <jersey.version>1.19.4</jersey.version>
@@ -103,7 +109,6 @@
         <metrics.version>3.1.2</metrics.version>
         <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
         <mockito.version>1.10.19</mockito.version>
-        <mybatis-guice.version>3.9</mybatis-guice.version>
         <mybatis.version>3.4.2</mybatis.version>
         <neo4j.version>3.5.29</neo4j.version>
         <postgresql.version>42.2.5</postgresql.version>
@@ -113,10 +118,23 @@
         <slf4j.version>1.7.24</slf4j.version>
         <solr-lucene.version>5.4.1</solr-lucene.version>
         <tika.version>1.21</tika.version>
+        <zookeeper.version>3.4.5-cdh5.16.2</zookeeper.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
-        <sonar.projectName>GBIF ChecklistBank</sonar.projectName>
+        <sonar.jacoco.reportPaths>${jacoco.merged.output.file}</sonar.jacoco.reportPaths>
+        <sonar.projectName>GBIF Checklistbank</sonar.projectName>
+
+        <!-- JaCoCo -->
+        <coverage.dir>${project.basedir}/../target/coverage</coverage.dir>
+        <coverage.report.it.dir>${project.basedir}/../target/site/jacoco-it</coverage.report.it.dir>
+        <coverage.report.ut.dir>${project.basedir}/../target/site/jacoco-ut</coverage.report.ut.dir>
+        <jacoco.it.output.file>${coverage.dir}/jacoco-it.exec</jacoco.it.output.file>
+        <jacoco.ut.output.file>${coverage.dir}/jacoco-ut.exec</jacoco.ut.output.file>
+        <jacoco.merged.output.file>${coverage.dir}/jacoco.exec</jacoco.merged.output.file>
+
+        <!-- Plugins -->
+        <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
     </properties>
 
     <repositories>
@@ -458,36 +476,84 @@
                 <version>${neo4j.version}</version>
             </dependency>
 
-            <!-- JACKSON
-              We use jackson 1 & 2 at the same time. As they live in entirely different packages this is
-              no problem and intended use to slowly shift towards v2.
-            -->
+            <!-- Spring dependencies -->
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${jackson.version}</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+                <version>${spring-cloud-zookeeper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-netflix-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework.cloud</groupId>
+                        <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+                <version>${spring-cloud-zookeeper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-openfeign</artifactId>
+                <version>${spring-cloud-openfeign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.openfeign</groupId>
+                <artifactId>feign-jackson</artifactId>
+                <version>${feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>de.codecentric</groupId>
+                <artifactId>spring-boot-admin-starter-client</artifactId>
+                <version>${spring-boot-admin.version}</version>
             </dependency>
 
+            <!-- JACKSON-->
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson2.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson2.version}</version>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson2.version}</version>
-            </dependency>
+
             <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
@@ -513,6 +579,7 @@
                 <version>${slf4j.version}</version>
                 <scope>runtime</scope>
             </dependency>
+
             <!-- Ships Guice logging to SLF -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -706,43 +773,6 @@
                 <version>${commmons-lang.version}</version>
             </dependency>
 
-            <!-- Jersey -->
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-server</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-core</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.contribs</groupId>
-                <artifactId>jersey-guice</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-client</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey</groupId>
-                <artifactId>jersey-json</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.contribs</groupId>
-                <artifactId>jersey-apache-client4</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sun.jersey.contribs</groupId>
-                <artifactId>jersey-multipart</artifactId>
-                <version>${jersey.version}</version>
-            </dependency>
-
             <!-- metrics -->
             <dependency>
                 <groupId>io.dropwizard.metrics</groupId>
@@ -762,26 +792,6 @@
 
             <!-- Google -->
             <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-servlet</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-multibindings</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-assistedinject</artifactId>
-                <version>${guice.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -799,11 +809,6 @@
                 <version>${mybatis.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.mybatis</groupId>
-                <artifactId>mybatis-guice</artifactId>
-                <version>${mybatis-guice.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
                 <version>${postgresql.version}</version>
@@ -814,11 +819,35 @@
                 <version>${hikaricp.version}</version>
             </dependency>
 
-            <!-- curator/zookeeper -->
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>${zookeeper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- curator for talking to zookeeper -->
+            <!-- See https://curator.apache.org/zk-compatibility.html for notes on compatibility with ZooKeeper 3.4.
+                 Note especially the different (old) version used for curator-test. -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-client</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
@@ -827,13 +856,30 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
-                <artifactId>curator-recipes</artifactId>
+                <artifactId>curator-x-discovery</artifactId>
                 <version>${curator.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.curator</groupId>
-                <artifactId>curator-test</artifactId>
+                <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.zookeeper</groupId>
+                        <artifactId>zookeeper</artifactId>
+                    </exclusion>
+                </exclusions>
                 <scope>test</scope>
             </dependency>
 
