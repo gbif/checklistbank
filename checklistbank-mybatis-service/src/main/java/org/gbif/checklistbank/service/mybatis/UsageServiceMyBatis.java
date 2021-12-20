@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 
-import com.google.inject.Inject;
 import com.zaxxer.hikari.pool.ProxyConnection;
 import org.postgresql.PGConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements the UsageService using MyBatis.
@@ -30,14 +30,13 @@ public class UsageServiceMyBatis implements UsageService {
 
   private final NameUsageMapper mapper;
   private final UsageMapper usageMapper;
-
-  @Inject
   private DataSource ds;
 
-  @Inject
-  UsageServiceMyBatis(NameUsageMapper mapper, UsageMapper usageMapper) {
+  @Autowired
+  UsageServiceMyBatis(NameUsageMapper mapper, UsageMapper usageMapper, DataSource ds) {
     this.mapper = mapper;
     this.usageMapper = usageMapper;
+    this.ds = ds;
   }
 
   @Override

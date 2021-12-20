@@ -1,19 +1,18 @@
 package org.gbif.checklistbank.service.mybatis;
 
 import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.zaxxer.hikari.HikariDataSource;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.PrintStream;
 import java.sql.Connection;
@@ -24,6 +23,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import javax.sql.DataSource;
 
 public class ConcurrentCreateOrGetIT {
   private static final String PROPERTY_FILE = "checklistbank.properties";
@@ -37,7 +37,7 @@ public class ConcurrentCreateOrGetIT {
 
   static class ClbMybatisCallable {
     private final Properties props;
-    private Injector inj;
+    private AnnotationConfigApplicationContext ctx;
     private HikariDataSource hds;
 
     public ClbMybatisCallable(Properties props) {
@@ -46,8 +46,10 @@ public class ConcurrentCreateOrGetIT {
 
     private void init() {
       // init mybatis layer and solr from cfgN instance
-      inj = Guice.createInjector(new ChecklistBankServiceMyBatisModule(props));
-      hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
+       ctx = new AnnotationConfigApplicationContext();
+       ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+
+      hds = (HikariDataSource) ctx.getBean(DataSource.class);
     }
 
     public Connection getConnection() throws SQLException {
@@ -57,11 +59,11 @@ public class ConcurrentCreateOrGetIT {
       return hds.getConnection();
     }
 
-    public Injector getInj() {
-      if (inj == null) {
+    public ConfigurableApplicationContext getAppContext() {
+      if (ctx == null) {
         init();
       }
-      return inj;
+      return ctx;
     }
 
     public void shutdown() {
@@ -83,8 +85,8 @@ public class ConcurrentCreateOrGetIT {
 
     @Override
     public ParsedName call() throws Exception {
-      ParsedNameService pservice = getInj().getInstance(ParsedNameService.class);
-      CitationService cservice = getInj().getInstance(CitationService.class);
+      ParsedNameService pservice = getAppContext().getBean(ParsedNameService.class);
+      CitationService cservice = getAppContext().getBean(CitationService.class);
       for (int x = 0; x < 100; x++) {
         pservice.createOrGet(PARSER.parse(name + " " + x + "-banales", null), true);
         cservice.createOrGet(name + " citation #" + x);

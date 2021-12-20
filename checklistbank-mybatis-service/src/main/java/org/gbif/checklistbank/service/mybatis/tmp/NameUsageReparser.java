@@ -2,24 +2,22 @@ package org.gbif.checklistbank.service.mybatis.tmp;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.concurrent.ExecutorUtils;
-import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -44,10 +42,12 @@ public class NameUsageReparser implements Runnable {
   private int failed = 0;
   private int unparsable = 0;
 
+
   public NameUsageReparser(ClbConfiguration cfg) {
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg));
-    nameMapper = inj.getInstance(ParsedNameMapper.class);
-    usageMapper = inj.getInstance(NameUsageMapper.class);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+    nameMapper = ctx.getBean(ParsedNameMapper.class);
+    usageMapper = ctx.getBean(NameUsageMapper.class);
     threads = Math.max(1, cfg.maximumPoolSize - 1);
     exec = Executors.newFixedThreadPool(threads);
   }
@@ -139,10 +139,7 @@ public class NameUsageReparser implements Runnable {
       }
     }
 
-    @Transactional(
-        exceptionMessage = "names inserts failed",
-        executorType = ExecutorType.REUSE
-    )
+    @Transactional
     private void writeNames(List<ScientificParsedName> pNames) {
       for (ScientificParsedName spn : pNames) {
         try {

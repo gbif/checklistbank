@@ -37,15 +37,6 @@ public class DbLoader {
     private static final String FILE_SUFFIX = ".tsv";
     private static final Joiner HEADER_JOINER = Joiner.on(",");
 
-    public static Connection connect(Properties properties) {
-        try {
-            String url = String.format("jdbc:postgresql://%s/%s", properties.getProperty(PREFIX + "serverName"), properties.getProperty(PREFIX + "databaseName"));
-            return DriverManager.getConnection(url, properties.getProperty(PREFIX + "user"), properties.getProperty(PREFIX + "password"));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      *
      * @param con open postgres! connection

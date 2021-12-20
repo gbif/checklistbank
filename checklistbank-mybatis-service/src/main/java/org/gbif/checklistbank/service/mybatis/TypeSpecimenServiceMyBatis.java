@@ -7,7 +7,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.TypeSpecimenMapper;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a TypeSpecimenService using MyBatis.
@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 public class TypeSpecimenServiceMyBatis extends NameUsageComponentServiceMyBatis<TypeSpecimen>
   implements TypeSpecimenService {
 
-  @Inject
+  @Autowired
   TypeSpecimenServiceMyBatis(TypeSpecimenMapper typeSpecimenMapper) {
     super(typeSpecimenMapper);
   }

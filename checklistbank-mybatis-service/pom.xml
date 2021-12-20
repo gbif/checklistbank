@@ -19,6 +19,14 @@
     </site>
   </distributionManagement>
 
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+
+    <sonar.coverage.jacoco.xmlReportPaths>
+      ${project.basedir}/../checklistbank-integration-tests/target/site/jacoco-aggregate/jacoco.xml
+    </sonar.coverage.jacoco.xmlReportPaths>
+  </properties>
+
   <build>
     <testResources>
       <testResource>
@@ -28,26 +36,15 @@
     </testResources>
     <plugins>
       <plugin>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-maven-plugin</artifactId>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>org.liquibase</groupId>
+        <artifactId>liquibase-maven-plugin</artifactId>
         <configuration>
-          <mainClass>com.example.Main</mainClass>
-          <arguments>
-            <argument>foo</argument>
-            <argument>bar</argument>
-          </arguments>
+          <changeLogFile>src/main/resources/liquibase/master.xml</changeLogFile>
+          <defaultSchemaName>public</defaultSchemaName>
         </configuration>
       </plugin>
     </plugins>
@@ -65,9 +62,27 @@
   </repositories>
 
   <dependencies>
+    <!-- Spring dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mybatis.spring.boot</groupId>
+      <artifactId>mybatis-spring-boot-starter</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -113,6 +128,11 @@
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-common</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-metadata</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.mybatis</groupId>
       <artifactId>mybatis</artifactId>
@@ -169,16 +189,6 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

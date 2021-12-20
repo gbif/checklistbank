@@ -1,23 +1,24 @@
 package org.gbif.checklistbank.service.mybatis;
 
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 
 import java.lang.annotation.Annotation;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
-import com.google.inject.Guice;
+
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import org.junit.Before;
 import org.junit.Rule;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class MyBatisServiceITBase<T> {
 
   private final Class<T> serviceClass;
   private final Class<? extends Annotation> annotationType;
-  private Injector injector;
+  private AnnotationConfigApplicationContext ctx;
   protected T service;
 
   @Rule
@@ -34,24 +35,21 @@ public class MyBatisServiceITBase<T> {
 
   @Before
   public void init() throws Exception {
-    Module module = new ChecklistBankServiceMyBatisModule(dbSetup.getProperties());
-    injector = Guice.createInjector(module);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
     if (annotationType != null) {
-      service = injector.getInstance(Key.get(serviceClass, annotationType));
+      service = getInstance(serviceClass, annotationType);
     } else {
-      service = injector.getInstance(serviceClass);
+      service = ctx.getBean(serviceClass);
     }
   }
 
   public <K> K getInstance(Class<K> clazz) {
-    return injector.getInstance(clazz);
+    return ctx.getBean(clazz);
   }
 
   public <K> K getInstance(Class<K> clazz, Class<? extends Annotation> annotationType) {
-    return injector.getInstance(Key.get(clazz, annotationType));
+    return (K)ctx.getBeansWithAnnotation(annotationType).values().stream().filter(clazz::isInstance).findFirst().orElse(null);
   }
 
-  public <K> K getInstance(Key<K> key) {
-    return injector.getInstance(key);
-  }
 }

@@ -37,7 +37,7 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         obj.setLocationId("locID");
         obj.setRemarks("remarks");
         obj.setStartDayOfYear(1889);
-        obj.setStatus(OccurrenceStatus.COMMON);
+        obj.setStatus(DistributionStatus.COMMON);
         obj.setTemporal("aha");
         obj.setThreatStatus(ThreatStatus.CRITICALLY_ENDANGERED);
         // these should get ignored
@@ -55,7 +55,7 @@ public class DistributionMapperTest extends MapperITBase<DistributionMapper> {
         obj.setLocationId("locID");
         obj.setRemarks("remarks");
         obj.setStartDayOfYear(1989);
-        obj.setStatus(OccurrenceStatus.COMMON);
+        obj.setStatus(DistributionStatus.COMMON);
         obj.setTemporal("aha");
         obj.setThreatStatus(ThreatStatus.CRITICALLY_ENDANGERED);
         // these should get ignored

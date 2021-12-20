@@ -5,10 +5,10 @@ import org.gbif.api.model.checklistbank.VerbatimNameUsage;
 import java.io.IOException;
 import java.util.Date;
 
-import org.codehaus.jackson.annotate.JsonIgnoreType;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +28,11 @@ public class VerbatimNameUsageMapperJson {
   public VerbatimNameUsageMapperJson() {
     ObjectMapper mapper = new ObjectMapper();
     // ignore properties of certain types in VerbatimNameUsage that are stored as individual columns in the backends.
-    mapper.getSerializationConfig().addMixInAnnotations(Date.class, IgnoreMixin.class);
-    mapper.getSerializationConfig().addMixInAnnotations(Integer.class, IgnoreMixin.class);
+    mapper.addMixIn(Date.class, IgnoreMixin.class);
+    mapper.addMixIn(Integer.class, IgnoreMixin.class);
     // object readers & writers are slightly more performant than simple object mappers
     // they also are thread safe!
-    reader = mapper.reader(VerbatimNameUsage.class);
+    reader = mapper.readerFor(VerbatimNameUsage.class);
     writer = mapper.writerWithView(VerbatimNameUsage.class);
   }
 

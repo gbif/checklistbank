@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements an ImageService using MyBatis.
@@ -20,8 +20,8 @@ public class MultimediaServiceMyBatis extends NameUsageComponentServiceMyBatis<N
     implements MultimediaService {
 
 
-  @Inject
-  MultimediaServiceMyBatis(MultimediaMapper multimediaMapper) {
+  @Autowired
+  public MultimediaServiceMyBatis(MultimediaMapper multimediaMapper) {
     super(multimediaMapper);
   }
 

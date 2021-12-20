@@ -29,9 +29,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements the NameUsageService using MyBatis.
@@ -47,19 +47,19 @@ public class NameUsageServiceMyBatis implements NameUsageService {
     private final VernacularNameMapper vernacularNameMapper;
     private final RawUsageMapper rawUsageMapper;
     private final VerbatimNameUsageMapperJson verbatimParser = new VerbatimNameUsageMapperJson();
+    private final DataSource ds;
 
-    @Inject
-    private DataSource ds;
-
-    @Inject
+    @Autowired
     NameUsageServiceMyBatis(NameUsageMapper mapper, VernacularNameMapper vernacularNameMapper,
                             NameUsageMetricsMapper metricsMapper,
-                            RawUsageMapper rawUsageMapper, ParsedNameMapper parsedNameMapper) {
+                            RawUsageMapper rawUsageMapper, ParsedNameMapper parsedNameMapper,
+                            DataSource ds) {
         this.mapper = mapper;
         this.metricsMapper = metricsMapper;
         this.vernacularNameMapper = vernacularNameMapper;
         this.rawUsageMapper = rawUsageMapper;
         this.parsedNameMapper = parsedNameMapper;
+        this.ds = ds;
     }
 
     @Override

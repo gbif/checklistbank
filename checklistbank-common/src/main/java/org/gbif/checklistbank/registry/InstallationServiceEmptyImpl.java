@@ -6,6 +6,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.search.KeyTitleResult;
 import org.gbif.api.service.registry.InstallationService;
+import org.gbif.api.vocabulary.InstallationType;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,5 +36,14 @@ public class InstallationServiceEmptyImpl extends EmptyNetworkEntityService<Inst
   @Override
   public List<KeyTitleResult> suggest(@Nullable String s) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Installation> listByType(
+    InstallationType installationType, @Nullable Pageable pageable
+  ) {
+    {
+      throw new UnsupportedOperationException();
+    }
   }
 }

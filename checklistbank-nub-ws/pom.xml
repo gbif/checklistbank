@@ -26,70 +26,88 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
-            <resource>
-                <directory>src/main/webapp</directory>
-                <filtering>true</filtering>
-                <targetPath>webapp</targetPath>
-            </resource>
         </resources>
-        <defaultGoal>jetty:run</defaultGoal>
         <plugins>
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <stopKey>stop</stopKey>
-                    <stopPort>15327</stopPort>
+                    <usedDependencies>
+                        <usedDependency>org.springframework.boot:spring-boot-starter</usedDependency>
+                        <usedDependency>org.springframework.boot:spring-boot-starter-amqp</usedDependency>
+                        <usedDependency>org.springframework.boot:spring-boot-starter-security</usedDependency>
+                        <usedDependency>org.springframework.boot:spring-boot-starter-web</usedDependency>
+                        <usedDependency>org.springframework.boot:spring-boot-starter-test</usedDependency>
+                    </usedDependencies>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <ignoreNonCompile>true</ignoreNonCompile>
+                            <failOnWarning>false</failOnWarning>
+                            <outputXML>true</outputXML>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <attach>true</attach>
+                            <classifier>exec</classifier>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>${start-class}</mainClass>
+                    <addResources>false</addResources>
+                    <layout>ZIP</layout>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- This is where the exclusion occurs -->
+                        <exclude>**/application.yml</exclude>
+                        <exclude>**/bootstrap.yml</exclude>
+                        <exclude>META-INF/*.SF</exclude>
+                        <exclude>META-INF/*.DSA</exclude>
+                        <exclude>META-INF/*.RSA</exclude>
+                        <exclude>hbase-site.xml</exclude>
+                        <exclude>logback.xml</exclude>
+                        <exclude>hbase-site.xml</exclude>
+                    </excludes>
+                    <archive>
+                        <manifest>
+                            <mainClass>${start-class}</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.gbif.ws.app.Application</mainClass>
-                                    <manifestEntries>
-                                        <Class-Path>conf/</Class-Path>
-                                    </manifestEntries>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>org.jruby:jruby-complete</artifact>
-                                    <excludes>
-                                        <exclude>org/joda/**</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>logback.xml</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <!--Exclude configuration file that are not required in the output jar file -->
-                                    <artifact>org.gbif.checklistbank:checklistbank-nub-ws</artifact>
-                                    <excludes>
-                                        <exclude>checklistbank.properties</exclude>
-                                        <exclude>logback.xml</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -102,6 +120,120 @@
     </repositories>
 
     <dependencies>
+        <!-- Spring dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-oxm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-netflix-archaius</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-netflix-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-starter-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif.checklistbank</groupId>
+            <artifactId>checklistbank-mybatis-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif.checklistbank</groupId>
+            <artifactId>checklistbank-solr</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>name-parser-v1</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-parsers</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-common-ws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.gbif</groupId>
+            <artifactId>gbif-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

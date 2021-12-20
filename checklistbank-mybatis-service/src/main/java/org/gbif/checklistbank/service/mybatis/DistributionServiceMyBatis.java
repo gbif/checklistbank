@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a DistributionService using MyBatis.
@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 public class DistributionServiceMyBatis extends NameUsageComponentServiceMyBatis<Distribution>
   implements DistributionService {
 
-  @Inject
+  @Autowired
   DistributionServiceMyBatis(DistributionMapper distributionMapper) {
     super(distributionMapper);
   }

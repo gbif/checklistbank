@@ -6,27 +6,24 @@ import org.gbif.utils.file.FileUtils;
 
 import java.util.UUID;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import static org.junit.Assert.assertNull;
 
-/**
- *
- */
 public class FileRegistryModuleTest {
 
   @Test
   public void configure() throws Exception {
 
-    FileRegistryModule mod = new FileRegistryModule(FileUtils.getClasspathFile("registry-datasets.txt"));
-    Injector inj = Guice.createInjector(mod);
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.registerBean(FileRegistryModule.class, FileUtils.getClasspathFile("registry-datasets.txt"));
+    ctx.refresh();
 
-    DatasetService ds = inj.getInstance(DatasetService.class);
+    DatasetService ds = ctx.getBean(DatasetService.class);
     assertNull(ds.get(UUID.randomUUID()));
 
-    OrganizationService os = inj.getInstance(OrganizationService.class);
+    OrganizationService os = ctx.getBean(OrganizationService.class);
     assertNull(os.get(UUID.randomUUID()));
   }
 

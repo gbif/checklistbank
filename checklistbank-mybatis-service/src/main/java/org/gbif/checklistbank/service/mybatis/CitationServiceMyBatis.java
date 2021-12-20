@@ -8,17 +8,17 @@ import org.gbif.checklistbank.service.mybatis.mapper.CitationMapper;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
-import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CitationServiceMyBatis implements CitationService {
     private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);
     private CitationMapper mapper;
 
-    @Inject
+    @Autowired
     CitationServiceMyBatis(CitationMapper mapper) {
         this.mapper = mapper;
     }

@@ -15,13 +15,37 @@ package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.annotation.NullToNotFound;
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.*;
-import org.gbif.api.model.checklistbank.search.*;
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageMediaObject;
+import org.gbif.api.model.checklistbank.NameUsageMetrics;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.model.checklistbank.Reference;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.TableOfContents;
+import org.gbif.api.model.checklistbank.TypeSpecimen;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
-import org.gbif.api.service.checklistbank.*;
+import org.gbif.api.service.checklistbank.DescriptionService;
+import org.gbif.api.service.checklistbank.DistributionService;
+import org.gbif.api.service.checklistbank.IdentifierService;
+import org.gbif.api.service.checklistbank.MultimediaService;
+import org.gbif.api.service.checklistbank.NameUsageSearchService;
+import org.gbif.api.service.checklistbank.NameUsageService;
+import org.gbif.api.service.checklistbank.ReferenceService;
+import org.gbif.api.service.checklistbank.SpeciesProfileService;
+import org.gbif.api.service.checklistbank.TypeSpecimenService;
+import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NubMapping;
@@ -31,8 +55,13 @@ import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
 import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
+import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,8 +139,9 @@ public class SpeciesResource {
    * @return requested list of NameUsage or an empty list if none could be found
    */
   @GetMapping
-  public PagingResponse<NameUsage> list(Locale locale, @RequestParam(DATASET_KEY) Set<UUID> datasetKeys,
-                                        @RequestParam("sourceId") String sourceId, @RequestParam("name") String canonicalName, @RequestParam Pageable page) {
+  public PagingResponse<NameUsage> list(
+    Locale locale, @RequestParam(DATASET_KEY) Set<UUID> datasetKeys,
+    @RequestParam("sourceId") String sourceId, @RequestParam("name") String canonicalName, @RequestParam Pageable page) {
 
     // limit the maximum allowed offset
     checkDeepPaging(page);

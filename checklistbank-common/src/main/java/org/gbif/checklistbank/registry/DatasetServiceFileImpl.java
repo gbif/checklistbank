@@ -6,6 +6,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Endpoint;
+import org.gbif.api.model.registry.Grid;
 import org.gbif.api.model.registry.Metadata;
 import org.gbif.api.model.registry.Network;
 import org.gbif.api.service.registry.DatasetService;
@@ -180,4 +181,8 @@ public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> i
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public List<Grid> listGrids(UUID uuid) {
+    throw new UnsupportedOperationException();
+  }
 }

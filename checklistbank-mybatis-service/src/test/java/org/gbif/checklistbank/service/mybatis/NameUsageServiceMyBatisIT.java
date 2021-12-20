@@ -11,7 +11,6 @@ import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.RawUsage;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 
 import java.net.URI;
 import java.sql.Connection;
@@ -25,6 +24,9 @@ import java.util.UUID;
 import com.google.common.base.Joiner;
 import com.zaxxer.hikari.HikariDataSource;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+
+import javax.sql.DataSource;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -378,7 +380,7 @@ public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase<NameUsageSer
    */
   @Test
   public void testUsageIssuesJdbc() throws Exception {
-    HikariDataSource ds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
+    HikariDataSource ds = (HikariDataSource) getInstance(DataSource.class);
     try (Connection cn = ds.getConnection()) {
       PreparedStatement st = cn.prepareStatement("select issues from name_usage where id=?");
       for (int x = 0; x < 10; x++) {

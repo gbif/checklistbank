@@ -63,4 +63,14 @@ public class OrganizationServiceEmptyImpl extends EmptyNetworkEntityService<Orga
   public boolean confirmEndorsement(UUID organizationKey, UUID confirmationKey) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public boolean confirmEndorsement(@NotNull UUID uuid) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean revokeEndorsement(@NotNull UUID uuid) {
+    throw new UnsupportedOperationException();
+  }
 }

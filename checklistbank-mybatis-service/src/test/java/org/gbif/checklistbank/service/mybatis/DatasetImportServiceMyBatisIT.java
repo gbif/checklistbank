@@ -13,7 +13,6 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -29,7 +28,7 @@ import static org.junit.Assert.assertNotNull;
 public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetImportService> {
 
   public DatasetImportServiceMyBatisIT() {
-    super(DatasetImportService.class, Mybatis.class);
+    super(DatasetImportService.class);
   }
 
   private final Integer USAGE_ID = 555555;

@@ -9,24 +9,22 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
 import org.gbif.utils.text.StringUtils;
 
 import java.util.Properties;
 import java.util.UUID;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
 import org.junit.Before;
 import org.junit.Rule;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class MapperITBase<T> {
   private static final String PREFIX = "checklistbank.db.";
 
   protected T mapper;
-  private Injector injector;
+  private AnnotationConfigApplicationContext ctx;
   private final Class<T> mapperClass;
   private final boolean initData;
 
@@ -64,16 +62,17 @@ public class MapperITBase<T> {
 
   @Before
   public void init() throws Exception {
-    injector = setupMyBatis(sbSetup);
-    mapper = injector.getInstance(mapperClass);
+    ctx = setupMyBatis(sbSetup);
+    mapper = ctx.getBean(mapperClass);
     if (initData) {
       initData();
     }
   }
 
-  public static Injector setupMyBatis(ClbDbTestRule rule) {
-    Module module = new InternalChecklistBankServiceMyBatisModule(strippedProperties(rule.getProperties()), 500, 2);
-    return Guice.createInjector(module);
+  public static AnnotationConfigApplicationContext setupMyBatis(ClbDbTestRule rule) {
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+    return ctx;
   }
 
   private void initData() throws Exception {
@@ -141,6 +140,6 @@ public class MapperITBase<T> {
   }
 
   public <K> K getInstance(Class<K> clazz) {
-    return injector.getInstance(clazz);
+    return ctx.getBean(clazz);
   }
 }

@@ -7,14 +7,14 @@ import org.gbif.checklistbank.service.mybatis.mapper.ReferenceMapper;
 import java.util.List;
 import java.util.Map;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a ReferenceService using MyBatis.
  */
 public class ReferenceServiceMyBatis extends NameUsageComponentServiceMyBatis<Reference> implements ReferenceService {
 
-  @Inject
+  @Autowired
   ReferenceServiceMyBatis(ReferenceMapper referenceMapper) {
     super(referenceMapper);
   }

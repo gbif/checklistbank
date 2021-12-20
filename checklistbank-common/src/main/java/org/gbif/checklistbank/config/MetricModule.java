@@ -5,19 +5,9 @@ import org.gbif.checklistbank.utils.PropertiesUtils;
 import java.util.Properties;
 
 import com.codahale.metrics.MetricRegistry;
-import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 
-/**
- *
- */
-public class MetricModule extends AbstractModule {
-  private static final Logger LOG = LoggerFactory.getLogger(MetricModule.class);
-
+public class MetricModule {
   private final GangliaConfiguration cfg;
 
   public MetricModule(Properties properties) {
@@ -30,23 +20,15 @@ public class MetricModule extends AbstractModule {
     this.cfg = cfg;
   }
 
-  @Provides
-  @Singleton
+  @Bean
   public GangliaConfiguration provideCfg() throws Exception {
     return cfg;
   }
 
-  @Provides
-  @Singleton
-  @Inject
+  @Bean
   public MetricRegistry provideMetricRegistry(GangliaConfiguration cfg) throws Exception {
     MetricRegistry reg = new MetricRegistry();
     cfg.start(reg);
     return reg;
-  }
-
-  @Override
-  protected void configure() {
-    // nothing to do
   }
 }

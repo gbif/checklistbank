@@ -263,7 +263,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     d.setSource("my source");
     d.setLifeStage(LifeStage.ADULT);
     d.setThreatStatus(ThreatStatus.CRITICALLY_ENDANGERED);
-    d.setStatus(OccurrenceStatus.ABSENT);
+    d.setStatus(DistributionStatus.ABSENT);
     d.setTemporal("temp");
     d.setStartDayOfYear(12);
     d.setEndDayOfYear(23);

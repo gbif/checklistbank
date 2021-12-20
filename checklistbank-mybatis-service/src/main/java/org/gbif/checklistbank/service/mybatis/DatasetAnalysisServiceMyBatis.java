@@ -7,16 +7,16 @@ import org.gbif.checklistbank.service.mybatis.mapper.DatasetMetricsMapper;
 import java.util.Date;
 import java.util.UUID;
 
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class DatasetAnalysisServiceMyBatis implements DatasetAnalysisService {
 
   private static final Logger LOG = LoggerFactory.getLogger(DatasetAnalysisServiceMyBatis.class);
   private final DatasetMetricsMapper mapper;
 
-  @Inject
+  @Autowired
   DatasetAnalysisServiceMyBatis(DatasetMetricsMapper mapper) {
     this.mapper = mapper;
   }

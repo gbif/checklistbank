@@ -9,7 +9,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.DescriptionMapper;
 import java.util.List;
 import javax.annotation.Nullable;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a DescriptionService using MyBatis.
@@ -20,7 +20,7 @@ public class DescriptionServiceMyBatis extends NameUsageComponentServiceMyBatis<
   protected static final String ENGLISH = "en";
   private final DescriptionMapper descriptionMapper;
 
-  @Inject
+  @Autowired
   DescriptionServiceMyBatis(DescriptionMapper descriptionMapper) {
     super(descriptionMapper);
     this.descriptionMapper = descriptionMapper;

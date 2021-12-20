@@ -18,6 +18,11 @@
     </site>
   </distributionManagement>
 
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+    <start-class>org.gbif.checklistbank.ws.ChecklistBankWsApplication</start-class>
+  </properties>
+
   <build>
     <resources>
       <resource>
@@ -210,6 +215,10 @@
       <artifactId>checklistbank-solr</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-common</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-api</artifactId>
     </dependency>
@@ -228,6 +237,11 @@
     <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
     </dependency>
     <dependency>
       <groupId>org.freemarker</groupId>
@@ -272,6 +286,10 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
   </dependencies>
 

@@ -3,7 +3,7 @@ package org.gbif.checklistbank.service.mybatis.postgres;
 
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.io.IOException;
@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.rules.TestRule;
@@ -21,6 +22,7 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
@@ -35,6 +37,7 @@ public class ClbDbTestRule implements TestRule {
   private final Map<String, Integer> sequenceCounters;
   private final Properties properties;
   private Connection connection;
+  private final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(ChecklistBankServiceMyBatisConfiguration.class);
 
   /**
    * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence counters.
@@ -115,8 +118,7 @@ public class ClbDbTestRule implements TestRule {
   }
 
   public ClbConfiguration getClbConfiguration() throws Exception {
-    ChecklistBankServiceMyBatisModule module = new ChecklistBankServiceMyBatisModule(properties);
-    return module.provideCfg();
+    return ctx.getBean(ClbConfiguration.class);
   }
 
   @Override
@@ -144,7 +146,7 @@ public class ClbDbTestRule implements TestRule {
 
   public void before() throws Exception {
     SLF4JBridgeHandler.install();
-    connection = DbLoader.connect(properties);
+    connection = ctx.getBean(DataSource.class).getConnection();
     connection.setAutoCommit(false);
     if (tsvFolder != null) {
       DbLoader.load(connection, tsvFolder, true);

@@ -8,7 +8,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
+import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.mapper.*;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.DwcaStreamWriter;
@@ -16,6 +16,9 @@ import org.gbif.registry.metadata.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,19 +38,17 @@ public class Exporter {
   private final TypeSpecimenMapper typeSpecimenMapper;
   private final DatasetService datasetService;
 
-  private Exporter(File repository, ClbConfiguration cfg, DatasetService datasetService) {
+  private Exporter(File repository,  AnnotationConfigApplicationContext ctx) {
     this.repository = repository;
-    // init postgres mappers
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg));
-    usageMapper = inj.getInstance(NameUsageMapper.class);
-    descriptionMapper = inj.getInstance(DescriptionMapper.class);
-    distributionMapper = inj.getInstance(DistributionMapper.class);
-    mediaMapper = inj.getInstance(MultimediaMapper.class);
-    vernacularMapper = inj.getInstance(VernacularNameMapper.class);
-    referenceMapper = inj.getInstance(ReferenceMapper.class);
-    typeSpecimenMapper = inj.getInstance(TypeSpecimenMapper.class);
+    usageMapper = ctx.getBean(NameUsageMapper.class);
+    descriptionMapper = ctx.getBean(DescriptionMapper.class);
+    distributionMapper = ctx.getBean(DistributionMapper.class);
+    mediaMapper = ctx.getBean(MultimediaMapper.class);
+    vernacularMapper = ctx.getBean(VernacularNameMapper.class);
+    referenceMapper = ctx.getBean(ReferenceMapper.class);
+    typeSpecimenMapper = ctx.getBean(TypeSpecimenMapper.class);
 
-    this.datasetService = datasetService;
+    this.datasetService = ctx.getBean(DatasetService.class);
   }
 
   /**
@@ -56,14 +57,15 @@ public class Exporter {
   public static Exporter create(File repository, ClbConfiguration cfg, String registryWs) {
     RegistryServiceConfiguration regCfg = new RegistryServiceConfiguration();
     regCfg.wsUrl = registryWs;
-    Injector inj = regCfg.createRegistryInjector();
-    return new Exporter(repository, cfg, inj.getInstance(DatasetService.class));
+    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+    return new Exporter(repository, ctx);
   }
 
   /**
-   * Synchroneously generates a new dwca export file for a given dataset
+   * Synchronously generates a new DwcA export file for a given dataset
    *
-   * @return the newly generated dwca file
+   * @return the newly generated DwcA file
    */
   public File export(Dataset dataset) {
     DwcaExport exporter = new DwcaExport(dataset);
@@ -99,7 +101,7 @@ public class Exporter {
         // add EML
         StringWriter emlString = new StringWriter();
         emlWriter.writeTo(dataset, emlString);
-        writer.addMetadata(emlString.toString(), "eml.xml");
+        writer.setMetadata(emlString.toString(), "eml.xml");
 
         // write core taxa
         try (RowHandler.TaxonHandler coreHandler = new RowHandler.TaxonHandler(writer, dataset.getKey())) {

@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements the NameUsageComponentService using MyBatis.
@@ -26,7 +26,7 @@ public class NameUsageComponentServiceMyBatis<T> implements NameUsageExtensionSe
 
   private final NameUsageComponentMapper<T> mapper;
 
-  @Inject
+  @Autowired
   NameUsageComponentServiceMyBatis(NameUsageComponentMapper<T> mapper) {
     this.mapper = mapper;
   }

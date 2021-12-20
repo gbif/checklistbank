@@ -9,7 +9,7 @@ import org.gbif.checklistbank.service.mybatis.mapper.IdentifierMapper;
 
 import javax.annotation.Nullable;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a DistributionService using MyBatis.
@@ -17,7 +17,7 @@ import com.google.inject.Inject;
 public class IdentifierServiceMyBatis implements IdentifierService {
   private final IdentifierMapper mapper;
 
-  @Inject
+  @Autowired
   IdentifierServiceMyBatis(IdentifierMapper identifierMapper) {
     mapper = identifierMapper;
   }

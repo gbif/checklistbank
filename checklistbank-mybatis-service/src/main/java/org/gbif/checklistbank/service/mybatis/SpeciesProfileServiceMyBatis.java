@@ -4,7 +4,7 @@ import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.checklistbank.service.mybatis.mapper.SpeciesProfileMapper;
 
-import com.google.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements a SpeciesProfileService using MyBatis.
@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 public class SpeciesProfileServiceMyBatis extends NameUsageComponentServiceMyBatis<SpeciesProfile>
   implements SpeciesProfileService {
 
-  @Inject
+  @Autowired
   SpeciesProfileServiceMyBatis(SpeciesProfileMapper speciesProfileMapper) {
     super(speciesProfileMapper);
   }

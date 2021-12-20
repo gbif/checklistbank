@@ -100,7 +100,7 @@ abstract class RowHandler<T> implements ResultHandler<T>, AutoCloseable {
             DwcTerm.scientificName,
             DwcTerm.scientificNameAuthorship,
             GbifTerm.canonicalName,
-            GbifTerm.genericName,
+            DwcTerm.genericName,
             DwcTerm.specificEpithet,
             DwcTerm.infraspecificEpithet,
             DwcTerm.taxonRank,

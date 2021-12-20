@@ -10,9 +10,9 @@ import java.util.UUID;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
-import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Implements the NameUsageService using MyBatis.
@@ -23,7 +23,7 @@ public class DatasetMetricsServiceMyBatis implements DatasetMetricsService {
   private static final Logger LOG = LoggerFactory.getLogger(DatasetMetricsServiceMyBatis.class);
   private final DatasetMetricsMapper mapper;
 
-  @Inject
+  @Autowired
   DatasetMetricsServiceMyBatis(DatasetMetricsMapper mapper) {
     this.mapper = mapper;
   }

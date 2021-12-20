@@ -6,9 +6,9 @@ import java.util.concurrent.TimeUnit;
 import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ganglia.GangliaReporter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 import info.ganglia.gmetric4j.gmetric.GMetric;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

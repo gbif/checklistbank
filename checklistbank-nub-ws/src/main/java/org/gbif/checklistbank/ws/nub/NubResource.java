@@ -1,9 +1,6 @@
 package org.gbif.checklistbank.ws.nub;
 
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import it.unimi.dsi.fastutil.ints.IntSet;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.v2.NameUsageMatch2;
@@ -15,27 +12,25 @@ import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.gbif.nub.lookup.straight.IdLookup;
-import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.nub.lookup.straight.LookupUsage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Nullable;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Path("/species")
-@Singleton
+@RestController
+@RequestMapping(
+  value = "/species",
+  produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
+)
 public class NubResource {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NubResource.class);
   private static final List<Rank> REVERSED_DWC_RANKS = new ArrayList<>(Rank.DWC_RANKS);
   static {
     Collections.reverse(REVERSED_DWC_RANKS);
@@ -43,34 +38,30 @@ public class NubResource {
   private final NameUsageMatchingService2 matchingService;
   private final IdLookup lookup;
 
-  @Inject
+  @Autowired
   public NubResource(NameUsageMatchingService2 matchingService, IdLookup lookup) {
     this.matchingService = matchingService;
     this.lookup = lookup;
   }
 
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("lookup")
-  public LookupUsage lookup(@QueryParam("name") String canonicalName,
-                            @QueryParam("authorship") String authorship,
-                            @QueryParam("year") String year,
-                            @QueryParam("rank") Rank rank,
-                            @QueryParam("status") TaxonomicStatus status,
-                            @QueryParam("kingdom") Kingdom kingdom) {
+  @GetMapping( value = "lookup")
+  public LookupUsage lookup(@RequestParam("name") String canonicalName,
+                            @RequestParam("authorship") String authorship,
+                            @RequestParam("year") String year,
+                            @RequestParam("rank") Rank rank,
+                            @RequestParam("status") TaxonomicStatus status,
+                            @RequestParam("kingdom") Kingdom kingdom) {
     return lookup.match(canonicalName, authorship, year, rank, status, kingdom);
   }
 
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("match")
-  public NameUsageMatch match(@QueryParam("name") String scientificName2, @QueryParam("scientificName") String scientificName,
-                              @QueryParam("authorship") String authorship2, @QueryParam("scientificNameAuthorship") String authorship,
-                              @QueryParam("rank") String rank2, @QueryParam("taxonRank") String rank,
-                              @QueryParam("specificEpithet") String specificEpithet,
-                              @QueryParam("infraspecificEpithet") String infraspecificEpithet,
-                              @Context LinneanClassification classification,
-                              @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
+  @GetMapping( value = "match")
+  public NameUsageMatch match(@RequestParam("name") String scientificName2, @RequestParam("scientificName") String scientificName,
+                              @RequestParam("authorship") String authorship2, @RequestParam("scientificNameAuthorship") String authorship,
+                              @RequestParam("rank") String rank2, @RequestParam("taxonRank") String rank,
+                              @RequestParam("specificEpithet") String specificEpithet,
+                              @RequestParam("infraspecificEpithet") String infraspecificEpithet,
+                              LinneanClassification classification,
+                              @RequestParam("strict") Boolean strict, @RequestParam("verbose") Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
     return match(first(scientificName, scientificName2),
                  first(authorship, authorship2),
@@ -80,16 +71,14 @@ public class NubResource {
     );
   }
 
-  @GET
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("match2")
-  public NameUsageMatch2 match2(@QueryParam("name") String scientificName2, @QueryParam("scientificName") String scientificName,
-                                @QueryParam("authorship") String authorship2, @QueryParam("scientificNameAuthorship") String authorship,
-                                @QueryParam("rank") String rank2, @QueryParam("taxonRank") String rank,
-                                @QueryParam("specificEpithet") String specificEpithet,
-                                @QueryParam("infraspecificEpithet") String infraspecificEpithet,
-                                @Context LinneanClassification classification,
-                                @QueryParam("strict") Boolean strict, @QueryParam("verbose") Boolean verbose) {
+  @GetMapping( value = "match2")
+  public NameUsageMatch2 match2(@RequestParam("name") String scientificName2, @RequestParam("scientificName") String scientificName,
+                                @RequestParam("authorship") String authorship2, @RequestParam("scientificNameAuthorship") String authorship,
+                                @RequestParam("rank") String rank2, @RequestParam("taxonRank") String rank,
+                                @RequestParam("specificEpithet") String specificEpithet,
+                                @RequestParam("infraspecificEpithet") String infraspecificEpithet,
+                                LinneanClassification classification,
+                                @RequestParam("strict") Boolean strict, @RequestParam("verbose") Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
     return matchingService.v2(match(first(scientificName, scientificName2),
         first(authorship, authorship2),

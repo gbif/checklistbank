@@ -3,7 +3,6 @@ package org.gbif.checklistbank.service.mybatis;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.inject.Inject;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -12,16 +11,17 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public class ParsedNameServiceMyBatis implements ParsedNameService {
   private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);
   private ParsedNameMapper mapper;
   private NameParser parser;
 
-  @Inject
+  @Autowired
   ParsedNameServiceMyBatis(ParsedNameMapper mapper, NameParser parser) {
     this.mapper = mapper;
     this.parser = parser;

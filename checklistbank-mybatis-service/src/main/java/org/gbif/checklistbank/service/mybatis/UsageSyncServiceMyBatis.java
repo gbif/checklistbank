@@ -5,9 +5,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
-import com.google.inject.Inject;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.TransactionIsolationLevel;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
@@ -23,9 +20,11 @@ import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.mapper.*;
-import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -61,7 +60,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
   private final AtomicInteger counterUsages = new AtomicInteger(0);
   private final AtomicInteger counterExtensions = new AtomicInteger(0);
 
-  @Inject
+  @Autowired
   UsageSyncServiceMyBatis(UsageMapper usageMapper, NameUsageMapper nameUsageMapper,
                           NameUsageMetricsMapper metricsMapper, NubRelMapper nubRelMapper, RawUsageMapper rawMapper,
                           ParsedNameService nameService, CitationService citationService, DescriptionMapper descriptionMapper,
@@ -411,10 +410,9 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
     }
   }
 
+  //TODO: Batch mode
   @Transactional(
-      executorType = ExecutorType.BATCH,
-      isolationLevel = TransactionIsolationLevel.READ_UNCOMMITTED,
-      exceptionMessage = "Something went wrong while inserting nub relations batch for dataset {0}"
+      isolation = Isolation.READ_UNCOMMITTED
   )
   private void insertNubRelationBatch(UUID datasetKey, Map<Integer, Integer> relations, Iterable<Integer> usageKeyBatch, Set<Integer> previousNoMatches) {
     LOG.debug("Insert batch of {} nub matches for dataset {}", relations.size(), datasetKey);

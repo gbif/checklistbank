@@ -10,7 +10,6 @@ import org.gbif.checklistbank.model.UsageForeignKeys;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageSyncService;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
 
@@ -30,12 +29,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Inject;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import org.apache.ibatis.session.ExecutorType;
-import org.mybatis.guice.transactional.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Concurrent import service for full name usages.
@@ -50,8 +50,8 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   private ExecutorService exec;
   private ConcurrentLinkedQueue<Future<?>> tasks = new ConcurrentLinkedQueue<>();
 
-  @Inject
-  public DatasetImportServiceMyBatis(UsageSyncService importService, @Mybatis Integer threads) {
+  @Autowired
+  public DatasetImportServiceMyBatis(UsageSyncService importService, @Value("${checklistbank.nub.importThreads:2}") Integer threads) {
     this.syncService = importService;
     LOG.info("Starting data import service with {} sync threads.", threads);
     exec = Executors.newFixedThreadPool(threads, new NamedThreadFactory(NAME));
@@ -108,12 +108,9 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       return neoKeys;
     }
 
-    @Transactional(
-        exceptionMessage = "usage sync job failed",
-        executorType = ExecutorType.REUSE
-    )
-    private void write(List<Integer> neoNodeIdbatch) throws Exception {
-      for (Integer id : neoNodeIdbatch) {
+    @Transactional
+    private void write(List<Integer> neoNodeIdBatch) throws Exception {
+      for (Integer id : neoNodeIdBatch) {
         NameUsage u = dao.readUsage(id);
         ParsedName pn = dao.readName(id);
         NameUsageMetrics m = dao.readMetrics(id);
@@ -147,10 +144,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     }
 
     @Override
-    @Transactional(
-        exceptionMessage = "usage sync job failed",
-        executorType = ExecutorType.REUSE
-    )
+    @Transactional
     public List<NameUsage> call() throws Exception {
       LogContext.startDataset(datasetKey);
       LOG.debug("Starting usage sync with {} usages", usages.size());
@@ -200,10 +194,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       return ids;
     }
 
-    @Transactional(
-        exceptionMessage = "extension sync job failed",
-        executorType = ExecutorType.REUSE
-    )
+    @Transactional
     private void write(List<Integer> ids) throws Exception {
       for (Integer id : ids) {
         VerbatimNameUsage v = dao.readVerbatim(id);
@@ -234,10 +225,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
       return usageKeys;
     }
 
-    @Transactional(
-        exceptionMessage = "usage deletion job failed",
-        executorType = ExecutorType.REUSE
-    )
+    @Transactional
     private void deleteBatch(List<Integer> batch) throws Exception {
       for (Integer key : batch) {
         syncService.delete(key);
@@ -273,10 +261,7 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
     return exec.submit(new ForeignKeySync(datasetKey, fks));
   }
 
-  @Transactional(
-      exceptionMessage = "foreign key update job failed",
-      executorType = ExecutorType.REUSE
-  )
+  @Transactional
   private List<Integer> updateForeignKeyBatch(List<UsageForeignKeys> fks) {
     List<Integer> ids = Lists.newArrayList();
     for (UsageForeignKeys fk : fks) {

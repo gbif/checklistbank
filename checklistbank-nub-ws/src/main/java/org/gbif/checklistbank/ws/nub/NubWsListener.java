@@ -7,9 +7,6 @@ import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.utils.CloseableUtils;
 import org.gbif.nub.lookup.NubMatchingModule;
-import org.gbif.utils.file.properties.PropertiesUtil;
-import org.gbif.ws.app.ConfUtils;
-import org.gbif.ws.server.guice.GbifServletListener;
 
 import javax.servlet.ServletContextEvent;
 import java.io.Closeable;
@@ -19,17 +16,17 @@ import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-public class NubWsListener extends GbifServletListener {
+public class NubWsListener  {
   private static final String APP_CONF_FILE = "checklistbank.properties";
   private static final String INDEX_DIR = "checklistbank.nub.indexDir";
   private static final String NUB_DATASET_KEY = "checklistbank.nub.datasetKey";
   private List<Closeable> toBeClosed = Lists.newArrayList();
 
   public NubWsListener() throws IOException {
-    super(PropertiesUtil.readFromFile(ConfUtils.getAppConfFile(APP_CONF_FILE)), NubResource.class.getPackage().getName(), false);
+   // super(PropertiesUtil.readFromFile(ConfUtils.getAppConfFile(APP_CONF_FILE)), NubResource.class.getPackage().getName(), false);
   }
 
-  @Override
+  //@Override
   protected List<Module> getModules(Properties properties) {
     List<Module> modules = Lists.newArrayList();
 
@@ -46,9 +43,9 @@ public class NubWsListener extends GbifServletListener {
     return modules;
   }
 
-  @Override
+  //@Override
   public void contextDestroyed(ServletContextEvent servletContextEvent) {
-    super.contextDestroyed(servletContextEvent);
+    //super.contextDestroyed(servletContextEvent);
     // close modules
     CloseableUtils.close(toBeClosed);
   }

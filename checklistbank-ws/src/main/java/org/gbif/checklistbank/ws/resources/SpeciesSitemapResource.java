@@ -17,29 +17,28 @@ import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
-
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.google.inject.name.Named;
 
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /**
  * Species sitemap resource producing text sitemaps for all checklist bank name usages.
@@ -50,7 +49,7 @@ import freemarker.template.TemplateException;
 @RestController
 @RequestMapping(
   value = "/sitemap/species",
-  produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
+  produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
 )
 public class SpeciesSitemapResource {
 
@@ -81,7 +80,7 @@ public class SpeciesSitemapResource {
     }
 
     @Autowired
-    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Named("checklistbank.portal.url") String portalUrl, @Named("checklistbank.api.url") String apiUrl) {
+    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Value("checklistbank.portal.url") String portalUrl, @Value("checklistbank.api.url") String apiUrl) {
         this.nameUsageMapper = nameUsageMapper;
         this.portalUrl = portalUrl;
         this.apiUrl = apiUrl;
@@ -90,7 +89,7 @@ public class SpeciesSitemapResource {
     /**
      * Generate a sitemap index to all sitemaps.
      */
-    @GetMapping(produces = MediaType.APPLICATION_XML)
+    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
     public String sitemapIndex() throws IOException {
         int cnt = nameUsageMapper.count(null);
         int maps = (int) Math.ceil((double) cnt/SITEMAP_SIZE);
@@ -112,12 +111,12 @@ public class SpeciesSitemapResource {
     /**
      * Generate a single text sitemap with 50k entries.
      */
-    @GetMapping(path= "{page}", produces =MediaType.TEXT_PLAIN)
-    public Response sitemap(@PathVariable("page") int page) {
+    @GetMapping(path= "{page}")
+    public ResponseEntity<StreamingResponseBody> sitemap(@PathVariable("page") int page) {
         Preconditions.checkArgument(page > 0, "Page parameter must be positive");
 
-        StreamingOutput stream = os -> {
-            Writer writer = new BufferedWriter(new OutputStreamWriter(os, Charsets.UTF_8));
+        StreamingResponseBody stream = os -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
             PagingRequest req = new PagingRequest((long) (page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
             for (int key : nameUsageMapper.list(null, req)) {
                 writer.write(portalUrl);
@@ -127,7 +126,7 @@ public class SpeciesSitemapResource {
             writer.flush();
         };
 
-        return Response.ok(stream, MediaType.TEXT_PLAIN).build();
+        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(stream);
     }
 
 }
