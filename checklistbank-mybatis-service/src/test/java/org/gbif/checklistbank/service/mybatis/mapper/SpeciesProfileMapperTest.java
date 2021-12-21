@@ -3,15 +3,31 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.common.paging.PagingRequest;
 
-import org.junit.Test;
+import java.util.Optional;
+import javax.sql.DataSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class SpeciesProfileMapperTest extends MapperITBase<SpeciesProfileMapper> {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    public SpeciesProfileMapperTest() {
-        super(SpeciesProfileMapper.class, true);
+public class SpeciesProfileMapperTest extends MapperITBase2<SpeciesProfileMapper> {
+
+    private SpeciesProfileMapper mapper;
+
+    @Autowired
+    public SpeciesProfileMapperTest(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource,
+      SpeciesProfileMapper mapper
+    ) {
+        super(parsedNameMapper, nameUsageMapper, nubRelMapper, datasetMapper, citationMapper, dataSource, Optional.of(true));
+        this.mapper = mapper;
     }
 
     @Test
@@ -39,7 +55,6 @@ public class SpeciesProfileMapperTest extends MapperITBase<SpeciesProfileMapper>
 
         SpeciesProfile obj2 = mapper.listByChecklistUsage(usageKey, new PagingRequest()).get(0);
         assertObject(obj, obj2, citation1, null);
-
 
         obj2 = mapper.listByNubUsage(nubKey, new PagingRequest()).get(0);
         // these are now nub source usage values

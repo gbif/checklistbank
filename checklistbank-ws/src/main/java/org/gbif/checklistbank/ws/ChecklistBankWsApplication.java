@@ -3,6 +3,7 @@ package org.gbif.checklistbank.ws;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
 import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
     ElasticSearchRestHealthContributorAutoConfiguration.class,
     RabbitAutoConfiguration.class
   })
+@MapperScan("org.gbif.checklistbank.service.mybatis.mapper")
 @EnableConfigurationProperties
 @ComponentScan(
   basePackages = {

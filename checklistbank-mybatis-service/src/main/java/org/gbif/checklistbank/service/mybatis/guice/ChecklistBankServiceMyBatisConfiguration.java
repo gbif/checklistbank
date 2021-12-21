@@ -17,7 +17,6 @@ import org.gbif.api.model.common.Identifier;
 import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.Language;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NameUsageWritable;
@@ -30,6 +29,8 @@ import org.gbif.checklistbank.model.UsageRelated;
 import org.gbif.checklistbank.service.mybatis.DatasetMetricsServiceMyBatis;
 import org.gbif.mybatis.type.CountryTypeHandler;
 import org.gbif.mybatis.type.LanguageTypeHandler;
+import org.gbif.mybatis.type.UriTypeHandler;
+import org.gbif.mybatis.type.UuidTypeHandler;
 
 import java.net.URI;
 import java.util.UUID;
@@ -51,6 +52,8 @@ public class ChecklistBankServiceMyBatisConfiguration {
   @Bean
   ConfigurationCustomizer mybatisConfigCustomizer() {
     return configuration -> {
+      configuration.setMapUnderscoreToCamelCase(true);
+
       //Aliases
       configuration.getTypeAliasRegistry().registerAlias("Count", DatasetMetricsServiceMyBatis.Count.class);
       configuration.getTypeAliasRegistry().registerAlias("DatasetCore", DatasetCore.class);
@@ -79,31 +82,26 @@ public class ChecklistBankServiceMyBatisConfiguration {
       configuration.getTypeAliasRegistry().registerAlias("IucnRedListCategory", IucnRedListCategory.class);
 
       //TypeHandlers
+      configuration.getTypeHandlerRegistry().register("org.gbif.registry.persistence.handler");
       configuration.getTypeHandlerRegistry().register(Country.class, CountryTypeHandler.class);
       configuration.getTypeHandlerRegistry().register(Language.class, LanguageTypeHandler.class);
-      configuration.getTypeHandlerRegistry().register(UUID.class, UUID.class);
-      configuration.getTypeHandlerRegistry().register(URI.class, URI.class);
+      configuration.getTypeHandlerRegistry().register(UUID.class, UuidTypeHandler.class);
+      configuration.getTypeHandlerRegistry().register(URI.class, UriTypeHandler.class);
     };
-  }
-
-  @Bean
-  @ConfigurationProperties("checklistbank")
-  public ClbConfiguration clbConfiguration() {
-    return new ClbConfiguration();
   }
 
   @Bean
   @Primary
   @ConfigurationProperties("checklistbank.datasource")
-  public DataSourceProperties registryDataSourceProperties() {
+  public DataSourceProperties dataSourceProperties() {
     return new DataSourceProperties();
   }
 
   @Bean
   @Primary
-  @ConfigurationProperties("registry.datasource.hikari")
-  public HikariDataSource registryDataSource() {
-    return registryDataSourceProperties()
+  @ConfigurationProperties("checklistbank.datasource.hikari")
+  public HikariDataSource dataSource() {
+    return dataSourceProperties()
       .initializeDataSourceBuilder()
       .type(HikariDataSource.class)
       .build();

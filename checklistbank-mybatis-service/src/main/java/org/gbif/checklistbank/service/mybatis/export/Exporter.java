@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.mapper.*;
 import org.gbif.dwc.terms.DwcTerm;
@@ -55,8 +54,6 @@ public class Exporter {
    * @param registryWs base URL of the registry API, e.g. http://api.gbif.org/v1
    */
   public static Exporter create(File repository, ClbConfiguration cfg, String registryWs) {
-    RegistryServiceConfiguration regCfg = new RegistryServiceConfiguration();
-    regCfg.wsUrl = registryWs;
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
     ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
     return new Exporter(repository, ctx);
