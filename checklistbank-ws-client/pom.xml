@@ -77,22 +77,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.code.findbugs</groupId>
-      <artifactId>jsr305</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.gbif</groupId>
       <artifactId>gbif-api</artifactId>
     </dependency>
@@ -101,60 +85,23 @@
       <artifactId>gbif-common-ws</artifactId>
     </dependency>
 
+    <!-- Third party dependencies -->
+    <dependency>
+      <groupId>io.github.openfeign</groupId>
+      <artifactId>feign-jackson</artifactId>
+    </dependency>
+
     <!-- TESTS -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jul-to-slf4j</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.liquibase</groupId>
-      <artifactId>liquibase-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-ws</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
 
-    <!-- test classifier -->
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-mybatis-service</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-solr</artifactId>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 </project>

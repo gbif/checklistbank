@@ -1,26 +1,39 @@
 package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DatasetMetricsWsClientIT {
+@Disabled
+public class DatasetMetricsClientIT extends BaseClientIT {
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
-  final DatasetMetricsService wsClient = WsClientSuite.getClient(DatasetMetricsService.class);
+
+  private final DatasetMetricsClient client;
+
+  public DatasetMetricsClientIT() throws IOException {
+    client =
+        new ClientBuilder()
+            .withUrl(apiUrl)
+            .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
+            .build(DatasetMetricsClient.class);
+  }
 
   @Test
   public void testGet() {
-    DatasetMetrics d = wsClient.get(CHECKLIST_KEY);
+    DatasetMetrics d = client.get(CHECKLIST_KEY);
     assertEquals(CHECKLIST_KEY, d.getDatasetKey());
     assertEquals(1000, d.getUsagesCount());
     assertEquals(25, d.getColCoveragePct());
@@ -36,7 +49,7 @@ public class DatasetMetricsWsClientIT {
 
   @Test
   public void testList() {
-    List<DatasetMetrics> ds = wsClient.list(CHECKLIST_KEY);
+    List<DatasetMetrics> ds = client.list(CHECKLIST_KEY);
     assertEquals(3, ds.size());
     for (DatasetMetrics d : ds) {
       assertEquals(CHECKLIST_KEY, d.getDatasetKey());
