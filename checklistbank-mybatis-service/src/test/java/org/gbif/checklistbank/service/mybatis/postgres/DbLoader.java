@@ -47,7 +47,7 @@ public class DbLoader {
     public static void load(Connection con, String folder, boolean truncate) throws Exception {
         con.setAutoCommit(false);
         LOG.info("Load data from " + folder);
-        CopyManager copy = ((PGConnection)con).getCopyAPI();
+        CopyManager copy = con.unwrap(PGConnection.class).getCopyAPI();
         List<String> tables = listTables(folder);
         if (truncate) {
             truncate(con, tables);

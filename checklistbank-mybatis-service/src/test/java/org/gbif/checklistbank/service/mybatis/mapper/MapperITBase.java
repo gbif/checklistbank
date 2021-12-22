@@ -9,79 +9,167 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule2;
 import org.gbif.utils.text.StringUtils;
 
-import java.util.Properties;
+import java.sql.SQLException;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import io.zonky.test.db.postgres.embedded.ConnectionInfo;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-public class MapperITBase<T> {
-  private static final String PREFIX = "checklistbank.db.";
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = MapperITBase.ChecklistBankMyBatisTestConfiguration.class)
+@ContextConfiguration(initializers = {MapperITBase.ContextInitializer.class})
+@ActiveProfiles("test")
+public class MapperITBase {
 
-  protected T mapper;
-  private AnnotationConfigApplicationContext ctx;
-  private final Class<T> mapperClass;
+  @TestConfiguration
+  @PropertySource("classpath:application-test.yml")
+  @MapperScan("org.gbif.checklistbank.service.mybatis.mapper")
+  @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
+  @ComponentScan(basePackages = "org.gbif.checklistbank.service.mybatis")
+  public static class ChecklistBankMyBatisTestConfiguration {
+    public static void main(String[] args) {
+      SpringApplication.run(ChecklistBankMyBatisTestConfiguration.class, args);
+    }
+  }
+
+  /** Custom ContextInitializer to expose the registry DB data source and search flags. */
+  public static class ContextInitializer
+      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+    private final List<Consumer<EmbeddedPostgres.Builder>> builderCustomizers =
+        new CopyOnWriteArrayList<>();
+
+    @Override
+    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+      try {
+        LiquibasePreparer liquibasePreparer =
+            LiquibasePreparer.forClasspathLocation("liquibase/master.xml");
+        PreparedDbProvider provider =
+            PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
+        ConnectionInfo connectionInfo = provider.createNewDatabase();
+
+        TestPropertyValues.of(Stream.of(dbTestPropertyPairs(connectionInfo)).toArray(String[]::new))
+            .applyTo(configurableApplicationContext.getEnvironment());
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    /** Creates the registry datasource settings from the embedded database. */
+    String[] dbTestPropertyPairs(ConnectionInfo connectionInfo) {
+      return new String[] {
+        "checklistbank.datasource.url=jdbc:postgresql://localhost:"
+            + connectionInfo.getPort()
+            + "/"
+            + connectionInfo.getDbName(),
+        "checklistbank.datasource.username=" + connectionInfo.getUser(),
+        "checklistbank.datasource.password="
+      };
+    }
+  }
+
   private final boolean initData;
 
-  final protected String datasetTitle = "My Favorite Checklist";
-  final protected String citation1 = "citeme one";
+  protected final String datasetTitle = "My Favorite Checklist";
+  protected final String citation1 = "citeme one";
   protected int citationKey1;
-  final protected String citation2 = "citeme two";
-  final protected String citation2doi = "doi:10.10003/citeme two";
-  final protected String citation2link = "http://purl.org/citeme/two";
+  protected final String citation2 = "citeme two";
+  protected final String citation2doi = "doi:10.10003/citeme two";
+  protected final String citation2link = "http://purl.org/citeme/two";
   protected int citationKey2;
   protected int usageKey;
   protected int nubKey;
   protected UUID datasetKey;
 
-  private ParsedNameMapper parsedNameMapper;
-  private NameUsageMapper nameUsageMapper;
-  private NubRelMapper nubRelMapper;
-  private DatasetMapper datasetMapper;
-  private CitationMapper citationMapper;
+  protected ParsedNameMapper parsedNameMapper;
+  protected NameUsageMapper nameUsageMapper;
+  protected NubRelMapper nubRelMapper;
+  protected DatasetMapper datasetMapper;
+  protected CitationMapper citationMapper;
+  private DataSource dataSource;
 
-  @Rule
-  public ClbDbTestRule sbSetup;
+  @RegisterExtension public ClbDbTestRule2 sbSetup;
 
-  public MapperITBase(Class<T> mapperClass, ClbDbTestRule rule) {
-    this.mapperClass = mapperClass;
-    sbSetup = rule;
-    this.initData = false;
+  @Autowired
+  public MapperITBase(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource,
+      boolean initData) {
+    this(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        initData,
+        ClbDbTestRule2.empty(dataSource));
   }
 
-  public MapperITBase(Class<T> mapperClass, boolean initData) {
-    this.mapperClass = mapperClass;
+  @Autowired
+  public MapperITBase(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource,
+      boolean initData,
+      ClbDbTestRule2 rule) {
+    this.parsedNameMapper = parsedNameMapper;
+    this.nameUsageMapper = nameUsageMapper;
+    this.nubRelMapper = nubRelMapper;
+    this.datasetMapper = datasetMapper;
+    this.citationMapper = citationMapper;
+    this.dataSource = dataSource;
     this.initData = initData;
-    this.sbSetup = ClbDbTestRule.empty();
+    this.sbSetup = rule;
   }
 
-  @Before
+  public MapperITBase(boolean initData) {
+    this.initData = initData;
+  }
+
+  @BeforeEach
   public void init() throws Exception {
-    ctx = setupMyBatis(sbSetup);
-    mapper = ctx.getBean(mapperClass);
     if (initData) {
       initData();
     }
   }
 
-  public static AnnotationConfigApplicationContext setupMyBatis(ClbDbTestRule rule) {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
-    return ctx;
-  }
-
   private void initData() throws Exception {
-    parsedNameMapper = getInstance(ParsedNameMapper.class);
-    nameUsageMapper = getInstance(NameUsageMapper.class);
-    nubRelMapper = getInstance(NubRelMapper.class);
-    datasetMapper = getInstance(DatasetMapper.class);
-    citationMapper = getInstance(CitationMapper.class);
-
     ParsedName pn = new ParsedName();
     pn.setType(NameType.SCIENTIFIC);
     pn.setScientificName(StringUtils.randomSpecies());
@@ -123,23 +211,5 @@ public class MapperITBase<T> {
     c.setLink(citation2link);
     citationMapper.insert(c);
     citationKey2 = c.getKey();
-  }
-
-  /**
-   * Filtered properties also removing the given property prefix string
-   */
-  public static Properties strippedProperties(Properties properties) {
-    Properties filtered = new Properties();
-
-    for (String key : properties.stringPropertyNames()) {
-      if (key.startsWith(PREFIX)) {
-        filtered.setProperty(key.substring(PREFIX.length()), properties.getProperty(key));
-      }
-    }
-    return filtered;
-  }
-
-  public <K> K getInstance(Class<K> clazz) {
-    return ctx.getBean(clazz);
   }
 }

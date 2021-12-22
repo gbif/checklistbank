@@ -3,16 +3,35 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 import org.gbif.checklistbank.model.DatasetCore;
 
 import java.util.UUID;
+import javax.sql.DataSource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class DatasetMapperTest extends MapperITBase<DatasetMapper> {
+public class DatasetMapperTest extends MapperITBase {
 
-  public DatasetMapperTest() {
-    super(DatasetMapper.class, false);
+  private final DatasetMapper mapper;
+
+  @Autowired
+  public DatasetMapperTest(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false);
+    this.mapper = datasetMapper;
   }
 
   @Test

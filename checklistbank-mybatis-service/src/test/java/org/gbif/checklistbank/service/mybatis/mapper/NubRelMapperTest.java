@@ -1,30 +1,48 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.Constants;
-import org.gbif.checklistbank.model.RawUsage;
-import org.junit.Test;
 
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
-/**
- *
- */
-public class NubRelMapperTest extends MapperITBase<NubRelMapper> {
+/** */
+public class NubRelMapperTest extends MapperITBase {
 
-    public NubRelMapperTest() {
-        super(NubRelMapper.class, true);
-    }
+  private final NubRelMapper mapper;
 
-    @Test
-    public void process() {
-        AtomicInteger counter = new AtomicInteger();
-        mapper.process(Constants.NUB_DATASET_KEY).forEach(u -> {
-            counter.getAndIncrement();
-        });
-        assertEquals(0, counter.get());
-    }
+  @Autowired
+  public NubRelMapperTest(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        true);
+    this.mapper = nubRelMapper;
+  }
+
+  @Test
+  public void process() {
+    AtomicInteger counter = new AtomicInteger();
+    mapper
+        .process(Constants.NUB_DATASET_KEY)
+        .forEach(
+            u -> {
+              counter.getAndIncrement();
+            });
+    assertEquals(0, counter.get());
+  }
 }

@@ -1,22 +1,44 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.junit.Test;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule2;
 
 import java.util.UUID;
+import javax.sql.DataSource;
+
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class ReferenceMapperWithDataIT extends MapperITBase<ReferenceMapper> {
+public class ReferenceMapperWithDataIT extends MapperITBase {
 
-  public ReferenceMapperWithDataIT() {
-    super(ReferenceMapper.class, ClbDbTestRule.squirrels());
+  private final ReferenceMapper mapper;
+
+  @Autowired
+  public ReferenceMapperWithDataIT(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      ReferenceMapper referenceMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false,
+        ClbDbTestRule2.squirrels(dataSource));
+    this.mapper = referenceMapper;
   }
 
   class NonEmptyCounter implements ResultHandler<Reference> {
@@ -45,5 +67,4 @@ public class ReferenceMapperWithDataIT extends MapperITBase<ReferenceMapper> {
     mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
     assertEquals(22, proc.counter);
   }
-
 }

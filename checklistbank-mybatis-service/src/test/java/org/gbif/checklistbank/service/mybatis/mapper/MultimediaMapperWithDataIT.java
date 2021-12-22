@@ -1,22 +1,44 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.junit.Test;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule2;
 
 import java.util.UUID;
+import javax.sql.DataSource;
+
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class MultimediaMapperWithDataIT extends MapperITBase<MultimediaMapper> {
+public class MultimediaMapperWithDataIT extends MapperITBase {
 
-  public MultimediaMapperWithDataIT() {
-    super(MultimediaMapper.class, ClbDbTestRule.squirrels());
+  private final MultimediaMapper mapper;
+
+  @Autowired
+  public MultimediaMapperWithDataIT(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      MultimediaMapper multimediaMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false,
+        ClbDbTestRule2.squirrels(dataSource));
+    this.mapper = multimediaMapper;
   }
 
   class NonEmptyCounter implements ResultHandler<NameUsageMediaObject> {
@@ -45,5 +67,4 @@ public class MultimediaMapperWithDataIT extends MapperITBase<MultimediaMapper> {
     mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
     assertEquals(11, proc.counter);
   }
-
 }

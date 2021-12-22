@@ -5,20 +5,39 @@ import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.utils.text.StringUtils;
-import org.junit.Test;
+
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class ParsedNameMapperIT extends MapperITBase<ParsedNameMapper> {
+public class ParsedNameMapperIT extends MapperITBase {
 
-  public ParsedNameMapperIT() {
-    super(ParsedNameMapper.class, false);
+  private final ParsedNameMapper mapper;
+
+  @Autowired
+  public ParsedNameMapperIT(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false);
+    this.mapper = parsedNameMapper;
   }
 
-  /**
-   * Check all enum values have a matching postgres type value.
-   */
+  /** Check all enum values have a matching postgres type value. */
   @Test
   public void testEnums() {
     ParsedName pn = new ParsedName();
@@ -83,5 +102,4 @@ public class ParsedNameMapperIT extends MapperITBase<ParsedNameMapper> {
     ParsedName pn2 = mapper.getByName(pn.getScientificName(), pn.getRank());
     assertEquals(pn, pn2);
   }
-
 }

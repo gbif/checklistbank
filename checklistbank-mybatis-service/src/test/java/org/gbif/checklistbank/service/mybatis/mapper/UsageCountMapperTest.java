@@ -4,22 +4,41 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageCount;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule2;
 
 import java.util.List;
-import java.util.UUID;
+import javax.sql.DataSource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- *
- */
-public class UsageCountMapperTest extends MapperITBase<UsageCountMapper> {
+/** */
+public class UsageCountMapperTest extends MapperITBase {
 
-  public UsageCountMapperTest() {
-    super(UsageCountMapper.class, ClbDbTestRule.squirrels());
+  private final UsageCountMapper mapper;
+
+  @Autowired
+  public UsageCountMapperTest(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      UsageCountMapper usageCountMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false,
+        ClbDbTestRule2.squirrels(dataSource));
+    this.mapper = usageCountMapper;
   }
 
   @Test

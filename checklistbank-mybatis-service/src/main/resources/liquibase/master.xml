@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
     <changeSet id="1" author="markus">
-        <sqlFile path="liquibase/clb2.sql"/>
+        <sqlFile path="liquibase/clb2.sql" splitStatements="false"/>
     </changeSet>
     <changeSet id="2" author="markus">
         <sqlFile path="liquibase/col_feedback.sql"/>

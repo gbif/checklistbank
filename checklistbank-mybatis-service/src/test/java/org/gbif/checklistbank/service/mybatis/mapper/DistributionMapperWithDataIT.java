@@ -1,22 +1,44 @@
 package org.gbif.checklistbank.service.mybatis.mapper;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.junit.Test;
+import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule2;
 
 import java.util.UUID;
+import javax.sql.DataSource;
+
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class DistributionMapperWithDataIT extends MapperITBase<DistributionMapper> {
+public class DistributionMapperWithDataIT extends MapperITBase {
 
-  public DistributionMapperWithDataIT() {
-    super(DistributionMapper.class, ClbDbTestRule.squirrels());
+  private final DistributionMapper mapper;
+
+  @Autowired
+  public DistributionMapperWithDataIT(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DistributionMapper distributionMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false,
+        ClbDbTestRule2.squirrels(dataSource));
+    this.mapper = distributionMapper;
   }
 
   class NonEmptyCounter implements ResultHandler<Distribution> {
@@ -46,7 +68,5 @@ public class DistributionMapperWithDataIT extends MapperITBase<DistributionMappe
     mapper.processDataset(Constants.NUB_DATASET_KEY, proc);
     // we did not reset counter, so it adds up
     assertEquals(14, proc.counter);
-
   }
-
 }

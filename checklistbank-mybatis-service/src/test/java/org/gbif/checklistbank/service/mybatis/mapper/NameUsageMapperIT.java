@@ -2,37 +2,43 @@ package org.gbif.checklistbank.service.mybatis.mapper;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
+public class NameUsageMapperIT extends MapperITBase {
 
   private static final UUID DATASET_KEY = UUID.randomUUID();
 
-  private ParsedNameMapper parsedNameMapper;
+  private final NameUsageMapper mapper;
 
-  public NameUsageMapperIT() {
-    super(NameUsageMapper.class, false);
-  }
-
-  @Before
-  public void initNameMapper() throws Exception {
-    parsedNameMapper = getInstance(ParsedNameMapper.class);
+  @Autowired
+  public NameUsageMapperIT(
+      ParsedNameMapper parsedNameMapper,
+      NameUsageMapper nameUsageMapper,
+      NubRelMapper nubRelMapper,
+      DatasetMapper datasetMapper,
+      CitationMapper citationMapper,
+      DataSource dataSource) {
+    super(
+        parsedNameMapper,
+        nameUsageMapper,
+        nubRelMapper,
+        datasetMapper,
+        citationMapper,
+        dataSource,
+        false);
+    this.mapper = nameUsageMapper;
   }
 
   private int createName(String name, Rank rank) {
@@ -51,9 +57,7 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     }
   }
 
-  /**
-   * Check all enum values have a matching postgres type value.
-   */
+  /** Check all enum values have a matching postgres type value. */
   @Test
   public void testEnums() {
     String name = "Abies alba Mill.";
@@ -90,17 +94,13 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     }
   }
 
-  /**
-   * Check all enum values have a matching postgres type value.
-   */
+  /** Check all enum values have a matching postgres type value. */
   @Test
   public void testListUsageRange() {
     List<NameUsage> list = mapper.listRange(0, 1000);
   }
 
-  /**
-   * Check all enum values have a matching postgres type value.
-   */
+  /** Check all enum values have a matching postgres type value. */
   @Test
   public void testInsertWithKey() {
     String name = "Abies negra Mill.";
@@ -123,9 +123,7 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     assertEquals(100000001, (int) u.getKey());
   }
 
-  /**
-   * Check all enum values have a matching postgres type value.
-   */
+  /** Check all enum values have a matching postgres type value. */
   @Test
   public void testGetUpdateIssues() {
     String name = "Abies Mill.";
@@ -152,5 +150,4 @@ public class NameUsageMapperIT extends MapperITBase<NameUsageMapper> {
     mapper.updateIssues(key, issues);
     assertTrue(mapper.getIssues(key).getIssues().isEmpty());
   }
-
 }
