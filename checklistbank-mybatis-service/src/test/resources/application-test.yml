@@ -1,13 +1,13 @@
 checklistbank:
-  datasource:
-    url: @checklistbank.db.url@
-    password: @checklistbank.db.password@
-    username: @checklistbank.db.username@
-    driverClassName: org.postgresql.Driver
-    hikari:
-      idleTimeout: 60000
-      maximumPoolSize: 10
-      minimumIdle: 1
+#  datasource:
+#    url: @checklistbank.db.url@
+#    password: @checklistbank.db.password@
+#    username: @checklistbank.db.username@
+#    driverClassName: org.postgresql.Driver
+#    hikari:
+#      idleTimeout: 60000
+#      maximumPoolSize: 10
+#      minimumIdle: 1
   portal:
     url: https://www.gbif-dev.org/
   api:

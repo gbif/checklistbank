@@ -227,6 +227,11 @@
       <artifactId>jackson-dataformat-yaml</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-database-spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>

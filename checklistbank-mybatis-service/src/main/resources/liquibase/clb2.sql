@@ -61,7 +61,7 @@ CREATE TYPE type_status AS ENUM ('TYPE', 'TYPE_SPECIES', 'TYPE_GENUS', 'ALLOLECT
 ---
 
 CREATE or replace FUNCTION authorship_full(authorship character varying, year character varying, authorship_basionym character varying, year_basionym character varying) RETURNS text
-      AS $$ BEGIN RETURN (COALESCE(authorship, ''::character varying)::text || CASE WHEN year IS NOT NULL THEN ', '::text || year::text ELSE ''::text END) || CASE WHEN authorship_basionym IS NOT NULL OR year_basionym IS NOT NULL THEN (' ('::text || COALESCE((authorship_basionym::text || ', '::text) || year_basionym::text, authorship_basionym::text, year_basionym::text)) || ')'::text ELSE ''::text END; END; $$ LANGUAGE plpgsql IMMUTABLE;
+AS ' BEGIN RETURN (COALESCE(authorship, ""::character varying)::text || CASE WHEN year IS NOT NULL THEN ", "::text || year::text ELSE ""::text END) || CASE WHEN authorship_basionym IS NOT NULL OR year_basionym IS NOT NULL THEN (" ("::text || COALESCE((authorship_basionym::text || ", "::text) || year_basionym::text, authorship_basionym::text, year_basionym::text)) || ")"::text ELSE ""::text END; END; ' LANGUAGE plpgsql IMMUTABLE;
 
 
 ---

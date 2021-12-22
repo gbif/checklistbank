@@ -139,6 +139,9 @@
 
         <!-- Tools-->
         <lombok.version>1.18.20</lombok.version>
+
+        <!-- Test -->
+        <embedded-database-spring-test.version>1.6.2</embedded-database-spring-test.version>
     </properties>
 
     <repositories>
@@ -1083,6 +1086,12 @@
                         <artifactId>junit-vintage-engine</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.zonky.test</groupId>
+                <artifactId>embedded-database-spring-test</artifactId>
+                <version>${embedded-database-spring-test.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
