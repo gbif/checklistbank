@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.*;
 
-public class DescriptionServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class DescriptionServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final DescriptionService service;
 

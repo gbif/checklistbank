@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /** */
-public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final UsageSyncService service;
   private final NameUsageService nameUsageService;

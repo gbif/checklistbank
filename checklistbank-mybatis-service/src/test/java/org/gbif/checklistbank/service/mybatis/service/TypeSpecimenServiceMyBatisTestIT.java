@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class TypeSpecimenServiceMyBatisTestIT extends MyBatisServiceITBase2 {
+public class TypeSpecimenServiceMyBatisTestIT extends MyBatisServiceITBase {
 
   private final TypeSpecimenService service;
 

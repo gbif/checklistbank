@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 
-public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final DatasetMetricsService service;
 

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class ReferenceServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class ReferenceServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final ReferenceService service;
 

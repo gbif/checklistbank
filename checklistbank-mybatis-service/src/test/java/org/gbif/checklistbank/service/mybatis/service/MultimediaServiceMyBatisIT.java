@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class MultimediaServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class MultimediaServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final MultimediaService service;
 

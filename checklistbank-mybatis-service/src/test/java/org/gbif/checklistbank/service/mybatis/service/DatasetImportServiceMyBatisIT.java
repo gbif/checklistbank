@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final DatasetImportService service;
   private final NameUsageService nameUsageService;

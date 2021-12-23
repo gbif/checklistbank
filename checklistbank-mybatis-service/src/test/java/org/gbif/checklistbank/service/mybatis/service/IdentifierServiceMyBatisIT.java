@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class IdentifierServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class IdentifierServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final IdentifierService service;
 

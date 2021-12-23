@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.*;
 
-public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final NameUsageService service;
 

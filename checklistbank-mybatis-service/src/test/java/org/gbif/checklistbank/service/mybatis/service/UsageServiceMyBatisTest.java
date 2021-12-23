@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 
-public class UsageServiceMyBatisTest extends MyBatisServiceITBase2 {
+public class UsageServiceMyBatisTest extends MyBatisServiceITBase {
 
   private final UsageService service;
 

@@ -1,51 +1,92 @@
 package org.gbif.checklistbank.service.mybatis.service;
 
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
-import java.lang.annotation.Annotation;
-import javax.annotation.Nullable;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import io.zonky.test.db.postgres.embedded.ConnectionInfo;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-public class MyBatisServiceITBase<T> {
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = MyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
+@ContextConfiguration(initializers = {MyBatisServiceITBase.ContextInitializer.class})
+@ActiveProfiles("test")
+public class MyBatisServiceITBase {
 
-  private final Class<T> serviceClass;
-  private final Class<? extends Annotation> annotationType;
-  private AnnotationConfigApplicationContext ctx;
-  protected T service;
+  @RegisterExtension public ClbDbTestRule2 sbSetup;
 
-  @Rule
-  public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
+  protected DataSource dataSource;
 
-  public MyBatisServiceITBase(Class<T> serviceClass) {
-    this(serviceClass, null);
+  public MyBatisServiceITBase(DataSource dataSource) {
+    this.dataSource = dataSource;
+    this.sbSetup = ClbDbTestRule2.squirrels(dataSource);
   }
 
-  public MyBatisServiceITBase(Class<T> serviceClass, @Nullable Class<? extends Annotation> annotationType) {
-    this.serviceClass = serviceClass;
-    this.annotationType = annotationType;
-  }
-
-  @Before
-  public void init() throws Exception {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankMyBatisConfiguration.class);
-    if (annotationType != null) {
-      service = getInstance(serviceClass, annotationType);
-    } else {
-      service = ctx.getBean(serviceClass);
+  @TestConfiguration
+  @PropertySource("classpath:application-test.yml")
+  @Import(SpringServiceConfig.class) // actually not needed, it gets scanned by default
+  @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
+  public static class ChecklistBankServiceTestConfiguration {
+    public static void main(String[] args) {
+      SpringApplication.run(ChecklistBankServiceTestConfiguration.class, args);
     }
   }
 
-  public <K> K getInstance(Class<K> clazz) {
-    return ctx.getBean(clazz);
-  }
+  /** Custom ContextInitializer to expose the registry DB data source and search flags. */
+  public static class ContextInitializer
+      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-  public <K> K getInstance(Class<K> clazz, Class<? extends Annotation> annotationType) {
-    return (K)ctx.getBeansWithAnnotation(annotationType).values().stream().filter(clazz::isInstance).findFirst().orElse(null);
-  }
+    private final List<Consumer<EmbeddedPostgres.Builder>> builderCustomizers =
+        new CopyOnWriteArrayList<>();
 
+    @Override
+    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+      try {
+        LiquibasePreparer liquibasePreparer =
+            LiquibasePreparer.forClasspathLocation("liquibase/master.xml");
+        PreparedDbProvider provider =
+            PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
+        ConnectionInfo connectionInfo = provider.createNewDatabase();
+
+        TestPropertyValues.of(Stream.of(dbTestPropertyPairs(connectionInfo)).toArray(String[]::new))
+            .applyTo(configurableApplicationContext.getEnvironment());
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    /** Creates the registry datasource settings from the embedded database. */
+    String[] dbTestPropertyPairs(ConnectionInfo connectionInfo) {
+      return new String[] {
+        "checklistbank.datasource.url=jdbc:postgresql://localhost:"
+            + connectionInfo.getPort()
+            + "/"
+            + connectionInfo.getDbName(),
+        "checklistbank.datasource.username=" + connectionInfo.getUser(),
+        "checklistbank.datasource.password="
+      };
+    }
+  }
 }

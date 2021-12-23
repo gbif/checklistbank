@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class DistributionServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class DistributionServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final DistributionService service;
 

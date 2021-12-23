@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class VernacularNameServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class VernacularNameServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final VernacularNameService service;
 

@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase {
 
   private final UsageService service;
 

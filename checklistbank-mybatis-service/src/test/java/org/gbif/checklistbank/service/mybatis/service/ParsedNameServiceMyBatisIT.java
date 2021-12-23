@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase2 {
+public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase {
 
   private NameParser parser = new NameParserGbifV1();
 
