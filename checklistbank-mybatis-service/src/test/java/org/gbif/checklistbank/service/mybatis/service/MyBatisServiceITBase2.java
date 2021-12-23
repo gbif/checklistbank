@@ -23,7 +23,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
@@ -38,7 +37,10 @@ public class MyBatisServiceITBase2 {
 
   @RegisterExtension public ClbDbTestRule2 sbSetup;
 
+  protected DataSource dataSource;
+
   public MyBatisServiceITBase2(DataSource dataSource) {
+    this.dataSource = dataSource;
     this.sbSetup = ClbDbTestRule2.squirrels(dataSource);
   }
 

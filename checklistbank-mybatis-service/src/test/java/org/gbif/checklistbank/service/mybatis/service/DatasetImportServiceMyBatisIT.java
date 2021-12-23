@@ -17,25 +17,34 @@ import org.gbif.checklistbank.service.ImporterCallback;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.sql.DataSource;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetImportService> {
+public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase2 {
 
-  public DatasetImportServiceMyBatisIT() {
-    super(DatasetImportService.class);
-  }
+  private final DatasetImportService service;
+  private final NameUsageService nameUsageService;
 
   private final Integer USAGE_ID = 555555;
 
-  /**
-   * pro parte usages are synced differently and not tested here
-   */
+  @Autowired
+  public DatasetImportServiceMyBatisIT(
+      DataSource dataSource,
+      DatasetImportService datasetImportService,
+      NameUsageService nameUsageService) {
+    super(dataSource);
+    this.service = datasetImportService;
+    this.nameUsageService = nameUsageService;
+  }
+
+  /** pro parte usages are synced differently and not tested here */
   @Test
   public void testRegularImport() throws ExecutionException, InterruptedException {
 
@@ -67,8 +76,7 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetI
     Future<?> f = service.sync(u.getDatasetKey(), data, Lists.newArrayList(1));
     f.get();
 
-    NameUsageService usageService = getInstance(NameUsageService.class);
-    NameUsage u2 = usageService.get(USAGE_ID, null);
+    NameUsage u2 = nameUsageService.get(USAGE_ID, null);
 
     u2.setLastInterpreted(null);
 
@@ -89,7 +97,8 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetI
     private final VerbatimNameUsage v;
     private final NameUsageMetrics m;
 
-    DummyData(NameUsage u, ParsedName pn, UsageExtensions ext, VerbatimNameUsage v, NameUsageMetrics m) {
+    DummyData(
+        NameUsage u, ParsedName pn, UsageExtensions ext, VerbatimNameUsage v, NameUsageMetrics m) {
       this.u = u;
       this.pn = pn;
       this.ext = ext;
@@ -133,13 +142,9 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase<DatasetI
     }
 
     @Override
-    public void reportUsageKey(long id, int usageKey) {
-
-    }
+    public void reportUsageKey(long id, int usageKey) {}
 
     @Override
-    public void reportNewFuture(Future<List<Integer>> future) {
-
-    }
+    public void reportNewFuture(Future<List<Integer>> future) {}
   }
 }

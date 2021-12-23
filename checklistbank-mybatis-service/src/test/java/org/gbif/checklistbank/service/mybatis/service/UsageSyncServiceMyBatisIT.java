@@ -1,7 +1,5 @@
 package org.gbif.checklistbank.service.mybatis.service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
@@ -15,33 +13,36 @@ import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.NameParserGbifV1;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- *
- */
-public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncService> {
+/** */
+public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase2 {
 
-  public UsageSyncServiceMyBatisIT() {
-    super(UsageSyncService.class);
-  }
+  private final UsageSyncService service;
+  private final NameUsageService nameUsageService;
 
   private static final NameParser PARSER = new NameParserGbifV1();
-  NameUsageService uService;
 
-  @Before
-  public void init2() {
-    uService = getInstance(NameUsageService.class);
+  @Autowired
+  public UsageSyncServiceMyBatisIT(
+      DataSource dataSource, UsageSyncService usageSyncService, NameUsageService nameUsageService) {
+    super(dataSource);
+    this.service = usageSyncService;
+    this.nameUsageService = nameUsageService;
   }
 
   @Test
@@ -53,7 +54,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
   @Test
   public void nubRelations() throws Exception {
     Map<Integer, Integer> rels = new HashMap<>();
-    rels.put(1,1);
+    rels.put(1, 1);
     service.insertNubRelations(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rels);
   }
 
@@ -117,7 +118,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     int k1 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
 
     // verify props
-    NameUsage u2 = uService.get(k1, null);
+    NameUsage u2 = nameUsageService.get(k1, null);
     assertEquals(k.getKey(), u2.getKingdomKey());
     assertEquals(p.getKey(), u2.getPhylumKey());
     assertEquals(c.getKey(), u2.getClassKey());
@@ -141,7 +142,8 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     assertEquals(p.getKey(), u2.getNubKey());
     assertEquals(u.getSourceTaxonKey(), u2.getSourceTaxonKey());
 
-    // Try an update now with verbatim data (remove usage key as we detect existing record by taxonID only!)
+    // Try an update now with verbatim data (remove usage key as we detect existing record by
+    // taxonID only!)
     u.setKey(null);
     u.setBasionymKey(-1); // point to itself!
     u.setProParteKey(-1); // point to itself!
@@ -155,7 +157,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     assertEquals(k1, k2);
 
     // verify props
-    u2 = uService.get(k1, null);
+    u2 = nameUsageService.get(k1, null);
     assertEquals(k.getKey(), u2.getKingdomKey());
     assertEquals(p.getKey(), u2.getPhylumKey());
     assertEquals(c.getKey(), u2.getClassKey());
@@ -168,9 +170,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     assertEquals(p.getKey(), u2.getNubKey());
   }
 
-  /**
-   * Makes sure all db enums are matching the API enum values
-   */
+  /** Makes sure all db enums are matching the API enum values */
   @Test
   public void testAllEnums() throws Exception {
     String name = "Abies mekka Jesus";
@@ -204,7 +204,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
       ids.add(service.syncUsage(true, u, pn, m));
     }
 
-    NameUsage u2 = uService.get(uID, null);
+    NameUsage u2 = nameUsageService.get(uID, null);
     u2.setLastInterpreted(null);
     u2.setNameKey(null);
     u2.setCanonicalName(null);
@@ -218,7 +218,9 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     assertEquals(u, u2);
   }
 
-  private NameUsage addHigher(int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank) throws UnparsableException {
+  private NameUsage addHigher(
+      int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank)
+      throws UnparsableException {
     NameUsage p = new NameUsage();
     p.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
     p.setKey(key);
@@ -293,5 +295,4 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase<UsageSyncSer
     VernacularName i = new VernacularName();
     return i;
   }
-
 }

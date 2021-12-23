@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.sql.DataSource;
 
+// TODO: migrate
 public class ConcurrentCreateOrGetIT {
   private static final String PROPERTY_FILE = "checklistbank.properties";
   private final int threads = 10;

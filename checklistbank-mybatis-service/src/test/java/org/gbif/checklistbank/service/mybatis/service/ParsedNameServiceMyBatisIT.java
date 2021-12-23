@@ -8,16 +8,26 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.nameparser.NameParserGbifV1;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import javax.sql.DataSource;
 
-public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase<ParsedNameService> {
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase2 {
 
   private NameParser parser = new NameParserGbifV1();
 
-  public ParsedNameServiceMyBatisIT() {
-    super(ParsedNameService.class);
+  private final ParsedNameService service;
+
+  @Autowired
+  public ParsedNameServiceMyBatisIT(DataSource dataSource, ParsedNameService parsedNameService) {
+    super(dataSource);
+    this.service = parsedNameService;
   }
 
   @Test
