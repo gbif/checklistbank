@@ -7,7 +7,7 @@ import com.google.common.io.Resources;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.utils.file.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;

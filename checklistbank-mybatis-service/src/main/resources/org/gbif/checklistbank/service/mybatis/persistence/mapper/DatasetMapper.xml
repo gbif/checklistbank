@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper">
+
+  <resultMap id="datasetResultMap" type="DatasetCore" autoMapping="true">
+    <id property="key" column="key"/>
+  </resultMap>
+
+  <select id="get" parameterType="map" resultMap="datasetResultMap">
+    SELECT *
+    FROM dataset
+    WHERE key=#{uuid}
+  </select>
+
+  <insert id="insert" parameterType="DatasetCore">
+    INSERT INTO dataset (key, title, parent, publisher)
+    VALUES (#{d.key}, #{d.title}, #{d.parent}, #{d.publisher})
+  </insert>
+
+  <update id="update" parameterType="DatasetCore">
+    UPDATE dataset SET title=#{d.title}, parent=#{d.parent}, publisher=#{d.publisher}
+    WHERE key=#{d.key}
+  </update>
+
+  <delete id="delete">
+    DELETE from dataset
+    WHERE key=#{uuid}
+  </delete>
+
+  <delete id="truncate">
+    TRUNCATE dataset;
+  </delete>
+</mapper>

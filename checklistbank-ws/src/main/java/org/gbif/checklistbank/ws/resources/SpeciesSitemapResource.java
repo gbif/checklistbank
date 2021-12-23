@@ -14,7 +14,7 @@
 package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.common.paging.PagingRequest;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

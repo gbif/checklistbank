@@ -2,7 +2,7 @@ package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.SolrIndexingTestModule;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.util.Properties;

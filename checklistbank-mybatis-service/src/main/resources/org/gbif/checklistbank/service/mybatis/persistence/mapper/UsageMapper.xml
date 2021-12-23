@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageMapper">
+
+  <select id="listByDatasetAndDate" parameterType="map" resultType="java.lang.Integer">
+    SELECT id FROM name_usage WHERE deleted IS NULL AND dataset_key=#{uuid,jdbcType=OTHER} AND last_interpreted &lt; #{before}
+  </select>
+
+  <!-- limit the max amounts of returned parents to 100 to avoid endless loops that bring down the JVM -->
+  <select id="listParents" parameterType="map" resultType="java.lang.Integer">
+    WITH RECURSIVE a AS (
+      SELECT id, parent_fk
+      FROM name_usage
+      WHERE id = #{key} AND parent_fk != id
+    UNION ALL
+      SELECT p.id, p.parent_fk
+      FROM a JOIN name_usage p ON a.parent_fk = p.id
+    )
+    SELECT id FROM a
+    WHERE id!=#{key}
+    LIMIT 100;
+  </select>
+
+  <delete id="delete">
+    DELETE FROM name_usage WHERE id=#{key}
+  </delete>
+
+  <update id="deleteLogically">
+    UPDATE name_usage SET deleted=now() WHERE id=#{key}
+  </update>
+
+  <delete id="deleteByDataset">
+    DELETE FROM name_usage WHERE dataset_key=#{uuid,jdbcType=OTHER}
+  </delete>
+
+  <update id="updateSourceTaxonKey">
+    UPDATE name_usage SET source_taxon_key=#{sourceTaxonKey} WHERE id=#{key}
+  </update>
+
+  <update id="deleteSourceTaxonKeyByConstituent">
+    UPDATE name_usage SET source_taxon_key=null WHERE dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' AND constituent_key=#{uuid}
+  </update>
+
+</mapper>
+

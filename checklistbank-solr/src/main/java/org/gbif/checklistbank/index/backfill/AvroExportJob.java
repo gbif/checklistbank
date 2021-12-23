@@ -8,10 +8,10 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
 import java.io.File;
 import java.io.IOException;

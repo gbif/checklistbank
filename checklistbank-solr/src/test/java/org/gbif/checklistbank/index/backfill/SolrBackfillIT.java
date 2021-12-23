@@ -12,9 +12,8 @@ import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;

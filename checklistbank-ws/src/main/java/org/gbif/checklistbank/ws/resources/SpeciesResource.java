@@ -51,9 +51,9 @@ import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NubMapping;
 import org.gbif.checklistbank.model.TreeContainer;
 import org.gbif.checklistbank.model.UsageCount;
-import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.DistributionMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NubRelMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageCountMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.ibatis.cursor.Cursor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

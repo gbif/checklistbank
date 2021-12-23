@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.persistence.mapper.RawUsageMapper">
+
+  <resultMap id="rawResultMap" type="RawUsage" autoMapping="true">
+    <id property="usageKey" column="usage_fk"/>
+    <result property="lastCrawled" column="downloaded"/>
+  </resultMap>
+
+  <!--  Get by primary key -->
+  <select id="get" parameterType="map" resultMap="rawResultMap">
+    SELECT r.*, m.downloaded
+    FROM raw_usage r
+      LEFT JOIN dataset_metrics m ON r.dataset_key=m.dataset_key AND m.latest
+    WHERE usage_fk=#{key}
+  </select>
+
+  <insert id="insert" parameterType="RawUsage" useGeneratedKeys="false" keyProperty="usage_fk">
+    INSERT INTO raw_usage (usage_fk, dataset_key, json)
+    VALUES  (#{r.usageKey}, #{r.datasetKey}, #{r.json})
+  </insert>
+
+  <delete id="delete" parameterType="map">
+    DELETE FROM raw_usage
+    WHERE usage_fk=#{key}
+  </delete>
+</mapper>

@@ -5,10 +5,10 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
 import java.io.File;
 import java.io.IOException;

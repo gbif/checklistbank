@@ -13,7 +13,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.util.Date;
 import java.util.List;

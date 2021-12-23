@@ -6,10 +6,9 @@ import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
-import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
-import org.junit.ClassRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+
 import org.junit.Rule;
 import org.junit.Test;
 

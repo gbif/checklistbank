@@ -1,24 +1,18 @@
 package org.gbif.checklistbank.index.backfill;
 
-import org.apache.solr.client.solrj.SolrServer;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.index.guice.SolrIndexingModule;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.DescriptionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.DistributionServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.SpeciesProfileServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.VernacularNameServiceMyBatis;
-import org.gbif.utils.file.ResourcesUtil;
+import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -26,16 +20,8 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.name.Named;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
-import org.apache.solr.client.solrj.response.SolrPingResponse;
-import org.apache.solr.core.CoreContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

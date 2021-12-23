@@ -4,16 +4,14 @@ import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.gbif.checklistbank.cli.model.GraphFormat;
+
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.UUID;

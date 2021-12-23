@@ -26,7 +26,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.backfill.SolrTestSetup;
 import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
 import org.gbif.checklistbank.index.guice.SearchTestModule;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.common.search.solr.SolrConstants;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.Assert;

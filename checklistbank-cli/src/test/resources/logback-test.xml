@@ -33,7 +33,7 @@
   <logger name="org.gbif.checklistbank.cli.importer" level="INFO"/>
   <logger name="org.gbif.checklistbank.neo" level="DEBUG"/>
   <logger name="org.gbif.checklistbank.nub" level="DEBUG"/>
-  <logger name="org.gbif.checklistbank.service.mybatis.UsageSyncServiceMyBatis" level="INFO"/>
+  <logger name="org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis" level="INFO"/>
 
   <root level="INFO">
     <appender-ref ref="CONSOLE"/>

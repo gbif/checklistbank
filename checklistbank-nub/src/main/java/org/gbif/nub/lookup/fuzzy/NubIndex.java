@@ -21,7 +21,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

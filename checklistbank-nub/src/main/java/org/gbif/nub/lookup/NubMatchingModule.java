@@ -9,7 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.utils.CloseableUtils;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;

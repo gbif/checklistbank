@@ -1,9 +1,7 @@
 package org.gbif.nub.lookup.straight;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Module;
-import org.apache.hadoop.util.IdGenerator;
+
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
@@ -13,11 +11,11 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.mapper.MapperITBase;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.MapperITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 
 import java.io.IOException;

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper">
+
+    <sql id="SELECT">n.id, n.scientific_name, n.canonical_name, n.type,
+    n.genus_or_above, n.infra_generic, n.specific_epithet, n.infra_specific_epithet, n.cultivar_epithet,
+    n.notho_type, n.rank, n.nom_status, n.sensu, n.remarks,
+    n.parsed_partially, n.parsed, n.authorship, n.year, n.bracket_authorship, n.bracket_year, strain
+  </sql>
+
+    <sql id="writeFields">scientific_name, canonical_name, type,
+      genus_or_above, infra_generic, specific_epithet, infra_specific_epithet, cultivar_epithet,
+      notho_type, rank, parsed_partially, parsed, authorship, year, year_int, bracket_authorship, bracket_year,
+      nom_status, sensu, remarks, strain
+    </sql>
+
+    <sql id="writeValues">#{pn.scientificName}, #{canonical}, #{pn.type}::name_type,
+        #{pn.genusOrAbove}, #{pn.infraGeneric}, #{pn.specificEpithet}, #{pn.infraSpecificEpithet}, #{pn.cultivarEpithet},
+        #{pn.notho}::name_part, #{pn.rank}::rank, #{pn.parsedPartially}, #{pn.parsed},
+        #{pn.authorship}, #{pn.year}, #{pn.yearInt}, #{pn.bracketAuthorship}, #{pn.bracketYear},
+        #{pn.nomStatus}, #{pn.sensu}, #{pn.remarks}, #{pn.strain}
+    </sql>
+
+    <sql id="FROM">
+    name n
+  </sql>
+
+    <!--  A mapping to ParsedName, mostly auto mapped -->
+    <resultMap id="parsedNameResultMap" type="ParsedName" autoMapping="true">
+        <id property="key" column="id"/>
+        <result property="notho" column="notho_type"/>
+    </resultMap>
+
+
+    <!--  Get ParsedName by primary key -->
+    <select id="get" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        WHERE n.id=#{key}
+    </select>
+
+    <select id="getByUsageKey" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        JOIN name_usage u ON u.name_fk=n.id
+        WHERE u.id=#{key}
+    </select>
+
+    <select id="getByName" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        WHERE n.scientific_name=#{name} AND n.rank=#{rank}::rank
+    </select>
+
+    <insert id="create" parameterType="ParsedName" useGeneratedKeys="true" keyProperty="pn.key">
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
+        INSERT INTO name (<include refid="writeFields"/>)
+        VALUES (<include refid="writeValues"/>)
+    </insert>
+
+    <insert id="createWithKey" parameterType="ParsedName" useGeneratedKeys="true"
+            keyProperty="pn.key">
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
+        INSERT INTO name (tmp_usage_name_id,<include refid="writeFields"/>)
+        VALUES (#{key},<include refid="writeValues"/>)
+    </insert>
+    <insert id="failed" parameterType="map">
+    INSERT INTO tmp_name_failure (tmp_usage_name_id,rank,scientific_name)
+    VALUES (#{key}, #{rank}::rank, #{scientific_name})
+  </insert>
+
+    <update id="update" parameterType="ParsedName" keyProperty="pn.key">
+        <bind name="canonical" value="_parameter.pn.canonicalName()"/>
+        UPDATE name
+        SET (<include refid="writeFields"/>) = (<include refid="writeValues"/>)
+        WHERE id=#{pn.key}
+    </update>
+
+    <delete id="delete" parameterType="map">
+      DELETE FROM name
+      WHERE id=#{key}
+    </delete>
+
+    <delete id="deleteOrphaned" parameterType="map">
+        DELETE FROM name
+        WHERE id &gt; #{keyMin} AND id &lt; #{keyMax} AND id NOT IN (
+          SELECT DISTINCT name_fk FROM name_usage WHERE name_fk &gt; #{keyMin} AND name_fk &lt; #{keyMax}
+        )
+    </delete>
+
+    <!--  the maximum key used -->
+    <select id="maxKey" parameterType="map" resultType="java.lang.Integer">
+        SELECT max(id)
+        FROM name
+    </select>
+
+    <!--  list parsed names per dataset, incl duplicate names -->
+    <select id="list" parameterType="map" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+        JOIN name_usage u ON u.name_fk=n.id
+        WHERE u.deleted IS NULL AND u.dataset_key=#{uuid}
+        ORDER BY u.id
+        LIMIT #{page.limit}
+        OFFSET #{page.offset}
+    </select>
+
+    <select id="processNames" resultMap="parsedNameResultMap">
+        SELECT
+        <include refid="SELECT"/>
+        FROM
+        <include refid="FROM"/>
+    </select>
+</mapper>

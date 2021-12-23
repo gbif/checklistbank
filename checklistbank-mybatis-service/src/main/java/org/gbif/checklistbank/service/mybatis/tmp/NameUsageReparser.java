@@ -1,32 +1,31 @@
 package org.gbif.checklistbank.service.mybatis.tmp;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import org.apache.ibatis.exceptions.PersistenceException;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
-import org.gbif.checklistbank.service.mybatis.mapper.NameUsageMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.concurrent.ExecutorUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import org.apache.ibatis.exceptions.PersistenceException;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.transaction.annotation.Transactional;
+
+/** */
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
@@ -42,10 +41,9 @@ public class NameUsageReparser implements Runnable {
   private int failed = 0;
   private int unparsable = 0;
 
-
   public NameUsageReparser(ClbConfiguration cfg) {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+    ctx.register(ChecklistBankMyBatisConfiguration.class);
     nameMapper = ctx.getBean(ParsedNameMapper.class);
     usageMapper = ctx.getBean(NameUsageMapper.class);
     threads = Math.max(1, cfg.maximumPoolSize - 1);
@@ -54,7 +52,8 @@ public class NameUsageReparser implements Runnable {
 
   @Override
   public void run() {
-    LOG.info("Submit reparsing jobs in batches of {} to executor with {} threads.", BATCH_SIZE, threads);
+    LOG.info(
+        "Submit reparsing jobs in batches of {} to executor with {} threads.", BATCH_SIZE, threads);
     ReparseHandler handler = new ReparseHandler();
     usageMapper.processAllNames(handler);
     // finally submit the remaining unfinished batch
@@ -67,7 +66,8 @@ public class NameUsageReparser implements Runnable {
     if (jobCounter != 0) {
       LOG.warn("Something not right. All jobs should be done but {} remain in counter", jobCounter);
     }
-    LOG.info("Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
+    LOG.info(
+        "Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
   }
 
   private class ReparseHandler implements ResultHandler<RankedName> {
@@ -129,9 +129,19 @@ public class NameUsageReparser implements Runnable {
 
         jobCounter--;
         if (jobCounter % 100 == 0) {
-          LOG.info("Reparsed {} unique names. {} failed, {} unparsable. {} batches left", counter, failed, unparsable, jobCounter);
+          LOG.info(
+              "Reparsed {} unique names. {} failed, {} unparsable. {} batches left",
+              counter,
+              failed,
+              unparsable,
+              jobCounter);
         } else if (jobCounter % 10 == 0) {
-          LOG.debug("Reparsed {} unique names. {} failed, {} unparsable. {} batches left", counter, failed, unparsable, jobCounter);
+          LOG.debug(
+              "Reparsed {} unique names. {} failed, {} unparsable. {} batches left",
+              counter,
+              failed,
+              unparsable,
+              jobCounter);
         }
 
       } catch (Exception e) {
@@ -156,5 +166,4 @@ public class NameUsageReparser implements Runnable {
       }
     }
   }
-
 }

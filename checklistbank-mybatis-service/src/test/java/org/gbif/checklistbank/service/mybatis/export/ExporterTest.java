@@ -3,7 +3,7 @@ package org.gbif.checklistbank.service.mybatis.export;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.utils.ClbConfigurationUtils;
 import org.junit.Ignore;
 import org.junit.Test;

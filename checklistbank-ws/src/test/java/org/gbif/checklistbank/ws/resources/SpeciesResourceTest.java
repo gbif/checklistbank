@@ -33,9 +33,9 @@ import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.TypeStatus;
-import org.gbif.checklistbank.service.mybatis.mapper.DistributionMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.NubRelMapper;
-import org.gbif.checklistbank.service.mybatis.mapper.UsageCountMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.DistributionMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NubRelMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageCountMapper;
 
 import java.util.List;
 import java.util.Locale;

@@ -20,7 +20,7 @@ import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
-import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;

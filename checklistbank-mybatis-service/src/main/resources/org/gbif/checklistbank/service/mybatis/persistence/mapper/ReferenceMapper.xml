@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.gbif.checklistbank.service.mybatis.persistence.mapper.ReferenceMapper">
+
+  <sql id="selectCommon">r.id, r.type, r.remarks, c.citation, c.identifier, c.link</sql>
+  <sql id="select">r.usage_fk AS usageKey, null AS sourceTaxonKey, null as source,<include refid="selectCommon"/></sql>
+  <sql id="selectNub">rel.nub_fk as usageKey, r.usage_fk as sourceTaxonKey,d.title as source,<include refid="selectCommon"/></sql>
+
+  <sql id="from">literature r
+    JOIN citation c ON r.citation_fk=c.id
+  </sql>
+
+  <sql id="fromNub">literature r
+    JOIN citation c ON r.citation_fk=c.id
+    JOIN nub_rel rel ON r.usage_fk=rel.usage_fk
+    <include refid="org.gbif.checklistbank.service.mybatis.persistence.mapper.Common.excludeRels"/>
+    LEFT JOIN dataset d ON rel.dataset_key=d.key
+  </sql>
+
+  <sql id="page">LIMIT #{page.limit} OFFSET #{page.offset}</sql>
+
+
+  <resultMap id="referenceResultMap" type="Reference" autoMapping="true">
+    <result property="taxonKey" column="usageKey"/>
+    <result property="doi" column="identifier"/>
+  </resultMap>
+
+
+  <!-- get all references linked to one usage -->
+  <select id="listByChecklistUsage" parameterType="map" resultMap="referenceResultMap">
+    SELECT
+    <include refid="select"/>
+    FROM
+    <include refid="from"/>
+    WHERE r.usage_fk=#{key}
+    ORDER BY citation
+    <include refid="page"/>
+  </select>
+
+  <!-- get all references by a nub usage -->
+  <select id="listByNubUsage" parameterType="map" resultMap="referenceResultMap">
+    SELECT r.usage_fk,
+    <include refid="selectNub"/>
+    FROM
+    <include refid="fromNub"/>
+    WHERE rel.nub_fk=#{key}
+    ORDER BY citation
+    <include refid="page"/>
+  </select>
+
+  <!--  select all references of a dataset
+Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
+-->
+  <select id="processDataset" parameterType="map" resultMap="referenceResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+    SELECT
+    <choose>
+      <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
+        <include refid="selectNub"/>
+        FROM
+        <include refid="fromNub"/>
+      </when>
+      <otherwise>
+        <include refid="select"/>
+        FROM
+        <include refid="from"/>
+        JOIN name_usage u ON u.id=r.usage_fk
+        WHERE u.dataset_key=#{uuid,jdbcType=OTHER}
+      </otherwise>
+    </choose>
+  </select>
+
+  <delete id="deleteByUsage">
+    DELETE FROM literature
+    WHERE usage_fk = #{key}
+  </delete>
+
+  <insert id="insert" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO literature (usage_fk, citation_fk, type, remarks)
+    VALUES (#{key}, #{citationKey}, #{obj.type}, #{obj.remarks})
+  </insert>
+
+</mapper>

@@ -1,22 +1,18 @@
 package org.gbif.checklistbank.service.mybatis.export;
 
 import com.google.common.io.Files;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisConfiguration;
-import org.gbif.checklistbank.service.mybatis.mapper.*;
+import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.registry.metadata.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.File;
@@ -55,7 +51,7 @@ public class Exporter {
    */
   public static Exporter create(File repository, ClbConfiguration cfg, String registryWs) {
     AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankServiceMyBatisConfiguration.class);
+    ctx.register(ChecklistBankMyBatisConfiguration.class);
     return new Exporter(repository, ctx);
   }
 

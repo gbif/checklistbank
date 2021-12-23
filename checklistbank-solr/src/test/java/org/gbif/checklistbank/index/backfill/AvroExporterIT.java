@@ -9,7 +9,7 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.gbif.checklistbank.index.AvroIndexingTestModule;
 import org.gbif.checklistbank.index.HdfsTestUtil;
-import org.gbif.checklistbank.service.mybatis.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;

@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
     ElasticSearchRestHealthContributorAutoConfiguration.class,
     RabbitAutoConfiguration.class
   })
-@MapperScan("org.gbif.checklistbank.service.mybatis.mapper")
+@MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
 @EnableConfigurationProperties
 @ComponentScan(
   basePackages = {

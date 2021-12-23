@@ -1,13 +1,5 @@
 package org.gbif.checklistbank.cli.admin;
 
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.DwcaValidationReport;
 import org.gbif.api.model.crawler.GenericValidationReport;
@@ -30,12 +22,12 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.liquibase.DbSchemaUpdater;
-import org.gbif.checklistbank.service.mybatis.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.liquibase.DbSchemaUpdater;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
 import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.cli.BaseCommand;
@@ -43,11 +35,7 @@ import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.*;
-import org.neo4j.graphdb.Transaction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -57,6 +45,19 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Properties;
 import java.util.UUID;
+import javax.annotation.Nullable;
+
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import org.apache.commons.io.FileUtils;
+import org.neo4j.graphdb.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
