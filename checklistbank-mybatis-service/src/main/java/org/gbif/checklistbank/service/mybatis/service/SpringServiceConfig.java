@@ -9,8 +9,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan("org.gbif.vocabulary.service")
-@MapperScan("org.gbif.vocabulary.persistence.mappers")
+@ComponentScan(
+    basePackages = {
+      "org.gbif.checklistbank.service.mybatis.service",
+      "org.gbif.checklistbank.service.mybatis.persistence"
+    })
+@MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
 public class SpringServiceConfig {
 
   @Bean
@@ -19,5 +23,4 @@ public class SpringServiceConfig {
     long parserTimeout = 100;
     return new NameParserGbifV1(parserTimeout);
   }
-
 }

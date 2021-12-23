@@ -15,7 +15,6 @@ import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
 import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
@@ -25,6 +24,7 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,9 +44,8 @@ public class MyBatisServiceITBase2 {
 
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
-  @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
+  @Import(SpringServiceConfig.class) // actually not needed, it gets scanned by default
   @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
-  @ComponentScan(basePackages = "org.gbif.checklistbank.service.mybatis")
   public static class ChecklistBankServiceTestConfiguration {
     public static void main(String[] args) {
       SpringApplication.run(ChecklistBankServiceTestConfiguration.class, args);
