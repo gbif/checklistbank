@@ -27,6 +27,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 /**
  * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
  */
+@Deprecated
+// TODO: Remove it and use ClbDbTestRule2
 public class ClbDbTestRule implements TestRule {
 
   public static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
