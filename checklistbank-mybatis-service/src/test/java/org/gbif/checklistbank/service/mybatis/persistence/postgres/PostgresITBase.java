@@ -1,30 +1,30 @@
-package org.gbif.checklistbank.service.mybatis.export;
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 
-import org.gbif.api.model.Constants;
-import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
-import org.gbif.utils.file.FileUtils;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
 import javax.sql.DataSource;
 
-import io.zonky.test.db.postgres.embedded.ConnectionInfo;
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
@@ -39,62 +39,34 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-/** Export squirrel test db as dwca */
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ExporterIT.ChecklistBankServiceTestConfiguration.class)
-@ContextConfiguration(initializers = {ExporterIT.ContextInitializer.class})
-@ActiveProfiles("test")
-public class ExporterIT {
+import io.zonky.test.db.postgres.embedded.ConnectionInfo;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 
-  private String dbUserName;
-  private String dbName;
-  private String dbPassword;
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = PostgresITBase.ChecklistBankServiceTestConfiguration.class)
+@ContextConfiguration(initializers = {PostgresITBase.ContextInitializer.class})
+@ActiveProfiles("test")
+public class PostgresITBase {
+
+  protected DataSource dataSource;
 
   @RegisterExtension public ClbDbTestRule2 sbSetup;
 
-  @Autowired
-  public ExporterIT(
-      DataSource dataSource,
-      @Value("${checklistbank.datasource.username}") String dbUserName,
-      @Value("${checklistbank.datasource.dbname}") String dbName,
-      @Value("${checklistbank.datasource.password}") String dbPassword) {
-    this.dbUserName = dbUserName;
-    this.dbName = dbName;
-    this.dbPassword = dbPassword;
-    sbSetup = ClbDbTestRule2.squirrels(dataSource);
+  public PostgresITBase(DataSource dataSource) {
+    this.dataSource = dataSource;
+    this.sbSetup = ClbDbTestRule2.empty(dataSource);
   }
 
-  @Test
-  public void testExport() throws Exception {
-    ClbConfiguration cfg = new ClbConfiguration();
-    cfg.serverName = "localhost";
-    cfg.databaseName = dbName;
-    cfg.user = dbUserName;
-    cfg.password = dbPassword;
-
-    File repository = FileUtils.createTempDir();
-
-    try {
-      Exporter exp = Exporter.create(repository, cfg, "http://api.gbif.org/v1");
-      exp.export(dataset(Constants.NUB_DATASET_KEY));
-
-      exp.export(dataset(ClbDbTestRule2.SQUIRRELS_DATASET_KEY));
-
-    } finally {
-      org.apache.commons.io.FileUtils.deleteDirectory(repository);
-    }
-  }
-
-  private static Dataset dataset(UUID key) {
-    Dataset d = new Dataset();
-    d.setKey(key);
-    d.setTitle("Dataset " + key);
-    return d;
+  public PostgresITBase(DataSource dataSource, ClbDbTestRule2 sbSetup) {
+    this.dataSource = dataSource;
+    this.sbSetup = sbSetup;
   }
 
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
-  @Import(SpringServiceConfig.class)
+  @Import(SpringServiceConfig.class) // actually not needed, it gets scanned by default
   @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
   public static class ChecklistBankServiceTestConfiguration {
     public static void main(String[] args) {
@@ -133,8 +105,7 @@ public class ExporterIT {
             + "/"
             + connectionInfo.getDbName(),
         "checklistbank.datasource.username=" + connectionInfo.getUser(),
-        "checklistbank.datasource.password=",
-        "checklistbank.datasource.dbname=" + connectionInfo.getDbName()
+        "checklistbank.datasource.password="
       };
     }
   }

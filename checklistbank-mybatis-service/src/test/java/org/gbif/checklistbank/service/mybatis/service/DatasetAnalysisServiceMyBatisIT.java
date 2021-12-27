@@ -18,7 +18,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
 import java.util.Date;
 
@@ -43,9 +43,9 @@ public class DatasetAnalysisServiceMyBatisIT extends MyBatisServiceITBase {
   @Test
   public void testAnalyse() {
     final Date downloaded = new Date();
-    DatasetMetrics d = service.analyse(ClbDbTestRule.SQUIRRELS_DATASET_KEY, downloaded);
+    DatasetMetrics d = service.analyse(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, downloaded);
     System.out.println(d);
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
+    assertEquals(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
     assertEquals(downloaded, d.getDownloaded());
     assertEquals(44, d.getUsagesCount());
     assertEquals(16, d.getSynonymsCount());

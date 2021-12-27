@@ -23,7 +23,7 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.NameParserGbifV1;
 
@@ -62,7 +62,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
 
   @Test
   public void testDeleteDataset() throws Exception {
-    int num = service.deleteDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    int num = service.deleteDataset(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
     assertEquals(44, num);
   }
 
@@ -70,7 +70,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
   public void nubRelations() throws Exception {
     Map<Integer, Integer> rels = new HashMap<>();
     rels.put(1, 1);
-    service.insertNubRelations(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rels);
+    service.insertNubRelations(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, rels);
   }
 
   @Test
@@ -89,7 +89,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
     String name = "Abies alba Mill.";
 
     NameUsage u = new NameUsage();
-    u.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    u.setDatasetKey(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
     u.setScientificName(name);
     u.setTaxonID(taxonID);
     u.setOrigin(Origin.SOURCE);
@@ -147,7 +147,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
     assertEquals(u.getTaxonID(), u2.getTaxonID());
     assertEquals(u.getScientificName(), u2.getScientificName());
     assertEquals(u.getIssues(), u2.getIssues());
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, u2.getDatasetKey());
+    assertEquals(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, u2.getDatasetKey());
     assertEquals(u.getTaxonomicStatus(), u2.getTaxonomicStatus());
     assertEquals(u.getAccordingTo(), u2.getAccordingTo());
     assertEquals(u.getRemarks(), u2.getRemarks());
@@ -168,7 +168,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
     int k2 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
-    service.syncUsageExtras(false, ClbDbTestRule.SQUIRRELS_DATASET_KEY, u.getKey(), v, e);
+    service.syncUsageExtras(false, ClbDbTestRule2.SQUIRRELS_DATASET_KEY, u.getKey(), v, e);
     assertEquals(k1, k2);
 
     // verify props
@@ -191,7 +191,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
     String name = "Abies mekka Jesus";
 
     NameUsage u = new NameUsage();
-    u.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    u.setDatasetKey(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
     u.setScientificName(name);
     u.setOrigin(Origin.SOURCE);
     u.setModified(new Date());
@@ -237,7 +237,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
       int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank)
       throws UnparsableException {
     NameUsage p = new NameUsage();
-    p.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    p.setDatasetKey(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
     p.setKey(key);
     p.setParentKey(parentKey);
     if (higherKeys != null) {

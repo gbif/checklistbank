@@ -13,27 +13,21 @@
  */
 package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
-import org.gbif.utils.file.properties.PropertiesUtil;
-
-import java.util.Properties;
-
 import javax.sql.DataSource;
 
-import org.junit.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * Simply checks no exceptions occurr when loading the standard squirrelts dataset.
- */
-public class DbLoaderTest {
+/** Simply checks no exceptions occurr when loading the standard squirrelts dataset. */
+public class DbLoaderTest extends PostgresITBase {
 
-    private final AnnotationConfigApplicationContext
-      ctx = new AnnotationConfigApplicationContext(ChecklistBankMyBatisConfiguration.class);
+  @Autowired
+  public DbLoaderTest(DataSource dataSource) {
+    super(dataSource);
+  }
 
-    @Test
-    public void testLoad() throws Exception {
-        Properties properties = PropertiesUtil.loadProperties(ClbDbTestRule.DEFAULT_PROPERTY_FILE);
-        DbLoader.load(ctx.getBean(DataSource.class).getConnection(), "squirrels", true);
-    }
+  @Test
+  public void testLoad() throws Exception {
+    DbLoader.load(dataSource.getConnection(), "squirrels", true);
+  }
 }

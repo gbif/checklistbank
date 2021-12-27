@@ -15,7 +15,6 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.model.ParsedNameUsage;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
 import java.util.UUID;
@@ -83,7 +82,7 @@ public class NameUsageMapperWithDataIT extends MapperITBase {
     mapper.processDataset(Constants.NUB_DATASET_KEY, proc);
     assertEquals(2, proc.counter);
 
-    mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, proc);
     // we did not reset counter, so it adds up
     assertEquals(46, proc.counter);
   }

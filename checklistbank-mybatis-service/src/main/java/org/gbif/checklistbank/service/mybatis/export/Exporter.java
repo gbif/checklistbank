@@ -48,7 +48,7 @@ public class Exporter {
   private final TypeSpecimenMapper typeSpecimenMapper;
   private final DatasetService datasetService;
 
-  private Exporter(File repository,  AnnotationConfigApplicationContext ctx) {
+  private Exporter(File repository, AnnotationConfigApplicationContext ctx) {
     this.repository = repository;
     usageMapper = ctx.getBean(NameUsageMapper.class);
     descriptionMapper = ctx.getBean(DescriptionMapper.class);

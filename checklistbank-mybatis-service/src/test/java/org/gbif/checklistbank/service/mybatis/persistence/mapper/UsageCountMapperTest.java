@@ -16,7 +16,6 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageCount;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
 import java.util.List;
@@ -61,7 +60,7 @@ public class UsageCountMapperTest extends MapperITBase {
     assertEquals(1, root.size());
     assertEquals(1, root.get(0).getKey());
 
-    root = mapper.root(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    root = mapper.root(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
     assertEquals(1, root.size());
     assertEquals(100000001, root.get(0).getKey());
     assertEquals(27, root.get(0).getSize());
