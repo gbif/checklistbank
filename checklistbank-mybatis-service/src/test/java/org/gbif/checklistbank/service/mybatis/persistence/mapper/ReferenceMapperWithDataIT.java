@@ -2,7 +2,6 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
 import java.util.UUID;
@@ -64,7 +63,7 @@ public class ReferenceMapperWithDataIT extends MapperITBase {
     mapper.processDataset(Constants.NUB_DATASET_KEY, proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, proc);
     assertEquals(22, proc.counter);
   }
 }
