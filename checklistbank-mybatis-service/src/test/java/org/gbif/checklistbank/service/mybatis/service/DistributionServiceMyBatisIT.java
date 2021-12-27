@@ -5,8 +5,8 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.vocabulary.Country;
+import org.gbif.api.vocabulary.DistributionStatus;
 import org.gbif.api.vocabulary.EstablishmentMeans;
-import org.gbif.api.vocabulary.OccurrenceStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class DistributionServiceMyBatisIT extends MyBatisServiceITBase {
     assertEquals("iso:br", distribution.getLocationId());
     assertEquals("brazil", distribution.getLocality());
     assertEquals(EstablishmentMeans.INVASIVE, distribution.getEstablishmentMeans());
-    assertEquals(OccurrenceStatus.PRESENT, distribution.getStatus());
+    assertEquals(DistributionStatus.PRESENT, distribution.getStatus());
     assertEquals(ThreatStatus.NEAR_THREATENED, distribution.getThreatStatus());
     assertEquals("Hecht-Markou, 1995", distribution.getSource());
     assertNull(distribution.getAppendixCites());
@@ -58,7 +58,7 @@ public class DistributionServiceMyBatisIT extends MyBatisServiceITBase {
     for (Distribution d : distributions) {
       assertNull(d.getSourceTaxonKey());
       assertNotNull(d.getCountry());
-      assertEquals(OccurrenceStatus.PRESENT, d.getStatus());
+      assertEquals(DistributionStatus.PRESENT, d.getStatus());
     }
 
     assertEquals(Country.BRAZIL, distributions.get(0).getCountry()); // #15

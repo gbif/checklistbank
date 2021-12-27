@@ -206,15 +206,6 @@
                         <!-- http://blog.nutpan.com/2012/03/liquibase-maven-plugin-issue-with-non.html -->
                         <promptOnNonLocalDatabase>false</promptOnNonLocalDatabase>
                     </configuration>
-                    <executions>
-                        <execution>
-                            <!-- we need the db in place for some unit test already, not just integration tests -->
-                            <phase>test-compile</phase>
-                            <goals>
-                                <goal>update</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
