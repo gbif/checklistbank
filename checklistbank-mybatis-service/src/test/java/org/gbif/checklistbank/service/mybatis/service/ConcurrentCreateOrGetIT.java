@@ -1,126 +1,115 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import com.google.common.collect.Lists;
-import com.zaxxer.hikari.HikariDataSource;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.nameparser.NameParserGbifV1;
-import org.gbif.utils.file.properties.PropertiesUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.PrintStream;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import javax.sql.DataSource;
 
-// TODO: migrate
-public class ConcurrentCreateOrGetIT {
-  private static final String PROPERTY_FILE = "checklistbank.properties";
-  private final int threads = 10;
-  private Properties props;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-  @Before
-  public void init() throws Exception {
-    props = PropertiesUtil.loadProperties(PROPERTY_FILE);
+import com.google.common.collect.Lists;
+
+// TODO: check concurrency issues
+public class ConcurrentCreateOrGetIT extends MyBatisServiceITBase {
+
+  //Thread pool size
+  private static final int NUM_THREADS = 1;
+
+  //Total of parsing tasks to trigger
+  private static final int NUM_TASKS = 100;
+
+  private static PrintStream LOG = System.out;
+
+  private final ParsedNameService parsedNameService;
+  private final CitationService citationService;
+
+  @Autowired
+  public ConcurrentCreateOrGetIT(
+    DataSource dataSource, ParsedNameService parsedNameService, CitationService citationService) {
+    super(dataSource);
+    this.parsedNameService = parsedNameService;
+    this.citationService = citationService;
   }
 
-  static class ClbMybatisCallable {
-    private final Properties props;
-    private AnnotationConfigApplicationContext ctx;
-    private HikariDataSource hds;
+  static class ParsedNameCallable implements Callable<ParsedName> {
 
-    public ClbMybatisCallable(Properties props) {
-      this.props = props;
-    }
-
-    private void init() {
-      // init mybatis layer and solr from cfgN instance
-       ctx = new AnnotationConfigApplicationContext();
-       ctx.register(ChecklistBankMyBatisConfiguration.class);
-
-      hds = (HikariDataSource) ctx.getBean(DataSource.class);
-    }
-
-    public Connection getConnection() throws SQLException {
-      if (hds == null) {
-        init();
-      }
-      return hds.getConnection();
-    }
-
-    public ConfigurableApplicationContext getAppContext() {
-      if (ctx == null) {
-        init();
-      }
-      return ctx;
-    }
-
-    public void shutdown() {
-      if (hds != null) {
-        hds.close();
-      }
-    }
-
-  }
-
-  static class ParsedNameCallable extends ClbMybatisCallable implements Callable<ParsedName> {
     private final String name;
     private static final NameParser PARSER = new NameParserGbifV1();
+    private final ParsedNameService parsedNameService;
+    private final CitationService citationService;
 
-    public ParsedNameCallable(Properties props, String name) {
-      super(props);
+    public ParsedNameCallable(
+      String name, ParsedNameService parsedNameService, CitationService citationService
+    ) {
       this.name = name;
+      this.parsedNameService = parsedNameService;
+      this.citationService = citationService;
     }
 
     @Override
     public ParsedName call() throws Exception {
-      ParsedNameService pservice = getAppContext().getBean(ParsedNameService.class);
-      CitationService cservice = getAppContext().getBean(CitationService.class);
-      for (int x = 0; x < 100; x++) {
-        pservice.createOrGet(PARSER.parse(name + " " + x + "-banales", null), true);
-        cservice.createOrGet(name + " citation #" + x);
+      for (int x = 0; x < NUM_TASKS; x++) {
+        parsedNameService.createOrGet(PARSER.parse(name + " " + x + "-banales", null), true);
+        citationService.createOrGet(name + " citation #" + x);
       }
-      ParsedName pn = pservice.createOrGet(PARSER.parse(name, null), true);
-      shutdown();
+      ParsedName pn = parsedNameService.createOrGet(PARSER.parse(name, null), true);
       return pn;
+    }
+  }
+
+  /**
+   * Truncate name_usage, name, citation tables.
+   */
+  private void  truncateTables() throws SQLException {
+    LOG.println("Truncate existing data");
+    try(Connection cn = dataSource.getConnection();
+        PreparedStatement st = cn.prepareStatement("TRUNCATE name_usage, name, citation CASCADE")) {
+      cn.setAutoCommit(false);
+      st.execute();
+      cn.commit();
+      cn.setAutoCommit(true);
     }
   }
 
   @Test
   public void writeNamesInParallel() throws Exception {
-    final int tasks = 100;
-
-    PrintStream log = System.out;
-
     // truncate tables
-    log.println("Truncate existing data");
-    ClbMybatisCallable mabat = new ClbMybatisCallable(props);
-    Connection cn = mabat.getConnection();
-    java.sql.Statement st = cn.createStatement();
-    st.execute("truncate name_usage cascade");
-    st.execute("truncate name cascade");
-    st.execute("truncate citation cascade");
-    st.close();
-    cn.close();
-
-    ExecutorCompletionService<ParsedName> ecs = new ExecutorCompletionService<>(Executors.newFixedThreadPool(threads));
+   truncateTables();
+    ExecutorCompletionService<ParsedName> ecs =
+      new ExecutorCompletionService<>(Executors.newFixedThreadPool(NUM_THREADS));
     LinkedList<Future<ParsedName>> futures = Lists.newLinkedList();
 
-    for (int i = 0; i < tasks; i++) {
-      ParsedNameCallable pnc = new ParsedNameCallable(props, "Umberto");
-      log.println("Submitting task");
+    for (int i = 0; i < NUM_TASKS; i++) {
+      ParsedNameCallable pnc =
+        new ParsedNameCallable("Umberto", parsedNameService, citationService);
+      LOG.println("Submitting task " + i);
       futures.add(ecs.submit(pnc));
     }
 
@@ -128,11 +117,11 @@ public class ConcurrentCreateOrGetIT {
       Future<ParsedName> f = futures.pop();
       ParsedName pn = f.get();
       if (pn != null) {
-        log.println(pn.getKey() + " - " + pn.getScientificName());
+        LOG.println(pn.getKey() + " - " + pn.getScientificName());
       } else {
-        log.println(pn);
+        LOG.println(pn);
       }
     }
-    log.println("Finished all tasks. Done");
+    LOG.println("Finished all tasks. Done");
   }
 }
