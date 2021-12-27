@@ -71,7 +71,7 @@ public interface ParsedNameMapper {
 
   /**
    * Iterates over all names and processes them with the supplied handler.
-   * This allows a single query to efficiently stream all its values without keepong them in memory.
+   * This allows a single query to efficiently stream all its values without keeping them in memory.
    *
    * @param handler to process each name with
    */
