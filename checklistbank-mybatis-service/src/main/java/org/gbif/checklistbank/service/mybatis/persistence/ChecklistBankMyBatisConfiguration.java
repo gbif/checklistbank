@@ -82,8 +82,6 @@ public class ChecklistBankMyBatisConfiguration {
       configuration.getTypeAliasRegistry().registerAlias("IucnRedListCategory", IucnRedListCategory.class);
 
       //TypeHandlers
-      // TODO: remove the registry package??
-      configuration.getTypeHandlerRegistry().register("org.gbif.registry.persistence.handler");
       configuration.getTypeHandlerRegistry().register(Country.class, CountryTypeHandler.class);
       configuration.getTypeHandlerRegistry().register(Language.class, LanguageTypeHandler.class);
       configuration.getTypeHandlerRegistry().register(UUID.class, UuidTypeHandler.class);
