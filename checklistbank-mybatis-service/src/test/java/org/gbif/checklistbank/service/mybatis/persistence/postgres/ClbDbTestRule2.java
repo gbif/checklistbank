@@ -26,13 +26,11 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
  */
 public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
 
-  public static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
   public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   private final String tsvFolder;
   private final Map<String, Integer> sequenceCounters;
-  private final Properties properties;
   private final DataSource dataSource;
   private Connection connection;
 
@@ -104,15 +102,6 @@ public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
     this.dataSource = dataSource;
     this.tsvFolder = tsvFolder;
     this.sequenceCounters = sequenceCounters;
-    try {
-      properties = PropertiesUtil.loadProperties(DEFAULT_PROPERTY_FILE);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public Properties getProperties() {
-    return properties;
   }
 
   @Override
