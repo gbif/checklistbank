@@ -15,52 +15,39 @@ package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 
 
 import org.gbif.api.model.Constants;
-import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
-import org.gbif.utils.file.properties.PropertiesUtil;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.google.common.collect.ImmutableMap;
 
 /**
  * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
  */
-@Deprecated
-// TODO: Remove it and use ClbDbTestRule2
-public class ClbDbTestRule implements TestRule {
+public class ClbDbTestRule implements BeforeEachCallback {
 
-  public static final String DEFAULT_PROPERTY_FILE = "checklistbank.properties";
   public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   private final String tsvFolder;
   private final Map<String, Integer> sequenceCounters;
-  private final Properties properties;
-  private Connection connection;
-  private final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(
-    ChecklistBankMyBatisConfiguration.class);
+  private final DataSource dataSource;
 
   /**
    * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence counters.
    */
-  public static ClbDbTestRule empty() {
+  public static ClbDbTestRule empty(DataSource dataSource) {
     return new ClbDbTestRule(null, ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 1)
         .put("dataset_metrics_id_seq", 1)
@@ -74,13 +61,13 @@ public class ClbDbTestRule implements TestRule {
         .put("species_info_id_seq", 1)
         .put("typification_id_seq", 1)
         .put("vernacular_name_id_seq", 1)
-        .build());
+        .build(), dataSource);
   }
 
   /**
    * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
    */
-  public static ClbDbTestRule squirrels() {
+  public static ClbDbTestRule squirrels(DataSource dataSource) {
     return new ClbDbTestRule("squirrels", ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 32)
         .put("dataset_metrics_id_seq", 5)
@@ -94,13 +81,13 @@ public class ClbDbTestRule implements TestRule {
         .put("species_info_id_seq", 4)
         .put("typification_id_seq", 16)
         .put("vernacular_name_id_seq", 100011)
-        .build());
+        .build(), dataSource);
   }
 
   /**
    * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
    */
-  public static ClbDbTestRule puma() {
+  public static ClbDbTestRule puma(DataSource dataSource) {
     return new ClbDbTestRule("puma", ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 32)
         .put("dataset_metrics_id_seq", 5)
@@ -114,71 +101,42 @@ public class ClbDbTestRule implements TestRule {
         .put("species_info_id_seq", 4)
         .put("typification_id_seq", 16)
         .put("vernacular_name_id_seq", 100011)
-        .build());
+        .build(), dataSource);
   }
 
   /**
    * @param tsvFolder the optional unqualified filename within the dbUnit package to be used in setting up
    *                  the db
    */
-  private ClbDbTestRule(@Nullable String tsvFolder, Map<String, Integer> sequenceCounters) {
+  private ClbDbTestRule(@Nullable String tsvFolder, Map<String, Integer> sequenceCounters, DataSource dataSource) {
+    this.dataSource = dataSource;
     this.tsvFolder = tsvFolder;
     this.sequenceCounters = sequenceCounters;
-    try {
-      properties = PropertiesUtil.loadProperties(DEFAULT_PROPERTY_FILE);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public Properties getProperties() {
-    return properties;
-  }
-
-  public ClbConfiguration getClbConfiguration() throws Exception {
-    return ctx.getBean(ClbConfiguration.class);
   }
 
   @Override
-  public Statement apply(final Statement base, Description description) {
-    return new Statement() {
-
-      @Override
-      public void evaluate() throws Throwable {
-        try {
-          before();
-          base.evaluate();
-        } finally {
-          after();
-        }
-      }
-    };
-  }
-
-  /**
-   * @return the existing, single db connection. Keep this open, it will be closed by this rule after the tests have run.
-   */
-  public Connection getConnection() {
-    return connection;
+  public void beforeEach(ExtensionContext extensionContext) throws Exception {
+    before();
   }
 
   public void before() throws Exception {
     SLF4JBridgeHandler.install();
-    connection = ctx.getBean(DataSource.class).getConnection();
-    connection.setAutoCommit(false);
-    if (tsvFolder != null) {
-      DbLoader.load(connection, tsvFolder, true);
-    } else {
-      DbLoader.truncate(connection, "squirrels");
+    try(Connection connection = dataSource.getConnection()) {
+      connection.setAutoCommit(false);
+      if (tsvFolder != null) {
+        DbLoader.load(connection, tsvFolder, true);
+      } else {
+        DbLoader.truncate(connection, "squirrels");
+      }
+      updateSequences(connection);
+      connection.setAutoCommit(true);
     }
-    updateSequences();
-    connection.setAutoCommit(true);
   }
 
   /**
    * Update postgres sequence counters.
    */
-  private void updateSequences() {
+  private void updateSequences(Connection connection) {
     log.debug("Resetting clb sequences");
     try {
       for (Map.Entry<String, Integer> seq : sequenceCounters.entrySet()) {
@@ -189,13 +147,6 @@ public class ClbDbTestRule implements TestRule {
       connection.commit();
     } catch (SQLException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-
-  public void after() throws Exception {
-    if (connection != null && !connection.isClosed()) {
-      connection.close();
     }
   }
 

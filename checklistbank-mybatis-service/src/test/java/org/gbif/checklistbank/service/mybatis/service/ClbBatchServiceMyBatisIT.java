@@ -15,7 +15,7 @@ package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.net.URI;
 import java.util.List;
@@ -54,7 +54,7 @@ public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase {
       assertNotNull(nu.getNameKey());
       assertNotNull(nu.getScientificName());
       assertTrue(nu.getKey() >= 100000001 && nu.getKey() <= 100000020);
-      assertEquals(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, nu.getDatasetKey());
+      assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, nu.getDatasetKey());
 
       if (nu.getKey().equals(100000007)) {
         found = true;

@@ -15,7 +15,7 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.util.UUID;
 
@@ -43,14 +43,14 @@ public class DistributionMapperWithDataIT extends MapperITBase {
       DistributionMapper distributionMapper,
       DataSource dataSource) {
     super(
-        parsedNameMapper,
-        nameUsageMapper,
-        nubRelMapper,
-        datasetMapper,
-        citationMapper,
-        dataSource,
-        false,
-        ClbDbTestRule2.squirrels(dataSource));
+      parsedNameMapper,
+      nameUsageMapper,
+      nubRelMapper,
+      datasetMapper,
+      citationMapper,
+      dataSource,
+      false,
+      ClbDbTestRule.squirrels(dataSource));
     this.mapper = distributionMapper;
   }
 
@@ -75,7 +75,7 @@ public class DistributionMapperWithDataIT extends MapperITBase {
     mapper.processDataset(UUID.randomUUID(), proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(ClbDbTestRule2.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
     assertEquals(14, proc.counter);
 
     mapper.processDataset(Constants.NUB_DATASET_KEY, proc);

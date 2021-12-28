@@ -1,7 +1,7 @@
 package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.HdfsTestUtil;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.io.IOException;
 import javax.sql.DataSource;
@@ -28,13 +28,13 @@ public class AvroExporterIT extends BaseIT {
 
   private static MiniDFSCluster miniDFSCluster;
 
-  @RegisterExtension public ClbDbTestRule2 sbSetup;
+  @RegisterExtension public ClbDbTestRule sbSetup;
 
   @Autowired
   public AvroExporterIT(DataSource dataSource, AvroExporter nameUsageAvroExporter) {
     super(dataSource);
     this.nameUsageAvroExporter = nameUsageAvroExporter;
-    sbSetup = ClbDbTestRule2.squirrels(dataSource);
+    sbSetup = ClbDbTestRule.squirrels(dataSource);
   }
 
   @BeforeAll

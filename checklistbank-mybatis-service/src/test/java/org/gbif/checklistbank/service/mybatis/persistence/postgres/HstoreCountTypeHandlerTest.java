@@ -16,11 +16,11 @@ package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Maps;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HstoreCountTypeHandlerTest {
 

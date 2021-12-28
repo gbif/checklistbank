@@ -16,7 +16,7 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageCount;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.util.List;
 
@@ -25,8 +25,8 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static junit.framework.TestCase.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /** */
 public class UsageCountMapperTest extends MapperITBase {
@@ -43,14 +43,14 @@ public class UsageCountMapperTest extends MapperITBase {
       UsageCountMapper usageCountMapper,
       DataSource dataSource) {
     super(
-        parsedNameMapper,
-        nameUsageMapper,
-        nubRelMapper,
-        datasetMapper,
-        citationMapper,
-        dataSource,
-        false,
-        ClbDbTestRule2.squirrels(dataSource));
+      parsedNameMapper,
+      nameUsageMapper,
+      nubRelMapper,
+      datasetMapper,
+      citationMapper,
+      dataSource,
+      false,
+      ClbDbTestRule.squirrels(dataSource));
     this.mapper = usageCountMapper;
   }
 
@@ -60,7 +60,7 @@ public class UsageCountMapperTest extends MapperITBase {
     assertEquals(1, root.size());
     assertEquals(1, root.get(0).getKey());
 
-    root = mapper.root(ClbDbTestRule2.SQUIRRELS_DATASET_KEY);
+    root = mapper.root(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
     assertEquals(1, root.size());
     assertEquals(100000001, root.get(0).getKey());
     assertEquals(27, root.get(0).getSize());

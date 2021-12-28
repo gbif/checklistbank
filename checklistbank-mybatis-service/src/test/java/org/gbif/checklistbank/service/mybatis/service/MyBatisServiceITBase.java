@@ -13,7 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -50,13 +50,13 @@ import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 @ActiveProfiles("test")
 public class MyBatisServiceITBase {
 
-  @RegisterExtension public ClbDbTestRule2 sbSetup;
+  @RegisterExtension public ClbDbTestRule sbSetup;
 
   protected DataSource dataSource;
 
   public MyBatisServiceITBase(DataSource dataSource) {
     this.dataSource = dataSource;
-    this.sbSetup = ClbDbTestRule2.squirrels(dataSource);
+    this.sbSetup = ClbDbTestRule.squirrels(dataSource);
   }
 
   @TestConfiguration

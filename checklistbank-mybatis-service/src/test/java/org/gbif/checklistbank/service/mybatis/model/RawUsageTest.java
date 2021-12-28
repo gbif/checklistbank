@@ -18,8 +18,10 @@ import org.gbif.checklistbank.model.RawUsage;
 import java.util.Date;
 import java.util.UUID;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class RawUsageTest {
 
@@ -42,12 +44,12 @@ public class RawUsageTest {
     raw2.setLastCrawled(now);
     raw2.setJson(json);
 
-    Assert.assertEquals(raw, raw2);
+    assertEquals(raw, raw2);
 
     raw.setLastCrawled(null);
-    Assert.assertNotEquals(raw, raw2);
+    assertNotEquals(raw, raw2);
 
     raw2.setLastCrawled(null);
-    Assert.assertEquals(raw, raw2);
+    assertEquals(raw, raw2);
   }
 }

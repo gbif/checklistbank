@@ -22,7 +22,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.utils.text.StringUtils;
 
 import java.sql.SQLException;
@@ -131,7 +131,7 @@ public class MapperITBase {
   protected CitationMapper citationMapper;
   private DataSource dataSource;
 
-  @RegisterExtension public ClbDbTestRule2 sbSetup;
+  @RegisterExtension public ClbDbTestRule sbSetup;
 
   @Autowired
   public MapperITBase(
@@ -143,14 +143,14 @@ public class MapperITBase {
       DataSource dataSource,
       boolean initData) {
     this(
-        parsedNameMapper,
-        nameUsageMapper,
-        nubRelMapper,
-        datasetMapper,
-        citationMapper,
-        dataSource,
-        initData,
-        ClbDbTestRule2.empty(dataSource));
+      parsedNameMapper,
+      nameUsageMapper,
+      nubRelMapper,
+      datasetMapper,
+      citationMapper,
+      dataSource,
+      initData,
+      ClbDbTestRule.empty(dataSource));
   }
 
   @Autowired
@@ -162,7 +162,7 @@ public class MapperITBase {
       CitationMapper citationMapper,
       DataSource dataSource,
       boolean initData,
-      ClbDbTestRule2 rule) {
+      ClbDbTestRule rule) {
     this.parsedNameMapper = parsedNameMapper;
     this.nameUsageMapper = nameUsageMapper;
     this.nubRelMapper = nubRelMapper;

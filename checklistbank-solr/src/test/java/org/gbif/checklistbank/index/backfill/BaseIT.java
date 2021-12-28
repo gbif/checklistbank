@@ -1,9 +1,7 @@
 package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.guice.SpringSolrConfig;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 import org.gbif.checklistbank.service.mybatis.service.MyBatisServiceITBase;
-import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import java.sql.SQLException;
 import java.util.List;
