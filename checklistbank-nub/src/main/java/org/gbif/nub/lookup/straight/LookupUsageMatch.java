@@ -3,8 +3,8 @@ package org.gbif.nub.lookup.straight;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Lists;
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Simple usage representing the minimal nub usage info needed to match names.

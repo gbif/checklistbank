@@ -2,16 +2,15 @@ package org.gbif.nub.lookup.straight;
 
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import org.apache.hadoop.util.IdGenerator;
 import org.gbif.api.vocabulary.Rank;
 
 import java.util.Collections;
 import java.util.List;
 
 import com.beust.jcommander.internal.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.*;
 

@@ -26,8 +26,7 @@ public class ClbConfigurationTest {
   @Test
   public void testPropTrip() throws Exception {
     ClbConfiguration cfg = new ClbConfiguration();
-    cfg.serverName = "test1";
-    cfg.databaseName = "test2";
+    cfg.databaseUrl = "test1";
     cfg.user = "test3";
     cfg.password = "test4";
     cfg.maximumPoolSize = 11;
@@ -35,7 +34,7 @@ public class ClbConfigurationTest {
     cfg.idleTimeout = 20200;
     cfg.maxLifetime = 8877;
     cfg.idleTimeout = 20200;
-    cfg.workMem = 77;
+    cfg.connectionInitSql = "SET work_mem='64MB'";
     cfg.connectionTimeout = 7777;
     cfg.parserTimeout = 1000;
     cfg.syncThreads = 3;

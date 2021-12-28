@@ -10,10 +10,10 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Manual utility to generate a list of unique canonical names from the test index json files
@@ -21,10 +21,10 @@ import org.junit.Assert;
  */
 public class DownloadJsonUtil {
   public static Set<String> extract() {
-    Set<String> names = new TreeSet();
+    Set<String> names = new TreeSet<>();
     InputStreamUtils isu = new InputStreamUtils();
     ObjectMapper mapper = new ObjectMapper();
-    mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     int id = 0;
     while (id < 150) {
       String file = "index/nub"+id+".json";
@@ -55,7 +55,7 @@ public class DownloadJsonUtil {
           }
 
         } catch (IOException e) {
-          Assert.fail("Failed to read " + file + ": " + e.getMessage());
+          Assertions.fail("Failed to read " + file + ": " + e.getMessage());
         }
       }
       id++;

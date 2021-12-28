@@ -1,25 +1,24 @@
 package org.gbif.nub.lookup.straight;
 
 import com.google.common.collect.Lists;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Optional;
 
 import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
 import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class IdLookupImplTest {
   IdLookup l;
 
-  @Before
+  @BeforeEach
   public void init() {
     l = newTestLookup();
   }

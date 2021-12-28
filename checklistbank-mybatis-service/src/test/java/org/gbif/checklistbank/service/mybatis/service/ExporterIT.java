@@ -15,7 +15,6 @@ package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 import org.gbif.utils.file.FileUtils;
@@ -28,43 +27,27 @@ import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 
 /** Export squirrel test db as dwca */
 public class ExporterIT extends MyBatisServiceITBase {
 
-  private String dbUserName;
-  private String databaseUrl;
-  private String dbPassword;
-
-  private ApplicationContext ctx;
+  private final ApplicationContext ctx;
 
   @RegisterExtension public ClbDbTestRule2 sbSetup;
 
   @Autowired
   public ExporterIT(
       DataSource dataSource,
-      @Value("${checklistbank.datasource.username}") String dbUserName,
-      @Value("${checklistbank.datasource.url}") String databaseUrl,
-      @Value("${checklistbank.datasource.password}") String dbPassword,
       ApplicationContext ctx
       ) {
     super(dataSource);
     this.ctx = ctx;
-    this.dbUserName = dbUserName;
-    this.databaseUrl = databaseUrl;
-    this.dbPassword = dbPassword;
     sbSetup = ClbDbTestRule2.squirrels(dataSource);
   }
 
   @Test
   public void testExport() throws Exception {
-    ClbConfiguration cfg = new ClbConfiguration();
-    cfg.databaseUrl = databaseUrl;
-    cfg.user = dbUserName;
-    cfg.password = dbPassword;
-
     File repository = FileUtils.createTempDir();
 
     try {

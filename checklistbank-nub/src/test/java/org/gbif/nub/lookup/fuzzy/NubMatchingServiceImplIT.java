@@ -2,23 +2,26 @@ package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.IntRange;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParserGBIF;
 import org.gbif.nameparser.NameParserGbifV1;
-import org.gbif.nameparser.api.NameParser;
 import org.gbif.nub.lookup.NubMatchingTestModule;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import javax.annotation.Nullable;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 public class NubMatchingServiceImplIT {
@@ -27,7 +30,7 @@ public class NubMatchingServiceImplIT {
   private static final Joiner CLASS_JOINER = Joiner.on("; ").useForNull("???");
   private static final NameParserGbifV1 parser = new NameParserGbifV1();
 
-  @BeforeClass
+  @BeforeAll
   public static void buildMatcher() throws IOException {
     matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), parser);
   }
@@ -62,14 +65,14 @@ public class NubMatchingServiceImplIT {
 
     print(name, best);
 
-    assertEquals("Wrong expected key", expectedKey, best.getUsageKey());
+    assertEquals(expectedKey, best.getUsageKey(), "Wrong expected key");
     if (type == null) {
-      assertTrue("Wrong none match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
+      assertNotSame(NameUsageMatch.MatchType.NONE, best.getMatchType(), "Wrong none match type");
     } else {
-      assertEquals("Wrong match type", type, best.getMatchType());
+      assertEquals(type, best.getMatchType(), "Wrong match type");
     }
     if (confidence != null) {
-      assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
+      assertTrue(confidence.containsInteger(best.getConfidence()), "confidence " + best.getConfidence() + " not within " + confidence);
     }
     assertMatchConsistency(best);
     return best;
@@ -443,7 +446,7 @@ public class NubMatchingServiceImplIT {
   }
 
   @Test
-  @Ignore("not implemented yet")
+  @Disabled("not implemented yet")
   public void testHybrids() throws IOException {
     //TODO: implement
   }

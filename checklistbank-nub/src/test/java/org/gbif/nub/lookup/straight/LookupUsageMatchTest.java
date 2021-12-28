@@ -4,7 +4,7 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.utils.SerdeTestUtils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *

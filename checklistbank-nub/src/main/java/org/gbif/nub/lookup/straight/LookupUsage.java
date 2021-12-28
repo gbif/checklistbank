@@ -5,10 +5,10 @@ import org.gbif.api.vocabulary.Rank;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import org.codehaus.jackson.annotate.JsonIgnore;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 
 /**

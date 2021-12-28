@@ -122,6 +122,10 @@
       <artifactId>gbif-common</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-httputils</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-mybatis-service</artifactId>
     </dependency>
@@ -132,6 +136,10 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-solr</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-solr-plugins</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
@@ -152,8 +160,14 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

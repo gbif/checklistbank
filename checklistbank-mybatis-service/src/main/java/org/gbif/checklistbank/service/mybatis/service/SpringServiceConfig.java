@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(
     basePackages = {
+      "org.gbif.checklistbank.config",
       "org.gbif.checklistbank.service.mybatis.service",
       "org.gbif.checklistbank.service.mybatis.persistence"
     })

@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.config;
 
 import org.gbif.checklistbank.utils.PropertiesUtils;
@@ -7,26 +20,29 @@ import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.beust.jcommander.Parameter;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.Data;
 
 /**
  * A configuration for the checklist bank database connection pool
  * as used by the mybatis layer. Knows how to insert a service guice module.
  */
 @SuppressWarnings("PublicField")
+@Data
+@Component
 public class ClbConfiguration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClbConfiguration.class);
   private static final String PROPERTY_PREFIX = "checklistbank.db.";
   private static final Set<String> DATASOURCE_SET = Sets.newHashSet("serverName", "databaseName", "user", "password");
   private static final Set<String> IGNORE = Sets.newHashSet("parserTimeout", "syncThreads", "workMem");
@@ -38,18 +54,22 @@ public class ClbConfiguration {
 
   @NotNull
   @Parameter(names = "--clb-url")
+  @Value("${checklistbank.datasource.url}")
   public String databaseUrl;
 
   @NotNull
   @Parameter(names = "--clb-user")
+  @Value("${checklistbank.datasource.username}")
   public String user;
 
   @NotNull
   @Parameter(names = "--clb-password", password = true)
+  @Value("${checklistbank.datasource.password}")
   public String password;
 
   @Parameter(names = "--clb-maximum-pool-size")
   @Min(1)
+  @Value("${checklistbank.datasource.hikari.maximumPoolSize:8}")
   public int maximumPoolSize = 8;
 
   /**
@@ -60,6 +80,7 @@ public class ClbConfiguration {
    */
   @Parameter(names = "--clb-minimum-idle")
   @Min(0)
+  @Value("${checklistbank.datasource.hikari.minimumIdle:1}")
   public int minimumIdle = 1;
 
   /**
@@ -69,6 +90,7 @@ public class ClbConfiguration {
    */
   @Parameter(names = "--clb-idle-timeout")
   @Min(0)
+  @Value("${checklistbank.datasource.hikari.idleTimeout:1}")
   public int idleTimeout = min(1);
 
   /**
@@ -79,26 +101,37 @@ public class ClbConfiguration {
    */
   @Parameter(names = "--clb-max-lifetime")
   @Min(0)
+  @Value("${checklistbank.datasource.hikari.maxLifetime:15}")
   public int maxLifetime = min(15);
+
+  @Parameter(names = "--clb-max-lifetime")
+  @Min(0)
+  @Value("${checklistbank.datasource.hikari.leakDetectionThreshold:3}")
+  public int leakDetectionThreshold = min(3);
 
   /**
    * The postgres work_mem session setting in MB that should be used for each connection.
    * A value of zero or below does not set anything and thus uses the global postgres settings
    */
   @Parameter(names = "--clb-work-mem")
-  public int workMem = 0;
+  @Value("${checklistbank.datasource.hikari.connectionInitSql:SET work_mem='64MB'}")
+  public String connectionInitSql = "SET work_mem='64MB'";
 
   @Parameter(names = "--clb-connection-timeout")
   @Min(1000)
+  @Value("${checklistbank.datasource.hikari.connectionTimeout:5000}")
   public int connectionTimeout = sec(5);
 
   @Parameter(names = "--parser-timeout")
   @Min(100)
+  @Value("${checklistbank.parser.timeout:1000}")
   public int parserTimeout = sec(1);
 
   @Parameter(names = "--sync-threads")
   @Min(0)
+  @Value("${checklistbank.import.threads:1}")
   public int syncThreads = 1;
+
 
   /**
    * @return converted minutes in milliseconds
@@ -121,10 +154,10 @@ public class ClbConfiguration {
     if (withPrefix) {
       props.put(PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
       props.put(IMPORT_THREADS_PROP, String.valueOf(syncThreads));
-      props.put(WORK_MEM_PROP, String.valueOf(workMem));
+      props.put(WORK_MEM_PROP, String.valueOf(connectionInitSql));
     }
-    if (workMem > 0) {
-      props.put(prefix + CONNECTION_INIT_SQL_PROP, "SET work_mem='"+workMem+"MB'");
+    if (connectionInitSql != null) {
+      props.put(prefix + CONNECTION_INIT_SQL_PROP, connectionInitSql);
     }
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers()) && !Modifier.isStatic(field.getModifiers())) {
@@ -149,7 +182,7 @@ public class ClbConfiguration {
     ClbConfiguration cfg = new ClbConfiguration();
     cfg.parserTimeout = PropertiesUtils.getIntProp(props, PARSER_TIMEOUT_PROP, cfg.parserTimeout);
     cfg.syncThreads = PropertiesUtils.getIntProp(props, IMPORT_THREADS_PROP, cfg.syncThreads);
-    cfg.workMem = PropertiesUtils.getIntProp(props, WORK_MEM_PROP, cfg.workMem);
+    cfg.connectionInitSql = props.getProperty(WORK_MEM_PROP, cfg.connectionInitSql);
 
     for (Field field : ClbConfiguration.class.getDeclaredFields()) {
       if (!field.isSynthetic() && Modifier.isPublic(field.getModifiers()) && !Modifier.isStatic(field.getModifiers())) {
@@ -183,49 +216,5 @@ public class ClbConfiguration {
    */
   public Connection connect() throws SQLException {
     return DriverManager.getConnection(databaseUrl, user, password);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("databaseUrl", databaseUrl)
-        .add("user", user)
-        .add("password", password)
-        .add("connectionTimeout", connectionTimeout)
-        .add("maximumPoolSize", maximumPoolSize)
-        .add("minimumIdle", minimumIdle)
-        .add("idleTimeout", idleTimeout)
-        .add("maxLifetime", maxLifetime)
-        .add("workMem", workMem)
-        .add("parserTimeout", parserTimeout)
-        .add("syncThreads", syncThreads)
-        .toString();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(databaseUrl, user, password, maximumPoolSize, minimumIdle, idleTimeout, maxLifetime, workMem, connectionTimeout, parserTimeout, syncThreads);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final ClbConfiguration other = (ClbConfiguration) obj;
-    return Objects.equals(this.databaseUrl, other.databaseUrl)
-        && Objects.equals(this.user, other.user)
-        && Objects.equals(this.password, other.password)
-        && Objects.equals(this.maximumPoolSize, other.maximumPoolSize)
-        && Objects.equals(this.minimumIdle, other.minimumIdle)
-        && Objects.equals(this.idleTimeout, other.idleTimeout)
-        && Objects.equals(this.maxLifetime, other.maxLifetime)
-        && Objects.equals(this.workMem, other.workMem)
-        && Objects.equals(this.connectionTimeout, other.connectionTimeout)
-        && Objects.equals(this.parserTimeout, other.parserTimeout)
-        && Objects.equals(this.syncThreads, other.syncThreads);
   }
 }

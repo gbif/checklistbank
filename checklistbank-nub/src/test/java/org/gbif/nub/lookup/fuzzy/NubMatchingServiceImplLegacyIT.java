@@ -8,19 +8,19 @@ import org.gbif.nameparser.NameParserGbifV1;
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NubMatchingServiceImplLegacyIT {
 
   private static NubMatchingServiceImpl matcher;
   private static List<NameUsage> names;
 
-  @BeforeClass
+  @BeforeAll
   public static void buildMatcher() throws IOException {
     HigherTaxaComparator syn = new HigherTaxaComparator();
     syn.loadClasspathDicts("dicts");

@@ -1,4 +1,25 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.authorship;
+
+import org.gbif.api.exception.UnparsableException;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.api.service.checklistbank.NameParser;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.utils.file.csv.CSVReader;
+import org.gbif.utils.file.csv.CSVReaderFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,20 +29,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import org.gbif.api.exception.UnparsableException;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParserGbifV1;
-import org.gbif.utils.file.csv.CSVReader;
-import org.gbif.utils.file.csv.CSVReaderFactory;
-import org.junit.Ignore;
-import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Another autho comparator test that runs over files of names taken from the real GBIF backbone.
@@ -308,7 +328,7 @@ public class BasionymSorterTest {
   }
 
   @Test
-  @Ignore("this takes ages to run and does not test anything specific")
+  @Disabled("this takes ages to run and does not test anything specific")
   /**
    * create test files from current nub with this SQL:
    * \copy (select coalesce(infra_specific_epithet, specific_epithet) as epi, scientific_name from name_usage u join name n on name_fk=n.id where u.dataset_key='d7dddbf4-2cf0-4f39-9b2a-bb099caae36c' and u.family_fk=5386 order by 1,2) to 'fabaceae.txt'
@@ -327,8 +347,8 @@ public class BasionymSorterTest {
 
   private void assertInRage(int min, int max, String filename) throws Exception {
     int count = testGroupBasionymFile("names/" + filename);
-    assertTrue(filename + " with too little basionym groups", min <= count);
-    assertTrue(filename + " with too many basionym groups", max >= count);
+    assertTrue(min <= count, filename + " with too little basionym groups");
+    assertTrue(max >= count, filename + " with too many basionym groups");
   }
 
   private int testGroupBasionymFile(String filename) throws Exception {

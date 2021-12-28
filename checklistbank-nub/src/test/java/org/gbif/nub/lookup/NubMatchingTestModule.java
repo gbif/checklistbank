@@ -1,12 +1,12 @@
 package org.gbif.nub.lookup;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
@@ -19,7 +19,7 @@ import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.nub.lookup.straight.LookupUsageMatch;
 import org.gbif.utils.file.InputStreamUtils;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +79,7 @@ public class NubMatchingTestModule extends PrivateModule {
 
     InputStreamUtils isu = new InputStreamUtils();
     ObjectMapper mapper = new ObjectMapper();
-    mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     int id = 1;
     while (id < 285) {
@@ -96,7 +96,7 @@ public class NubMatchingTestModule extends PrivateModule {
           }
           System.out.println("Loaded " + (usages.size() - before) + " new usage(s) from " + file);
         } catch (IOException e) {
-          Assert.fail("Failed to read " + file + ": " + e.getMessage());
+          Assertions.fail("Failed to read " + file + ": " + e.getMessage());
         }
       }
       id++;
@@ -114,7 +114,7 @@ public class NubMatchingTestModule extends PrivateModule {
 
     InputStreamUtils isu = new InputStreamUtils();
     ObjectMapper mapper = new ObjectMapper();
-    mapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     int id = 1;
     while (id < 100) {
@@ -131,7 +131,7 @@ public class NubMatchingTestModule extends PrivateModule {
           }
           System.out.println("Loaded " + (usages.size() - before) + " new usage(s) from " + file);
         } catch (IOException e) {
-          Assert.fail("Failed to read " + file + ": " + e.getMessage());
+          Assertions.fail("Failed to read " + file + ": " + e.getMessage());
         }
       }
       id++;

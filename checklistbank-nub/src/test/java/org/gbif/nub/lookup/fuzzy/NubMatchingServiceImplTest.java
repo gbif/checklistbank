@@ -1,12 +1,10 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.gbif.api.vocabulary.Rank.*;
 
 public class NubMatchingServiceImplTest {

@@ -12,12 +12,13 @@ import javax.annotation.Nullable;
 
 import com.google.common.base.Joiner;
 import org.apache.commons.lang.math.IntRange;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class NubMatchingServiceImplStrictIT {
@@ -25,7 +26,7 @@ public class NubMatchingServiceImplStrictIT {
   private static NubMatchingServiceImpl matcher;
   private static final Joiner JOINER = Joiner.on("; ").useForNull("???");
 
-  @BeforeClass
+  @BeforeAll
   public static void buildMatcher() throws IOException {
     matcher = new NubMatchingServiceImpl(NubMatchingTestModule.provideIndex(), NubMatchingTestModule.provideSynonyms(), new NameParserGbifV1());
   }
@@ -47,9 +48,9 @@ public class NubMatchingServiceImplStrictIT {
     printMatch(name, best);
 
     assertEquals( expectedKey, best.getUsageKey());
-    assertTrue("Wrong match type", best.getMatchType() != NameUsageMatch.MatchType.NONE);
+    assertNotSame(NameUsageMatch.MatchType.NONE, best.getMatchType(), "Wrong match type");
     if (confidence != null) {
-      assertTrue("confidence " + best.getConfidence() + " not within " + confidence, confidence.containsInteger(best.getConfidence()));
+      assertTrue(confidence.containsInteger(best.getConfidence()), "confidence " + best.getConfidence() + " not within " + confidence);
     }
     NubMatchingServiceImplIT.assertMatchConsistency(best);
   }

@@ -8,13 +8,13 @@ import org.gbif.nub.lookup.straight.LookupUsage;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 import org.mapdb.serializer.SerializerJava;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MapDbObjectSerializerTest {
 
@@ -50,7 +50,7 @@ public class MapDbObjectSerializerTest {
     start = System.currentTimeMillis();
     for (long x = 0; x < repeat; x++) {
       LookupUsage u2 = kvp.get(x);
-      assertNotNull("Not in map", u2);
+      assertNotNull(u2, "Not in map");
     }
     db.commit();
     logRate("read", start);

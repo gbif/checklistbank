@@ -1,7 +1,7 @@
 package org.gbif.nub.lookup.similarity;
 
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class StringSimilarityComparisonTest {
 

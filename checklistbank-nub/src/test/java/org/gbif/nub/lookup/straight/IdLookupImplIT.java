@@ -1,7 +1,5 @@
 package org.gbif.nub.lookup.straight;
 
-import com.google.inject.Injector;
-
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
@@ -9,53 +7,61 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.persistence.mapper.MapperITBase;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.service.MyBatisServiceITBase;
 import org.gbif.nub.lookup.NubMatchingTestModule;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Properties;
+
+import javax.sql.DataSource;
 
 import com.google.common.base.Joiner;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.*;
 
-public class IdLookupImplIT {
+public class IdLookupImplIT extends MyBatisServiceITBase {
 
   private IdLookup matcher;
+  private final ParsedNameMapper pnMapper;
+  private final NameUsageMapper nuMapper;
+  private final UsageMapper uMapper;
+  private final ClbConfiguration cfg;
+
   private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
-  @Rule
-  public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
+  @Autowired
+  public IdLookupImplIT(
+    DataSource dataSource, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper,
+    ClbConfiguration cfg
+  ) {
+    super(dataSource);
+    this.pnMapper = pnMapper;
+    this.nuMapper = nuMapper;
+    this.uMapper = uMapper;
+    this.cfg = cfg;
+  }
 
   @Test
   public void load() throws Exception {
-    Injector guice = MapperITBase.setupMyBatis(dbSetup);
-    ParsedNameMapper pnMapper = guice.getInstance(ParsedNameMapper.class);
-    NameUsageMapper nuMapper = guice.getInstance(NameUsageMapper.class);
-    UsageMapper uMapper = guice.getInstance(UsageMapper.class);
-
     // create 3 deleted & 1 non deleted nub usages
     createName("Dracula bella L.", SPECIES, true, pnMapper, nuMapper, uMapper);
     createName("Dracula bella Mill.", SPECIES, true, pnMapper, nuMapper, uMapper);
     createName("Dracula bella DC.", SPECIES, true, pnMapper, nuMapper, uMapper);
     createName("Dracula bella Engler.", SPECIES, false, pnMapper, nuMapper, uMapper);
 
-    ClbConfiguration cfg = dbSetup.getClbConfiguration();
+    ClbConfiguration cfg = new ClbConfiguration();
+    //TODO: set cfg values
     IdLookup l = IdLookupImpl.temp().load(cfg, true);
     for (LookupUsage u : l) {
       System.out.println(u);
@@ -110,14 +116,6 @@ public class IdLookupImplIT {
 
   @Test
   public void testSquirrels() throws IOException, SQLException {
-    ClbConfiguration cfg = new ClbConfiguration();
-
-    Properties props = dbSetup.getProperties();
-    cfg.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
-    cfg.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
-    cfg.user = props.getProperty("checklistbank.db.dataSource.user");
-    cfg.password = props.getProperty("checklistbank.db.dataSource.password");
-
     IdLookup l = IdLookupImpl.temp().load(cfg, true);
     assertEquals(2, l.size());
     assertEquals(1, l.match("Animalia", KINGDOM, ANIMALIA).getKey());
