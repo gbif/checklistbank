@@ -34,6 +34,7 @@ public class SolrTestSetup {
 
     // run liquibase & dbSetup
     LOG.info("Run liquibase & dbSetup once");
+    /**
     try {
       rule.apply(new Statement() {
         @Override
@@ -43,7 +44,7 @@ public class SolrTestSetup {
       }, null).evaluate();
     } catch (Throwable throwable) {
       Throwables.propagate(throwable);
-    }
+    }*/
 
     // Creates the injector, merging properties taken from default test indexing and checklistbank
     Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);

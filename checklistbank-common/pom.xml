@@ -21,12 +21,29 @@
     </site>
   </distributionManagement>
 
+  <properties>
+    <main.basedir>${project.parent.basedir}</main.basedir>
+
+    <sonar.coverage.jacoco.xmlReportPaths>
+      ${project.basedir}/../checklistbank-common/target/site/jacoco-aggregate/jacoco.xml
+    </sonar.coverage.jacoco.xmlReportPaths>
+  </properties>
+
   <repositories>
     <repository>
       <id>gbif-all</id>
       <url>https://repository.gbif.org/content/groups/gbif</url>
     </repository>
   </repositories>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>

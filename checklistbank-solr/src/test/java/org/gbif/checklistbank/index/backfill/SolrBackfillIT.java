@@ -31,7 +31,7 @@ public class SolrBackfillIT {
   @BeforeClass
   public static void setup() throws Exception {
     // creates squirrels db and solr index & server using its own injector
-    setup = new SolrTestSetup(ClbDbTestRule.squirrels());
+    //setup = new SolrTestSetup(ClbDbTestRule.squirrels());
     setup.setup();
   }
 

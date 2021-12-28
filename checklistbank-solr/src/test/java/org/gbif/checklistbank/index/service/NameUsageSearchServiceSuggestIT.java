@@ -49,14 +49,14 @@ public class NameUsageSearchServiceSuggestIT {
   @BeforeClass
   public static void setup() throws Exception {
     // creates squirrels db and solr index & server using its own injector
-    SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.puma());
-    setup.setup();
+    //SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.puma());
+    //setup.setup();
 
     // insert new injector for this test, reusing existing solr server
     Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
-    Injector injector = Guice.createInjector(new SearchTestModule(props, setup.solr()));
+    //Injector injector = Guice.createInjector(new SearchTestModule(props, setup.solr()));
 
-    searchService = injector.getInstance(NameUsageSearchService.class);
+    //searchService = injector.getInstance(NameUsageSearchService.class);
   }
 
 
