@@ -109,7 +109,6 @@ public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase {
   }
 
   @Test
-  @Disabled
   //TODO: it throws a time-out error
   public void testReparse() throws Exception {
     assertEquals(6, service.reparseAll());

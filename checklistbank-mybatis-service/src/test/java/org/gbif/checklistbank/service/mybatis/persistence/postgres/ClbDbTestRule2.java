@@ -24,7 +24,6 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
  */
-public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
+public class ClbDbTestRule2 implements BeforeEachCallback {
 
   public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
@@ -44,7 +43,6 @@ public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
   private final String tsvFolder;
   private final Map<String, Integer> sequenceCounters;
   private final DataSource dataSource;
-  private Connection connection;
 
   /**
    * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence counters.
@@ -121,35 +119,24 @@ public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
     before();
   }
 
-  @Override
-  public void afterEach(ExtensionContext extensionContext) throws Exception {
-    after();
-  }
-
-  /**
-   * @return the existing, single db connection. Keep this open, it will be closed by this rule after the tests have run.
-   */
-  public Connection getConnection() {
-    return connection;
-  }
-
   public void before() throws Exception {
     SLF4JBridgeHandler.install();
-    connection = dataSource.getConnection();
-    connection.setAutoCommit(false);
-    if (tsvFolder != null) {
-      DbLoader.load(connection, tsvFolder, true);
-    } else {
-      DbLoader.truncate(connection, "squirrels");
+    try(Connection connection = dataSource.getConnection()) {
+      connection.setAutoCommit(false);
+      if (tsvFolder != null) {
+        DbLoader.load(connection, tsvFolder, true);
+      } else {
+        DbLoader.truncate(connection, "squirrels");
+      }
+      updateSequences(connection);
+      connection.setAutoCommit(true);
     }
-    updateSequences();
-    connection.setAutoCommit(true);
   }
 
   /**
    * Update postgres sequence counters.
    */
-  private void updateSequences() {
+  private void updateSequences(Connection connection) {
     log.debug("Resetting clb sequences");
     try {
       for (Map.Entry<String, Integer> seq : sequenceCounters.entrySet()) {
@@ -160,13 +147,6 @@ public class ClbDbTestRule2 implements BeforeEachCallback, AfterEachCallback {
       connection.commit();
     } catch (SQLException e) {
       throw new RuntimeException(e);
-    }
-  }
-
-
-  public void after() throws Exception {
-    if (connection != null && !connection.isClosed()) {
-      connection.close();
     }
   }
 

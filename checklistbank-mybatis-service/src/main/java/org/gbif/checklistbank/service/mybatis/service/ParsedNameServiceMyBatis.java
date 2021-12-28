@@ -102,7 +102,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
   @Override
   public int reparseAll() {
-    ReparseHandler handler = new ReparseHandler();
+    ReparseHandler handler = new ReparseHandler(parser, mapper);
     mapper.processNames(handler);
     LOG.info(
         "Reparsed all {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
@@ -116,7 +116,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     return handler.changed;
   }
 
-  private class ReparseHandler implements ResultHandler<ParsedName> {
+  public static class ReparseHandler implements ResultHandler<ParsedName> {
     int counter = 0;
     int changed = 0;
     int failed = 0;
@@ -125,6 +125,14 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     int placeholder = 0;
     int blacklisted = 0;
     int noname = 0;
+
+    private final NameParser parser;
+    private final ParsedNameMapper mapper;
+
+    public ReparseHandler(NameParser parser, ParsedNameMapper mapper) {
+      this.parser = parser;
+      this.mapper = mapper;
+    }
 
     @Override
     public void handleResult(ResultContext<? extends ParsedName> context) {

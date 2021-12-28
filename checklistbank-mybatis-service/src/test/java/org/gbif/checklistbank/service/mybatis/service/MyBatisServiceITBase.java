@@ -105,8 +105,8 @@ public class MyBatisServiceITBase {
         "checklistbank.datasource.hikari.minimumIdle=1",
         "checklistbank.datasource.hikari.idleTimeout=60000",
         "checklistbank.datasource.hikari.connectionTimeout=2000",
-        "checklistbank.datasource.hikari.connectionInitSql=SET work_mem='64MB'",
-        "checklistbank.datasource.hikari.leakDetectionThreshold=10000"
+        "checklistbank.datasource.hikari.leakDetectionThreshold=10000",
+        "checklistbank.datasource.hikari.connectionInitSql=SET work_mem='64MB'"
       };
     }
   }
