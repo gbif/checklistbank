@@ -24,7 +24,6 @@ import org.gbif.nameparser.NameParserGbifV1;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

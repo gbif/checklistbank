@@ -36,11 +36,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-// TODO: check concurrency issues
 public class ConcurrentCreateOrGetIT extends MyBatisServiceITBase {
 
   //Thread pool size
-  private static final int NUM_THREADS = 1;
+  private static final int NUM_THREADS = 10;
 
   //Total of parsing tasks to trigger
   private static final int NUM_TASKS = 100;

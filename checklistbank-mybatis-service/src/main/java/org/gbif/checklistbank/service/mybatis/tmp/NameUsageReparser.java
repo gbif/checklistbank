@@ -28,12 +28,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
@@ -168,7 +168,7 @@ public class NameUsageReparser implements Runnable {
       for (ScientificParsedName spn : pNames) {
         try {
           nameMapper.createWithKey(spn.sciname.getKey(), spn.pn);
-        } catch (PersistenceException e) {
+        } catch (DataIntegrityViolationException e) {
           Throwable cause = e.getCause() != null ? e.getCause() : e;
           LOG.warn("Failed to persist name {}: {}", spn.pn, cause.getMessage());
           nameMapper.failed(spn.sciname.getKey(), spn.pn.getScientificName(), spn.pn.getRank());

@@ -19,12 +19,12 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,7 +57,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
     try {
       return createOrGetThrowing(preParsed, update);
-    } catch (PersistenceException e) {
+    } catch (DataIntegrityViolationException e) {
       // we have a unique constraint in the database which can throw an exception when we
       // concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
@@ -68,7 +68,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
   @Transactional
   private ParsedName createOrGetThrowing(ParsedName preParsed, boolean update)
-      throws PersistenceException {
+      throws DataIntegrityViolationException {
     ParsedName pn = mapper.getByName(preParsed.getScientificName(), preParsed.getRank());
     if (pn == null) {
       // try to write the name to postgres

@@ -19,10 +19,10 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.CitationMapper;
 
 import javax.annotation.Nullable;
 
-import org.apache.ibatis.exceptions.PersistenceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +50,7 @@ public class CitationServiceMyBatis implements CitationService {
     }
     try {
       return createOrGetThrowing(citation, doi, link);
-    } catch (PersistenceException e) {
+    } catch (DataIntegrityViolationException e) {
       // we have a unique constraint in the database which can throw an exception when we
       // concurrently write the same name into the table
       // try to read and ignore exception if we can read the name
