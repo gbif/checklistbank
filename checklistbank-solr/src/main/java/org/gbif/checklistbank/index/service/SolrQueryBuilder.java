@@ -16,7 +16,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.FacetParams;
@@ -168,7 +167,7 @@ public class SolrQueryBuilder {
    * those disjunctions are joint in a big conjunction.
    */
   private static void setFacetFilterQuery(SearchRequest<NameUsageSearchParameter> request, SolrQuery solrQuery) {
-    Multimap<NameUsageSearchParameter, String> params = request.getParameters();
+    Map<NameUsageSearchParameter, Set<String>> params = request.getParameters();
     if (params != null) {
       for (NameUsageSearchParameter param : params.keySet()) {
         String solrField = FACET_MAPPING.get(param);

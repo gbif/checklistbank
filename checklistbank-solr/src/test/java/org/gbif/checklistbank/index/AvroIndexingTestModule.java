@@ -4,7 +4,6 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.checklistbank.index.guice.AvroIndexingModulePrivate;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 
 import java.util.Properties;
 
@@ -25,7 +24,7 @@ public class AvroIndexingTestModule extends AbstractModule {
   @Override
   protected void configure() {
     // Installs the MyBatis service layer
-    install(new ChecklistBankServiceMyBatisModule(properties));
+    //install(new ChecklistBankServiceMyBatisModule(properties));
 
     // Installs private indexing module
     install(new AvroIndexingModulePrivate(properties));

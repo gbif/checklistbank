@@ -3,7 +3,6 @@ package org.gbif.nub.lookup.fuzzy;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.nub.lookup.NubMatchingModule;
 import org.gbif.utils.file.properties.PropertiesUtil;
 
@@ -27,7 +26,8 @@ public class NubMatchingServiceTestManual {
     Properties properties = PropertiesUtil.loadProperties("checklistbank.properties");
 
     LOG.info("Create guice injector");
-    Injector inj = Guice.createInjector(new ChecklistBankServiceMyBatisModule(properties), new NubMatchingModule());
+    Injector inj = Guice.createInjector(//new ChecklistBankServiceMyBatisModule(properties),
+                                        new NubMatchingModule());
 
     LOG.info("Create matching service");
     matcher = inj.getInstance(NameUsageMatchingService.class);

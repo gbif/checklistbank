@@ -37,12 +37,8 @@ public class ClbConfiguration {
   private static final String WORK_MEM_PROP = "checklistbank.pg.workMem";
 
   @NotNull
-  @Parameter(names = "--clb-host")
-  public String serverName = "localhost";
-
-  @NotNull
-  @Parameter(names = "--clb-db")
-  public String databaseName;
+  @Parameter(names = "--clb-url")
+  public String databaseUrl;
 
   @NotNull
   @Parameter(names = "--clb-user")
@@ -186,15 +182,13 @@ public class ClbConfiguration {
    * @return a new simple postgres jdbc connection
    */
   public Connection connect() throws SQLException {
-    String url = "jdbc:postgresql://" + serverName + "/" + databaseName;
-    return DriverManager.getConnection(url, user, password);
+    return DriverManager.getConnection(databaseUrl, user, password);
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("serverName", serverName)
-        .add("databaseName", databaseName)
+        .add("databaseUrl", databaseUrl)
         .add("user", user)
         .add("password", password)
         .add("connectionTimeout", connectionTimeout)
@@ -210,7 +204,7 @@ public class ClbConfiguration {
 
   @Override
   public int hashCode() {
-    return Objects.hash(serverName, databaseName, user, password, maximumPoolSize, minimumIdle, idleTimeout, maxLifetime, workMem, connectionTimeout, parserTimeout, syncThreads);
+    return Objects.hash(databaseUrl, user, password, maximumPoolSize, minimumIdle, idleTimeout, maxLifetime, workMem, connectionTimeout, parserTimeout, syncThreads);
   }
 
   @Override
@@ -222,8 +216,7 @@ public class ClbConfiguration {
       return false;
     }
     final ClbConfiguration other = (ClbConfiguration) obj;
-    return Objects.equals(this.serverName, other.serverName)
-        && Objects.equals(this.databaseName, other.databaseName)
+    return Objects.equals(this.databaseUrl, other.databaseUrl)
         && Objects.equals(this.user, other.user)
         && Objects.equals(this.password, other.password)
         && Objects.equals(this.maximumPoolSize, other.maximumPoolSize)

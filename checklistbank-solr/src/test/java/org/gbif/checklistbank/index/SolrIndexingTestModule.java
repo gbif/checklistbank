@@ -4,7 +4,6 @@
 package org.gbif.checklistbank.index;
 
 import org.gbif.checklistbank.index.guice.SolrIndexingModulePrivate;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,7 +31,7 @@ public class SolrIndexingTestModule extends AbstractModule {
   protected void configure() {
     removeUnUsedSolrCfg();
     // Installs the MyBatis service layer
-    install(new ChecklistBankServiceMyBatisModule(properties));
+//    install(new ChecklistBankServiceMyBatisModule(properties));
 
     // Installs private indexing module
     install(new SolrIndexingModulePrivate(properties));
