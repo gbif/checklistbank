@@ -14,10 +14,12 @@ import java.util.concurrent.Future;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation that does nothing. Only useful for testing other parts of the system.
  */
+@Service
 public class NameUsageIndexServicePassThru implements DatasetImportService {
   private final List<Integer> empty = ImmutableList.<Integer>builder().build();
 

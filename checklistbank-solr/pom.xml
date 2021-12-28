@@ -327,10 +327,6 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-service</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif</groupId>
       <artifactId>gbif-common-search</artifactId>
     </dependency>
     <dependency>
@@ -416,6 +412,16 @@
           <artifactId>commons-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.registry</groupId>
+      <artifactId>registry-ws-client</artifactId>
+    </dependency>
+
+    <!-- Spring dependencies -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
     </dependency>
 
     <!-- TEST SCOPE -->

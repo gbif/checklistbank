@@ -1,0 +1,19 @@
+checklistbank:
+  portal:
+    url: https://www.gbif-dev.org/
+  api:
+    url: https://api.gbif-dev.org/v1/
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  #RabbitMQ
+  rabbitmq:
+    enabled: false
+  # Liquibase
+  liquibase:
+    default-schema: public
+    change-log: classpath:liquibase/master.xml
+    enabled: false
+  #flyway
+  flyway:
+    enabled: false

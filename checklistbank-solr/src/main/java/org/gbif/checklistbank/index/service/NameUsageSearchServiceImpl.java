@@ -32,12 +32,14 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Checklist Bank Search interface implementation using Solr/lucene.
  * This class uses a remote to interact with CLB index.
  */
+@Service
 public class NameUsageSearchServiceImpl implements NameUsageSearchService {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageSearchServiceImpl.class);
   private static final int DEFAULT_SUGGEST_LIMIT = 10;
@@ -54,7 +56,7 @@ public class NameUsageSearchServiceImpl implements NameUsageSearchService {
   /**
    * Default constructor.
    */
-  @Inject
+  @Autowired
   public NameUsageSearchServiceImpl(SolrClient solrClient) {
     this.solrClient = solrClient;
   }

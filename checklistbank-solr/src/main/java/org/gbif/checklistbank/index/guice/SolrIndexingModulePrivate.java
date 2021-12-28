@@ -28,8 +28,7 @@ public class SolrIndexingModulePrivate extends PrivateServiceModule {
 
   @Override
   protected void configureService() {
-    //Setting this property because the default value in the solrconfig.xml is solr.lock.type=hdfs
-    System.setProperty("solr.lock.type", "native");
+    //Setting this property because the default value in the solrconfig.xml is solr.lock.type=hdfsSystem.setProperty("solr.lock.type", "native");
     // Object <-> Document converter binding
     bind(NameUsageDocConverter.class).in(Scopes.SINGLETON);
 

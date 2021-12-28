@@ -126,15 +126,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     this.speciesProfileService = (SpeciesProfileServiceMyBatis) speciesProfileService;
   }
 
-  public static Properties loadProperties(String propertiesFile) throws IOException {
-    Properties tempProperties;
-    try (Reader reader = Files.newReader(new File(propertiesFile), Charset.defaultCharset())) {
-      tempProperties = new Properties();
-      tempProperties.load(reader);
-    }
-    return tempProperties;
-  }
-
   @Override
   public int run() {
     int x = super.run();
