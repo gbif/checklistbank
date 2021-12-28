@@ -24,6 +24,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
 
 /**
  * Checklist Bank multithreaded name usage solr indexer. This class creates a pool of configurable
@@ -32,7 +34,8 @@ import org.springframework.context.annotation.Import;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
-@SpringBootApplication
+@Profile("!test") // TODO: only needed if this clis are run in the tests
+@Component
 @Import({SpringSolrConfig.class, SpringServiceConfig.class})
 public class SolrBackfill extends NameUsageBatchProcessor implements CommandLineRunner {
 

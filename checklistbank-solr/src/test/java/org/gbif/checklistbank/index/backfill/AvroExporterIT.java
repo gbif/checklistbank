@@ -1,77 +1,80 @@
 package org.gbif.checklistbank.index.backfill;
 
-import org.gbif.checklistbank.index.AvroIndexingTestModule;
 import org.gbif.checklistbank.index.HdfsTestUtil;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
-import org.gbif.utils.file.properties.PropertiesUtil;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule2;
 
 import java.io.IOException;
-import java.util.Properties;
+import javax.sql.DataSource;
 
-import com.google.common.base.Throwables;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /** Test the the Avro exporter using a hdfs mini cluster. */
-// TODO: setup embedded DB. Use application-test.yml for props
-public class AvroExporterIT {
+public class AvroExporterIT extends BaseIT {
 
   private static final Logger LOG = LoggerFactory.getLogger(AvroExporterIT.class);
 
-  private static AvroExporter nameUsageAvroExporter;
+  private final AvroExporter nameUsageAvroExporter;
 
   private static MiniDFSCluster miniDFSCluster;
 
-  @BeforeClass
+  @RegisterExtension public ClbDbTestRule2 sbSetup;
+
+  @Autowired
+  public AvroExporterIT(DataSource dataSource, AvroExporter nameUsageAvroExporter) {
+    super(dataSource);
+    this.nameUsageAvroExporter = nameUsageAvroExporter;
+    sbSetup = ClbDbTestRule2.squirrels(dataSource);
+  }
+
+  @BeforeAll
   public static void setup() throws IOException {
-    // return"hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/";
-    // run liquibase & dbSetup
-    LOG.info("Run liquibase & dbSetup once");
-    try {
-      ClbDbTestRule rule = ClbDbTestRule.squirrels();
-      rule.apply(
-              new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                  // do nothing
-                }
-              },
-              null)
-          .evaluate();
-    } catch (Throwable throwable) {
-      Throwables.propagate(throwable);
-    }
+    //   // return"hdfs://localhost:"+ hdfsCluster.getNameNodePort() + "/";
+    //    // run liquibase & dbSetup
+    //    LOG.info("Run liquibase & dbSetup once");
+    //    try {
+    //      // TODO: do in constructor?
+    //      ClbDbTestRule rule = ClbDbTestRule.squirrels();
+    //      rule.apply(
+    //              new Statement() {
+    //                @Override
+    //                public void evaluate() throws Throwable {
+    //                  // do nothing
+    //                }
+    //              },
+    //              null)
+    //          .evaluate();
+    //    } catch (Throwable throwable) {
+    //      Throwables.propagate(throwable);
+    //    }
 
     miniDFSCluster = HdfsTestUtil.initHdfs();
     // Creates the injector, merging properties taken from default test indexing and checklistbank
-    Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);
-    Properties props2 =
-        PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_INDEXING_PROPERTY_TEST_FILE);
-    props.putAll(props2);
-    props.put(
-        IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE,
-        HdfsTestUtil.getNameNodeUri(miniDFSCluster));
-    props.put(
-        IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR,
-        HdfsTestUtil.TEST_HDFS_DIR);
+    // TODO: move all props to application-test.yml?
+//    Properties props = PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_PROPERTY_FILE);
+//    Properties props2 =
+//        PropertiesUtil.loadProperties(IndexingConfigKeys.CLB_INDEXING_PROPERTY_TEST_FILE);
+//    props.putAll(props2);
+//    props.put(
+//        IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE,
+//        HdfsTestUtil.getNameNodeUri(miniDFSCluster));
+//    props.put(
+//        IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR,
+//        HdfsTestUtil.TEST_HDFS_DIR);
     miniDFSCluster.getFileSystem().mkdirs(new Path(HdfsTestUtil.TEST_HDFS_DIR));
-    Injector injector = Guice.createInjector(new AvroIndexingTestModule(props));
-    // Gets the exporter instance
-    nameUsageAvroExporter = injector.getInstance(AvroExporter.class);
   }
 
-  @AfterClass
+  @AfterAll
   public static void shutdown() {
     miniDFSCluster.shutdown(false);
   }

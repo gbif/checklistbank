@@ -4,15 +4,15 @@ import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.common.search.solr.SolrConfig;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(SpringServiceConfig.class)
-@EnableConfigurationProperties(
-    SolrConfig.class) // TODO: check if we need to change sth in common-search project
+@ComponentScan(basePackages = "org.gbif.checklistbank.index")
 public class SpringSolrConfig {
 
   SpringSolrConfig() {
@@ -25,6 +25,12 @@ public class SpringSolrConfig {
   @Bean("syncThreads")
   public Integer syncThreads() {
     return SYNC_THREADS;
+  }
+
+  @Bean
+  @ConfigurationProperties("checklistbank.search.solr")
+  public SolrConfig solrConfigProperties() {
+    return new SolrConfig();
   }
 
   @Bean
