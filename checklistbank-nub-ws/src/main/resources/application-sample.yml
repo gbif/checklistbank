@@ -1,0 +1,30 @@
+checklistbank:
+  datasource:
+    url:  @checklistbank.db.url@
+    username: @checklistbank.db.username@
+    password: @checklistbank.db.password@
+    driverClassName: org.postgresql.Driver
+    hikari:
+      idleTimeout: 60000
+      maximumPoolSize: 10
+      minimumIdle: 1
+  nub:
+    indexDir: nubidx
+    datasetKey: d7dddbf4-2cf0-4f39-9b2a-bb099caae36c
+gbif:
+  portal:
+    url: https://www.gbif-dev.org/
+  api:
+    url: https://api.gbif-dev.org/v1/
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  #RabbitMQ
+  rabbitmq:
+    enabled: false
+  # Liquibase
+  liquibase:
+    enabled: false
+  #flyway
+  flyway:
+    enabled: false
