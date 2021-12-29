@@ -26,18 +26,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 
 import info.ganglia.gmetric4j.gmetric.GMetric;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * A configuration class which holds the host and port to connect yammer metrics to a ganglia server.
  */
 @SuppressWarnings("PublicField")
+@Component
 public class GangliaConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(GangliaConfiguration.class);
 
   @Parameter(names = "--ganglia-host")
+  @Value("${checklistbank.ganglia.host}")
   public String host;
 
   @Parameter(names = "--ganglia-port")
+  @Value("${checklistbank.ganglia.port}")
   public int port = 8649;
 
   /**

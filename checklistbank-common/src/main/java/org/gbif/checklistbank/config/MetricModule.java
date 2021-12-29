@@ -20,23 +20,24 @@ import java.util.Properties;
 import org.springframework.context.annotation.Bean;
 
 import com.codahale.metrics.MetricRegistry;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
 public class MetricModule {
-  private final GangliaConfiguration cfg;
+  private GangliaConfiguration cfg;
+
+  public MetricModule() {
+    //NOTHING
+  }
 
   public MetricModule(Properties properties) {
     this.cfg = new GangliaConfiguration();
     cfg.host = properties.getProperty("ganglia.host");
-    cfg.port = PropertiesUtils.getIntProp(properties, "ganglia.host", cfg.port);
+    cfg.port = PropertiesUtils.getIntProp(properties, "ganglia.port", cfg.port);
   }
 
   public MetricModule(GangliaConfiguration cfg) {
     this.cfg = cfg;
-  }
-
-  @Bean
-  public GangliaConfiguration provideCfg() throws Exception {
-    return cfg;
   }
 
   @Bean

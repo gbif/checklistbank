@@ -1,24 +1,43 @@
 package org.gbif.checklistbank.ws;
 
+import org.gbif.checklistbank.index.backfill.AvroExporter;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
+import org.gbif.checklistbank.index.guice.SpringSolrConfig;
+import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
 import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
+import org.gbif.ws.remoteauth.RestTemplateRemoteAuthClient;
+import org.gbif.ws.security.AppKeySigningService;
+import org.gbif.ws.security.FileSystemKeyStore;
+import org.gbif.ws.security.GbifAuthServiceImpl;
+import org.gbif.ws.security.GbifAuthenticationManagerImpl;
+import org.gbif.ws.server.filter.AppIdentityFilter;
+import org.gbif.ws.server.filter.IdentityFilter;
 
-import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.solr.SolrHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(
   exclude = {
     ElasticSearchRestHealthContributorAutoConfiguration.class,
-    RabbitAutoConfiguration.class
+    RabbitAutoConfiguration.class,
+    SolrAutoConfiguration.class,
+    SolrHealthContributorAutoConfiguration.class
   })
-@MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
+@Import({SpringServiceConfig.class, SpringSolrConfig.class})
 @EnableConfigurationProperties
 @ComponentScan(
   basePackages = {
@@ -27,19 +46,33 @@ import org.springframework.context.annotation.Configuration;
     "org.gbif.ws.server.filter",
     "org.gbif.ws.server.advice",
     "org.gbif.ws.server.mapper",
+    "org.gbif.checklistbank.index.service", //Search service
+    "org.gbif.checklistbank.config", //Metrics
     "org.gbif.checklistbank.ws"
+  },
+  excludeFilters = {
+    @ComponentScan.Filter(
+      type = FilterType.ASSIGNABLE_TYPE,
+      classes = {
+        AppKeySigningService.class,
+        FileSystemKeyStore.class,
+        IdentityFilter.class,
+        AppIdentityFilter.class,
+        GbifAuthenticationManagerImpl.class,
+        GbifAuthServiceImpl.class
+      })
   })
 
-/**
- * TODO: Old Guice Modules to include
- *  modules.add(new MetricModule(properties));
- *     modules.add(new ChecklistBankServiceMyBatisModule(properties));
- *     modules.add(new SearchModule(properties, true));
- * */
 public class ChecklistBankWsApplication {
 
   public static void main(String[] args) {
     SpringApplication.run(ChecklistBankWsApplication.class, args);
+  }
+
+  @Bean
+  public RemoteAuthClient remoteAuthClient(
+    RestTemplateBuilder builder, @Value("${gbif.api.url}") String gbifApiUrl) {
+    return RestTemplateRemoteAuthClient.createInstance(builder, gbifApiUrl);
   }
 
   @Configuration
@@ -48,5 +81,6 @@ public class ChecklistBankWsApplication {
     public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
       super(context, remoteAuthClient);
     }
+
   }
 }

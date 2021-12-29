@@ -30,43 +30,8 @@
     </encoder>
   </appender>
 
-  <appender name="STASH" class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">
-    <appender class="net.logstash.logback.appender.LogstashSocketAppender">
-      <host>private-logstash.gbif.org</host>
-      <port>9999</port>
-      <customFields>{"environment":"dev","class":"webservice","service":"checklistbank-ws"}</customFields>
-    </appender>
-  </appender>
-
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>logs/checklistbank-ws.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>logs/checklistbank-ws.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>14</maxHistory>
-    </rollingPolicy>
-    <encoder>
-      <pattern>${defaultPattern}</pattern>
-    </encoder>
-  </appender>
-
-  <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>logs/checklistbank-ws_error.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>logs/checklistbank-ws_error.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-      <maxHistory>28</maxHistory>
-    </rollingPolicy>
-    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-      <level>ERROR</level>
-    </filter>
-    <encoder>
-      <pattern>${defaultPattern}</pattern>
-    </encoder>
-  </appender>
-
   <root level="INFO">
-    <!--appender-ref ref="CONSOLE"/-->
-    <appender-ref ref="FILE"/>
-    <appender-ref ref="ERROR_FILE"/>
+    <appender-ref ref="CONSOLE"/>
   </root>
 
 </configuration>
