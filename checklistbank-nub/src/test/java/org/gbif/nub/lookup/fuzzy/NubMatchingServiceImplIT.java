@@ -1,10 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.nub.lookup.fuzzy;
-
-import com.google.common.base.Joiner;
-import org.apache.commons.lang.math.IntRange;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -13,15 +20,24 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.NubMatchingTestConfiguration;
-import javax.annotation.Nullable;
+
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.math.IntRange;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Joiner;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 public class NubMatchingServiceImplIT {

@@ -1,12 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.nub.lookup.straight;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
@@ -22,6 +28,18 @@ import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 import org.gbif.nub.mapdb.MapDbUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.StringUtils;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
@@ -30,14 +48,13 @@ import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.

@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.nub.mapdb;
 
 import java.io.ByteArrayOutputStream;
@@ -5,16 +18,17 @@ import java.io.IOException;
 
 import javax.validation.constraints.NotNull;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.pool.KryoFactory;
-import com.esotericsoftware.kryo.pool.KryoPool;
 import org.apache.commons.lang3.NotImplementedException;
 import org.mapdb.DataIO;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.serializer.GroupSerializerObjectArray;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoFactory;
+import com.esotericsoftware.kryo.pool.KryoPool;
 
 /**
  * A mapDB serializer that uses kryo under the hood to quickly serialize objects into the mapdb data output/input.
