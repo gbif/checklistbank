@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
@@ -26,8 +28,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
 
 import info.ganglia.gmetric4j.gmetric.GMetric;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  * A configuration class which holds the host and port to connect yammer metrics to a ganglia server.
