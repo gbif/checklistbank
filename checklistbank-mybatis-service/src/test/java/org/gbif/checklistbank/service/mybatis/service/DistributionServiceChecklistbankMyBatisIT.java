@@ -21,6 +21,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.DistributionStatus;
 import org.gbif.api.vocabulary.EstablishmentMeans;
 import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.util.List;
 import java.util.Map;
@@ -34,14 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class DistributionServiceMyBatisIT extends MyBatisServiceITBase {
+public class DistributionServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DistributionService service;
 
   private final Integer USAGE_ID = 100000007;
 
   @Autowired
-  public DistributionServiceMyBatisIT(
+  public DistributionServiceChecklistbankMyBatisIT(
       DataSource dataSource, DistributionService distributionService) {
     super(dataSource);
     this.service = distributionService;

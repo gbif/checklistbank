@@ -15,6 +15,7 @@ package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.nameparser.NameParserGbifV1;
@@ -36,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-public class ConcurrentCreateOrGetIT extends MyBatisServiceITBase {
+public class ConcurrentCreateOrGetITChecklistbank extends ChecklistbankMyBatisServiceITBase {
 
   //Thread pool size
   private static final int NUM_THREADS = 10;
@@ -50,7 +51,7 @@ public class ConcurrentCreateOrGetIT extends MyBatisServiceITBase {
   private final CitationService citationService;
 
   @Autowired
-  public ConcurrentCreateOrGetIT(
+  public ConcurrentCreateOrGetITChecklistbank(
     DataSource dataSource, ParsedNameService parsedNameService, CitationService citationService) {
     super(dataSource);
     this.parsedNameService = parsedNameService;

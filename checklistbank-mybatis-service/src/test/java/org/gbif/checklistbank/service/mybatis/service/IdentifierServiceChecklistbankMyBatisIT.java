@@ -18,6 +18,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.vocabulary.IdentifierType;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.util.List;
 import java.util.Set;
@@ -34,14 +35,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class IdentifierServiceMyBatisIT extends MyBatisServiceITBase {
+public class IdentifierServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final IdentifierService service;
 
   private final Integer USAGE_ID = 100000007;
 
   @Autowired
-  public IdentifierServiceMyBatisIT(DataSource dataSource, IdentifierService identifierService) {
+  public IdentifierServiceChecklistbankMyBatisIT(DataSource dataSource, IdentifierService identifierService) {
     super(dataSource);
     this.service = identifierService;
   }

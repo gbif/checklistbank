@@ -16,6 +16,7 @@ package org.gbif.checklistbank.service.mybatis.service;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.vocabulary.*;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.util.Date;
@@ -28,12 +29,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DatasetMetricsServiceMyBatisIT extends MyBatisServiceITBase {
+public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DatasetMetricsService service;
 
   @Autowired
-  public DatasetMetricsServiceMyBatisIT(
+  public DatasetMetricsServiceChecklistbankMyBatisIT(
       DataSource dataSource, DatasetMetricsService datasetMetricsService) {
     super(dataSource);
     this.service = datasetMetricsService;

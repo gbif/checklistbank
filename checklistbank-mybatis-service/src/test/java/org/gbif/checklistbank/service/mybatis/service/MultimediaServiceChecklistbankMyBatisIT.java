@@ -18,6 +18,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.vocabulary.MediaType;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.net.URI;
 import java.util.List;
@@ -32,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class MultimediaServiceMyBatisIT extends MyBatisServiceITBase {
+public class MultimediaServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final MultimediaService service;
 
   private final Integer USAGE_ID = 100000025;
 
   @Autowired
-  public MultimediaServiceMyBatisIT(DataSource dataSource, MultimediaService multimediaService) {
+  public MultimediaServiceChecklistbankMyBatisIT(DataSource dataSource, MultimediaService multimediaService) {
     super(dataSource);
     this.service = multimediaService;
   }

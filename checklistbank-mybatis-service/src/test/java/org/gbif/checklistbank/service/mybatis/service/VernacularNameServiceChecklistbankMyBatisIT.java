@@ -18,6 +18,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.Language;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.util.List;
 import java.util.Map;
@@ -31,12 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class VernacularNameServiceMyBatisIT extends MyBatisServiceITBase {
+public class VernacularNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final VernacularNameService service;
 
   @Autowired
-  public VernacularNameServiceMyBatisIT(
+  public VernacularNameServiceChecklistbankMyBatisIT(
       DataSource dataSource, VernacularNameService vernacularNameService) {
     super(dataSource);
     this.service = vernacularNameService;

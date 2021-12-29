@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.service.mybatis.service;
+package org.gbif.checklistbank.service.mybatis.export;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.service.mybatis.export.Exporter;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.utils.file.FileUtils;
 
@@ -30,14 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 /** Export squirrel test db as dwca */
-public class ExporterIT extends MyBatisServiceITBase {
+public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
 
   private final ApplicationContext ctx;
 
   @RegisterExtension public ClbDbTestRule sbSetup;
 
   @Autowired
-  public ExporterIT(
+  public ExporterITChecklistbank(
       DataSource dataSource,
       ApplicationContext ctx
       ) {

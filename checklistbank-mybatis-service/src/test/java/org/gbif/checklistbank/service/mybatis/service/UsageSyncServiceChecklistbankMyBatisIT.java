@@ -21,6 +21,7 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.*;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /** */
-public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
+public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageSyncService service;
   private final NameUsageService nameUsageService;
@@ -53,7 +54,7 @@ public class UsageSyncServiceMyBatisIT extends MyBatisServiceITBase {
   private static final NameParser PARSER = new NameParserGbifV1();
 
   @Autowired
-  public UsageSyncServiceMyBatisIT(
+  public UsageSyncServiceChecklistbankMyBatisIT(
       DataSource dataSource, UsageSyncService usageSyncService, NameUsageService nameUsageService) {
     super(dataSource);
     this.service = usageSyncService;

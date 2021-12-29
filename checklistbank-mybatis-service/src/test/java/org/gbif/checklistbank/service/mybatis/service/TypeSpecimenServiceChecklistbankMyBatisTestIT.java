@@ -20,6 +20,7 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TypeDesignationType;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.text.ParseException;
 
@@ -32,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TypeSpecimenServiceMyBatisTestIT extends MyBatisServiceITBase {
+public class TypeSpecimenServiceChecklistbankMyBatisTestIT extends ChecklistbankMyBatisServiceITBase {
 
   private final TypeSpecimenService service;
 
   private final Integer USAGE_ID = 100000006;
 
   @Autowired
-  public TypeSpecimenServiceMyBatisTestIT(
+  public TypeSpecimenServiceChecklistbankMyBatisTestIT(
       DataSource dataSource, TypeSpecimenService typeSpecimenService) {
     super(dataSource);
     this.service = typeSpecimenService;

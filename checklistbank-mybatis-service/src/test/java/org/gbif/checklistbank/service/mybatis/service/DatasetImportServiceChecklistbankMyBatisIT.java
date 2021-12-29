@@ -23,6 +23,7 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
@@ -42,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase {
+public class DatasetImportServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DatasetImportService service;
   private final NameUsageService nameUsageService;
@@ -50,7 +51,7 @@ public class DatasetImportServiceMyBatisIT extends MyBatisServiceITBase {
   private final Integer USAGE_ID = 555555;
 
   @Autowired
-  public DatasetImportServiceMyBatisIT(
+  public DatasetImportServiceChecklistbankMyBatisIT(
       DataSource dataSource,
       DatasetImportService datasetImportService,
       NameUsageService nameUsageService) {

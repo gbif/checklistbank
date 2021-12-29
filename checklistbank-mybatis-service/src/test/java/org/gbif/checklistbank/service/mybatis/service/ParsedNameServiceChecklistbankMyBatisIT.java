@@ -19,6 +19,7 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.nameparser.NameParserGbifV1;
 
@@ -31,14 +32,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ParsedNameServiceMyBatisIT extends MyBatisServiceITBase {
+public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private NameParser parser = new NameParserGbifV1();
 
   private final ParsedNameService service;
 
   @Autowired
-  public ParsedNameServiceMyBatisIT(DataSource dataSource, ParsedNameService parsedNameService) {
+  public ParsedNameServiceChecklistbankMyBatisIT(DataSource dataSource, ParsedNameService parsedNameService) {
     super(dataSource);
     this.service = parsedNameService;
   }

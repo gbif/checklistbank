@@ -19,6 +19,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.vocabulary.Language;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DescriptionServiceMyBatisIT extends MyBatisServiceITBase {
+public class DescriptionServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DescriptionService service;
 
   private final Integer USAGE_ID = 100000040;
 
   @Autowired
-  public DescriptionServiceMyBatisIT(DataSource dataSource, DescriptionService descriptionService) {
+  public DescriptionServiceChecklistbankMyBatisIT(DataSource dataSource, DescriptionService descriptionService) {
     super(dataSource);
     this.service = descriptionService;
   }

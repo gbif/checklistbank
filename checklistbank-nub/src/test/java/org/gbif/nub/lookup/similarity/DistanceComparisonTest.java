@@ -85,10 +85,10 @@ public class DistanceComparisonTest {
   public static void main (String[] args) {
     int[] sim = new int[]{60,70,80,85,90,91,92,93,94,95,96,97,98,99,100,101,102,105,110,115,120,130,140,150,160,175};
     for (int s : sim){
-      int ns = s <= 90 ? s*10 : 900 + (int) (100d * (Math.log10((s-80d)*1.1) - 1) );
+      int ns = s <= 90 ? s*10 : 900 + (int) (100d * (Math.log10((s-80d)*1.1) - 1));
 
-      System.out.println(s + " => " + (Math.log10((s-80d)*1.1)) );
-      System.out.println(s + " => " + ns );
+      System.out.println(s + " => " + Math.log10((s-80d)*1.1));
+      System.out.println(s + " => " + ns);
     }
   }
 

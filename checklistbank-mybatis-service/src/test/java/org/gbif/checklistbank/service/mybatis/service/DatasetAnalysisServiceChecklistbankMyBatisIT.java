@@ -17,6 +17,7 @@ import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
@@ -29,12 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DatasetAnalysisServiceMyBatisIT extends MyBatisServiceITBase {
+public class DatasetAnalysisServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DatasetAnalysisService service;
 
   @Autowired
-  public DatasetAnalysisServiceMyBatisIT(
+  public DatasetAnalysisServiceChecklistbankMyBatisIT(
       DataSource dataSource, DatasetAnalysisService datasetAnalysisService) {
     super(dataSource);
     this.service = datasetAnalysisService;

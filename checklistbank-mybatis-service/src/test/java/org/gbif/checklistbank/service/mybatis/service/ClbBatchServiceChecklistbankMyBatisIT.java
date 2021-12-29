@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
@@ -27,12 +28,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClbBatchServiceMyBatisIT extends MyBatisServiceITBase {
+public class ClbBatchServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageService service;
 
   @Autowired
-  public ClbBatchServiceMyBatisIT(DataSource dataSource, UsageService usageService) {
+  public ClbBatchServiceChecklistbankMyBatisIT(DataSource dataSource, UsageService usageService) {
     super(dataSource);
     this.service = usageService;
   }

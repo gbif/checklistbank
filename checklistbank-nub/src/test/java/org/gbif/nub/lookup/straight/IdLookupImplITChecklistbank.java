@@ -10,8 +10,8 @@ import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageMapper;
-import org.gbif.checklistbank.service.mybatis.service.MyBatisServiceITBase;
-import org.gbif.nub.lookup.NubMatchingTestModule;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.nub.lookup.NubMatchingTestConfiguration;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ import static org.gbif.api.vocabulary.Kingdom.*;
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.*;
 
-public class IdLookupImplIT extends MyBatisServiceITBase {
+public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBase {
 
   private IdLookup matcher;
   private final ParsedNameMapper pnMapper;
@@ -41,7 +41,7 @@ public class IdLookupImplIT extends MyBatisServiceITBase {
   private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
   @Autowired
-  public IdLookupImplIT(
+  public IdLookupImplITChecklistbank(
     DataSource dataSource, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper,
     ClbConfiguration cfg
   ) {
@@ -93,7 +93,7 @@ public class IdLookupImplIT extends MyBatisServiceITBase {
 
   @Test
   public void testMatching() throws IOException, InterruptedException {
-    matcher = NubMatchingTestModule.provideLookup();
+    matcher = NubMatchingTestConfiguration.provideLookup();
 
     assertMatch("Abies", "", "", GENUS, PLANTAE, 1);
 

@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.utils.text.StringUtils;
 
@@ -24,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class CitationServiceMyBatisIT extends MyBatisServiceITBase {
+public class CitationServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final CitationService service;
 
   @Autowired
-  public CitationServiceMyBatisIT(DataSource dataSource, CitationService citationService) {
+  public CitationServiceChecklistbankMyBatisIT(DataSource dataSource, CitationService citationService) {
     super(dataSource);
     this.service = citationService;
   }

@@ -11,9 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.service.mybatis.service;
+package org.gbif;
 
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -45,16 +46,16 @@ import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
 import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = MyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
-@ContextConfiguration(initializers = {MyBatisServiceITBase.ContextInitializer.class})
+@SpringBootTest(classes = ChecklistbankMyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
+@ContextConfiguration(initializers = {ChecklistbankMyBatisServiceITBase.ContextInitializer.class})
 @ActiveProfiles("test")
-public class MyBatisServiceITBase {
+public class ChecklistbankMyBatisServiceITBase {
 
   @RegisterExtension public ClbDbTestRule sbSetup;
 
   protected DataSource dataSource;
 
-  public MyBatisServiceITBase(DataSource dataSource) {
+  public ChecklistbankMyBatisServiceITBase(DataSource dataSource) {
     this.dataSource = dataSource;
     this.sbSetup = ClbDbTestRule.squirrels(dataSource);
   }

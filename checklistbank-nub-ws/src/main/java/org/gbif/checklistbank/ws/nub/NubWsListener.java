@@ -6,7 +6,7 @@ import com.google.inject.Module;
 import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.utils.CloseableUtils;
-import org.gbif.nub.lookup.NubMatchingModule;
+import org.gbif.nub.lookup.NubMatchingConfigurationModule;
 
 import javax.servlet.ServletContextEvent;
 import java.io.Closeable;
@@ -35,7 +35,8 @@ public class NubWsListener  {
     toBeClosed.add(clbMod);
 
     UUID datasetKey = UUID.fromString(properties.getProperty(NUB_DATASET_KEY, Constants.NUB_DATASET_KEY.toString()));
-    NubMatchingModule nubMod = new NubMatchingModule(new File(properties.getProperty(INDEX_DIR)), datasetKey, properties);
+    NubMatchingConfigurationModule
+      nubMod = new NubMatchingConfigurationModule(new File(properties.getProperty(INDEX_DIR)), datasetKey, properties);
     modules.add(nubMod);
     toBeClosed.add(nubMod);
     // use the line below to run the webservice locally with the json test index data from the nub module

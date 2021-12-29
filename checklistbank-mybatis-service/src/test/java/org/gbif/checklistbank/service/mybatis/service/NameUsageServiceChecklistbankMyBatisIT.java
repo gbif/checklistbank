@@ -23,6 +23,7 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.RawUsage;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
@@ -37,7 +38,6 @@ import java.util.UUID;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,14 +46,14 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class NameUsageServiceMyBatisIT extends MyBatisServiceITBase {
+public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final NameUsageService service;
 
   private final int NOT_FOUND_KEY = -10;
 
   @Autowired
-  public NameUsageServiceMyBatisIT(DataSource dataSource, NameUsageService nameUsageService) {
+  public NameUsageServiceChecklistbankMyBatisIT(DataSource dataSource, NameUsageService nameUsageService) {
     super(dataSource);
     this.service = nameUsageService;
   }

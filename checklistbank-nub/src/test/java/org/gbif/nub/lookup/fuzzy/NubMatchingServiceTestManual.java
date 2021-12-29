@@ -3,39 +3,26 @@ package org.gbif.nub.lookup.fuzzy;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.nub.lookup.NubMatchingModule;
-import org.gbif.utils.file.properties.PropertiesUtil;
 
-import java.io.IOException;
-import java.util.Properties;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class NubMatchingServiceTestManual {
-
-  private static final Logger LOG = LoggerFactory.getLogger(NubMatchingServiceTestManual.class);
+@EnableConfigurationProperties
+@SpringBootApplication
+public class NubMatchingServiceTestManual implements CommandLineRunner {
 
   private final NameUsageMatchingService matcher;
 
-  public NubMatchingServiceTestManual() throws IOException {
-
-    LOG.info("Load clb properties");
-    Properties properties = PropertiesUtil.loadProperties("checklistbank.properties");
-
-    LOG.info("Create guice injector");
-    Injector inj = Guice.createInjector(//new ChecklistBankServiceMyBatisModule(properties),
-                                        new NubMatchingModule());
-
-    LOG.info("Create matching service");
-    matcher = inj.getInstance(NameUsageMatchingService.class);
-
-    LOG.info("Nub Matching setup complete");
+  @Autowired
+  public NubMatchingServiceTestManual(NameUsageMatchingService matcher) {
+    this.matcher = matcher;
   }
 
-  public void testMatching() throws IOException {
+  public void testMatching() {
     LinneanClassification cl = new NameUsageMatch();
     // test identical
     matcher.match("Animalia", null, cl, true, true);
@@ -47,10 +34,13 @@ public class NubMatchingServiceTestManual {
     matcher.match("Puma concolor", null, cl, true, true);
   }
 
-
-  public static void main (String[] args) throws IOException {
-    NubMatchingServiceTestManual test = new NubMatchingServiceTestManual();
-    test.testMatching();
+  public static void main(String[] args) {
+    SpringApplication.run(NubMatchingServiceTestManual.class, args);
   }
 
+  @Override
+  @SneakyThrows
+  public void run(String... args) {
+    testMatching();
+  }
 }
