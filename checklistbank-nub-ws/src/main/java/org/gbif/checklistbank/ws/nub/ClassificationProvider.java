@@ -15,58 +15,54 @@
  */
 package org.gbif.checklistbank.ws.nub;
 
-import com.google.inject.Singleton;
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.core.spi.component.ComponentContext;
-import com.sun.jersey.core.spi.component.ComponentScope;
-import com.sun.jersey.server.impl.inject.AbstractHttpContextInjectable;
-import com.sun.jersey.spi.inject.Injectable;
-import com.sun.jersey.spi.inject.InjectableProvider;
-import org.gbif.api.model.common.LinneanClassification;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.Provider;
-import java.lang.reflect.Type;
+import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.ws.server.provider.ContextProvider;
+
+import java.util.Map;
+
+import static org.gbif.ws.util.CommonWsUtils.getFirst;
 
 /**
- * Jersey provider class that extracts LinneanClassification instances from the query parameters.
+ * Provider class that extracts LinneanClassification instances from the query parameters.
  */
-@Provider
-@Singleton
-public class ClassificationProvider extends AbstractHttpContextInjectable<LinneanClassification>
-    implements InjectableProvider<Context, Type> {
+public class ClassificationProvider
+    implements HandlerMethodArgumentResolver, ContextProvider<LinneanClassification> {
 
   @Override
-  public Injectable<LinneanClassification> getInjectable(ComponentContext ic, Context a, Type c) {
-    if (c.equals(LinneanClassification.class)) {
-      return this;
-    }
-    return null;
-  }
-
-  @Override
-  public ComponentScope getScope() {
-    return ComponentScope.PerRequest;
-  }
-
-  @Override
-  public LinneanClassification getValue(HttpContext c) {
-    return buildClassification(c);
-  }
-
-  public static LinneanClassification buildClassification(HttpContext c) {
-    MultivaluedMap<String, String> params = c.getRequest().getQueryParameters();
+  public LinneanClassification getValue(WebRequest webRequest) {
+    Map<String, String[]> params = webRequest.getParameterMap();
 
     Classification cl = new Classification();
-    cl.setKingdom(params.getFirst("kingdom"));
-    cl.setPhylum(params.getFirst("phylum"));
-    cl.setClazz(params.getFirst("class"));
-    cl.setOrder(params.getFirst("order"));
-    cl.setFamily(params.getFirst("family"));
-    cl.setGenus(params.getFirst("genus"));
-    cl.setSubgenus(params.getFirst("subgenus"));
+    cl.setKingdom(getFirst(params,"kingdom"));
+    cl.setPhylum(getFirst(params,"phylum"));
+    cl.setClazz(getFirst(params,"class"));
+    cl.setOrder(getFirst(params,"order"));
+    cl.setFamily(getFirst(params,"family"));
+    cl.setGenus(getFirst(params,"genus"));
+    cl.setSubgenus(getFirst(params,"subgenus"));
 
     return cl;
+  }
+
+  @Override
+  public boolean supportsParameter(MethodParameter methodParameter) {
+    return LinneanClassification.class.equals(methodParameter.getParameterType());
+  }
+
+  @Override
+  public Object resolveArgument(
+    MethodParameter methodParameter,
+    ModelAndViewContainer modelAndViewContainer,
+    NativeWebRequest nativeWebRequest,
+    WebDataBinderFactory webDataBinderFactory
+  ) throws Exception {
+    return getValue(nativeWebRequest);
   }
 }

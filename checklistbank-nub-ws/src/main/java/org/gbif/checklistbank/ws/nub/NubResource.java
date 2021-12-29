@@ -45,23 +45,27 @@ public class NubResource {
   }
 
   @GetMapping( value = "lookup")
-  public LookupUsage lookup(@RequestParam("name") String canonicalName,
-                            @RequestParam("authorship") String authorship,
-                            @RequestParam("year") String year,
-                            @RequestParam("rank") Rank rank,
-                            @RequestParam("status") TaxonomicStatus status,
-                            @RequestParam("kingdom") Kingdom kingdom) {
+  public LookupUsage lookup(@RequestParam(value = "name", required = false) String canonicalName,
+                            @RequestParam(value = "authorship", required = false) String authorship,
+                            @RequestParam(value = "year", required = false) String year,
+                            @RequestParam(value = "rank", required = false) Rank rank,
+                            @RequestParam(value = "status", required = false) TaxonomicStatus status,
+                            @RequestParam(value = "kingdom", required = false) Kingdom kingdom) {
     return lookup.match(canonicalName, authorship, year, rank, status, kingdom);
   }
 
   @GetMapping( value = "match")
-  public NameUsageMatch match(@RequestParam("name") String scientificName2, @RequestParam("scientificName") String scientificName,
-                              @RequestParam("authorship") String authorship2, @RequestParam("scientificNameAuthorship") String authorship,
-                              @RequestParam("rank") String rank2, @RequestParam("taxonRank") String rank,
-                              @RequestParam("specificEpithet") String specificEpithet,
-                              @RequestParam("infraspecificEpithet") String infraspecificEpithet,
+  public NameUsageMatch match(@RequestParam(value = "name", required = false) String scientificName2,
+                              @RequestParam(value = "scientificName", required = false) String scientificName,
+                              @RequestParam(value = "authorship", required = false) String authorship2,
+                              @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
+                              @RequestParam(value = "rank", required = false) String rank2,
+                              @RequestParam(value ="taxonRank", required = false) String rank,
+                              @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
+                              @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
                               LinneanClassification classification,
-                              @RequestParam("strict") Boolean strict, @RequestParam("verbose") Boolean verbose) {
+                              @RequestParam(value = "strict", required = false) Boolean strict,
+                              @RequestParam(value ="verbose", required = false) Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
     return match(first(scientificName, scientificName2),
                  first(authorship, authorship2),
@@ -72,13 +76,17 @@ public class NubResource {
   }
 
   @GetMapping( value = "match2")
-  public NameUsageMatch2 match2(@RequestParam("name") String scientificName2, @RequestParam("scientificName") String scientificName,
-                                @RequestParam("authorship") String authorship2, @RequestParam("scientificNameAuthorship") String authorship,
-                                @RequestParam("rank") String rank2, @RequestParam("taxonRank") String rank,
-                                @RequestParam("specificEpithet") String specificEpithet,
-                                @RequestParam("infraspecificEpithet") String infraspecificEpithet,
+  public NameUsageMatch2 match2(@RequestParam(value ="name", required = false) String scientificName2,
+                                @RequestParam(value ="scientificName", required = false) String scientificName,
+                                @RequestParam(value ="authorship", required = false) String authorship2,
+                                @RequestParam(value ="scientificNameAuthorship", required = false) String authorship,
+                                @RequestParam(value ="rank", required = false) String rank2,
+                                @RequestParam(value = "taxonRank", required = false) String rank,
+                                @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
+                                @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
                                 LinneanClassification classification,
-                                @RequestParam("strict") Boolean strict, @RequestParam("verbose") Boolean verbose) {
+                                @RequestParam(value ="strict", required = false) Boolean strict,
+                                @RequestParam(value ="verbose", required = false) Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
     return matchingService.v2(match(first(scientificName, scientificName2),
         first(authorship, authorship2),
