@@ -6,8 +6,8 @@ checklistbank:
     driverClassName: org.postgresql.Driver
     hikari:
       idleTimeout: 60000
-      maximumPoolSize: 10
-      minimumIdle: 1
+      maximumPoolSize: 4
+      minimumIdle: 0
   nub:
     indexDir: nubidx
     datasetKey: d7dddbf4-2cf0-4f39-9b2a-bb099caae36c

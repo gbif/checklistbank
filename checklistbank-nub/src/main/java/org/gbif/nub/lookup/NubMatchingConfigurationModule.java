@@ -13,7 +13,6 @@
  */
 package org.gbif.nub.lookup;
 
-import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
@@ -25,14 +24,12 @@ import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Properties;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -42,36 +39,13 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class NubMatchingConfigurationModule {
+
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingConfigurationModule.class);
-  private final File indexDir;
-  private final UUID nubDatasetKey;
-  private final ClbConfiguration cfg;
-
-  /**
-   * Creates a memory based nub index which is built from scratch every time the webservice starts up.
-   */
-  public NubMatchingConfigurationModule() {
-    this(null, Constants.NUB_DATASET_KEY, null);
-  }
-
-  /**
-   * Creates a file based nub index which is built in case the index does not yet exist.
-   *
-   * @param indexDir      the directory to keep the lucene index in. If existing the index will be reused
-   * @param nubDatasetKey the dataset key to use for populating the nub index
-   */
-  public NubMatchingConfigurationModule(File indexDir, UUID nubDatasetKey, @Nullable Properties cfgProperties) {
-    this.indexDir = indexDir;
-    this.nubDatasetKey = nubDatasetKey;
-    if (cfgProperties == null) {
-      cfg = null;
-    } else {
-      cfg = ClbConfiguration.fromProperties(cfgProperties);
-    }
-  }
 
   @Bean
-  public NubIndex provideIndex(NameUsageMapper mapper) throws IOException {
+  public NubIndex provideIndex(NameUsageMapper mapper,
+                              @Value("${checklistbank.nub.indexDir:#{null}}") File indexDir,
+                              @Value("${checklistbank.nub.datasetKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}") UUID nubDatasetKey) throws IOException {
     NubIndex index;
     if (indexDir == null) {
       index = NubIndex.newMemoryIndex(mapper);
@@ -93,7 +67,7 @@ public class NubMatchingConfigurationModule {
   }
 
   @Bean
-  public IdLookup provideLookup() {
+  public IdLookup provideLookup(@Value("${checklistbank.nub.indexDir:#{null}}") File indexDir, ClbConfiguration cfg) {
     try {
       IdLookup lookup;
       if (cfg == null) {
