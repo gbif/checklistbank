@@ -5,13 +5,10 @@ import java.io.StringReader;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- *
- */
 public class ScientificNameAnalyzerTest {
 
   ScientificNameAnalyzer analyzer = new ScientificNameAnalyzer();
