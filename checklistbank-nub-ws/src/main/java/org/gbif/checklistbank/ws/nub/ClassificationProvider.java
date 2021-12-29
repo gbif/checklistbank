@@ -1,6 +1,4 @@
 /*
- * Copyright 2011 Global Biodiversity Information Facility (GBIF)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,17 +13,17 @@
  */
 package org.gbif.checklistbank.ws.nub;
 
+import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.ws.server.provider.ContextProvider;
+
+import java.util.Map;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.ws.server.provider.ContextProvider;
-
-import java.util.Map;
 
 import static org.gbif.ws.util.CommonWsUtils.getFirst;
 
