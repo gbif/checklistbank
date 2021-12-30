@@ -20,15 +20,13 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.BaseIT;
-import org.gbif.checklistbank.index.SolrLoadRule;
-import org.gbif.checklistbank.index.backfill.SolrBackfill;
+import org.gbif.checklistbank.test.extensions.SolrDbLoadBeforeAll;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,22 +36,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
+@Disabled
+@ExtendWith(SolrDbLoadBeforeAll.class)
 public class NameUsageSearchServiceSuggestIT extends BaseIT  {
 
   private final NameUsageSearchService searchService;
 
-  @RegisterExtension
-  SolrLoadRule solrLoadRule;
-
   @Autowired
-  public NameUsageSearchServiceSuggestIT(NameUsageSearchService searchService, DataSource dataSource, SolrBackfill solrBackfill) {
+  public NameUsageSearchServiceSuggestIT(NameUsageSearchService searchService) {
     this.searchService = searchService;
-    this.solrLoadRule = new SolrLoadRule(solrBackfill, dataSource);
   }
 
   @Test
   public void testSuggest() {
     List<NameUsageSuggestResult> results = searchSuggest("Puma");
+    assertTrue(results.size() > 0,  "Results expected");
     // highest rank first
     assertEquals("Puma Jardine, 1834", results.get(0).getScientificName());
 
@@ -72,6 +69,7 @@ public class NameUsageSearchServiceSuggestIT extends BaseIT  {
 
   private void assertPumaConcolor(String q) {
     List<NameUsageSuggestResult> results = searchSuggest(q);
+    assertTrue(results.size() > 0,  "Results expected");
     assertEquals(2435099, (int) results.get(0).getKey());
     assertEquals("Puma concolor (Linnaeus, 1771)", results.get(0).getScientificName());
 

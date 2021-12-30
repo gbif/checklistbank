@@ -11,32 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.index;
+package org.gbif.checklistbank.test.extensions;
 
 import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
- * Extension to load data into Solr.
+ * Extension to load data into Solr and databse.
  */
-public class SolrLoadRule implements BeforeEachCallback {
-
-  private SolrBackfill backFill;
-  private DataSource dataSource;
-
-  public SolrLoadRule(SolrBackfill backFill, DataSource dataSource) {
-    this.backFill = backFill;
-    this.dataSource = dataSource;
-  }
+public class SolrDbLoadBeforeAll implements BeforeAllCallback {
 
   @Override
-  public void beforeEach(ExtensionContext extensionContext) throws Exception {
-    ClbDbTestRule.squirrels(dataSource).before();
-    backFill.run();
+  public void beforeAll(ExtensionContext extensionContext) throws Exception {
+    ApplicationContext ctx = SpringExtension.getApplicationContext(extensionContext);
+    SolrBackfill solrBackfill = ctx.getBean(SolrBackfill.class);
+    DataSource dataSource = ctx.getBean(DataSource.class);
+    ClbDbTestRule clbDbTestRule = ClbDbTestRule.squirrels(dataSource);
+    clbDbTestRule.before();
+    solrBackfill.run();
   }
 }

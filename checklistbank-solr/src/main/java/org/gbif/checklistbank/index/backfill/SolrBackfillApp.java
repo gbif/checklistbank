@@ -13,7 +13,7 @@
  */
 package org.gbif.checklistbank.index.backfill;
 
-import org.gbif.checklistbank.index.guice.SpringSolrConfig;
+import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import org.slf4j.Logger;

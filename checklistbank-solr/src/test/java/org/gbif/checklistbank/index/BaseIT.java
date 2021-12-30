@@ -18,31 +18,24 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
-import org.gbif.checklistbank.index.backfill.AvroExporter;
 import org.gbif.checklistbank.index.backfill.IndexingConfigKeys;
 import org.gbif.checklistbank.index.backfill.SolrBackfill;
-import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.index.guice.SpringSolrConfig;
+import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.solr.client.solrj.SolrClient;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -66,8 +59,6 @@ import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 @ActiveProfiles("test")
 public class BaseIT {
 
-  protected static MiniDFSCluster miniDFSCluster;
-
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
   @Import({SpringSolrConfig.class, SpringServiceConfig.class})
@@ -76,28 +67,6 @@ public class BaseIT {
   public static class ChecklistBankServiceTestConfiguration {
 
     @Bean
-    @ConditionalOnProperty(name = "${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}", matchIfMissing = true)
-    public AvroExporter avroExporter(
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE + "}") String nameNode,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR + "}") String targetHdfsDir,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
-      UsageService nameUsageService,
-      VernacularNameService vernacularNameService,
-      DescriptionService descriptionService,
-      DistributionService distributionService,
-      SpeciesProfileService speciesProfileService) {
-      return new AvroExporter(threads, nameNode, targetHdfsDir, batchSize, logInterval,nameUsageService,vernacularNameService, descriptionService, distributionService, speciesProfileService);
-    }
-
-    @Bean
-    public EmbeddedSolrReference embeddedSolrReference(SolrClient solrClient) {
-      return new EmbeddedSolrReference(solrClient);
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}", matchIfMissing = true)
     public SolrBackfill solrBackfill(
       SolrClient solr,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
@@ -140,12 +109,10 @@ public class BaseIT {
         PreparedDbProvider provider =
           PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
         ConnectionInfo connectionInfo = provider.createNewDatabase();
-
-        miniDFSCluster = HdfsTestUtil.initHdfs();
         TestPropertyValues.of(Stream.of(testPropertyPairs(connectionInfo)).toArray(String[]::new))
           .applyTo(configurableApplicationContext.getEnvironment());
-        miniDFSCluster.getFileSystem().mkdirs(new Path(HdfsTestUtil.TEST_HDFS_DIR));
-      } catch (SQLException | IOException e) {
+
+      } catch (SQLException e) {
         throw new RuntimeException(e);
       }
     }
@@ -172,15 +139,8 @@ public class BaseIT {
         "checklistbank.indexer.threads=2",
         "checklistbank.indexer.batchSize=5",
         "checklistbank.indexer.writers=1",
-        "checklistbank.indexer.logInterval=60",
-        "checklistbank.indexer.nameNode=" + "hdfs://localhost:"+ miniDFSCluster.getNameNodePort() + "/",
-        "checklistbank.indexer.targetHdfsDir=" +  HdfsTestUtil.TEST_HDFS_DIR
+        "checklistbank.indexer.logInterval=60"
       };
     }
-  }
-
-  @AfterAll
-  public static void shutdown() {
-    miniDFSCluster.shutdown(false);
   }
 }

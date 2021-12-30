@@ -15,26 +15,29 @@ package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.service.checklistbank.DescriptionService;
+import org.gbif.api.service.checklistbank.DistributionService;
+import org.gbif.api.service.checklistbank.SpeciesProfileService;
+import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
 
 import java.io.IOException;
 
-import javax.sql.DataSource;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.google.common.collect.Lists;
 
@@ -46,23 +49,55 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Test the index generation.
  */
 //@Ignore("The test sometimes fails in Jenkins for unknown reasons. Appears to be overloaded postgres but needs investigations")
+@ExtendWith(DbLoadBeforeAll.class)
 public class SolrBackfillIT extends BaseIT {
 
-  private final EmbeddedSolrReference embeddedSolrServer;
+  private final SolrClient solrClient;
   private final SolrBackfill solrBackfill;
-
-  @RegisterExtension
-  public ClbDbTestRule sbSetup;
-
+  
   @Autowired
-  public SolrBackfillIT(EmbeddedSolrReference embeddedSolrServer, SolrBackfill solrBackfill, DataSource dataSource) {
-    sbSetup = ClbDbTestRule.squirrels(dataSource);
-    this.embeddedSolrServer = embeddedSolrServer;
-    this.solrBackfill = solrBackfill;
+  public SolrBackfillIT(
+                        SolrClient solrClient,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}")Integer logInterval,
+                        UsageService nameUsageService,
+                        VernacularNameService vernacularNameService,
+                        DescriptionService descriptionService,
+                        DistributionService distributionService,
+                        SpeciesProfileService speciesProfileService) {
+    this.solrClient = solrClient;
+    this.solrBackfill = solrBackfill(solrClient,
+                                     threads,
+                                     batchSize,
+                                     logInterval,
+                                     nameUsageService,
+                                     vernacularNameService,
+                                     descriptionService,
+                                     distributionService,
+                                     speciesProfileService);
   }
 
-  public EmbeddedSolrServer solr() {
-    return embeddedSolrServer.getSolr();
+  private SolrBackfill solrBackfill(
+    SolrClient solrClient,
+    Integer threads,
+    Integer batchSize,
+    Integer logInterval,
+    UsageService nameUsageService,
+    VernacularNameService vernacularNameService,
+    DescriptionService descriptionService,
+    DistributionService distributionService,
+    SpeciesProfileService speciesProfileService) {
+    return new SolrBackfill(solrClient,
+                            threads,
+                            batchSize,
+                            logInterval,
+                            nameUsageService,
+                            new NameUsageDocConverter(),
+                            vernacularNameService,
+                            descriptionService,
+                            distributionService,
+                            speciesProfileService);
   }
 
   @Test
@@ -74,26 +109,26 @@ public class SolrBackfillIT extends BaseIT {
     // number of all records
     SolrQuery query = new SolrQuery();
     query.setQuery("*:*");
-    QueryResponse rsp = solr().query(query);
+    QueryResponse rsp = solrClient.query(query);
     assertEquals(46l, rsp.getResults().getNumFound());
 
     // number of all source records
     query = new SolrQuery();
     query.setQuery("origin_key:"+ Origin.SOURCE.ordinal());
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     assertEquals(46l, rsp.getResults().getNumFound());
 
     // vernacular name with umlaut
     query = new SolrQuery();
     query.setQuery("vernacular_name:\"Europäisches Eichhörnchen\"");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     SolrDocumentList docs = rsp.getResults();
     assertEquals(1, docs.size());
 
     // single species
     query = new SolrQuery();
     query.setQuery("canonical_name:\"Sciurillus pusillus\"");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
 
     docs = rsp.getResults();
     assertEquals(1, docs.size());
@@ -103,7 +138,7 @@ public class SolrBackfillIT extends BaseIT {
     // extinct
     query = new SolrQuery();
     query.setQuery("key:100000025");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     u1 = converter.toSearchUsage(docs.get(0), true);
@@ -134,7 +169,7 @@ public class SolrBackfillIT extends BaseIT {
 
     query = new SolrQuery();
     query.setQuery("extinct:false");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     u1 = converter.toSearchUsage(docs.get(0), true);
@@ -143,7 +178,7 @@ public class SolrBackfillIT extends BaseIT {
     // threat status
     query = new SolrQuery();
     query.setQuery("threat_status_key:*");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     u1 = converter.toSearchUsage(docs.get(0), true);
@@ -152,14 +187,14 @@ public class SolrBackfillIT extends BaseIT {
     // habitat
     query = new SolrQuery();
     query.setQuery("habitat_key:*");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(2, docs.size());
 
     // scientific_name
     query = new SolrQuery();
     query.setQuery("scientific_name:\"Sciurus nadymensis Serebrennikov, 1928\"");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     u1 = converter.toSearchUsage(docs.get(0), true);
@@ -167,7 +202,7 @@ public class SolrBackfillIT extends BaseIT {
 
     query = new SolrQuery();
     query.setQuery("key:100000004");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(1, docs.size());
     u1 = converter.toSearchUsage(docs.get(0), true);
@@ -179,23 +214,22 @@ public class SolrBackfillIT extends BaseIT {
     // test a subfamily search
     query = new SolrQuery();
     query.setQuery("higher_taxon_key:100000042");
-    rsp =  solr().query(query);
+    rsp =  solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(5, docs.size());
 
     // constituent_key
     query = new SolrQuery();
     query.setQuery("constituent_key:\"211aea14-c252-4a85-96e2-f5f4d5d088f5\"");
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(8, docs.size());
 
     query.setQuery("constituent_key:\"211aea14-c252-4a85-96e2-f5f4d5d088f4\"");
     query.setRows(25);
-    rsp = solr().query(query);
+    rsp = solrClient.query(query);
     docs = rsp.getResults();
     assertEquals(17, docs.size());
   }
-
 
 }

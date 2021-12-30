@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.index.guice;
+package org.gbif.checklistbank.index.config;
 
 import org.gbif.common.search.solr.SolrConfig;
 

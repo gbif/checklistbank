@@ -21,8 +21,7 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.BaseIT;
-import org.gbif.checklistbank.index.SolrLoadRule;
-import org.gbif.checklistbank.index.backfill.SolrBackfill;
+import org.gbif.checklistbank.test.extensions.SolrDbLoadBeforeAll;
 import org.gbif.common.search.solr.SolrConstants;
 
 import java.util.List;
@@ -30,10 +29,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Function;
@@ -47,18 +45,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
+@ExtendWith(SolrDbLoadBeforeAll.class)
 public class NameUsageSearchServiceIT extends BaseIT {
 
   private static final String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
   private final NameUsageSearchService searchService;
 
-  @RegisterExtension
-  SolrLoadRule solrLoadRule;
-
   @Autowired
-  public NameUsageSearchServiceIT(NameUsageSearchService searchService, DataSource dataSource, SolrBackfill solrBackfill) {
+  public NameUsageSearchServiceIT(NameUsageSearchService searchService) {
     this.searchService = searchService;
-    this.solrLoadRule = new SolrLoadRule(solrBackfill, dataSource);
   }
 
   @Test

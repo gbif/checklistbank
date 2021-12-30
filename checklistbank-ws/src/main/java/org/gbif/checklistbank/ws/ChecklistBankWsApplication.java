@@ -13,7 +13,7 @@
  */
 package org.gbif.checklistbank.ws;
 
-import org.gbif.checklistbank.index.guice.SpringSolrConfig;
+import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
 import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;

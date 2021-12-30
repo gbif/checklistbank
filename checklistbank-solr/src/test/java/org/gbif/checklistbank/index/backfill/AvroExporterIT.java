@@ -13,41 +13,73 @@
  */
 package org.gbif.checklistbank.index.backfill;
 
+import org.gbif.api.service.checklistbank.DescriptionService;
+import org.gbif.api.service.checklistbank.DistributionService;
+import org.gbif.api.service.checklistbank.SpeciesProfileService;
+import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.HdfsTestUtil;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
+import org.gbif.checklistbank.test.extensions.HdfsMiniCluster;
 
 import java.io.IOException;
 
-import javax.sql.DataSource;
-
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 
 /** Test the Avro exporter using a hdfs mini cluster. */
+@ExtendWith(DbLoadBeforeAll.class)
+@ExtendWith(HdfsMiniCluster.class)
 public class AvroExporterIT extends BaseIT {
 
   private final AvroExporter nameUsageAvroExporter;
-
-  @RegisterExtension
-  public ClbDbTestRule sbSetup;
+  private final ApplicationContext context;
 
   @Autowired
-  public AvroExporterIT(DataSource dataSource, AvroExporter nameUsageAvroExporter) {
-    sbSetup = ClbDbTestRule.squirrels(dataSource);
-    this.nameUsageAvroExporter = nameUsageAvroExporter;
+  public AvroExporterIT(ApplicationContext context,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
+                        UsageService nameUsageService,
+                        VernacularNameService vernacularNameService,
+                        DescriptionService descriptionService,
+                        DistributionService distributionService,
+                        SpeciesProfileService speciesProfileService) {
+    this.nameUsageAvroExporter = avroExporter(threads,
+                                              batchSize,
+                                              logInterval,
+                                              context.getBean(MiniDFSCluster.class), // Injected by HdfsMiniCluster
+                                              nameUsageService,
+                                              vernacularNameService,
+                                              descriptionService,
+                                              distributionService,
+                                              speciesProfileService);
+    this.context = context;
+  }
+
+  private AvroExporter avroExporter(Integer threads, Integer batchSize, Integer logInterval,
+    MiniDFSCluster miniDFSCluster,
+    UsageService nameUsageService,
+    VernacularNameService vernacularNameService,
+    DescriptionService descriptionService,
+    DistributionService distributionService,
+    SpeciesProfileService speciesProfileService) {
+    return new AvroExporter(threads, HdfsTestUtil.getNameNodeUri(miniDFSCluster), HdfsTestUtil.TEST_HDFS_DIR, batchSize, logInterval,nameUsageService,vernacularNameService, descriptionService, distributionService, speciesProfileService);
   }
 
   @Test
   public void testIndexBuild() throws IOException, SolrServerException, InterruptedException {
     nameUsageAvroExporter.run();
-    FileStatus[] fileStatuses =
-        miniDFSCluster.getFileSystem().listStatus(new Path(HdfsTestUtil.TEST_HDFS_DIR));
+    FileStatus[] fileStatuses = context.getBean(MiniDFSCluster.class).getFileSystem().listStatus(new Path(HdfsTestUtil.TEST_HDFS_DIR));
     Assertions.assertNotNull(fileStatuses);
     Assertions.assertTrue(fileStatuses.length > 0);
   }

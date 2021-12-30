@@ -20,21 +20,19 @@ import org.gbif.api.service.checklistbank.*;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
+import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.apache.solr.client.solrj.SolrClient;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,10 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Do a doc conversion using a real db. Manual test only to debug problems.
  */
+@ExtendWith(DbLoadBeforeAll.class)
 public class NameUsageIndexingJobIT extends BaseIT {
-
-  @RegisterExtension
-  public ClbDbTestRule sbSetup;
 
   private final UsageService nameUsageService;
   private final VernacularNameServiceMyBatis vernacularNameService;
@@ -63,10 +59,8 @@ public class NameUsageIndexingJobIT extends BaseIT {
     DistributionServiceMyBatis distributionService,
     SpeciesProfileServiceMyBatis speciesProfileService,
     SolrClient solrClient,
-    NameUsageSearchService searchService,
-    DataSource dataSource
+    NameUsageSearchService searchService
   ) {
-    sbSetup = ClbDbTestRule.squirrels(dataSource);
     this.nameUsageService = nameUsageService;
     this.vernacularNameService = vernacularNameService;
     this.descriptionService = descriptionService;
