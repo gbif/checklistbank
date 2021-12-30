@@ -33,15 +33,15 @@ import javax.annotation.Nullable;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
-
-import com.google.common.base.Function;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Sets;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.

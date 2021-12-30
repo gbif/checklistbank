@@ -15,6 +15,7 @@ package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.guice.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

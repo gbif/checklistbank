@@ -25,6 +25,7 @@ import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
+
 import java.util.List;
 import java.util.Map;
 
