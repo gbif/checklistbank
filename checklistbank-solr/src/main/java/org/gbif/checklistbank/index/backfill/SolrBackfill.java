@@ -18,7 +18,6 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
-import org.gbif.checklistbank.index.guice.SpringSolrConfig;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.*;
 
@@ -30,14 +29,6 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.Banner;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.WebApplicationType;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 
 /**
  * Checklist Bank multithreaded name usage solr indexer. This class creates a pool of configurable
@@ -46,26 +37,19 @@ import org.springframework.stereotype.Component;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
-@Profile("!test") // TODO: only needed if this clis are run in the tests
-@Component
-@Import({SpringSolrConfig.class, SpringServiceConfig.class})
-public class SolrBackfill extends NameUsageBatchProcessor implements CommandLineRunner {
+public class SolrBackfill extends NameUsageBatchProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SolrBackfill.class);
-
-  private final int numWriters;
 
   // other injected instances
   private NameUsageDocConverter solrDocumentConverter;
   private final SolrClient solr;
 
-  @Autowired
   public SolrBackfill(
       SolrClient solr,
-      @Value("${" + IndexingConfigKeys.THREADS + "}") Integer threads,
-      @Value("${" + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
-      @Value("${" + IndexingConfigKeys.WRITERS + "}") Integer numWriters,
-      @Value("${" + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
+      Integer threads,
+      Integer batchSize,
+      Integer logInterval,
       UsageService nameUsageService,
       NameUsageDocConverter solrDocumentConverter,
       VernacularNameService vernacularNameService,
@@ -82,28 +66,9 @@ public class SolrBackfill extends NameUsageBatchProcessor implements CommandLine
         descriptionService,
         distributionService,
         speciesProfileService);
-    this.numWriters = numWriters;
     this.solrDocumentConverter = solrDocumentConverter;
     // final solr
     this.solr = solr;
-  }
-
-  /** Entry point for execution. Commandline arguments are: 0: required path to property file */
-  public static void main(String[] args) throws Exception {
-    SpringApplication app = new SpringApplication(SolrBackfill.class);
-    app.setWebApplicationType(WebApplicationType.NONE);
-    app.setBannerMode(Banner.Mode.OFF);
-    app.run(args);
-  }
-
-  @Override
-  public void run(String... args) throws Exception {
-    if (args.length == 0) {
-      throw new IllegalArgumentException("Path to property file required");
-    }
-    run();
-    // This statement is used because the Guice container is not stopped inside the threadpool.
-    System.exit(0);
   }
 
   @Override

@@ -20,58 +20,55 @@ import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.index.BaseIT;
+import org.gbif.checklistbank.index.SolrLoadRule;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.common.search.solr.SolrConstants;
-import org.gbif.utils.file.properties.PropertiesUtil;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+import javax.sql.DataSource;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
-public class NameUsageSearchServiceIT {
+public class NameUsageSearchServiceIT extends BaseIT {
 
-  protected final Logger log = LoggerFactory.getLogger(NameUsageSearchServiceIT.class);
-  private static final String PROPERTY_FILE = "checklistbank.properties";
-  private static NameUsageSearchService searchService;
-  private static String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
+  private static final String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
+  private final NameUsageSearchService searchService;
 
-  @BeforeClass
-  public static void setup() throws Exception {
-    // creates squirrels db and solr index & server using its own injector
-    //SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.squirrels());
-   // EmbeddedSolrReference solrRef = setup.setup();
+  @RegisterExtension
+  SolrLoadRule solrLoadRule;
 
-    // insert new injector for this test, reusing existing solr server
-    Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
-   // Injector injector = Guice.createInjector(new SearchTestModule(props, solrRef.getSolr()));
-
-    //searchService = injector.getInstance(NameUsageSearchService.class);
+  @Autowired
+  public NameUsageSearchServiceIT(NameUsageSearchService searchService, DataSource dataSource, SolrBackfill solrBackfill) {
+    this.searchService = searchService;
+    this.solrLoadRule = new SolrLoadRule(solrBackfill, dataSource);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testBadFilterRequest() {
-    // it should be a known rank enum name
-    NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 10);
-    searchRequest.addParameter(NameUsageSearchParameter.RANK, "1");
-    searchService.search(searchRequest);
+    assertThrows(IllegalArgumentException.class, () -> {
+      // it should be a known rank enum name
+      NameUsageSearchRequest searchRequest = new NameUsageSearchRequest(0L, 10);
+      searchRequest.addParameter(NameUsageSearchParameter.RANK, "1");
+      searchService.search(searchRequest);
+    });
   }
 
   @Test
@@ -96,13 +93,15 @@ public class NameUsageSearchServiceIT {
     assertSearch(req, 15l, null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testNegatedFiltersError() {
-    // test good query with a rank enum name
-    NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 50);
-    req.addParameter(NameUsageSearchParameter.RANK, "!genus");
-    req.addParameter(NameUsageSearchParameter.RANK, "species");
-    assertSearch(req, null, null);
+    assertThrows(IllegalArgumentException.class, () -> {
+      // test good query with a rank enum name
+      NameUsageSearchRequest req = new NameUsageSearchRequest(0L, 50);
+      req.addParameter(NameUsageSearchParameter.RANK, "!genus");
+      req.addParameter(NameUsageSearchParameter.RANK, "species");
+      assertSearch(req, null, null);
+    });
   }
 
   @Test
@@ -356,7 +355,7 @@ public class NameUsageSearchServiceIT {
       assertEquals(expectedFacetCounts, (Integer) response.getFacets().get(0).getCounts().size());
     }
     if (req.getFacets().isEmpty()) {
-      Assert.assertTrue(response.getFacets().isEmpty());
+      assertTrue(response.getFacets().isEmpty());
     }
 
     return response;

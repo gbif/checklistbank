@@ -16,24 +16,21 @@ package org.gbif.checklistbank.index.service;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/**
- *
- */
 public class SolrMappingTest {
 
   @Test
   public void testMappingCompleteness() {
     for (NameUsageSearchRequest.QueryField hlField : NameUsageSearchRequest.QueryField.values()) {
       if (hlField == NameUsageSearchRequest.QueryField.SCIENTIFIC) continue;
-      assertNotNull("HighlightField mapping for "+hlField+" missing", SolrMapping.HIGHLIGHT_FIELDS.get(hlField));
+      assertNotNull(SolrMapping.HIGHLIGHT_FIELDS.get(hlField), "HighlightField mapping for "+hlField+" missing");
     }
 
     for (NameUsageSearchParameter p : NameUsageSearchParameter.values()) {
-      assertNotNull("NameUsageSearchParameter mapping for "+p+" missing", SolrMapping.FACET_MAPPING.get(p));
+      assertNotNull(SolrMapping.FACET_MAPPING.get(p), "NameUsageSearchParameter mapping for "+p+" missing");
     }
   }
 

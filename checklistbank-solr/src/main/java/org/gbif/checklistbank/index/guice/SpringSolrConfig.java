@@ -16,7 +16,6 @@ package org.gbif.checklistbank.index.guice;
 import org.gbif.common.search.solr.SolrConfig;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,11 +44,5 @@ public class SpringSolrConfig {
   @Bean
   public SolrClient solrClient(SolrConfig solrConfig) {
     return solrConfigProperties().buildSolr();
-  }
-
-  @Bean
-  @ConditionalOnProperty(name = "checklistbank.search.serverType", havingValue = "EMBEDDED")
-  public EmbeddedSolrReference embeddedSolrReference(SolrClient solrClient) {
-    return new EmbeddedSolrReference(solrClient);
   }
 }

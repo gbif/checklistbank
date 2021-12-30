@@ -18,43 +18,55 @@ import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
+import org.gbif.checklistbank.index.guice.EmbeddedSolrReference;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
 
 import java.io.IOException;
+
+import javax.sql.DataSource;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test the index generation.
  */
 //@Ignore("The test sometimes fails in Jenkins for unknown reasons. Appears to be overloaded postgres but needs investigations")
-public class SolrBackfillIT {
+public class SolrBackfillIT extends BaseIT {
 
-  private static SolrTestSetup setup;
+  private final EmbeddedSolrReference embeddedSolrServer;
+  private final SolrBackfill solrBackfill;
 
-  @BeforeClass
-  public static void setup() throws Exception {
-    // creates squirrels db and solr index & server using its own injector
-    //setup = new SolrTestSetup(ClbDbTestRule.squirrels());
-    setup.setup();
+  @RegisterExtension
+  public ClbDbTestRule sbSetup;
+
+  @Autowired
+  public SolrBackfillIT(EmbeddedSolrReference embeddedSolrServer, SolrBackfill solrBackfill, DataSource dataSource) {
+    sbSetup = ClbDbTestRule.squirrels(dataSource);
+    this.embeddedSolrServer = embeddedSolrServer;
+    this.solrBackfill = solrBackfill;
   }
 
-  private EmbeddedSolrServer solr() {
-    return setup.solr();
+  public EmbeddedSolrServer solr() {
+    return embeddedSolrServer.getSolr();
   }
 
   @Test
-  public void testIndexBuild() throws IOException, SolrServerException, InterruptedException {
+  public void testIndexBuild() throws IOException, SolrServerException {
+    solrBackfill.run();
     NameUsageDocConverter converter = new NameUsageDocConverter();
 
     // test index and make sure we use the squirrels test data
@@ -166,7 +178,7 @@ public class SolrBackfillIT {
     // test a subfamily search
     query = new SolrQuery();
     query.setQuery("higher_taxon_key:100000042");
-    rsp = solr().query(query);
+    rsp =  solr().query(query);
     docs = rsp.getResults();
     assertEquals(5, docs.size());
 

@@ -19,43 +19,37 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.utils.file.properties.PropertiesUtil;
+import org.gbif.checklistbank.index.BaseIT;
+import org.gbif.checklistbank.index.SolrLoadRule;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
 
 import java.util.List;
-import java.util.Properties;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.sql.DataSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Integration tests using an embedded solr server with the mybatis squirrels test dataset.
  * The solr index will be rebuild before the test using the NameUsageIndexerBaseIT base class.
  */
-public class NameUsageSearchServiceSuggestIT {
+public class NameUsageSearchServiceSuggestIT extends BaseIT  {
 
-  protected final Logger log = LoggerFactory.getLogger(NameUsageSearchServiceSuggestIT.class);
-  private static final String PROPERTY_FILE = "checklistbank.properties";
-  private static NameUsageSearchService searchService;
-  private static String SQUIRRELS_DATASET_KEY = "109aea14-c252-4a85-96e2-f5f4d5d088f4";
+  private final NameUsageSearchService searchService;
 
-  @BeforeClass
-  public static void setup() throws Exception {
-    // creates squirrels db and solr index & server using its own injector
-    //SolrTestSetup setup = new SolrTestSetup(ClbDbTestRule.puma());
-    //setup.setup();
+  @RegisterExtension
+  SolrLoadRule solrLoadRule;
 
-    // insert new injector for this test, reusing existing solr server
-    Properties props = PropertiesUtil.loadProperties(PROPERTY_FILE);
-    //Injector injector = Guice.createInjector(new SearchTestModule(props, setup.solr()));
-
-    //searchService = injector.getInstance(NameUsageSearchService.class);
+  @Autowired
+  public NameUsageSearchServiceSuggestIT(NameUsageSearchService searchService, DataSource dataSource, SolrBackfill solrBackfill) {
+    this.searchService = searchService;
+    this.solrLoadRule = new SolrLoadRule(solrBackfill, dataSource);
   }
-
 
   @Test
   public void testSuggest() {

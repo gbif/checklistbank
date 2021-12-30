@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.beust.jcommander.Parameter;
@@ -34,6 +35,7 @@ import info.ganglia.gmetric4j.gmetric.GMetric;
  */
 @SuppressWarnings("PublicField")
 @Component
+@ConditionalOnProperty(name = "checklistbank.ganglia.host")
 public class GangliaConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(GangliaConfiguration.class);
 

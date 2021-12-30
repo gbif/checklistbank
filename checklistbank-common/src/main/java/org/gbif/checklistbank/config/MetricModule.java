@@ -17,6 +17,7 @@ import org.gbif.checklistbank.utils.PropertiesUtils;
 
 import java.util.Properties;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -41,6 +42,7 @@ public class MetricModule {
   }
 
   @Bean
+  @ConditionalOnBean(GangliaConfiguration.class)
   public MetricRegistry provideMetricRegistry(GangliaConfiguration cfg) throws Exception {
     MetricRegistry reg = new MetricRegistry();
     cfg.start(reg);
