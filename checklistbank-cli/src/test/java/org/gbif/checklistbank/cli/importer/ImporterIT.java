@@ -43,7 +43,7 @@ import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.junit.*;
@@ -83,7 +83,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Rule
-  public ClbDbTestRule dbSetup = ClbDbTestRule.empty();
+  public ClbLoadTestDb dbSetup = ClbLoadTestDb.empty();
 
   /**
    * Uses an internal metrics registry to setup the normalizer

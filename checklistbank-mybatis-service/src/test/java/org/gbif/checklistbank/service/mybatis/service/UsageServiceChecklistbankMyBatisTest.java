@@ -15,6 +15,7 @@ package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestData(name = "squirrels")
 public class UsageServiceChecklistbankMyBatisTest extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageService service;

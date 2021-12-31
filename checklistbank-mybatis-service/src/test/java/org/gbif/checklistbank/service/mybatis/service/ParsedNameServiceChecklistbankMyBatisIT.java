@@ -13,25 +13,30 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 import org.gbif.nameparser.NameParserGbifV1;
 
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@TestData(name = "squirrels")
+@ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private NameParser parser = new NameParserGbifV1();

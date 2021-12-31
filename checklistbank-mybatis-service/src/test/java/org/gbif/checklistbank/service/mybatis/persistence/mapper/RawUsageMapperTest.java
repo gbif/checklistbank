@@ -17,8 +17,6 @@ import org.gbif.checklistbank.model.RawUsage;
 
 import java.util.Date;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,15 +35,13 @@ public class RawUsageMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      RawUsageMapper rawUsageMapper,
-      DataSource dataSource) {
+      RawUsageMapper rawUsageMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = rawUsageMapper;
   }

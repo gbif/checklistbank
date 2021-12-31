@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
@@ -21,7 +22,7 @@ import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.DistributionStatus;
 import org.gbif.api.vocabulary.EstablishmentMeans;
 import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@TestData(name = "squirrels")
 public class DistributionServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DistributionService service;

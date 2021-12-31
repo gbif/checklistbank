@@ -35,7 +35,7 @@ import com.google.common.collect.ImmutableMap;
 /**
  * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
  */
-public class ClbDbTestRule implements BeforeEachCallback {
+public class ClbLoadTestDb implements BeforeEachCallback {
 
   public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
@@ -47,8 +47,8 @@ public class ClbDbTestRule implements BeforeEachCallback {
   /**
    * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence counters.
    */
-  public static ClbDbTestRule empty(DataSource dataSource) {
-    return new ClbDbTestRule(null, ImmutableMap.<String, Integer>builder()
+  public static ClbLoadTestDb empty(DataSource dataSource) {
+    return new ClbLoadTestDb(null, ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 1)
         .put("dataset_metrics_id_seq", 1)
         .put("description_id_seq", 1)
@@ -67,8 +67,8 @@ public class ClbDbTestRule implements BeforeEachCallback {
   /**
    * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
    */
-  public static ClbDbTestRule squirrels(DataSource dataSource) {
-    return new ClbDbTestRule("squirrels", ImmutableMap.<String, Integer>builder()
+  public static ClbLoadTestDb squirrels(DataSource dataSource) {
+    return new ClbLoadTestDb("squirrels", ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 32)
         .put("dataset_metrics_id_seq", 5)
         .put("description_id_seq", 28)
@@ -87,8 +87,8 @@ public class ClbDbTestRule implements BeforeEachCallback {
   /**
    * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
    */
-  public static ClbDbTestRule puma(DataSource dataSource) {
-    return new ClbDbTestRule("puma", ImmutableMap.<String, Integer>builder()
+  public static ClbLoadTestDb puma(DataSource dataSource) {
+    return new ClbLoadTestDb("puma", ImmutableMap.<String, Integer>builder()
         .put("citation_id_seq", 32)
         .put("dataset_metrics_id_seq", 5)
         .put("description_id_seq", 28)
@@ -108,7 +108,7 @@ public class ClbDbTestRule implements BeforeEachCallback {
    * @param tsvFolder the optional unqualified filename within the dbUnit package to be used in setting up
    *                  the db
    */
-  private ClbDbTestRule(@Nullable String tsvFolder, Map<String, Integer> sequenceCounters, DataSource dataSource) {
+  private ClbLoadTestDb(@Nullable String tsvFolder, Map<String, Integer> sequenceCounters, DataSource dataSource) {
     this.dataSource = dataSource;
     this.tsvFolder = tsvFolder;
     this.sequenceCounters = sequenceCounters;

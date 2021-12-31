@@ -17,8 +17,6 @@ import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.vocabulary.Language;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +34,6 @@ public class DescriptionMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      DataSource dataSource,
       DescriptionMapper descriptionMapper) {
     super(
         parsedNameMapper,
@@ -44,7 +41,6 @@ public class DescriptionMapperTest extends MapperITBase {
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = descriptionMapper;
   }

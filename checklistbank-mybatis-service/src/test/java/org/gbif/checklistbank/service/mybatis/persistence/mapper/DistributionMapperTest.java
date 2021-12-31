@@ -19,19 +19,22 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.model.NameUsageWritable;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ExtendWith(ClbDbLoadTestDataBeforeEach.class)
+@TestData
 public class DistributionMapperTest extends MapperITBase {
 
   private final DistributionMapper mapper;
@@ -43,15 +46,13 @@ public class DistributionMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      DistributionMapper distributionMapper,
-      DataSource dataSource) {
+      DistributionMapper distributionMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = distributionMapper;
   }

@@ -13,7 +13,7 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 
 import java.util.Date;
 import java.util.List;
@@ -48,7 +48,7 @@ public class ClbSourceListTest {
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Rule
-  public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
+  public ClbLoadTestDb dbSetup = ClbLoadTestDb.squirrels();
 
   private UUID oldDKey;
 

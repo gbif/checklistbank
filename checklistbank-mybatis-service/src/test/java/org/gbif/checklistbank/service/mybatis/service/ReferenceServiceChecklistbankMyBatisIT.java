@@ -13,11 +13,12 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.Reference;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.ReferenceService;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@TestData(name = "squirrels")
 public class ReferenceServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final ReferenceService service;

@@ -13,7 +13,7 @@
  */
 package org.gbif.checklistbank.test.extensions;
 
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 
 import javax.sql.DataSource;
 
@@ -31,7 +31,7 @@ public class DbLoadBeforeAll implements BeforeAllCallback {
   public void beforeAll(ExtensionContext extensionContext) throws Exception {
     ApplicationContext ctx = SpringExtension.getApplicationContext(extensionContext);
     DataSource dataSource = ctx.getBean(DataSource.class);
-    ClbDbTestRule clbDbTestRule = ClbDbTestRule.squirrels(dataSource);
-    clbDbTestRule.before();
+    ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.squirrels(dataSource);
+    clbLoadTestDb.before();
   }
 }

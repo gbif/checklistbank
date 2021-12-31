@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
@@ -23,7 +24,6 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;

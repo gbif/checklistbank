@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.utils.file.properties.PropertiesUtil;
 import org.junit.Ignore;
@@ -45,7 +45,7 @@ public class NormalizerLeakDebugging {
 
     cfg.archiveRepository = new File("/tmp/clb/dwca");
     cfg.archiveRepository.mkdirs();
-    Properties properties = PropertiesUtil.loadProperties(ClbDbTestRule.DEFAULT_PROPERTY_FILE);
+    Properties properties = PropertiesUtil.loadProperties(ClbLoadTestDb.DEFAULT_PROPERTY_FILE);
     ChecklistBankServiceMyBatisModule module = new ChecklistBankServiceMyBatisModule(properties);
     cfg.clb=module.provideCfg();
 

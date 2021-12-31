@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.UUID;
 
 import org.gbif.api.model.Constants;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+
 import org.junit.Ignore;
 import org.junit.Test;
 

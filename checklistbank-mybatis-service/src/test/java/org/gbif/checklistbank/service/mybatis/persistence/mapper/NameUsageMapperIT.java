@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,15 +40,13 @@ public class NameUsageMapperIT extends MapperITBase {
       NameUsageMapper nameUsageMapper,
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
-      CitationMapper citationMapper,
-      DataSource dataSource) {
+      CitationMapper citationMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         false);
     this.mapper = nameUsageMapper;
   }

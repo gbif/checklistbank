@@ -13,11 +13,12 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestData(name = "squirrels")
 public class SpeciesProfileServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final SpeciesProfileService service;

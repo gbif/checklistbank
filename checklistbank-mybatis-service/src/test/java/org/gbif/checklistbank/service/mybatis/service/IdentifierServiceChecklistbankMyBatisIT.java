@@ -13,12 +13,13 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.IdentifierService;
 import org.gbif.api.vocabulary.IdentifierType;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@TestData(name = "squirrels")
 public class IdentifierServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final IdentifierService service;

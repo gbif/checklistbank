@@ -19,8 +19,6 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TypeDesignationType;
 import org.gbif.api.vocabulary.TypeStatus;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,15 +37,13 @@ public class TypeSpecimenMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      TypeSpecimenMapper typeSpecimenMapper,
-      DataSource dataSource) {
+      TypeSpecimenMapper typeSpecimenMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = typeSpecimenMapper;
   }

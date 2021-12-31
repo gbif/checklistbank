@@ -16,8 +16,6 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 import org.gbif.api.model.checklistbank.SpeciesProfile;
 import org.gbif.api.model.common.paging.PagingRequest;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,7 +33,6 @@ public class SpeciesProfileMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      DataSource dataSource,
       SpeciesProfileMapper mapper) {
     super(
         parsedNameMapper,
@@ -43,7 +40,6 @@ public class SpeciesProfileMapperTest extends MapperITBase {
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = mapper;
   }

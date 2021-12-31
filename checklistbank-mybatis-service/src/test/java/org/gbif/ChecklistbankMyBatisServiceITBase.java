@@ -13,8 +13,14 @@
  */
 package org.gbif;
 
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
+import org.gbif.ws.security.AppKeySigningService;
+import org.gbif.ws.security.FileSystemKeyStore;
+import org.gbif.ws.security.GbifAuthServiceImpl;
+import org.gbif.ws.security.GbifAuthenticationManagerImpl;
+import org.gbif.ws.server.filter.AppIdentityFilter;
+import org.gbif.ws.server.filter.IdentityFilter;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -25,7 +31,6 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
@@ -34,6 +39,8 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,21 +56,32 @@ import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 @SpringBootTest(classes = ChecklistbankMyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
 @ContextConfiguration(initializers = {ChecklistbankMyBatisServiceITBase.ContextInitializer.class})
 @ActiveProfiles("test")
+@ExtendWith(ClbDbLoadTestDataBeforeAll.class)
 public class ChecklistbankMyBatisServiceITBase {
-
-  @RegisterExtension public ClbDbTestRule sbSetup;
 
   protected DataSource dataSource;
 
   public ChecklistbankMyBatisServiceITBase(DataSource dataSource) {
     this.dataSource = dataSource;
-    this.sbSetup = ClbDbTestRule.squirrels(dataSource);
   }
 
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
   @Import(SpringServiceConfig.class) // actually not needed, it gets scanned by default
   @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
+  @ComponentScan(
+    excludeFilters = {
+      @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE,
+        classes = {
+          AppKeySigningService.class,
+          FileSystemKeyStore.class,
+          IdentityFilter.class,
+          AppIdentityFilter.class,
+          GbifAuthenticationManagerImpl.class,
+          GbifAuthServiceImpl.class
+        })
+    })
   public static class ChecklistBankServiceTestConfiguration {
     public static void main(String[] args) {
       SpringApplication.run(ChecklistBankServiceTestConfiguration.class, args);

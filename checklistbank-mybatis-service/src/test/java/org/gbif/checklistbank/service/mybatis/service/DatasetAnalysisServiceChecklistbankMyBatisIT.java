@@ -13,13 +13,14 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.Date;
 
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestData(name = "squirrels")
 public class DatasetAnalysisServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DatasetAnalysisService service;
@@ -44,9 +46,9 @@ public class DatasetAnalysisServiceChecklistbankMyBatisIT extends ChecklistbankM
   @Test
   public void testAnalyse() {
     final Date downloaded = new Date();
-    DatasetMetrics d = service.analyse(ClbDbTestRule.SQUIRRELS_DATASET_KEY, downloaded);
+    DatasetMetrics d = service.analyse(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, downloaded);
     System.out.println(d);
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
     assertEquals(downloaded, d.getDownloaded());
     assertEquals(44, d.getUsagesCount());
     assertEquals(16, d.getSynonymsCount());

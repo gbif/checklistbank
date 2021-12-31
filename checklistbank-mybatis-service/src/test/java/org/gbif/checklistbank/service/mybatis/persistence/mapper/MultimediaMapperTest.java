@@ -20,8 +20,6 @@ import org.gbif.api.vocabulary.MediaType;
 import java.net.URI;
 import java.util.Date;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,15 +37,13 @@ public class MultimediaMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      MultimediaMapper multimediaMapper,
-      DataSource dataSource) {
+      MultimediaMapper multimediaMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = multimediaMapper;
   }

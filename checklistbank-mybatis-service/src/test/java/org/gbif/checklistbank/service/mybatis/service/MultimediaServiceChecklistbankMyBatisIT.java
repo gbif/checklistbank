@@ -13,12 +13,13 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.NameUsageMediaObject;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.MultimediaService;
 import org.gbif.api.vocabulary.MediaType;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.net.URI;
 import java.util.List;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+@TestData(name = "squirrels")
 public class MultimediaServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final MultimediaService service;

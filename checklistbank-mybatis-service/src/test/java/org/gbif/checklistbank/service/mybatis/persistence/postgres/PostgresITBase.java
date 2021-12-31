@@ -52,14 +52,14 @@ public class PostgresITBase {
 
   protected DataSource dataSource;
 
-  @RegisterExtension public ClbDbTestRule sbSetup;
+  @RegisterExtension public ClbLoadTestDb sbSetup;
 
   public PostgresITBase(DataSource dataSource) {
     this.dataSource = dataSource;
-    this.sbSetup = ClbDbTestRule.empty(dataSource);
+    this.sbSetup = ClbLoadTestDb.empty(dataSource);
   }
 
-  public PostgresITBase(DataSource dataSource, ClbDbTestRule sbSetup) {
+  public PostgresITBase(DataSource dataSource, ClbLoadTestDb sbSetup) {
     this.dataSource = dataSource;
     this.sbSetup = sbSetup;
   }

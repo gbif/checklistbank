@@ -7,7 +7,7 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.SrcUsage;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 public class ClbSourceTest {
 
   @Rule
-  public ClbDbTestRule dbSetup = ClbDbTestRule.squirrels();
+  public ClbLoadTestDb dbSetup = ClbLoadTestDb.squirrels();
 
   @Rule
   public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();

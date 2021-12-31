@@ -15,11 +15,10 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.UUID;
-
-import javax.sql.DataSource;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@TestData(name = "squirrels")
 public class DistributionMapperWithDataIT extends MapperITBase {
 
   private final DistributionMapper mapper;
@@ -40,17 +40,14 @@ public class DistributionMapperWithDataIT extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      DistributionMapper distributionMapper,
-      DataSource dataSource) {
+      DistributionMapper distributionMapper) {
     super(
       parsedNameMapper,
       nameUsageMapper,
       nubRelMapper,
       datasetMapper,
       citationMapper,
-      dataSource,
-      false,
-      ClbDbTestRule.squirrels(dataSource));
+      false);
     this.mapper = distributionMapper;
   }
 
@@ -75,7 +72,7 @@ public class DistributionMapperWithDataIT extends MapperITBase {
     mapper.processDataset(UUID.randomUUID(), proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, proc);
     assertEquals(14, proc.counter);
 
     mapper.processDataset(Constants.NUB_DATASET_KEY, proc);

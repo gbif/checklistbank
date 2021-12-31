@@ -17,8 +17,6 @@ import org.gbif.api.model.Constants;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,15 +33,13 @@ public class NubRelMapperTest extends MapperITBase {
       NameUsageMapper nameUsageMapper,
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
-      CitationMapper citationMapper,
-      DataSource dataSource) {
+      CitationMapper citationMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = nubRelMapper;
   }

@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.TypeSpecimen;
 import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
@@ -20,7 +21,7 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.TypeSpecimenService;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TypeDesignationType;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.text.ParseException;
 
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@TestData(name = "squirrels")
 public class TypeSpecimenServiceChecklistbankMyBatisTestIT extends ChecklistbankMyBatisServiceITBase {
 
   private final TypeSpecimenService service;

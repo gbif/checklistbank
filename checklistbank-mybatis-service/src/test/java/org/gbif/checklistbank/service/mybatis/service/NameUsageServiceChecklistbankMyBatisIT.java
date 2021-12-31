@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -23,9 +24,9 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.RawUsage;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.net.URI;
 import java.sql.Connection;
@@ -46,6 +47,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestData(name = "squirrels")
 public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final NameUsageService service;
@@ -93,7 +95,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
     assertEquals(Origin.SOURCE, rodentia.getOrigin());
 
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rodentia.getDatasetKey());
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, rodentia.getDatasetKey());
     assertNull(rodentia.getPublishedIn());
 
     assertEquals("1000", rodentia.getTaxonID());
@@ -137,7 +139,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     assertEquals(9, squirrelM.getNumChildren());
     assertEquals(4, squirrelM.getNumSynonyms());
 
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, squirrel.getDatasetKey());
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, squirrel.getDatasetKey());
     assertEquals("Syst. Nat. , 10th ed. vol. 1 p. 63", squirrel.getPublishedIn());
 
     assertEquals("2010030", squirrel.getTaxonID());
@@ -233,7 +235,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     assertEquals(2, usages.size());
 
     // test combined
-    usages = service.list(Locale.UK, ClbDbTestRule.SQUIRRELS_DATASET_KEY, "1", null).getResults();
+    usages = service.list(Locale.UK, ClbLoadTestDb.SQUIRRELS_DATASET_KEY, "1", null).getResults();
     assertEquals(1, usages.size());
     assertEquals((Integer) 100000001, usages.get(0).getKey());
   }
@@ -241,7 +243,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   @Test
   public void testByTaxonId() {
     List<NameUsage> usages =
-        service.list(Locale.UK, ClbDbTestRule.SQUIRRELS_DATASET_KEY, "100000", null).getResults();
+        service.list(Locale.UK, ClbLoadTestDb.SQUIRRELS_DATASET_KEY, "100000", null).getResults();
     assertEquals(1, usages.size());
 
     assertEquals(service.get(100000006, Locale.UK), usages.get(0));
@@ -254,7 +256,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     assertEquals(1, usages.size());
 
     usages =
-        service.listRelated(1, Locale.UK, null, ClbDbTestRule.SQUIRRELS_DATASET_KEY).getResults();
+        service.listRelated(1, Locale.UK, null, ClbLoadTestDb.SQUIRRELS_DATASET_KEY).getResults();
     assertEquals(1, usages.size());
 
     usages =
@@ -263,7 +265,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
               1,
               Locale.UK,
               null,
-              ClbDbTestRule.SQUIRRELS_DATASET_KEY,
+              ClbLoadTestDb.SQUIRRELS_DATASET_KEY,
               UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f5"))
             .getResults();
     assertEquals(1, usages.size());
@@ -321,16 +323,16 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   @Test
   public void testListRoot() {
     List<NameUsage> usages =
-        service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, null).getResults();
+        service.listRoot(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, Locale.UK, null).getResults();
     assertEquals(1, usages.size());
 
     // test paging
     Pageable page = new PagingRequest(1l, 1);
-    usages = service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
+    usages = service.listRoot(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
     assertEquals(0, usages.size());
 
     page = new PagingRequest(0l, 2);
-    usages = service.listRoot(ClbDbTestRule.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
+    usages = service.listRoot(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, Locale.UK, page).getResults();
     assertEquals(1, usages.size());
   }
 
@@ -425,7 +427,7 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     final String data = "xeghwax542tgld@";
     RawUsage raw = new RawUsage();
     raw.setUsageKey(key);
-    raw.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    raw.setDatasetKey(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     // date is null in dataset_metrics table
     // raw.setLastCrawled(new Date());
     raw.setJson(data);

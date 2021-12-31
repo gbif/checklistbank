@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
@@ -21,10 +22,11 @@ import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.*;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageSyncService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.nameparser.NameParserGbifV1;
 
@@ -37,6 +39,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -45,7 +48,8 @@ import com.google.common.collect.Sets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-/** */
+@TestData(name = "squirrels")
+@ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageSyncService service;
@@ -63,7 +67,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
   @Test
   public void testDeleteDataset() throws Exception {
-    int num = service.deleteDataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    int num = service.deleteDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     assertEquals(44, num);
   }
 
@@ -71,7 +75,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   public void nubRelations() throws Exception {
     Map<Integer, Integer> rels = new HashMap<>();
     rels.put(1, 1);
-    service.insertNubRelations(ClbDbTestRule.SQUIRRELS_DATASET_KEY, rels);
+    service.insertNubRelations(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, rels);
   }
 
   @Test
@@ -90,7 +94,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     String name = "Abies alba Mill.";
 
     NameUsage u = new NameUsage();
-    u.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    u.setDatasetKey(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     u.setScientificName(name);
     u.setTaxonID(taxonID);
     u.setOrigin(Origin.SOURCE);
@@ -148,7 +152,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     assertEquals(u.getTaxonID(), u2.getTaxonID());
     assertEquals(u.getScientificName(), u2.getScientificName());
     assertEquals(u.getIssues(), u2.getIssues());
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, u2.getDatasetKey());
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, u2.getDatasetKey());
     assertEquals(u.getTaxonomicStatus(), u2.getTaxonomicStatus());
     assertEquals(u.getAccordingTo(), u2.getAccordingTo());
     assertEquals(u.getRemarks(), u2.getRemarks());
@@ -169,7 +173,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
     int k2 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
-    service.syncUsageExtras(false, ClbDbTestRule.SQUIRRELS_DATASET_KEY, u.getKey(), v, e);
+    service.syncUsageExtras(false, ClbLoadTestDb.SQUIRRELS_DATASET_KEY, u.getKey(), v, e);
     assertEquals(k1, k2);
 
     // verify props
@@ -192,7 +196,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     String name = "Abies mekka Jesus";
 
     NameUsage u = new NameUsage();
-    u.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    u.setDatasetKey(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     u.setScientificName(name);
     u.setOrigin(Origin.SOURCE);
     u.setModified(new Date());
@@ -238,7 +242,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
       int key, Integer parentKey, LinneanClassificationKeys higherKeys, String name, Rank rank)
       throws UnparsableException {
     NameUsage p = new NameUsage();
-    p.setDatasetKey(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    p.setDatasetKey(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     p.setKey(key);
     p.setParentKey(parentKey);
     if (higherKeys != null) {

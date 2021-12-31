@@ -13,10 +13,10 @@
  */
 package org.gbif.checklistbank.service.mybatis.export;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
@@ -34,7 +34,7 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
 
   private final ApplicationContext ctx;
 
-  @RegisterExtension public ClbDbTestRule sbSetup;
+  @RegisterExtension public ClbLoadTestDb sbSetup;
 
   @Autowired
   public ExporterITChecklistbank(
@@ -43,7 +43,7 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
       ) {
     super(dataSource);
     this.ctx = ctx;
-    sbSetup = ClbDbTestRule.squirrels(dataSource);
+    sbSetup = ClbLoadTestDb.squirrels(dataSource);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
       Exporter exp = Exporter.create(repository, ctx);
       exp.export(dataset(Constants.NUB_DATASET_KEY));
 
-      exp.export(dataset(ClbDbTestRule.SQUIRRELS_DATASET_KEY));
+      exp.export(dataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY));
 
     } finally {
       org.apache.commons.io.FileUtils.deleteDirectory(repository);

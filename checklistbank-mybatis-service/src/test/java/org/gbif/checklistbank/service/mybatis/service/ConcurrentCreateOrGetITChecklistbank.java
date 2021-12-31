@@ -13,9 +13,9 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.nameparser.NameParserGbifV1;

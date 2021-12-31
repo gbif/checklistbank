@@ -22,8 +22,6 @@ import org.gbif.checklistbank.model.NameUsageWritable;
 
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,15 +41,13 @@ public class NameUsageMetricsMapperIT extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      NameUsageMetricsMapper nameUsageMetricsMapper,
-      DataSource dataSource) {
+      NameUsageMetricsMapper nameUsageMetricsMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         false);
     this.mapper = nameUsageMetricsMapper;
   }

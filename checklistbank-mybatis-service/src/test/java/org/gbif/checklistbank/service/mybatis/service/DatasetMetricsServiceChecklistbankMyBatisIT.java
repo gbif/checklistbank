@@ -13,11 +13,13 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.vocabulary.*;
-import org.gbif.ChecklistbankMyBatisServiceITBase;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.Date;
 import java.util.List;
@@ -25,10 +27,13 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@TestData(name = "squirrels")
+@ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final DatasetMetricsService service;
@@ -44,10 +49,10 @@ public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMy
   public void testInsert() {
     DatasetMetricsServiceMyBatis srv = (DatasetMetricsServiceMyBatis) service;
 
-    srv.create(ClbDbTestRule.SQUIRRELS_DATASET_KEY, new Date());
+    srv.create(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, new Date());
 
-    DatasetMetrics d = service.get(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
+    DatasetMetrics d = service.get(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
     assertEquals(44, d.getUsagesCount());
     assertEquals(16, d.getSynonymsCount());
     assertEquals(44, d.getDistinctNamesCount());
@@ -71,8 +76,8 @@ public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMy
 
   @Test
   public void testGet() {
-    DatasetMetrics d = service.get(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
-    assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
+    DatasetMetrics d = service.get(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
+    assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
     assertEquals(1000, d.getUsagesCount());
     assertEquals(25, d.getColCoveragePct());
     assertEquals(250, d.getColMatchingCount());
@@ -87,10 +92,10 @@ public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMy
 
   @Test
   public void testList() {
-    List<DatasetMetrics> ds = service.list(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    List<DatasetMetrics> ds = service.list(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     assertEquals(3, ds.size());
     for (DatasetMetrics d : ds) {
-      assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
+      assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, d.getDatasetKey());
     }
     assertEquals(1000, ds.get(0).getUsagesCount());
     assertEquals(200, ds.get(1).getUsagesCount());

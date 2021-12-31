@@ -16,19 +16,21 @@ package org.gbif.checklistbank.service.mybatis.persistence.mapper;
 import org.gbif.api.model.Constants;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.UsageCount;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** */
+@ExtendWith(ClbDbLoadTestDataBeforeEach.class)
+@TestData(name = "squirrels")
 public class UsageCountMapperTest extends MapperITBase {
 
   private final UsageCountMapper mapper;
@@ -40,17 +42,14 @@ public class UsageCountMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      UsageCountMapper usageCountMapper,
-      DataSource dataSource) {
+      UsageCountMapper usageCountMapper) {
     super(
       parsedNameMapper,
       nameUsageMapper,
       nubRelMapper,
       datasetMapper,
       citationMapper,
-      dataSource,
-      false,
-      ClbDbTestRule.squirrels(dataSource));
+      false);
     this.mapper = usageCountMapper;
   }
 
@@ -60,7 +59,7 @@ public class UsageCountMapperTest extends MapperITBase {
     assertEquals(1, root.size());
     assertEquals(1, root.get(0).getKey());
 
-    root = mapper.root(ClbDbTestRule.SQUIRRELS_DATASET_KEY);
+    root = mapper.root(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     assertEquals(1, root.size());
     assertEquals(100000001, root.get(0).getKey());
     assertEquals(27, root.get(0).getSize());

@@ -13,10 +13,11 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.ChecklistbankMyBatisServiceITBase;
+import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.net.URI;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestData(name = "squirrels")
 public class ClbBatchServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageService service;
@@ -55,7 +57,7 @@ public class ClbBatchServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisS
       assertNotNull(nu.getNameKey());
       assertNotNull(nu.getScientificName());
       assertTrue(nu.getKey() >= 100000001 && nu.getKey() <= 100000020);
-      assertEquals(ClbDbTestRule.SQUIRRELS_DATASET_KEY, nu.getDatasetKey());
+      assertEquals(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, nu.getDatasetKey());
 
       if (nu.getKey().equals(100000007)) {
         found = true;

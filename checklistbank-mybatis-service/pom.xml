@@ -127,6 +127,12 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-common</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.gbif.registry</groupId>
+          <artifactId>registry-doi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif.registry</groupId>

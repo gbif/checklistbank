@@ -22,7 +22,7 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbDbTestRule;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
 import org.gbif.utils.text.StringUtils;
 
 import java.sql.SQLException;
@@ -32,11 +32,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -62,6 +59,7 @@ import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 @SpringBootTest(classes = MapperITBase.ChecklistBankMappersTestConfiguration.class)
 @ContextConfiguration(initializers = {MapperITBase.ContextInitializer.class})
 @ActiveProfiles("test")
+@ExtendWith(ClbDbLoadTestDataBeforeAll.class)
 public class MapperITBase {
 
   @TestConfiguration
@@ -129,9 +127,6 @@ public class MapperITBase {
   protected NubRelMapper nubRelMapper;
   protected DatasetMapper datasetMapper;
   protected CitationMapper citationMapper;
-  private DataSource dataSource;
-
-  @RegisterExtension public ClbDbTestRule sbSetup;
 
   @Autowired
   public MapperITBase(
@@ -140,37 +135,13 @@ public class MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      DataSource dataSource,
       boolean initData) {
-    this(
-      parsedNameMapper,
-      nameUsageMapper,
-      nubRelMapper,
-      datasetMapper,
-      citationMapper,
-      dataSource,
-      initData,
-      ClbDbTestRule.empty(dataSource));
-  }
-
-  @Autowired
-  public MapperITBase(
-      ParsedNameMapper parsedNameMapper,
-      NameUsageMapper nameUsageMapper,
-      NubRelMapper nubRelMapper,
-      DatasetMapper datasetMapper,
-      CitationMapper citationMapper,
-      DataSource dataSource,
-      boolean initData,
-      ClbDbTestRule rule) {
     this.parsedNameMapper = parsedNameMapper;
     this.nameUsageMapper = nameUsageMapper;
     this.nubRelMapper = nubRelMapper;
     this.datasetMapper = datasetMapper;
     this.citationMapper = citationMapper;
-    this.dataSource = dataSource;
     this.initData = initData;
-    this.sbSetup = rule;
   }
 
   public MapperITBase(boolean initData) {

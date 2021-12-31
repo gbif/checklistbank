@@ -20,8 +20,6 @@ import org.gbif.api.vocabulary.Language;
 import org.gbif.api.vocabulary.LifeStage;
 import org.gbif.api.vocabulary.Sex;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,15 +38,13 @@ public class VernacularNameMapperTest extends MapperITBase {
       NubRelMapper nubRelMapper,
       DatasetMapper datasetMapper,
       CitationMapper citationMapper,
-      VernacularNameMapper vernacularNameMapper,
-      DataSource dataSource) {
+      VernacularNameMapper vernacularNameMapper) {
     super(
         parsedNameMapper,
         nameUsageMapper,
         nubRelMapper,
         datasetMapper,
         citationMapper,
-        dataSource,
         true);
     this.mapper = vernacularNameMapper;
   }
