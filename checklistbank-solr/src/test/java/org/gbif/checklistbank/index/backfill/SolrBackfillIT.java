@@ -25,7 +25,8 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.io.IOException;
 
@@ -49,7 +50,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Test the index generation.
  */
 //@Ignore("The test sometimes fails in Jenkins for unknown reasons. Appears to be overloaded postgres but needs investigations")
-@ExtendWith(DbLoadBeforeAll.class)
+@ExtendWith(ClbDbLoadTestDataBeforeAll.class)
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class SolrBackfillIT extends BaseIT {
 
   private final SolrClient solrClient;

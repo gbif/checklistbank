@@ -28,12 +28,12 @@ public class ClbDbLoadTestDataBeforeEach implements BeforeEachCallback {
     ApplicationContext context = SpringExtension.getApplicationContext(extensionContext);
     DataSource dataSource = context.getBean(DataSource.class);
     ClbLoadTestDb  clbLoadTestDb;
-    String testData = getTestData(extensionContext);
-    if ("squirrels".equals(testData)) {
+    TestData.DATAFILE testData = getTestData(extensionContext);
+    if (TestData.DATAFILE.SQUIRRELS == testData) {
       clbLoadTestDb = ClbLoadTestDb.squirrels(dataSource);
-    } else if ("puma".equals(testData)) {
+    } else if (TestData.DATAFILE.PUMA == testData) {
       clbLoadTestDb = ClbLoadTestDb.puma(dataSource);
-    } else {
+    } else { //TestData.DATAFILE.EMPTY default
       clbLoadTestDb = ClbLoadTestDb.empty(dataSource);
     }
     clbLoadTestDb.before();
@@ -44,8 +44,8 @@ public class ClbDbLoadTestDataBeforeEach implements BeforeEachCallback {
     before(extensionContext);
   }
 
-  static String getTestData(ExtensionContext extensionContext) {
+  static TestData.DATAFILE getTestData(ExtensionContext extensionContext) {
     return extensionContext.getTestClass().map(c -> c.getAnnotation(TestData.class))
-            .map(TestData::name).orElse("");
+            .map(TestData::value).orElse(TestData.DATAFILE.EMPTY);
   }
 }

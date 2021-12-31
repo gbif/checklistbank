@@ -19,5 +19,9 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TestData {
 
-  String name() default "";
+  enum DATAFILE {
+    SQUIRRELS, PUMA, EMPTY;
+  }
+
+  DATAFILE value() default DATAFILE.EMPTY;
 }

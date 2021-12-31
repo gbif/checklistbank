@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 

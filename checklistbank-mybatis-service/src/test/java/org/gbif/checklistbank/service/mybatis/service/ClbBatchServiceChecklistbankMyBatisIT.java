@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class ClbBatchServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageService service;

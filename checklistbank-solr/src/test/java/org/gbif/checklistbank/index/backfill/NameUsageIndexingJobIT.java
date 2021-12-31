@@ -20,11 +20,12 @@ import org.gbif.api.service.checklistbank.*;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
-import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
 
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Do a doc conversion using a real db. Manual test only to debug problems.
  */
-@ExtendWith(DbLoadBeforeAll.class)
+@ExtendWith(ClbDbLoadTestDataBeforeAll.class)
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class NameUsageIndexingJobIT extends BaseIT {
 
   private final UsageService nameUsageService;

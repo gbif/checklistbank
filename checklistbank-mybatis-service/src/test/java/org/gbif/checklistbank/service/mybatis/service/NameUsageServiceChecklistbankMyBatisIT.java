@@ -47,7 +47,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final NameUsageService service;

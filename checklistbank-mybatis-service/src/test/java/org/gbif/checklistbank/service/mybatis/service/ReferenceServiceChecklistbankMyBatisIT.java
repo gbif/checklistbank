@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class ReferenceServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final ReferenceService service;

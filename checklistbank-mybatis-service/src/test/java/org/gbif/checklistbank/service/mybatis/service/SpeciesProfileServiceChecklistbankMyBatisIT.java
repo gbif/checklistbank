@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class SpeciesProfileServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final SpeciesProfileService service;

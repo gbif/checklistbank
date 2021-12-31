@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class UsageCountMapperTest extends MapperITBase {
 
   private final UsageCountMapper mapper;

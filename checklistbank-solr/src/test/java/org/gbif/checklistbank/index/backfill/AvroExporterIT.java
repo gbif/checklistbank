@@ -20,7 +20,8 @@ import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.BaseIT;
 import org.gbif.checklistbank.index.HdfsTestUtil;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.test.extensions.DbLoadBeforeAll;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
+import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 import org.gbif.checklistbank.test.extensions.HdfsMiniCluster;
 
 import java.io.IOException;
@@ -37,7 +38,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 
 /** Test the Avro exporter using a hdfs mini cluster. */
-@ExtendWith(DbLoadBeforeAll.class)
+@ExtendWith(ClbDbLoadTestDataBeforeAll.class)
+@TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(HdfsMiniCluster.class)
 public class AvroExporterIT extends BaseIT {
 

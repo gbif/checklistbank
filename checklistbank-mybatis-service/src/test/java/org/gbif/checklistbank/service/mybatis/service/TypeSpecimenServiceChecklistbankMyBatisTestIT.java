@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 public class TypeSpecimenServiceChecklistbankMyBatisTestIT extends ChecklistbankMyBatisServiceITBase {
 
   private final TypeSpecimenService service;

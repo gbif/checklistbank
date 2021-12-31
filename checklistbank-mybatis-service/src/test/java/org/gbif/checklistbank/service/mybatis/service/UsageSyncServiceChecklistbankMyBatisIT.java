@@ -48,7 +48,7 @@ import com.google.common.collect.Sets;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@TestData(name = "squirrels")
+@TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
