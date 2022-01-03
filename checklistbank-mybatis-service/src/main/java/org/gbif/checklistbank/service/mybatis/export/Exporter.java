@@ -19,6 +19,7 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
 import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.registry.metadata.EMLWriter;
+import org.gbif.registry.ws.client.DatasetClient;
 import org.gbif.utils.file.CompressionUtil;
 import org.gbif.ws.client.ClientBuilder;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
@@ -60,7 +61,7 @@ public class Exporter {
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(ctx.getEnvironment().getProperty("checklistbank.api.url"));
     clientBuilder.withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
-    this.datasetService = clientBuilder.build(DatasetService.class);
+    this.datasetService = clientBuilder.build(DatasetClient.class);
   }
 
   public static Exporter create(File repository, ApplicationContext ctx) {
