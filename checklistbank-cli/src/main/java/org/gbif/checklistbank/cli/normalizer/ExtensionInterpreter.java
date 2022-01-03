@@ -1,9 +1,5 @@
 package org.gbif.checklistbank.cli.normalizer;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.vocabulary.Extension;
@@ -18,14 +14,19 @@ import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.common.parsers.date.DateParsers;
 import org.gbif.common.parsers.date.TemporalAccessorUtils;
 import org.gbif.dwc.terms.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.time.temporal.TemporalAccessor;
 import java.util.Iterator;
 import java.util.Map;
+import javax.annotation.Nullable;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExtensionInterpreter {
   private static final Logger LOG = LoggerFactory.getLogger(ExtensionInterpreter.class);
@@ -337,7 +338,7 @@ public class ExtensionInterpreter {
           u.addIssue(NameUsageIssue.DISTRIBUTION_INVALID);
           continue;
         }
-        d.setStatus(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, occurrenceStatusParser, u, DwcTerm.occurrenceStatus));
+//        d.setStatus(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, occurrenceStatusParser, u, DwcTerm.occurrenceStatus));
         d.setEstablishmentMeans(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, establishmentMeansParser, u, DwcTerm.establishmentMeans));
         d.setAppendixCites(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, citesAppendixParser, u, GbifTerm.appendixCITES));
         d.setThreatStatus(enumify(rec, NameUsageIssue.DISTRIBUTION_INVALID, threatStatusParser, u, IucnTerm.threatStatus));

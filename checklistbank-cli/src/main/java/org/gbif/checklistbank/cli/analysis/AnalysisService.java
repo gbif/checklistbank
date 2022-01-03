@@ -4,14 +4,14 @@ import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.service.DatasetAnalysisService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
 import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistAnalyzedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage> {
 
@@ -21,7 +21,7 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
 
 
   public AnalysisService(AnalysisConfiguration cfg) {
-    super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", ChecklistBankServiceMyBatisModule.create(cfg.clb));
+    super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", null/*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/);
     analysisService = getInstance(DatasetAnalysisService.class);
   }
 

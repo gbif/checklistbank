@@ -1,28 +1,23 @@
 package org.gbif.checklistbank.cli.crawler;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
-import org.gbif.api.model.crawler.DwcaValidationReport;
-import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Endpoint;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
-import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.UnsupportedArchiveException;
 import org.gbif.utils.HttpUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
-import java.util.UUID;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and
@@ -37,7 +32,8 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
   private final HttpUtil http;
 
   public CrawlerService(CrawlerConfiguration cfg) {
-    super("clb-crawler", cfg.poolSize, cfg.messaging, cfg.ganglia, cfg.registry.guiceModules());
+    super("clb-crawler", cfg.poolSize, cfg.messaging, cfg.ganglia,
+          (com.google.inject.Module) null/*cfg.registry.guiceModules()*/);
     this.cfg = cfg;
 
     http = new HttpUtil(HttpUtil.newMultithreadedClient(cfg.httpTimeout, cfg.poolSize, cfg.poolSize));
@@ -65,12 +61,12 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
     URI dwcaUri = dwcaEndpoint.get().getUrl();
     try {
       downloadAndExtract(d, dwcaUri);
-      send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
-              dwcaUri, 1, Maps.<String, UUID>newHashMap(),
-              new DwcaValidationReport(d.getKey(),
-                  new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-          )
-      );
+//      send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
+//              dwcaUri, 1, Maps.<String, UUID>newHashMap(),
+//              new DwcaValidationReport(d.getKey(),
+//                  new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+//          )
+//      );
 
     } catch (Exception e) {
       LOG.error("Failed to download and extract dwc archive for dataset {} from {}", d.getTitle(), dwcaUri, e);

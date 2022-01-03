@@ -1,16 +1,7 @@
 package org.gbif.checklistbank.cli.registry;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
-import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.gbif.api.jackson.LicenseSerde;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
-import org.gbif.api.vocabulary.License;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
@@ -18,20 +9,26 @@ import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
 import org.gbif.common.messaging.api.messages.RegistryChangeMessage;
 import org.gbif.utils.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.google.inject.Key;
+import org.apache.commons.io.FileUtils;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and
@@ -50,12 +47,13 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
-    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, InternalChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
+    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, null/*InternalChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
     this.cfg = cfg;
 
     // init mybatis layer and solr from cfg instance
     solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
-    mybatisService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+//    mybatisService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    mybatisService = null;
     datasetMapper = getInstance(DatasetMapper.class);
   }
 
@@ -153,15 +151,15 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
     ObjectMapper objectMapper = new ObjectMapper();
     SimpleModule module = new SimpleModule("LicenseModule", Version.unknownVersion());
-    module.addSerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
-    module.addKeySerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+//    module.addSerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
+//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+//    module.addKeySerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
+//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
 
     objectMapper.registerModule(module);
 
     // dataset messages are slow, long running processes. Only prefetch one message
-    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
+    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), null/*objectMapper*/, 1);
     startUpBeforeListening();
     listener.listen("clb-registry-change", cfg.poolSize, this);
   }

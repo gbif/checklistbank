@@ -1,9 +1,5 @@
 package org.gbif.checklistbank.cli.importer;
 
-
-import com.google.common.base.Preconditions;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
@@ -17,21 +13,21 @@ import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 import com.beust.jcommander.internal.Maps;
+import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import com.codahale.metrics.MetricRegistry;
+import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.postgresql.core.BaseConnection;
-
-import javax.annotation.Nullable;
 
 @Ignore("A manual test class")
 /**
@@ -97,8 +93,8 @@ public class ManualImport implements AutoCloseable {
     iCfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
     iCfg.deleteNeo = false;
-    iCfg.clb.serverName = "localhost";
-    iCfg.clb.databaseName = "clb";
+//    iCfg.clb.serverName = "localhost";
+//    iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
     iCfg.clb.password = "pogo";
     //iCfg.solr.serverType = SolrServerType.HTTP;
@@ -164,8 +160,8 @@ public class ManualImport implements AutoCloseable {
 
   public static void main(String[] args) throws Exception {
     ClbConfiguration nub = new ClbConfiguration();
-    nub.serverName = "pg1.gbif.org";
-    nub.databaseName = "prod_checklistbank2";
+//    nub.serverName = "pg1.gbif.org";
+//    nub.databaseName = "prod_checklistbank2";
     nub.user = "clb";
     nub.password = "";
 

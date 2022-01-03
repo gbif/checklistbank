@@ -1,9 +1,9 @@
 package org.gbif.checklistbank.cli.admin;
 
+import org.gbif.api.model.Constants;
+
 import java.io.File;
 import java.util.UUID;
-
-import org.gbif.api.model.Constants;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,8 +17,8 @@ public class AdminCommandTest {
     cfg.zookeeper.namespace = "uat_crawler";
     cfg.zookeeper.connectionString = "prodmaster1-vh.gbif.org,prodmaster2-vh.gbif.org,prodmaster3-vh.gbif.org";
 
-    cfg.clb.serverName = "localhost";
-    cfg.clb.databaseName = "checklistbank";
+//    cfg.clb.serverName = "localhost";
+//    cfg.clb.databaseName = "checklistbank";
     cfg.clb.user = "markus";
     cfg.clb.password = "";
 
@@ -31,8 +31,8 @@ public class AdminCommandTest {
 
   private AdminConfiguration configureUat(AdminConfiguration cfg) throws Exception {
     configureLocal(cfg);
-    cfg.clb.serverName = "pg1.gbif-uat.org";
-    cfg.clb.databaseName = "uat_checklistbank";
+//    cfg.clb.serverName = "pg1.gbif-uat.org";
+//    cfg.clb.databaseName = "uat_checklistbank";
     cfg.clb.user = "clb";
     cfg.clb.password = "xxx";
 
