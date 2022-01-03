@@ -1,25 +1,24 @@
 package org.gbif.checklistbank.cli.matcher;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.google.inject.Key;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
@@ -33,9 +32,10 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   private Timer timer;
 
   public MatcherService(MatcherConfiguration cfg) {
-    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match", ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
+    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match", null /*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
     this.cfg = cfg;
-    sqlImportService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+//    sqlImportService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    sqlImportService = null;
     solrImportService = getInstance(Key.get(DatasetImportService.class, Solr.class));
   }
 

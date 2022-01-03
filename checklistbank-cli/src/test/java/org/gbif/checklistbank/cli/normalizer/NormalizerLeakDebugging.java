@@ -1,19 +1,11 @@
 package org.gbif.checklistbank.cli.normalizer;
 
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
-import org.gbif.utils.file.properties.PropertiesUtil;
-import org.junit.Ignore;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -21,7 +13,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
@@ -45,9 +41,9 @@ public class NormalizerLeakDebugging {
 
     cfg.archiveRepository = new File("/tmp/clb/dwca");
     cfg.archiveRepository.mkdirs();
-    Properties properties = PropertiesUtil.loadProperties(ClbLoadTestDb.DEFAULT_PROPERTY_FILE);
-    ChecklistBankServiceMyBatisModule module = new ChecklistBankServiceMyBatisModule(properties);
-    cfg.clb=module.provideCfg();
+//    Properties properties = PropertiesUtil.loadProperties(ClbLoadTestDb.DEFAULT_PROPERTY_FILE);
+//    ChecklistBankServiceMyBatisModule module = new ChecklistBankServiceMyBatisModule(properties);
+//    cfg.clb=module.provideCfg();
 
     System.out.println("Load nublookup into memory");
     lookup.load(cfg.clb, false);

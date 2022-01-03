@@ -1,26 +1,10 @@
 package org.gbif.checklistbank.cli;
 
-
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.zaxxer.hikari.HikariDataSource;
-import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
-import org.gbif.checklistbank.cli.importer.Importer;
 import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
-import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.Mybatis;
 import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.HttpUtil;
@@ -30,6 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Maps;
+import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Utility to manually index an external checklist and download, normalize and import it.
@@ -63,8 +51,8 @@ public class IndexerApp {
     iCfg = new ImporterConfiguration();
     iCfg.neo = nCfg.neo;
     iCfg.deleteNeo = false;
-    iCfg.clb.serverName = "localhost";
-    iCfg.clb.databaseName = "clb";
+//    iCfg.clb.serverName = "localhost";
+//    iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
     iCfg.clb.password = "pogo";
     iCfg.solr.setServerType(SolrServerType.CLOUD);
@@ -94,21 +82,21 @@ public class IndexerApp {
 
   private void sync() throws Exception {
     // init mybatis layer and solr from cfg instance
-    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(iCfg.clb), new RealTimeModule(iCfg.solr));
-    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
-    NameUsageService nameUsageService = inj.getInstance(NameUsageService.class);
-    UsageService usageService = inj.getInstance(UsageService.class);
-    DatasetImportService sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    DatasetImportService solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
-
-    try {
-      Importer importer = Importer.create(iCfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
-      importer.run();
-    } finally {
-      sqlService.close();
-      solrService.close();
-      hds.close();
-    }
+//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(iCfg.clb), new RealTimeModule(iCfg.solr));
+//    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
+//    NameUsageService nameUsageService = inj.getInstance(NameUsageService.class);
+//    UsageService usageService = inj.getInstance(UsageService.class);
+//    DatasetImportService sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+//    DatasetImportService solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+//
+//    try {
+//      Importer importer = Importer.create(iCfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
+//      importer.run();
+//    } finally {
+//      sqlService.close();
+//      solrService.close();
+//      hds.close();
+//    }
   }
 
   public static void main(String[] args) throws Exception {

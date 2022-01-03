@@ -1,45 +1,34 @@
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.crawler.DwcaValidationReport;
-import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.service.checklistbank.DatasetMetricsService;
-import org.gbif.api.service.checklistbank.NameUsageMatchingService;
-import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.service.registry.*;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
-import org.gbif.checklistbank.cli.nubbuild.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.nub.source.ClbSource;
 import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
-import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
 import org.gbif.checklistbank.service.mybatis.persistence.liquibase.DbSchemaUpdater;
-import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
-import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
-import org.gbif.checklistbank.ws.client.guice.ChecklistBankWsClientModule;
 import org.gbif.cli.BaseCommand;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
-import org.gbif.common.messaging.api.messages.*;
+import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
+import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
+import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
+import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
@@ -50,10 +39,6 @@ import javax.annotation.Nullable;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -86,12 +71,12 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initRegistry() {
-    Injector inj = cfg.registry.createRegistryInjector();
-    datasetService = inj.getInstance(DatasetService.class);
-    organizationService = inj.getInstance(OrganizationService.class);
-    installationService = inj.getInstance(InstallationService.class);
-    networkService = inj.getInstance(NetworkService.class);
-    nodeService = inj.getInstance(NodeService.class);
+//    Injector inj = cfg.registry.createRegistryInjector();
+//    datasetService = inj.getInstance(DatasetService.class);
+//    organizationService = inj.getInstance(OrganizationService.class);
+//    installationService = inj.getInstance(InstallationService.class);
+//    networkService = inj.getInstance(NetworkService.class);
+//    nodeService = inj.getInstance(NodeService.class);
   }
 
   private void initCfg() {
@@ -209,10 +194,10 @@ public class AdminCommand extends BaseCommand {
     final String wsProp = "checklistbank.match.ws.url";
     props.setProperty(wsProp, Preconditions.checkNotNull(cfg.nubws, "nubws config required"));
 
-    ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, true);
-    Injector injector = Guice.createInjector(mod);
-    NameUsageMatchingService src = injector.getInstance(NameUsageMatchingService.class);
-    new NubCheck(src).testFile(cfg.file);
+//    ChecklistBankWsClientModule mod = new ChecklistBankWsClientModule(props, false, true);
+//    Injector injector = Guice.createInjector(mod);
+//    NameUsageMatchingService src = injector.getInstance(NameUsageMatchingService.class);
+//    new NubCheck(src).testFile(cfg.file);
   }
 
   private void rematchAll() throws Exception {
@@ -241,47 +226,47 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void updateNubDataset() {
-    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    DatasetMetricsService metricsService = clbInj.getInstance(DatasetMetricsService.class);
-
-    Injector regInj = cfg.registry.createRegistryInjector();
-    BackboneDatasetUpdater nubUpdater = new BackboneDatasetUpdater(regInj.getInstance(DatasetService.class),
-        regInj.getInstance(OrganizationService.class), regInj.getInstance(NetworkService.class));
-
-    nubUpdater.updateBackboneDataset(metricsService.get(Constants.NUB_DATASET_KEY));
-    LOG.info("Backbone dataset metadata updated.");
+//    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+//    DatasetMetricsService metricsService = clbInj.getInstance(DatasetMetricsService.class);
+//
+//    Injector regInj = cfg.registry.createRegistryInjector();
+//    BackboneDatasetUpdater nubUpdater = new BackboneDatasetUpdater(regInj.getInstance(DatasetService.class),
+//        regInj.getInstance(OrganizationService.class), regInj.getInstance(NetworkService.class));
+//
+//    nubUpdater.updateBackboneDataset(metricsService.get(Constants.NUB_DATASET_KEY));
+//    LOG.info("Backbone dataset metadata updated.");
   }
 
   private void sendNubChanged() throws IOException {
-    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    DatasetMetricsService metricsService = inj.getInstance(DatasetMetricsService.class);
-    send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
+//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+//    DatasetMetricsService metricsService = inj.getInstance(DatasetMetricsService.class);
+//    send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
   }
 
   private void syncDatasets() {
-    initRegistry();
-    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
-    DatasetMapper mapper = inj.getInstance(DatasetMapper.class);
-    LOG.info("Start syncing datasets from registry to CLB.");
-    int counter = 0;
-    Iterable<Dataset> datasets = Iterables.datasets(DatasetType.CHECKLIST, datasetService);
-    mapper.truncate();
-    for (Dataset d : datasets) {
-      mapper.insert(new DatasetCore(d));
-      counter++;
-    }
-    LOG.info("{} checklist titles copied", counter);
+//    initRegistry();
+//    Injector inj = Guice.createInjector(InternalChecklistBankServiceMyBatisModule.create(cfg.clb));
+//    DatasetMapper mapper = inj.getInstance(DatasetMapper.class);
+//    LOG.info("Start syncing datasets from registry to CLB.");
+//    int counter = 0;
+//    Iterable<Dataset> datasets = Iterables.datasets(DatasetType.CHECKLIST, datasetService);
+//    mapper.truncate();
+//    for (Dataset d : datasets) {
+//      mapper.insert(new DatasetCore(d));
+//      counter++;
+//    }
+//    LOG.info("{} checklist titles copied", counter);
   }
 
   /**
    * Cleans up orphan records in the postgres db.
    */
   private void cleanOrphans() {
-    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    ParsedNameServiceMyBatis parsedNameService = (ParsedNameServiceMyBatis) inj.getInstance(ParsedNameService.class);
-    LOG.info("Start cleaning up orphan names. This will take a while ...");
-    int num = parsedNameService.deleteOrphaned();
-    LOG.info("{} orphan names deleted", num);
+//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+//    ParsedNameServiceMyBatis parsedNameService = (ParsedNameServiceMyBatis) inj.getInstance(ParsedNameService.class);
+//    LOG.info("Start cleaning up orphan names. This will take a while ...");
+//    int num = parsedNameService.deleteOrphaned();
+//    LOG.info("{} orphan names deleted", num);
   }
 
   private void cleanup(Dataset d) throws IOException {
@@ -346,12 +331,12 @@ public class AdminCommand extends BaseCommand {
             LOG.info("Missing dwca file. Cannot normalize dataset {}", title(d));
           } else {
             // validation result is a fake valid checklist validation
-            send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
-                    URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
-                    new DwcaValidationReport(d.getKey(),
-                        new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-                )
-            );
+//            send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
+//                    URI.create("http://fake.org"), 1, Maps.<String, UUID>newHashMap(),
+//                    new DwcaValidationReport(d.getKey(),
+//                        new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
+//                )
+//            );
           }
           break;
 
@@ -384,7 +369,7 @@ public class AdminCommand extends BaseCommand {
   private void export(Dataset d) {
     if (exporter == null) {
       // lazily init exporter
-      exporter = Exporter.create(cfg.exportRepository, cfg.clb, cfg.registry.wsUrl);
+//      exporter = Exporter.create(cfg.exportRepository, cfg.clb, cfg.registry.wsUrl);
     }
     // now export the dataset
     exporter.export(d);
@@ -420,21 +405,21 @@ public class AdminCommand extends BaseCommand {
   }
   
   private void verifyPg() throws Exception {
-    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
-    NameUsageService usageService = clbInj.getInstance(NameUsageService.class);
-  
-    NubAssertions validator = new NubAssertions(usageService);
-    if (cfg.file != null) {
-      validator.setAssertionFile(cfg.file);
-    }
-    if (cfg.file2 != null) {
-      validator.setHomonymFile(cfg.file2);
-    }
-    if (validator.validate()) {
-      LOG.info("{} passed!", validator.getClass().getSimpleName());
-    } else {
-      LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
-    }
+//    Injector clbInj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb));
+//    NameUsageService usageService = clbInj.getInstance(NameUsageService.class);
+//
+//    NubAssertions validator = new NubAssertions(usageService);
+//    if (cfg.file != null) {
+//      validator.setAssertionFile(cfg.file);
+//    }
+//    if (cfg.file2 != null) {
+//      validator.setHomonymFile(cfg.file2);
+//    }
+//    if (validator.validate()) {
+//      LOG.info("{} passed!", validator.getClass().getSimpleName());
+//    } else {
+//      LOG.error("Backbone is not valid! {} failed", validator.getClass().getSimpleName());
+//    }
   }
   
   private void validate(UsageDao dao, NubValidation validator) {

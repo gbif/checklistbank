@@ -1,7 +1,5 @@
 package org.gbif.checklistbank.cli.importer;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Key;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
@@ -15,12 +13,15 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.inject.Key;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMessage> {
 
@@ -34,7 +35,14 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration cfg) {
-    super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import", ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
+    super(
+        "clb-importer",
+        cfg.poolSize,
+        cfg.messaging,
+        cfg.ganglia,
+        "import",
+        null /*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/,
+        new RealTimeModule(cfg.solr));
     this.cfg = cfg;
     if (cfg.zookeeper.isConfigured()) {
       try {
@@ -47,7 +55,8 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       zkUtils = null;
     }
     // init mybatis layer and solr once from cfg instance
-    sqlService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    //    sqlService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    sqlService = null;
     solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
     nameUsageService = getInstance(NameUsageService.class);
     usageService = getInstance(UsageService.class);
@@ -56,7 +65,9 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   @Override
   protected void process(ChecklistNormalizedMessage msg) throws Exception {
     try {
-      Importer importer = Importer.create(cfg, msg.getDatasetUuid(), nameUsageService, usageService, sqlService, solrService);
+      Importer importer =
+          Importer.create(
+              cfg, msg.getDatasetUuid(), nameUsageService, usageService, sqlService, solrService);
       importer.run();
 
       // notify rabbit
@@ -64,14 +75,21 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       if (cfg.zookeeper.isConfigured()) {
         crawlFinished = zkUtils.getDate(msg.getDatasetUuid(), ZookeeperUtils.FINISHED_CRAWLING);
         if (crawlFinished == null) {
-          LOG.warn("No crawlFinished date found in zookeeper, use current date instead for dataset {}", msg.getDatasetUuid());
+          LOG.warn(
+              "No crawlFinished date found in zookeeper, use current date instead for dataset {}",
+              msg.getDatasetUuid());
           crawlFinished = new Date();
         }
       } else {
         crawlFinished = new Date();
       }
 
-      send(new ChecklistSyncedMessage(msg.getDatasetUuid(), crawlFinished, importer.getSyncCounter(), importer.getDelCounter()));
+      send(
+          new ChecklistSyncedMessage(
+              msg.getDatasetUuid(),
+              crawlFinished,
+              importer.getSyncCounter(),
+              importer.getDelCounter()));
       // finally delete artifacts unless configured not to or it is the nub!
       if (cfg.deleteNeo && !Constants.NUB_DATASET_KEY.equals(msg.getDatasetUuid())) {
         RegistryService.deleteStorageFiles(cfg.neo, msg.getDatasetUuid());
@@ -79,7 +97,8 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
 
     } finally {
       if (cfg.zookeeper.isConfigured()) {
-        zkUtils.createOrUpdate(msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
+        zkUtils.createOrUpdate(
+            msg.getDatasetUuid(), ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
       }
     }
   }
@@ -108,5 +127,4 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   public Class<ChecklistNormalizedMessage> getMessageClass() {
     return ChecklistNormalizedMessage.class;
   }
-
 }

@@ -34,12 +34,14 @@ public class ClbSourceList extends NubSourceList {
   private final InstallationService installationService;
 
   public static ClbSourceList create(NubConfiguration cfg) {
-    Injector regInj = cfg.registry.createRegistryInjector();
+//    Injector regInj = cfg.registry.createRegistryInjector();
+    Injector regInj = null;
     return new ClbSourceList(regInj.getInstance(DatasetService.class), regInj.getInstance(OrganizationService.class), regInj.getInstance(InstallationService.class), cfg);
   }
 
   public static ClbSourceList create(NubConfiguration cfg, List<UUID> sourceDatasetKeys) {
-    Injector regInj = cfg.registry.createRegistryInjector();
+//    Injector regInj = cfg.registry.createRegistryInjector();
+    Injector regInj = null;
     DatasetService datasetService = regInj.getInstance(DatasetService.class);
 
     List<NubSource> sources = Lists.newArrayList();

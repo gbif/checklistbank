@@ -328,7 +328,8 @@ public class NeoInserter implements AutoCloseable {
       if (sciname != null) {
         pn = nameParser.parse(sciname, rank);
       } else {
-        String genus = firstClean(v, GbifTerm.genericName, DwcTerm.genus);
+//        String genus = firstClean(v, GbifTerm.genericName, DwcTerm.genus);
+        String genus = null;
         if (genus == null) {
           // bad atomized name, we can't assemble anything. Ignore this record completely!!!
           throw new IgnoreNameUsageException("No name found");

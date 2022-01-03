@@ -1,7 +1,17 @@
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.checklistbank.config.GangliaConfiguration;
+import org.gbif.common.messaging.DefaultMessagePublisher;
+import org.gbif.common.messaging.MessageListener;
+import org.gbif.common.messaging.api.Message;
+import org.gbif.common.messaging.api.MessageCallback;
+import org.gbif.common.messaging.api.MessagePublisher;
+import org.gbif.common.messaging.config.MessagingConfiguration;
+
+import java.io.IOException;
+import java.util.List;
+
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -11,21 +21,8 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.zaxxer.hikari.HikariDataSource;
-import org.gbif.checklistbank.config.GangliaConfiguration;
-import org.gbif.checklistbank.config.MetricModule;
-import org.gbif.checklistbank.service.mybatis.guice.ChecklistBankServiceMyBatisModule;
-import org.gbif.checklistbank.service.mybatis.guice.InternalChecklistBankServiceMyBatisModule;
-import org.gbif.common.messaging.DefaultMessagePublisher;
-import org.gbif.common.messaging.MessageListener;
-import org.gbif.common.messaging.api.Message;
-import org.gbif.common.messaging.api.MessageCallback;
-import org.gbif.common.messaging.api.MessagePublisher;
-import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * A base service that provides convenience methods to interact with rabbit and can set up a ganglia reported metric registry.
@@ -50,17 +47,17 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
     this.poolSize = poolSize;
     this.queue = queue;
     injector = Guice.createInjector(ImmutableList.<Module>builder()
-        .add(new MetricModule(gCfg))
+//        .add(new MetricModule(gCfg))
         .addAll(modules)
         .build());
     this.registry = injector.getInstance(MetricRegistry.class);
     initMetrics(this.registry);
     // keep a reference to the hikari pool so we can close it properly on shutdown
     for (Module m : modules) {
-      if (m instanceof ChecklistBankServiceMyBatisModule || m instanceof InternalChecklistBankServiceMyBatisModule) {
-        hds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
-        break;
-      }
+//      if (m instanceof ChecklistBankServiceMyBatisModule || m instanceof InternalChecklistBankServiceMyBatisModule) {
+//        hds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
+//        break;
+//      }
     }
   }
 
