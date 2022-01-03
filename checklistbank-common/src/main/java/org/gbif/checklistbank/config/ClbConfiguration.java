@@ -90,7 +90,7 @@ public class ClbConfiguration {
    */
   @Parameter(names = "--clb-idle-timeout")
   @Min(0)
-  @Value("${checklistbank.datasource.hikari.idleTimeout:1}")
+  @Value("${checklistbank.datasource.hikari.idleTimeout:60000}")
   public int idleTimeout = min(1);
 
   /**
@@ -101,12 +101,12 @@ public class ClbConfiguration {
    */
   @Parameter(names = "--clb-max-lifetime")
   @Min(0)
-  @Value("${checklistbank.datasource.hikari.maxLifetime:15}")
+  @Value("${checklistbank.datasource.hikari.maxLifetime:900000}")
   public int maxLifetime = min(15);
 
   @Parameter(names = "--clb-max-lifetime")
   @Min(0)
-  @Value("${checklistbank.datasource.hikari.leakDetectionThreshold:3}")
+  @Value("${checklistbank.datasource.hikari.leakDetectionThreshold:180000}")
   public int leakDetectionThreshold = min(3);
 
   /**
@@ -118,7 +118,7 @@ public class ClbConfiguration {
   public String connectionInitSql = "SET work_mem='64MB'";
 
   @Parameter(names = "--clb-connection-timeout")
-  @Min(1000)
+  @Min(1_000)
   @Value("${checklistbank.datasource.hikari.connectionTimeout:5000}")
   public int connectionTimeout = sec(5);
 
@@ -137,14 +137,14 @@ public class ClbConfiguration {
    * @return converted minutes in milliseconds
    */
   private static int min(int minutes) {
-    return minutes*60000;
+    return minutes * 60_000;
   }
 
   /**
    * @return converted seconds in milliseconds
    */
   private static int sec(int seconds) {
-    return seconds*1000;
+    return seconds * 1_000;
   }
 
   public Properties toProps(boolean withPrefix) {
