@@ -43,25 +43,25 @@
       </testResource>
     </testResources>
     <plugins>
-      <plugin>
-        <!-- This is used to copy the resource file from the checklistbank-solr which are required by IT tests-->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>resource-dependencies</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>unpack-dependencies</goal>
-            </goals>
-            <configuration>
-              <includeArtifactIds>checklistbank-solr</includeArtifactIds>
-              <includes>**/*.xml</includes>
-              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        &lt;!&ndash; This is used to copy the resource file from the checklistbank-solr which are required by IT tests&ndash;&gt;-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-dependency-plugin</artifactId>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>resource-dependencies</id>-->
+<!--            <phase>process-test-resources</phase>-->
+<!--            <goals>-->
+<!--              <goal>unpack-dependencies</goal>-->
+<!--            </goals>-->
+<!--            <configuration>-->
+<!--              <includeArtifactIds>checklistbank-solr</includeArtifactIds>-->
+<!--              <includes>**/*.xml</includes>-->
+<!--              <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>-->
+<!--            </configuration>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -439,6 +439,11 @@
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-mybatis-service</artifactId>
+      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
