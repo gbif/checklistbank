@@ -441,11 +441,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-mybatis-service</artifactId>
-      <classifier>tests</classifier>
-    </dependency>
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
       <scope>test</scope>
