@@ -2,7 +2,9 @@ package org.gbif.checklistbank.ws.client;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.v2.NameUsageMatch2;
+import org.gbif.api.vocabulary.Rank;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @RequestMapping("species")
-public interface NubResourceClient {
+public interface NubResourceClient extends NameUsageMatchingService {
 
   @RequestMapping(
       value = "match",
@@ -30,6 +32,17 @@ public interface NubResourceClient {
       LinneanClassification classification, // TODO: argument resolver needed?
       @RequestParam("strict") Boolean strict,
       @RequestParam("verbose") Boolean verbose);
+
+  @Override
+  default NameUsageMatch match(
+      String scientificName,
+      Rank rank,
+      LinneanClassification classification,
+      boolean strict,
+      boolean verbose) {
+    return match(null, scientificName, null, null, null,
+        rank.getMarker(), null, null, classification, strict, verbose);
+  }
 
   @RequestMapping(
       value = "match2",
