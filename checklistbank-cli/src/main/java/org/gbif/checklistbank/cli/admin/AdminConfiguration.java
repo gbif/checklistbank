@@ -1,9 +1,5 @@
 package org.gbif.checklistbank.cli.admin;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParametersDelegate;
-import com.google.common.collect.Lists;
-import org.apache.commons.io.LineIterator;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
@@ -11,18 +7,22 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
-import javax.annotation.Nullable;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- *
- */
+import javax.annotation.Nullable;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.io.LineIterator;
+
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParametersDelegate;
+
 public class AdminConfiguration {
 
   @ParametersDelegate
@@ -36,13 +36,13 @@ public class AdminConfiguration {
   public RegistryServiceConfiguration registry = new RegistryServiceConfiguration();
 
   @ParametersDelegate
-  @Valid
   @NotNull
+  @Valid
   public ClbConfiguration clb = new ClbConfiguration();
 
   @ParametersDelegate
-  @Valid
   @NotNull
+  @Valid
   public ZooKeeperConfiguration zookeeper = new ZooKeeperConfiguration();
 
   @ParametersDelegate
@@ -58,15 +58,15 @@ public class AdminConfiguration {
   @NotNull
   public File exportRepository = new File("./exports");
 
-  @Parameter(names = {"-k", "--key"}, required = false)
+  @Parameter(names = {"-k", "--key"})
   @Nullable
   public UUID key;
 
-  @Parameter(names = {"-f", "--keys"}, required = false)
+  @Parameter(names = {"-f", "--keys"})
   @Nullable
   public File keys;
 
-  @Parameter(names = {"-t", "--type"}, required = false)
+  @Parameter(names = {"-t", "--type"})
   @NotNull
   public DatasetType type = DatasetType.CHECKLIST;
 
@@ -74,59 +74,59 @@ public class AdminConfiguration {
   @NotNull
   public AdminOperation operation;
 
+  @Parameter(names = {"--nub-ranks-only"})
   @Valid
-  @Parameter(names = {"--nub-ranks-only"}, required = false)
   public boolean nubRanksOnly = false;
-  
+
   /**
    * Generic custom file parameter for various routines
    */
+  @Parameter(names = {"--file"})
   @Valid
-  @Parameter(names = {"--file"}, required = false)
   public File file;
-  
+
   /**
    * Generic custom file parameter for various routines
    */
+  @Parameter(names = {"--file2"})
   @Valid
-  @Parameter(names = {"--file2"}, required = false)
   public File file2;
 
   /**
    * Nub lookup service used for testing content, see NUB_CHECK operation
    */
+  @Parameter(names = {"--nubws"})
   @Valid
-  @Parameter(names = {"--nubws"}, required = false)
   public String nubws = "http://api.gbif.org/v1/species/match";
 
   /**
-   * Do not change any information in checklistbank, just report potential changes, e.g. for reparsed names
+   * Do not change any information in checklistbank, just report potential changes, e.g. for re-parsed names
    */
-  @Parameter(names = {"--dry-run"}, required = false)
+  @Parameter(names = {"--dry-run"})
   public boolean dryRun = false;
 
   /**
    * If true sets the Backbone dataset key in the key config
    */
-  @Parameter(names = {"--nub"}, required = false)
+  @Parameter(names = {"--nub"})
   public boolean nub = false;
 
   /**
    * If true sets the Catalog of Life dataset key in the key config
    */
-  @Parameter(names = {"--col"}, required = false)
+  @Parameter(names = {"--col"})
   public boolean col = false;
 
   /**
    * If true sets the Plazi publisher key in the key config
    */
-  @Parameter(names = {"--plazi"}, required = false)
+  @Parameter(names = {"--plazi"})
   public boolean plazi = false;
 
   /**
    * If true sets the IUCN redlist dataset key in the key config
    */
-  @Parameter(names = {"--iucn"}, required = false)
+  @Parameter(names = {"--iucn"})
   public boolean iucn = false;
 
   /**
@@ -137,7 +137,7 @@ public class AdminConfiguration {
   }
 
   public List<UUID> listKeys() {
-    List<UUID> result = Lists.newArrayList();
+    List<UUID> result = new ArrayList<>();
     if (keys != null || keys.exists()) {
       try {
         LineIterator lines = new LineIterator(new FileReader(keys));

@@ -1,8 +1,5 @@
 package org.gbif.checklistbank.cli.admin;
 
-/**
- *
- */
 public enum AdminOperation {
   /**
    * Removes entries in zookeeper and clears the local dwca repository files for the requested dataset keys.
