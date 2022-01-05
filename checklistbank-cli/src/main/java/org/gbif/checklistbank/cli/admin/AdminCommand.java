@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
@@ -129,7 +130,10 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initContext(ClbConfiguration clbConfiguration) {
-    ctx = SpringContextBuilder.create().withClbConfiguration(clbConfiguration).build();
+    ctx = SpringContextBuilder.create()
+        .withClbConfiguration(clbConfiguration)
+        .withComponents()
+        .build();
   }
 
   private void setKnownKey(String name, UUID key) {
@@ -175,7 +179,7 @@ public class AdminCommand extends BaseCommand {
         runGlobalCommands();
       } else {
         initRegistry();
-        runDatasetComamnds();
+        runDatasetCommands();
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -339,18 +343,13 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
-  private void runDatasetComamnds() throws Exception {
+  private void runDatasetCommands() throws Exception {
     Iterable<Dataset> datasets;
     if (cfg.keys != null) {
-      datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
-        @Nullable
-        @Override
-        public Dataset apply(UUID key) {
-          return datasetService.get(key);
-        }
-      });
+      datasets = cfg.listKeys().stream().map(key -> datasetService.get(key)).collect(Collectors.toList());
     } else {
-      datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
+      datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService,
+          networkService, nodeService);
     }
 
     for (Dataset d : datasets) {
@@ -363,18 +362,17 @@ public class AdminCommand extends BaseCommand {
         }
       }
 
+      Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
       switch (cfg.operation) {
         case CLEANUP:
           cleanup(d);
           break;
 
         case CRAWL:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new StartCrawlMessage(d.getKey()));
           break;
 
         case NORMALIZE:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           if (!cfg.archiveDir(d.getKey()).exists()) {
             LOG.info("Missing dwca file. Cannot normalize dataset {}", title(d));
           } else {
@@ -396,7 +394,6 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case IMPORT:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           if (!cfg.neo.neoDir(d.getKey()).exists()) {
             LOG.info("Missing neo4j directory. Cannot import dataset {}", title(d));
           } else {
@@ -405,12 +402,10 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case ANALYZE:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
           break;
 
         case MATCH:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new MatchDatasetMessage(d.getKey()));
           break;
 
