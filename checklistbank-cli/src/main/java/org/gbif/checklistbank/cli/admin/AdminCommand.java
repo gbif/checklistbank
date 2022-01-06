@@ -30,6 +30,8 @@ import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.liquibase.DbSchemaUpdater;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
@@ -66,15 +68,12 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
@@ -433,7 +432,9 @@ public class AdminCommand extends BaseCommand {
    * Reparses all names
    */
   private void reparseNames() {
-    new NameUsageReparser(cfg.clb).run();
+    NameUsageMapper usageMapper = ctx.getBean(NameUsageMapper.class);
+    ParsedNameMapper nameMapper = ctx.getBean(ParsedNameMapper.class);
+    new NameUsageReparser(cfg.clb, usageMapper, nameMapper).run();
   }
 
   private void dumpToNeo() throws Exception {

@@ -1,6 +1,7 @@
 package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.index.guice.RealTimeModule;
 import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
@@ -19,24 +20,32 @@ import com.codahale.metrics.Timer;
 import com.google.inject.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MatcherService.class);
 
+  // TODO: 05/01/2022 initialize context, startUp is in top class, RabbitBaseService
+  private ApplicationContext ctx;
+
   private NubMatchService matcher;
   private static final String QUEUE = "clb-matcher";
-  private final DatasetImportService sqlImportService;
-  private final DatasetImportService solrImportService;
+  // TODO: 05/01/2022 initialize these
+  private DatasetImportService sqlImportService;
+  private DatasetImportService solrImportService;
   private final MatcherConfiguration cfg;
   private Timer timer;
 
   public MatcherService(MatcherConfiguration cfg) {
-    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match", null /*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
+    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
     this.cfg = cfg;
-//    sqlImportService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    sqlImportService = null;
-    solrImportService = getInstance(Key.get(DatasetImportService.class, Solr.class));
+  }
+
+  private void initContext() {
+    // TODO: 05/01/2022 configure
+    ctx = SpringContextBuilder.create()
+        .build();
   }
 
   @Override

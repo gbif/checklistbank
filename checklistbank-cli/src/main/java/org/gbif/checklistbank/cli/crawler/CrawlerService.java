@@ -32,13 +32,13 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
   private final HttpUtil http;
 
   public CrawlerService(CrawlerConfiguration cfg) {
-    super("clb-crawler", cfg.poolSize, cfg.messaging, cfg.ganglia,
-          (com.google.inject.Module) null/*cfg.registry.guiceModules()*/);
+    super("clb-crawler", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
     http = new HttpUtil(HttpUtil.newMultithreadedClient(cfg.httpTimeout, cfg.poolSize, cfg.poolSize));
     // init registry
-    datasetService = getInstance(DatasetService.class);
+    // TODO: 05/01/2022 get DatasetService (from context?)
+    datasetService = null;
   }
 
   @Override

@@ -55,10 +55,10 @@ public class NubAssertions implements NubValidation {
     this.homonymFile = file.getAbsolutePath();
   }
 
-  @Override
   /**
    * This requires an open neo4j transaction!
    */
+  @Override
   public boolean validate() {
     LOG.info("Start nub assertions");
   

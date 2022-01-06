@@ -4,12 +4,13 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
@@ -20,15 +21,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
 import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and
@@ -36,25 +36,31 @@ import org.slf4j.LoggerFactory;
  */
 public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
-
   private static final Logger LOG = LoggerFactory.getLogger(RegistryService.class);
 
+  private ApplicationContext ctx;
+
   private final RegistryConfiguration cfg;
-  private final DatasetImportService solrService;
-  private final DatasetImportService mybatisService;
-  private final DatasetMapper datasetMapper;
+  private DatasetImportService solrService;
+  private DatasetImportService mybatisService;
+  private DatasetMapper datasetMapper;
   private Timer timerSolr;
   private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
-    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, null/*InternalChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
+    // TODO: 05/01/2022 make sure these two modules configured
+//    super(null, "clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, null/*InternalChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
+    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
-    // init mybatis layer and solr from cfg instance
-    solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
-//    mybatisService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    mybatisService = null;
-    datasetMapper = getInstance(DatasetMapper.class);
+    // TODO: 05/01/2022 add initContext method?
+    initContext();
+  }
+
+  private void initContext() {
+    // TODO: 05/01/2022 configure
+    ctx = SpringContextBuilder.create()
+        .build();
   }
 
   @Override
@@ -97,7 +103,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       solrService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset from solr", key, e);
+      LOG.error("Failed to delete dataset with key [{}] from solr", key, e);
     } finally {
       context.stop();
     }
@@ -107,7 +113,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       mybatisService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset from postgres", key, e);
+      LOG.error("Failed to delete dataset with key [{}] from postgres", key, e);
     } finally {
       context.stop();
     }
@@ -148,18 +154,18 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
+    initContext();
+
+    // TODO: 05/01/2022 make sure these are present in the context
+    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
+    mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
+    datasetMapper = ctx.getBean(DatasetMapper.class);
+
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
-    ObjectMapper objectMapper = new ObjectMapper();
-    SimpleModule module = new SimpleModule("LicenseModule", Version.unknownVersion());
-//    module.addSerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
-//    module.addKeySerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+    ObjectMapper objectMapper = ctx.getBean(ObjectMapper.class);
 
-    objectMapper.registerModule(module);
-
-    // dataset messages are slow, long running processes. Only prefetch one message
-    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), null/*objectMapper*/, 1);
+    // dataset messages are slow, long-running processes. Only prefetch one message
+    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
     startUpBeforeListening();
     listener.listen("clb-registry-change", cfg.poolSize, this);
   }

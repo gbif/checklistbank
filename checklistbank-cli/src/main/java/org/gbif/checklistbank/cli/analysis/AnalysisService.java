@@ -19,10 +19,10 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
 
   private final DatasetAnalysisService analysisService;
 
-
   public AnalysisService(AnalysisConfiguration cfg) {
-    super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze", null/*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/);
-    analysisService = getInstance(DatasetAnalysisService.class);
+    super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze");
+    // TODO: 05/01/2022 get DatasetAnalysisService (from context?)
+    analysisService = null;
   }
 
   @Override

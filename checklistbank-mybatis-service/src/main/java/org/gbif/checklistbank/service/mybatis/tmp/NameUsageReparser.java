@@ -39,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-/** */
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
@@ -55,11 +54,9 @@ public class NameUsageReparser implements Runnable {
   private int failed = 0;
   private int unparsable = 0;
 
-  public NameUsageReparser(ClbConfiguration cfg) {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankMyBatisConfiguration.class);
-    nameMapper = ctx.getBean(ParsedNameMapper.class);
-    usageMapper = ctx.getBean(NameUsageMapper.class);
+  public NameUsageReparser(ClbConfiguration cfg, NameUsageMapper usageMapper, ParsedNameMapper nameMapper) {
+    this.usageMapper = usageMapper;
+    this.nameMapper = nameMapper;
     threads = Math.max(1, cfg.maximumPoolSize - 1);
     exec = Executors.newFixedThreadPool(threads);
   }

@@ -1,24 +1,26 @@
 package org.gbif.checklistbank.cli.common;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.common.collect.Sets;
-import com.google.inject.Module;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.google.common.collect.Sets;
+
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
+
   private static final Logger LOG = LoggerFactory.getLogger(RabbitDatasetService.class);
   private static final Marker DOI_SMTP = MarkerFactory.getMarker("SMTP");
   private Timer timer;
@@ -27,8 +29,8 @@ public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extend
   protected Set<UUID> runningJobs = Sets.newHashSet();
   private final String action;
 
-  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action, Module... modules) {
-    super(queue, poolSize, mCfg, gCfg, modules);
+  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action) {
+    super(queue, poolSize, mCfg, gCfg);
     this.action = action;
   }
 

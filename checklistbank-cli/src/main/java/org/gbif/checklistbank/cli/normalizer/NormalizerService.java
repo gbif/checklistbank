@@ -72,10 +72,11 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
       LOG.warn("Refuse to normalize the GBIF backbone");
       failed(msg.getDatasetUuid());
     } else {
-      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), getRegistry(), msg.getConstituents(), lookup);
+      // TODO: 05/01/2022 registry not configured yet, so set it to null
+      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), null, msg.getConstituents(), lookup);
       normalizer.run();
       if (cfg.zookeeper.isConfigured()) {
-        zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
+        zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1L);
       }
       send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
     }
@@ -86,7 +87,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
     if (cfg.zookeeper.isConfigured()) {
       zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
       zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
-      zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1l);
+      zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1L);
     }
   }
 

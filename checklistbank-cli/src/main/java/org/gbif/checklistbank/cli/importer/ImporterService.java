@@ -35,14 +35,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration cfg) {
-    super(
-        "clb-importer",
-        cfg.poolSize,
-        cfg.messaging,
-        cfg.ganglia,
-        "import",
-        null /*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/,
-        new RealTimeModule(cfg.solr));
+    super("clb-importer", cfg.poolSize, cfg.messaging, cfg.ganglia, "import");
     this.cfg = cfg;
     if (cfg.zookeeper.isConfigured()) {
       try {
@@ -54,12 +47,12 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       LOG.warn("Zookeeper not configured. Crawl metadata will not be managed.");
       zkUtils = null;
     }
-    // init mybatis layer and solr once from cfg instance
-    //    sqlService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
+    // TODO: 05/01/2022 init mybatis layer and solr once from cfg instance
     sqlService = null;
-    solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
-    nameUsageService = getInstance(NameUsageService.class);
-    usageService = getInstance(UsageService.class);
+    solrService = null;
+    // TODO: 05/01/2022 get beans from context
+    nameUsageService = null;
+    usageService = null;
   }
 
   @Override
