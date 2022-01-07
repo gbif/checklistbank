@@ -24,9 +24,6 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
-/**
- *
- */
 public interface UsageSyncService {
 
   int syncUsage(boolean insert, NameUsage usage, ParsedName pn, NameUsageMetrics metrics);

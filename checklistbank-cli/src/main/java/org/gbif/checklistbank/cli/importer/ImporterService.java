@@ -5,12 +5,15 @@ import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
@@ -18,20 +21,21 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.inject.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ImporterService.class);
 
+  private final ApplicationContext ctx;
+
   private final ImporterConfiguration cfg;
-  private DatasetImportService sqlService;
+  private final DatasetImportService sqlService;
   private DatasetImportService solrService;
-  private NameUsageService nameUsageService;
-  private UsageService usageService;
+  private final NameUsageService nameUsageService;
+  private final UsageService usageService;
   private final ZookeeperUtils zkUtils;
 
   public ImporterService(ImporterConfiguration cfg) {
@@ -47,12 +51,20 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       LOG.warn("Zookeeper not configured. Crawl metadata will not be managed.");
       zkUtils = null;
     }
-    // TODO: 05/01/2022 init mybatis layer and solr once from cfg instance
-    sqlService = null;
-    solrService = null;
-    // TODO: 05/01/2022 get beans from context
-    nameUsageService = null;
-    usageService = null;
+
+    ctx = SpringContextBuilder.create()
+        .withComponents(
+            DatasetImportServiceMyBatis.class,
+            UsageSyncServiceMyBatis.class,
+            NameUsageServiceMyBatis.class,
+            UsageServiceMyBatis.class)
+        .build();
+
+    sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
+    // TODO: 07/01/2022 configure solr?
+//    solrService = null;
+    nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
+    usageService = ctx.getBean(UsageServiceMyBatis.class);
   }
 
   @Override
@@ -104,7 +116,6 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   }
 
   @Override
-  @VisibleForTesting
   protected void startUp() throws Exception {
     super.startUp();
   }
