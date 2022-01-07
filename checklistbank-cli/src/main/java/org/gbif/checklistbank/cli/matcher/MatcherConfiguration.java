@@ -29,7 +29,6 @@ import com.beust.jcommander.ParametersDelegate;
 @SuppressWarnings("PublicField")
 public class MatcherConfiguration {
 
-
   @Parameter(names = "--pool-size")
   @Min(1)
   public int poolSize = 1;
@@ -58,5 +57,4 @@ public class MatcherConfiguration {
   @Valid
   @NotNull
   public SolrConfig solr = new SolrConfig();
-
 }

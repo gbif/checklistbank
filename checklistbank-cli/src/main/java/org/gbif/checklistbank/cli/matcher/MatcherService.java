@@ -18,6 +18,11 @@ import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
@@ -36,26 +41,30 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MatcherService.class);
 
-  // TODO: 05/01/2022 initialize context, startUp is in top class, RabbitBaseService
-  private ApplicationContext ctx;
+  private final ApplicationContext ctx;
 
   private NubMatchService matcher;
   private static final String QUEUE = "clb-matcher";
-  // TODO: 05/01/2022 initialize these
-  private DatasetImportService sqlImportService;
-  private DatasetImportService solrImportService;
+  private final DatasetImportService sqlImportService;
+  private final DatasetImportService solrImportService;
   private final MatcherConfiguration cfg;
   private Timer timer;
 
   public MatcherService(MatcherConfiguration cfg) {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
     this.cfg = cfg;
-  }
 
-  private void initContext() {
-    // TODO: 05/01/2022 configure
     ctx = SpringContextBuilder.create()
+        .withComponents(
+            DatasetImportServiceMyBatis.class,
+            UsageSyncServiceMyBatis.class,
+            NameUsageServiceMyBatis.class,
+            UsageServiceMyBatis.class,
+            ParsedNameServiceMyBatis.class)
         .build();
+    sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
+    // TODO: 07/01/2022 configure solr
+    solrImportService = null;
   }
 
   @Override

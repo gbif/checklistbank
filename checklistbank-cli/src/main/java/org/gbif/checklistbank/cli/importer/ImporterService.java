@@ -25,6 +25,7 @@ import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
@@ -70,7 +71,8 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             DatasetImportServiceMyBatis.class,
             UsageSyncServiceMyBatis.class,
             NameUsageServiceMyBatis.class,
-            UsageServiceMyBatis.class)
+            UsageServiceMyBatis.class,
+            ParsedNameServiceMyBatis.class)
         .build();
 
     sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
