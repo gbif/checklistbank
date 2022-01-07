@@ -14,19 +14,16 @@
 package org.gbif.checklistbank.config;
 
 import java.io.IOException;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Component;
 
 import com.beust.jcommander.Parameter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ganglia.GangliaReporter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.MoreObjects;
 
 import info.ganglia.gmetric4j.gmetric.GMetric;
 
@@ -34,17 +31,13 @@ import info.ganglia.gmetric4j.gmetric.GMetric;
  * A configuration class which holds the host and port to connect yammer metrics to a ganglia server.
  */
 @SuppressWarnings("PublicField")
-@Component
-@ConditionalOnProperty(name = "checklistbank.ganglia.host")
 public class GangliaConfiguration {
   private static final Logger LOG = LoggerFactory.getLogger(GangliaConfiguration.class);
 
   @Parameter(names = "--ganglia-host")
-  @Value("${checklistbank.ganglia.host}")
   public String host;
 
   @Parameter(names = "--ganglia-port")
-  @Value("${checklistbank.ganglia.port}")
   public int port = 8649;
 
   /**
@@ -69,9 +62,9 @@ public class GangliaConfiguration {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-      .add("host", host)
-      .add("port", port)
-      .toString();
+    return new StringJoiner(", ", GangliaConfiguration.class.getSimpleName() + "[", "]")
+        .add("host='" + host + "'")
+        .add("port=" + port)
+        .toString();
   }
 }
