@@ -67,6 +67,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     }
 
     ctx = SpringContextBuilder.create()
+        .withClbConfiguration(cfg.clb)
         .withComponents(
             DatasetImportServiceMyBatis.class,
             UsageSyncServiceMyBatis.class,

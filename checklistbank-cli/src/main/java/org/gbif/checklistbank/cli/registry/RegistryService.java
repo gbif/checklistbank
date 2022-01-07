@@ -18,12 +18,15 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
@@ -60,18 +63,17 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
-    // TODO: 05/01/2022 make sure these two modules configured
-//    super(null, "clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, null/*InternalChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
     super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
-    // TODO: 05/01/2022 add initContext method?
-    initContext();
-  }
-
-  private void initContext() {
-    // TODO: 05/01/2022 configure
     ctx = SpringContextBuilder.create()
+        .withClbConfiguration(cfg.clb)
+        .withComponents(
+            DatasetImportServiceMyBatis.class,
+            UsageSyncServiceMyBatis.class,
+            NameUsageServiceMyBatis.class,
+            UsageServiceMyBatis.class,
+            ParsedNameServiceMyBatis.class)
         .build();
   }
 
@@ -166,10 +168,8 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    initContext();
-
-    // TODO: 05/01/2022 make sure these are present in the context
-    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
+    // TODO: 07/01/2022 configure solr
+    solrService = null;
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 

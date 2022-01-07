@@ -55,6 +55,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
     this.cfg = cfg;
 
     ctx = SpringContextBuilder.create()
+        .withClbConfiguration(cfg.clb)
         .withComponents(
             DatasetImportServiceMyBatis.class,
             UsageSyncServiceMyBatis.class,
