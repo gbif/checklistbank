@@ -85,8 +85,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
       LOG.warn("Refuse to normalize the GBIF backbone");
       failed(msg.getDatasetUuid());
     } else {
-      // TODO: 05/01/2022 registry not configured yet, so set it to null
-      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), null, msg.getConstituents(), lookup);
+      Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), getRegistry(), msg.getConstituents(), lookup);
       normalizer.run();
       if (cfg.zookeeper.isConfigured()) {
         zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1L);
