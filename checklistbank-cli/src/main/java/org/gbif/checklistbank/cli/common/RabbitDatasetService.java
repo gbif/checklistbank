@@ -6,6 +6,7 @@ import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,9 +16,7 @@ import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
 import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.google.common.collect.Sets;
 
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
 
@@ -26,7 +25,7 @@ public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extend
   private Timer timer;
   private Counter succeeded;
   private Counter failed;
-  protected Set<UUID> runningJobs = Sets.newHashSet();
+  protected Set<UUID> runningJobs = new HashSet<>();
   private final String action;
 
   public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action) {
@@ -35,11 +34,11 @@ public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extend
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timer = registry.timer(regName("time"));
-    succeeded = registry.counter(regName("succeeded"));
-    failed = registry.counter(regName("failed"));
+  protected void initMetrics() {
+    super.initMetrics();
+    timer = getRegistry().timer(regName("time"));
+    succeeded = getRegistry().counter(regName("succeeded"));
+    failed = getRegistry().counter(regName("failed"));
   }
 
   @Override

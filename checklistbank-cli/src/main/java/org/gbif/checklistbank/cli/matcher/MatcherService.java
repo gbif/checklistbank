@@ -49,9 +49,9 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timer = registry.timer("nub matcher process time");
+  protected void initMetrics() {
+    super.initMetrics();
+    timer = getRegistry().timer("nub matcher process time");
   }
 
   @Override

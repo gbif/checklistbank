@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -64,10 +63,10 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timerSolr = registry.timer(regName("solr.time"));
-    timerSql = registry.timer(regName("sql.time"));
+  protected void initMetrics() {
+    super.initMetrics();
+    timerSolr = getRegistry().timer(regName("solr.time"));
+    timerSql = getRegistry().timer(regName("sql.time"));
   }
 
   /**

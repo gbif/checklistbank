@@ -43,12 +43,12 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    registry.meter(Metrics.INSERT_METER);
-    registry.meter(Metrics.RELATION_METER);
-    registry.meter(Metrics.METRICS_METER);
-    registry.meter(Metrics.DENORMED_METER);
+  protected void initMetrics() {
+    super.initMetrics();
+    getRegistry().meter(Metrics.INSERT_METER);
+    getRegistry().meter(Metrics.RELATION_METER);
+    getRegistry().meter(Metrics.METRICS_METER);
+    getRegistry().meter(Metrics.DENORMED_METER);
   }
 
   @Override
