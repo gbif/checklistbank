@@ -19,10 +19,7 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
 import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.registry.metadata.EMLWriter;
-import org.gbif.registry.ws.client.DatasetClient;
 import org.gbif.utils.file.CompressionUtil;
-import org.gbif.ws.client.ClientBuilder;
-import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +36,7 @@ import com.google.common.io.Files;
 public class Exporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(Exporter.class);
+
   private final File repository;
   private final NameUsageMapper usageMapper;
   private final VernacularNameMapper vernacularMapper;
@@ -49,7 +47,7 @@ public class Exporter {
   private final TypeSpecimenMapper typeSpecimenMapper;
   private final DatasetService datasetService;
 
-  private Exporter(File repository, ApplicationContext ctx) {
+  public Exporter(File repository, ApplicationContext ctx, DatasetService datasetService) {
     this.repository = repository;
     usageMapper = ctx.getBean(NameUsageMapper.class);
     descriptionMapper = ctx.getBean(DescriptionMapper.class);
@@ -58,14 +56,7 @@ public class Exporter {
     vernacularMapper = ctx.getBean(VernacularNameMapper.class);
     referenceMapper = ctx.getBean(ReferenceMapper.class);
     typeSpecimenMapper = ctx.getBean(TypeSpecimenMapper.class);
-    ClientBuilder clientBuilder = new ClientBuilder();
-    clientBuilder.withUrl(ctx.getEnvironment().getProperty("checklistbank.api.url"));
-    clientBuilder.withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
-    this.datasetService = clientBuilder.build(DatasetClient.class);
-  }
-
-  public static Exporter create(File repository, ApplicationContext ctx) {
-    return new Exporter(repository, ctx);
+    this.datasetService = datasetService;
   }
 
   /**

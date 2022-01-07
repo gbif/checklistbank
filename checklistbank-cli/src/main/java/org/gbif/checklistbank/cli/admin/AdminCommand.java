@@ -32,6 +32,7 @@ import org.gbif.checklistbank.service.mybatis.persistence.liquibase.DbSchemaUpda
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.service.DatasetMetricsServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
@@ -90,7 +91,6 @@ public class AdminCommand extends BaseCommand {
 
   private final AdminConfiguration cfg = new AdminConfiguration();
 
-  // TODO read or read-write?
   private DatasetService datasetService;
   private OrganizationService organizationService;
   private InstallationService installationService;
@@ -111,9 +111,11 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initRegistry() {
-    // TODO: 03/01/2022 do we need user/password here?
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(cfg.registry.wsUrl);
+    if (cfg.registry.password != null && cfg.registry.user != null) {
+      clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
+    }
     datasetService = clientBuilder.build(DatasetClient.class);
     organizationService = clientBuilder.build(OrganizationClient.class);
     installationService = clientBuilder.build(InstallationClient.class);
@@ -124,8 +126,8 @@ public class AdminCommand extends BaseCommand {
   private void initCfg() {
     setKnownKey("col", Constants.COL_DATASET_KEY);
     setKnownKey("nub", Constants.NUB_DATASET_KEY);
-    setKnownKey("plazi", UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
-    setKnownKey("iucn", UUID.fromString("19491596-35ae-4a91-9a98-85cf505f1bd3"));
+    setKnownKey("plazi", Constants.PLAZI_ORG_KEY);
+    setKnownKey("iucn", Constants.IUCN_DATASET_KEY);
   }
 
   private void initContext(ClbConfiguration clbConfiguration) {
@@ -273,11 +275,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void updateNubDataset() {
-    ClientBuilder clientBuilder = new ClientBuilder();
-    // TODO: 04/01/2022 what url?
-    clientBuilder.withUrl("");
-    DatasetMetricsService metricsService = clientBuilder.build(DatasetMetricsClient.class);
-
+    DatasetMetricsService metricsService = ctx.getBean(DatasetMetricsServiceMyBatis.class);
     BackboneDatasetUpdater nubUpdater = new BackboneDatasetUpdater(datasetService, organizationService, networkService);
 
     nubUpdater.updateBackboneDataset(metricsService.get(Constants.NUB_DATASET_KEY));
@@ -420,9 +418,7 @@ public class AdminCommand extends BaseCommand {
 
   private void export(Dataset d) {
     if (exporter == null) {
-      // lazily init exporter
-      // TODO: 04/01/2022 put property checklistbank.api.url
-      exporter = Exporter.create(cfg.exportRepository, ctx);
+      exporter = new Exporter(cfg.exportRepository, ctx, datasetService);
     }
     // now export the dataset
     exporter.export(d);
