@@ -1,15 +1,22 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.neo;
 
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
 import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.utils.file.CompressionUtil;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -20,6 +27,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @Ignore("manual long running test to discover why we see too many hanging PageCache threads in neos batch inserter")
 public class MultiThreadingNeoInserterTest {

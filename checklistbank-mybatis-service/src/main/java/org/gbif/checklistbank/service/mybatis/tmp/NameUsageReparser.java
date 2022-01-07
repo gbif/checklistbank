@@ -17,7 +17,6 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParserGbifV1;
@@ -32,7 +31,6 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,12 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.nub.source;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
@@ -24,6 +30,13 @@ import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.common.parsers.utils.NameParserUtils;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -32,10 +45,14 @@ import org.neo4j.graphdb.traversal.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
+
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 /**
  * A backbone source dataset with some basic metadata that allows to iterate over its source usages.

@@ -1,25 +1,24 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.nub;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
-import it.unimi.dsi.fastutil.ints.Int2LongMap;
-import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
-import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.authorship.BasionymGroup;
 import org.gbif.checklistbank.authorship.BasionymSorter;
-import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
@@ -46,19 +45,34 @@ import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
+
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 
 /**
  * We use Origin.VERBATIM_ACCEPTED here to mark excluded homonyms that have not been updated with other sources.

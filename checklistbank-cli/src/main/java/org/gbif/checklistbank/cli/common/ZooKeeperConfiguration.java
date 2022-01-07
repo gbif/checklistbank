@@ -1,18 +1,33 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.common;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Strings;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.MoreObjects;
+import java.io.IOException;
+
+import javax.annotation.Nullable;
+import javax.validation.constraints.Min;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.Min;
-import java.io.IOException;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Strings;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.MoreObjects;
 
 /**
  * A configuration class which can be used to get all the details needed to persistent a connection to ZooKeeper needed by

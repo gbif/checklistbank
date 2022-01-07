@@ -1,7 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.normalizer;
 
-import com.beust.jcommander.internal.Sets;
-import com.google.common.collect.Maps;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -12,6 +23,15 @@ import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
+
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
@@ -23,13 +43,8 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Maps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;

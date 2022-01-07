@@ -1,10 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.nub;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
@@ -28,6 +36,15 @@ import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
+
+import java.io.*;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nullable;
+
 import org.junit.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -36,12 +53,10 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 
-import javax.annotation.Nullable;
-import java.io.*;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import static org.junit.Assert.*;
 
