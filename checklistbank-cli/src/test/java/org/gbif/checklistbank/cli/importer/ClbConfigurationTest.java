@@ -20,20 +20,10 @@ import java.util.Properties;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.inject.CreationException;
-
 import static org.junit.Assert.assertEquals;
 
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ClbConfigurationTest {
-
-  @Test(expected = CreationException.class)
-    public void testBadTimeout() throws Exception {
-//        ClbConfiguration cfg = new ClbConfiguration();
-//        cfg.parserTimeout = 1;
-//        Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg));
-//        inj.getInstance(NameParser.class);
-    }
 
   @Test
   public void testPropTrip() throws Exception {
