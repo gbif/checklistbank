@@ -12,9 +12,6 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.UUID;
 
-/**
- *
- */
 @SuppressWarnings("PublicField")
 public class CrawlerConfiguration {
 

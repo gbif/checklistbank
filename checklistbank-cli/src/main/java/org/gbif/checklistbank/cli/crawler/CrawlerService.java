@@ -1,21 +1,29 @@
 package org.gbif.checklistbank.cli.crawler;
 
+import org.gbif.api.model.crawler.DwcaValidationReport;
+import org.gbif.api.model.crawler.GenericValidationReport;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Endpoint;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.EndpointType;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
+import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
+import org.gbif.common.messaging.api.messages.Platform;
 import org.gbif.common.messaging.api.messages.StartCrawlMessage;
 import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.UnsupportedArchiveException;
+import org.gbif.registry.ws.client.DatasetClient;
 import org.gbif.utils.HttpUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.gbif.ws.client.ClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +44,13 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
     this.cfg = cfg;
 
     http = new HttpUtil(HttpUtil.newMultithreadedClient(cfg.httpTimeout, cfg.poolSize, cfg.poolSize));
-    // init registry
-    // TODO: 05/01/2022 get DatasetService (from context?)
-    datasetService = null;
+
+    ClientBuilder clientBuilder = new ClientBuilder();
+    clientBuilder.withUrl(cfg.registry.wsUrl);
+    if (cfg.registry.password != null && cfg.registry.user != null) {
+      clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
+    }
+    datasetService = clientBuilder.build(DatasetClient.class);
   }
 
   @Override
@@ -61,12 +73,17 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
     URI dwcaUri = dwcaEndpoint.get().getUrl();
     try {
       downloadAndExtract(d, dwcaUri);
-//      send(new DwcaMetasyncFinishedMessage(d.getKey(), d.getType(),
-//              dwcaUri, 1, Maps.<String, UUID>newHashMap(),
-//              new DwcaValidationReport(d.getKey(),
-//                  new GenericValidationReport(1, true, Lists.<String>newArrayList(), Lists.<Integer>newArrayList()))
-//          )
-//      );
+      send(new DwcaMetasyncFinishedMessage(
+          d.getKey(),
+          d.getType(),
+          dwcaUri,
+          1,
+          new HashMap<>(),
+          new DwcaValidationReport(
+              d.getKey(),
+              new GenericValidationReport(1, true, new ArrayList<>(), new ArrayList<>())),
+          Platform.ALL)
+      );
 
     } catch (Exception e) {
       LOG.error("Failed to download and extract dwc archive for dataset {} from {}", d.getTitle(), dwcaUri, e);
@@ -91,7 +108,7 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
       LOG.debug("Removed previous dwc archive dir {}", dwca.getAbsolutePath());
     }
     DwcFiles.fromCompressed(dwca.toPath(), archiveDir.toPath());
-    LOG.debug("Opened dwc archive successfully for dataset {} at {}", d.getTitle(), dwca, archiveDir.getAbsolutePath());
+    LOG.debug("Opened dwc archive successfully for dataset {} at {}", d.getTitle(), archiveDir.getAbsolutePath());
   }
 
   @Override
