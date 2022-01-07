@@ -3,9 +3,6 @@ package org.gbif.checklistbank.nub.lookup;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/**
- *
- */
 @Ignore("A manual test class to rematch individual datasets")
 public class NubMatchServiceTest {
 

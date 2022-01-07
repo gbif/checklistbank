@@ -6,9 +6,6 @@ import org.gbif.api.vocabulary.Rank;
 
 import javax.annotation.Nullable;
 
-/**
- *
- */
 public interface AssertionEngine {
 
   boolean isValid();

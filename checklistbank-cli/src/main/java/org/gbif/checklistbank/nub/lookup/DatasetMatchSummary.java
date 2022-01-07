@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- *
- */
 public class DatasetMatchSummary {
   private final UUID datasetKey;
   private final AtomicInteger unparsable = new AtomicInteger();

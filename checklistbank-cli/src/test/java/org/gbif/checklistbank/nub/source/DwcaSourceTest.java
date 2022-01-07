@@ -15,9 +15,6 @@ import java.net.URL;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-/**
- *
- */
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class DwcaSourceTest {
   public static final URL BACKBONE_PATCH_DWCA;

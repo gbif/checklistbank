@@ -1,8 +1,5 @@
 package org.gbif.checklistbank.cli.normalizer;
 
-/**
- *
- */
 public class NormalizationFailedException extends RuntimeException {
 
   public NormalizationFailedException(String message) {

@@ -11,9 +11,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 
-/**
- *
- */
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NubAssertionsTest {
 

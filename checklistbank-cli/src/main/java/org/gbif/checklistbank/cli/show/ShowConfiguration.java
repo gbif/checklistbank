@@ -13,9 +13,6 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.UUID;
 
-/**
- *
- */
 public class ShowConfiguration {
 
   @ParametersDelegate

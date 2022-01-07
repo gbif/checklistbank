@@ -7,9 +7,6 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-/**
- *
- */
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class DatasetMatchSummaryTest {
   @Test

@@ -12,9 +12,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-/**
- *
- */
 @SuppressWarnings("PublicField")
 public class RegistryConfiguration {
 

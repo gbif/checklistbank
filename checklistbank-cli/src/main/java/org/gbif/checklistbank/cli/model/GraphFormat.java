@@ -1,8 +1,5 @@
 package org.gbif.checklistbank.cli.model;
 
-/**
- *
- */
 public enum GraphFormat {
   /**
    * Taxonomic tree as nested text rows

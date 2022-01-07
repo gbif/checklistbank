@@ -24,9 +24,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import static junit.framework.Assert.assertEquals;
 
-/**
- *
- */
 public class TreeWalkerTest {
   private File dbf;
   private GraphDatabaseService db;

@@ -9,9 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-/**
- *
- */
 public class ShellConfiguration {
 
   @ParametersDelegate

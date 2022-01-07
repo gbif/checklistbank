@@ -23,9 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- *
- */
 public class NubMatchService {
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchService.class);
   protected final ClbConfiguration cfg;

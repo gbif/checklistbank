@@ -24,9 +24,6 @@ import org.neo4j.helpers.collection.Iterators;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-/**
- *
- */
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ChunkingEvaluatorTest {
   private UsageDao dao;

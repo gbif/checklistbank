@@ -14,9 +14,6 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- *
- */
 public class NubConfiguration {
 
   @ParametersDelegate

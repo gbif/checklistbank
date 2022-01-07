@@ -1,8 +1,5 @@
 package org.gbif.checklistbank.nub;
 
-/**
- *
- */
 public class HomonymException extends Exception {
   private final String name;
 

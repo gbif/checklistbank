@@ -1,8 +1,5 @@
 package org.gbif.checklistbank.nub.validation;
 
-/**
- *
- */
 public interface NubValidation {
 
   /**

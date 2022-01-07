@@ -15,9 +15,6 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.UUID;
 
-/**
- *
- */
 public class NeoConfiguration {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoConfiguration.class);

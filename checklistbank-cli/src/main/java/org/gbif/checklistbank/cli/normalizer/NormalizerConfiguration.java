@@ -16,9 +16,6 @@ import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.util.UUID;
 
-/**
- *
- */
 @SuppressWarnings("PublicField")
 public class NormalizerConfiguration {
     private static final Logger LOG = LoggerFactory.getLogger(NormalizerConfiguration.class);

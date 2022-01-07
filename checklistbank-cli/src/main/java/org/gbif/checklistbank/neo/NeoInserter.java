@@ -60,9 +60,6 @@ import java.util.regex.Pattern;
 
 import static org.gbif.dwc.terms.GbifTerm.datasetKey;
 
-/**
- *
- */
 public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
