@@ -99,7 +99,7 @@ public class ChecklistbankMyBatisServiceITBase {
     public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
       try {
         LiquibasePreparer liquibasePreparer =
-            LiquibasePreparer.forClasspathLocation("liquibase/master.xml");
+            LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml");
         PreparedDbProvider provider =
             PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
         ConnectionInfo connectionInfo = provider.createNewDatabase();

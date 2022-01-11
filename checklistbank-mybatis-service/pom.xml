@@ -43,7 +43,7 @@
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-maven-plugin</artifactId>
         <configuration>
-          <changeLogFile>src/main/resources/liquibase/master.xml</changeLogFile>
+          <changeLogFile>src/main/resources/liquibase/checklistbank/master.xml</changeLogFile>
           <defaultSchemaName>public</defaultSchemaName>
         </configuration>
       </plugin>
