@@ -62,7 +62,8 @@
         <name-parser.version>3.7.1-SNAPSHOT</name-parser.version>
         <gbif-parser.version>0.57</gbif-parser.version>
         <dwca-io.version>2.11</dwca-io.version>
-
+        <dwca-io.version>2.11</dwca-io.version>
+        <datacite-rest-client.version>1.10</datacite-rest-client.version>
         <!-- Spring -->
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
@@ -400,6 +401,11 @@
                 <groupId>org.gbif.common</groupId>
                 <artifactId>gbif-postal-service</artifactId>
                 <version>${gbif-postal-service.version}</version>
+            </dependency>
+            <dependency>
+                <groupId> org.gbif.datacite</groupId>
+                <artifactId>datacite-rest-client</artifactId>
+                <version>${datacite-rest-client.version}</version>
             </dependency>
 
             <!-- neo4j -->
