@@ -47,20 +47,20 @@
 
         <!-- dependency versions -->
         <depgraph-maven-plugin>3.3.0</depgraph-maven-plugin>
-        <dwc-api.version>1.35-SNAPSHOT</dwc-api.version>
-        <gbif-api.version>0.160-SNAPSHOT</gbif-api.version>
+        <dwc-api.version>1.35</dwc-api.version>
+        <gbif-api.version>0.162</gbif-api.version>
         <gbif-cli.version>1.1</gbif-cli.version>
-        <gbif-common.version>0.52</gbif-common.version>
+        <gbif-common.version>0.53</gbif-common.version>
         <gbif-common-mybatis.version>1.2-SNAPSHOT</gbif-common-mybatis.version>
         <!-- matches solr 5.4.x -->
         <gbif-common-search.version>0.36-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.18-SNAPSHOT</gbif-common-service.version>
-        <gbif-common-ws.version>1.20</gbif-common-ws.version>
+        <gbif-common-ws.version>1.19</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
-        <gbif-postal-service.version>1.2-SNAPSHOT</gbif-postal-service.version>
+        <gbif-postal-service.version>1.2</gbif-postal-service.version>
         <registry.version>3.75</registry.version>
         <name-parser.version>3.7.1-SNAPSHOT</name-parser.version>
-        <gbif-parser.version>0.57-SNAPSHOT</gbif-parser.version>
+        <gbif-parser.version>0.57</gbif-parser.version>
         <dwca-io.version>2.11</dwca-io.version>
 
         <!-- Spring -->
