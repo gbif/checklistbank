@@ -57,9 +57,8 @@
         <gbif-common-service.version>0.18-SNAPSHOT</gbif-common-service.version>
         <gbif-common-ws.version>1.19-SNAPSHOT</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
-        <gbif-microservice.version>0.9</gbif-microservice.version>
         <gbif-postal-service.version>1.2-SNAPSHOT</gbif-postal-service.version>
-        <registry.version>3.73-SNAPSHOT</registry.version>
+        <registry.version>3.75</registry.version>
         <name-parser.version>3.7.1-SNAPSHOT</name-parser.version>
         <gbif-parser.version>0.57-SNAPSHOT</gbif-parser.version>
         <dwca-io.version>2.11</dwca-io.version>
@@ -83,8 +82,7 @@
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.6</commons-io.version>
-        <!-- make sure curator is the same as in microservices -->
-        <curator.version>2.9.0</curator.version>
+        <curator.version>4.0.1</curator.version>
         <eclipse-collections.version>9.2.0</eclipse-collections.version>
         <fastutil.version>8.2.2</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
@@ -96,7 +94,6 @@
         <jackson.version>2.11.3</jackson.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.60</jcommander.version>
-        <jersey.version>1.19.4</jersey.version>
         <jsoup.version>1.10.2</jsoup.version>
         <junit.version>4.12</junit.version>
         <junit5.version>5.6.3</junit5.version>
@@ -403,11 +400,6 @@
                 <groupId>org.gbif.common</groupId>
                 <artifactId>gbif-postal-service</artifactId>
                 <version>${gbif-postal-service.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.gbif</groupId>
-                <artifactId>gbif-microservice</artifactId>
-                <version>${gbif-microservice.version}</version>
             </dependency>
 
             <!-- neo4j -->

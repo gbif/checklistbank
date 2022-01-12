@@ -232,10 +232,6 @@
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>gbif-microservice</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.gbif</groupId>
       <artifactId>gbif-common</artifactId>
     </dependency>
 
