@@ -1,13 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.neo;
 
-import com.codahale.metrics.MetricRegistry;
-import com.esotericsoftware.kryo.pool.KryoPool;
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
-import com.google.common.io.Files;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
@@ -30,6 +35,19 @@ import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 import org.gbif.nub.mapdb.MapDbUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mapdb.*;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
@@ -37,15 +55,12 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
+import com.codahale.metrics.MetricRegistry;
+import com.esotericsoftware.kryo.pool.KryoPool;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import com.google.common.io.Files;
 
 /**
  * Stores usage data in 2 separate places for optimal performance and to reduce locking in long running transactions.

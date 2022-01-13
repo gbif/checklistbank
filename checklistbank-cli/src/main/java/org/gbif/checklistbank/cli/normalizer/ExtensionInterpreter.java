@@ -1,6 +1,27 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.normalizer;
 
-import org.gbif.api.model.checklistbank.*;
+import org.gbif.api.model.checklistbank.Description;
+import org.gbif.api.model.checklistbank.Distribution;
+import org.gbif.api.model.checklistbank.NameUsage;
+import org.gbif.api.model.checklistbank.NameUsageMediaObject;
+import org.gbif.api.model.checklistbank.Reference;
+import org.gbif.api.model.checklistbank.SpeciesProfile;
+import org.gbif.api.model.checklistbank.TypeSpecimen;
+import org.gbif.api.model.checklistbank.VerbatimNameUsage;
+import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.vocabulary.Extension;
 import org.gbif.api.vocabulary.IdentifierType;
@@ -8,25 +29,48 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.NeoInserter;
-import org.gbif.common.parsers.*;
+import org.gbif.common.parsers.BooleanParser;
+import org.gbif.common.parsers.CitesAppendixParser;
+import org.gbif.common.parsers.CountryParser;
+import org.gbif.common.parsers.EstablishmentMeansParser;
+import org.gbif.common.parsers.LanguageParser;
+import org.gbif.common.parsers.LifeStageParser;
+import org.gbif.common.parsers.MediaParser;
+import org.gbif.common.parsers.MediaTypeParser;
+import org.gbif.common.parsers.NumberParser;
+import org.gbif.common.parsers.OccurrenceStatusParser;
+import org.gbif.common.parsers.SexParser;
+import org.gbif.common.parsers.ThreatStatusParser;
+import org.gbif.common.parsers.TypeStatusParser;
+import org.gbif.common.parsers.UrlParser;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.common.parsers.date.DateParsers;
 import org.gbif.common.parsers.date.TemporalAccessorUtils;
-import org.gbif.dwc.terms.*;
+import org.gbif.dwc.terms.AcTerm;
+import org.gbif.dwc.terms.DcElement;
+import org.gbif.dwc.terms.DcTerm;
+import org.gbif.dwc.terms.DwcTerm;
+import org.gbif.dwc.terms.GbifTerm;
+import org.gbif.dwc.terms.IucnTerm;
+import org.gbif.dwc.terms.Term;
+import org.gbif.dwc.terms.XmpRightsTerm;
+import org.gbif.dwc.terms.XmpTerm;
 
 import java.net.URI;
 import java.time.temporal.TemporalAccessor;
 import java.util.Iterator;
 import java.util.Map;
+
 import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExtensionInterpreter {
   private static final Logger LOG = LoggerFactory.getLogger(ExtensionInterpreter.class);

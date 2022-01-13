@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.admin;
 
 import org.gbif.api.model.Constants;
@@ -30,6 +43,9 @@ import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.liquibase.DbSchemaUpdater;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.service.mybatis.service.DatasetMetricsServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
@@ -64,8 +80,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.Transaction;
@@ -73,7 +88,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 
@@ -90,7 +104,6 @@ public class AdminCommand extends BaseCommand {
 
   private final AdminConfiguration cfg = new AdminConfiguration();
 
-  // TODO read or read-write?
   private DatasetService datasetService;
   private OrganizationService organizationService;
   private InstallationService installationService;
@@ -111,9 +124,11 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initRegistry() {
-    // TODO: 03/01/2022 do we need user/password here?
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(cfg.registry.wsUrl);
+    if (cfg.registry.password != null && cfg.registry.user != null) {
+      clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
+    }
     datasetService = clientBuilder.build(DatasetClient.class);
     organizationService = clientBuilder.build(OrganizationClient.class);
     installationService = clientBuilder.build(InstallationClient.class);
@@ -124,12 +139,15 @@ public class AdminCommand extends BaseCommand {
   private void initCfg() {
     setKnownKey("col", Constants.COL_DATASET_KEY);
     setKnownKey("nub", Constants.NUB_DATASET_KEY);
-    setKnownKey("plazi", UUID.fromString("7ce8aef0-9e92-11dc-8738-b8a03c50a862"));
-    setKnownKey("iucn", UUID.fromString("19491596-35ae-4a91-9a98-85cf505f1bd3"));
+    setKnownKey("plazi", Constants.PLAZI_ORG_KEY);
+    setKnownKey("iucn", Constants.IUCN_DATASET_KEY);
   }
 
   private void initContext(ClbConfiguration clbConfiguration) {
-    ctx = SpringContextBuilder.create().withClbConfiguration(clbConfiguration).build();
+    ctx = SpringContextBuilder.create()
+        .withClbConfiguration(clbConfiguration)
+        .withComponents()
+        .build();
   }
 
   private void setKnownKey(String name, UUID key) {
@@ -175,7 +193,7 @@ public class AdminCommand extends BaseCommand {
         runGlobalCommands();
       } else {
         initRegistry();
-        runDatasetComamnds();
+        runDatasetCommands();
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -270,11 +288,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void updateNubDataset() {
-    ClientBuilder clientBuilder = new ClientBuilder();
-    // TODO: 04/01/2022 what url?
-    clientBuilder.withUrl("");
-    DatasetMetricsService metricsService = clientBuilder.build(DatasetMetricsClient.class);
-
+    DatasetMetricsService metricsService = ctx.getBean(DatasetMetricsServiceMyBatis.class);
     BackboneDatasetUpdater nubUpdater = new BackboneDatasetUpdater(datasetService, organizationService, networkService);
 
     nubUpdater.updateBackboneDataset(metricsService.get(Constants.NUB_DATASET_KEY));
@@ -339,18 +353,13 @@ public class AdminCommand extends BaseCommand {
     }
   }
 
-  private void runDatasetComamnds() throws Exception {
+  private void runDatasetCommands() throws Exception {
     Iterable<Dataset> datasets;
     if (cfg.keys != null) {
-      datasets = com.google.common.collect.Iterables.transform(cfg.listKeys(), new Function<UUID, Dataset>() {
-        @Nullable
-        @Override
-        public Dataset apply(UUID key) {
-          return datasetService.get(key);
-        }
-      });
+      datasets = cfg.listKeys().stream().map(key -> datasetService.get(key)).collect(Collectors.toList());
     } else {
-      datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService, networkService, nodeService);
+      datasets = Iterables.datasets(cfg.key, cfg.type, datasetService, organizationService, installationService,
+          networkService, nodeService);
     }
 
     for (Dataset d : datasets) {
@@ -363,18 +372,17 @@ public class AdminCommand extends BaseCommand {
         }
       }
 
+      Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
       switch (cfg.operation) {
         case CLEANUP:
           cleanup(d);
           break;
 
         case CRAWL:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new StartCrawlMessage(d.getKey()));
           break;
 
         case NORMALIZE:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           if (!cfg.archiveDir(d.getKey()).exists()) {
             LOG.info("Missing dwca file. Cannot normalize dataset {}", title(d));
           } else {
@@ -396,7 +404,6 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case IMPORT:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           if (!cfg.neo.neoDir(d.getKey()).exists()) {
             LOG.info("Missing neo4j directory. Cannot import dataset {}", title(d));
           } else {
@@ -405,12 +412,10 @@ public class AdminCommand extends BaseCommand {
           break;
 
         case ANALYZE:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new ChecklistSyncedMessage(d.getKey(), new Date(), 0, 0));
           break;
 
         case MATCH:
-          Objects.requireNonNull(d.getKey(), "datasetUuid can't be null");
           send(new MatchDatasetMessage(d.getKey()));
           break;
 
@@ -426,9 +431,7 @@ public class AdminCommand extends BaseCommand {
 
   private void export(Dataset d) {
     if (exporter == null) {
-      // lazily init exporter
-      // TODO: 04/01/2022 put property checklistbank.api.url
-      exporter = Exporter.create(cfg.exportRepository, ctx);
+      exporter = new Exporter(cfg.exportRepository, ctx, datasetService);
     }
     // now export the dataset
     exporter.export(d);
@@ -438,7 +441,9 @@ public class AdminCommand extends BaseCommand {
    * Reparses all names
    */
   private void reparseNames() {
-    new NameUsageReparser(cfg.clb).run();
+    NameUsageMapper usageMapper = ctx.getBean(NameUsageMapper.class);
+    ParsedNameMapper nameMapper = ctx.getBean(ParsedNameMapper.class);
+    new NameUsageReparser(cfg.clb, usageMapper, nameMapper).run();
   }
 
   private void dumpToNeo() throws Exception {

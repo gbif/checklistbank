@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.neo.traverse;
 
 import org.gbif.api.model.checklistbank.NameUsage;
@@ -7,7 +20,6 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.cli.model.NameUsageNode;
 import org.gbif.checklistbank.neo.UsageDao;
-import org.gbif.checklistbank.nub.NubDb;
 import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
@@ -16,11 +28,12 @@ import org.gbif.nub.lookup.straight.LookupUsage;
 
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 
 /**
  * Assigns existing usageKey through a backbone match.

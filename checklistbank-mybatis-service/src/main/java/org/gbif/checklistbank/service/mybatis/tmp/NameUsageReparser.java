@@ -17,7 +17,6 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.nameparser.NameParserGbifV1;
@@ -32,14 +31,12 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
-/** */
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
@@ -55,11 +52,9 @@ public class NameUsageReparser implements Runnable {
   private int failed = 0;
   private int unparsable = 0;
 
-  public NameUsageReparser(ClbConfiguration cfg) {
-    AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-    ctx.register(ChecklistBankMyBatisConfiguration.class);
-    nameMapper = ctx.getBean(ParsedNameMapper.class);
-    usageMapper = ctx.getBean(NameUsageMapper.class);
+  public NameUsageReparser(ClbConfiguration cfg, NameUsageMapper usageMapper, ParsedNameMapper nameMapper) {
+    this.usageMapper = usageMapper;
+    this.nameMapper = nameMapper;
     threads = Math.max(1, cfg.maximumPoolSize - 1);
     exec = Executors.newFixedThreadPool(threads);
   }

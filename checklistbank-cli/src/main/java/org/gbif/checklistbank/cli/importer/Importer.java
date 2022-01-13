@@ -1,16 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.importer;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.pool.KryoPool;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Inject;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
@@ -25,7 +27,11 @@ import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.kryo.CliKryoFactory;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
-import org.gbif.checklistbank.neo.*;
+import org.gbif.checklistbank.neo.ImportDb;
+import org.gbif.checklistbank.neo.Labels;
+import org.gbif.checklistbank.neo.NeoProperties;
+import org.gbif.checklistbank.neo.RelType;
+import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.ChunkingEvaluator;
 import org.gbif.checklistbank.neo.traverse.MultiRootNodeIterator;
 import org.gbif.checklistbank.neo.traverse.Traversals;
@@ -34,6 +40,23 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageService;
+
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -41,14 +64,14 @@ import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.pool.KryoPool;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 /**
  * Importer that reads a neo database and syncs it with a postgres checklistbank db and solr index.
@@ -68,22 +91,21 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
-  private ConcurrentHashMap<Integer, Integer> clbKeys = new ConcurrentHashMap<Integer, Integer>();
+  private ConcurrentHashMap<Integer, Integer> clbKeys = new ConcurrentHashMap<>();
   // map based around internal neo4j node ids:
-  private ConcurrentHashMap<Integer, UsageForeignKeys> postKeys = new ConcurrentHashMap<Integer, UsageForeignKeys>();
+  private ConcurrentHashMap<Integer, UsageForeignKeys> postKeys = new ConcurrentHashMap<>();
   // list of pro parte synonym neo node ids
-  private Set<Long> proParteNodes = Sets.newHashSet();
+  private Set<Long> proParteNodes = new HashSet<>();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
   private Future<List<NameUsage>> proParteFuture;
-  private Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<Future<List<Integer>>>();
-  private Queue<Future<?>> otherFutures = new ConcurrentLinkedQueue<Future<?>>();
+  private Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<>();
+  private Queue<Future<?>> otherFutures = new ConcurrentLinkedQueue<>();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 
   private enum KeyType {PARENT, ACCEPTED, BASIONYM, CLASSIFICATION}
 
-  @Inject
   private Importer(UUID datasetKey, UsageDao dao,
                    NameUsageService nameUsageService, UsageService usageService,
                    DatasetImportService sqlService, DatasetImportService solrService,
@@ -97,7 +119,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   /**
-   * @param usageService only needed if you gonna sync the backbone dataset. Tests can usually just pass in null!
+   * @param usageService only needed if you are going to sync the backbone dataset. Tests can usually just pass in null!
    */
   public static Importer create(ImporterConfiguration cfg, UUID datasetKey,
                                 NameUsageService nameUsageService, UsageService usageService,
@@ -164,7 +186,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     try (Transaction tx = dao.beginTx()) {
       LOG.info("Chunking imports into slices of {} to {}", cfg.chunkMinSize, cfg.chunkSize);
       ChunkingEvaluator chunkingEvaluator = new ChunkingEvaluator(dao, cfg.chunkMinSize, cfg.chunkSize);
-      List<Integer> batch = Lists.newArrayList();
+      List<Integer> batch = new ArrayList<>();
       List<Node> roots = TreeIterablesSorted.findRoot(dao.getNeo());
       LOG.info("{} roots found to import", roots.size());
       for (Node n : MultiRootNodeIterator.create(roots, Traversals.TREE_WITHOUT_PRO_PARTE.evaluator(chunkingEvaluator))) {
@@ -188,7 +210,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
           usageFutures.add(sqlService.sync(datasetKey, this, batch));
           // reset main batch for new usages
-          batch = Lists.newArrayList();
+          batch = new ArrayList<>();
           clearFinishedUsageTasks();
 
         } else {
@@ -249,8 +271,8 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (!proParteNodes.isEmpty()) {
       LOG.info("Syncing {} pro parte usages", proParteNodes.size());
       for (List<Long> ids : Iterables.partition(proParteNodes, cfg.chunkSize)) {
-        List<NameUsage> usages = Lists.newArrayList();
-        List<ParsedName> names = Lists.newArrayList();
+        List<NameUsage> usages = new ArrayList<>();
+        List<ParsedName> names = new ArrayList<>();
         try (Transaction tx = dao.getNeo().beginTx()) {
           for (Long id : ids) {
             Node n = dao.getNeo().getNodeById(id);
@@ -302,7 +324,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   private List<Integer> subtreeBatch(Node startNode) {
-    List<Integer> ids = Lists.newArrayList();
+    List<Integer> ids = new ArrayList<>();
     try (Transaction tx = dao.beginTx()) {
       // returns all descendant nodes, accepted and synonyms but exclude pro parte relations!
       for (Node n : MultiRootNodeIterator.create(startNode, Traversals.TREE_WITHOUT_PRO_PARTE)) {
@@ -317,10 +339,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   }
 
   private boolean isProParteNode(Node n) {
-    if (n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF)) {
-      return true;
-    }
-    return false;
+    return n.hasRelationship(Direction.OUTGOING, RelType.PROPARTE_SYNONYM_OF);
   }
 
   private void deleteOldUsages() {

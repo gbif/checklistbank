@@ -227,12 +227,12 @@
       <artifactId>name-parser-v1</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.gbif</groupId>
-      <artifactId>gbif-common-ws</artifactId>
+      <groupId> org.gbif.datacite</groupId>
+      <artifactId>datacite-rest-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>
-      <artifactId>gbif-microservice</artifactId>
+      <artifactId>gbif-common-ws</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif</groupId>

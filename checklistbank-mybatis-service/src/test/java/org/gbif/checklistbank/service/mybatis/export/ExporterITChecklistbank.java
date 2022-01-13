@@ -51,7 +51,7 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
     File repository = FileUtils.createTempDir();
 
     try {
-      Exporter exp = Exporter.create(repository, ctx);
+      Exporter exp = new Exporter(repository, ctx, null);
       exp.export(dataset(Constants.NUB_DATASET_KEY));
 
       exp.export(dataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY));

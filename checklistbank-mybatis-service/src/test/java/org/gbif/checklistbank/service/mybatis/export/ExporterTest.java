@@ -33,7 +33,7 @@ public class ExporterTest {
     ClbConfiguration cfg = ClbConfigurationUtils.local();
     File repository = new File("/Users/markus/Desktop/dwcas");
 
-    Exporter exp = Exporter.create(repository, null);
+    Exporter exp = new Exporter(repository, null, null);
     exp.export(dataset(Constants.NUB_DATASET_KEY));
 
     exp.export(dataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY));

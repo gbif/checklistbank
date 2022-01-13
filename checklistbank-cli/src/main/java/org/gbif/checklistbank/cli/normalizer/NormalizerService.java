@@ -1,6 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.normalizer;
 
-import com.codahale.metrics.MetricRegistry;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.crawler.FinishReason;
 import org.gbif.api.model.crawler.ProcessState;
@@ -12,11 +24,12 @@ import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinishedMessage> {
 
@@ -43,12 +56,12 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    registry.meter(Metrics.INSERT_METER);
-    registry.meter(Metrics.RELATION_METER);
-    registry.meter(Metrics.METRICS_METER);
-    registry.meter(Metrics.DENORMED_METER);
+  protected void initMetrics() {
+    super.initMetrics();
+    getRegistry().meter(Metrics.INSERT_METER);
+    getRegistry().meter(Metrics.RELATION_METER);
+    getRegistry().meter(Metrics.METRICS_METER);
+    getRegistry().meter(Metrics.DENORMED_METER);
   }
 
   @Override
@@ -75,7 +88,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
       Normalizer normalizer = Normalizer.create(cfg, msg.getDatasetUuid(), getRegistry(), msg.getConstituents(), lookup);
       normalizer.run();
       if (cfg.zookeeper.isConfigured()) {
-        zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1l);
+        zkUtils.updateCounter(msg.getDatasetUuid(), ZookeeperUtils.PAGES_FRAGMENTED_SUCCESSFUL, 1L);
       }
       send(new ChecklistNormalizedMessage(msg.getDatasetUuid()));
     }
@@ -86,7 +99,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
     if (cfg.zookeeper.isConfigured()) {
       zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.FINISHED_REASON, FinishReason.ABORT);
       zkUtils.createOrUpdate(datasetKey, ZookeeperUtils.PROCESS_STATE_CHECKLIST, ProcessState.FINISHED);
-      zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1l);
+      zkUtils.updateCounter(datasetKey, ZookeeperUtils.PAGES_FRAGMENTED_ERROR, 1L);
     }
   }
 

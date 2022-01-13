@@ -1,11 +1,28 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
@@ -14,15 +31,17 @@ import org.gbif.nub.lookup.straight.IdLookupImpl;
 
 import java.util.Date;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import com.codahale.metrics.Timer;
 
 public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MatcherService.class);
+
+  private final ApplicationContext ctx;
 
   private NubMatchService matcher;
   private static final String QUEUE = "clb-matcher";
@@ -32,17 +51,27 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   private Timer timer;
 
   public MatcherService(MatcherConfiguration cfg) {
-    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match", null /*ChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
+    super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
     this.cfg = cfg;
-//    sqlImportService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    sqlImportService = null;
-    solrImportService = getInstance(Key.get(DatasetImportService.class, Solr.class));
+
+    ctx = SpringContextBuilder.create()
+        .withClbConfiguration(cfg.clb)
+        .withComponents(
+            DatasetImportServiceMyBatis.class,
+            UsageSyncServiceMyBatis.class,
+            NameUsageServiceMyBatis.class,
+            UsageServiceMyBatis.class,
+            ParsedNameServiceMyBatis.class)
+        .build();
+    sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
+    // TODO: 07/01/2022 configure solr
+    solrImportService = null;
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timer = registry.timer("nub matcher process time");
+  protected void initMetrics() {
+    super.initMetrics();
+    timer = getRegistry().timer("nub matcher process time");
   }
 
   @Override

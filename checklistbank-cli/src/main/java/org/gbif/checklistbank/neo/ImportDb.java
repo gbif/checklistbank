@@ -1,6 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.neo;
 
-import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.service.checklistbank.NameParser;
@@ -12,6 +24,11 @@ import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.nameparser.NameParserGbifV1;
+
+import java.util.*;
+
+import javax.annotation.Nullable;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.helpers.collection.Iterables;
@@ -19,8 +36,7 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import com.google.common.collect.Lists;
 
 
 public class ImportDb {

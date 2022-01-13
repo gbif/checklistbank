@@ -48,7 +48,7 @@ public class DbSchemaUpdater {
       //}
 
       ResourceAccessor accessor = new ClassLoaderResourceAccessor(Thread.currentThread().getContextClassLoader());
-      Liquibase liq = new Liquibase("liquibase/master.xml", accessor, database);
+      Liquibase liq = new Liquibase("liquibase/checklistbank/master.xml", accessor, database);
       liq.update("prod");
       LOG.info("Database schema updated");
 

@@ -1,10 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.nub;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
@@ -23,6 +31,13 @@ import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.checklistbank.utils.SymmetricIdentityMatrix;
 import org.gbif.common.parsers.KingdomParser;
 import org.gbif.common.parsers.core.ParseResult;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
+
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.Iterables;
@@ -30,10 +45,10 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Wrapper around the dao that etends the dao with nub build specific common operations.

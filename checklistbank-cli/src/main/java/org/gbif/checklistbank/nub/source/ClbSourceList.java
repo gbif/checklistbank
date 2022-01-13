@@ -1,8 +1,18 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.nub.source;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.google.inject.Injector;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Organization;
@@ -14,37 +24,52 @@ import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.gbif.registry.ws.client.DatasetClient;
+import org.gbif.registry.ws.client.InstallationClient;
+import org.gbif.registry.ws.client.OrganizationClient;
+import org.gbif.ws.client.ClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A source for nub sources backed by usage data from checklistbank.
  * The list of source datasets is discovered by reading a configured tab delimited online file.
- * The sources are then loaded asynchroneously through a single background thread into temporary neo4j databases.
+ * The sources are then loaded asynchronously through a single background thread into temporary neo4j databases.
  */
 public class ClbSourceList extends NubSourceList {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
+
   private final DatasetService datasetService;
   private final OrganizationService organizationService;
   private final InstallationService installationService;
 
   public static ClbSourceList create(NubConfiguration cfg) {
-//    Injector regInj = cfg.registry.createRegistryInjector();
-    Injector regInj = null;
-    return new ClbSourceList(regInj.getInstance(DatasetService.class), regInj.getInstance(OrganizationService.class), regInj.getInstance(InstallationService.class), cfg);
+    ClientBuilder clientBuilder = new ClientBuilder();
+    clientBuilder.withUrl(cfg.registry.wsUrl);
+    if (cfg.registry.password != null && cfg.registry.user != null) {
+      clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
+    }
+    DatasetService datasetService = clientBuilder.build(DatasetClient.class);
+    OrganizationService organizationService = clientBuilder.build(OrganizationClient.class);
+    InstallationService installationService = clientBuilder.build(InstallationClient.class);
+
+    return new ClbSourceList(datasetService, organizationService, installationService, cfg);
   }
 
   public static ClbSourceList create(NubConfiguration cfg, List<UUID> sourceDatasetKeys) {
-//    Injector regInj = cfg.registry.createRegistryInjector();
-    Injector regInj = null;
-    DatasetService datasetService = regInj.getInstance(DatasetService.class);
+    ClientBuilder clientBuilder = new ClientBuilder();
+    clientBuilder.withUrl(cfg.registry.wsUrl);
+    DatasetService datasetService = clientBuilder.build(DatasetClient.class);
 
-    List<NubSource> sources = Lists.newArrayList();
+    List<NubSource> sources = new ArrayList<>();
     for (UUID dKey : sourceDatasetKeys) {
       NubSourceConfig ns = new NubSourceConfig();
       ns.key = dKey;
@@ -97,8 +122,8 @@ public class ClbSourceList extends NubSourceList {
   private List<NubSource> loadSources() {
     LOG.info("Loading backbone sources from {} config entries", cfg.sources.size());
 
-    Set<UUID> keys = Sets.newHashSet();
-    List<NubSource> sources = Lists.newArrayList();
+    Set<UUID> keys = new HashSet<>();
+    List<NubSource> sources = new ArrayList<>();
 
     for (NubSourceConfig sd : cfg.sources) {
       if (keys.contains(sd.key)) {

@@ -1,43 +1,57 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.common;
 
-import com.codahale.metrics.Counter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.common.collect.Sets;
-import com.google.inject.Module;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.common.messaging.api.messages.DatasetBasedMessage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.UUID;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Timer;
 
 public abstract class RabbitDatasetService<T extends DatasetBasedMessage> extends RabbitBaseService<T> {
+
   private static final Logger LOG = LoggerFactory.getLogger(RabbitDatasetService.class);
   private static final Marker DOI_SMTP = MarkerFactory.getMarker("SMTP");
   private Timer timer;
   private Counter succeeded;
   private Counter failed;
-  protected Set<UUID> runningJobs = Sets.newHashSet();
+  protected Set<UUID> runningJobs = new HashSet<>();
   private final String action;
 
-  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action, Module... modules) {
-    super(queue, poolSize, mCfg, gCfg, modules);
+  public RabbitDatasetService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, String action) {
+    super(queue, poolSize, mCfg, gCfg);
     this.action = action;
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timer = registry.timer(regName("time"));
-    succeeded = registry.counter(regName("succeeded"));
-    failed = registry.counter(regName("failed"));
+  protected void initMetrics() {
+    super.initMetrics();
+    timer = getRegistry().timer(regName("time"));
+    succeeded = getRegistry().counter(regName("succeeded"));
+    failed = getRegistry().counter(regName("failed"));
   }
 
   @Override

@@ -1,15 +1,32 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
-import org.gbif.checklistbank.index.guice.Solr;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
+import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
@@ -20,15 +37,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-import com.google.inject.Key;
 import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.module.SimpleModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+
+import com.codahale.metrics.Timer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and
@@ -36,32 +51,37 @@ import org.slf4j.LoggerFactory;
  */
 public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
-
   private static final Logger LOG = LoggerFactory.getLogger(RegistryService.class);
 
+  private ApplicationContext ctx;
+
   private final RegistryConfiguration cfg;
-  private final DatasetImportService solrService;
-  private final DatasetImportService mybatisService;
-  private final DatasetMapper datasetMapper;
+  private DatasetImportService solrService;
+  private DatasetImportService mybatisService;
+  private DatasetMapper datasetMapper;
   private Timer timerSolr;
   private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
-    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia, null/*InternalChecklistBankServiceMyBatisModule.create(cfg.clb)*/, new RealTimeModule(cfg.solr));
+    super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
-    // init mybatis layer and solr from cfg instance
-    solrService = getInstance(Key.get(DatasetImportService.class, Solr.class));
-//    mybatisService = getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-    mybatisService = null;
-    datasetMapper = getInstance(DatasetMapper.class);
+    ctx = SpringContextBuilder.create()
+        .withClbConfiguration(cfg.clb)
+        .withComponents(
+            DatasetImportServiceMyBatis.class,
+            UsageSyncServiceMyBatis.class,
+            NameUsageServiceMyBatis.class,
+            UsageServiceMyBatis.class,
+            ParsedNameServiceMyBatis.class)
+        .build();
   }
 
   @Override
-  protected void initMetrics(MetricRegistry registry) {
-    super.initMetrics(registry);
-    timerSolr = registry.timer(regName("solr.time"));
-    timerSql = registry.timer(regName("sql.time"));
+  protected void initMetrics() {
+    super.initMetrics();
+    timerSolr = getRegistry().timer(regName("solr.time"));
+    timerSql = getRegistry().timer(regName("sql.time"));
   }
 
   /**
@@ -97,7 +117,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       solrService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset from solr", key, e);
+      LOG.error("Failed to delete dataset with key [{}] from solr", key, e);
     } finally {
       context.stop();
     }
@@ -107,7 +127,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     try {
       mybatisService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset from postgres", key, e);
+      LOG.error("Failed to delete dataset with key [{}] from postgres", key, e);
     } finally {
       context.stop();
     }
@@ -148,18 +168,16 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
+    // TODO: 07/01/2022 configure solr
+    solrService = null;
+    mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
+    datasetMapper = ctx.getBean(DatasetMapper.class);
+
     publisher = new DefaultMessagePublisher(cfg.messaging.getConnectionParameters());
-    ObjectMapper objectMapper = new ObjectMapper();
-    SimpleModule module = new SimpleModule("LicenseModule", Version.unknownVersion());
-//    module.addSerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
-//    module.addKeySerializer(License.class, new LicenseSerde.LicenseJsonSerializer());
-//    module.addDeserializer(License.class, new LicenseSerde.LicenseJsonDeserializer());
+    ObjectMapper objectMapper = ctx.getBean(ObjectMapper.class);
 
-    objectMapper.registerModule(module);
-
-    // dataset messages are slow, long running processes. Only prefetch one message
-    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), null/*objectMapper*/, 1);
+    // dataset messages are slow, long-running processes. Only prefetch one message
+    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
     startUpBeforeListening();
     listener.listen("clb-registry-change", cfg.poolSize, this);
   }

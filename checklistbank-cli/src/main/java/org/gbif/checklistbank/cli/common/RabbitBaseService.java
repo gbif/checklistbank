@@ -1,3 +1,16 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gbif.checklistbank.cli.common;
 
 import org.gbif.checklistbank.config.GangliaConfiguration;
@@ -9,76 +22,44 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.IOException;
-import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractIdleService;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A base service that provides convenience methods to interact with rabbit and can set up a ganglia reported metric registry.
  * A hikari db pool is properly closed at the end if needed.
  * @param <T>
  */
+@SuppressWarnings("UnstableApiUsage")
 public abstract class RabbitBaseService<T extends Message> extends AbstractIdleService implements MessageCallback<T> {
+
   private static final Logger LOG = LoggerFactory.getLogger(RabbitBaseService.class);
 
   private final MessagingConfiguration mCfg;
+  private final GangliaConfiguration gCfg;
   private final int poolSize;
   private final String queue;
-  private final Injector injector;
-  private MetricRegistry registry;
-  protected HikariDataSource hds;
+  private final MetricRegistry registry;
+
   protected MessagePublisher publisher;
   protected MessageListener listener;
 
-
-  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, List<Module> modules) {
+  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg) {
     this.mCfg = mCfg;
+    this.gCfg = gCfg;
     this.poolSize = poolSize;
     this.queue = queue;
-    injector = Guice.createInjector(ImmutableList.<Module>builder()
-//        .add(new MetricModule(gCfg))
-        .addAll(modules)
-        .build());
-    this.registry = injector.getInstance(MetricRegistry.class);
-    initMetrics(this.registry);
-    // keep a reference to the hikari pool so we can close it properly on shutdown
-    for (Module m : modules) {
-//      if (m instanceof ChecklistBankServiceMyBatisModule || m instanceof InternalChecklistBankServiceMyBatisModule) {
-//        hds = (HikariDataSource) getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
-//        break;
-//      }
-    }
-  }
-
-  public RabbitBaseService(String queue, int poolSize, MessagingConfiguration mCfg, GangliaConfiguration gCfg, Module ... modules) {
-    this(queue, poolSize, mCfg, gCfg, Lists.newArrayList(modules));
+    this.registry = new MetricRegistry();
+    initMetrics();
   }
 
   public MetricRegistry getRegistry() {
     return registry;
-  }
-
-  public Injector injector() {
-    return injector;
-  }
-
-  public <T> T getInstance(Class<T> clazz) {
-    return injector.getInstance(clazz);
-  }
-
-  public <T> T getInstance(Key<T> key) {
-    return injector.getInstance(key);
   }
 
   protected String regName(String name) {
@@ -89,7 +70,8 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
    * Binds metrics to an existing metrics registry.
    * override this method to add more service specific metrics
    */
-  protected void initMetrics(MetricRegistry registry) {
+  protected void initMetrics() {
+    gCfg.start(registry);
     registry.registerAll(new MemoryUsageGaugeSet());
     // this is broken in Java11 - we need to update metrics and thus Dropwizard!
     //registry.register(Metrics.OPEN_FILES, new FileDescriptorRatioGauge());
@@ -99,7 +81,7 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
   protected void startUp() throws Exception {
     publisher = new DefaultMessagePublisher(mCfg.getConnectionParameters());
 
-    // dataset messages are slow, long running processes. Only prefetch one message
+    // dataset messages are slow, long-running processes. Only prefetch one message
     listener = new MessageListener(mCfg.getConnectionParameters(), 1);
     startUpBeforeListening();
     listener.listen(queue, poolSize, this);
@@ -109,14 +91,11 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
    * Hook to bind startup code to that gets executed before the listener actually starts listening to messages!
    */
   protected void startUpBeforeListening() throws Exception {
-    // dont do anything by default
+    // don't do anything by default
   }
 
   @Override
   protected void shutDown() throws Exception {
-    if (hds != null) {
-      hds.close();
-    }
     if (listener != null) {
       listener.close();
     }
@@ -134,5 +113,4 @@ public abstract class RabbitBaseService<T extends Message> extends AbstractIdleS
       throw e;
     }
   }
-
 }
