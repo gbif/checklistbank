@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.ws.nub;
 
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
+import org.gbif.nub.lookup.NubMatchingConfigurationModule;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
 import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
 import org.gbif.ws.remoteauth.RestTemplateRemoteAuthClient;
@@ -32,18 +33,14 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 
 @SpringBootApplication(
     exclude = {
       ElasticSearchRestHealthContributorAutoConfiguration.class,
       RabbitAutoConfiguration.class
     })
-@Import(SpringServiceConfig.class)
+@Import({SpringServiceConfig.class, NubMatchingConfigurationModule.class})
 @EnableConfigurationProperties
 @ComponentScan(
     basePackages = {
@@ -55,18 +52,18 @@ import org.springframework.context.annotation.Import;
       "org.gbif.nub",
       "org.gbif.checklistbank.ws.nub"
     },
-  excludeFilters = {
-    @ComponentScan.Filter(
-      type = FilterType.ASSIGNABLE_TYPE,
-      classes = {
-        AppKeySigningService.class,
-        FileSystemKeyStore.class,
-        IdentityFilter.class,
-        AppIdentityFilter.class,
-        GbifAuthenticationManagerImpl.class,
-        GbifAuthServiceImpl.class
-      })
-  })
+    excludeFilters = {
+      @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          classes = {
+            AppKeySigningService.class,
+            FileSystemKeyStore.class,
+            IdentityFilter.class,
+            AppIdentityFilter.class,
+            GbifAuthenticationManagerImpl.class,
+            GbifAuthServiceImpl.class
+          })
+    })
 public class NubWsApplication {
   public static void main(String[] args) {
     SpringApplication.run(NubWsApplication.class, args);
@@ -74,7 +71,7 @@ public class NubWsApplication {
 
   @Bean
   public RemoteAuthClient remoteAuthClient(
-    RestTemplateBuilder builder, @Value("${gbif.api.url}") String gbifApiUrl) {
+      RestTemplateBuilder builder, @Value("${gbif.api.url}") String gbifApiUrl) {
     return RestTemplateRemoteAuthClient.createInstance(builder, gbifApiUrl);
   }
 
@@ -84,6 +81,5 @@ public class NubWsApplication {
     public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
       super(context, remoteAuthClient);
     }
-
   }
 }
