@@ -22,16 +22,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
-import org.gbif.api.service.checklistbank.DescriptionService;
-import org.gbif.api.service.checklistbank.DistributionService;
-import org.gbif.api.service.checklistbank.IdentifierService;
-import org.gbif.api.service.checklistbank.MultimediaService;
-import org.gbif.api.service.checklistbank.NameUsageSearchService;
-import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.api.service.checklistbank.ReferenceService;
-import org.gbif.api.service.checklistbank.SpeciesProfileService;
-import org.gbif.api.service.checklistbank.TypeSpecimenService;
-import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.api.service.checklistbank.*;
 import org.gbif.api.vocabulary.TypeStatus;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DistributionMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NubRelMapper;
@@ -40,11 +31,10 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageCountMappe
 import java.util.List;
 import java.util.Locale;
 
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
-
-import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -100,6 +90,7 @@ public class SpeciesResourceTest {
       mockDistributionMapper, mockNubRelMapper);
 
     locale = Locale.US;
+    Locale.setDefault(Locale.US); // needed for the LocaleContext in the resources
     nameUsage = new NameUsage();
     nameUsage.setKey(NAME_USAGE_KEY);
 
@@ -109,7 +100,7 @@ public class SpeciesResourceTest {
   @Test
   public void testGet() throws Exception {
     when(mockNameUsageService.get(NAME_USAGE_KEY, locale)).thenReturn(nameUsage);
-    NameUsage nameUsage = resource.get(NAME_USAGE_KEY, locale);
+    NameUsage nameUsage = resource.get(NAME_USAGE_KEY);
     assertEquals(String.valueOf(NAME_USAGE_KEY), nameUsage.getKey().toString());
   }
 

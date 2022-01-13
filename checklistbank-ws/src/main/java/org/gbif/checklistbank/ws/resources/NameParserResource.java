@@ -60,7 +60,7 @@ public class NameParserResource {
    * Parsing names as GET query parameters.
    */
   @GetMapping
-  public List<ParsedName> parseGet(@RequestParam("name") List<String> names) {
+  public List<ParsedName> parseGet(@RequestParam(value = "name", required = false) List<String> names) {
     return parse(names.iterator());
   }
 
@@ -79,7 +79,7 @@ public class NameParserResource {
    * </pre>
    */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public List<ParsedName> parseFile(@RequestParam("names") MultipartFile namesFile) throws IOException {
+  public List<ParsedName> parseFile(@RequestParam(value = "names", required = false) MultipartFile namesFile) throws IOException {
     if (namesFile == null) {
       LOG.debug("No names file uploaded");
       return Lists.newArrayList();

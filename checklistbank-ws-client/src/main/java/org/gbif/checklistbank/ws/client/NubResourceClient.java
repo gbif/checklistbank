@@ -34,17 +34,17 @@ public interface NubResourceClient extends NameUsageMatchingService {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   NameUsageMatch match(
-      @RequestParam("name") String scientificName2,
-      @RequestParam("scientificName") String scientificName,
-      @RequestParam("authorship") String authorship2,
-      @RequestParam("scientificNameAuthorship") String authorship,
-      @RequestParam("rank") String rank2,
-      @RequestParam("taxonRank") String rank,
-      @RequestParam("specificEpithet") String specificEpithet,
-      @RequestParam("infraspecificEpithet") String infraspecificEpithet,
+      @RequestParam(value = "name", required = false) String scientificName2,
+      @RequestParam(value = "scientificName", required = false) String scientificName,
+      @RequestParam(value = "authorship", required = false) String authorship2,
+      @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
+      @RequestParam(value = "rank", required = false) String rank2,
+      @RequestParam(value = "taxonRank", required = false) String rank,
+      @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
+      @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
       LinneanClassification classification, // TODO: argument resolver needed?
-      @RequestParam("strict") Boolean strict,
-      @RequestParam("verbose") Boolean verbose);
+      @RequestParam(value = "strict", required = false) Boolean strict,
+      @RequestParam(value = "verbose", required = false) Boolean verbose);
 
   @Override
   default NameUsageMatch match(
@@ -63,15 +63,15 @@ public interface NubResourceClient extends NameUsageMatchingService {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   NameUsageMatch2 match2(
-      @RequestParam("name") String scientificName2,
-      @RequestParam("scientificName") String scientificName,
-      @RequestParam("authorship") String authorship2,
-      @RequestParam("scientificNameAuthorship") String authorship,
-      @RequestParam("rank") String rank2,
-      @RequestParam("taxonRank") String rank,
-      @RequestParam("specificEpithet") String specificEpithet,
-      @RequestParam("infraspecificEpithet") String infraspecificEpithet,
-      LinneanClassification classification, // TODO: argument resolver needed?
-      @RequestParam("strict") Boolean strict,
-      @RequestParam("verbose") Boolean verbose);
+      @RequestParam(value = "name", required = false) String scientificName2,
+      @RequestParam(value = "scientificName", required = false) String scientificName,
+      @RequestParam(value = "authorship", required = false) String authorship2,
+      @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
+      @RequestParam(value = "rank", required = false) String rank2,
+      @RequestParam(value = "taxonRank", required = false) String rank,
+      @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
+      @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
+      LinneanClassification classification,
+      @RequestParam(value = "strict", required = false) Boolean strict,
+      @RequestParam(value = "verbose", required = false) Boolean verbose);
 }

@@ -34,12 +34,10 @@ public interface SpeciesResourceClient {
 
   @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: not sure if the Locale param will be resolved
   PagingResponse<NameUsage> list(
-      @RequestParam("locale") Locale locale,
-      @RequestParam("datasetKey") Set<UUID> datasetKeys,
-      @RequestParam("sourceId") String sourceId,
-      @RequestParam("name") String canonicalName,
+      @RequestParam(value = "datasetKey", required = false) Set<UUID> datasetKeys,
+      @RequestParam(value = "sourceId", required = false) String sourceId,
+      @RequestParam(value = "name", required = false) String canonicalName,
       @SpringQueryMap Pageable page);
 
   @RequestMapping(
@@ -47,38 +45,36 @@ public interface SpeciesResourceClient {
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: test locale
-  NameUsage get(@PathVariable("id") int usageKey, Locale locale);
+  NameUsage get(@PathVariable("id") int usageKey);
 
   @RequestMapping(
       value = "{id}/metrics",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  NameUsageMetrics getMetrics(@RequestParam("id") int usageKey);
+  NameUsageMetrics getMetrics(@RequestParam(value = "id", required = false) int usageKey);
 
   @RequestMapping(
       value = "{id}/name",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  ParsedName getParsedName(@RequestParam("id") int usageKey);
+  ParsedName getParsedName(@RequestParam(value = "id", required = false) int usageKey);
 
   @RequestMapping(
       value = "{id}/verbatim",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  VerbatimNameUsage getVerbatim(@RequestParam("id") int usageKey);
+  VerbatimNameUsage getVerbatim(@RequestParam(value = "id", required = false) int usageKey);
 
   @RequestMapping(
       value = "{id}/children",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: test locale
   PagingResponse<NameUsage> listChildren(
-      @RequestParam("id") int parentKey, Locale locale, @SpringQueryMap Pageable page);
+      @RequestParam(value = "id", required = false) int parentKey, @SpringQueryMap Pageable page);
 
   @RequestMapping(
       value = "{id}/synonyms",
@@ -86,7 +82,7 @@ public interface SpeciesResourceClient {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   PagingResponse<NameUsage> listSynonyms(
-      @RequestParam("id") int usageKey, Locale locale, @SpringQueryMap Pageable page);
+      @RequestParam(value = "id", required = false) int usageKey, @SpringQueryMap Pageable page);
 
   @RequestMapping(
       value = "{id}/vernacularNames",
@@ -94,7 +90,7 @@ public interface SpeciesResourceClient {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   PagingResponse<VernacularName> listVernacularNamesByNameUsage(
-      @RequestParam("id") int usageKey, @SpringQueryMap Pageable page);
+      @RequestParam(value = "id", required = false) int usageKey, @SpringQueryMap Pageable page);
 
   @RequestMapping(
       value = "{id}/typeSpecimens",
@@ -165,37 +161,32 @@ public interface SpeciesResourceClient {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   PagingResponse<NameUsage> listRelatedByNameUsage(
-      // TODO: test locale
       @PathVariable("id") int usageKey,
-      Locale locale,
       @SpringQueryMap Pageable page,
-      @RequestParam("datasetKey") Set<UUID> datasetKeys);
+      @RequestParam(value = "datasetKey", required = false) Set<UUID> datasetKeys);
 
   @RequestMapping(
       value = "{id}/combinations",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: test locale
-  List<NameUsage> listCombinations(@PathVariable("id") int basionymKey, Locale locale);
+  List<NameUsage> listCombinations(@PathVariable("id") int basionymKey);
 
   @RequestMapping(
       value = "{id}/parents",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: test locale
   List<NameUsage> listParentsByNameUsage(
-      @PathVariable("id") int usageKey, Locale locale, @SpringQueryMap Pageable page);
+      @PathVariable("id") int usageKey, @SpringQueryMap Pageable page);
 
   @RequestMapping(
       value = "root/{datasetKey}",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: test locale
   PagingResponse<NameUsage> listRootUsages(
-      @PathVariable("datasetKey") UUID datasetKey, Locale locale, @SpringQueryMap Pageable page);
+      @PathVariable("datasetKey") UUID datasetKey, @SpringQueryMap Pageable page);
 
   @RequestMapping(
       value = "search",
@@ -203,7 +194,6 @@ public interface SpeciesResourceClient {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
   SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
-      // TODO: we need arguement resolver
       @SpringQueryMap NameUsageSearchRequest searchRequest);
 
   @RequestMapping(
@@ -211,7 +201,6 @@ public interface SpeciesResourceClient {
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  // TODO: we need arguement resolver
   List<NameUsageSuggestResult> suggest(
       @SpringQueryMap NameUsageSuggestRequest searchSuggestRequest);
 }

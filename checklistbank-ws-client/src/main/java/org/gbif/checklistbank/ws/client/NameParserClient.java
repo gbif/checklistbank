@@ -28,7 +28,7 @@ public interface NameParserClient {
     method = RequestMethod.GET,
     produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  List<ParsedName> parseGet(@RequestParam("name") List<String> names);
+  List<ParsedName> parseGet(@RequestParam(value = "name", required = false) List<String> names);
 
   @RequestMapping(
     method = RequestMethod.POST,
@@ -42,7 +42,7 @@ public interface NameParserClient {
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  List<ParsedName> parseFile(@RequestParam("names") MultipartFile namesFile);
+  List<ParsedName> parseFile(@RequestParam(value = "names", required = false) MultipartFile namesFile);
 
 
   @RequestMapping(
