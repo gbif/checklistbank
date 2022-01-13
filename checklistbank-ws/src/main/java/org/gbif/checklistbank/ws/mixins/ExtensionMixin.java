@@ -22,6 +22,7 @@ public interface ExtensionMixin {
   class ExtensionDeserializer extends JsonDeserializer<Extension> {
     public ExtensionDeserializer() {}
 
+    @Override
     public Extension deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
       if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
         return Extension.valueOf(jp.getText());
@@ -34,6 +35,7 @@ public interface ExtensionMixin {
   class ExtensionSerializer extends JsonSerializer<Extension> {
     public ExtensionSerializer() {}
 
+    @Override
     public void serialize(Extension value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException {
       jgen.writeFieldName(value.name());
@@ -43,6 +45,7 @@ public interface ExtensionMixin {
   class ExtensionKeyDeserializer extends KeyDeserializer {
     public ExtensionKeyDeserializer() {}
 
+    @Override
     public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
       return Extension.valueOf(key);
     }

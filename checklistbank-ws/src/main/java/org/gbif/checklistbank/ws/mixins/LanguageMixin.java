@@ -22,6 +22,7 @@ public interface LanguageMixin {
   class LenientKeyDeserializer extends KeyDeserializer {
     public LenientKeyDeserializer() {}
 
+    @Override
     public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
       try {
         return StringUtils.isNotEmpty(key)
@@ -38,6 +39,7 @@ public interface LanguageMixin {
   class LenientDeserializer extends JsonDeserializer<Language> {
     public LenientDeserializer() {}
 
+    @Override
     public Language deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
       try {
         return jp != null && jp.getTextLength() > 0 ? lenientParse(jp.getText()) : Language.UNKNOWN;
@@ -60,6 +62,7 @@ public interface LanguageMixin {
   class IsoSerializer extends JsonSerializer<Language> {
     public IsoSerializer() {}
 
+    @Override
     public void serialize(Language value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException {
       jgen.writeString(value.name());
