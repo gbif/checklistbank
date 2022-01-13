@@ -48,11 +48,11 @@ public class NubMatchingConfigurationModule {
                               @Value("${checklistbank.nub.datasetKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}") UUID nubDatasetKey) throws IOException {
     NubIndex index;
     if (indexDir == null) {
-      LOG.info("Starting building new nub memory index in dir {}", indexDir);
+      LOG.info("Starting building new nub memory index");
       index = NubIndex.newMemoryIndex(mapper);
       LOG.info("Lucene memory index initialized");
     } else {
-      LOG.info("Starting building new nub file index");
+      LOG.info("Starting building new nub file index in dir {}", indexDir);
       index = NubIndex.newFileIndex(indexDir, mapper, nubDatasetKey);
       LOG.info("Lucene file index initialized at {}", indexDir.getAbsolutePath());
     }
