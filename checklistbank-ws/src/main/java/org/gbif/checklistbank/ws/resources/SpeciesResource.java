@@ -61,6 +61,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.ws.rs.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -187,19 +189,19 @@ public class SpeciesResource {
 
   @GetMapping("{id}/metrics")
   @NullToNotFound
-  public NameUsageMetrics getMetrics(@RequestParam("id") int usageKey) {
+  public NameUsageMetrics getMetrics(@PathVariable("id") int usageKey) {
     return nameUsageService.getMetrics(usageKey);
   }
 
   @GetMapping("{id}/name")
   @NullToNotFound
-  public ParsedName getParsedName(@RequestParam("id") int usageKey) {
+  public ParsedName getParsedName(@PathVariable("id") int usageKey) {
     return nameUsageService.getParsedName(usageKey);
   }
 
   @GetMapping("{id}/verbatim")
   @NullToNotFound
-  public VerbatimNameUsage getVerbatim(@RequestParam("id") int usageKey) {
+  public VerbatimNameUsage getVerbatim(@PathVariable("id") int usageKey) {
     return nameUsageService.getVerbatim(usageKey);
   }
 
@@ -213,12 +215,12 @@ public class SpeciesResource {
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
   @GetMapping("{id}/children")
-  public PagingResponse<NameUsage> listChildren(@RequestParam("id") int parentKey, Locale locale, Pageable page) {
+  public PagingResponse<NameUsage> listChildren(@PathVariable("id") int parentKey, Locale locale, Pageable page) {
     return nameUsageService.listChildren(parentKey, locale, page);
   }
 
   @GetMapping("{id}/childrenAll")
-  public List<UsageCount> listAllChildren(@RequestParam("id") int parentKey) {
+  public List<UsageCount> listAllChildren(@PathVariable("id") int parentKey) {
     return usageCountMapper.children(parentKey);
   }
 
@@ -232,7 +234,7 @@ public class SpeciesResource {
    * @see NameUsageService#listChildren(int, Locale, Pageable)
    */
   @GetMapping("{id}/synonyms")
-  public PagingResponse<NameUsage> listSynonyms(@RequestParam("id") int usageKey, Locale locale, Pageable page) {
+  public PagingResponse<NameUsage> listSynonyms(@PathVariable("id") int usageKey, Locale locale, Pageable page) {
     return nameUsageService.listSynonyms(usageKey, locale, page);
   }
 
@@ -246,7 +248,7 @@ public class SpeciesResource {
    * @see VernacularNameService#listByUsage(int, Pageable)
    */
   @GetMapping("{id}/vernacularNames")
-  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@RequestParam("id") int usageKey, Pageable page) {
+  public PagingResponse<VernacularName> listVernacularNamesByNameUsage(@PathVariable("id") int usageKey, Pageable page) {
     return vernacularNameService.listByUsage(usageKey, page);
   }
 
