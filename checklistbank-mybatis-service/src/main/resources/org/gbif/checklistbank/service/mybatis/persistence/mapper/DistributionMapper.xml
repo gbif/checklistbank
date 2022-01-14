@@ -30,7 +30,6 @@
   <resultMap id="distributionResultMap" type="Distribution" autoMapping="true">
     <result property="taxonKey" column="usageKey"/>
     <result property="status" column="occurrence_status"/>
-    <result property="source" column="citation"/>
   </resultMap>
 
   <resultMap id="distributionRangeResultMap" type="UsageRelated" autoMapping="true">
