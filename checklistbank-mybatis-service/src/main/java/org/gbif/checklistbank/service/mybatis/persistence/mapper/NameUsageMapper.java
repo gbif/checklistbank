@@ -86,6 +86,10 @@ public interface NameUsageMapper {
    */
   void processDataset(@Param("uuid") UUID datasetKey, ResultHandler<ParsedNameUsage> handler);
 
+  List<ParsedNameUsage> processDatasetPage(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
+
+  long processDatasetCount(@Param("uuid") UUID datasetKey);
+
   /**
    * Iterates over all usage names and processes them with the supplied handler.
    * This allows a single query to efficiently stream all its values without keeping them in memory.

@@ -42,6 +42,7 @@ public class NubMatchingConfigurationModule {
 
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingConfigurationModule.class);
 
+
   @Bean
   public NubIndex provideIndex(NameUsageMapper mapper,
                               @Value("${checklistbank.nub.indexDir:#{null}}") File indexDir,

@@ -18,12 +18,16 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.model.common.paging.PagingRequest;
+import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.ClassificationUtils;
+import org.gbif.api.util.iterables.BasePager;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
 import org.gbif.checklistbank.lucene.ScientificNameAnalyzer;
+import org.gbif.checklistbank.model.ParsedNameUsage;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.nameparser.NameParserGbifV1;
 
@@ -63,6 +67,32 @@ import com.google.common.collect.Lists;
  */
 public class NubIndex implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
+
+  public static class ParsedNameUsagePager extends BasePager<ParsedNameUsage> {
+
+
+    private final NameUsageMapper mapper;
+
+    private final UUID datasetKey;
+
+    public ParsedNameUsagePager(
+      int pageSize, NameUsageMapper mapper, UUID datasetKey
+    ) {
+      super(pageSize);
+      this.mapper = mapper;
+      this.datasetKey = datasetKey;
+    }
+
+    @Override
+    public PagingResponse<ParsedNameUsage> nextPage(PagingRequest page) {
+      PagingResponse<ParsedNameUsage> response = new PagingResponse<>();
+      response.setResults(mapper.processDatasetPage(datasetKey, page));
+      response.setCount(mapper.processDatasetCount(datasetKey));
+      return response;
+    }
+
+  }
+
 
   /**
    * Type for a stored IntField with max precision to minimize memory usage as we dont need range queries.
@@ -117,8 +147,9 @@ public class NubIndex implements AutoCloseable {
     // creates initial index segments
     writer.commit();
 
-    IndexBuildHandler builder = new IndexBuildHandler(writer);
-    mapper.processDataset(nubDatasetKey, builder);
+    IndexBuildResultHandler builder = new IndexBuildResultHandler(writer);
+    new ParsedNameUsagePager(100, mapper, nubDatasetKey)
+      .forEach(builder);
 
     writer.close();
     LOG.info("Finished building nub index");
