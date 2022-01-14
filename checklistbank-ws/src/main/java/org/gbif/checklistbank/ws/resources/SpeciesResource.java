@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 /** Species resource. */
@@ -138,6 +139,7 @@ public class SpeciesResource {
   }
 
   @GetMapping("mapping")
+  @Transactional //required because nubRelMapper.process uses cursor
   public List<NubMapping> mappings(@RequestParam(value = DATASET_KEY, required = false) UUID datasetKey) {
     if (datasetKey == null) {
       throw new IllegalArgumentException("DatasetKey is a required parameter");

@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,6 +46,7 @@ public class NubRelMapperTest extends MapperITBase {
   }
 
   @Test
+  @Transactional
   public void process() {
     AtomicInteger counter = new AtomicInteger();
     mapper
