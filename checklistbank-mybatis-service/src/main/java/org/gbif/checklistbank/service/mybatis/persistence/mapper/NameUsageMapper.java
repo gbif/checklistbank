@@ -27,6 +27,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.session.ResultHandler;
 import org.springframework.stereotype.Repository;
 
@@ -89,6 +90,8 @@ public interface NameUsageMapper {
   List<ParsedNameUsage> processDatasetPage(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
 
   long processDatasetCount(@Param("uuid") UUID datasetKey);
+
+  Cursor<ParsedNameUsage> processDatasetCursor(@Param("uuid") UUID datasetKey);
 
   /**
    * Iterates over all usage names and processes them with the supplied handler.

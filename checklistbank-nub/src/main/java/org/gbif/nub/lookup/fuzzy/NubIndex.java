@@ -18,11 +18,8 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
-import org.gbif.api.model.common.paging.PagingRequest;
-import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.util.ClassificationUtils;
-import org.gbif.api.util.iterables.BasePager;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.lucene.LuceneUtils;
@@ -39,6 +36,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.ibatis.cursor.Cursor;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
@@ -51,7 +49,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * A read only lucene index keeping the core attributes of a nub name usage.
@@ -68,30 +66,7 @@ import com.google.common.collect.Lists;
 public class NubIndex implements AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(NubIndex.class);
 
-  public static class ParsedNameUsagePager extends BasePager<ParsedNameUsage> {
 
-
-    private final NameUsageMapper mapper;
-
-    private final UUID datasetKey;
-
-    public ParsedNameUsagePager(
-      int pageSize, NameUsageMapper mapper, UUID datasetKey
-    ) {
-      super(pageSize);
-      this.mapper = mapper;
-      this.datasetKey = datasetKey;
-    }
-
-    @Override
-    public PagingResponse<ParsedNameUsage> nextPage(PagingRequest page) {
-      PagingResponse<ParsedNameUsage> response = new PagingResponse<>();
-      response.setResults(mapper.processDatasetPage(datasetKey, page));
-      response.setCount(mapper.processDatasetCount(datasetKey));
-      return response;
-    }
-
-  }
 
 
   /**
@@ -148,8 +123,8 @@ public class NubIndex implements AutoCloseable {
     writer.commit();
 
     IndexBuildResultHandler builder = new IndexBuildResultHandler(writer);
-    new ParsedNameUsagePager(100, mapper, nubDatasetKey)
-      .forEach(builder);
+    Cursor<ParsedNameUsage> cursor = mapper.processDatasetCursor(nubDatasetKey);
+    cursor.forEach(builder);
 
     writer.close();
     LOG.info("Finished building nub index");
@@ -187,6 +162,7 @@ public class NubIndex implements AutoCloseable {
    *
    * @param indexDir directory to use as the lucence index directory. If null the index is only kept in memory.
    */
+  @Transactional
   public static NubIndex newFileIndex(File indexDir, NameUsageMapper mapper, UUID nubDatasetKey) throws IOException {
     MMapDirectory dir;
     if (indexDir.exists()) {

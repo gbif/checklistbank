@@ -14,9 +14,9 @@
 package org.gbif.nub.lookup;
 
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
+import org.gbif.nub.lookup.fuzzy.NubIndexer;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
@@ -24,7 +24,6 @@ import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -44,20 +43,8 @@ public class NubMatchingConfigurationModule {
 
 
   @Bean
-  public NubIndex provideIndex(NameUsageMapper mapper,
-                              @Value("${checklistbank.nub.indexDir:#{null}}") File indexDir,
-                              @Value("${checklistbank.nub.datasetKey:d7dddbf4-2cf0-4f39-9b2a-bb099caae36c}") UUID nubDatasetKey) throws IOException {
-    NubIndex index;
-    if (indexDir == null) {
-      LOG.info("Starting building new nub memory index");
-      index = NubIndex.newMemoryIndex(mapper);
-      LOG.info("Lucene memory index initialized");
-    } else {
-      LOG.info("Starting building new nub file index in dir {}", indexDir);
-      index = NubIndex.newFileIndex(indexDir, mapper, nubDatasetKey);
-      LOG.info("Lucene file index initialized at {}", indexDir.getAbsolutePath());
-    }
-    return index;
+  public NubIndex provideIndex(NubIndexer nubIndexer) throws IOException {
+    return nubIndexer.index();
   }
 
   @Bean
