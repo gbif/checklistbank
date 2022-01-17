@@ -82,24 +82,14 @@ public interface NameUsageMapper {
   /**
    * Iterates over all name usages of a given dataset and processes them with the supplied handler.
    * This allows a single query to efficiently stream all its values without keeping them in memory.
-   *
-   * @param handler to process each name usage with
    */
-  void processDataset(@Param("uuid") UUID datasetKey, ResultHandler<ParsedNameUsage> handler);
-
-  List<ParsedNameUsage> processDatasetPage(@Param("uuid") UUID datasetKey, @Param("page") Pageable page);
-
-  long processDatasetCount(@Param("uuid") UUID datasetKey);
-
-  Cursor<ParsedNameUsage> processDatasetCursor(@Param("uuid") UUID datasetKey);
+  Cursor<ParsedNameUsage> processDataset(@Param("uuid") UUID datasetKey);
 
   /**
    * Iterates over all usage names and processes them with the supplied handler.
    * This allows a single query to efficiently stream all its values without keeping them in memory.
-   *
-   * @param handler to process each name with
    */
-  void processAllNames(ResultHandler<RankedName> handler);
+  Cursor<RankedName> processAllNames();
 
   /**
    * List all related name usages that have a given nubKey.

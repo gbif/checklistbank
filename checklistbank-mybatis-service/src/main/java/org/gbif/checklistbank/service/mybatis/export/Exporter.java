@@ -26,12 +26,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import com.google.common.io.Files;
+import org.springframework.transaction.annotation.Transactional;
 
 public class Exporter {
 
@@ -88,6 +88,7 @@ public class Exporter {
       this.dwca = new File(repository, dataset.getKey().toString() + ".zip");
     }
 
+    @Transactional
     @Override
     public void run() {
       LOG.info("Start exporting checklist {} into DwC-A at {}", dataset.getKey(), dwca.getAbsolutePath());
@@ -102,7 +103,7 @@ public class Exporter {
 
         // write core taxa
         try (RowHandler.TaxonHandler coreHandler = new RowHandler.TaxonHandler(writer, dataset.getKey())) {
-          usageMapper.processDataset(dataset.getKey(), coreHandler);
+          usageMapper.processDataset(dataset.getKey()).forEach(coreHandler);
           counter = coreHandler.getCounter();
           LOG.info("Written {} core taxa", counter);
 
@@ -120,42 +121,42 @@ public class Exporter {
 
         // descriptions
         try (RowHandler.DescriptionHandler handler = new RowHandler.DescriptionHandler(writer)) {
-          descriptionMapper.processDataset(dataset.getKey(), handler);
+          descriptionMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} description records", handler.getCounter());
           extCounter = handler.getCounter();
         }
 
         // distributions
         try (RowHandler.DistributionHandler handler = new RowHandler.DistributionHandler(writer)) {
-          distributionMapper.processDataset(dataset.getKey(), handler);
+          distributionMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} distribution records", handler.getCounter());
           extCounter = +handler.getCounter();
         }
 
         // media
         try (RowHandler.NameUsageMediaObjectHandler handler = new RowHandler.NameUsageMediaObjectHandler(writer)) {
-          mediaMapper.processDataset(dataset.getKey(), handler);
+          mediaMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} media records", handler.getCounter());
           extCounter = +handler.getCounter();
         }
 
         // references
         try (RowHandler.ReferenceHandler handler = new RowHandler.ReferenceHandler(writer)) {
-          referenceMapper.processDataset(dataset.getKey(), handler);
+          referenceMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} reference records", handler.getCounter());
           extCounter = +handler.getCounter();
         }
 
         // types
         try (RowHandler.TypeSpecimenHandler handler = new RowHandler.TypeSpecimenHandler(writer)) {
-          typeSpecimenMapper.processDataset(dataset.getKey(), handler);
+          typeSpecimenMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} typification records", handler.getCounter());
           extCounter = +handler.getCounter();
         }
 
         // vernacular names
         try (RowHandler.VernacularNameHandler handler = new RowHandler.VernacularNameHandler(writer)) {
-          vernacularMapper.processDataset(dataset.getKey(), handler);
+          vernacularMapper.processDataset(dataset.getKey()).forEach(handler);
           LOG.info("Written {} vernacular name records", handler.getCounter());
           extCounter = +handler.getCounter();
         }

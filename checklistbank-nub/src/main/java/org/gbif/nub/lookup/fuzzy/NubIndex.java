@@ -123,7 +123,7 @@ public class NubIndex implements AutoCloseable {
     writer.commit();
 
     IndexBuildResultHandler builder = new IndexBuildResultHandler(writer);
-    Cursor<ParsedNameUsage> cursor = mapper.processDatasetCursor(nubDatasetKey);
+    Cursor<ParsedNameUsage> cursor = mapper.processDataset(nubDatasetKey);
     cursor.forEach(builder);
 
     writer.close();

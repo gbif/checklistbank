@@ -19,9 +19,8 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -50,14 +49,13 @@ public class NameUsageMapperWithDataIT extends MapperITBase {
     this.mapper = nameUsageMapper;
   }
 
-  class NonEmptyCounter implements ResultHandler<ParsedNameUsage> {
+  class NonEmptyCounter implements Consumer<ParsedNameUsage> {
     public int counter;
 
     @Override
-    public void handleResult(ResultContext<? extends ParsedNameUsage> resultContext) {
-      if (resultContext.getResultObject() != null) {
+    public void accept(ParsedNameUsage u) {
+      if (u != null) {
         counter++;
-        ParsedNameUsage u = resultContext.getResultObject();
         assertNotNull(u.getKey());
         assertNotNull(u.getScientificName());
         assertNotNull(u.getRank());
@@ -73,13 +71,13 @@ public class NameUsageMapperWithDataIT extends MapperITBase {
   @Test
   public void testProcessDataset() {
     NonEmptyCounter proc = new NonEmptyCounter();
-    mapper.processDataset(UUID.randomUUID(), proc);
+    mapper.processDataset(UUID.randomUUID()).forEach(proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(Constants.NUB_DATASET_KEY, proc);
+    mapper.processDataset(Constants.NUB_DATASET_KEY).forEach(proc);
     assertEquals(2, proc.counter);
 
-    mapper.processDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY).forEach(proc);
     // we did not reset counter, so it adds up
     assertEquals(46, proc.counter);
   }

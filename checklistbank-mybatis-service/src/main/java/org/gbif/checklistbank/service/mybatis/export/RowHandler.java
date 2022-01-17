@@ -21,19 +21,17 @@ import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.*;
 
 import java.util.*;
-
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.function.Consumer;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-abstract class RowHandler<T> implements ResultHandler<T>, AutoCloseable {
+abstract class RowHandler<T> implements Consumer<T>, AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(RowHandler.class);
   private static final Joiner CONCAT = Joiner.on(";").skipNulls();
 
@@ -54,8 +52,8 @@ abstract class RowHandler<T> implements ResultHandler<T>, AutoCloseable {
   abstract String[] toRow(T obj);
 
   @Override
-  public void handleResult(ResultContext<? extends T> ctx) {
-    writer.write(toRow(ctx.getResultObject()));
+  public void accept(T result) {
+    writer.write(toRow(result));
     if (counter++ % 100000 == 0) {
       LOG.debug("{} {} records added to dwca", counter, rowType.simpleName());
     }

@@ -19,9 +19,8 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -51,14 +50,13 @@ public class VernacularNameMapperWithDataIT extends MapperITBase {
     this.mapper = vernacularNameMapper;
   }
 
-  class NonEmptyCounter implements ResultHandler<VernacularName> {
+  class NonEmptyCounter implements Consumer<VernacularName> {
     public int counter;
 
     @Override
-    public void handleResult(ResultContext<? extends VernacularName> resultContext) {
-      if (resultContext.getResultObject() != null) {
+    public void accept(VernacularName d) {
+      if (d != null) {
         counter++;
-        VernacularName d = resultContext.getResultObject();
         System.out.println(d);
         assertNotNull(d.getTaxonKey());
         assertNotNull(d.getVernacularName());
@@ -69,13 +67,13 @@ public class VernacularNameMapperWithDataIT extends MapperITBase {
   @Test
   public void testProcessDataset() {
     NonEmptyCounter proc = new NonEmptyCounter();
-    mapper.processDataset(UUID.randomUUID(), proc);
+    mapper.processDataset(UUID.randomUUID()).forEach(proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(Constants.NUB_DATASET_KEY, proc);
+    mapper.processDataset(Constants.NUB_DATASET_KEY).forEach(proc);
     assertEquals(0, proc.counter);
 
-    mapper.processDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY, proc);
+    mapper.processDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY).forEach(proc);
     assertEquals(6, proc.counter);
   }
 }

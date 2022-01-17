@@ -26,16 +26,14 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
@@ -59,12 +57,13 @@ public class NameUsageReparser implements Runnable {
     exec = Executors.newFixedThreadPool(threads);
   }
 
+  @Transactional
   @Override
   public void run() {
     LOG.info(
         "Submit reparsing jobs in batches of {} to executor with {} threads.", BATCH_SIZE, threads);
     ReparseHandler handler = new ReparseHandler();
-    usageMapper.processAllNames(handler);
+    usageMapper.processAllNames().forEach(handler);
     // finally submit the remaining unfinished batch
     handler.submitBatch();
 
@@ -79,12 +78,12 @@ public class NameUsageReparser implements Runnable {
         "Done! Reparsed {} unique names, {} failed, {} unparsable", counter, failed, unparsable);
   }
 
-  private class ReparseHandler implements ResultHandler<RankedName> {
+  private class ReparseHandler implements Consumer<RankedName> {
     List<RankedName> batch = Lists.newArrayList();
 
     @Override
-    public void handleResult(ResultContext<? extends RankedName> context) {
-      batch.add(context.getResultObject());
+    public void accept(RankedName result) {
+      batch.add(result);
       if (batch.size() >= BATCH_SIZE) {
         submitBatch();
       }

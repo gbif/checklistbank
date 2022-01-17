@@ -205,16 +205,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     <!--  select all name usages of a dataset
      Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
     -->
-    <select id="processDataset" parameterType="map" resultMap="parsedUsageResultMap"
-            fetchSize="10000" resultSetType="FORWARD_ONLY">
-        SELECT
-        <include refid="selectParsedName"/>
-        FROM
-        <include refid="from"/>
-        WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
-    </select>
-
-  <select id="processDatasetCursor" parameterType="map" resultMap="parsedUsageResultMap"
+  <select id="processDataset" parameterType="map" resultMap="parsedUsageResultMap"
           fetchSize="10000" resultSetType="FORWARD_ONLY" resultOrdered="true">
     SELECT
     <include refid="selectParsedName"/>
@@ -223,27 +214,11 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
     WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
   </select>
 
-    <!--  Process ParsedNameUsage using paging requests-->
-    <select id="processDatasetPage" parameterType="map" resultMap="parsedUsageResultMap">
-      SELECT
-      <include refid="selectParsedName"/>
-      FROM
-      <include refid="from"/>
-      WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
-      <include refid="page"/>
-    </select>
-
-    <select id="processDatasetCount" parameterType="map" resultType="Long">
-      SELECT COUNT(*) FROM
-      <include refid="from"/>
-      WHERE u.deleted IS NULL AND u.dataset_key=#{uuid,jdbcType=OTHER}
-    </select>
-
     <!--  select all name usages of a dataset
      Using a optimal fetchsize to enable low memory footprint while keeping good performance using a resulthandler
     -->
-    <select id="processAllNames" resultMap="scinameResultMap" fetchSize="10000"
-            resultSetType="FORWARD_ONLY">
+  <select id="processAllNames" resultMap="scinameResultMap" fetchSize="10000"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
     SELECT id,rank,scientific_name
     FROM tmp_usage_name
   </select>

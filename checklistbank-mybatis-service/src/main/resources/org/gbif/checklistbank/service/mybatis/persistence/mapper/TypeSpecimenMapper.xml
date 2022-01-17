@@ -50,7 +50,8 @@
     <include refid="page"/>
   </select>
 
-  <select id="processDataset" parameterType="map" resultMap="typeSpecimenResultMap" fetchSize="10000" resultSetType="FORWARD_ONLY">
+  <select id="processDataset" parameterType="map" resultMap="typeSpecimenResultMap" fetchSize="10000"
+          resultSetType="FORWARD_ONLY" resultOrdered="true">
     SELECT
     <choose>
       <when test="uuid.toString() == 'd7dddbf4-2cf0-4f39-9b2a-bb099caae36c'">
