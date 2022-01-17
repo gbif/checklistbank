@@ -22,7 +22,10 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.*;
+import org.gbif.api.vocabulary.Kingdom;
+import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NubMapping;
 import org.gbif.checklistbank.model.TreeContainer;
@@ -53,6 +56,11 @@ public class SpeciesResource {
   private static final Logger LOG = LoggerFactory.getLogger(SpeciesResource.class);
   private static final String DATASET_KEY = "datasetKey";
   private static final int DEEP_PAGING_OFFSET_LIMIT = 100000;
+  private static final Set<Integer> iucnKingdoms = Sets.newHashSet(
+      Kingdom.ANIMALIA.nubUsageKey(),
+      Kingdom.PLANTAE.nubUsageKey(),
+      Kingdom.FUNGI.nubUsageKey()
+  );
 
   private final NameUsageService nameUsageService;
   private final VernacularNameService vernacularNameService;
@@ -367,16 +375,35 @@ public class SpeciesResource {
   }
 
   /**
-   * This retrieves the IUCN Redlist Category of a nub usage key. If the matching IUCN usage does
-   * not contain a category null is returned.
+   * This retrieves the IUCN Redlist Category for a nub usage key.
+   * If the matching IUCN usage does not contain a category not evaluated (NE) is returned.
    *
-   * @param usageKey NameUsage key
-   * @return the category or null if it doesn't have one
+   * @param usageKey backbone NameUsage key
+   * @return IUCN usage with a category, a nub usage with NotEvaluated or null if its not an animal, plant or fungi
    */
   @GetMapping("{id}/iucnRedListCategory")
   public IucnRedListCategory getIucnRedListCategory(@PathVariable("id") int usageKey) {
     IucnRedListCategory iucn = distributionMapper.getIucnRedListCategory(usageKey);
-    return iucn == null || iucn.getCategory() == null ? null : iucn;
+    if (iucn != null) {
+      if (iucn.getCategory() == null) {
+        iucn.setCategory(ThreatStatus.NOT_EVALUATED);
+      }
+      return iucn;
+    }
+    // all nub usages that have no matching IUCN usage should become NE if they are animals, plants or fungi
+    // https://github.com/gbif/pipelines/issues/645
+    NameUsage nub = nameUsageService.get(usageKey, Locale.US);
+    if (nub != null && nub.getKingdomKey() != null
+        && iucnKingdoms.contains(nub.getKingdomKey())
+        && nub.getNameType() == NameType.SCIENTIFIC) {
+      iucn = new IucnRedListCategory();
+      iucn.setCategory(ThreatStatus.NOT_EVALUATED);
+      iucn.setScientificName(nub.getScientificName());
+      iucn.setTaxonomicStatus(nub.getTaxonomicStatus());
+      iucn.setAcceptedName(nub.getAccepted());
+      return iucn;
+    }
+    return null;
   }
 
   /**
