@@ -38,6 +38,7 @@ import java.util.*;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -410,7 +411,6 @@ public class SpeciesResource {
    * This retrieves a list of root NameUsage for a Checklist from ChecklistBank.
    *
    * @param datasetKey UUID or case insensitive shortname of the Checklist to retrieve
-   * @param locale identifier for a region
    * @param page the limit, offset, and count paging information
    * @return requested list of NameUsage or an empty list if none could be found
    * @see NameUsageService#listRoot(UUID, Locale, Pageable)
