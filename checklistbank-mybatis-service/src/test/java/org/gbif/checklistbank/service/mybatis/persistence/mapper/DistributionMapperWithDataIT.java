@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,6 +65,7 @@ public class DistributionMapperWithDataIT extends MapperITBase {
     }
   }
 
+  @Transactional
   @Test
   public void testProcessDataset() {
     NonEmptyCounter proc = new NonEmptyCounter();
