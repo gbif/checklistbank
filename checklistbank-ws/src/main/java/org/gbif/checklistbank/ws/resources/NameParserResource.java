@@ -19,6 +19,7 @@ import org.gbif.checklistbank.ws.util.LineReader;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,7 +55,10 @@ public class NameParserResource {
   /** Parsing names as GET query parameters. */
   @GetMapping
   public List<ParsedName> parseGet(
-      @RequestParam(value = "name", required = false, defaultValue = "[]") List<String> names) {
+      @RequestParam(value = "name", required = false) List<String> names) {
+    if (names == null || names.isEmpty()) {
+      return new ArrayList<>();
+    }
     return parse(names.iterator());
   }
 
@@ -62,7 +66,7 @@ public class NameParserResource {
    * Parsing names as a json array.
    */
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-  public List<ParsedName> parseJson(List<String> names) {
+  public List<ParsedName> parseJson(@RequestBody List<String> names) {
     return parse(names.iterator());
   }
 
@@ -91,7 +95,7 @@ public class NameParserResource {
    * </pre>
    */
   @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
-  public List<ParsedName> parsePlainText(String names) {
+  public List<ParsedName> parsePlainText(@RequestBody String names) {
     return parse(NEW_LINE_SPLITTER.split(Strings.nullToEmpty(names)).iterator());
   }
 
