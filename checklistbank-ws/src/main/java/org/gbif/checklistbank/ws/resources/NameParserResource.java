@@ -22,20 +22,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 /**
  * The scientific name parser exposed in the API.
@@ -56,11 +51,10 @@ public class NameParserResource {
     this.parser = parser;
   }
 
-  /**
-   * Parsing names as GET query parameters.
-   */
+  /** Parsing names as GET query parameters. */
   @GetMapping
-  public List<ParsedName> parseGet(@RequestParam(value = "name", required = false) List<String> names) {
+  public List<ParsedName> parseGet(
+      @RequestParam(value = "name", required = false, defaultValue = "[]") List<String> names) {
     return parse(names.iterator());
   }
 
