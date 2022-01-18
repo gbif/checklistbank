@@ -42,7 +42,7 @@ public interface NameParserClient {
     consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  List<ParsedName> parseFile(@RequestParam(value = "names", required = false) MultipartFile namesFile);
+  List<ParsedName> parseFile(@RequestPart("names") MultipartFile namesFile);
 
 
   @RequestMapping(

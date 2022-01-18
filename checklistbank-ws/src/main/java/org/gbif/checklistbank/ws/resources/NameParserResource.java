@@ -77,7 +77,7 @@ public class NameParserResource {
    * </pre>
    */
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public List<ParsedName> parseFile(@RequestParam(value = "names", required = false) MultipartFile namesFile) throws IOException {
+  public List<ParsedName> parseFile(@RequestPart("names") MultipartFile namesFile) throws IOException {
     if (namesFile == null) {
       LOG.debug("No names file uploaded");
       return Lists.newArrayList();

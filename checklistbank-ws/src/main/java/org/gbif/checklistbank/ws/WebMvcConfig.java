@@ -31,6 +31,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
@@ -43,6 +44,7 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -126,6 +128,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Bean
   public Jackson2ObjectMapperBuilderCustomizer customJson() {
     return builder -> builder.modulesToInstall(new JaxbAnnotationModule());
+  }
+
+  @Bean("multipartResolver")
+  public CommonsMultipartResolver multipartResolver(
+    @Value("${upload.maxUploadSize:-1}") Long maxUploadSize) {
+    CommonsMultipartResolver multipart = new CommonsMultipartResolver();
+    multipart.setMaxUploadSize(maxUploadSize);
+    return multipart;
   }
 
   @Override
