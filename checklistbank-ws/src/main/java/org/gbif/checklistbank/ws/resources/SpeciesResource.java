@@ -370,12 +370,11 @@ public class SpeciesResource {
       }
       return iucn;
     }
-    // all nub usages that have no matching IUCN usage should become NE
-    // if they are classified into a proper kingdom and are no OTU
+    // all species that have no matching IUCN usage should become NE
+    // if they are classified into a proper kingdom and are no OTU names
     // https://github.com/gbif/pipelines/issues/645
     NameUsage nub = nameUsageService.get(usageKey, Locale.US);
-    if (nub != null && nub.getRank() != null
-        && nub.getRank().isSpeciesOrBelow()
+    if (nub != null && Rank.SPECIES.equals(nub.getRank())
         && !Objects.equals(Kingdom.INCERTAE_SEDIS.nubUsageKey(), nub.getKingdomKey())
         && nub.getNameType() == NameType.SCIENTIFIC) {
       iucn = new IucnRedListCategory();
