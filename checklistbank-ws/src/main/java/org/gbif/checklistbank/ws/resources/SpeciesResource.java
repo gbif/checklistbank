@@ -351,7 +351,7 @@ public class SpeciesResource {
   public PagingResponse<NameUsage> listRelatedByNameUsage(
       @PathVariable("id") int usageKey,
       Pageable page,
-      @RequestParam(value = DATASET_KEY, required = false) Set<UUID> datasetKeys) {
+      @RequestParam(value = DATASET_KEY, required = false, defaultValue = "") Set<UUID> datasetKeys) {
     return nameUsageService.listRelated(
         usageKey, LocaleContextHolder.getLocale(), page, datasetKeys.toArray(new UUID[datasetKeys.size()]));
   }
