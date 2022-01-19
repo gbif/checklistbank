@@ -7,20 +7,13 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.commons.lang3.StringUtils;
 
-@JsonSerialize(
-    using = LanguageMixin.IsoSerializer.class,
-    keyUsing = LanguageMixin.IsoKeySerializer.class)
-@JsonDeserialize(
-    using = LanguageMixin.LenientDeserializer.class,
-    keyUsing = LanguageMixin.LenientKeyDeserializer.class)
-public interface LanguageMixin {
+public class LanguageSerializers {
 
-  class LenientKeyDeserializer extends KeyDeserializer {
-    public LenientKeyDeserializer() {}
+  private LanguageSerializers() {}
+
+  public static class LenientKeyDeserializer extends KeyDeserializer {
 
     @Override
     public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
@@ -36,8 +29,7 @@ public interface LanguageMixin {
     }
   }
 
-  class LenientDeserializer extends JsonDeserializer<Language> {
-    public LenientDeserializer() {}
+  public static class LenientDeserializer extends JsonDeserializer<Language> {
 
     @Override
     public Language deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -59,8 +51,7 @@ public interface LanguageMixin {
     }
   }
 
-  class IsoSerializer extends JsonSerializer<Language> {
-    public IsoSerializer() {}
+  public static class NameSerializer extends JsonSerializer<Language> {
 
     @Override
     public void serialize(Language value, JsonGenerator jgen, SerializerProvider provider)
@@ -69,13 +60,28 @@ public interface LanguageMixin {
     }
   }
 
-  class IsoKeySerializer extends JsonSerializer<Language> {
+  public static class NameKeySerializer extends JsonSerializer<Language> {
 
     @Override
     public void serialize(
         Language language, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
         throws IOException {
       jsonGenerator.writeFieldName(language.name());
+    }
+  }
+
+  public static class NameTocKeySerializer extends JsonSerializer {
+
+    @Override
+    public void serialize(
+        Object value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+        throws IOException {
+
+      if (value instanceof Language) {
+        jsonGenerator.writeFieldName(((Language) value).name());
+      } else if (value instanceof String) {
+        jsonGenerator.writeFieldName((String) value);
+      }
     }
   }
 }

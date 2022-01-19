@@ -14,9 +14,9 @@
 package org.gbif.checklistbank.ws;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.vocabulary.Language;
+import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
-import org.gbif.checklistbank.ws.mixins.LanguageMixin;
+import org.gbif.checklistbank.ws.mixins.TableOfContentsMixin;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 import org.gbif.ws.server.processor.ParamNameProcessor;
 import org.gbif.ws.server.provider.CountryHandlerMethodArgumentResolver;
@@ -112,7 +112,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Bean
   public ObjectMapper objectMapper() {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
-    objectMapper.addMixIn(Language.class, LanguageMixin.class);
+    objectMapper.addMixIn(TableOfContents.class, TableOfContentsMixin.class);
     objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
     return objectMapper;
   }
