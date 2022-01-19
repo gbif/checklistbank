@@ -13,9 +13,9 @@
  */
 package org.gbif.checklistbank.ws;
 
-import org.gbif.api.vocabulary.Extension;
+import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.vocabulary.Language;
-import org.gbif.checklistbank.ws.mixins.ExtensionMixin;
+import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
 import org.gbif.checklistbank.ws.mixins.LanguageMixin;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 import org.gbif.ws.server.processor.ParamNameProcessor;
@@ -113,7 +113,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public ObjectMapper objectMapper() {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
     objectMapper.addMixIn(Language.class, LanguageMixin.class);
-    objectMapper.addMixIn(Extension.class, ExtensionMixin.class);
+    objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
     return objectMapper;
   }
 
@@ -132,7 +132,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Bean("multipartResolver")
   public CommonsMultipartResolver multipartResolver(
-    @Value("${upload.maxUploadSize:-1}") Long maxUploadSize) {
+      @Value("${upload.maxUploadSize:-1}") Long maxUploadSize) {
     CommonsMultipartResolver multipart = new CommonsMultipartResolver();
     multipart.setMaxUploadSize(maxUploadSize);
     return multipart;
