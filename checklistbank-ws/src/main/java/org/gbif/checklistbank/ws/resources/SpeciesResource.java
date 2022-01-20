@@ -57,11 +57,6 @@ public class SpeciesResource {
   private static final Logger LOG = LoggerFactory.getLogger(SpeciesResource.class);
   private static final String DATASET_KEY = "datasetKey";
   private static final int DEEP_PAGING_OFFSET_LIMIT = 100000;
-  private static final Set<Integer> iucnKingdoms = Sets.newHashSet(
-      Kingdom.ANIMALIA.nubUsageKey(),
-      Kingdom.PLANTAE.nubUsageKey(),
-      Kingdom.FUNGI.nubUsageKey()
-  );
 
   private final NameUsageService nameUsageService;
   private final VernacularNameService vernacularNameService;
@@ -391,11 +386,12 @@ public class SpeciesResource {
       }
       return iucn;
     }
-    // all nub usages that have no matching IUCN usage should become NE if they are animals, plants or fungi
+    // all species that have no matching IUCN usage should become NE
+    // if they are classified into a proper kingdom and are no OTU names
     // https://github.com/gbif/pipelines/issues/645
     NameUsage nub = nameUsageService.get(usageKey, Locale.US);
-    if (nub != null && nub.getKingdomKey() != null
-        && iucnKingdoms.contains(nub.getKingdomKey())
+    if (nub != null && Rank.SPECIES.equals(nub.getRank())
+        && !Objects.equals(Kingdom.INCERTAE_SEDIS.nubUsageKey(), nub.getKingdomKey())
         && nub.getNameType() == NameType.SCIENTIFIC) {
       iucn = new IucnRedListCategory();
       iucn.setCategory(ThreatStatus.NOT_EVALUATED);
