@@ -17,6 +17,8 @@ import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
 import org.gbif.checklistbank.ws.mixins.TableOfContentsMixin;
+import org.gbif.checklistbank.ws.provider.NameUsageSearchRequestHandlerMethodArgumentResolver;
+import org.gbif.checklistbank.ws.provider.NameUsageSuggestRequestArgumentResolver;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 import org.gbif.ws.server.processor.ParamNameProcessor;
 import org.gbif.ws.server.provider.CountryHandlerMethodArgumentResolver;
@@ -58,6 +60,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     argumentResolvers.add(new PageableHandlerMethodArgumentResolver());
     argumentResolvers.add(new CountryHandlerMethodArgumentResolver());
     argumentResolvers.add(new NameUsageSearchRequestHandlerMethodArgumentResolver());
+    argumentResolvers.add(new NameUsageSuggestRequestArgumentResolver());
   }
 
   @Override
