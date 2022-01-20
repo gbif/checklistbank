@@ -80,7 +80,7 @@ public class SpeciesSitemapResource {
     }
 
     @Autowired
-    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Value("checklistbank.portal.url") String portalUrl, @Value("checklistbank.api.url") String apiUrl) {
+    public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Value("${checklistbank.portal.url}") String portalUrl, @Value("${checklistbank.api.url}") String apiUrl) {
         this.nameUsageMapper = nameUsageMapper;
         this.portalUrl = portalUrl;
         this.apiUrl = apiUrl;
