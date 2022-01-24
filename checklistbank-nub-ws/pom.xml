@@ -92,8 +92,7 @@
                 <configuration>
                     <excludes>
                         <!-- This is where the exclusion occurs -->
-                        <exclude>**/application.yml</exclude>
-                        <exclude>**/bootstrap.yml</exclude>
+                        <exclude>**/*.yml</exclude>
                         <exclude>META-INF/*.SF</exclude>
                         <exclude>META-INF/*.DSA</exclude>
                         <exclude>META-INF/*.RSA</exclude>
