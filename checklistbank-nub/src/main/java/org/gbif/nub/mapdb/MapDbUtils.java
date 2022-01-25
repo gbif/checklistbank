@@ -33,7 +33,8 @@ public class MapDbUtils {
         return maker
             .fileMmapEnableIfSupported()
             .fileMmapPreclearDisable()
-            .cleanerHackEnable();
+            .cleanerHackEnable()
+            .closeOnJvmShutdown();
     }
 
     public static void compact(HTreeMap<?, ?> map) {
