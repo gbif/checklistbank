@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
 
 @SpringBootApplication(
@@ -66,7 +67,9 @@ import org.springframework.context.annotation.*;
     })
 public class NubWsApplication {
   public static void main(String[] args) {
-    SpringApplication.run(NubWsApplication.class, args);
+    ConfigurableApplicationContext ctx = SpringApplication.run(NubWsApplication.class, args);
+
+    Runtime.getRuntime().addShutdownHook(new Thread(ctx::close));
   }
 
   @Bean
