@@ -153,6 +153,7 @@ public class IdLookupImpl implements IdLookup {
 
   @Override
   public void close() throws Exception {
+    LOG.info("Closing IDLookup");
     db.close();
   }
 
