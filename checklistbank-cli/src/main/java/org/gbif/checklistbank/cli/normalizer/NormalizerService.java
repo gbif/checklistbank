@@ -22,6 +22,7 @@ import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
@@ -67,7 +68,7 @@ public class NormalizerService extends RabbitDatasetService<DwcaMetasyncFinished
   @Override
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
-    lookup = IdLookupImpl.temp().load(cfg.clb, false);
+    lookup = IdLookupImpl.temp().load(ClbNubConfiguration.fromClbConfiguration(cfg.clb), false);
   }
 
   @Override

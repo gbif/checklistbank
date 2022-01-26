@@ -293,7 +293,6 @@
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.neo4j</groupId>

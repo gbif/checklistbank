@@ -28,7 +28,7 @@ public class ClbConfigurationTest {
   @Test
   public void testPropTrip() throws Exception {
     ClbConfiguration cfg = new ClbConfiguration();
-    cfg.databaseUrl = "test1";
+    cfg.databaseName = "test1";
     cfg.user = "test3";
     cfg.password = "test4";
     cfg.maximumPoolSize = 11;

@@ -19,13 +19,13 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.authorship.AuthorComparator;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.Equality;
 import org.gbif.checklistbank.postgres.TabMapperBase;
 import org.gbif.checklistbank.utils.KingdomUtils;
 import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.mapdb.MapDbObjectSerializer;
 import org.gbif.nub.mapdb.MapDbUtils;
 
@@ -36,9 +36,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.apache.commons.lang3.StringUtils;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
@@ -47,14 +52,6 @@ import org.postgresql.copy.CopyManager;
 import org.postgresql.core.BaseConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntIterator;
-import it.unimi.dsi.fastutil.ints.IntSet;
 
 /**
  * Does a lookup by canonical name and then leniently filters by rank, kingdom and authorship.
@@ -111,7 +108,7 @@ public class IdLookupImpl implements IdLookup {
   /**
    * Loads known usages from checklistbank backbone.
    */
-  public IdLookupImpl load(ClbConfiguration clb, boolean includeDeleted) throws SQLException, IOException {
+  public IdLookupImpl load(ClbNubConfiguration clb, boolean includeDeleted) throws SQLException, IOException {
     try (Connection c = clb.connect()) {
       final CopyManager cm = new CopyManager((BaseConnection) c);
       final String delClause = includeDeleted ? "" : " AND deleted is null";

@@ -18,6 +18,7 @@ import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
@@ -71,7 +72,7 @@ public class ManualImport implements AutoCloseable {
       lookup = db;
       if (!existed) {
         System.out.println("Load lookup db for matching");
-        db.load(nub, false);
+        db.load(ClbNubConfiguration.fromClbConfiguration(nub), false);
       } else {
         System.out.println("Use existing lookup db from "+lookupDB.getAbsolutePath());
       }

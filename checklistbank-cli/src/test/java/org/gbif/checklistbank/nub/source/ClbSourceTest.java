@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by markus on 29/09/15.
  */
+// TODO: remove ignore
 @Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ClbSourceTest {
 

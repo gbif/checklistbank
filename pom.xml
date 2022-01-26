@@ -74,7 +74,7 @@
         <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
         <!-- external libs -->
-        <amqp-client.version>3.1.4</amqp-client.version>
+        <amqp-client.version>5.9.0</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
         <assertj.version>3.5.2</assertj.version>
         <avro.version>1.7.7</avro.version>

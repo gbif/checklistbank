@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.cli.normalizer;
 
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
 import java.io.File;
@@ -60,7 +61,7 @@ public class NormalizerLeakDebugging {
 //    cfg.clb=module.provideCfg();
 
     System.out.println("Load nublookup into memory");
-    lookup.load(cfg.clb, false);
+    lookup.load(ClbNubConfiguration.fromClbConfiguration(cfg.clb), false);
 
     FileUtils.cleanDirectory(cfg.neo.neoRepository);
     FileUtils.cleanDirectory(cfg.archiveRepository);

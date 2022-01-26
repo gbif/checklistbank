@@ -15,9 +15,7 @@ package org.gbif.checklistbank.service.mybatis.export;
 
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
-import org.gbif.checklistbank.utils.ClbConfigurationUtils;
 
 import java.io.File;
 import java.util.UUID;
@@ -30,7 +28,6 @@ public class ExporterTest {
 
   @Test
   public void testExport() throws Exception {
-    ClbConfiguration cfg = ClbConfigurationUtils.local();
     File repository = new File("/Users/markus/Desktop/dwcas");
 
     Exporter exp = new Exporter(repository, null, null);

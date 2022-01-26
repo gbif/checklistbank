@@ -43,6 +43,7 @@ import org.gbif.checklistbank.nub.validation.NubTreeValidation;
 import org.gbif.checklistbank.nub.validation.NubValidation;
 import org.gbif.checklistbank.utils.NameFormatter;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
@@ -53,18 +54,10 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
-import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.helpers.collection.Iterators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.*;
-
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
@@ -73,6 +66,12 @@ import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import org.apache.commons.lang3.StringUtils;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.traversal.Evaluators;
+import org.neo4j.helpers.collection.Iterators;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * We use Origin.VERBATIM_ACCEPTED here to mark excluded homonyms that have not been updated with other sources.
@@ -136,7 +135,7 @@ public class NubBuilder implements Runnable {
   public static NubBuilder create(NubConfiguration cfg) {
     UsageDao dao = UsageDao.persistentDao(cfg.neo, Constants.NUB_DATASET_KEY, null, true);
     try {
-      IdLookupImpl idLookup = IdLookupImpl.temp().load(cfg.clb, true);
+      IdLookupImpl idLookup = IdLookupImpl.temp().load(ClbNubConfiguration.fromClbConfiguration(cfg.clb), true);
       return new NubBuilder(dao, ClbSourceList.create(cfg), idLookup, idLookup.getAuthorComparator(), idLookup.getKeyMax() + 1, cfg);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to load existing backbone ids", e);
@@ -1017,7 +1016,7 @@ public class NubBuilder implements Runnable {
     }
     return false;
   }
-  
+
   /**
    * Only checks if the usage is one of a known homonym pair, but does not assert it needs to be removed.
    */
@@ -1256,7 +1255,7 @@ public class NubBuilder implements Runnable {
     }
     // normalize authors in the Backbone
     authorNorm.normalize(u);
-    
+
     // add to nub db
     return NubUsageMatch.match(db.addUsage(p, u, origin, currSrc.key));
   }

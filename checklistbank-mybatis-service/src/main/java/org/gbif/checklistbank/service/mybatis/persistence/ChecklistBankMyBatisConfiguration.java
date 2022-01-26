@@ -102,21 +102,4 @@ public class ChecklistBankMyBatisConfiguration {
       configuration.getTypeHandlerRegistry().register(URI.class, UriTypeHandler.class);
     };
   }
-
-  @Bean
-  @Primary
-  @ConfigurationProperties("checklistbank.datasource")
-  public DataSourceProperties dataSourceProperties() {
-    return new DataSourceProperties();
-  }
-
-  @Bean
-  @Primary
-  @ConfigurationProperties("checklistbank.datasource.hikari")
-  public HikariDataSource dataSource() {
-    return dataSourceProperties()
-      .initializeDataSourceBuilder()
-      .type(HikariDataSource.class)
-      .build();
-  }
 }

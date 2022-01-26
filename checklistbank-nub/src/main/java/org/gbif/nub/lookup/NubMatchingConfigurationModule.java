@@ -13,7 +13,7 @@
  */
 package org.gbif.nub.lookup;
 
-import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.fuzzy.HigherTaxaComparator;
 import org.gbif.nub.lookup.fuzzy.NubIndex;
 import org.gbif.nub.lookup.fuzzy.NubIndexer;
@@ -34,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Guice module setting up all dependencies to expose the NubMatching service.
- * Requires a NameUsageMapper and a ClbConfiguration instance to be injectable
+ * Requires a NameUsageMapper and a ClbNubConfiguration instance to be injectable
  */
 @Configuration
 public class NubMatchingConfigurationModule {
@@ -57,7 +57,7 @@ public class NubMatchingConfigurationModule {
   }
 
   @Bean
-  public IdLookup provideLookup(@Value("${checklistbank.nub.indexDir:#{null}}") File indexDir, ClbConfiguration cfg) {
+  public IdLookup provideLookup(@Value("${checklistbank.nub.indexDir:#{null}}") File indexDir, ClbNubConfiguration cfg) {
     try {
       IdLookup lookup;
       if (cfg == null) {

@@ -18,24 +18,20 @@ import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
-import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.*;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.straight.DatasetMatchFailed;
 import org.gbif.nub.lookup.straight.IdLookup;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 
 import java.util.Date;
 
+import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import com.codahale.metrics.Timer;
 
 public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
 
@@ -77,7 +73,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   @Override
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
-    IdLookup lookup = IdLookupImpl.temp().load(cfg.clb, false);
+    IdLookup lookup = IdLookupImpl.temp().load(ClbNubConfiguration.fromClbConfiguration(cfg.clb), false);
     matcher = new NubMatchService(cfg.clb, cfg.neo, lookup, sqlImportService, solrImportService);
   }
 

@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
@@ -22,11 +23,7 @@ import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.DatasetMapper;
-import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.*;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.MessageListener;
@@ -37,13 +34,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import com.codahale.metrics.Timer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import com.codahale.metrics.Timer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and
@@ -66,15 +62,18 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     super("clb-registry-change", cfg.poolSize, cfg.messaging, cfg.ganglia);
     this.cfg = cfg;
 
-    ctx = SpringContextBuilder.create()
-        .withClbConfiguration(cfg.clb)
-        .withComponents(
-            DatasetImportServiceMyBatis.class,
-            UsageSyncServiceMyBatis.class,
-            NameUsageServiceMyBatis.class,
-            UsageServiceMyBatis.class,
-            ParsedNameServiceMyBatis.class)
-        .build();
+    ctx =
+        SpringContextBuilder.create()
+            .withClbConfiguration(cfg.clb)
+            .withMessagingConfiguration(cfg.messaging)
+            .withComponents(
+                DatasetImportServiceMyBatis.class,
+                UsageSyncServiceMyBatis.class,
+                NameUsageServiceMyBatis.class,
+                UsageServiceMyBatis.class,
+                ParsedNameServiceMyBatis.class,
+                CitationServiceMyBatis.class)
+            .build();
   }
 
   @Override

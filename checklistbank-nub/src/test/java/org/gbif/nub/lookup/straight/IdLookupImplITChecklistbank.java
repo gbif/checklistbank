@@ -19,26 +19,27 @@ import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageMapper;
+import org.gbif.nub.config.ClbNubConfiguration;
 import org.gbif.nub.lookup.NubMatchingTestConfiguration;
 
 import java.io.IOException;
 import java.sql.SQLException;
-
 import javax.sql.DataSource;
 
+import com.google.common.base.Joiner;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Joiner;
-
-import static org.gbif.api.vocabulary.Kingdom.*;
+import static org.gbif.api.vocabulary.Kingdom.ANIMALIA;
+import static org.gbif.api.vocabulary.Kingdom.INCERTAE_SEDIS;
+import static org.gbif.api.vocabulary.Kingdom.PLANTAE;
 import static org.gbif.api.vocabulary.Rank.*;
-import static org.gbif.api.vocabulary.TaxonomicStatus.*;
+import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -49,14 +50,14 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
   private final ParsedNameMapper pnMapper;
   private final NameUsageMapper nuMapper;
   private final UsageMapper uMapper;
-  private final ClbConfiguration cfg;
+  private final ClbNubConfiguration cfg;
 
   private static final Joiner COMMA_JOINER = Joiner.on(", ").skipNulls();
 
   @Autowired
   public IdLookupImplITChecklistbank(
     DataSource dataSource, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper,
-    ClbConfiguration cfg
+    ClbNubConfiguration cfg
   ) {
     super(dataSource);
     this.pnMapper = pnMapper;
@@ -73,7 +74,7 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
     createName("Dracula bella DC.", SPECIES, true, pnMapper, nuMapper, uMapper);
     createName("Dracula bella Engler.", SPECIES, false, pnMapper, nuMapper, uMapper);
 
-    ClbConfiguration cfg = new ClbConfiguration();
+    ClbNubConfiguration cfg = new ClbNubConfiguration();
     //TODO: set cfg values
     IdLookup l = IdLookupImpl.temp().load(cfg, true);
     for (LookupUsage u : l) {

@@ -22,7 +22,8 @@ public class ClbConfigurationUtils {
 
   public static ClbConfiguration local() {
     ClbConfiguration cfg = new ClbConfiguration();
-    cfg.databaseUrl = "localhost/checklistbank";
+    cfg.serverName = "local";
+    cfg.databaseName = "checklistbank";
     cfg.user = "markus";
     cfg.password = "";
     return cfg;
@@ -30,7 +31,8 @@ public class ClbConfigurationUtils {
 
   public static ClbConfiguration uat() {
     ClbConfiguration cfg = local();
-    cfg.databaseUrl = "pg1.gbif-uat.org/uat_checklistbank";
+    cfg.serverName = "pg1.gbif-uat.org";
+    cfg.databaseName = "uat_checklistbank";
     cfg.user = "clb";
     cfg.password = "---";
     return cfg;

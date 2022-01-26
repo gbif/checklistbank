@@ -13,17 +13,30 @@
  */
 package org.gbif.checklistbank.cli.common;
 
+import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.ws.mixin.Mixins;
+import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
+import org.gbif.common.messaging.ConnectionParameters;
+import org.gbif.common.messaging.DefaultMessagePublisher;
+import org.gbif.common.messaging.DefaultMessageRegistry;
+import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.nameparser.NameParserGbifV1;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -31,16 +44,10 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-/** 
- * Utility class to create Spring contexts to be used later in CLI applications. 
- */
+/** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {
 
   private String[] basePackages;
@@ -59,6 +66,11 @@ public class SpringContextBuilder {
 
   public SpringContextBuilder withClbConfiguration(ClbConfiguration clbConfiguration) {
     this.clbConfiguration = clbConfiguration;
+    return this;
+  }
+
+  public SpringContextBuilder withMessagingConfiguration(MessagingConfiguration messagingConfiguration) {
+    this.messagingConfiguration = messagingConfiguration;
     return this;
   }
 
@@ -86,7 +98,31 @@ public class SpringContextBuilder {
       ctx.register(ChecklistBankMyBatisConfiguration.class);
       ctx.registerBean(ClbConfiguration.class, () -> clbConfiguration);
       ctx.register(MybatisAutoConfiguration.class);
-      packages.add("org.gbif.checklistbank.service.mybatis.persistence.mapper");
+    }
+
+    if (messagingConfiguration != null) {
+      if (messagingConfiguration.host != null) {
+        ctx.registerBean(
+          "messagePublisher",
+          MessagePublisher.class,
+          () -> {
+            try {
+              return new DefaultMessagePublisher(
+                new ConnectionParameters(
+                  messagingConfiguration.host,
+                  messagingConfiguration.port,
+                  messagingConfiguration.username,
+                  messagingConfiguration.password,
+                  messagingConfiguration.virtualHost),
+                new DefaultMessageRegistry(),
+                clbObjectMapper());
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          });
+      } else {
+        ctx.registerBean("messagePublisher", MessagePublisher.class, MessagePublisherStub::new);
+      }
     }
 
     // TODO: 03/01/2022 add rest of the configuration classes
@@ -111,7 +147,7 @@ public class SpringContextBuilder {
     final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     // determines whether encountering of unknown properties (ones that do not map to a property,
-    // and there is no "any setter" or handler that can handle it) should result in a failure 
+    // and there is no "any setter" or handler that can handle it) should result in a failure
     // (throwing a JsonMappingException) or not.
     objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
@@ -123,18 +159,24 @@ public class SpringContextBuilder {
     return objectMapper;
   }
 
-  /** 
-   * Class to help with the loading and injection of 
-   */
+  /** Class to help with the loading and injection of */
   @SpringBootApplication(
       exclude = {
-          DataSourceAutoConfiguration.class,
-          LiquibaseAutoConfiguration.class,
-          FreeMarkerAutoConfiguration.class,
-          ArchaiusAutoConfiguration.class
+        DataSourceAutoConfiguration.class,
+        LiquibaseAutoConfiguration.class,
+        FreeMarkerAutoConfiguration.class,
+        ArchaiusAutoConfiguration.class
       })
   @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
   @EnableConfigurationProperties
   @ComponentScan
-  static class ApplicationConfig {}
+  static class ApplicationConfig {
+
+    @Bean
+    public NameParser nameParser(@Value("${parserTimeout:500}") long parserTimeout) {
+      return new NameParserGbifV1(parserTimeout);
+    }
+
+  }
 }
+
