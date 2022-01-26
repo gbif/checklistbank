@@ -32,9 +32,7 @@ public class MapDbUtils {
     private static DBMaker.Maker configureFile(DBMaker.Maker maker) {
         return maker
             .fileMmapEnableIfSupported()
-            .fileMmapPreclearDisable()
-            .cleanerHackEnable()
-            .closeOnJvmShutdown();
+            .fileMmapPreclearDisable();
     }
 
     public static void compact(HTreeMap<?, ?> map) {

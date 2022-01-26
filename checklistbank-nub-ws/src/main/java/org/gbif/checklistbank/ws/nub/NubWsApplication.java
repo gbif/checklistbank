@@ -67,9 +67,7 @@ import org.springframework.context.annotation.*;
     })
 public class NubWsApplication {
   public static void main(String[] args) {
-    ConfigurableApplicationContext ctx = SpringApplication.run(NubWsApplication.class, args);
-
-    Runtime.getRuntime().addShutdownHook(new Thread(ctx::close));
+    SpringApplication.run(NubWsApplication.class, args);
   }
 
   @Bean
