@@ -23,6 +23,7 @@ import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.nameparser.NameParserGbifV1;
 
 import java.io.IOException;
@@ -34,13 +35,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.apache.solr.client.solrj.SolrClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -58,6 +62,8 @@ public class SpringContextBuilder {
 
   private MessagingConfiguration messagingConfiguration;
 
+  private SolrConfig solrConfig;
+
   private SpringContextBuilder() {}
 
   public static SpringContextBuilder create() {
@@ -69,8 +75,14 @@ public class SpringContextBuilder {
     return this;
   }
 
-  public SpringContextBuilder withMessagingConfiguration(MessagingConfiguration messagingConfiguration) {
+  public SpringContextBuilder withMessagingConfiguration(
+      MessagingConfiguration messagingConfiguration) {
     this.messagingConfiguration = messagingConfiguration;
+    return this;
+  }
+
+  public SpringContextBuilder withSolrConfig(SolrConfig solrConfig) {
+    this.solrConfig = solrConfig;
     return this;
   }
 
@@ -103,29 +115,31 @@ public class SpringContextBuilder {
     if (messagingConfiguration != null) {
       if (messagingConfiguration.host != null) {
         ctx.registerBean(
-          "messagePublisher",
-          MessagePublisher.class,
-          () -> {
-            try {
-              return new DefaultMessagePublisher(
-                new ConnectionParameters(
-                  messagingConfiguration.host,
-                  messagingConfiguration.port,
-                  messagingConfiguration.username,
-                  messagingConfiguration.password,
-                  messagingConfiguration.virtualHost),
-                new DefaultMessageRegistry(),
-                clbObjectMapper());
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
+            "messagePublisher",
+            MessagePublisher.class,
+            () -> {
+              try {
+                return new DefaultMessagePublisher(
+                    new ConnectionParameters(
+                        messagingConfiguration.host,
+                        messagingConfiguration.port,
+                        messagingConfiguration.username,
+                        messagingConfiguration.password,
+                        messagingConfiguration.virtualHost),
+                    new DefaultMessageRegistry(),
+                    clbObjectMapper());
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            });
       } else {
         ctx.registerBean("messagePublisher", MessagePublisher.class, MessagePublisherStub::new);
       }
     }
 
-    // TODO: 03/01/2022 add rest of the configuration classes
+    if (solrConfig != null) {
+      ctx.registerBean(SolrClient.class, () -> solrConfig.buildSolr());
+    }
 
     if (!packages.isEmpty()) {
       ctx.scan(packages.toArray(new String[] {}));
@@ -165,7 +179,9 @@ public class SpringContextBuilder {
         DataSourceAutoConfiguration.class,
         LiquibaseAutoConfiguration.class,
         FreeMarkerAutoConfiguration.class,
-        ArchaiusAutoConfiguration.class
+        ArchaiusAutoConfiguration.class,
+        SolrAutoConfiguration.class,
+        RabbitAutoConfiguration.class
       })
   @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
   @EnableConfigurationProperties
@@ -176,7 +192,5 @@ public class SpringContextBuilder {
     public NameParser nameParser(@Value("${parserTimeout:500}") long parserTimeout) {
       return new NameParserGbifV1(parserTimeout);
     }
-
   }
 }
-

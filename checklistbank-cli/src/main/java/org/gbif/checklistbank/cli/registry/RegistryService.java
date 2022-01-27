@@ -14,11 +14,11 @@
 package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.api.model.registry.Dataset;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -42,8 +42,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 /**
- * A service that watches registry changed messages and does deletions of checklists and
- * updates to the dataset title table in CLB.
+ * A service that watches registry changed messages and does deletions of checklists and updates to
+ * the dataset title table in CLB.
  */
 public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
@@ -66,13 +66,15 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
         SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
+            .withSolrConfig(cfg.solr.toSolrConfig())
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,
                 NameUsageServiceMyBatis.class,
                 UsageServiceMyBatis.class,
                 ParsedNameServiceMyBatis.class,
-                CitationServiceMyBatis.class)
+                CitationServiceMyBatis.class,
+                NameUsageIndexServiceSolr.class)
             .build();
   }
 
@@ -86,7 +88,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   /**
    * Deletes all neo and kvp files created during indexing.
    *
-   * @param cfg        a neo configuration needed to point to the right setup
+   * @param cfg a neo configuration needed to point to the right setup
    * @param datasetKey the dataset to delete files for
    */
   public static void deleteStorageFiles(NeoConfiguration cfg, UUID datasetKey) {
@@ -167,8 +169,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    // TODO: 07/01/2022 configure solr
-    solrService = null;
+    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 
@@ -176,7 +177,9 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     ObjectMapper objectMapper = ctx.getBean(ObjectMapper.class);
 
     // dataset messages are slow, long-running processes. Only prefetch one message
-    listener = new MessageListener(cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
+    listener =
+        new MessageListener(
+            cfg.messaging.getConnectionParameters(), new DefaultMessageRegistry(), objectMapper, 1);
     startUpBeforeListening();
     listener.listen("clb-registry-change", cfg.poolSize, this);
   }
