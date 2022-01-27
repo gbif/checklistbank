@@ -66,15 +66,14 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
         SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
-            .withSolrConfig(cfg.solr.toSolrConfig())
+            .withSolrConfiguration(cfg.solr)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,
                 NameUsageServiceMyBatis.class,
                 UsageServiceMyBatis.class,
                 ParsedNameServiceMyBatis.class,
-                CitationServiceMyBatis.class,
-                NameUsageIndexServiceSolr.class)
+                CitationServiceMyBatis.class)
             .build();
   }
 

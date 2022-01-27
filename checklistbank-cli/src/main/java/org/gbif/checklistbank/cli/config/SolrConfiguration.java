@@ -3,24 +3,30 @@ package org.gbif.checklistbank.cli.config;
 import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.common.search.solr.SolrServerType;
 
+import javax.validation.constraints.Min;
+
 import com.beust.jcommander.Parameter;
 
 public class SolrConfiguration {
 
   @Parameter(names = {"--solr-server-type"})
-  private SolrServerType serverType = SolrServerType.EMBEDDED;
+  public SolrServerType serverType = SolrServerType.EMBEDDED;
 
   @Parameter(names = {"--solr-server-home"})
-  private String serverHome;
+  public String serverHome;
 
   @Parameter(names = {"--solr-collection"})
-  private String collection = "collection1";
+  public String collection = "collection1";
 
   @Parameter(names = {"--solr-delete-on-exit"})
-  private boolean deleteOnExit = false;
+  public boolean deleteOnExit = false;
 
   @Parameter(names = {"--solr-id-field"})
-  private String idField;
+  public String idField;
+
+  @Parameter(names = {"--solr-sync-threads"})
+  @Min(1)
+  public int syncThreads = 1;
 
   public SolrConfig toSolrConfig() {
     SolrConfig solrConfig = new SolrConfig();

@@ -21,13 +21,10 @@ import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.registry.RegistryService;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.service.DatasetImportServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageServiceMyBatis;
-import org.gbif.checklistbank.service.mybatis.service.UsageSyncServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.*;
 import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
 import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
 
@@ -66,19 +63,26 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       zkUtils = null;
     }
 
-    ctx = SpringContextBuilder.create()
-        .withClbConfiguration(cfg.clb)
-        .withComponents(
-            DatasetImportServiceMyBatis.class,
-            UsageSyncServiceMyBatis.class,
-            NameUsageServiceMyBatis.class,
-            UsageServiceMyBatis.class,
-            ParsedNameServiceMyBatis.class)
-        .build();
+    ctx =
+        SpringContextBuilder.create()
+            .withClbConfiguration(cfg.clb)
+            .withSolrConfiguration(cfg.solr)
+            .withMessagingConfiguration(cfg.messaging)
+            .withComponents(
+                DatasetImportServiceMyBatis.class,
+                UsageSyncServiceMyBatis.class,
+                NameUsageServiceMyBatis.class,
+                UsageServiceMyBatis.class,
+                ParsedNameServiceMyBatis.class,
+                CitationServiceMyBatis.class,
+                VernacularNameServiceMyBatis.class,
+                DescriptionServiceMyBatis.class,
+                DistributionServiceMyBatis.class,
+                SpeciesProfileServiceMyBatis.class)
+            .build();
 
     sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    // TODO: 07/01/2022 configure solr?
-//    solrService = null;
+    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
     nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
     usageService = ctx.getBean(UsageServiceMyBatis.class);
   }

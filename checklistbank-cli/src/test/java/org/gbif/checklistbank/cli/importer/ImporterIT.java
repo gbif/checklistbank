@@ -34,7 +34,7 @@ import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
-import org.gbif.checklistbank.index.guice.RealTimeModule;
+import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
@@ -53,17 +53,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterators;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.zaxxer.hikari.HikariDataSource;
+import org.junit.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.Iterators;
 
 import static org.junit.Assert.*;
 
@@ -242,7 +241,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     search.setFacetLimit(100);
     search.addFacets(NameUsageSearchParameter.HIGHERTAXON_KEY);
     search.addChecklistFilter(datasetKey);
-    if (!RealTimeModule.empty(iCfg.solr)) {
+    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
       // make sure there are no facets anymore
       Thread.sleep(1000);
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
@@ -258,7 +257,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // check higher taxa
     // http://dev.gbif.org/issues/browse/POR-3204
-    if (!RealTimeModule.empty(iCfg.solr)) {
+    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
       List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
       // make sure the key actually exists!
@@ -300,7 +299,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     }
 
     // check higher taxa again, wait a little for solr to catch up
-    if (!RealTimeModule.empty(iCfg.solr)) {
+    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
       Thread.sleep(1000);
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
       List<Facet.Count> facets = srep.getFacets().get(0).getCounts();

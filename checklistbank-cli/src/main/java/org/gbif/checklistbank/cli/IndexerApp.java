@@ -68,9 +68,9 @@ public class IndexerApp {
 //    iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
     iCfg.clb.password = "pogo";
-    iCfg.solr.setServerType(SolrServerType.CLOUD);
-    iCfg.solr.setServerHome("c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181/solrdev");
-    iCfg.solr.setCollection("dev_checklistbank");
+    iCfg.solr.serverType = SolrServerType.CLOUD;
+    iCfg.solr.serverHome = "c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181/solrdev";
+    iCfg.solr.collection = "dev_checklistbank";
     //iCfg.solr.serverType = SolrServerType.HTTP;
     //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
   }

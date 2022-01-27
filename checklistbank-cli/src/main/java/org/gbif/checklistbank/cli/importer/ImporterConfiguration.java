@@ -15,6 +15,7 @@ package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
+import org.gbif.checklistbank.cli.config.SolrConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -61,11 +62,7 @@ public class ImporterConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public SolrConfig solr = new SolrConfig();
-
-  @Parameter(names = "--solr-sync-threads")
-  @Min(1)
-  public int solrSyncThreads = 1;
+  public SolrConfiguration solr = new SolrConfiguration();
 
   @Parameter(names = "--pool-size")
   @Min(1)

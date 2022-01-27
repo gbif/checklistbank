@@ -133,8 +133,8 @@ public class MultiThreadingCliTest {
     PrintStream log = System.out;
 
     // init mybatis layer and solr from cfgN instance
-    cfgI.solr.setServerHome("http://apps2.gbif-dev.org:8082/checklistbank-solr");
-    cfgI.solr.setServerType(SolrServerType.HTTP);
+    cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    cfgI.solr.serverType = SolrServerType.HTTP;
 //    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.solr));
 //    usageService = inj.getInstance(NameUsageService.class);
 //    sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

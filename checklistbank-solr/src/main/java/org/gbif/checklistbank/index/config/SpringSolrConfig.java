@@ -14,7 +14,9 @@
 package org.gbif.checklistbank.index.config;
 
 import org.gbif.common.search.solr.SolrConfig;
+import org.gbif.common.search.solr.SolrServerType;
 
+import com.google.common.base.Strings;
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -45,4 +47,11 @@ public class SpringSolrConfig {
   public SolrClient solrClient(SolrConfig solrConfig) {
     return solrConfigProperties().buildSolr();
   }
+
+  public static boolean empty(SolrConfig cfg) {
+    return cfg.getServerType() == null
+           || Strings.isNullOrEmpty(cfg.getServerHome())
+           || (cfg.getServerType() == SolrServerType.HTTP && !cfg.getServerHome().startsWith("http"));
+  }
+
 }

@@ -15,15 +15,16 @@ package org.gbif.checklistbank.cli.common;
 
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.ws.mixin.Mixins;
+import org.gbif.checklistbank.cli.config.SolrConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
-import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.nameparser.NameParserGbifV1;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class SpringContextBuilder {
 
   private MessagingConfiguration messagingConfiguration;
 
-  private SolrConfig solrConfig;
+  private SolrConfiguration solrConfiguration;
 
   private SpringContextBuilder() {}
 
@@ -81,8 +82,8 @@ public class SpringContextBuilder {
     return this;
   }
 
-  public SpringContextBuilder withSolrConfig(SolrConfig solrConfig) {
-    this.solrConfig = solrConfig;
+  public SpringContextBuilder withSolrConfiguration(SolrConfiguration solrConfiguration) {
+    this.solrConfiguration = solrConfiguration;
     return this;
   }
 
@@ -137,8 +138,10 @@ public class SpringContextBuilder {
       }
     }
 
-    if (solrConfig != null) {
-      ctx.registerBean(SolrClient.class, () -> solrConfig.buildSolr());
+    if (solrConfiguration != null) {
+      ctx.registerBean(SolrClient.class, () -> solrConfiguration.toSolrConfig().buildSolr());
+      ctx.registerBean(NameUsageIndexServiceSolr.class);
+      ctx.registerBean("syncThreads", Integer.class, solrConfiguration.syncThreads);
     }
 
     if (!packages.isEmpty()) {
