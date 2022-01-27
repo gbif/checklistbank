@@ -73,7 +73,8 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
                 NameUsageServiceMyBatis.class,
                 UsageServiceMyBatis.class,
                 ParsedNameServiceMyBatis.class,
-                CitationServiceMyBatis.class)
+                CitationServiceMyBatis.class,
+                VernacularNameServiceMyBatis.class)
             .build();
   }
 
