@@ -41,6 +41,7 @@ public class AnalysisService extends RabbitDatasetService<ChecklistSyncedMessage
     super("clb-analysis", cfg.poolSize, cfg.messaging, cfg.ganglia, "analyze");
     ctx = SpringContextBuilder.create()
         .withClbConfiguration(cfg.clb)
+        .withMessagingConfiguration(cfg.messaging)
         .withComponents(DatasetAnalysisServiceMyBatis.class)
         .build();
 

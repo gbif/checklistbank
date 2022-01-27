@@ -15,6 +15,7 @@ package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -50,18 +51,24 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
     super(QUEUE, cfg.poolSize, cfg.messaging, cfg.ganglia, "match");
     this.cfg = cfg;
 
-    ctx = SpringContextBuilder.create()
-        .withClbConfiguration(cfg.clb)
-        .withComponents(
-            DatasetImportServiceMyBatis.class,
-            UsageSyncServiceMyBatis.class,
-            NameUsageServiceMyBatis.class,
-            UsageServiceMyBatis.class,
-            ParsedNameServiceMyBatis.class)
-        .build();
+    ctx =
+        SpringContextBuilder.create()
+            .withClbConfiguration(cfg.clb)
+            .withSolrConfiguration(cfg.solr)
+            .withComponents(
+                DatasetImportServiceMyBatis.class,
+                UsageSyncServiceMyBatis.class,
+                NameUsageServiceMyBatis.class,
+                UsageServiceMyBatis.class,
+                ParsedNameServiceMyBatis.class,
+                VernacularNameServiceMyBatis.class,
+                DescriptionServiceMyBatis.class,
+                DistributionServiceMyBatis.class,
+                SpeciesProfileServiceMyBatis.class,
+                CitationServiceMyBatis.class)
+            .build();
     sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    // TODO: 07/01/2022 configure solr
-    solrImportService = null;
+    solrImportService = ctx.getBean(NameUsageIndexServiceSolr.class);
   }
 
   @Override
