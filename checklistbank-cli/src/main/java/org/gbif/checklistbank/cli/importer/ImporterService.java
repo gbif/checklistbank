@@ -137,7 +137,6 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
 
   @Override
   protected void startUp() throws Exception {
-    super.startUp();
   }
 
   @Override
