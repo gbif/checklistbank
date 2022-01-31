@@ -54,6 +54,7 @@ public class CliKryoFactory implements KryoFactory {
     kryo.register(DatasetMetrics.class);
     kryo.register(Description.class);
     kryo.register(Distribution.class);
+    kryo.register(DistributionStatus.class);
     kryo.register(Identifier.class);
     kryo.register(NameUsageMediaObject.class);
     kryo.register(Reference.class);
