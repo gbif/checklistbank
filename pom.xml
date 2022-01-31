@@ -573,11 +573,6 @@
                 <artifactId>kryo</artifactId>
                 <version>${kryo.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>kryo-shaded</artifactId>
-                <version>${kryo.version}</version>
-            </dependency>
 
             <!-- Logging -->
             <dependency>

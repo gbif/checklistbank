@@ -349,7 +349,7 @@
         </dependency>
         <dependency>
             <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo-shaded</artifactId>
+            <artifactId>kryo</artifactId>
         </dependency>
         <dependency>
             <groupId>it.unimi.dsi</groupId>
