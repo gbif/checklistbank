@@ -36,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.ImmutableMap;
 import org.apache.solr.client.solrj.SolrClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
@@ -51,6 +52,7 @@ import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.env.MapPropertySource;
 
 /** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {
@@ -111,6 +113,14 @@ public class SpringContextBuilder {
       ctx.register(ChecklistBankMyBatisConfiguration.class);
       ctx.registerBean(ClbConfiguration.class, () -> clbConfiguration);
       ctx.register(MybatisAutoConfiguration.class);
+
+      ctx.getEnvironment()
+          .getPropertySources()
+          .addLast(
+              new MapPropertySource(
+                  "clbConfigProperties",
+                  ImmutableMap.of(
+                      "checklistbank.nub.importThreads", clbConfiguration.syncThreads)));
     }
 
     if (messagingConfiguration != null) {
