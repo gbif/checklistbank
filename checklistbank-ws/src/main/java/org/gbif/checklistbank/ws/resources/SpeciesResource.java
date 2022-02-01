@@ -36,9 +36,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageCountMappe
 
 import java.util.*;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +43,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 
 /** Species resource. */
 @RestController

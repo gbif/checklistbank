@@ -19,8 +19,6 @@ import org.gbif.checklistbank.model.ParsedNameUsage;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.lucene.index.IndexWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

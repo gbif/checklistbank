@@ -16,11 +16,12 @@ package org.gbif.checklistbank.index.config;
 import org.gbif.common.search.solr.SolrConfig;
 import org.gbif.common.search.solr.SolrServerType;
 
-import com.google.common.base.Strings;
 import org.apache.solr.client.solrj.SolrClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.google.common.base.Strings;
 
 @Configuration
 public class SpringSolrConfig {

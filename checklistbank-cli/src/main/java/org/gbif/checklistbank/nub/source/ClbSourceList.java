@@ -24,6 +24,10 @@ import org.gbif.api.vocabulary.DatasetSubtype;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
+import org.gbif.registry.ws.client.DatasetClient;
+import org.gbif.registry.ws.client.InstallationClient;
+import org.gbif.registry.ws.client.OrganizationClient;
+import org.gbif.ws.client.ClientBuilder;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,10 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.gbif.registry.ws.client.DatasetClient;
-import org.gbif.registry.ws.client.InstallationClient;
-import org.gbif.registry.ws.client.OrganizationClient;
-import org.gbif.ws.client.ClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

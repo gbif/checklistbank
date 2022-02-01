@@ -34,12 +34,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.codahale.metrics.Timer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import com.codahale.metrics.Timer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A service that watches registry changed messages and does deletions of checklists and updates to

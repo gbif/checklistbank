@@ -8,11 +8,10 @@
     <version>2.98-spring-SNAPSHOT</version>
   </parent>
 
-
-  <artifactId>checklistbank-solr-plugins</artifactId>
+  <artifactId>checklistbank-elasticsearch</artifactId>
   <packaging>jar</packaging>
 
-  <name>ChecklistBank Solr Plugins</name>
+  <name>ChecklistBank Elasticsearch</name>
 
   <distributionManagement>
     <site>
@@ -39,36 +38,17 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <configuration>
-          <minimizeJar>true</minimizeJar>
           <createDependencyReducedPom>true</createDependencyReducedPom>
-          <artifactSet>
-            <excludes>
-              <exclude>org.apache.tika:*</exclude>
-              <exclude>org.codehaus.jackson:*</exclude>
-              <exclude>org.slf4j:*</exclude>
-            </excludes>
-          </artifactSet>
           <filters>
             <filter>
               <artifact>*:*</artifact>
               <excludes>
-                <exclude>logback.xml</exclude>
                 <exclude>META-INF/*.SF</exclude>
                 <exclude>META-INF/*.DSA</exclude>
                 <exclude>META-INF/*.RSA</exclude>
               </excludes>
             </filter>
           </filters>
-          <relocations>
-            <relocation>
-              <pattern>com.google.common</pattern>
-              <shadedPattern>org.gbif.shaded.google.common</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>org.apache.commons</pattern>
-              <shadedPattern>org.gbif.shaded.apache.commons</shadedPattern>
-            </relocation>
-          </relocations>
         </configuration>
         <executions>
           <execution>
@@ -77,10 +57,12 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <!--
-              <finalName>${project.artifactId}-${version}</finalName>
-              -->
+              <finalName>${project.artifactId}</finalName>
               <shadedArtifactAttached>true</shadedArtifactAttached>
+              <transformers>
+                <!-- This bit merges the various lucene META-INF/services files -->
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+              </transformers>
             </configuration>
           </execution>
         </executions>
@@ -94,40 +76,5 @@
       <url>https://repository.gbif.org/content/groups/gbif</url>
     </repository>
   </repositories>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-common</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-analyzers-common</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- TEST SCOPE -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
 </project>

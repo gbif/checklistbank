@@ -23,13 +23,14 @@ import org.gbif.dwc.terms.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 abstract class RowHandler<T> implements Consumer<T>, AutoCloseable {
   private static final Logger LOG = LoggerFactory.getLogger(RowHandler.class);

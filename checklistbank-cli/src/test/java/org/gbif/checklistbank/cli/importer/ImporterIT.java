@@ -53,16 +53,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.Iterators;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterators;
 
 import static org.junit.Assert.*;
 

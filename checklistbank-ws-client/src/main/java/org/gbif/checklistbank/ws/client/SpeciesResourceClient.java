@@ -21,7 +21,6 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.common.search.SearchResponse;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 

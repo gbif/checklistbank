@@ -31,10 +31,11 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.UsageCountMappe
 import java.util.List;
 import java.util.Locale;
 
-import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
+
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

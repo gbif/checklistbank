@@ -163,7 +163,9 @@
         <module>checklistbank-common</module>
         <module>checklistbank-mybatis-service</module>
         <module>checklistbank-solr</module>
-        <module>checklistbank-solr-plugins</module>
+        <module>checklistbank-elasticsearch</module>
+        <module>checklistbank-lucene-plugins</module>
+        <module>checklistbank-elasticsearch-plugins</module>
         <module>checklistbank-ws</module>
         <module>checklistbank-ws-client</module>
         <module>checklistbank-nub</module>
@@ -310,7 +312,7 @@
             </dependency>
             <dependency>
                 <groupId>org.gbif.checklistbank</groupId>
-                <artifactId>checklistbank-solr-plugins</artifactId>
+                <artifactId>checklistbank-lucene-plugins</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

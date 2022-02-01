@@ -15,7 +15,6 @@ package org.gbif.checklistbank.cli.common;
 
 import org.gbif.checklistbank.config.ClbConfiguration;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -23,6 +22,8 @@ import org.springframework.boot.jdbc.DataSourceInitializationMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 @ConditionalOnBean(ClbConfiguration.class)

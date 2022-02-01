@@ -181,7 +181,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-solr-plugins</artifactId>
+      <artifactId>checklistbank-lucene-plugins</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>

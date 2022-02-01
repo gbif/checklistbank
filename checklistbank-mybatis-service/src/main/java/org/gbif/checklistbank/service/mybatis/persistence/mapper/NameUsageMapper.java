@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.cursor.Cursor;
-import org.apache.ibatis.session.ResultHandler;
 import org.springframework.stereotype.Repository;
 
 /**
