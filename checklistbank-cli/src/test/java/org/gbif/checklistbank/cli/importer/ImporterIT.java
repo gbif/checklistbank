@@ -28,19 +28,24 @@ import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.cli.BaseTest;
+import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.UsageFacts;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
-import org.gbif.checklistbank.nub.NeoTmpRepoRule;
+import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
+import org.gbif.checklistbank.service.mybatis.service.*;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 
@@ -53,27 +58,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.Iterators;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
-import com.zaxxer.hikari.HikariDataSource;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
+import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
+import org.apache.solr.client.solrj.SolrClient;
+import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.helpers.collection.Iterators;
+import org.springframework.context.ApplicationContext;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that into postgres.
- * By default solr indexing is not tested and a mock service is used instead.
- * This is done cause neo4j uses an old version of lucene which conflicts with solr, preventing the use of an embedded solr server for tests.
- * An external solr instance can be configured manually in cfg-importer.yaml if wanted
+ * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that
+ * into postgres. By default solr indexing is not tested and a mock service is used instead. This is
+ * done cause neo4j uses an old version of lucene which conflicts with solr, preventing the use of
+ * an embedded solr server for tests. An external solr instance can be configured manually in
+ * cfg-importer.yaml if wanted
  */
-@Ignore("REMOVE! ignored only to make the jenkins build work")
+// TODO: see below
+@Ignore("Fails with the Solr in DEV. Fix when we migrate to ES")
 public class ImporterIT extends BaseTest implements AutoCloseable {
 
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
@@ -83,55 +97,86 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private DatasetImportService sqlService;
   private DatasetImportService solrService;
   private NameUsageSearchService searchService;
-  private HikariDataSource hds;
+  private Connection dbConnection;
 
-  @ClassRule
-  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+//  @RegisterExtension public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
-//  @Rule
-//  public ClbLoadTestDb dbSetup = ClbLoadTestDb.empty();
+  @RegisterExtension
+  public static PreparedDbExtension database =
+      EmbeddedPostgresExtension.preparedDatabase(
+          LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml"));
 
-  /**
-   * Uses an internal metrics registry to setup the normalizer
-   */
+  @RegisterExtension
+  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.empty(database.getTestDatabase());
+
+  /** Uses an internal metrics registry to setup the normalizer */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
-    initGuice(cfg);
-    return Importer.create(cfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
+    return Importer.create(
+        cfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
   }
 
-  private void initGuice(ImporterConfiguration cfg) {
-    if (hds == null) {
-      // init mybatis layer and solr from cfg instance
-//      Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfg.clb), new RealTimeModule(cfg.solr));
-//      hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
-//      nameUsageService = inj.getInstance(NameUsageService.class);
-//      usageService = inj.getInstance(UsageService.class);
-//      sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-//      solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
-//      if (!RealTimeModule.empty(cfg.solr)) {
-//        searchService = new NameUsageSearchServiceImpl(inj.getInstance(SolrClient.class));
-//      }
-    }
-  }
+  private void initSpring(ImporterConfiguration cfg) throws SQLException {
+    if (dbConnection == null) {
+      ApplicationContext ctx =
+          SpringContextBuilder.create()
+              .withClbConfiguration(cfg.clb)
+              .withSolrConfiguration(cfg.solr)
+              .withMessagingConfiguration(cfg.messaging)
+              .withComponents(
+                  DatasetImportServiceMyBatis.class,
+                  UsageSyncServiceMyBatis.class,
+                  NameUsageServiceMyBatis.class,
+                  UsageServiceMyBatis.class,
+                  ParsedNameServiceMyBatis.class,
+                  CitationServiceMyBatis.class,
+                  VernacularNameServiceMyBatis.class,
+                  DescriptionServiceMyBatis.class,
+                  DistributionServiceMyBatis.class,
+                  SpeciesProfileServiceMyBatis.class)
+              .build();
 
-  @Before
-  public void initDwcaRepo() throws Exception {
-    iCfg = CFG_MAPPER.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
-    iCfg.chunkMinSize = 10;
-    iCfg.chunkSize = 50;
-    iCfg.neo = cfg.neo;
+      dbConnection = database.getTestDatabase().getConnection();
+      nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
+      usageService = ctx.getBean(UsageServiceMyBatis.class);
+      sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
+      solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
 
-    initGuice(iCfg);
-    // truncate tables
-    try (Connection con = hds.getConnection()) {
-      try (Statement st = con.createStatement()) {
-        st.execute("TRUNCATE citation CASCADE");
-        st.execute("TRUNCATE name CASCADE");
+      if (!SpringSolrConfig.empty(cfg.solr.toSolrConfig())) {
+        searchService = new NameUsageSearchServiceImpl(ctx.getBean(SolrClient.class));
       }
     }
   }
 
-  @After
+  private ClbConfiguration dbConfig() {
+    // use default prod API
+    ClbConfiguration clb = new ClbConfiguration();
+    clb.serverName = "localhost:" + database.getConnectionInfo().getPort();
+    clb.databaseName = database.getConnectionInfo().getDbName();
+    clb.user = database.getConnectionInfo().getUser();
+    clb.password = "";
+
+    return clb;
+  }
+
+  @BeforeEach
+  public void initDwcaRepo() throws Exception {
+    iCfg =
+        CFG_MAPPER.readValue(
+            Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
+    iCfg.chunkMinSize = 10;
+    iCfg.chunkSize = 50;
+    iCfg.neo = cfg.neo;
+    iCfg.clb = dbConfig();
+
+    initSpring(iCfg);
+    // truncate tables
+    try (Statement st = dbConnection.createStatement()) {
+      st.execute("TRUNCATE citation CASCADE");
+      st.execute("TRUNCATE name CASCADE");
+    }
+  }
+
+  @AfterEach
   @Override
   public void close() throws Exception {
     if (sqlService != null) {
@@ -140,8 +185,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     if (solrService != null) {
       solrService.close();
     }
-    if (hds != null) {
-      hds.close();
+    if (dbConnection != null) {
+      dbConnection.close();
     }
   }
 
@@ -156,10 +201,11 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
 
     // test db, all usages must be accepted and there is one root!
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 500));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 500));
     assertEquals(20, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
-      assertEquals("Bad datasetKey", datasetKey, u.getDatasetKey());
+      assertEquals(datasetKey, u.getDatasetKey(), "Bad datasetKey");
       if (u.isSynonym()) {
         assertNotNull(u.getAcceptedKey());
         assertNotNull(u.getAccepted());
@@ -175,11 +221,19 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       assertNotNull(u.getRank());
       if (u.getRank().isLinnean()) {
         if (u.isSynonym()) {
-          assertFalse("Higher classification key for synonym " + u.getScientificName() + " cannot point to itself!",
-              u.getKey().equals(ClassificationUtils.getHigherRankKey(u, u.getRank())));
+          assertFalse(
+              u.getKey().equals(ClassificationUtils.getHigherRankKey(u, u.getRank())),
+              "Higher classification key for synonym "
+                  + u.getScientificName()
+                  + " cannot point to itself!");
         } else {
-          assertEquals("Bad higher classification key for " + u.getScientificName() + " of rank " + u.getRank(),
-              u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
+          assertEquals(
+              u.getKey(),
+              ClassificationUtils.getHigherRankKey(u, u.getRank()),
+              "Bad higher classification key for "
+                  + u.getScientificName()
+                  + " of rank "
+                  + u.getRank());
         }
       }
     }
@@ -187,9 +241,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
   /**
    * Testing CLIMBER dataset from ZooKeys:
-   * http://www.gbif.org/dataset/e2bcea8c-dfea-475e-a4ae-af282b4ea1c5
-   * Especially the behavior of acceptedNameUsage (canonical form withut authorship)
-   * pointing to itself (scientificName WITH authorship) indicating this is NOT a synonym.
+   * http://www.gbif.org/dataset/e2bcea8c-dfea-475e-a4ae-af282b4ea1c5 Especially the behavior of
+   * acceptedNameUsage (canonical form withut authorship) pointing to itself (scientificName WITH
+   * authorship) indicating this is NOT a synonym.
    */
   @Test
   public void testVerbatimAccepted() throws Exception {
@@ -202,7 +256,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
 
     // test db, all usages must be accepted and there is one root!
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
     assertEquals(16, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
       assertFalse(u.isSynonym());
@@ -220,15 +275,20 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         assertNotNull(u.getParent());
       }
       if (u.getRank().isLinnean()) {
-        assertEquals("Bad higher classification key for " + u.getScientificName() + " of rank " + u.getRank(),
-            u.getKey(), ClassificationUtils.getHigherRankKey(u, u.getRank()));
+        assertEquals(
+            u.getKey(),
+            ClassificationUtils.getHigherRankKey(u, u.getRank()),
+            "Bad higher classification key for "
+                + u.getScientificName()
+                + " of rank "
+                + u.getRank());
       }
     }
   }
 
   /**
-   * Reimport the same dataset and make sure ids stay the same.
-   * This test also checks solr if manually configured - default is without solr.
+   * Reimport the same dataset and make sure ids stay the same. This test also checks solr if
+   * manually configured - default is without solr.
    */
   @Test
   public void testStableIds() throws Exception {
@@ -245,7 +305,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
       // make sure there are no facets anymore
       Thread.sleep(1000);
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
+          searchService.search(search);
       assertEquals(0, srep.getResults().size());
       assertEquals(0, srep.getFacets().get(0).getCounts().size());
     }
@@ -259,21 +320,23 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     // check higher taxa
     // http://dev.gbif.org/issues/browse/POR-3204
     if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
+          searchService.search(search);
       List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
       // make sure the key actually exists!
       for (Facet.Count c : facets) {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull("Higher taxon key " + key + " in solr does not exist in postgres", u);
+        assertNotNull(u, "Higher taxon key " + key + " in solr does not exist in postgres");
       }
     }
 
     // remember ids
     Map<Integer, String> ids = Maps.newHashMap();
     int sourceCounter = 0;
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
     assertEquals(16, resp.getResults().size());
     for (NameUsage u : resp.getResults()) {
       ids.put(u.getKey(), u.getScientificName());
@@ -295,14 +358,15 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       if (Origin.SOURCE == u.getOrigin()) {
         assertEquals(u.getScientificName(), ids.get(u.getKey()));
       } else {
-        assertFalse("Usage key " + u.getKey() + " existed before", ids.containsKey(u.getKey()));
+        assertFalse(ids.containsKey(u.getKey()), "Usage key " + u.getKey() + " existed before");
       }
     }
 
     // check higher taxa again, wait a little for solr to catch up
     if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
       Thread.sleep(1000);
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep = searchService.search(search);
+      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
+          searchService.search(search);
       List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
       for (Facet.Count c : facets) {
         System.out.println(c);
@@ -312,15 +376,14 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull("Higher taxon key " + key + " in solr does not exist in postgres", u);
+        assertNotNull(u, "Higher taxon key " + key + " in solr does not exist in postgres");
       }
     }
   }
 
   /**
-   * Test richer nomenclatural data, make sure namePublishedIn is set.
-   * See bottom comments on http://dev.gbif.org/issues/browse/POR-2480
-   * See also http://dev.gbif.org/issues/browse/POR-3213
+   * Test richer nomenclatural data, make sure namePublishedIn is set. See bottom comments on
+   * http://dev.gbif.org/issues/browse/POR-2480 See also http://dev.gbif.org/issues/browse/POR-3213
    */
   @Test
   public void testIndexFungorumNomen() throws Exception {
@@ -339,8 +402,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     NameUsage u426221 = getUsageByTaxonID(datasetKey, "426221");
     assertEquals("Führ. Pilzk. (Zwickau) 136 (1871)", u426221.getPublishedIn());
 
-
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 200));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 200));
 
     NameUsage expected = null;
     for (NameUsage u : resp.getResults()) {
@@ -357,8 +420,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   }
 
   /**
-   * Import a dataset that has basionym & proparte links to not previously imported usages.
-   * We need to post update those foreign keys after all records have been inserted!
+   * Import a dataset that has basionym & proparte links to not previously imported usages. We need
+   * to post update those foreign keys after all records have been inserted!
    */
   @Test
   public void testMissingUsageKeys() throws Exception {
@@ -388,9 +451,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     verify16(datasetKey);
   }
 
-  /**
-   * https://github.com/gbif/checklistbank/issues/161
-   */
+  /** https://github.com/gbif/checklistbank/issues/161 */
   @Test
   public void testSpeciesKeyNull() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(24);
@@ -407,7 +468,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         NameUsage spu = dao.readUsage(n, true);
         if (spu.getTaxonomicStatus() == null || !spu.getTaxonomicStatus().isSynonym()) {
           UsageFacts facts = dao.readFacts(n.getId());
-          assertEquals(spu.getKey(), ClassificationUtils.getHigherRankKey(facts.classification, spu.getRank()));
+          assertEquals(
+              spu.getKey(),
+              ClassificationUtils.getHigherRankKey(facts.classification, spu.getRank()));
         }
       }
     } finally {
@@ -418,7 +481,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     runImport(datasetKey);
 
     // verify speciesKey exist for all accepted species
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 1000));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 1000));
     for (NameUsage u : resp.getResults()) {
       if (!u.isSynonym()) {
         if (u.getRank() != null && u.getRank().isLinnean()) {
@@ -433,18 +497,17 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     dao.printTree(writer, GraphFormat.TEXT);
   }
 
-  /**
-   * Builds a small new nub and imports it, making sure the nub specific data gets through fine
-   */
+  /** Builds a small new nub and imports it, making sure the nub specific data gets through fine */
   @Test
   public void testNubImport() throws Exception {
     // build nub
-    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 3, 2, 15, 16, 51, 144);
+    ClasspathSourceList src = ClasspathSourceList.source(cfg.neo, 3, 2, 15, 16, 51, 144);
     src.setSourceRank(3, Rank.KINGDOM);
     openDb(Constants.NUB_DATASET_KEY);
     NubConfiguration cfg = NubBuilderIT.defaultConfig();
-    cfg.neo = neoRepo.cfg;
-    NubBuilder nb = NubBuilder.create(dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, cfg);
+    NubBuilder nb =
+        NubBuilder.create(
+            dao, src, IdLookupImpl.temp().load(Lists.<LookupUsage>newArrayList()), 10, cfg);
     nb.run();
 
     openDb(Constants.NUB_DATASET_KEY);
@@ -456,13 +519,22 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     assertEquals(67, imp.getSyncCounter());
     // make sure all usages have preassigned keys, not postgres generated ones!
     assertTrue(usageService.maxUsageKey(Constants.NUB_DATASET_KEY) < Constants.NUB_MAXIMUM_KEY);
-    //test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES] CONFLICTING_BASIONYM_COMBINATION
-    NameUsage u = nameUsageService.listByCanonicalName(null, "Neotetrastichodes flavus", null, null).getResults().get(0);
+    // test issue for 12 Neotetrastichodes flavus Girault, 1913 [synonym SPECIES]
+    // CONFLICTING_BASIONYM_COMBINATION
+    NameUsage u =
+        nameUsageService
+            .listByCanonicalName(null, "Neotetrastichodes flavus", null, null)
+            .getResults()
+            .get(0);
     assertEquals("Neotetrastichodes flavus Girault, 1913", u.getScientificName());
     assertTrue(u.isSynonym());
     assertEquals("Aprostocetus rieki (De Santis, 1979)", u.getAccepted());
 
-    NameUsage u2 = nameUsageService.listByCanonicalName(null, "Aprostocetus flavus", null, null).getResults().get(0);
+    NameUsage u2 =
+        nameUsageService
+            .listByCanonicalName(null, "Aprostocetus flavus", null, null)
+            .getResults()
+            .get(0);
     assertEquals("Aprostocetus flavus (Girault, 1913)", u2.getScientificName());
     assertTrue(u2.isSynonym());
     assertEquals(u.getAcceptedKey(), u2.getAcceptedKey());
@@ -470,12 +542,9 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     // make sure get does the same as list
     u2 = nameUsageService.get(u.getKey(), null);
     assertEquals(u, u2);
-
   }
 
-  /**
-   * http://dev.gbif.org/issues/browse/POR-2755
-   */
+  /** http://dev.gbif.org/issues/browse/POR-2755 */
   @Test
   public void testMissingGenusFloraBrazil() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(19);
@@ -495,17 +564,17 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     assertTrue(usageService.maxUsageKey(datasetKey) > Constants.NUB_MAXIMUM_KEY);
   }
 
-  @Test(expected = NormalizationFailedException.class)
-  public void testNonUniqueTaxonID() throws Exception {
+  @Test
+  public void testNonUniqueTaxonID() {
     final UUID datasetKey = NormalizerTest.datasetKey(25);
 
     // insert neo db
-    NormalizerStats stats = insertNeo(datasetKey);
-    assertEquals(3, stats.getCount());
+    assertThrows(NormalizationFailedException.class, () -> insertNeo(datasetKey));
   }
 
   private void verify16(UUID datasetKey) {
-    PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
+    PagingResponse<NameUsage> resp =
+        nameUsageService.list(null, datasetKey, null, new PagingRequest(0, 100));
     // 18 source ones, 2 pro parte
     assertEquals(20, resp.getResults().size());
     int sources = 0;
@@ -532,16 +601,16 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         default:
           fail("Bad origin " + u.getOrigin());
       }
-      assertNotNull(u.toString(), u.getKingdomKey());
+      assertNotNull(u.getKingdomKey(), u.toString());
       assertNotNull(u.toString(), u.getKingdom());
       if (Rank.KINGDOM != u.getRank()) {
-        assertNotNull(u.toString(), u.getFamilyKey());
+        assertNotNull(u.getFamilyKey(), u.toString());
         assertNotNull(u.toString(), u.getFamily());
         if (u.isSynonym()) {
-          assertNotNull(u.toString(), u.getAcceptedKey());
+          assertNotNull(u.getAcceptedKey(), u.toString());
           assertNotNull(u.toString(), u.getAccepted());
         } else {
-          assertNotNull(u.toString(), u.getParentKey());
+          assertNotNull(u.getParentKey(), u.toString());
           assertNotNull(u.toString(), u.getParent());
         }
       }
@@ -571,7 +640,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
   private NameUsage getUsageByTaxonID(UUID datasetKey, String taxonID) {
     PagingResponse<NameUsage> resp = nameUsageService.list(null, datasetKey, taxonID, null);
-    assertEquals("More than one usage have the taxonID " + taxonID, 1, resp.getResults().size());
+    assertEquals(1, resp.getResults().size(), "More than one usage have the taxonID " + taxonID);
     return resp.getResults().get(0);
   }
 

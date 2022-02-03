@@ -32,7 +32,6 @@ import com.google.common.collect.Maps;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ExtensionInterpreterTest {
 
     @Test

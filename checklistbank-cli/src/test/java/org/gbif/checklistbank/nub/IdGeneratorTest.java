@@ -35,7 +35,6 @@ import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.*;
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class IdGeneratorTest {
 
   public static IdLookup newTestLookup() {

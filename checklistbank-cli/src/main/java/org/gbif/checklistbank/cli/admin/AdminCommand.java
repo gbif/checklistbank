@@ -20,11 +20,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.checklistbank.DatasetMetricsService;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.service.checklistbank.NameUsageService;
-import org.gbif.api.service.registry.DatasetService;
-import org.gbif.api.service.registry.InstallationService;
-import org.gbif.api.service.registry.NetworkService;
-import org.gbif.api.service.registry.NodeService;
-import org.gbif.api.service.registry.OrganizationService;
+import org.gbif.api.service.registry.*;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.authorship.AuthorComparator;
@@ -49,24 +45,13 @@ import org.gbif.checklistbank.service.mybatis.service.DatasetMetricsServiceMyBat
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.ParsedNameServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.tmp.NameUsageReparser;
-import org.gbif.checklistbank.ws.client.DatasetMetricsClient;
 import org.gbif.checklistbank.ws.client.NubResourceClient;
 import org.gbif.cli.BaseCommand;
 import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.api.Message;
 import org.gbif.common.messaging.api.MessagePublisher;
-import org.gbif.common.messaging.api.messages.BackboneChangedMessage;
-import org.gbif.common.messaging.api.messages.ChecklistNormalizedMessage;
-import org.gbif.common.messaging.api.messages.ChecklistSyncedMessage;
-import org.gbif.common.messaging.api.messages.DwcaMetasyncFinishedMessage;
-import org.gbif.common.messaging.api.messages.MatchDatasetMessage;
-import org.gbif.common.messaging.api.messages.Platform;
-import org.gbif.common.messaging.api.messages.StartCrawlMessage;
-import org.gbif.registry.ws.client.DatasetClient;
-import org.gbif.registry.ws.client.InstallationClient;
-import org.gbif.registry.ws.client.NetworkClient;
-import org.gbif.registry.ws.client.NodeClient;
-import org.gbif.registry.ws.client.OrganizationClient;
+import org.gbif.common.messaging.api.messages.*;
+import org.gbif.registry.ws.client.*;
 import org.gbif.ws.client.ClientBuilder;
 
 import java.io.File;
@@ -75,21 +60,16 @@ import java.lang.reflect.Field;
 import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 
 /**
  * Command that issues new normalize or import messages for manual admin purposes.
@@ -109,6 +89,7 @@ public class AdminCommand extends BaseCommand {
   private InstallationService installationService;
   private NetworkService networkService;
   private NodeService nodeService;
+  private DatasetMetricsService datasetMetricsService;
 
   private MessagePublisher publisher;
   private ZookeeperUtils zkUtils;
@@ -146,8 +127,9 @@ public class AdminCommand extends BaseCommand {
   private void initContext(ClbConfiguration clbConfiguration) {
     ctx = SpringContextBuilder.create()
         .withClbConfiguration(clbConfiguration)
-        .withComponents()
+        .withComponents(DatasetMetricsServiceMyBatis.class)
         .build();
+    datasetMetricsService = ctx.getBean(DatasetMetricsServiceMyBatis.class);
   }
 
   private void setKnownKey(String name, UUID key) {
@@ -296,11 +278,7 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void sendNubChanged() throws IOException {
-    ClientBuilder clientBuilder = new ClientBuilder();
-    // TODO: 04/01/2022 what url?
-    clientBuilder.withUrl("");
-    DatasetMetricsService metricsService = clientBuilder.build(DatasetMetricsClient.class);
-    send(new BackboneChangedMessage(metricsService.get(Constants.NUB_DATASET_KEY)));
+    send(new BackboneChangedMessage(datasetMetricsService.get(Constants.NUB_DATASET_KEY)));
   }
 
   private void syncDatasets() {

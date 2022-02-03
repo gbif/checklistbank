@@ -46,7 +46,6 @@ import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class CliKryoFactoryTest {
     Kryo kryo = new CliKryoFactory().create();
 

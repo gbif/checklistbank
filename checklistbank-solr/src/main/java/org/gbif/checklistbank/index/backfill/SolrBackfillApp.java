@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
-@Profile("!test") // TODO: only needed if this clis are run in the tests
+@Profile("!test")
 @Component
 @Import({SpringSolrConfig.class, SpringServiceConfig.class})
 public class SolrBackfillApp implements CommandLineRunner {

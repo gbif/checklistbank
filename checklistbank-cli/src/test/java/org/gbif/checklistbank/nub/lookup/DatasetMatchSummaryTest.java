@@ -17,10 +17,8 @@ import org.gbif.api.vocabulary.Rank;
 
 import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class DatasetMatchSummaryTest {
   @Test
   public void toStringTest() throws Exception {

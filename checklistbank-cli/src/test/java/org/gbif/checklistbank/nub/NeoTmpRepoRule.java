@@ -16,14 +16,13 @@ package org.gbif.checklistbank.nub;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-public class NeoTmpRepoRule implements TestRule {
+public class NeoTmpRepoRule implements AfterEachCallback, BeforeEachCallback {
     public final NeoConfiguration cfg;
 
     public NeoTmpRepoRule() {
@@ -31,30 +30,18 @@ public class NeoTmpRepoRule implements TestRule {
         cfg.neoRepository = new File(FileUtils.getTempDirectory(), "clb");
     }
 
+
     @Override
-    public Statement apply(final Statement base, Description description) {
-        return new Statement() {
-            @Override
-            public void evaluate() throws Throwable {
-                try {
-                    before();
-                    base.evaluate();
-                } finally {
-                    after();
-                }
-            }
-        };
+    public void afterEach(ExtensionContext extensionContext) throws Exception {
+        FileUtils.deleteQuietly(cfg.neoRepository);
     }
 
-    private void before() throws IOException {
+    @Override
+    public void beforeEach(ExtensionContext extensionContext) throws Exception {
         if (cfg.neoRepository.exists()) {
             FileUtils.cleanDirectory(cfg.neoRepository);
         } else {
             cfg.neoRepository.mkdirs();
         }
-    }
-
-    private void after() {
-        FileUtils.deleteQuietly(cfg.neoRepository);
     }
 }

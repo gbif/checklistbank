@@ -18,16 +18,14 @@ import org.gbif.checklistbank.iterable.CloseableIterator;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class RandomSourceTest {
 
-  @Rule
+  @RegisterExtension
   public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Test

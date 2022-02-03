@@ -27,7 +27,6 @@ import com.google.common.base.Strings;
 public class SpringSolrConfig {
 
   SpringSolrConfig() {
-    // TODO: move it to where it's used?
     System.setProperty("solr.lock.type", "native");
   }
 

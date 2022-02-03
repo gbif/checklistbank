@@ -20,14 +20,12 @@ import org.gbif.checklistbank.nub.model.SrcUsage;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class DwcaSourceTest {
   public static final URL BACKBONE_PATCH_DWCA;
 
@@ -39,7 +37,7 @@ public class DwcaSourceTest {
     }
   }
 
-  @Rule
+  @RegisterExtension
   public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Test

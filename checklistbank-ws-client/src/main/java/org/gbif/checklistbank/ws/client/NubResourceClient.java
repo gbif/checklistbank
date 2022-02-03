@@ -42,7 +42,7 @@ public interface NubResourceClient extends NameUsageMatchingService {
       @RequestParam(value = "taxonRank", required = false) String rank,
       @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
       @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
-      LinneanClassification classification, // TODO: argument resolver needed?
+      LinneanClassification classification,
       @RequestParam(value = "strict", required = false) Boolean strict,
       @RequestParam(value = "verbose", required = false) Boolean verbose);
 

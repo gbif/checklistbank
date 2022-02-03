@@ -1,8 +1,8 @@
 messaging:
-  host: ${rabbit.host}
-  virtualHost: ${rabbit.vhost}
-  username: ${rabbit.username}
-  password: ${rabbit.password}
+  host: mq.gbif.org
+  virtualHost: /dev
+  username: crawler
+  password: crawler
 neo:
   neoRepository: ${neo.repository}
 clb:
@@ -13,8 +13,9 @@ clb:
   maximumPoolSize: 10
 solr:
   serverType: CLOUD
+  serverHome: c3zk1.gbif-dev.org:2181,c3zk2.gbif-dev.org:2181,c3zk3.gbif-dev.org:2181/solr5c2
   #serverHome: prodmaster1-vh.gbif.org:2181,prodmaster2-vh.gbif.org:2181,prodmaster3-vh.gbif.org:2181/uatsolr
-  collection: clb_import_test
+  collection: checklistbank
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev

@@ -21,19 +21,17 @@ import org.gbif.checklistbank.utils.ResourcesMonitor;
 
 import java.util.List;
 
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.helpers.collection.Iterables;
-
 import com.google.common.collect.Lists;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.neo4j.helpers.collection.Iterables;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ClasspathSourceListTest {
 
-  @ClassRule
+  @RegisterExtension
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @Test

@@ -32,11 +32,15 @@ public class ClbDbLoadTestDataBeforeAll implements BeforeAllCallback {
    * Hash and ExtendedWith annotation with the value ClbDbLoadTestDataBeforeEach.
    */
   private boolean hasClbDbLoadTestDataBeforeEach(ExtensionContext extensionContext) {
-    return extensionContext.getTestClass()
-            .map(c -> Arrays.stream(c.getAnnotationsByType(ExtendWith.class))
-                      .anyMatch(ew -> Arrays.stream(ew.value())
-                                      .anyMatch(cl -> cl == ClbDbLoadTestDataBeforeEach.class)
-                      )
-            ).orElse(false);
+    return extensionContext
+        .getTestClass()
+        .map(
+            c ->
+                Arrays.stream(c.getAnnotationsByType(ExtendWith.class))
+                    .anyMatch(
+                        ew ->
+                            Arrays.stream(ew.value())
+                                .anyMatch(cl -> cl == ClbDbLoadTestDataBeforeEach.class)))
+        .orElse(false);
   }
 }

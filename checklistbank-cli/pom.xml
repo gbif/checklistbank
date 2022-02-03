@@ -30,6 +30,8 @@
         <postalservice.threadcount>10</postalservice.threadcount>
         <postalservice.port>5672</postalservice.port>
         <postalservice.hostname>mq.gbif.org</postalservice.hostname>
+
+        <neo4j-test-containers.version>1.16.3</neo4j-test-containers.version>
     </properties>
 
     <build>
@@ -479,6 +481,37 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.zonky.test</groupId>
+            <artifactId>embedded-database-spring-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.flywaydb</groupId>
+                    <artifactId>flyway-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.flywaydb.flyway-test-extensions</groupId>
+                    <artifactId>flyway-spring-test</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>neo4j</artifactId>
+            <version>${neo4j-test-containers.version}</version>
             <scope>test</scope>
         </dependency>
 

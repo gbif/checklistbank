@@ -18,6 +18,7 @@ import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.Neo4jExtension;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
@@ -28,6 +29,7 @@ import org.gbif.checklistbank.neo.RelType;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
@@ -41,6 +43,9 @@ import javax.annotation.Nullable;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -61,17 +66,20 @@ public abstract class BaseTest {
   protected NormalizerConfiguration cfg;
   protected UsageDao dao;
 
-  @Before
+  @RegisterExtension
+  public static Neo4jExtension neo4jExtension = new Neo4jExtension();
+
+  @BeforeEach
   public void initCfg() throws Exception {
     cfg = new NormalizerConfiguration();
-    cfg.neo.neoRepository = Files.createTempDir();
+    cfg.neo.neoRepository = new File(neo4jExtension.getNeo4jContainer().getContainerInfo().getConfig().getWorkingDir());
 
     URL dwcasUrl = getClass().getResource("/dwcas");
     Path p = Paths.get(dwcasUrl.toURI());
     cfg.archiveRepository = p.toFile();
   }
 
-  @After
+  @AfterEach
   public void cleanup() throws Exception {
     if (dao != null) {
       dao.closeAndDelete();

@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NubTreeTest {
 
   @Test

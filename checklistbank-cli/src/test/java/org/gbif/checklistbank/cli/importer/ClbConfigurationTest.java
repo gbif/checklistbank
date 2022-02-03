@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ClbConfigurationTest {
 
   @Test
@@ -33,7 +32,6 @@ public class ClbConfigurationTest {
     cfg.password = "test4";
     cfg.maximumPoolSize = 11;
     cfg.minimumIdle = 99;
-    cfg.idleTimeout = 20200;
     cfg.maxLifetime = 8877;
     cfg.idleTimeout = 20200;
     cfg.connectionInitSql = "SET work_mem='64MB'";
