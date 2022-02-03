@@ -18,10 +18,10 @@ import org.gbif.api.model.Constants;
 import java.io.File;
 import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("manual test")
+@Disabled("manual test")
 public class AdminCommandTest {
 
   private AdminConfiguration configureLocal(AdminConfiguration cfg) throws Exception {

@@ -20,16 +20,14 @@ import org.gbif.checklistbank.cli.model.NameUsageNode;
 
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
-import org.junit.Test;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import org.junit.Test;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertArrayEquals;
 

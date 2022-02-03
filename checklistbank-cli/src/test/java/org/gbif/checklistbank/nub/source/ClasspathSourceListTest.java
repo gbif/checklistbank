@@ -22,7 +22,7 @@ import org.gbif.checklistbank.utils.ResourcesMonitor;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.helpers.collection.Iterables;
@@ -49,7 +49,7 @@ public class ClasspathSourceListTest {
    * Test large amount of nub sources to see if neo4j / dao resources are managed properly
    */
   @Test
-  @Ignore("Manual test to debug too many open files or other neo4j resource problems")
+  @Disabled("Manual test to debug too many open files or other neo4j resource problems")
   public void testLargeLists() throws Exception {
     ResourcesMonitor monitor = new ResourcesMonitor();
     monitor.run();

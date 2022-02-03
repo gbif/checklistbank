@@ -31,15 +31,12 @@ import org.gbif.nameparser.NameParserGbifV1;
 
 import java.util.UUID;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.graphdb.Transaction;
-
 import com.google.common.base.Throwables;
+import org.junit.jupiter.api.Test;
+import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.*;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NubDbTest {
   final NameParser parser = new NameParserGbifV1();
   private long counter = 1;

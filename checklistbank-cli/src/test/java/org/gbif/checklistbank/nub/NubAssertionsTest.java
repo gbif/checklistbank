@@ -21,7 +21,7 @@ import org.gbif.checklistbank.nub.validation.NubAssertions;
 import org.gbif.checklistbank.service.mybatis.service.NameUsageServiceMyBatis;
 import org.gbif.checklistbank.utils.ClbConfigurationUtils;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
 
@@ -39,7 +39,7 @@ public class NubAssertionsTest {
   }
 
   @Test
-  @Ignore("manual test only")
+  @Disabled("manual test only")
   public void validatePostgresNub() throws Exception {
     ClbConfiguration cfg = ClbConfigurationUtils.uat();
 

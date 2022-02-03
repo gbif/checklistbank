@@ -27,7 +27,6 @@ import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -36,7 +35,6 @@ import org.neo4j.helpers.collection.Iterators;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ChunkingEvaluatorTest {
   private UsageDao dao;
   private int idx;

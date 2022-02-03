@@ -13,18 +13,7 @@
  */
 package org.gbif.checklistbank.kryo;
 
-import org.gbif.api.model.checklistbank.DatasetMetrics;
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageMediaObject;
-import org.gbif.api.model.checklistbank.NameUsageMetrics;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.model.checklistbank.Reference;
-import org.gbif.api.model.checklistbank.SpeciesProfile;
-import org.gbif.api.model.checklistbank.TypeSpecimen;
-import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.checklistbank.model.UsageExtensions;
@@ -36,13 +25,11 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

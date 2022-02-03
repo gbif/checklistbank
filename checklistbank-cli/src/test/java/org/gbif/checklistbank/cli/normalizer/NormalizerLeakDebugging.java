@@ -27,17 +27,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
  */
-@Ignore
+@Disabled
 public class NormalizerLeakDebugging {
   static final String DWCA_RESOURCE = "/dwcas/00000001-c6af-11e2-9b88-00145eb45e9a";
   static final String[] FILES = new String[]{"taxa.txt"};

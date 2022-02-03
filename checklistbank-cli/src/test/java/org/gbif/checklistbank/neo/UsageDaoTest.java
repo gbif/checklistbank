@@ -35,31 +35,28 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import org.assertj.core.util.Preconditions;
-import org.junit.After;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-
 import com.codahale.metrics.MetricRegistry;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import org.assertj.core.util.Preconditions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import static org.junit.Assert.assertEquals;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class UsageDaoTest {
   private final static Random RND = new Random();
 
-  @ClassRule
+  @RegisterExtension
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   UsageDao dao;
 
-  @After
+  @AfterEach
   public void destroy() {
     if (dao != null) {
       dao.closeAndDelete();

@@ -22,12 +22,12 @@ import java.net.URL;
 import java.util.Arrays;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Manual utility to add an occurrence count column to a tab delimited file with taxonKeys in the first column.
  */
-@Ignore
+@Disabled
 public class OccMetricsColAppender {
   private final File reports;
 

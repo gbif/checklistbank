@@ -17,7 +17,6 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 
 import java.util.Properties;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

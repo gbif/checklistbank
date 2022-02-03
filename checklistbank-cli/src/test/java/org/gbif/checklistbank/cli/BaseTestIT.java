@@ -20,8 +20,7 @@ import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.neo.RelType;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
@@ -31,7 +30,6 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Simple test for the base test class to verify the get methods work fine.
  */
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class BaseTestIT extends BaseTest {
 
   private NameUsage buildUsage(String taxonID, String name, Rank rank, TaxonomicStatus status) {

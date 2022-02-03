@@ -67,9 +67,9 @@ import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
 import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
 import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
 import org.apache.solr.client.solrj.SolrClient;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.Node;
@@ -86,8 +86,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * an embedded solr server for tests. An external solr instance can be configured manually in
  * cfg-importer.yaml if wanted
  */
-// TODO: see below
-@Ignore("Fails with the Solr in DEV. Fix when we migrate to ES")
 public class ImporterIT extends BaseTest implements AutoCloseable {
 
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
@@ -98,8 +96,6 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private DatasetImportService solrService;
   private NameUsageSearchService searchService;
   private Connection dbConnection;
-
-//  @RegisterExtension public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @RegisterExtension
   public static PreparedDbExtension database =

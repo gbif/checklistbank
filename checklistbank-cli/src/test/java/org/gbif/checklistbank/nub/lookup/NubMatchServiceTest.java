@@ -13,10 +13,10 @@
  */
 package org.gbif.checklistbank.nub.lookup;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("A manual test class to rematch individual datasets")
+@Disabled("A manual test class to rematch individual datasets")
 public class NubMatchServiceTest {
 
   String[] keys = new String[]{

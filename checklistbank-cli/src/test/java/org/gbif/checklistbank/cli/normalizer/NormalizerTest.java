@@ -32,8 +32,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Maps;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.IndexDefinition;
@@ -43,16 +45,12 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.beust.jcommander.internal.Sets;
-import com.google.common.collect.Maps;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.
  */
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NormalizerTest extends BaseTest {
   private static final Logger LOG = LoggerFactory.getLogger(NormalizerTest.class);
 
@@ -1045,7 +1043,7 @@ public class NormalizerTest extends BaseTest {
    * Tests the simple images media extension
    */
   @Test
-  @Ignore
+  @Disabled
   public void testSimpleImages() throws Exception {
 
   }
@@ -1054,7 +1052,7 @@ public class NormalizerTest extends BaseTest {
    * Tests the Audubon media extension
    */
   @Test
-  @Ignore
+  @Disabled
   public void testAudubon() throws Exception {
 
   }

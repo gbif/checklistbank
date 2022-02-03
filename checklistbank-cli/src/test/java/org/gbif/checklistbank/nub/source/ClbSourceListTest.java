@@ -23,27 +23,31 @@ import org.gbif.api.service.registry.InstallationService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
+import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
+import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
+import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.neo4j.helpers.collection.Iterables;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class ClbSourceListTest {
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
@@ -53,16 +57,20 @@ public class ClbSourceListTest {
   private DatasetService ds;
   private OrganizationService os;
   private InstallationService is;
-
-  @ClassRule
-  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
-
-//  @Rule
-//  public ClbLoadTestDb dbSetup = ClbLoadTestDb.squirrels();
-
   private UUID oldDKey;
 
-  @Before
+  @RegisterExtension
+  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+
+  @RegisterExtension
+  public static PreparedDbExtension database =
+    EmbeddedPostgresExtension.preparedDatabase(
+      LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml"));
+
+  @RegisterExtension
+  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.squirrels(database.getTestDatabase());
+
+  @BeforeEach
   public void init() {
     ds = Mockito.mock(DatasetService.class);
     Dataset squirrel = new Dataset();
@@ -111,18 +119,17 @@ public class ClbSourceListTest {
     when(is.getHostedDatasets(AdditionalMatchers.not(eq(ins1.getKey())), any(PagingRequest.class))).thenReturn(resp3);
 
     // use default prod API
-//    Properties props = dbSetup.getProperties();
-//    NubConfiguration cfg = new NubConfiguration();
-//    cfg.neo = neoRepo.cfg;
-//    cfg.neoSources = neoRepo.cfg;
-//    cfg.clb.databaseName = props.getProperty("checklistbank.db.dataSource.databaseName");
-//    cfg.clb.serverName = props.getProperty("checklistbank.db.dataSource.serverName");
-//    cfg.clb.user = props.getProperty("checklistbank.db.dataSource.user");
-//    cfg.clb.password = props.getProperty("checklistbank.db.dataSource.password");
-//    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), Rank.PHYLUM));
-//    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984")));
+    NubConfiguration cfg = new NubConfiguration();
+    cfg.neo = neoRepo.cfg;
+    cfg.neoSources = neoRepo.cfg;
+    cfg.clb.serverName = "localhost:" + database.getConnectionInfo().getPort();
+    cfg.clb.databaseName = database.getConnectionInfo().getDbName();
+    cfg.clb.user = database.getConnectionInfo().getUser();
+    cfg.clb.password = "";
+    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), Rank.PHYLUM));
+    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984")));
 
-    src = new ClbSourceList(ds, os, is, null/*cfg*/);
+    src = new ClbSourceList(ds, os, is, cfg);
   }
 
   /**

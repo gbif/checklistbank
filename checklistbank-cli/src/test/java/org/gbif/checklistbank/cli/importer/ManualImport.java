@@ -30,12 +30,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
-
 import javax.annotation.Nullable;
-
-import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
-import org.postgresql.core.BaseConnection;
 
 import com.beust.jcommander.internal.Maps;
 import com.codahale.metrics.MetricRegistry;
@@ -44,8 +39,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Disabled;
+import org.postgresql.core.BaseConnection;
 
-@Ignore("A manual test class")
+@Disabled("A manual test class")
 /**
  * Test to manually index an external checklist and download, normalize and import it.
  * For importing it uses the test resource yaml config file where you can turn on solr if needed!

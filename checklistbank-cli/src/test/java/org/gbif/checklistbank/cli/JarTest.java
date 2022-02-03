@@ -24,13 +24,13 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
 /**
  * Manual terst to inspect the uber jar to list number of files to get an idea whats inside.
  */
-@Ignore
+@Disabled
 public class JarTest {
 
     @Test

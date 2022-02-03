@@ -42,10 +42,17 @@ import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
 import javax.annotation.Nullable;
 
-import org.junit.*;
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -53,21 +60,15 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
-
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NubBuilderIT {
   public NubConfiguration cfg = new NubConfiguration();
   private UsageDao dao;
   private Transaction tx;
   private static final NameParser PARSER = new NameParserGbifV1();
 
-  @ClassRule
+  @RegisterExtension
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   public static NubConfiguration defaultConfig() {
@@ -93,14 +94,14 @@ public class NubBuilderIT {
     System.out.println(String.format(msg, args));
   }
 
-  @Before
+  @BeforeEach
   public void init() {
     // add shell port (standard is 1337, but already taken on OSX) to open the neo4j shell server for debugging!!!
     dao = UsageDao.temporaryDao(128);
     cfg = defaultConfig();
   }
 
-  @After
+  @AfterEach
   public void shutdown() {
     if (tx != null) {
       tx.close();
@@ -124,11 +125,13 @@ public class NubBuilderIT {
     }
   }
 
-  @Test(expected = RuntimeException.class)
+  @Test
   public void testSourceException() throws Exception {
-    ClasspathSourceList src = ClasspathSourceList.emptySource();
-    src.submitSources(Lists.<ErrorSource>newArrayList(new ErrorSource()));
-    build(src);
+    assertThrows(RuntimeException.class, () -> {
+      ClasspathSourceList src = ClasspathSourceList.emptySource();
+      src.submitSources(Lists.<ErrorSource>newArrayList(new ErrorSource()));
+      build(src);
+    });
   }
 
   public static class ErrorSource extends NubSource {
@@ -162,7 +165,7 @@ public class NubBuilderIT {
    * https://github.com/gbif/checklistbank/issues/165
    */
   @Test
-  @Ignore("Manual test to debug memory usage")
+  @Disabled("Manual test to debug memory usage")
   public void debugNubMemoryUsage() throws Exception {
     RandomSourceList sources = RandomSourceList.source(3, neoRepo.cfg, 10, 10000);
     // do a real build
@@ -173,7 +176,7 @@ public class NubBuilderIT {
    * https://github.com/gbif/checklistbank/issues/165
    */
   @Test
-  @Ignore("Manual test to debug memory usage of the nub source only")
+  @Disabled("Manual test to debug memory usage of the nub source only")
   public void debugSourcesMemory() throws Exception {
     RandomSourceList sources = RandomSourceList.source(2, neoRepo.cfg, 10, 10000);
     // just iterate over sources and close them just as the builder does, but do not use them for anything
@@ -193,7 +196,7 @@ public class NubBuilderIT {
    * https://github.com/gbif/checklistbank/issues/165
    */
   @Test
-  @Ignore("Manual test to debug memory usage of the nub source only")
+  @Disabled("Manual test to debug memory usage of the nub source only")
   public void debugSourcesMemory2() throws Exception {
     final Random rnd = new Random();
     for (int num = 1; num<10000; num++) {
@@ -253,7 +256,7 @@ public class NubBuilderIT {
    * Test using real backbone names to verify synonymization of large families.
    */
   @Test
-  @Ignore("manual verification only")
+  @Disabled("manual verification only")
   public void testFullFamilies() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 91);
     src.setSourceRank(91, Rank.CLASS);
@@ -478,7 +481,7 @@ public class NubBuilderIT {
   }
 
   @Test
-  @Ignore("for manual debugging only. Depends on external resources")
+  @Disabled("for manual debugging only. Depends on external resources")
   public void testExternal() throws Exception {
     List<NubSource> ns = new ArrayList<>();
 
@@ -1254,7 +1257,7 @@ public class NubBuilderIT {
   }
 
   @Test
-  @Ignore("Manual test for profiling performance issues")
+  @Disabled("Manual test for profiling performance issues")
   public void testPerformance() throws Exception {
     NubSourceList src = new NubSourceList(new NubConfiguration());
     src.submitSources(Lists.newArrayList(
@@ -1335,7 +1338,7 @@ public class NubBuilderIT {
    * Use a nomenclators taxonID as scientificNameID for the nub usage.
    */
   @Test
-  @Ignore("write test")
+  @Disabled("write test")
   public void testUpdateNameString() throws Exception {
 
   }
@@ -1346,7 +1349,7 @@ public class NubBuilderIT {
    * For synonyms use the accepted name from later sources in case the primary one is incertae-sedis.
    */
   @Test
-  @Ignore("write test")
+  @Disabled("write test")
   public void testMergingClassification() throws Exception {
 
   }
@@ -1360,7 +1363,7 @@ public class NubBuilderIT {
    * a heterotypical one, not homotypic!
    */
   @Test
-  @Ignore("write test")
+  @Disabled("write test")
   public void testHomoToHeteroTypicalSynonym() throws Exception {
   }
 
@@ -1804,7 +1807,7 @@ public class NubBuilderIT {
    * Drakebrockmania
    */
   @Test
-  @Ignore("NubBuilder needs code change first")
+  @Disabled("NubBuilder needs code change first")
   public void testDrakeBrockmania() throws Exception {
 
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 108, 109, 110);
@@ -1869,7 +1872,7 @@ public class NubBuilderIT {
    * https://github.com/gbif/checklistbank/issues/25
    */
   @Test
-  @Ignore
+  @Disabled
   public void testNewSpeciesInHomonymGenus() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 116, 117);
     src.setSourceRank(116, Rank.PHYLUM);
@@ -1908,7 +1911,7 @@ public class NubBuilderIT {
    * @throws Exception
    */
   @Test
-  @Ignore("needs implemented")
+  @Disabled("needs implemented")
   public void avoidProparteFamilyHomonyms() throws Exception {
     ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 120, 121);
     src.setSourceRank(120, Rank.PHYLUM);
@@ -2135,7 +2138,7 @@ public class NubBuilderIT {
    * For profiling memory usage of nub builds
    */
   @Test
-  @Ignore("for manual profiling only")
+  @Disabled("for manual profiling only")
   public void testMemFootprint() throws Exception {
     List<RandomSource> sources = Lists.newArrayList();
     for (int x = 0; x < 1000; x++) {
@@ -2230,7 +2233,7 @@ public class NubBuilderIT {
   private void assertClassification(NubUsage nub, String... parentNames) {
     int idx = 0;
     for (NubUsage n : parents(nub.node)) {
-      assertEquals("Higher classification mismatch for " + nub.parsedName.getScientificName(), parentNames[idx++], n.parsedName.canonicalName());
+      assertEquals(parentNames[idx++], n.parsedName.canonicalName(), "Higher classification mismatch for " + nub.parsedName.getScientificName());
     }
   }
 
@@ -2263,11 +2266,11 @@ public class NubBuilderIT {
     NubUsage u = getCanonical(canonical, rank, k);
     assertNub(u, canonical, authorship, notho, rank, origin, status, parent);
     if (k != null) {
-      assertEquals("wrong kingdom " + k, k, u.kingdom);
+      assertEquals(k, u.kingdom, "wrong kingdom " + k);
     }
-    assertEquals("wrong canonical name for " + canonical, canonical, UsageDao.canonicalOrScientificName(u.parsedName));
+    assertEquals(canonical, UsageDao.canonicalOrScientificName(u.parsedName), "wrong canonical name for " + canonical);
     for (NameUsageIssue issue : issues) {
-      assertTrue("missing issue " + issue, u.issues.contains(issue));
+      assertTrue(u.issues.contains(issue), "missing issue " + issue);
     }
     return u;
   }
@@ -2275,38 +2278,38 @@ public class NubBuilderIT {
   private NubUsage assertScientific(String sciname, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
     NubUsage u = getScientific(sciname, rank);
     assertNub(u, sciname, null, null, rank, origin, status, parent);
-    assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.getScientificName());
+    assertEquals(sciname, u.parsedName.getScientificName(), "wrong scientific name for " + sciname);
     return u;
   }
 
   private NubUsage assertKey(String sciname, Rank rank, Kingdom kingdom, int key) {
     NubUsage u = getScientific(sciname, rank, kingdom);
-    assertEquals("wrong key for " + sciname, key, u.usageKey);
-    assertEquals("wrong scientific name for " + sciname, sciname, u.parsedName.getScientificName());
-    assertEquals("wrong kingdom for " + sciname, kingdom, u.kingdom);
-    assertEquals("wrong rank for " + sciname, rank, u.rank);
+    assertEquals(key, u.usageKey, "wrong key for " + sciname);
+    assertEquals(sciname, u.parsedName.getScientificName(), "wrong scientific name for " + sciname);
+    assertEquals(kingdom, u.kingdom, "wrong kingdom for " + sciname);
+    assertEquals(rank, u.rank, "wrong rank for " + sciname);
     return u;
   }
 
   private void assertNotExisting(String sciname, Rank rank) {
     NubUsage u = getScientific(sciname, rank);
-    assertNull("name wrongly exists: " + sciname, u);
+    assertNull(u, "name wrongly exists: " + sciname);
   }
 
   private void assertNub(NubUsage u, String name, @Nullable String authorship, @Nullable NamePart notho, Rank rank, Origin origin, @Nullable TaxonomicStatus status, @Nullable NubUsage parent) {
-    assertNotNull("Missing " + rank + " " + name, u);
-    assertEquals("wrong rank for " + name, rank, u.rank);
-    assertEquals("wrong origin for " + name, origin, u.origin);
+    assertNotNull(u, "Missing " + rank + " " + name);
+    assertEquals(rank, u.rank, "wrong rank for " + name);
+    assertEquals(origin, u.origin, "wrong origin for " + name);
     if (authorship != null) {
-      assertEquals("wrong authorship for " + name, authorship, u.parsedName.authorshipComplete());
+      assertEquals(authorship, u.parsedName.authorshipComplete(), "wrong authorship for " + name);
     }
-    assertEquals("wrong notho for " + name, notho, u.parsedName.getNotho());
+    assertEquals(notho, u.parsedName.getNotho(), "wrong notho for " + name);
     if (status != null) {
-      assertEquals("wrong status for " + name, status, u.status);
+      assertEquals(status, u.status, "wrong status for " + name);
     }
     if (parent != null) {
       NubUsage p2 = parentOrAccepted(u.node);
-      assertEquals("wrong parent " + p2.parsedName.canonicalNameComplete() + " for " + name, p2.node, parent.node);
+      assertEquals(p2.node, parent.node, "wrong parent " + p2.parsedName.canonicalNameComplete() + " for " + name);
     }
   }
 
@@ -2450,7 +2453,7 @@ public class NubBuilderIT {
       NubNode expected = treeIter.next();
       String name = (String) n.getProperty(NeoProperties.SCIENTIFIC_NAME);
       assertEquals(expected.name, name);
-      assertEquals("Basionym flag wrong for " + name, expected.basionym, n.hasLabel(Labels.BASIONYM));
+      assertEquals(expected.basionym, n.hasLabel(Labels.BASIONYM), "Basionym flag wrong for " + name);
     }
 
     @Override
@@ -2467,10 +2470,10 @@ public class NubBuilderIT {
     NubTree expected = NubTree.read("trees/" + filename);
 
     // compare trees
-    assertEquals("Number of roots differ", expected.getRoot().children.size(), Iterators.count(dao.allRootTaxa()));
+    assertEquals(expected.getRoot().children.size(), Iterators.count(dao.allRootTaxa()), "Number of roots differ");
     TreeAsserter treeAssert = new TreeAsserter(expected);
     TreeWalker.walkTree(dao.getNeo(), true, treeAssert);
-    assertTrue("There should be more taxa", treeAssert.completed());
+    assertTrue(treeAssert.completed(), "There should be more taxa");
 
     // verify all nodes are walked in the tree and contains the expected numbers
     long neoCnt = Iterables.count(dao.getNeo().getAllNodes());

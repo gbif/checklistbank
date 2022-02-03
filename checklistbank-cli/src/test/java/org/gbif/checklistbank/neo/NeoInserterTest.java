@@ -30,25 +30,25 @@ import org.gbif.dwc.terms.Term;
 import java.net.URI;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import com.google.common.collect.Lists;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 
-import com.google.common.collect.Lists;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.Assert.*;
-
-@Ignore("REMOVE! ignored only to make the jenkins build work")
 public class NeoInserterTest {
   NeoInserter ins;
   List<String> values;
   List<ArchiveField> fields;
   UsageDao dao;
 
-  @Before
+  @BeforeEach
   public void init() throws Exception {
     values = Lists.newArrayList();
     fields = Lists.newArrayList();
@@ -137,27 +137,31 @@ public class NeoInserterTest {
     }
   }
 
-  @Test(expected = NormalizationFailedException.class)
+  @Test
   public void testTaxonIDNotUnique() throws Exception {
-    final String ID = "1";
-    addColumn(DwcTerm.taxonID, ID);
-    addColumn(DwcTerm.scientificName, "Abies alba Mill., 1982");
-    StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
-    RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
-    rec.setRow(values.toArray(new String[]{}));
-    star.newCoreRecord(rec);
-    ins.insertStarRecord(star);
+    assertThrows(
+        NormalizationFailedException.class,
+        () -> {
+          final String ID = "1";
+          addColumn(DwcTerm.taxonID, ID);
+          addColumn(DwcTerm.scientificName, "Abies alba Mill., 1982");
+          StarRecordImpl star = new StarRecordImpl(Lists.<Term>newArrayList());
+          RecordImpl rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+          rec.setRow(values.toArray(new String[] {}));
+          star.newCoreRecord(rec);
+          ins.insertStarRecord(star);
 
-    values = Lists.newArrayList();
-    fields = Lists.newArrayList();
-    addColumn(DwcTerm.taxonID, ID);
-    addColumn(DwcTerm.scientificName, "Picea alba");
-    rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
-    rec.setRow(values.toArray(new String[]{}));
-    star.newCoreRecord(rec);
-    ins.insertStarRecord(star);
+          values = Lists.newArrayList();
+          fields = Lists.newArrayList();
+          addColumn(DwcTerm.taxonID, ID);
+          addColumn(DwcTerm.scientificName, "Picea alba");
+          rec = new RecordImpl(fields.get(0), fields, DwcTerm.Taxon, true, true);
+          rec.setRow(values.toArray(new String[] {}));
+          star.newCoreRecord(rec);
+          ins.insertStarRecord(star);
 
-    ins.close();
+          ins.close();
+        });
   }
 
   @Test
@@ -201,10 +205,14 @@ public class NeoInserterTest {
     assertName(v, Rank.SUBSPECIES, "Abies alba subsp. alpina Duméril & Bibron, 1937", "Abies alba alpina", NameType.SCIENTIFIC);
   }
 
-  @Test(expected = IgnoreNameUsageException.class)
+  @Test
   public void testParseNameExc() throws Exception {
-    VerbatimNameUsage v = new VerbatimNameUsage();
-    assertName(v, Rank.SPECIES, null, null, NameType.NO_NAME);
+    assertThrows(
+        IgnoreNameUsageException.class,
+        () -> {
+          VerbatimNameUsage v = new VerbatimNameUsage();
+          assertName(v, Rank.SPECIES, null, null, NameType.NO_NAME);
+        });
   }
 
   private NameUsageContainer assertName(VerbatimNameUsage v, Rank rank, String sciname, String canonical, NameType ntype)

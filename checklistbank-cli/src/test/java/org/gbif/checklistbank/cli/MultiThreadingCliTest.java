@@ -37,20 +37,19 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.zaxxer.hikari.HikariDataSource;
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore("manual long running test to discover why we see too many open files in heavy importer cli use")
+@Disabled("manual long running test to discover why we see too many open files in heavy importer cli use")
 public class MultiThreadingCliTest {
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
   private final int threads = 5;

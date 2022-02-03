@@ -17,7 +17,9 @@ import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 
 public class RandomSourceList extends NubSourceList {

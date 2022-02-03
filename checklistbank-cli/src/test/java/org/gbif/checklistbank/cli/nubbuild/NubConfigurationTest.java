@@ -15,14 +15,15 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import java.io.File;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
+import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class NubConfigurationTest {
 
@@ -44,7 +45,7 @@ public class NubConfigurationTest {
     }
 
     @Test
-    @Ignore("manual local test to make sure config file is readable")
+    @Disabled("manual local test to make sure config file is readable")
     public void testNubConfig() throws Exception {
         NubConfiguration cfg = CFG_MAPPER.readValue(new File("/Users/markus/code/gbif/gbif-configuration/cli/nub/config/clb-nub.yaml"), NubConfiguration.class);
         cfg.normalizeConfigs();
