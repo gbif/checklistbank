@@ -13,6 +13,7 @@
   <packaging>jar</packaging>
 
   <name>ChecklistBank Elasticsearch Plugins</name>
+  <description>Elasticsaerch Checklistbank plugin for indexing and searching scientific names</description>
 
   <distributionManagement>
     <site>
@@ -47,12 +48,11 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.3.0</version>
         <configuration>
           <appendAssemblyId>false</appendAssemblyId>
           <outputDirectory>${project.build.directory}/releases/</outputDirectory>
           <descriptors>
-            <descriptor>${elasticsearch.assembly.descriptor}</descriptor>
+            <descriptor>${basedir}/src/main/assemblies/plugin.xml</descriptor>
           </descriptors>
         </configuration>
         <executions>
@@ -87,6 +87,24 @@
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-common</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.gbif.registry</groupId>
+          <artifactId>registry-ws-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.locationtech.jts</groupId>
+          <artifactId>jts-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.locationtech.spatial4j</groupId>
+          <artifactId>spatial4j</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
@@ -94,30 +112,12 @@
     </dependency>
 
     <!-- ES -->
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-core</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.elasticsearch</groupId>
       <artifactId>elasticsearch</artifactId>
       <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client-sniffer</artifactId>
-      <version>${elasticsearch.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>

@@ -10,6 +10,13 @@
             "lowercase"
           ]
         },
+        "autocomplete_search": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase"
+          ]
+        },
         "tokenized": {
           "type": "custom",
           "tokenizer": "standard",
@@ -61,7 +68,7 @@
       }
     }
   },
-  "mapping": {
+  "mappings": {
     "properties": {
       "key": {
         "type": "integer"
@@ -83,7 +90,7 @@
       },
       "parent": {
         "type": "text",
-        "analyzer": "sciname",
+        "analyzer": "sciname"
       },
       "accepted_key": {
         "type": "integer"
@@ -112,12 +119,12 @@
         "analyzer": "tokenized"
       },
       "canonical_name_ngram": {
-        "type": "ngram",
+        "type": "text",
         "analyzer": "autocomplete",
         "search_analyzer": "autocomplete_search"
       },
       "canonical_name_ngram_tokenized": {
-        "type": "ngram_tokenized",
+        "type": "text",
         "analyzer": "autocomplete_tokenized",
         "search_analyzer": "autocomplete_search"
       },
