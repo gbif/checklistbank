@@ -28,12 +28,9 @@ import org.gbif.registry.ws.client.DatasetClient;
 import org.gbif.registry.ws.client.InstallationClient;
 import org.gbif.registry.ws.client.OrganizationClient;
 import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +51,8 @@ public class ClbSourceList extends NubSourceList {
   public static ClbSourceList create(NubConfiguration cfg) {
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(cfg.registry.wsUrl);
+    clientBuilder.withObjectMapper(
+        JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
     if (cfg.registry.password != null && cfg.registry.user != null) {
       clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
     }

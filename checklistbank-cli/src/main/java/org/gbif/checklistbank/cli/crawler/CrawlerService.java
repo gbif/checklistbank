@@ -28,6 +28,7 @@ import org.gbif.dwc.UnsupportedArchiveException;
 import org.gbif.registry.ws.client.DatasetClient;
 import org.gbif.utils.HttpUtil;
 import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +61,8 @@ public class CrawlerService extends RabbitBaseService<StartCrawlMessage> {
 
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(cfg.registry.wsUrl);
+    clientBuilder.withObjectMapper(
+        JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
     if (cfg.registry.password != null && cfg.registry.user != null) {
       clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
     }

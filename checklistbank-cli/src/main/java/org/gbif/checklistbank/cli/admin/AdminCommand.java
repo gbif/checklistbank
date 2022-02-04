@@ -53,6 +53,7 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.*;
 import org.gbif.registry.ws.client.*;
 import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,6 +108,8 @@ public class AdminCommand extends BaseCommand {
   private void initRegistry() {
     ClientBuilder clientBuilder = new ClientBuilder();
     clientBuilder.withUrl(cfg.registry.wsUrl);
+    clientBuilder.withObjectMapper(
+        JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
     if (cfg.registry.password != null && cfg.registry.user != null) {
       clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
     }
