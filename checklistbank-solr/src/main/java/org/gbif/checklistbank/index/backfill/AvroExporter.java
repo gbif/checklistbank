@@ -18,7 +18,10 @@ import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.service.*;
+import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
 import java.util.concurrent.Callable;
 
@@ -45,11 +48,11 @@ public class AvroExporter extends NameUsageBatchProcessor {
 
   @Autowired
   public AvroExporter(
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") String threads,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE + "}") String nameNode,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR + "}") String targetHdfsDir,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") String batchSize,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") String logInterval,
       UsageService nameUsageService,
       VernacularNameService vernacularNameService,
       DescriptionService descriptionService,
@@ -57,9 +60,9 @@ public class AvroExporter extends NameUsageBatchProcessor {
       SpeciesProfileService speciesProfileService) {
 
     super(
-        threads,
-        batchSize,
-        logInterval,
+        Integer.parseInt(threads),
+        Integer.parseInt(batchSize),
+        Integer.parseInt(logInterval),
         nameUsageService,
         vernacularNameService,
         descriptionService,
