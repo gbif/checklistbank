@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
  */
 @Profile("!test")
 @Component
-@Import({SpringSolrConfig.class, SpringServiceConfig.class})
+@Import({SpringSolrConfig.class, SpringServiceConfig.class, AvroExporter.class})
 public class AvroExporterApp implements CommandLineRunner {
 
   private AvroExporter avroExporter;

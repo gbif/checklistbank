@@ -36,7 +36,7 @@ import org.springframework.stereotype.Component;
  */
 @Profile("!test")
 @Component
-@Import({SpringSolrConfig.class, SpringServiceConfig.class})
+@Import({SpringSolrConfig.class, SpringServiceConfig.class, SolrBackfill.class})
 public class SolrBackfillApp implements CommandLineRunner {
 
   private static final Logger LOG = LoggerFactory.getLogger(SolrBackfillApp.class);
