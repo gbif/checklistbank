@@ -28,6 +28,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Checklist Bank multithreaded name usage solr indexer. This class creates a pool of configurable
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
+@Component
 public class SolrBackfill extends NameUsageBatchProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SolrBackfill.class);

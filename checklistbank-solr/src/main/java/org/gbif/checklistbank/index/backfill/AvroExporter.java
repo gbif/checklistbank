@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 /**
  * Checklist Bank multi-threaded name usage solr indexer. This class creates a pool of configurable
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
+@Component
 public class AvroExporter extends NameUsageBatchProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AvroExporter.class);
