@@ -42,7 +42,7 @@
           <value>${avro.export.mapreduce.map.java.opts}</value>
         </property>
       </configuration>
-      <main-class>org.gbif.checklistbank.index.backfill.AvroExporter</main-class>
+      <main-class>org.gbif.checklistbank.index.backfill.AvroExporterApp</main-class>
       <arg>${wf:conf("environment")}.properties</arg>
     </java>
 
