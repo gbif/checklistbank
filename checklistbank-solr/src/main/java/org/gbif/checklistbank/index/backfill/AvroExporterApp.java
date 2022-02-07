@@ -41,7 +41,6 @@ import org.springframework.stereotype.Component;
 @Profile("!test")
 @Component
 @Import({
-  SpringSolrConfig.class,
   SpringServiceConfig.class,
   AvroExporter.class,
   MybatisAutoConfiguration.class
