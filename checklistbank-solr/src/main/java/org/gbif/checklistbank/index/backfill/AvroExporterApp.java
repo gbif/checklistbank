@@ -14,7 +14,6 @@
 package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
-import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
@@ -31,7 +30,6 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -62,7 +60,7 @@ import org.springframework.stereotype.Component;
     excludeFilters = {
       @ComponentScan.Filter(
           type = FilterType.ASSIGNABLE_TYPE,
-          classes = {SpringSolrConfig.class})
+          classes = {SolrBackfill.class, SpringSolrConfig.class})
     })
 public class AvroExporterApp implements CommandLineRunner {
 
