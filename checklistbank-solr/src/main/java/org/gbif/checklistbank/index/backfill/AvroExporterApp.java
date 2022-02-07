@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.index.backfill;
 
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
+import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
@@ -63,7 +64,6 @@ import org.springframework.stereotype.Component;
           type = FilterType.ASSIGNABLE_TYPE,
           classes = {SpringSolrConfig.class})
     })
-@EnableConfigurationProperties
 public class AvroExporterApp implements CommandLineRunner {
 
   private AvroExporter avroExporter;
