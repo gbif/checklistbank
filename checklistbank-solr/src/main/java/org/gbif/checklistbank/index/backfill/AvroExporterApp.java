@@ -60,7 +60,7 @@ import org.springframework.stereotype.Component;
     excludeFilters = {
       @ComponentScan.Filter(
           type = FilterType.ASSIGNABLE_TYPE,
-          classes = {SolrBackfill.class, SpringSolrConfig.class})
+          classes = {SolrBackfillApp.class, SolrBackfill.class, SpringSolrConfig.class})
     })
 public class AvroExporterApp implements CommandLineRunner {
 
