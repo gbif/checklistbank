@@ -48,9 +48,9 @@ public class AvroExporterIT extends BaseIT {
 
   @Autowired
   public AvroExporterIT(ApplicationContext context,
-                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") String threads,
-                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") String batchSize,
-                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") String logInterval,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
+                        @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
                         UsageService nameUsageService,
                         VernacularNameService vernacularNameService,
                         DescriptionService descriptionService,
@@ -68,7 +68,7 @@ public class AvroExporterIT extends BaseIT {
     this.context = context;
   }
 
-  private AvroExporter avroExporter(String threads, String batchSize, String logInterval,
+  private AvroExporter avroExporter(Integer threads, Integer batchSize, Integer logInterval,
     MiniDFSCluster miniDFSCluster,
     UsageService nameUsageService,
     VernacularNameService vernacularNameService,

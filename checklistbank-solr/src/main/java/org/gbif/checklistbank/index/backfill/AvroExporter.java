@@ -46,23 +46,22 @@ public class AvroExporter extends NameUsageBatchProcessor {
   private final String nameNode;
   private final String targetHdfsDir;
 
-  // TODO: USE INTEGER
   @Autowired
   public AvroExporter(
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") String threads,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE + "}") String nameNode,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR + "}") String targetHdfsDir,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") String batchSize,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") String logInterval,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
+      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
       UsageService nameUsageService,
       VernacularNameService vernacularNameService,
       DescriptionService descriptionService,
       DistributionService distributionService,
       SpeciesProfileService speciesProfileService) {
     super(
-        Integer.parseInt(threads),
-        Integer.parseInt(batchSize),
-        Integer.parseInt(logInterval),
+        threads,
+        batchSize,
+        logInterval,
         nameUsageService,
         vernacularNameService,
         descriptionService,
