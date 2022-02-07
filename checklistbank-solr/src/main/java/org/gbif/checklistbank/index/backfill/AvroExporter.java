@@ -46,6 +46,7 @@ public class AvroExporter extends NameUsageBatchProcessor {
   private final String nameNode;
   private final String targetHdfsDir;
 
+  // TODO: USE INTEGER
   @Autowired
   public AvroExporter(
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") String threads,
@@ -58,7 +59,6 @@ public class AvroExporter extends NameUsageBatchProcessor {
       DescriptionService descriptionService,
       DistributionService distributionService,
       SpeciesProfileService speciesProfileService) {
-
     super(
         Integer.parseInt(threads),
         Integer.parseInt(batchSize),

@@ -16,6 +16,7 @@ package org.gbif.checklistbank.index.backfill;
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -34,9 +37,16 @@ import org.springframework.stereotype.Component;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
+@SpringBootApplication
 @Profile("!test")
 @Component
-@Import({SpringSolrConfig.class, SpringServiceConfig.class, AvroExporter.class})
+@Import({
+  SpringSolrConfig.class,
+  SpringServiceConfig.class,
+  AvroExporter.class,
+  MybatisAutoConfiguration.class
+})
+@EnableConfigurationProperties
 public class AvroExporterApp implements CommandLineRunner {
 
   private AvroExporter avroExporter;

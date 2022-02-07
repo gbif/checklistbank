@@ -43,7 +43,7 @@
         </property>
       </configuration>
       <main-class>org.gbif.checklistbank.index.backfill.AvroExporterApp</main-class>
-      <arg>${wf:conf("environment")}.properties</arg>
+      <arg>--spring.config.location=${wf:conf("environment")}.properties</arg>
     </java>
 
     <ok to="build_index"/>
