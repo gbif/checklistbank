@@ -87,8 +87,6 @@ public class AvroExporterApp implements CommandLineRunner {
       throw new IllegalArgumentException("Path to property file required");
     }
     avroExporter.run();
-    // This statement is used because the Guice container is not stopped inside the threadpool.
     LOG.info("Indexing done. Time to exit.");
-    System.exit(0);
   }
 }
