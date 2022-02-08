@@ -42,7 +42,7 @@ public class HdfsTestUtil {
   /**
    * Gets the name node URI running in the local host.
    */
-  public static String getNameNodeUri(MiniDFSCluster MiniDFSCluster){
-    return"hdfs://localhost:"+ MiniDFSCluster.getNameNodePort() + "/";
+  public static String getNameNodeUri(MiniDFSCluster miniDFSCluster){
+    return"hdfs://localhost:"+ miniDFSCluster.getNameNodePort() + "/";
   }
 }

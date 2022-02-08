@@ -42,4 +42,8 @@ public class HdfsMiniCluster implements AfterAllCallback, BeforeAllCallback {
     GenericWebApplicationContext ctx = (GenericWebApplicationContext)SpringExtension.getApplicationContext(extensionContext);
     ctx.registerBean(MiniDFSCluster.class, () -> miniDFSCluster);
   }
+
+  public MiniDFSCluster getMiniDFSCluster() {
+    return miniDFSCluster;
+  }
 }

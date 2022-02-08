@@ -11,8 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.index.backfill;
+package org.gbif.checklistbank.index.apps;
 
+import org.gbif.checklistbank.index.backfill.AvroExporter;
+import org.gbif.checklistbank.index.backfill.SolrBackfill;
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 

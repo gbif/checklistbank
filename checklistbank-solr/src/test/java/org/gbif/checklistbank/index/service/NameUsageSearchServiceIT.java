@@ -21,6 +21,8 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.index.BaseIT;
+import org.gbif.checklistbank.index.apps.AvroExporterApp;
+import org.gbif.checklistbank.index.backfill.AvroExporter;
 import org.gbif.checklistbank.test.extensions.SolrDbLoadBeforeAll;
 import org.gbif.common.search.solr.SolrConstants;
 
@@ -36,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
