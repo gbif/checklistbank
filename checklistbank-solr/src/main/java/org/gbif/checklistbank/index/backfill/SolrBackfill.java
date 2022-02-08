@@ -19,7 +19,10 @@ import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
 import org.gbif.checklistbank.index.NameUsageDocConverter;
 import org.gbif.checklistbank.service.UsageService;
-import org.gbif.checklistbank.service.mybatis.service.*;
+import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
+import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -28,6 +31,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -46,6 +50,7 @@ public class SolrBackfill extends NameUsageBatchProcessor {
   private NameUsageDocConverter solrDocumentConverter;
   private final SolrClient solr;
 
+  @Autowired
   public SolrBackfill(
       SolrClient solr,
       Integer threads,

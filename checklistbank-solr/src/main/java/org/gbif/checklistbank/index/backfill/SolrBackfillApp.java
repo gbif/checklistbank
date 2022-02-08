@@ -16,6 +16,7 @@ package org.gbif.checklistbank.index.backfill;
 import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,15 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
+import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -34,9 +44,29 @@ import org.springframework.stereotype.Component;
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
  * datasource to be configured.
  */
+@SpringBootApplication(
+    exclude = {
+      DataSourceAutoConfiguration.class,
+      LiquibaseAutoConfiguration.class,
+      FreeMarkerAutoConfiguration.class,
+      ArchaiusAutoConfiguration.class,
+      SolrAutoConfiguration.class,
+      RabbitAutoConfiguration.class
+    })
 @Profile("!test")
 @Component
-@Import({SpringSolrConfig.class, SpringServiceConfig.class, SolrBackfill.class})
+@Import({
+  SpringSolrConfig.class,
+  SpringServiceConfig.class,
+  SolrBackfill.class,
+  MybatisAutoConfiguration.class
+})
+@ComponentScan(
+    excludeFilters = {
+      @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          classes = {AvroExporterApp.class, AvroExporter.class})
+    })
 public class SolrBackfillApp implements CommandLineRunner {
 
   private static final Logger LOG = LoggerFactory.getLogger(SolrBackfillApp.class);
