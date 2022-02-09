@@ -170,7 +170,6 @@ public class SpringContextBuilder {
     return ctx;
   }
 
-  // TODO: 03/01/2022 check implementation
   public ObjectMapper clbObjectMapper() {
     final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
