@@ -469,7 +469,7 @@
         </sql>
     </changeSet>
     <changeSet id="57" author="markus">
-        <sql>
+        <sql splitStatements="false">
             CREATE or replace FUNCTION authorship_full(authorship character varying, year character varying, authorship_basionym character varying, year_basionym character varying) RETURNS text
             LANGUAGE plpgsql IMMUTABLE
             AS $$ BEGIN
