@@ -6,6 +6,6 @@ This small module provides Elasticsearch filters and plugin to handle scientific
 
 Run the command
 
-sudo bin/elasticsearch-plugin install file:///checklistbank-elasticsearch-plugins-2.98-spring-SNAPSHOT.zip
+sudo bin/elasticsearch-plugin install file:///checklistbank-elasticsearch-plugins-2.98-SNAPSHOT.zip
  
  

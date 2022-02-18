@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>2.98-spring-SNAPSHOT</version>
+    <version>2.98-SNAPSHOT</version>
   </parent>
 
   <artifactId>checklistbank-ws-client</artifactId>
