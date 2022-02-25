@@ -1,0 +1,177 @@
+{
+  "properties": {
+    "key": {
+      "type": "integer"
+    },
+    "name_key": {
+      "type": "integer"
+    },
+    "nub_key": {
+      "type": "integer"
+    },
+    "dataset_key": {
+      "type": "keyword"
+    },
+    "constituent_key": {
+      "type": "keyword"
+    },
+    "parent_key": {
+      "type": "integer"
+    },
+    "parent": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "accepted_key": {
+      "type": "integer"
+    },
+    "accepted": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "basionym_key": {
+      "type": "integer"
+    },
+    "basionym": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "scientific_name": {
+      "type": "text",
+      "analyzer": "tokenized"
+    },
+    "canonical_name": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "canonical_name_tokenized": {
+      "type": "text",
+      "analyzer": "tokenized"
+    },
+    "canonical_name_ngram": {
+      "type": "text",
+      "analyzer": "autocomplete",
+      "search_analyzer": "autocomplete_search"
+    },
+    "canonical_name_ngram_tokenized": {
+      "type": "text",
+      "analyzer": "autocomplete_tokenized",
+      "search_analyzer": "autocomplete_search"
+    },
+    "name_type": {
+      "type": "integer"
+    },
+    "authorship": {
+      "type": "text"
+    },
+    "origin_key": {
+      "type": "integer"
+    },
+    "nomenclatural_status_key": {
+      "type": "integer"
+    },
+    "taxonomic_status_key": {
+      "type": "integer"
+    },
+    "threat_status_key": {
+      "type": "integer"
+    },
+    "rank_key": {
+      "type": "integer"
+    },
+    "habitat_key": {
+      "type": "integer"
+    },
+    "published_in": {
+      "type": "text"
+    },
+    "according_to": {
+      "type": "text"
+    },
+    "kingdom_key": {
+      "type": "integer"
+    },
+    "kingdom": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "phylum_key": {
+      "type": "integer"
+    },
+    "phylum": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "class_key": {
+      "type": "integer"
+    },
+    "class": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "order_key": {
+      "type": "integer"
+    },
+    "order": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "family_key": {
+      "type": "integer"
+    },
+    "family": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "genus_key": {
+      "type": "integer"
+    },
+    "genus": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "subgenus_key": {
+      "type": "integer"
+    },
+    "subgenus": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "species_key": {
+      "type": "integer"
+    },
+    "species": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "num_descendants": {
+      "type": "integer"
+    },
+    "source_id": {
+      "type": "keyword"
+    },
+    "extinct": {
+      "type": "boolean"
+    },
+    "description": {
+      "type": "text"
+    },
+    "vernacular_name": {
+      "type": "text",
+      "analyzer": "vernacular"
+    },
+    "vernacular_name_lang": {
+      "type": "text",
+      "analyzer": "sciname"
+    },
+    "higher_taxon_key": {
+      "type": "integer"
+    },
+    "issues": {
+      "type": "integer"
+    },
+    "all": {
+      "type": "text"
+    }
+  }
+}

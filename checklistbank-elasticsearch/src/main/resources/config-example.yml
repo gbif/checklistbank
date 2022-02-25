@@ -1,0 +1,11 @@
+indexingPartitions: 80
+sourceDirectory: "hdfs://data/name_usage"
+elasticsearch:
+  host: "http://es1:9200/,http://es2:9200/"
+  connectionTimeOut: 60000
+  socketTimeOut: 60000
+  connectionRequestTimeOut: 120000
+  alias: "species"
+  numberOfShards: 12
+  mappingsFile: "/elasticsearch/species-schema-mapping.json"
+  settingsFile: "/elasticsearch/species-schema-settings.json"

@@ -1,0 +1,69 @@
+{
+  "analysis": {
+    "analyzer": {
+      "sciname": {
+        "type": "custom",
+        "tokenizer": "keyword",
+        "filter": [
+          "sciname_filter",
+          "lowercase"
+        ]
+      },
+      "autocomplete_search": {
+        "type": "custom",
+        "tokenizer": "keyword",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "tokenized": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "autocomplete": {
+        "type": "custom",
+        "tokenizer": "autocomplete",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "autocomplete_tokenized": {
+        "type": "custom",
+        "tokenizer": "autocomplete_tokenized",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "ngram_tokenized_search": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "vernacular": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "filter": [
+          "asciifolding",
+          "lowercase"
+        ]
+      }
+    },
+    "tokenizer": {
+      "autocomplete_tokenized": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 20
+      },
+      "autocomplete": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 30
+      }
+    }
+  }
+}
