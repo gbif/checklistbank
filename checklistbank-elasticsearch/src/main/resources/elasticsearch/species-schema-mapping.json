@@ -20,29 +20,34 @@
     },
     "parent": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "accepted_key": {
       "type": "integer"
     },
     "accepted": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "basionym_key": {
       "type": "integer"
     },
     "basionym": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "scientific_name": {
       "type": "text",
-      "analyzer": "tokenized"
+      "analyzer": "tokenized",
+      "search_analyzer": "standard"
     },
     "canonical_name": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "canonical_name_tokenized": {
       "type": "text",
@@ -93,56 +98,64 @@
     },
     "kingdom": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "phylum_key": {
       "type": "integer"
     },
     "phylum": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "class_key": {
       "type": "integer"
     },
     "class": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "order_key": {
       "type": "integer"
     },
     "order": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "family_key": {
       "type": "integer"
     },
     "family": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "genus_key": {
       "type": "integer"
     },
     "genus": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "subgenus_key": {
       "type": "integer"
     },
     "subgenus": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "species_key": {
       "type": "integer"
     },
     "species": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "num_descendants": {
       "type": "integer"
@@ -158,11 +171,13 @@
     },
     "vernacular_name": {
       "type": "text",
-      "analyzer": "vernacular"
+      "analyzer": "vernacular",
+      "search_analyzer": "standard"
     },
     "vernacular_name_lang": {
       "type": "text",
-      "analyzer": "sciname"
+      "analyzer": "sciname",
+      "search_analyzer": "standard"
     },
     "higher_taxon_key": {
       "type": "integer"

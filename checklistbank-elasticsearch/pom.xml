@@ -30,6 +30,9 @@
     <janino.version>3.0.8</janino.version>
     <commons-compiler.version>3.0.8</commons-compiler.version>
 
+    <!-- GBIF  -->
+    <gbif-common-search.version>0.37-SNAPSHOT</gbif-common-search.version>
+
     <!-- Elasticsearch -->
     <elasticsearch.version>7.10.0</elasticsearch.version>
     <lucene.version>8.7.0</lucene.version>
@@ -137,6 +140,13 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+    </dependency>
+
+    <!-- GBIF -->
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-search</artifactId>
+      <version>${gbif-common-search.version}</version>
     </dependency>
 
     <!-- Utilities -->
