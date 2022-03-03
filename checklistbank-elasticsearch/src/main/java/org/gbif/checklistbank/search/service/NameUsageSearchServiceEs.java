@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.search.service;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
@@ -27,9 +28,7 @@ import java.util.List;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.SneakyThrows;
@@ -43,17 +42,20 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
   private static final int DEFAULT_SUGGEST_LIMIT = 10;
   private static final int MAX_SUGGEST_LIMIT = 100;
 
-  private final NameUsageEsResponseParser esResponseParser = NameUsageEsResponseParser.create();
+  private final NameUsageEsResponseParser searchResponseParser = NameUsageEsResponseParser.create();
+
+  private final NameUsageSuggestEsResponseParser suggestResponseParser = NameUsageSuggestEsResponseParser.create();
+
   private final RestHighLevelClient restHighLevelClient;
   private final String index;
 
-  private final EsSearchRequestBuilder<NameUsageSearchParameter> esSearchRequestBuilder =
-      new EsSearchRequestBuilder<>(new NameUsageEsFieldMapper(), true);
+  private final EsSearchRequestBuilder<NameUsageSearchParameter> searchRequestBuilder =
+      new EsSearchRequestBuilder<>(new NameUsageEsFieldMapper());
 
-  @Autowired
-  public NameUsageSearchServiceEs(
-      @Value("${elasticsearch.registry.index}") String index,
-      RestHighLevelClient restHighLevelClient) {
+  private final EsSearchRequestBuilder<NameUsageSearchParameter> suggestRequestBuilder =
+    new EsSearchRequestBuilder<>(new NameUsageSuggestEsFieldMapper());
+
+  public NameUsageSearchServiceEs(String index, RestHighLevelClient restHighLevelClient) {
     this.index = index;
     this.restHighLevelClient = restHighLevelClient;
   }
@@ -63,13 +65,27 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
   public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
       NameUsageSearchRequest nameUsageSearchRequest) {
       SearchRequest searchRequest =
-          esSearchRequestBuilder.buildSearchRequest(nameUsageSearchRequest, true, index);
-      return esResponseParser.buildSearchResponse(
+          searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest, true, index);
+      return searchResponseParser.buildSearchResponse(
           restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT), nameUsageSearchRequest);
   }
 
   @Override
+  @SneakyThrows
   public List<NameUsageSuggestResult> suggest(NameUsageSuggestRequest request) {
-    return null;
+    // add defaults
+    if (!request.getParameters().containsKey(NameUsageSearchParameter.DATASET_KEY)) {
+      // if the datasetKey parameters is not in the list, the GBIF nub is used by default
+      request.addParameter(NameUsageSearchParameter.DATASET_KEY, Constants.NUB_DATASET_KEY.toString());
+    }
+    if (request.getLimit() < 1 || request.getLimit() > MAX_SUGGEST_LIMIT) {
+      log.info("Suggest request with limit {} found. Reset to default {}", request.getLimit(), DEFAULT_SUGGEST_LIMIT);
+      request.setLimit(DEFAULT_SUGGEST_LIMIT);
+    }
+    if (request.getOffset() > 0) {
+      log.debug("Suggest request with offset {} found", request.getOffset());
+    }
+    SearchRequest searchRequest = suggestRequestBuilder.buildSearchRequest(request, index);
+    return suggestResponseParser.buildSearchResponse(restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT), request).getResults();
   }
 }

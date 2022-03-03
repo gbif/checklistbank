@@ -13,8 +13,8 @@
  */
 package org.gbif.checklistbank.ws;
 
-import org.gbif.checklistbank.index.config.SpringSolrConfig;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
+import org.gbif.checklistbank.ws.config.SpringElasticsearchConfiguration;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
 import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
 import org.gbif.ws.remoteauth.RestTemplateRemoteAuthClient;
@@ -48,7 +48,7 @@ import org.springframework.context.annotation.Import;
     SolrAutoConfiguration.class,
     SolrHealthContributorAutoConfiguration.class
   })
-@Import({SpringServiceConfig.class, SpringSolrConfig.class})
+@Import({SpringServiceConfig.class, SpringElasticsearchConfiguration.class})
 @EnableConfigurationProperties
 @ComponentScan(
   basePackages = {

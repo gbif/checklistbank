@@ -14,17 +14,17 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
+import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.common.search.EsResponseParser;
 
-public class NameUsageEsResponseParser
-    extends EsResponseParser<NameUsageSearchResult, NameUsageSearchParameter> {
+public class NameUsageSuggestEsResponseParser
+    extends EsResponseParser<NameUsageSuggestResult, NameUsageSearchParameter> {
 
-  private NameUsageEsResponseParser() {
-    super(new NameUsageSearchResultConverter(), new NameUsageEsFieldMapper());
+  private NameUsageSuggestEsResponseParser() {
+    super(new NameUsageSearchSuggestResultConverter(), new NameUsageSuggestEsFieldMapper());
   }
 
-  public static NameUsageEsResponseParser create() {
-    return new NameUsageEsResponseParser();
+  public static NameUsageSuggestEsResponseParser create() {
+    return new NameUsageSuggestEsResponseParser();
   }
 }

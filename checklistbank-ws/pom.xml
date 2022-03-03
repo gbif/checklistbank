@@ -21,6 +21,7 @@
   <properties>
     <main.basedir>${project.parent.basedir}</main.basedir>
     <start-class>org.gbif.checklistbank.ws.ChecklistBankWsApplication</start-class>
+    <lucene.version>8.7.0</lucene.version>
   </properties>
 
   <build>
@@ -211,7 +212,7 @@
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-solr</artifactId>
+      <artifactId>checklistbank-elasticsearch</artifactId>
     </dependency>
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
@@ -237,6 +238,10 @@
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>gbif-common-search</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.mybatis</groupId>
@@ -245,6 +250,12 @@
     <dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>${lucene.version}</version>
     </dependency>
 
     <!-- Logging -->

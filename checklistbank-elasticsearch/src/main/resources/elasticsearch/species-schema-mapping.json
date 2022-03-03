@@ -3,19 +3,19 @@
     "key": {
       "type": "integer"
     },
-    "name_key": {
+    "nameKey": {
       "type": "integer"
     },
-    "nub_key": {
+    "nubKey": {
       "type": "integer"
     },
-    "dataset_key": {
+    "datasetKey": {
       "type": "keyword"
     },
-    "constituent_key": {
+    "constituentKey": {
       "type": "keyword"
     },
-    "parent_key": {
+    "parentKey": {
       "type": "integer"
     },
     "parent": {
@@ -23,7 +23,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "accepted_key": {
+    "acceptedKey": {
       "type": "integer"
     },
     "accepted": {
@@ -31,7 +31,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "basionym_key": {
+    "basionymKey": {
       "type": "integer"
     },
     "basionym": {
@@ -39,61 +39,62 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "scientific_name": {
+    "scientificName": {
       "type": "text",
       "analyzer": "tokenized",
       "search_analyzer": "standard"
     },
-    "canonical_name": {
+    "canonicalName": {
       "type": "text",
       "analyzer": "sciname",
-      "search_analyzer": "standard"
+      "search_analyzer": "standard",
+      "copy_to": ["canonicalNameTokenized","canonicalNameNgram","canonicalNameNgramTokenized"]
     },
-    "canonical_name_tokenized": {
+    "canonicalNameTokenized": {
       "type": "text",
       "analyzer": "tokenized"
     },
-    "canonical_name_ngram": {
+    "canonicalNameNgram": {
       "type": "text",
       "analyzer": "autocomplete",
       "search_analyzer": "autocomplete_search"
     },
-    "canonical_name_ngram_tokenized": {
+    "canonicalNameNgramTokenized": {
       "type": "text",
       "analyzer": "autocomplete_tokenized",
       "search_analyzer": "autocomplete_search"
     },
-    "name_type": {
+    "nameType": {
       "type": "integer"
     },
     "authorship": {
       "type": "text"
     },
-    "origin_key": {
+    "originKey": {
       "type": "integer"
     },
-    "nomenclatural_status_key": {
+    "nomenclaturalStatusKey": {
       "type": "integer"
     },
-    "taxonomic_status_key": {
+    "taxonomicStatusKey": {
       "type": "integer"
     },
-    "threat_status_key": {
+    "threatStatusKey": {
       "type": "integer"
     },
-    "rank_key": {
+    "rankKey": {
       "type": "integer"
     },
-    "habitat_key": {
+    "habitatKey": {
       "type": "integer"
     },
-    "published_in": {
+    "publishedIn": {
       "type": "text"
     },
-    "according_to": {
+    "accordingTo": {
       "type": "text"
     },
-    "kingdom_key": {
+    "kingdomKey": {
       "type": "integer"
     },
     "kingdom": {
@@ -101,7 +102,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "phylum_key": {
+    "phylumKey": {
       "type": "integer"
     },
     "phylum": {
@@ -109,15 +110,15 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "class_key": {
+    "classKey": {
       "type": "integer"
     },
-    "class": {
+    "clazz": {
       "type": "text",
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "order_key": {
+    "orderKey": {
       "type": "integer"
     },
     "order": {
@@ -125,7 +126,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "family_key": {
+    "familyKey": {
       "type": "integer"
     },
     "family": {
@@ -133,7 +134,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "genus_key": {
+    "genusKey": {
       "type": "integer"
     },
     "genus": {
@@ -141,7 +142,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "subgenus_key": {
+    "subgenusKey": {
       "type": "integer"
     },
     "subgenus": {
@@ -149,7 +150,7 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "species_key": {
+    "speciesKey": {
       "type": "integer"
     },
     "species": {
@@ -157,10 +158,10 @@
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "num_descendants": {
+    "numDescendants": {
       "type": "integer"
     },
-    "source_id": {
+    "sourceId": {
       "type": "keyword"
     },
     "extinct": {
@@ -169,24 +170,21 @@
     "description": {
       "type": "text"
     },
-    "vernacular_name": {
+    "vernacularName": {
       "type": "text",
       "analyzer": "vernacular",
       "search_analyzer": "standard"
     },
-    "vernacular_name_lang": {
+    "vernacularNameLang": {
       "type": "text",
       "analyzer": "sciname",
       "search_analyzer": "standard"
     },
-    "higher_taxon_key": {
+    "higherTaxonKey": {
       "type": "integer"
     },
     "issues": {
       "type": "integer"
-    },
-    "all": {
-      "type": "text"
     }
   }
 }

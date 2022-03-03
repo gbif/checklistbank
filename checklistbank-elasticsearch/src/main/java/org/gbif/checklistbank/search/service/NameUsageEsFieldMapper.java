@@ -26,8 +26,8 @@ import org.gbif.common.search.EsFieldMapper;
 
 import java.util.Map;
 
-import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.BoostingQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
@@ -45,52 +45,52 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   private static final ImmutableBiMap<NameUsageSearchParameter, String> SEARCH_TO_ES_MAPPING =
       ImmutableBiMap.<NameUsageSearchParameter, String>builder()
-          .put(NameUsageSearchParameter.DATASET_KEY, "dataset_key")
-          .put(NameUsageSearchParameter.NAME_TYPE, "name_type")
-          .put(NameUsageSearchParameter.CONSTITUENT_KEY, "constituent_key")
-          .put(NameUsageSearchParameter.HIGHERTAXON_KEY, "higher_taxon_key")
-          .put(NameUsageSearchParameter.HABITAT, "habitat_key")
+          .put(NameUsageSearchParameter.DATASET_KEY, "datasetKey")
+          .put(NameUsageSearchParameter.NAME_TYPE, "nameType")
+          .put(NameUsageSearchParameter.CONSTITUENT_KEY, "constituentKey")
+          .put(NameUsageSearchParameter.HIGHERTAXON_KEY, "higherTaxonKey")
+          .put(NameUsageSearchParameter.HABITAT, "habitatKey")
           .put(NameUsageSearchParameter.IS_EXTINCT, "extinct")
           .put(NameUsageSearchParameter.ISSUE, "issues")
-          .put(NameUsageSearchParameter.NOMENCLATURAL_STATUS, "nomenclatural_status_key")
-          .put(NameUsageSearchParameter.ORIGIN, "origin_key")
-          .put(NameUsageSearchParameter.RANK, "rank_key")
-          .put(NameUsageSearchParameter.STATUS, "taxonomic_status_key")
-          .put(NameUsageSearchParameter.THREAT, "threat_status_key")
+          .put(NameUsageSearchParameter.NOMENCLATURAL_STATUS, "nomenclaturalStatusKey")
+          .put(NameUsageSearchParameter.ORIGIN, "originKey")
+          .put(NameUsageSearchParameter.RANK, "rankKey")
+          .put(NameUsageSearchParameter.STATUS, "taxonomicStatusKey")
+          .put(NameUsageSearchParameter.THREAT, "threatStatusKey")
           .build();
 
   public static final Map<String, Integer> CARDINALITIES =
       ImmutableMap.<String, Integer>builder()
-          .put("taxonomic_status_key", TaxonomicStatus.values().length)
-          .put("threat_status_key", ThreatStatus.values().length)
+          .put("taxonomicStatusKey", TaxonomicStatus.values().length)
+          .put("threatStatusKey", ThreatStatus.values().length)
           .put("issues", NameUsageIssue.values().length)
-          .put("origin_key", Origin.values().length)
-          .put("nomenclatural_status_key", NomenclaturalStatus.values().length)
-          .put("habitat_key", Habitat.values().length)
-          .put("name_type.type", NameType.values().length)
+          .put("originKey", Origin.values().length)
+          .put("nomenclaturalStatusKey", NomenclaturalStatus.values().length)
+          .put("habitatKey", Habitat.values().length)
+          .put("nameType", NameType.values().length)
           .build();
 
   private static final String[] EXCLUDE_FIELDS = new String[] {"all"};
 
 
   private static final String[] HIGHLIGHT_FIELDS = new String[] {"accepted", "parent", "basionym",
-                                                                "scientific_name", "canonical_name", "authorship",
-                                                                "published_in", "according_to", "kingdom",
-                                                                "phylum", "class", "order",
+                                                                "scientificName", "canonicalName", "authorship",
+                                                                "publishedIn", "accordingTo", "kingdom",
+                                                                "phylum", "clazz", "order",
                                                                 "family", "genus", "subgenus",
-                                                                "species", "description", "vernacular_name"};
+                                                                "species", "description", "vernacularName"};
 
   private static final BoostingQueryBuilder BOOSTING_QUERY = QueryBuilders.boostingQuery(QueryBuilders.multiMatchQuery("0")
-                                                                                          .field("taxonomic_status_key", 1.5f)
-                                                                                          .field("name_type",1.5f),
+                                                                                          .field("taxonomicStatusKey", 1.5f)
+                                                                                          .field("nameType",1.5f),
                                                                                          QueryBuilders.boolQuery()
                                                                                            .mustNot(QueryBuilders.multiMatchQuery("0")
-                                                                                                      .field("taxonomic_status_key")
-                                                                                                      .field("name_type")))
+                                                                                                      .field("taxonomicStatusKey")
+                                                                                                      .field("nameType")))
                                                               .negativeBoost(0.5f);
 
   private static final ScriptScoreFunctionBuilder BOOSTING_FUNCTION =
-    ScoreFunctionBuilders.scriptFunction("2 * (" + Rank.values().length + " - doc['rank_key'])");
+    ScoreFunctionBuilders.scriptFunction("doc['rankKey'].size() > 0? 2 * (" + Rank.values().length + " - doc['rankKey'].value) : 0");
 
   private static final FieldSortBuilder[] SORT =
       new FieldSortBuilder[] {
@@ -141,63 +141,65 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   public String[] getMappedFields() {
     return new String[] {
       "key",
-      "name_key",
-      "nub_key",
-      "dataset_key",
-      "constituent_key",
-      "parent_key",
+      "nameKey",
+      "nubKey",
+      "datasetKey",
+      "constituentKey",
+      "parentKey",
       "parent",
-      "accepted_key",
+      "acceptedKey",
       "accepted",
-      "basionym_key",
+      "basionymKey",
       "basionym",
-      "scientific_name",
-      "canonical_name",
-      "name_type",
+      "scientificName",
+      "canonicalName",
+      "nameType",
       "authorship",
-      "origin_key",
-      "nomenclatural_status_key",
-      "taxonomic_status_key",
-      "threat_status_key",
-      "rank_key",
-      "habitat_key",
-      "published_in",
-      "according_to",
-      "kingdom_key",
+      "originKey",
+      "nomenclaturalStatusKey",
+      "taxonomicStatusKey",
+      "threatStatusKey",
+      "rankKey",
+      "habitatKey",
+      "publishedIn",
+      "accordingTo",
+      "kingdomKey",
       "kingdom",
-      "phylum_key",
+      "phylumKey",
       "phylum",
-      "class_key",
-      "class",
-      "order_key",
+      "classKey",
+      "clazz",
+      "orderKey",
       "order",
-      "family_key",
+      "familyKey",
       "family",
-      "genus_key",
+      "genusKey",
       "genus",
-      "subgenus_key",
+      "subgenusKey",
       "subgenus",
-      "species_key",
+      "speciesKey",
       "species",
-      "num_descendants",
-      "source_id",
+      "numDescendants",
+      "sourceId",
       "extinct",
       "description",
-      "vernacular_name",
-      "higher_taxon_key",
+      "vernacularName",
+      "higherTaxonKey",
       "issues"
     };
   }
 
   @Override
   public QueryBuilder fullTextQuery(String q) {
-    return new FunctionScoreQueryBuilder(
-        QueryBuilders.boolQuery().should(
+    return
+      new FunctionScoreQueryBuilder(
+        QueryBuilders.boolQuery().must(
             QueryBuilders.multiMatchQuery(q)
                 .field("description", 0.1f)
-                .field("vernacular_name", 3.0f)
-                .field("canonical_name", 10.0f)
-                .field("scientific_name", 2.0f)
+                .field("vernacularName", 3.0f)
+                .field("canonicalName", 10.0f)
+                .field("scientificName", 2.0f)
+                .field("genus")
                 .field("species")
                 .field("subgenus")
                 .field("family")
@@ -205,51 +207,19 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                 .minimumShouldMatch("25%")
                 .slop(3))
           .should(phraseQuery(q))
-          .should(getBoostingQuery())
-    ).boostMode(CombineFunction.MULTIPLY);
+          .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
   }
-
-
 
   public QueryBuilder phraseQuery(String q) {
-    return new FunctionScoreQueryBuilder(
-      QueryBuilders.multiMatchQuery(q)
-        .field("description", 2.0f)
-        .field("vernacular_name", 20.0f)
-        .field("scientific_name", 100.0f)
-        .field("canonical_name", 50.0f)
-        .tieBreaker(0.2f)
-        .minimumShouldMatch("25%")
-        .slop(100))
-      .boostMode(CombineFunction.MULTIPLY);
-  }
-
-  /**
-   *  private static final String SUGGEST_QUERY_FIELDS = "canonical_name_tokenized^10 canonical_name_ngram^5 canonical_name_ngram_tokenized^2 scientific_name";
-   *   private static final String SUGGEST_PHRASE_FIELDS = "canonical_name^10";
-   */
-
-  public QueryBuilder suggestQuery(String q) {
-    return new FunctionScoreQueryBuilder(
-      QueryBuilders.multiMatchQuery(q)
-        .field("canonical_name_tokenized", 10.0f)
-        .field("canonical_name_ngram", 5.0f)
-        .field("canonical_name_ngram_tokenized", 2.0f)
-        .field("scientific_name")
-        .tieBreaker(0.2f)
-        .minimumShouldMatch("25%")
-        .slop(2))
-      .boostMode(CombineFunction.MULTIPLY);
-  }
-
-  public QueryBuilder suggestPhraseQuery(String q) {
-    return QueryBuilders
-            .matchPhraseQuery("canonical_name", q)
-            .slop(2);
-  }
-
-  public static BoostingQueryBuilder getBoostingQuery() {
-    return BOOSTING_QUERY;
+    return QueryBuilders.multiMatchQuery(q)
+            .field("description", 2.0f)
+            .field("vernacularName", 20.0f)
+            .field("scientificName", 100.0f)
+            .field("canonicalName", 50.0f)
+            .tieBreaker(0.2f)
+            .minimumShouldMatch("25%")
+            .slop(100)
+            .type(MultiMatchQueryBuilder.Type.PHRASE);
   }
 
 }

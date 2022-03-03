@@ -53,7 +53,7 @@
         <gbif-common.version>0.53</gbif-common.version>
         <gbif-common-mybatis.version>1.2</gbif-common-mybatis.version>
         <!-- matches solr 5.4.x -->
-        <gbif-common-search.version>0.36</gbif-common-search.version>
+        <gbif-common-search.version>0.37-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.18</gbif-common-service.version>
         <gbif-common-ws.version>1.19</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
@@ -318,6 +318,11 @@
             <dependency>
                 <groupId>org.gbif.checklistbank</groupId>
                 <artifactId>checklistbank-solr</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.gbif.checklistbank</groupId>
+                <artifactId>checklistbank-elasticsearch</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
