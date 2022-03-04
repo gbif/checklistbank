@@ -27,11 +27,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Disabled;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Maps;
 
 /**
  * Main integration tests for the normalizer testing imports of entire small checklists.

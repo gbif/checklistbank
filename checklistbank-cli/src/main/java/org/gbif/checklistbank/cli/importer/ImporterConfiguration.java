@@ -15,7 +15,7 @@ package org.gbif.checklistbank.cli.importer;
 
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.ZooKeeperConfiguration;
-import org.gbif.checklistbank.cli.config.SolrConfiguration;
+import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
@@ -61,7 +61,7 @@ public class ImporterConfiguration {
   @ParametersDelegate
   @Valid
   @NotNull
-  public SolrConfiguration solr = new SolrConfiguration();
+  public ElasticsearchConfiguration elasticsearch = new ElasticsearchConfiguration();
 
   @Parameter(names = "--pool-size")
   @Min(1)

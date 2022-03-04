@@ -15,11 +15,12 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import java.io.File;
 
+import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
-import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

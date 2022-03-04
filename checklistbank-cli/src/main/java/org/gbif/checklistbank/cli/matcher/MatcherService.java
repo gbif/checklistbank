@@ -15,7 +15,7 @@ package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
+import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -56,7 +56,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
         SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
-            .withSolrConfiguration(cfg.solr)
+            .withElasticsearchConfiguration(cfg.elasticsearch)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,
@@ -70,7 +70,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
                 CitationServiceMyBatis.class)
             .build();
     sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    solrImportService = ctx.getBean(NameUsageIndexServiceSolr.class);
+    solrImportService = ctx.getBean(NameUsageIndexServiceEs.class);
   }
 
   @Override

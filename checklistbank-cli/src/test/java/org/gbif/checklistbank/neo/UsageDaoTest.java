@@ -35,16 +35,17 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
 import org.assertj.core.util.Preconditions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 
 import static org.junit.Assert.assertEquals;
 

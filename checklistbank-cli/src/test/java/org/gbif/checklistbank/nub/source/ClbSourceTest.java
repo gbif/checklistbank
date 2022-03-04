@@ -23,12 +23,14 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
 import com.google.common.collect.Lists;
+
 import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
 import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
 import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import static org.junit.Assert.assertEquals;
 

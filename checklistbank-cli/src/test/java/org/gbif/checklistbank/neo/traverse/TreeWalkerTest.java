@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import com.google.common.io.Resources;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Files;
@@ -34,6 +33,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+
+import com.google.common.io.Resources;
 
 import static junit.framework.Assert.assertEquals;
 

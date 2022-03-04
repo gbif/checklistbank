@@ -17,10 +17,11 @@ import org.gbif.utils.file.FileUtils;
 
 import java.io.File;
 
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.io.Resources;
-import org.junit.Test;
 
 public class ImporterServiceIT {
 

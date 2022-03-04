@@ -31,9 +31,10 @@ import org.gbif.nameparser.NameParserGbifV1;
 
 import java.util.UUID;
 
-import com.google.common.base.Throwables;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
+
+import com.google.common.base.Throwables;
 
 import static org.junit.Assert.*;
 

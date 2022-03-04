@@ -18,7 +18,6 @@ import org.gbif.checklistbank.cli.importer.ImporterConfiguration;
 import org.gbif.checklistbank.cli.normalizer.Normalizer;
 import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
-import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.nub.lookup.straight.IdLookupPassThru;
 import org.gbif.utils.HttpUtil;
 import org.gbif.utils.file.CompressionUtil;
@@ -64,15 +63,10 @@ public class IndexerApp {
     iCfg = new ImporterConfiguration();
     iCfg.neo = nCfg.neo;
     iCfg.deleteNeo = false;
-//    iCfg.clb.serverName = "localhost";
-//    iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
     iCfg.clb.password = "pogo";
-    iCfg.solr.serverType = SolrServerType.CLOUD;
-    iCfg.solr.serverHome = "c1n1.gbif.org:2181,c1n2.gbif.org:2181,c1n3.gbif.org:2181/solrdev";
-    iCfg.solr.collection = "dev_checklistbank";
-    //iCfg.solr.serverType = SolrServerType.HTTP;
-    //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    iCfg.elasticsearch.hosts = "http://c3n1.gbif.org:9200/,http://c3n2.gbif.org:9200/,http://c3n3.gbif.org:9200/";
+    iCfg.elasticsearch.index = "species";
   }
 
   private void download(String url) throws IOException {
@@ -120,18 +114,6 @@ public class IndexerApp {
     imp.index("/Users/markus/Desktop/repo",
         "http://services.snsb.info/DTNtaxonlists/rest/v0.1/lists/DiversityTaxonNames_Fossils/1154/dwc",
         UUID.fromString("f096326f-8f98-4301-886b-d715e87e1d4e"));
-
-//      imp.index("/Users/markus/Desktop/repo",
-//                "http://bdj.pensoft.net/lib/ajax_srv/archive_download.php?archive_type=2&document_id=4878",
-//                UUID.fromString("e18d65e8-3e8e-4cce-b309-256346f99de3"));
-
-//    imp.index("/Users/markus/Desktop/repo",
-//            "http://data.canadensys.net/ipt/archive.do?r=vascan",
-//            UUID.fromString("3f8a1297-3259-4700-91fc-acc4170b27ce"));
-
-//    imp.index("/Users/markus/Desktop/repo",
-//            "http://www.catalogueoflife.org/DCA_Export/zip/archive-complete.zip",
-//            UUID.fromString("7ddf754f-d193-4cc9-b351-99906754a03b"));
 
   }
 }

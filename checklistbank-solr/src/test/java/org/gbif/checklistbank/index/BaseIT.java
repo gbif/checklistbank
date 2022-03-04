@@ -30,10 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import io.zonky.test.db.postgres.embedded.ConnectionInfo;
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 import org.apache.solr.client.solrj.SolrClient;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +39,6 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +47,11 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import io.zonky.test.db.postgres.embedded.ConnectionInfo;
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = BaseIT.ChecklistBankServiceTestConfiguration.class)

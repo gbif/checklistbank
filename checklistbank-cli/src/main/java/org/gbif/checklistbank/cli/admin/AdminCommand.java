@@ -64,13 +64,14 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 /**
  * Command that issues new normalize or import messages for manual admin purposes.

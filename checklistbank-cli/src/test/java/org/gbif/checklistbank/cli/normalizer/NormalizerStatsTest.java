@@ -16,9 +16,10 @@ package org.gbif.checklistbank.cli.normalizer;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 
+import org.junit.Test;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

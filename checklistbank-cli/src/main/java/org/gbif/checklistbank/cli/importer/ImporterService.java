@@ -21,7 +21,7 @@ import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
+import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.*;
@@ -66,7 +66,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     ctx =
         SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
-            .withSolrConfiguration(cfg.solr)
+            .withElasticsearchConfiguration(cfg.elasticsearch)
             .withMessagingConfiguration(cfg.messaging)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
@@ -82,7 +82,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             .build();
 
     sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
+    solrService = ctx.getBean(NameUsageIndexServiceEs.class);
     nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
     usageService = ctx.getBean(UsageServiceMyBatis.class);
   }

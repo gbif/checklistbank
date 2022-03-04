@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import com.beust.jcommander.internal.Sets;
-import com.google.common.collect.Maps;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
@@ -44,6 +42,9 @@ import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.beust.jcommander.internal.Sets;
+import com.google.common.collect.Maps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;

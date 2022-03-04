@@ -25,11 +25,12 @@ import java.io.ByteArrayOutputStream;
 import java.net.URI;
 import java.util.List;
 
+import org.junit.Test;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 

@@ -179,6 +179,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
         <!-- Spring dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -250,18 +255,7 @@
         </dependency>
         <dependency>
             <groupId>org.gbif.checklistbank</groupId>
-            <artifactId>checklistbank-solr</artifactId>
-            <exclusions>
-                <exclusion>
-                    <!-- we only use the small solrj wrapper here with a remote solr -->
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>asm</groupId>
-                    <artifactId>asm</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>checklistbank-elasticsearch</artifactId>
         </dependency>
         <dependency>
             <groupId>org.gbif.registry</groupId>
@@ -297,6 +291,10 @@
         </dependency>
 
         <!-- other -->
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.mapdb</groupId>
             <artifactId>mapdb</artifactId>

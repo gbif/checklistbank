@@ -26,8 +26,9 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * Simple class to keep a taxonomy of names.

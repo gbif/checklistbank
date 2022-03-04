@@ -18,7 +18,7 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
+import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;
@@ -67,7 +67,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
         SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
-            .withSolrConfiguration(cfg.solr)
+            .withElasticsearchConfiguration(cfg.elasticsearch)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,
@@ -173,7 +173,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
+    solrService = ctx.getBean(NameUsageIndexServiceEs.class);
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 

@@ -23,10 +23,11 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.RelType;
 
-import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 

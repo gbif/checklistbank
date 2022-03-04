@@ -149,6 +149,11 @@
       <version>${gbif-common-search.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-common</artifactId>
+    </dependency>
+
     <!-- Utilities -->
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -157,6 +162,10 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
     </dependency>
 
     <!-- Spark -->

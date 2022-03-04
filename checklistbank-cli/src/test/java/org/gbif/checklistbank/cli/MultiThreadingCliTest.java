@@ -21,7 +21,6 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerConfiguration;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.utils.ResourcesMonitor;
 import org.gbif.checklistbank.utils.RunnableAdapter;
-import org.gbif.common.search.solr.SolrServerType;
 import org.gbif.utils.file.CompressionUtil;
 
 import java.io.File;
@@ -37,17 +36,18 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 
 @Disabled("manual long running test to discover why we see too many open files in heavy importer cli use")
 public class MultiThreadingCliTest {
@@ -132,8 +132,8 @@ public class MultiThreadingCliTest {
     PrintStream log = System.out;
 
     // init mybatis layer and solr from cfgN instance
-    cfgI.solr.serverHome = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
-    cfgI.solr.serverType = SolrServerType.HTTP;
+    cfgI.elasticsearch.hosts = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    cfgI.elasticsearch.index = "species";
 //    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.solr));
 //    usageService = inj.getInstance(NameUsageService.class);
 //    sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));

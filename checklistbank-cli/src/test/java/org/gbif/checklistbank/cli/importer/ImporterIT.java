@@ -36,12 +36,11 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
-import org.gbif.checklistbank.index.config.SpringSolrConfig;
-import org.gbif.checklistbank.index.service.NameUsageSearchServiceImpl;
+import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
+import org.gbif.checklistbank.search.service.NameUsageSearchServiceEs;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
@@ -58,15 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Resources;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
-import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
-import org.apache.solr.client.solrj.SolrClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,6 +66,16 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 import org.springframework.context.ApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
+
+import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
+import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
+import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,7 +93,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private NameUsageService nameUsageService;
   private UsageService usageService;
   private DatasetImportService sqlService;
-  private DatasetImportService solrService;
+  private DatasetImportService searchIndexService;
   private NameUsageSearchService searchService;
   private Connection dbConnection;
 
@@ -107,7 +108,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   /** Uses an internal metrics registry to setup the normalizer */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     return Importer.create(
-        cfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
+      cfg, datasetKey, nameUsageService, usageService, sqlService, searchIndexService);
   }
 
   private void initSpring(ImporterConfiguration cfg) throws SQLException {
@@ -115,7 +116,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       ApplicationContext ctx =
           SpringContextBuilder.create()
               .withClbConfiguration(cfg.clb)
-              .withSolrConfiguration(cfg.solr)
+              .withElasticsearchConfiguration(cfg.elasticsearch)
               .withMessagingConfiguration(cfg.messaging)
               .withComponents(
                   DatasetImportServiceMyBatis.class,
@@ -134,10 +135,10 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
       usageService = ctx.getBean(UsageServiceMyBatis.class);
       sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-      solrService = ctx.getBean(NameUsageIndexServiceSolr.class);
+      searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
 
-      if (!SpringSolrConfig.empty(cfg.solr.toSolrConfig())) {
-        searchService = new NameUsageSearchServiceImpl(ctx.getBean(SolrClient.class));
+      if (cfg.elasticsearch != null) {
+        searchService = new NameUsageSearchServiceEs(cfg.elasticsearch.index, ctx.getBean(RestHighLevelClient.class));
       }
     }
   }
@@ -177,8 +178,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     if (sqlService != null) {
       sqlService.close();
     }
-    if (solrService != null) {
-      solrService.close();
+    if (searchIndexService != null) {
+      searchIndexService.close();
     }
     if (dbConnection != null) {
       dbConnection.close();
@@ -290,14 +291,14 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
     // truncate solr
-    solrService.deleteDataset(datasetKey);
+    searchIndexService.deleteDataset(datasetKey);
 
     NameUsageSearchRequest search = new NameUsageSearchRequest();
     search.setLimit(1);
     search.setFacetLimit(100);
     search.addFacets(NameUsageSearchParameter.HIGHERTAXON_KEY);
     search.addChecklistFilter(datasetKey);
-    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
+    if (iCfg.elasticsearch != null) {
       // make sure there are no facets anymore
       Thread.sleep(1000);
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
@@ -314,7 +315,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // check higher taxa
     // http://dev.gbif.org/issues/browse/POR-3204
-    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
+    if (iCfg.elasticsearch != null) {
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
           searchService.search(search);
       List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
@@ -358,7 +359,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     }
 
     // check higher taxa again, wait a little for solr to catch up
-    if (!SpringSolrConfig.empty(iCfg.solr.toSolrConfig())) {
+    if (iCfg.elasticsearch != null) {
       Thread.sleep(1000);
       SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
           searchService.search(search);

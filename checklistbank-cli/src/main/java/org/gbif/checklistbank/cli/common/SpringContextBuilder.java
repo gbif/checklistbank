@@ -15,10 +15,10 @@ package org.gbif.checklistbank.cli.common;
 
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.ws.mixin.Mixins;
-import org.gbif.checklistbank.cli.config.SolrConfiguration;
+import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.index.NameUsageIndexServiceSolr;
+import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.solr.client.solrj.SolrClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,7 +66,7 @@ public class SpringContextBuilder {
 
   private MessagingConfiguration messagingConfiguration;
 
-  private SolrConfiguration solrConfiguration;
+  private ElasticsearchConfiguration elasticsearchConfiguration;
 
   private SpringContextBuilder() {}
 
@@ -85,8 +85,8 @@ public class SpringContextBuilder {
     return this;
   }
 
-  public SpringContextBuilder withSolrConfiguration(SolrConfiguration solrConfiguration) {
-    this.solrConfiguration = solrConfiguration;
+  public SpringContextBuilder withElasticsearchConfiguration(ElasticsearchConfiguration elasticsearchConfiguration) {
+    this.elasticsearchConfiguration = elasticsearchConfiguration;
     return this;
   }
 
@@ -149,10 +149,10 @@ public class SpringContextBuilder {
       }
     }
 
-    if (solrConfiguration != null) {
-      ctx.registerBean(SolrClient.class, () -> solrConfiguration.toSolrConfig().buildSolr());
-      ctx.registerBean(NameUsageIndexServiceSolr.class);
-      ctx.registerBean("syncThreads", Integer.class, solrConfiguration.syncThreads);
+    if (elasticsearchConfiguration != null) {
+      ctx.registerBean(RestHighLevelClient.class, elasticsearchConfiguration.buildClient());
+      ctx.registerBean(NameUsageIndexServiceEs.class);
+      ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
     }
 
     if (!packages.isEmpty()) {

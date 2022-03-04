@@ -22,10 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.junit.Test;
+
 import com.google.common.collect.Lists;
+
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import org.junit.Test;
 
 import static org.gbif.api.vocabulary.Kingdom.ANIMALIA;
 import static org.gbif.api.vocabulary.Kingdom.PLANTAE;
@@ -34,7 +36,6 @@ import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
 import static org.gbif.api.vocabulary.TaxonomicStatus.DOUBTFUL;
 import static org.gbif.api.vocabulary.TaxonomicStatus.SYNONYM;
-
 import static org.junit.Assert.assertEquals;
 
 public class IdGeneratorTest {

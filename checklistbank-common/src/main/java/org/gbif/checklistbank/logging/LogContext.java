@@ -24,6 +24,10 @@ public class LogContext {
 
   public static final String DATASET_MDC = "datasetKey";
 
+  public static void startDataset(String key) {
+    MDC.put(DATASET_MDC, key);
+  }
+
   public static void startDataset(UUID key) {
     MDC.put(DATASET_MDC, key.toString());
   }

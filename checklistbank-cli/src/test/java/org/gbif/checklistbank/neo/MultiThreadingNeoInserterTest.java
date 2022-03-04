@@ -28,12 +28,13 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @Disabled("manual long running test to discover why we see too many hanging PageCache threads in neos batch inserter")
 public class MultiThreadingNeoInserterTest {
