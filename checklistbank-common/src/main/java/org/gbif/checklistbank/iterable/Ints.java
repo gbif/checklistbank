@@ -34,6 +34,7 @@ public class Ints implements Iterable<Integer> {
   }
 
   /**
+   * Return an integer range.
    * @param start inclusive start
    * @param end inclusive end
    */
