@@ -11,11 +11,9 @@ clb:
   user: ${checklistbank.db.username}
   password: "${checklistbank.db.password}"
   maximumPoolSize: 10
-solr:
-  serverType: CLOUD
-  serverHome: c3zk1.gbif-dev.org:2181,c3zk2.gbif-dev.org:2181,c3zk3.gbif-dev.org:2181/solr5c2
-  #serverHome: prodmaster1-vh.gbif.org:2181,prodmaster2-vh.gbif.org:2181,prodmaster3-vh.gbif.org:2181/uatsolr
-  collection: checklistbank
+elasticsearch:
+  hosts: http://c3n1.gbif.org:9200/,http://c3n2.gbif.org:9200/,http://c3n3.gbif.org:9200/
+  index: species
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev
