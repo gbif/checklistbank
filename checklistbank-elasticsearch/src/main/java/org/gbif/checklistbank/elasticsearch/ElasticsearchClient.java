@@ -126,7 +126,7 @@ public class ElasticsearchClient {
   /**
    * Extracts the host configuration into an array of HttpHost.
    */
-  private HttpHost[] getHosts(ElasticsearchConfiguration configuration) {
+  private static HttpHost[] getHosts(ElasticsearchConfiguration configuration) {
     String[] hostsUrl = configuration.getHost().split(",");
     HttpHost[] hosts = new HttpHost[hostsUrl.length];
     int i = 0;
@@ -153,6 +153,18 @@ public class ElasticsearchClient {
                                        .setSocketTimeout(configuration.getSocketTimeOut())
                                        .setConnectionRequestTimeout(configuration.getConnectionRequestTimeOut()))
                                      .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS));
+  }
+
+  /**
+   * Creates ElasticSearch client using default connection settings.
+   */
+  public static RestClient buildRestEsClient(ElasticsearchConfiguration configuration) {
+    HttpHost[] hosts = getHosts(configuration);
+    return RestClient.builder(hosts).setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(
+                                         configuration.getConnectionTimeOut())
+                                       .setSocketTimeout(configuration.getSocketTimeOut())
+                                       .setConnectionRequestTimeout(configuration.getConnectionRequestTimeOut()))
+                                     .setNodeSelector(NodeSelector.SKIP_DEDICATED_MASTERS).build();
   }
 
   /**
@@ -200,7 +212,7 @@ public class ElasticsearchClient {
 
     IndicesAliasesRequest swapAliasesRequest = new IndicesAliasesRequest();
     swapAliasesRequest.addAliasAction(new IndicesAliasesRequest.AliasActions(IndicesAliasesRequest.AliasActions.Type.ADD).index(
-      toIdx).aliases(alias));
+      toIdx).writeIndex(true).aliases(alias));
 
     //add the removal all existing indexes of that alias
     aliasesGetResponse.getAliases()

@@ -24,6 +24,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
@@ -75,4 +77,9 @@ public class ImporterConfiguration {
   @Parameter(names = "--chunk-min-size")
   @Min(0)
   public int chunkMinSize = 100;
+
+
+  @Parameter(names = "--api-url")
+  @Nullable
+  public String apiUrl;
 }

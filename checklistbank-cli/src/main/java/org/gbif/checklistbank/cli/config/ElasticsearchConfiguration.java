@@ -14,9 +14,9 @@
 package org.gbif.checklistbank.cli.config;
 
 
-import org.gbif.common.search.es.EsClient;
+import org.gbif.checklistbank.elasticsearch.ElasticsearchClient;
 
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestClient;
 
 import com.beust.jcommander.Parameter;
 
@@ -46,13 +46,15 @@ public class ElasticsearchConfiguration {
   @Parameter(names = {"--es-sync-threads"})
   public int syncThreads = 60000;
 
-  public RestHighLevelClient buildClient() {
-    EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
-    esClientConfiguration.setHosts(hosts);
-    esClientConfiguration.setConnectionRequestTimeOut(connectionRequestTimeOut);
-    esClientConfiguration.setConnectionTimeOut(connectionTimeOut);
-    esClientConfiguration.setSocketTimeOut(socketTimeOut);
-    return EsClient.provideEsClient(esClientConfiguration);
+  public RestClient buildClient() {
+    org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration elasticsearchConfiguration = new org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration();
+    elasticsearchConfiguration.setIndex(index);
+    elasticsearchConfiguration.setAlias(alias);
+    elasticsearchConfiguration.setHost(hosts);
+    elasticsearchConfiguration.setConnectionTimeOut(connectionTimeOut);
+    elasticsearchConfiguration.setConnectionRequestTimeOut(connectionRequestTimeOut);
+    elasticsearchConfiguration.setSocketTimeOut(socketTimeOut);
+    return ElasticsearchClient.buildRestEsClient(elasticsearchConfiguration);
   }
 
 }

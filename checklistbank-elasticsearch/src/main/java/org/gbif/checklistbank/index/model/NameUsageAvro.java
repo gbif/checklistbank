@@ -12,6 +12,9 @@
  * limitations under the License.
  */
 package org.gbif.checklistbank.index.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
@@ -128,6 +131,7 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
   }
 
   @Override
+  @JsonIgnore
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call.
   @Override

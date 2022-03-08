@@ -44,7 +44,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
 
   private final ImporterConfiguration cfg;
   private final DatasetImportService sqlService;
-  private DatasetImportService solrService;
+  private DatasetImportService esService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   private final ZookeeperUtils zkUtils;
@@ -82,7 +82,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             .build();
 
     sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    solrService = ctx.getBean(NameUsageIndexServiceEs.class);
+    esService = ctx.getBean(NameUsageIndexServiceEs.class);
     nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
     usageService = ctx.getBean(UsageServiceMyBatis.class);
   }
@@ -92,7 +92,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
     try {
       Importer importer =
           Importer.create(
-              cfg, msg.getDatasetUuid(), nameUsageService, usageService, sqlService, solrService);
+            cfg, msg.getDatasetUuid(), nameUsageService, usageService, sqlService, esService);
       importer.run();
 
       // notify rabbit
@@ -143,7 +143,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
   @Override
   protected void shutDown() throws Exception {
     sqlService.close();
-    solrService.close();
+    esService.close();
     super.shutDown();
   }
 

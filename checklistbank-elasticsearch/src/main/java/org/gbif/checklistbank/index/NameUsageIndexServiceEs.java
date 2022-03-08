@@ -35,6 +35,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,15 +49,7 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 
-import org.elasticsearch.action.DocWriteRequest;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -68,16 +61,16 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service that updates a solr checklistbank index in real time.
+ * Service that updates an Elasticsearch Checklistbank index in real time.
  * A maximum of one minute is allowed for a commit to happen.
  */
 @Service
 @Slf4j
 public class NameUsageIndexServiceEs implements DatasetImportService {
 
-  private final static String NAME = "sync-solr";
+  private final static String NAME = "sync-elasticsearch";
 
-  private final RestHighLevelClient esClient;
+  private final NameUsagesEsIndexingClient esClient;
   private final int batchSize = 25;
   private final UsageService usageService;
   private final VernacularNameService vernacularNameService;
@@ -96,16 +89,16 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
 
   @Autowired
   public NameUsageIndexServiceEs(
-    RestHighLevelClient esClient,
+    RestClient restClient,
     UsageService usageService,
     VernacularNameService vernacularNameService,
     DescriptionService descriptionService,
     DistributionService distributionService,
     SpeciesProfileService speciesProfileService,
     @Qualifier("syncThreads") Integer syncThreads,
-    String indexName
+    @Qualifier("indexName") String indexName
   ) {
-    this.esClient = esClient;
+    this.esClient = NameUsagesEsIndexingClient.builder().restClient(restClient).indexName(indexName).build();
     this.usageService = usageService;
     this.vernacularNameService = vernacularNameService;
     this.descriptionService = descriptionService;
@@ -146,41 +139,24 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   private static  <T> Collection<List<T>> partition(Iterable<T> iterable, int batchSize) {
     final AtomicInteger counter = new AtomicInteger();
     return StreamSupport.stream(iterable.spliterator(),true)
+              .filter(Objects::nonNull)
               .collect(Collectors.groupingBy(it -> counter.getAndIncrement() / batchSize))
               .values();
   }
 
   @SneakyThrows
   public void insertOrUpdate(Iterable<NameUsageAvro> usages) {
-    String datasetKey = null;
-    for (Iterable<NameUsageAvro> batch : partition(usages, batchSize)) {
-      BulkRequest bulkRequest = new BulkRequest();
-      for (NameUsageAvro u : batch) {
-        if (u == null) continue;
-
-        if (datasetKey == null) {
-          datasetKey = u.getDatasetKey();
+    for (List<NameUsageAvro> batch : partition(usages, batchSize)) {
+      if (!batch.isEmpty()) {
+        String datasetKey =  batch.get(0).getDatasetKey();
+        esClient.bulkAdd(batch);
+        updMeter.mark();
+        int cnt = updCounter.incrementAndGet();
+        if (cnt % 10000 == 0) {
+          LogContext.startDataset(datasetKey);
+          log.info("Synced {} usages, mean rate={}", cnt, updMeter.getMeanRate());
+          LogContext.endDataset();
         }
-        IndexRequest indexRequest = new IndexRequest();
-        indexRequest.index(indexName)
-          .source(MAPPER.writeValueAsString(u), XContentType.JSON)
-          .opType(DocWriteRequest.OpType.INDEX)
-          .id(u.getKey().toString());
-        bulkRequest.add(indexRequest);
-      }
-      try {
-        if (!bulkRequest.requests().isEmpty()) {
-          esClient.bulk(bulkRequest, RequestOptions.DEFAULT);
-          updMeter.mark();
-          int cnt = updCounter.incrementAndGet();
-          if (cnt % 10000 == 0) {
-            LogContext.startDataset(datasetKey);
-            log.info("Synced {} usages, mean rate={}", cnt, updMeter.getMeanRate());
-            LogContext.endDataset();
-          }
-        }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
       }
     }
   }
@@ -215,9 +191,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   @Override
   public int deleteDataset(UUID datasetKey) {
     try {
-      DeleteByQueryRequest deleteByQueryRequest = new DeleteByQueryRequest();
-      deleteByQueryRequest.setQuery(QueryBuilders.matchQuery("datasetKey", datasetKey.toString()));
-      esClient.deleteByQuery(deleteByQueryRequest, RequestOptions.DEFAULT);
+      esClient.deleteByDatasetKey(datasetKey);
       return 0;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -332,15 +306,8 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     @Override
     public List<Integer> call() throws Exception {
       if (!ids.isEmpty()) {
-        log.info("Deleting {} usages from solr", ids.size());
-        BulkRequest bulkRequest = new BulkRequest();
-        for(Integer id : ids) {
-          DeleteRequest deleteRequest = new DeleteRequest();
-          deleteRequest.index(indexName);
-          deleteRequest.id(id.toString());
-          bulkRequest.add(deleteRequest);
-        }
-        esClient.bulk(bulkRequest, RequestOptions.DEFAULT);
+        log.info("Deleting {} usages from elasticsearch", ids.size());
+        esClient.bulkDelete(ids);
       }
       return ids;
     }

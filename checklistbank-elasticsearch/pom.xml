@@ -154,6 +154,11 @@
       <artifactId>checklistbank-common</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-ws-client</artifactId>
+    </dependency>
+
     <!-- Utilities -->
     <dependency>
       <groupId>com.google.guava</groupId>

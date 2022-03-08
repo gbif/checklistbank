@@ -87,7 +87,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private int syncCounterProParte;
   private int delCounter;
   private final DatasetImportService sqlService;
-  private final DatasetImportService solrService;
+  private final DatasetImportService esService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
@@ -108,14 +108,14 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   private Importer(UUID datasetKey, UsageDao dao,
                    NameUsageService nameUsageService, UsageService usageService,
-                   DatasetImportService sqlService, DatasetImportService solrService,
+                   DatasetImportService sqlService, DatasetImportService esService,
                    ImporterConfiguration cfg) {
     super(datasetKey, dao);
     this.cfg = cfg;
     this.nameUsageService = nameUsageService;
     this.usageService = usageService;
     this.sqlService = sqlService;
-    this.solrService = solrService;
+    this.esService = esService;
   }
 
   /**
@@ -203,7 +203,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           syncCounterBatches = syncCounterBatches + batch.size();
           // wait for main future to finish and submit solr update ...
           if (f != null) {
-            otherFutures.add(solrService.sync(datasetKey,this, f.get()));
+            otherFutures.add(esService.sync(datasetKey, this, f.get()));
             LOG.debug("main nodes synced. Submit solr update");
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
@@ -263,7 +263,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       }
       List<UsageForeignKeys> fks = ImmutableList.copyOf(postKeys.values());
       sqlService.updateForeignKeys(datasetKey, fks);
-      solrService.updateForeignKeys(datasetKey, fks);
+      esService.updateForeignKeys(datasetKey, fks);
     }
   }
 
@@ -358,7 +358,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     // iterate over all ids to be deleted and remove them from solr first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    otherFutures.add(solrService.deleteUsages(datasetKey, ids));
+    otherFutures.add(esService.deleteUsages(datasetKey, ids));
     otherFutures.add(sqlService.deleteUsages(datasetKey, ids));
     delCounter = ids.size();
   }
@@ -377,7 +377,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     if (proParteFuture != null) {
       // wait for pro parte pg sync.
       // solr doesnt need the parsed names
-      otherFutures.add(solrService.sync(datasetKey, this, proParteFuture.get(), null));
+      otherFutures.add(esService.sync(datasetKey, this, proParteFuture.get(), null));
     }
   }
   /**
@@ -387,7 +387,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void awaitUsageFutures() throws ExecutionException, InterruptedException {
     for (Future<List<Integer>> f : usageFutures) {
       List<Integer> ids = f.get();
-      otherFutures.add(solrService.sync(datasetKey, this, ids));
+      otherFutures.add(esService.sync(datasetKey, this, ids));
     }
     usageFutures.clear();
   }
@@ -398,7 +398,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       Future<List<Integer>> f = iter.next();
       if (f.isDone()) {
         List<Integer> ids = f.get();
-        otherFutures.add(solrService.sync(datasetKey, this, ids));
+        otherFutures.add(esService.sync(datasetKey, this, ids));
         iter.remove();
       }
     }

@@ -5,6 +5,7 @@ messaging:
   password: crawler
 neo:
   neoRepository: ${neo.repository}
+apiUrl: http://api.gbif-dev.org/v1/
 clb:
   serverName: "${checklistbank.db.host}"
   databaseName: "${checklistbank.db.name}"
@@ -14,6 +15,7 @@ clb:
 elasticsearch:
   hosts: http://c3n1.gbif.org:9200/,http://c3n2.gbif.org:9200/,http://c3n3.gbif.org:9200/
   index: species
+  alias: species
 zookeeper:
   connectionString: c1n1.gbif.org,c1n2.gbif.org,c1n3.gbif.org
   namespace: dev

@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.RestClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
@@ -150,9 +150,10 @@ public class SpringContextBuilder {
     }
 
     if (elasticsearchConfiguration != null) {
-      ctx.registerBean(RestHighLevelClient.class, elasticsearchConfiguration.buildClient());
+      ctx.registerBean(RestClient.class, () -> elasticsearchConfiguration.buildClient());
       ctx.registerBean(NameUsageIndexServiceEs.class);
       ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
+      ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
     }
 
     if (!packages.isEmpty()) {
