@@ -33,7 +33,7 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
               .field("canonicalNameTokenized", 10.0f)
               .field("canonicalNameNgram", 5.0f)
               .field("canonicalNameNgramTokenized", 2.0f)
-              .field("scientificName")
+              .field("scientificName", 15.0f)
               .tieBreaker(0.2f)
               .minimumShouldMatch("25%")
               .slop(2);
