@@ -65,7 +65,7 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
   public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
       NameUsageSearchRequest nameUsageSearchRequest) {
       SearchRequest searchRequest =
-          searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest, true, index);
+          searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest,    true, index);
       return searchResponseParser.buildSearchResponse(
           restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT), nameUsageSearchRequest);
   }

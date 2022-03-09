@@ -14,7 +14,6 @@
 package org.gbif.checklistbank.search.service;
 
 
-import org.elasticsearch.common.lucene.search.function.CombineFunction;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
@@ -24,27 +23,27 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
   @Override
   public QueryBuilder fullTextQuery(String q) {
     return new FunctionScoreQueryBuilder(QueryBuilders.boolQuery()
-                                           .must(suggestQuery(q))
-                                           .should(suggestPhraseQuery(q)));
+                                           .should(suggestQuery(q))
+                                           .should(suggestPhraseQuery(q))
+                                           .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
   }
 
   private QueryBuilder suggestQuery(String q) {
-    return new FunctionScoreQueryBuilder(
-      QueryBuilders.multiMatchQuery(q)
-        .field("canonicalNameTokenized", 10.0f)
-        .field("canonicalNameNgram", 5.0f)
-        .field("canonicalNameNgramTokenized", 2.0f)
-        .field("scientific_name")
-        .tieBreaker(0.2f)
-        .minimumShouldMatch("25%")
-        .slop(2))
-      .boostMode(CombineFunction.MULTIPLY);
+    return  QueryBuilders.multiMatchQuery(q)
+              .field("canonicalNameTokenized", 10.0f)
+              .field("canonicalNameNgram", 5.0f)
+              .field("canonicalNameNgramTokenized", 2.0f)
+              .field("scientific_name")
+              .tieBreaker(0.2f)
+              .minimumShouldMatch("25%")
+              .slop(2);
   }
 
   private QueryBuilder suggestPhraseQuery(String q) {
     return QueryBuilders
             .matchPhraseQuery("canonicalName", q)
-            .slop(2);
+            .slop(2)
+            .boost(10);
   }
 
 }

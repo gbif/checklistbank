@@ -20,7 +20,6 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.common.search.EsFieldMapper;
@@ -28,13 +27,14 @@ import org.gbif.common.search.EsFieldMapper;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;
 import org.elasticsearch.index.query.BoostingQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.functionscore.FieldValueFactorFunctionBuilder;
 import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.index.query.functionscore.ScriptScoreFunctionBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
@@ -82,7 +82,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                 "family", "genus", "subgenus",
                                                                 "species", "description", "vernacularName"};
 
-  private static final BoostingQueryBuilder BOOSTING_QUERY = QueryBuilders.boostingQuery(QueryBuilders.multiMatchQuery("0")
+  protected static final BoostingQueryBuilder BOOSTING_QUERY = QueryBuilders.boostingQuery(QueryBuilders.multiMatchQuery("0")
                                                                                           .field("taxonomicStatusKey", 1.5f)
                                                                                           .field("nameType",1.5f),
                                                                                          QueryBuilders.boolQuery()
@@ -91,8 +91,10 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                                                       .field("nameType")))
                                                               .negativeBoost(0.5f);
 
-  private static final ScriptScoreFunctionBuilder BOOSTING_FUNCTION =
-    ScoreFunctionBuilders.scriptFunction("doc['rankKey'].size() > 0? 2 * (" + Rank.values().length + " - doc['rankKey'].value) : 0");
+  protected static final FieldValueFactorFunctionBuilder BOOSTING_FUNCTION =
+    ScoreFunctionBuilders.fieldValueFactorFunction("rankKey")
+      .modifier(FieldValueFactorFunction.Modifier.LN2P)
+      .missing(0d);
 
   private static final FieldSortBuilder[] SORT =
       new FieldSortBuilder[] {
