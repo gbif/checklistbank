@@ -220,7 +220,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                 .field("description", 0.1f)
                 .field("vernacularName", 3.0f)
                 .field("canonicalName", 10.0f)
-                .field("scientificName", 2.0f)
+                .field("scientificName", 12.0f)
                 .field("genus")
                 .field("species")
                 .field("subgenus")
