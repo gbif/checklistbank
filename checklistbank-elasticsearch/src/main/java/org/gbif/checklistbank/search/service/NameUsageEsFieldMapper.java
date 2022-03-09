@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
+import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -26,6 +27,7 @@ import org.gbif.common.search.EsFieldMapper;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoostingQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -115,6 +117,24 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   @Override
   public String get(NameUsageSearchParameter nameUsageSearchParameter) {
     return SEARCH_TO_ES_MAPPING.get(nameUsageSearchParameter);
+  }
+
+  @Override
+  public String parseIndexedValue(String value, NameUsageSearchParameter parameter) {
+    if (Enum.class.isAssignableFrom(parameter.type()) && StringUtils.isNumeric(value)) {
+      return ((Class<Enum<?>>)parameter.type()).getEnumConstants()[Integer.parseInt(value)].name();
+    }
+    return EsFieldMapper.super.parseIndexedValue(value, parameter);
+  }
+
+  @Override
+  public String parseParamValue(String value, NameUsageSearchParameter parameter) {
+    if (Enum.class.isAssignableFrom(parameter.type())) {
+      return VocabularyUtils.lookup(value, (Class<Enum<?>>) parameter.type())
+        .map(e -> Integer.toString(e.ordinal()))
+        .orElse(null);
+    }
+    return EsFieldMapper.super.parseParamValue(value, parameter);
   }
 
   @Override
