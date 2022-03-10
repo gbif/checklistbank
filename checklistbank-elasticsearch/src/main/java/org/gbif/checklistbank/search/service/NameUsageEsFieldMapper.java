@@ -215,23 +215,23 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   public QueryBuilder fullTextQuery(String q) {
     return
       new FunctionScoreQueryBuilder(
-        QueryBuilders.disMaxQuery().add(
+        QueryBuilders.boolQuery().must(
+          QueryBuilders.boolQuery().should(
             QueryBuilders.multiMatchQuery(q)
                 .field("description", 0.1f)
                 .field("vernacularName", 3.0f)
-                .field("canonicalName", 10.0f)
-                .field("scientificName", 12.0f)
+                .field("canonicalName", 8.0f)
+                .field("scientificName", 10)
                 .field("genus")
                 .field("species")
                 .field("subgenus")
                 .field("family")
                 .tieBreaker(0.2f)
                 .minimumShouldMatch("1")
-                .slop(3)
-                .boost(50))
-          .add(phraseQuery(q).boost(25))
-          .add(SPECIES_BOOSTING_QUERY)
-          .add(BOOSTING_QUERY),
+                .slop(3))
+            .should(phraseQuery(q).boost(25))
+            .should(SPECIES_BOOSTING_QUERY)
+            .should(BOOSTING_QUERY)),
         BOOSTING_FUNCTION);
   }
 

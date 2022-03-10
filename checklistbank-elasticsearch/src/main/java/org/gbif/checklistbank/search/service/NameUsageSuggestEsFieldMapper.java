@@ -22,29 +22,31 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
   public QueryBuilder fullTextQuery(String q) {
-    return new FunctionScoreQueryBuilder(QueryBuilders.disMaxQuery()
-                                           .add(suggestQuery(q))
-                                           .add(suggestPhraseQuery(q))
-                                           .add(SPECIES_BOOSTING_QUERY)
-                                           .add(BOOSTING_QUERY), BOOSTING_FUNCTION);
+    return new FunctionScoreQueryBuilder(QueryBuilders.boolQuery()
+                                           .must(suggestPhraseQuery(q))
+                                           .should(suggestQuery(q))
+                                           .should(SPECIES_BOOSTING_QUERY)
+                                           .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
   }
 
   private QueryBuilder suggestQuery(String q) {
     return  QueryBuilders.multiMatchQuery(q)
-              .field("canonicalNameTokenized", 10.0f)
-              .field("canonicalNameNgram", 5.0f)
+              .field("canonicalNameTokenized", 6.0f)
               .field("canonicalNameNgramTokenized", 2.0f)
-              .field("scientificName", 15.0f)
-              .tieBreaker(0.2f)
               .minimumShouldMatch("1")
               .slop(2);
   }
 
   private QueryBuilder suggestPhraseQuery(String q) {
-    return QueryBuilders
-            .matchPhraseQuery("canonicalName", q)
+    return QueryBuilders.multiMatchQuery(q)
+            .field("canonicalNameNgram", 15.0f)
+            .field("scientificName", 5.0f)
             .slop(2)
             .boost(10);
+  }
+
+  public static void main(String[] args) {
+    System.out.println(new NameUsageSuggestEsFieldMapper().fullTextQuery("puma concolor (Linnaeus, 1771)"));
   }
 
 }
