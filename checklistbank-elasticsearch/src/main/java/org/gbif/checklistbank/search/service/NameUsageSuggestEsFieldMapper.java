@@ -22,10 +22,11 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
   public QueryBuilder fullTextQuery(String q) {
-    return new FunctionScoreQueryBuilder(QueryBuilders.boolQuery()
-                                           .should(suggestQuery(q))
-                                           .should(suggestPhraseQuery(q))
-                                           .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
+    return new FunctionScoreQueryBuilder(QueryBuilders.disMaxQuery()
+                                           .add(suggestQuery(q))
+                                           .add(suggestPhraseQuery(q))
+                                           .add(SPECIES_BOOSTING_QUERY)
+                                           .add(BOOSTING_QUERY), BOOSTING_FUNCTION);
   }
 
   private QueryBuilder suggestQuery(String q) {
@@ -35,7 +36,7 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
               .field("canonicalNameNgramTokenized", 2.0f)
               .field("scientificName", 15.0f)
               .tieBreaker(0.2f)
-              .minimumShouldMatch("25%")
+              .minimumShouldMatch("1")
               .slop(2);
   }
 

@@ -20,6 +20,7 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.api.vocabulary.NomenclaturalStatus;
 import org.gbif.api.vocabulary.Origin;
+import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.common.search.EsFieldMapper;
@@ -28,7 +29,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;
-import org.elasticsearch.index.query.BoostingQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -82,19 +82,19 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                 "family", "genus", "subgenus",
                                                                 "species", "description", "vernacularName"};
 
-  protected static final BoostingQueryBuilder BOOSTING_QUERY = QueryBuilders.boostingQuery(QueryBuilders.multiMatchQuery("0")
-                                                                                          .field("taxonomicStatusKey", 1.5f)
-                                                                                          .field("nameType",1.5f),
-                                                                                         QueryBuilders.boolQuery()
-                                                                                           .mustNot(QueryBuilders.multiMatchQuery("0")
-                                                                                                      .field("taxonomicStatusKey")
-                                                                                                      .field("nameType")))
-                                                              .negativeBoost(0.5f);
+  protected static final QueryBuilder BOOSTING_QUERY = QueryBuilders.multiMatchQuery("0")
+                                                                    .field("taxonomicStatusKey", 1.5f)
+                                                                    .field("nameType",1.5f)
+                                                                    .boost(10);
+
+  protected static final QueryBuilder SPECIES_BOOSTING_QUERY = QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("rankKey",
+                                                                                                                        Rank.SPECIES.ordinal()))
+                                                                            .boost(50);
 
   protected static final FieldValueFactorFunctionBuilder BOOSTING_FUNCTION =
     ScoreFunctionBuilders.fieldValueFactorFunction("rankKey")
-      .modifier(FieldValueFactorFunction.Modifier.LN2P)
-      .missing(0d);
+                         .modifier(FieldValueFactorFunction.Modifier.LN2P)
+                         .missing(0d);
 
   private static final FieldSortBuilder[] SORT =
       new FieldSortBuilder[] {
@@ -215,7 +215,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   public QueryBuilder fullTextQuery(String q) {
     return
       new FunctionScoreQueryBuilder(
-        QueryBuilders.boolQuery().must(
+        QueryBuilders.disMaxQuery().add(
             QueryBuilders.multiMatchQuery(q)
                 .field("description", 0.1f)
                 .field("vernacularName", 3.0f)
@@ -226,10 +226,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                 .field("subgenus")
                 .field("family")
                 .tieBreaker(0.2f)
-                .minimumShouldMatch("25%")
-                .slop(3))
-          .should(phraseQuery(q))
-          .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
+                .minimumShouldMatch("1")
+                .slop(3)
+                .boost(50))
+          .add(phraseQuery(q).boost(25))
+          .add(SPECIES_BOOSTING_QUERY)
+          .add(BOOSTING_QUERY),
+        BOOSTING_FUNCTION);
   }
 
   public QueryBuilder phraseQuery(String q) {
@@ -239,7 +242,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
             .field("scientificName", 100.0f)
             .field("canonicalName", 50.0f)
             .tieBreaker(0.2f)
-            .minimumShouldMatch("25%")
+            .minimumShouldMatch("1")
             .slop(100)
             .type(MultiMatchQueryBuilder.Type.PHRASE);
   }

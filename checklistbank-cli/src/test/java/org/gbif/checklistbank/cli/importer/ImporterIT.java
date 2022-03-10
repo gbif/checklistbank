@@ -60,6 +60,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.Node;
@@ -86,6 +87,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * an embedded solr server for tests. An external solr instance can be configured manually in
  * cfg-importer.yaml if wanted
  */
+@Disabled
 public class ImporterIT extends BaseTest implements AutoCloseable {
 
   private static final ObjectMapper CFG_MAPPER = new ObjectMapper(new YAMLFactory());
