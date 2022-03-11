@@ -27,6 +27,7 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
+import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
@@ -59,7 +60,8 @@ import org.springframework.stereotype.Component;
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(
-          type = FilterType.ASSIGNABLE_TYPE)
+          type = FilterType.ASSIGNABLE_TYPE,
+          classes = {GsonAutoConfiguration.class})
     })
 public class AvroExporterApp implements CommandLineRunner {
 
