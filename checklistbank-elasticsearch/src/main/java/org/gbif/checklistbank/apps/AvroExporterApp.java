@@ -52,7 +52,8 @@ import org.springframework.stereotype.Component;
       FreeMarkerAutoConfiguration.class,
       ArchaiusAutoConfiguration.class,
       SolrAutoConfiguration.class,
-      RabbitAutoConfiguration.class
+      RabbitAutoConfiguration.class,
+      GsonAutoConfiguration.class
     })
 @Profile("!test")
 @Component
@@ -60,8 +61,7 @@ import org.springframework.stereotype.Component;
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(
-          type = FilterType.ASSIGNABLE_TYPE,
-          classes = {GsonAutoConfiguration.class})
+          type = FilterType.ASSIGNABLE_TYPE)
     })
 public class AvroExporterApp implements CommandLineRunner {
 
