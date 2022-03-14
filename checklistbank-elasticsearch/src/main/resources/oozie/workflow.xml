@@ -65,11 +65,11 @@
         </property>
       </configuration>
       <master>yarn-cluster</master>
-      <name>ES CLB index building [${wf:conf("gbif.map.mode")}]</name>
+      <name>ES CLB index building</name>
       <class>org.gbif.checklistbank.elasticsearch.EsBackfill</class>
       <jar>lib/checklistbank-elasticsearch.jar</jar>
       <!-- Following enabling static service pools (cgroups) we found the native libraries would not load. The only way we found to pass this through was using extraLibraryPath -->
-      <spark-opts>${wf:conf("gbif.map.spark.opts")} --conf spark.executor.extraLibraryPath=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native</spark-opts>
+      <spark-opts>${wf:conf("checklistbank.spark.opts")} --conf spark.executor.extraLibraryPath=/opt/cloudera/parcels/CDH/lib/hadoop/lib/native</spark-opts>
       <arg>${wf:conf("environment")}.properties</arg>
     </spark>
     <ok to="end" />
