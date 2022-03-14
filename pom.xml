@@ -118,7 +118,6 @@
         <solr-lucene.version>5.4.1</solr-lucene.version>
         <tika.version>1.21</tika.version>
         <zookeeper.version>3.4.5-cdh5.16.2</zookeeper.version>
-        <scala.version>2.11.8</scala.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
@@ -983,11 +982,6 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>${avro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.version}</version>
             </dependency>
 
             <!-- TEST SCOPE -->
