@@ -13,61 +13,102 @@
  */
 package org.gbif.checklistbank.elasticsearch;
 
-import java.io.File;
-import java.io.IOException;
+import org.gbif.checklistbank.utils.PropertiesUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.parser.ParserException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.parser.ParserException;
+
+import static org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration.DEFAULT_CONNECTION_REQUEST_TIMEOUT;
+import static org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration.DEFAULT_CONNECTION_TIMEOUT;
+import static org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration.DEFAULT_SOCKET_TIMEOUT;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * Configuration settings for Checklistbank batch indexing.
- */
+/** Configuration settings for Checklistbank batch indexing. */
 public class EsBackfillConfiguration {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ElasticsearchConfiguration.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EsBackfillConfiguration.class);
 
-  //Jackson/YAML mapper to read configuration settings from a YAML file.
+  private static final int DEFAULT_INDEXING_PARTITIONS = 80;
+
+  // Jackson/YAML mapper to read configuration settings from a YAML file.
   private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
 
-  private int indexingPartitions = 80;
+  private int indexingPartitions = DEFAULT_INDEXING_PARTITIONS;
 
   private String sourceDirectory;
 
   private ElasticsearchConfiguration elasticsearch;
 
-  /**
-   * Loads the configuration YAML file into a BackfillConfiguration instance.
-   */
+  /** Loads the configuration YAML file into a BackfillConfiguration instance. */
   public static EsBackfillConfiguration loadFromFile(String fileName) {
     File file = new File(fileName);
     if (!file.exists()) {
-      String message = "Error reading configuration file [" + fileName + "] because it does not exist";
+      String message =
+          "Error reading configuration file [" + fileName + "] because it does not exist";
       LOG.error(message);
       throw new IllegalArgumentException(message);
     }
-    EsBackfillConfiguration esBackfillConfiguration = new EsBackfillConfiguration();
-    ObjectReader reader = MAPPER.readerForUpdating(esBackfillConfiguration);
+
     try {
-      reader.readValue(file);
+      if (fileName.endsWith(".properties")) {
+        return readFromProperties(fileName);
+      } else {
+        // read from YAML
+        EsBackfillConfiguration esBackfillConfiguration = new EsBackfillConfiguration();
+        ObjectReader reader = MAPPER.readerForUpdating(esBackfillConfiguration);
+        reader.readValue(file);
+        return esBackfillConfiguration;
+      }
     } catch (IOException | ParserException e) {
       String message = "Error reading configuration file [" + fileName + "]";
       LOG.error(message);
       throw new IllegalArgumentException(message, e);
     }
+  }
+
+  private static EsBackfillConfiguration readFromProperties(String fileName) throws IOException {
+    EsBackfillConfiguration esBackfillConfiguration = new EsBackfillConfiguration();
+    Properties props = new Properties();
+    try (FileReader reader = new FileReader(fileName)) {
+      props.load(reader);
+      esBackfillConfiguration.indexingPartitions =
+          PropertiesUtils.getIntProp(props, "indexingPartitions", DEFAULT_INDEXING_PARTITIONS);
+      esBackfillConfiguration.sourceDirectory = props.getProperty("sourceDirectory");
+
+      ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration();
+      esBackfillConfiguration.elasticsearch = elasticsearchConfiguration;
+      elasticsearchConfiguration.setAlias(props.getProperty("alias"));
+      elasticsearchConfiguration.setHost(props.getProperty("host"));
+      elasticsearchConfiguration.setIndex(props.getProperty("index"));
+      elasticsearchConfiguration.setConnectionTimeOut(
+          PropertiesUtils.getIntProp(props, "connectionTimeOut", DEFAULT_CONNECTION_TIMEOUT));
+      elasticsearchConfiguration.setSocketTimeOut(
+          PropertiesUtils.getIntProp(props, "socketTimeOut", DEFAULT_SOCKET_TIMEOUT));
+      elasticsearchConfiguration.setConnectionRequestTimeOut(
+          PropertiesUtils.getIntProp(
+              props, "connectionRequestTimeOut", DEFAULT_CONNECTION_REQUEST_TIMEOUT));
+      elasticsearchConfiguration.setNumberOfShards(
+          PropertiesUtils.getIntProp(props, "numberOfShards", 1));
+      elasticsearchConfiguration.setMappingsFile(props.getProperty("mappingsFile"));
+      elasticsearchConfiguration.setSettingsFile(props.getProperty("settingsFile"));
+    }
+
     return esBackfillConfiguration;
   }
 }
