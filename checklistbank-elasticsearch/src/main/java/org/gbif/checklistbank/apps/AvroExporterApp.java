@@ -32,6 +32,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
+import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
@@ -53,7 +54,8 @@ import org.springframework.stereotype.Component;
       ArchaiusAutoConfiguration.class,
       SolrAutoConfiguration.class,
       RabbitAutoConfiguration.class,
-      GsonAutoConfiguration.class
+      GsonAutoConfiguration.class,
+      FeignAutoConfiguration.class
     })
 @Profile("!test")
 @Component
