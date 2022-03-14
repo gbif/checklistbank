@@ -90,6 +90,10 @@
                   <pattern>org.apache.http</pattern>
                   <shadedPattern>shaded.org.apache.http</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.elasticsearch.client</pattern>
+                  <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
