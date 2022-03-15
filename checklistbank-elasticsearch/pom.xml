@@ -91,6 +91,10 @@
                   <shadedPattern>shaded.org.apache.http</shadedPattern>
                 </relocation>
                 <relocation>
+                  <pattern>org.apache.httpcomponents</pattern>
+                  <shadedPattern>shaded.org.apache.httpcomponents</shadedPattern>
+                </relocation>
+                <relocation>
                   <pattern>org.elasticsearch.client</pattern>
                   <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
                 </relocation>
