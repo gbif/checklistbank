@@ -98,6 +98,10 @@
                   <pattern>org.elasticsearch.client</pattern>
                   <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>com.fasterxml.jackson</pattern>
+                  <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
