@@ -25,6 +25,7 @@
     <spark.version>2.3.0</spark.version>
     <spark.elasticsearch.version>7.16.3</spark.elasticsearch.version>
     <databricks.version>4.0.0</databricks.version>
+    <scala.tools.version>2.11</scala.tools.version>
 
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
@@ -197,31 +198,31 @@
     <!-- Spark -->
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-catalyst_2.11</artifactId>
+      <artifactId>spark-catalyst_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.11</artifactId>
+      <artifactId>spark-core_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.11</artifactId>
+      <artifactId>spark-sql_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.databricks</groupId>
-      <artifactId>spark-avro_2.11</artifactId>
+      <artifactId>spark-avro_${scala.tools.version}</artifactId>
       <version>${databricks.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-yarn_2.11</artifactId>
+      <artifactId>spark-yarn_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
