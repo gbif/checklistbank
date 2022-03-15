@@ -102,6 +102,10 @@
                   <pattern>com.fasterxml.jackson</pattern>
                   <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
                 </relocation>
+                <relocation>
+                  <pattern>org.apache.spark.sql</pattern>
+                  <shadedPattern>shaded.org.apache.spark.sql</shadedPattern>
+                </relocation>
               </relocations>
             </configuration>
           </execution>
