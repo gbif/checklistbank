@@ -86,10 +86,10 @@
               </transformers>
               <relocations>
                 <!-- Clashes with the environment provided version -->
-                <relocation>
-                  <pattern>org.apache.http</pattern>
-                  <shadedPattern>shaded.org.apache.http</shadedPattern>
-                </relocation>
+<!--                <relocation>-->
+<!--                  <pattern>org.apache.http</pattern>-->
+<!--                  <shadedPattern>shaded.org.apache.http</shadedPattern>-->
+<!--                </relocation>-->
                 <relocation>
                   <pattern>org.elasticsearch.client</pattern>
                   <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
