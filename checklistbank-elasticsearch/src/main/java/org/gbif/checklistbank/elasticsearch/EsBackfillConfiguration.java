@@ -93,20 +93,20 @@ public class EsBackfillConfiguration {
 
       ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration();
       esBackfillConfiguration.elasticsearch = elasticsearchConfiguration;
-      elasticsearchConfiguration.setAlias(props.getProperty("alias"));
-      elasticsearchConfiguration.setHost(props.getProperty("host"));
-      elasticsearchConfiguration.setIndex(props.getProperty("index"));
+      elasticsearchConfiguration.setAlias(props.getProperty("elasticsearch.alias"));
+      elasticsearchConfiguration.setHost(props.getProperty("elasticsearch.host"));
+      elasticsearchConfiguration.setIndex(props.getProperty("elasticsearch.index"));
       elasticsearchConfiguration.setConnectionTimeOut(
-          PropertiesUtils.getIntProp(props, "connectionTimeOut", DEFAULT_CONNECTION_TIMEOUT));
+          PropertiesUtils.getIntProp(props, "elasticsearch.connectionTimeOut", DEFAULT_CONNECTION_TIMEOUT));
       elasticsearchConfiguration.setSocketTimeOut(
-          PropertiesUtils.getIntProp(props, "socketTimeOut", DEFAULT_SOCKET_TIMEOUT));
+          PropertiesUtils.getIntProp(props, "elasticsearch.socketTimeOut", DEFAULT_SOCKET_TIMEOUT));
       elasticsearchConfiguration.setConnectionRequestTimeOut(
           PropertiesUtils.getIntProp(
-              props, "connectionRequestTimeOut", DEFAULT_CONNECTION_REQUEST_TIMEOUT));
+              props, "elasticsearch.connectionRequestTimeOut", DEFAULT_CONNECTION_REQUEST_TIMEOUT));
       elasticsearchConfiguration.setNumberOfShards(
-          PropertiesUtils.getIntProp(props, "numberOfShards", 1));
-      elasticsearchConfiguration.setMappingsFile(props.getProperty("mappingsFile"));
-      elasticsearchConfiguration.setSettingsFile(props.getProperty("settingsFile"));
+          PropertiesUtils.getIntProp(props, "elasticsearch.numberOfShards", 1));
+      elasticsearchConfiguration.setMappingsFile(props.getProperty("elasticsearch.mappingsFile"));
+      elasticsearchConfiguration.setSettingsFile(props.getProperty("elasticsearch.settingsFile"));
     }
 
     return esBackfillConfiguration;
