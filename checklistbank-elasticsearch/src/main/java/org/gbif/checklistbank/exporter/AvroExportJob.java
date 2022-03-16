@@ -132,7 +132,7 @@ public class AvroExportJob implements Callable<Integer> {
     file.createNewFile();
     log.info("Creating file " + file.getAbsolutePath());
     ClassLoader classLoader = AvroExporter.class.getClassLoader();
-    Schema schema = new Schema.Parser().parse(classLoader.getResource("solr.avrsc").openStream());
+    Schema schema = new Schema.Parser().parse(classLoader.getResource("nameusage.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
     try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<NameUsageAvro>(datumWriter)) {
       dataFileWriter.create(schema, file);
