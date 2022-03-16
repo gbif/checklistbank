@@ -57,7 +57,8 @@ public class EsBackfill {
     //Reads the Elasticsearch settings used by the Spark Elasticsearch library
     SparkConf conf = new SparkConf().setAppName("Checklistbank Elasticsearch Indexer")
       .set("es.nodes", configuration.getElasticsearch().getHost())
-      .set("es.resource", configuration.getElasticsearch().getIndex());
+      .set("es.resource", configuration.getElasticsearch().getIndex())
+      .set("es.nodes.wan.only", "true");
 
     //Loads the Avro name usages
     JavaSparkContext sc = new JavaSparkContext(conf);
