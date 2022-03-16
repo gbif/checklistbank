@@ -25,6 +25,7 @@
     <spark.version>2.3.0</spark.version>
     <spark.elasticsearch.version>7.16.3</spark.elasticsearch.version>
     <databricks.version>4.0.0</databricks.version>
+    <scala.tools.version>2.11</scala.tools.version>
 
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
@@ -71,6 +72,13 @@
             </filter>
           </filters>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>${spring-boot.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <phase>package</phase>
@@ -83,12 +91,33 @@
               <transformers>
                 <!-- This bit merges the various lucene META-INF/services files -->
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.handlers</resource>
+                </transformer>
+                <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
+                  <resource>META-INF/spring.factories</resource>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                  <resource>META-INF/spring.schemas</resource>
+                </transformer>
               </transformers>
               <relocations>
                 <!-- Clashes with the environment provided version -->
                 <relocation>
                   <pattern>org.apache.http</pattern>
                   <shadedPattern>shaded.org.apache.http</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.apache.httpcomponents</pattern>
+                  <shadedPattern>shaded.org.apache.httpcomponents</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>org.elasticsearch.client</pattern>
+                  <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>com.fasterxml.jackson</pattern>
+                  <shadedPattern>shaded.com.fasterxml.jackson</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>
@@ -159,6 +188,11 @@
       <artifactId>checklistbank-ws-client</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.gbif.checklistbank</groupId>
+      <artifactId>checklistbank-mybatis-service</artifactId>
+    </dependency>
+
     <!-- Utilities -->
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -176,31 +210,31 @@
     <!-- Spark -->
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-catalyst_2.11</artifactId>
+      <artifactId>spark-catalyst_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.11</artifactId>
+      <artifactId>spark-core_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_2.11</artifactId>
+      <artifactId>spark-sql_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.databricks</groupId>
-      <artifactId>spark-avro_2.11</artifactId>
+      <artifactId>spark-avro_${scala.tools.version}</artifactId>
       <version>${databricks.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-yarn_2.11</artifactId>
+      <artifactId>spark-yarn_${scala.tools.version}</artifactId>
       <version>${spark.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -209,6 +243,11 @@
       <artifactId>elasticsearch-spark-20_2.11</artifactId>
       <version>${spark.elasticsearch.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Jackson and Yaml-->
