@@ -36,6 +36,7 @@
 
     <!-- Elasticsearch -->
     <elasticsearch.version>7.10.0</elasticsearch.version>
+    <elasticsearch-new.version>8.1.0</elasticsearch-new.version>
     <lucene.version>8.7.0</lucene.version>
     <apache.httpcomponents.httpcore.version>4.4.14</apache.httpcomponents.httpcore.version>
     <apache.httpcomponents.httpasyncclient.version>4.1.4</apache.httpcomponents.httpasyncclient.version>
@@ -283,14 +284,19 @@
 
     <!-- Elasticsearch and Lucene -->
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
-      <version>${elasticsearch.version}</version>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
+      <version>${elasticsearch-new.version}</version>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>elasticsearch-rest-client</artifactId>
       <version>${elasticsearch.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>

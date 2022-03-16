@@ -13,6 +13,9 @@
  */
 package org.gbif.checklistbank.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import com.google.common.collect.ImmutableMap;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -20,8 +23,6 @@ import org.apache.spark.sql.SQLContext;
 import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Elasticsearch Checklistbank indexer.
@@ -36,10 +37,22 @@ public class EsBackfill {
 
     EsBackfillConfiguration configuration = readConfiguration(args);
 
-    ElasticsearchClient elasticsearchClient = new ElasticsearchClient(configuration.getElasticsearch());
+    EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
+    esClientConfiguration.setHosts(configuration.getElasticsearch().getHost());
+    esClientConfiguration.setConnectionTimeOut(configuration.getElasticsearch().getConnectionTimeOut());
+    esClientConfiguration.setSocketTimeOut(configuration.getElasticsearch().getSocketTimeOut());
+    esClientConfiguration.setConnectionRequestTimeOut(configuration.getElasticsearch().getConnectionRequestTimeOut());
 
-    //Create Index
-    elasticsearchClient.createIndex();
+    co.elastic.clients.elasticsearch.ElasticsearchClient
+      elasticsearchClient = EsClient.provideEsClient(esClientConfiguration);
+
+    EsClient esClient = new EsClient(elasticsearchClient);
+
+    // Create Index
+    esClient.createIndex(
+        configuration.getElasticsearch().getIndex(),
+        new TypeMapping.Builder().build(),
+        new IndexSettings.Builder().build());
 
     //Reads the Elasticsearch settings used by the Spark Elasticsearch library
     SparkConf conf = new SparkConf().setAppName("Checklistbank Elasticsearch Indexer")
@@ -67,7 +80,7 @@ public class EsBackfill {
     sc.stop();
 
     //Make index live
-    elasticsearchClient.goLive();
+    esClient.swapAlias(configuration.getElasticsearch().getAlias(), configuration.getElasticsearch().getIndex());
 
     System.exit(0);
   }
