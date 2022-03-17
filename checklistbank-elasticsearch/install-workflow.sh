@@ -15,7 +15,7 @@ oozie_url=`cat $P.properties| grep "oozie.url" | cut -d'=' -f2-`
 echo "Assembling jar for $ENV"
 
 mvn --settings profiles.xml -Poozie,$P clean package -DskipTests assembly:single
-mvn --settings profiles.xml -Psolr,$P package -DskipTests assembly:single
+cp target/checklistbank-elasticsearch.jar target/oozie-workflow/lib
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
    echo "Removing content of current Oozie workflow directory"

@@ -31,16 +31,20 @@ import lombok.NoArgsConstructor;
  */
 public class ElasticsearchConfiguration {
 
+  static final int DEFAULT_CONNECTION_TIMEOUT = 60000;
+  static final int DEFAULT_SOCKET_TIMEOUT = 60000;
+  static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 120000;
+
   /**
    * Comma separate list of host names: http://es1:9200/,http://es2:9200/.
    */
   private String host;
 
-  private int connectionTimeOut = 60000;
+  private int connectionTimeOut = DEFAULT_CONNECTION_TIMEOUT;
 
-  private int socketTimeOut = 60000;
+  private int socketTimeOut = DEFAULT_SOCKET_TIMEOUT;
 
-  private int connectionRequestTimeOut = 120000;
+  private int connectionRequestTimeOut = DEFAULT_CONNECTION_REQUEST_TIMEOUT;
 
   /**
    * Alias to which the index will point to.
