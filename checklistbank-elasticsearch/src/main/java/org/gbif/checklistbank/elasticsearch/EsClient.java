@@ -54,7 +54,7 @@ public class EsClient implements Closeable {
       GetAliasResponse getAliasesResponse =
           elasticsearchClient
               .indices()
-              .getAlias(new GetAliasRequest.Builder().name(alias).allowNoIndices(true).build());
+              .getAlias(new GetAliasRequest.Builder().name(alias).index(indexName).allowNoIndices(true).build());
       Set<String> idxsToDelete = getAliasesResponse.result().keySet();
       elasticsearchClient.indices()
         .updateAliases(new UpdateAliasesRequest.Builder()
