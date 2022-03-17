@@ -15,6 +15,7 @@ package org.gbif.checklistbank.elasticsearch;
 
 import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.indices.IndexSettingBlocks;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.elasticsearch.indices.Translog;
 import com.google.common.collect.ImmutableMap;
@@ -57,6 +58,8 @@ public class EsBackfill {
             .refreshInterval(new Time.Builder().time("-1").build())
             .numberOfReplicas("0")
             .translog(new Translog.Builder().durability("async").build())
+            .blocks(new IndexSettingBlocks.Builder().readOnlyAllowDelete(null).build())
+            .numberOfShards("9")
             .build();
 
     // Create Index
