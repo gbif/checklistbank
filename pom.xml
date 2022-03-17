@@ -140,6 +140,8 @@
 
         <!-- Test -->
         <embedded-database-spring-test.version>1.6.2</embedded-database-spring-test.version>
+
+        <testcontainers.version>1.16.3</testcontainers.version>
     </properties>
 
     <repositories>
@@ -171,6 +173,7 @@
         <module>checklistbank-nub</module>
         <module>checklistbank-nub-ws</module>
         <module>checklistbank-cli</module>
+        <module>checklistbank-cli-it</module>
     </modules>
 
 
@@ -1089,6 +1092,17 @@
                 <artifactId>embedded-database-spring-test</artifactId>
                 <version>${embedded-database-spring-test.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

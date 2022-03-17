@@ -27,58 +27,55 @@ import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
-import org.gbif.common.search.SearchResultConverter;
+import org.gbif.checklistbank.index.model.NameUsageAvro;
 
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
+import co.elastic.clients.json.JsonData;
 import lombok.extern.slf4j.Slf4j;
 
-import static org.gbif.common.search.es.EsConversionUtils.getBooleanValue;
-import static org.gbif.common.search.es.EsConversionUtils.getEnumFromOrdinal;
-import static org.gbif.common.search.es.EsConversionUtils.getEnumListFromOrdinals;
-import static org.gbif.common.search.es.EsConversionUtils.getHighlightOrStringValue;
-import static org.gbif.common.search.es.EsConversionUtils.getIntValue;
-import static org.gbif.common.search.es.EsConversionUtils.getObjectList;
-import static org.gbif.common.search.es.EsConversionUtils.getStringValue;
-import static org.gbif.common.search.es.EsConversionUtils.getUuidValue;
+import static org.gbif.common.search.es.EsConversionUtils.*;
+
 
 @Slf4j
 public class NameUsageSearchResultConverter
-    implements SearchResultConverter<NameUsageSearchResult> {
+    implements Function<Hit<NameUsageAvro>,NameUsageSearchResult> {
 
 
   private static final String CONCAT = " # ";
   private static final Pattern LANG_SPLIT = Pattern.compile("^([a-zA-Z]*)" + CONCAT + "(.*)$");
 
   @Override
-  public NameUsageSearchResult toSearchResult(SearchHit hit) {
+  public NameUsageSearchResult apply(Hit<NameUsageAvro> hit) {
 
-    Map<String, Object> fields = hit.getSourceAsMap();
+
+    Map<String, JsonData> fields = hit.fields();
     NameUsageSearchResult u = new NameUsageSearchResult();
-    u.setKey(Integer.parseInt(hit.getId()));
+    u.setKey(Integer.parseInt(hit.id()));
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "accepted").ifPresent(u::setAccepted);
+    getHighlightOrStringValue(fields, hit.highlight(), "accepted").ifPresent(u::setAccepted);
     getIntValue(fields, "acceptedKey").ifPresent(u::setAcceptedKey);
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "canonicalName").ifPresent(u::setCanonicalName);
+    getHighlightOrStringValue(fields, hit.highlight(), "canonicalName").ifPresent(u::setCanonicalName);
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "authorship").ifPresent(u::setAuthorship);
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "accordingTo").ifPresent(u::setAccordingTo);
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "publishedIn").ifPresent(u::setPublishedIn);
+    getHighlightOrStringValue(fields, hit.highlight(), "authorship").ifPresent(u::setAuthorship);
+    getHighlightOrStringValue(fields, hit.highlight(), "accordingTo").ifPresent(u::setAccordingTo);
+    getHighlightOrStringValue(fields, hit.highlight(), "publishedIn").ifPresent(u::setPublishedIn);
 
     getIntValue(fields, "nubKey").ifPresent(u::setNubKey);
     getIntValue(fields, "numDescendants").ifPresent(u::setNumDescendants);
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "parent").ifPresent(u::setParent);
+    getHighlightOrStringValue(fields, hit.highlight(), "parent").ifPresent(u::setParent);
     getIntValue(fields, "parentKey").ifPresent(u::setParentKey);
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "scientificName").ifPresent(u::setScientificName);
+    getHighlightOrStringValue(fields, hit.highlight(), "scientificName").ifPresent(u::setScientificName);
 
-    getHighlightOrStringValue(fields, hit.getHighlightFields(), "basionym").ifPresent(u::setBasionym);
+    getHighlightOrStringValue(fields, hit.highlight(), "basionym").ifPresent(u::setBasionym);
     getIntValue(fields, "basionymKey").ifPresent(u::setBasionymKey);
 
     setClassification(fields, hit, u, u);
@@ -106,9 +103,9 @@ public class NameUsageSearchResultConverter
     return u;
   }
 
-   static void setClassification(Map<String,Object> fields, SearchHit hit, LinneanClassification lc, LinneanClassificationKeys lck) {
+   static void setClassification(Map<String,JsonData> fields, Hit<NameUsageAvro> hit, LinneanClassification lc, LinneanClassificationKeys lck) {
     for (Rank r : Rank.DWC_RANKS) {
-      getHighlightOrStringValue(fields, hit.getHighlightFields(), r == Rank.CLASS? "clazz" : r.name().toLowerCase())
+      getHighlightOrStringValue(fields, hit.highlight(), r == Rank.CLASS? "clazz" : r.name().toLowerCase())
         .ifPresent(val -> ClassificationUtils.setHigherRank(lc, r, val));
 
       getIntValue(fields, r.name().toLowerCase() + "Key")
@@ -137,8 +134,8 @@ public class NameUsageSearchResultConverter
 
     getHighlightOrStringValue(fields, hit.getHighlightFields(), "species").ifPresent(lc::setSpecies);
     getIntValue(fields, "species_key").ifPresent(lck::setSpeciesKey);*/
-  }
 
+   }
 
   private static Description deserializeDescription(String description) {
     Description d = new Description();

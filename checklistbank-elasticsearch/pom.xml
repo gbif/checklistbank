@@ -34,8 +34,8 @@
     <gbif-common-search.version>0.37-SNAPSHOT</gbif-common-search.version>
 
     <!-- Elasticsearch -->
-    <elasticsearch.version>7.10.0</elasticsearch.version>
-    <lucene.version>8.7.0</lucene.version>
+    <elasticsearch.version>8.1.0</elasticsearch.version>
+    <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
     <apache.httpcomponents.httpcore.version>4.4.14</apache.httpcomponents.httpcore.version>
     <apache.httpcomponents.httpasyncclient.version>4.1.4</apache.httpcomponents.httpasyncclient.version>
     <apache.httpclient.version>4.5.13</apache.httpclient.version>
@@ -244,8 +244,8 @@
 
     <!-- Elasticsearch and Lucene -->
     <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-high-level-client</artifactId>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
@@ -253,30 +253,16 @@
       <artifactId>elasticsearch-rest-client</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-core</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-x-content</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>${elasticsearch.version}</version>
-    </dependency>
+
     <dependency>
       <groupId>org.elasticsearch.client</groupId>
       <artifactId>elasticsearch-rest-client-sniffer</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
+      <groupId>jakarta.json</groupId>
+      <artifactId>jakarta.json-api</artifactId>
+      <version>${jakarta.json-api.version}</version>
     </dependency>
 
     <!-- Avro -->

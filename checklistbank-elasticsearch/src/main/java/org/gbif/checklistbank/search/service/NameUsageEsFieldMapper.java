@@ -25,21 +25,20 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 import org.gbif.common.search.EsFieldMapper;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScore;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.lucene.search.function.FieldValueFactorFunction;
-import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.functionscore.FieldValueFactorFunctionBuilder;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import org.elasticsearch.index.query.functionscore.ScoreFunctionBuilders;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
-
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 
@@ -72,34 +71,36 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
           .put("nameType", NameType.values().length)
           .build();
 
-  private static final String[] EXCLUDE_FIELDS = new String[] {"all"};
+  private static final List<String> EXCLUDE_FIELDS = Collections.singletonList("all");
 
 
-  private static final String[] HIGHLIGHT_FIELDS = new String[] {"accepted", "parent", "basionym",
-                                                                "scientificName", "canonicalName", "authorship",
-                                                                "publishedIn", "accordingTo", "kingdom",
-                                                                "phylum", "clazz", "order",
-                                                                "family", "genus", "subgenus",
-                                                                "species", "description", "vernacularName"};
+  private static final List<String> HIGHLIGHT_FIELDS = Arrays.asList("accepted", "parent", "basionym",
+                                                                     "scientificName", "canonicalName", "authorship",
+                                                                     "publishedIn", "accordingTo", "kingdom",
+                                                                     "phylum", "clazz", "order",
+                                                                     "family", "genus", "subgenus",
+                                                                     "species", "description", "vernacularName");
 
-  protected static final QueryBuilder BOOSTING_QUERY = QueryBuilders.multiMatchQuery("0")
-                                                                    .field("taxonomicStatusKey", 1.5f)
-                                                                    .field("nameType",1.5f)
-                                                                    .boost(10);
 
-  protected static final QueryBuilder SPECIES_BOOSTING_QUERY = QueryBuilders.constantScoreQuery(QueryBuilders.termQuery("rankKey",
-                                                                                                                        Rank.SPECIES.ordinal()))
-                                                                            .boost(50);
+  protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch()
+                                                                              .query("0")
+                                                                              .fields("taxonomicStatusKey^1.5",
+                                                                                      "nameType1.5")
+                                                                              .boost(10.0f)
+                                                                              .build()));
 
-  protected static final FieldValueFactorFunctionBuilder BOOSTING_FUNCTION =
-    ScoreFunctionBuilders.fieldValueFactorFunction("rankKey")
-                         .modifier(FieldValueFactorFunction.Modifier.LN2P)
-                         .missing(0d);
+  protected static final Query SPECIES_BOOSTING_QUERY = Query.of(qb -> qb.constantScore(csq -> csq.filter(Query.of(q -> q.term(QueryBuilders.term()
+                                                                                                                         .field("rankKey")
+                                                                                                                         .value(Rank.SPECIES.ordinal()).build())))
+                                                                                                          .boost(50.0f)));
 
-  private static final FieldSortBuilder[] SORT =
-      new FieldSortBuilder[] {
-        SortBuilders.fieldSort("key").order(SortOrder.DESC)
-      };
+  protected static final FunctionScore BOOSTING_FUNCTION = FunctionScore.of( f -> f.fieldValueFactor(FunctionScoreBuilders.fieldValueFactor()
+                                                                                    .field("rankKey")
+                                                                                    .modifier(FieldValueFactorModifier.Sqrt)
+                                                                                    .missing(0d).build()));
+
+  private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
+                                                  .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
 
   @Override
   public NameUsageSearchParameter get(String esField) {
@@ -140,28 +141,28 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   }
 
   @Override
-  public String[] excludeFields() {
+  public List<String> excludeFields() {
     return EXCLUDE_FIELDS;
   }
 
   @Override
-  public SortBuilder<? extends SortBuilder>[] sorts() {
+  public List<SortOptions> sorts() {
     return SORT;
   }
 
   @Override
-  public String[] includeSuggestFields(NameUsageSearchParameter searchParameter) {
-    return new String[] {SEARCH_TO_ES_MAPPING.get(searchParameter)};
+  public List<String> includeSuggestFields(NameUsageSearchParameter searchParameter) {
+    return Collections.singletonList(SEARCH_TO_ES_MAPPING.get(searchParameter));
   }
 
   @Override
-  public String[] highlightingFields() {
+  public List<String> highlightingFields() {
     return HIGHLIGHT_FIELDS;
   }
 
   @Override
-  public String[] getMappedFields() {
-    return new String[] {
+  public List<String> getMappedFields() {
+    return Arrays.asList(
       "key",
       "nameKey",
       "nubKey",
@@ -207,44 +208,49 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
       "description",
       "vernacularName",
       "higherTaxonKey",
-      "issues"
-    };
+      "issues");
   }
 
   @Override
-  public QueryBuilder fullTextQuery(String q) {
-    return
-      new FunctionScoreQueryBuilder(
-        QueryBuilders.boolQuery().must(
-          QueryBuilders.boolQuery().should(
-            QueryBuilders.multiMatchQuery(q)
-                .field("description", 0.1f)
-                .field("vernacularName", 3.0f)
-                .field("canonicalName", 8.0f)
-                .field("scientificName", 10)
-                .field("genus")
-                .field("species")
-                .field("subgenus")
-                .field("family")
-                .tieBreaker(0.2f)
-                .minimumShouldMatch("1")
-                .slop(3))
-            .should(phraseQuery(q).boost(25))
-            .should(SPECIES_BOOSTING_QUERY)
-            .should(BOOSTING_QUERY)),
-        BOOSTING_FUNCTION);
+  public Query fullTextQuery(String q) {
+    return Query.of(mq -> mq.functionScore(
+              QueryBuilders.functionScore()
+                .functions(BOOSTING_FUNCTION)
+                .query(qb ->  qb.bool(BoolQuery.of( bool ->
+                    bool.must(mf -> mf.bool(sf -> sf.should(sb -> sb.multiMatch(mm ->
+                          mm.query(q)
+                            .fields("description^0.1",
+                                    "vernacularName^3",
+                                    "canonicalName^8",
+                                    "scientificName^10",
+                                    "genus",
+                                    "species",
+                                    "subgenus",
+                                    "family")
+                            .tieBreaker(0.2d)
+                            .minimumShouldMatch("1")
+                            .slop(3)
+                        ))
+                      .should(phraseQuery(q, 25f))
+                      .should(SPECIES_BOOSTING_QUERY)
+                      .should(BOOSTING_QUERY))
+                ))))
+                .build()));
   }
 
-  public QueryBuilder phraseQuery(String q) {
-    return QueryBuilders.multiMatchQuery(q)
-            .field("description", 2.0f)
-            .field("vernacularName", 20.0f)
-            .field("scientificName", 100.0f)
-            .field("canonicalName", 50.0f)
-            .tieBreaker(0.2f)
-            .minimumShouldMatch("1")
-            .slop(100)
-            .type(MultiMatchQueryBuilder.Type.PHRASE);
+  public Query phraseQuery(String q, Float boost) {
+    return Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch()
+                            .query(q)
+                            .fields("description^2.0",
+                                    "vernacularName^20.0",
+                                    "scientificName^100.0",
+                                    "canonicalName^50.0")
+                            .tieBreaker(0.2d)
+                            .minimumShouldMatch("1")
+                            .slop(100)
+                            .type(TextQueryType.Phrase)
+                            .boost(boost)
+                            .build()));
   }
 
 }

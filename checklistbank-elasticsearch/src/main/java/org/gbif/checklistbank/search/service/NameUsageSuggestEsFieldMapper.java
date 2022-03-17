@@ -14,35 +14,39 @@
 package org.gbif.checklistbank.search.service;
 
 
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 
 public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
-  public QueryBuilder fullTextQuery(String q) {
-    return new FunctionScoreQueryBuilder(QueryBuilders.boolQuery()
-                                           .must(suggestPhraseQuery(q))
-                                           .should(suggestQuery(q))
-                                           .should(SPECIES_BOOSTING_QUERY)
-                                           .should(BOOSTING_QUERY), BOOSTING_FUNCTION);
+  public Query fullTextQuery(String q) {
+    return Query.of(qb -> qb.functionScore(fsb -> fsb.functions(BOOSTING_FUNCTION)
+                                                      .query(Query.of(bool -> bool.bool(QueryBuilders.bool()
+                                                                                        .must(suggestQuery(q))
+                                                                                        .should(suggestPhraseQuery(q))
+                                                                                        .should(SPECIES_BOOSTING_QUERY)
+                                                                                        .should(BOOSTING_QUERY).build())))
+                                                        ));
   }
 
-  private QueryBuilder suggestQuery(String q) {
-    return  QueryBuilders.multiMatchQuery(q)
-              .field("canonicalNameTokenized", 6.0f)
-              .field("canonicalNameNgramTokenized", 2.0f)
-              .minimumShouldMatch("1")
-              .slop(2);
+  private Query suggestQuery(String q) {
+    return  Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
+                                            .fields("canonicalNameNgram^15",
+                                                    "canonicalNameTokenized^6",
+                                                    "canonicalNameNgramTokenized^2",
+                                                    "scientificName^5")
+                                            .minimumShouldMatch("1")
+                                            .slop(2)
+                                           .build()));
   }
 
-  private QueryBuilder suggestPhraseQuery(String q) {
-    return QueryBuilders.multiMatchQuery(q)
-            .field("canonicalNameNgram", 15.0f)
-            .field("scientificName", 5.0f)
-            .slop(2)
-            .boost(10);
+  private Query suggestPhraseQuery(String q) {
+    return Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
+                                          .fields("canonicalNameNgram^15.0")
+                                          .slop(2)
+                                          .boost(10f)
+                                          .build()));
   }
 
   public static void main(String[] args) {
