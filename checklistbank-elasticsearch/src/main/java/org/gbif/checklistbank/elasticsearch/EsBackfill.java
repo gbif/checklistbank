@@ -13,8 +13,10 @@
  */
 package org.gbif.checklistbank.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.elasticsearch.indices.Translog;
 import com.google.common.collect.ImmutableMap;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -25,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Elasticsearch Checklistbank indexer.
- * Creates a new Index using as input Avro files puts that index as the only to back the provided alias name.
+ * Elasticsearch Checklistbank indexer. Creates a new Index using as input Avro files puts that
+ * index as the only to back the provided alias name.
  */
 public class EsBackfill {
 
@@ -39,61 +41,73 @@ public class EsBackfill {
 
     EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
     esClientConfiguration.setHosts(configuration.getElasticsearch().getHost());
-    esClientConfiguration.setConnectionTimeOut(configuration.getElasticsearch().getConnectionTimeOut());
+    esClientConfiguration.setConnectionTimeOut(
+        configuration.getElasticsearch().getConnectionTimeOut());
     esClientConfiguration.setSocketTimeOut(configuration.getElasticsearch().getSocketTimeOut());
-    esClientConfiguration.setConnectionRequestTimeOut(configuration.getElasticsearch().getConnectionRequestTimeOut());
+    esClientConfiguration.setConnectionRequestTimeOut(
+        configuration.getElasticsearch().getConnectionRequestTimeOut());
 
-    co.elastic.clients.elasticsearch.ElasticsearchClient
-      elasticsearchClient = EsClient.provideEsClient(esClientConfiguration);
+    co.elastic.clients.elasticsearch.ElasticsearchClient elasticsearchClient =
+        EsClient.provideEsClient(esClientConfiguration);
 
     EsClient esClient = new EsClient(elasticsearchClient);
+
+    IndexSettings indexingSettings =
+        new IndexSettings.Builder()
+            .refreshInterval(new Time.Builder().time("-1").build())
+            .numberOfReplicas("0")
+            .translog(new Translog.Builder().durability("async").build())
+            .build();
 
     // Create Index
     esClient.createIndex(
         configuration.getElasticsearch().getIndex(),
         new TypeMapping.Builder().build(),
-        new IndexSettings.Builder().build());
+        indexingSettings);
 
-    //Reads the Elasticsearch settings used by the Spark Elasticsearch library
-    SparkConf conf = new SparkConf().setAppName("Checklistbank Elasticsearch Indexer")
-      .set("es.nodes", configuration.getElasticsearch().getHost())
-      .set("es.resource", configuration.getElasticsearch().getIndex())
-      .set("es.nodes.wan.only", "true");
+    // Reads the Elasticsearch settings used by the Spark Elasticsearch library
+    SparkConf conf =
+        new SparkConf()
+            .setAppName("Checklistbank Elasticsearch Indexer")
+            .set("es.nodes", configuration.getElasticsearch().getHost())
+            .set("es.resource", configuration.getElasticsearch().getIndex())
+            .set("es.nodes.wan.only", "true");
 
-    //Loads the Avro name usages
+    // Loads the Avro name usages
     JavaSparkContext sc = new JavaSparkContext(conf);
     SQLContext sqlContext = new SQLContext(sc);
-    JavaRDD<String> usages = sqlContext.read()
-      .format("com.databricks.spark.avro")
-      .load(configuration.getSourceDirectory())
-      .toJSON()
-      .toJavaRDD()
-      .repartition(configuration.getIndexingPartitions());  //partitions the input data
+    JavaRDD<String> usages =
+        sqlContext
+            .read()
+            .format("com.databricks.spark.avro")
+            .load(configuration.getSourceDirectory())
+            .toJSON()
+            .toJavaRDD()
+            .repartition(configuration.getIndexingPartitions()); // partitions the input data
 
-    //Loads JSON usages into Elasticsearch
-    JavaEsSpark.saveJsonToEs(usages,
-                             configuration.getElasticsearch().getIndex(),
-                             ImmutableMap.of("es.mapping.id", "key"));
+    // Loads JSON usages into Elasticsearch
+    JavaEsSpark.saveJsonToEs(
+        usages,
+        configuration.getElasticsearch().getIndex(),
+        ImmutableMap.of("es.mapping.id", "key"));
     // This statement is used because the Guice container is not stopped inside the threadpool.
     LOG.info("Indexing done. Time to exit.");
 
-    //Stop Spark context
+    // Stop Spark context
     sc.stop();
 
-    //Make index live
-    esClient.swapAlias(configuration.getElasticsearch().getAlias(), configuration.getElasticsearch().getIndex());
+    // Make index live
+    esClient.swapAlias(
+        configuration.getElasticsearch().getAlias(), configuration.getElasticsearch().getIndex());
 
     System.exit(0);
   }
 
-  /**
-   * Reads the YAML configuration file into a BackfillConfiguration instance.
-   */
+  /** Reads the YAML configuration file into a BackfillConfiguration instance. */
   private static EsBackfillConfiguration readConfiguration(String[] args) {
-      if (args.length == 0) {
-        throw new IllegalArgumentException("Configuration file must be provided as argument");
-      }
-      return EsBackfillConfiguration.loadFromFile(args[0]);
+    if (args.length == 0) {
+      throw new IllegalArgumentException("Configuration file must be provided as argument");
+    }
+    return EsBackfillConfiguration.loadFromFile(args[0]);
   }
-
 }
