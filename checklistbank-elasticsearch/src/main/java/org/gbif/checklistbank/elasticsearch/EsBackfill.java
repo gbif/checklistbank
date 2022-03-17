@@ -100,6 +100,14 @@ public class EsBackfill {
     sc.stop();
 
     // Make index live
+    IndexSettings searchSettings =
+      new IndexSettings.Builder()
+        .refreshInterval(new Time.Builder().time("1s").build())
+        .numberOfReplicas("1")
+        .numberOfShards("9")
+        .build();
+    esClient.updateSettings(configuration.getElasticsearch().getIndex(), searchSettings);
+
     esClient.swapAlias(
         configuration.getElasticsearch().getAlias(), configuration.getElasticsearch().getIndex());
 

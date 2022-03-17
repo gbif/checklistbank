@@ -14,25 +14,22 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.BulkRequest;
 import co.elastic.clients.elasticsearch.core.BulkResponse;
-import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
-import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
-import co.elastic.clients.elasticsearch.indices.GetAliasRequest;
-import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
-import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import co.elastic.clients.elasticsearch.indices.UpdateAliasesRequest;
+import co.elastic.clients.elasticsearch.indices.*;
 import co.elastic.clients.elasticsearch.indices.update_aliases.Action;
 import co.elastic.clients.elasticsearch.indices.update_aliases.AddAction;
 import co.elastic.clients.json.JsonpDeserializer;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import jakarta.json.stream.JsonParser;
+import lombok.Data;
 import lombok.SneakyThrows;
-import org.apache.http.HttpHost;;
+import org.apache.http.HttpHost;
 import org.elasticsearch.client.NodeSelector;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import lombok.Data;
+
+;
 /** Generic ElasticSearch wrapper client to encapsulate indexing and admin operations. */
 @Component
 public class EsClient implements Closeable {
@@ -55,7 +52,9 @@ public class EsClient implements Closeable {
   public void swapAlias(String alias, String indexName) {
     try {
       GetAliasResponse getAliasesResponse =
-        elasticsearchClient.indices().getAlias(new GetAliasRequest.Builder().name(alias).build());
+          elasticsearchClient
+              .indices()
+              .getAlias(new GetAliasRequest.Builder().name(alias).allowNoIndices(true).build());
       Set<String> idxsToDelete = getAliasesResponse.result().keySet();
       elasticsearchClient.indices()
         .updateAliases(new UpdateAliasesRequest.Builder()
