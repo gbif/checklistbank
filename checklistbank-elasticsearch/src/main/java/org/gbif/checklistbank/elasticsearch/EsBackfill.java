@@ -66,7 +66,6 @@ public class EsBackfill {
             .refreshInterval(new Time.Builder().time("-1").build())
             .numberOfReplicas("0")
             .translog(new Translog.Builder().durability("async").build())
-            .blocks(new IndexSettingBlocks.Builder().readOnlyAllowDelete(null).build())
             .numberOfShards(String.valueOf(configuration.getElasticsearch().getNumberOfShards()))
             .build();
 
@@ -74,17 +73,16 @@ public class EsBackfill {
         EsClient.deserializeFromFile(
           configuration.getElasticsearch().getMappingsFile(), TypeMapping._DESERIALIZER);
 
-    esClient.createIndex(
-        configuration.getElasticsearch().getIndex(),
-        typeMapping,
-        indexingSettings);
+    final String indexName = configuration.getElasticsearch().getIndex() + "_" + System.currentTimeMillis();
+
+    esClient.createIndex(indexName, typeMapping, indexingSettings);
 
     // Reads the Elasticsearch settings used by the Spark Elasticsearch library
     SparkConf conf =
         new SparkConf()
             .setAppName("Checklistbank Elasticsearch Indexer")
             .set("es.nodes", configuration.getElasticsearch().getHost())
-            .set("es.resource", configuration.getElasticsearch().getIndex())
+            .set("es.resource", indexName)
             .set("es.nodes.wan.only", "true");
 
     // Loads the Avro name usages
@@ -102,7 +100,7 @@ public class EsBackfill {
     // Loads JSON usages into Elasticsearch
     JavaEsSpark.saveJsonToEs(
         usages,
-        configuration.getElasticsearch().getIndex(),
+        indexName,
         ImmutableMap.of("es.mapping.id", "key"));
     // This statement is used because the Guice container is not stopped inside the threadpool.
     LOG.info("Indexing done. Time to exit.");
@@ -116,10 +114,10 @@ public class EsBackfill {
         .refreshInterval(new Time.Builder().time("1s").build())
         .numberOfReplicas("1")
         .build();
-    esClient.updateSettings(configuration.getElasticsearch().getIndex(), searchSettings);
+    esClient.updateSettings(indexName, searchSettings);
 
     esClient.swapAlias(
-        configuration.getElasticsearch().getAlias(), configuration.getElasticsearch().getIndex());
+        configuration.getElasticsearch().getAlias(), indexName);
 
     System.exit(0);
   }
