@@ -8,7 +8,6 @@
     <version>2.100-SNAPSHOT</version>
   </parent>
 
-
   <artifactId>checklistbank-elasticsearch-plugins</artifactId>
   <packaging>jar</packaging>
 
@@ -23,11 +22,9 @@
   </distributionManagement>
 
   <properties>
+    <java.version>17</java.version>
     <!-- es versions -->
-    <elasticsearch.version>7.10.0</elasticsearch.version>
     <testcontainers-elasticsearch.version>1.15.0</testcontainers-elasticsearch.version>
-    <!-- Used to match version used by Elasticsearch-->
-    <lucene.version>8.7.0</lucene.version>
     <elasticsearch.assembly.descriptor>${basedir}/src/main/assemblies/plugin.xml</elasticsearch.assembly.descriptor>
   </properties>
 
@@ -67,11 +64,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.9.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
+        <version>3.10.1</version>
       </plugin>
     </plugins>
   </build>
@@ -123,13 +116,11 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-analyzers-common</artifactId>
-      <version>${lucene.version}</version>
       <scope>provided</scope>
     </dependency>
 

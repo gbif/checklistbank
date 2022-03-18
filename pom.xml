@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <name>ChecklistBank Mother POM</name>
-    <description>The projects to provide the ChecklistBank web service including solr search, it's
+    <description>The projects to provide the ChecklistBank web service including search, it's
         client, persistence
         service layer and the index builder
     </description>
@@ -66,7 +66,12 @@
         <datacite-rest-client.version>1.10</datacite-rest-client.version>
 
         <!-- Elasticsearch -->
+        <elasticsearch.version>8.1.0</elasticsearch.version>
+        <apache.httpcomponents.httpcore.version>4.4.14</apache.httpcomponents.httpcore.version>
+        <apache.httpcomponents.httpasyncclient.version>4.1.4</apache.httpcomponents.httpasyncclient.version>
+        <apache.httpclient.version>4.5.13</apache.httpclient.version>
         <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
+        <lucene.version>9.0.0</lucene.version>
 
         <!-- Spring -->
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
@@ -119,7 +124,6 @@
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.24</slf4j.version>
-        <solr-lucene.version>5.4.1</solr-lucene.version>
         <tika.version>1.21</tika.version>
         <zookeeper.version>3.4.5-cdh5.16.2</zookeeper.version>
         <scala.version>2.11.8</scala.version>
@@ -169,7 +173,6 @@
     <modules>
         <module>checklistbank-common</module>
         <module>checklistbank-mybatis-service</module>
-        <module>checklistbank-solr</module>
         <module>checklistbank-elasticsearch</module>
         <module>checklistbank-lucene-plugins</module>
         <module>checklistbank-elasticsearch-plugins</module>
@@ -325,20 +328,8 @@
             </dependency>
             <dependency>
                 <groupId>org.gbif.checklistbank</groupId>
-                <artifactId>checklistbank-solr</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.gbif.checklistbank</groupId>
                 <artifactId>checklistbank-elasticsearch</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.gbif.checklistbank</groupId>
-                <artifactId>checklistbank-solr</artifactId>
-                <version>${project.version}</version>
-                <classifier>tests</classifier>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.gbif.checklistbank</groupId>
@@ -582,8 +573,40 @@
                 <version>${jackson.version}</version>
             </dependency>
 
-            <!-- Elasticsearch-->
+            <!-- Elasticsearch and Lucene-->
+            <!-- Http libraries -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${apache.httpclient.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${apache.httpcomponents.httpcore.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>${apache.httpcomponents.httpasyncclient.version}</version>
+            </dependency>
 
+            <!-- Elasticsearch -->
+            <dependency>
+                <groupId>co.elastic.clients</groupId>
+                <artifactId>elasticsearch-java</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch.client</groupId>
+                <artifactId>elasticsearch-rest-client-sniffer</artifactId>
+                <version>${elasticsearch.version}</version>
+            </dependency>
             <dependency>
                 <groupId>jakarta.json</groupId>
                 <artifactId>jakarta.json-api</artifactId>
@@ -648,137 +671,16 @@
                 <version>3.0.6</version>
             </dependency>
 
-            <!-- lucene / solr -->
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-core</artifactId>
-                <version>${solr-lucene.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-jdk14</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpclient</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpmime</artifactId>
-                    </exclusion>
-                    <!-- solr 4.10 comes with various jetty 8.1 deps which clash with our microservices jetty 9.x -->
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-http</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-continuation</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-deploy</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-jmx</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-io</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-security</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-xml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-server</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-servlet</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-servlets</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-util</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-webapp</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
-                        <artifactId>hadoop-common</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.hadoop</groupId>
-                        <artifactId>hadoop-common</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.eclipse.jetty</groupId>
-                        <artifactId>jetty-rewrite</artifactId>
-                    </exclusion>
-                    <!-- kryo uses a newer 5.x asm version -->
-                    <exclusion>
-                        <artifactId>asm</artifactId>
-                        <groupId>org.ow2.asm</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>asm-commons</artifactId>
-                        <groupId>org.ow2.asm</groupId>
-                    </exclusion>
-                    <!-- solr 5.4 uses jackson 2.5.4 but logstash wants at least 2.6, we prefer 2.8 -->
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.dataformat</groupId>
-                        <artifactId>jackson-dataformat-smile</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-solrj</artifactId>
-                <version>${solr-lucene.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpclient</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpmime</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
+            <!--Elasticsearch and Lucene -->
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-core</artifactId>
-                <version>${solr-lucene.version}</version>
+                <version>${lucene.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-analyzers-common</artifactId>
-                <version>${solr-lucene.version}</version>
+                <version>${lucene.version}</version>
             </dependency>
 
             <!-- commons -->

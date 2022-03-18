@@ -12,7 +12,7 @@
   <artifactId>checklistbank-lucene-plugins</artifactId>
   <packaging>jar</packaging>
 
-  <name>ChecklistBank Solr Plugins</name>
+  <name>ChecklistBank Lucene Plugins</name>
 
   <distributionManagement>
     <site>
