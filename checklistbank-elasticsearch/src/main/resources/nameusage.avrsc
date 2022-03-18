@@ -14,6 +14,7 @@
     {"name":"basionym","type":["string", "null"]},
     {"name":"scientificName","type":["string", "null"]},
     {"name":"canonicalName","type":["string", "null"]},
+    {"name":"nameKey","type":["int", "null"]},
     {"name":"nameType","type":["int", "null"]},
     {"name":"authorship","type":["string", "null"]},
     {"name":"originKey","type":["int", "null"]},

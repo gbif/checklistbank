@@ -115,6 +115,7 @@ public class NameUsageAvroConverter {
       nameUsageAvro.setSpeciesKey(usage.getSpeciesKey());
       nameUsageAvro.setNumDescendants(usage.getNumDescendants());
       nameUsageAvro.setIsSynonym(usage.isSynonym());
+      nameUsageAvro.setNameKey(usage.getNameKey());
 
       // higher taxa
       nameUsageAvro.setHigherTaxonKey(parents);
