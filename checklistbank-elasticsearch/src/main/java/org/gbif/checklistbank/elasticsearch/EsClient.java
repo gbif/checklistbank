@@ -19,6 +19,7 @@ import co.elastic.clients.elasticsearch.indices.update_aliases.Action;
 import co.elastic.clients.elasticsearch.indices.update_aliases.AddAction;
 import co.elastic.clients.json.JsonpDeserializer;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import jakarta.json.stream.JsonParser;
 import lombok.Data;
@@ -51,30 +52,40 @@ public class EsClient implements Closeable {
    */
   public void swapAlias(String alias, String indexName) {
     try {
+      BooleanResponse aliasExist =
+          elasticsearchClient
+              .indices()
+              .existsAlias(new ExistsAliasRequest.Builder().name(alias).build());
+
+      if (!aliasExist.value()) {
+        elasticsearchClient.indices().putAlias(new PutAliasRequest.Builder().name(alias).build());
+      }
+
       GetAliasResponse getAliasesResponse =
           elasticsearchClient
               .indices()
-              .getAlias(new GetAliasRequest.Builder().name(alias).index(indexName).allowNoIndices(true).build());
+              .getAlias(new GetAliasRequest.Builder().name(alias).allowNoIndices(true).build());
       Set<String> idxsToDelete = getAliasesResponse.result().keySet();
-      elasticsearchClient.indices()
-        .updateAliases(new UpdateAliasesRequest.Builder()
-                         .actions(new Action.Builder().add(new AddAction.Builder()
-                                                             .alias(alias)
-                                                             .index(indexName)
-                                                             .build())
-                                    .build())
-                         .build());
+
+      elasticsearchClient
+          .indices()
+          .updateAliases(
+              new UpdateAliasesRequest.Builder()
+                  .actions(
+                      new Action.Builder()
+                          .add(new AddAction.Builder().alias(alias).index(indexName).build())
+                          .build())
+                  .build());
       if (!idxsToDelete.isEmpty()) {
         elasticsearchClient
-          .indices()
-          .delete(new DeleteIndexRequest.Builder()
-                    .index(new ArrayList<>(idxsToDelete))
-                    .build());
+            .indices()
+            .delete(new DeleteIndexRequest.Builder().index(new ArrayList<>(idxsToDelete)).build());
       }
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }
   }
+
   public static <T> T deserializeFromFile(String settingsFile, JsonpDeserializer<T> deserializer) {
     try (final JsonParser jsonParser = MAPPER.jsonProvider().createParser(
       new InputStreamReader(
