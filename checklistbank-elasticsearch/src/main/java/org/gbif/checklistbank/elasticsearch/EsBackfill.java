@@ -62,12 +62,12 @@ public class EsBackfill {
             .numberOfReplicas("0")
             .translog(new Translog.Builder().durability("async").build())
             .blocks(new IndexSettingBlocks.Builder().readOnlyAllowDelete(null).build())
-            .numberOfShards("9")
+            .numberOfShards(String.valueOf(configuration.getElasticsearch().getNumberOfShards()))
             .build();
 
     TypeMapping typeMapping =
         EsClient.deserializeFromFile(
-            "elasticsearch/species-schema-mapping.json", TypeMapping._DESERIALIZER);
+          configuration.getElasticsearch().getMappingsFile(), TypeMapping._DESERIALIZER);
 
     esClient.createIndex(
         configuration.getElasticsearch().getIndex(),
