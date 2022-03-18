@@ -13,8 +13,7 @@
  */
 package org.gbif.checklistbank.cli.config;
 
-
-import org.gbif.checklistbank.elasticsearch.EsClient;
+import org.gbif.common.search.es.EsClient;
 
 import com.beust.jcommander.Parameter;
 
