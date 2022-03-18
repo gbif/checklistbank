@@ -16,43 +16,41 @@ package org.gbif.checklistbank.search.service;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.common.search.SearchResultConverter;
+import org.gbif.checklistbank.index.model.NameUsageAvro;
 
-import java.util.Map;
+import java.util.function.Function;
 
-import org.elasticsearch.search.SearchHit;
+import co.elastic.clients.elasticsearch.core.search.Hit;
 
 import lombok.extern.slf4j.Slf4j;
 
 import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.setClassification;
-import static org.gbif.common.search.es.EsConversionUtils.getEnumFromOrdinal;
-import static org.gbif.common.search.es.EsConversionUtils.getIntValue;
-import static org.gbif.common.search.es.EsConversionUtils.getStringValue;
+import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.getEnumFromOrdinal;
 
 @Slf4j
 public class NameUsageSearchSuggestResultConverter
-    implements SearchResultConverter<NameUsageSuggestResult> {
+    implements Function<Hit<NameUsageAvro>,NameUsageSuggestResult> {
 
 
   @Override
-  public NameUsageSuggestResult toSearchResult(SearchHit hit) {
+  public NameUsageSuggestResult apply(Hit<NameUsageAvro> hit) {
     NameUsageSuggestResult u = new NameUsageSuggestResult();
 
-    Map<String, Object> fields = hit.getSourceAsMap();
-    u.setKey(Integer.parseInt(hit.getId()));
+    NameUsageAvro result = hit.source();
+    u.setKey(Integer.parseInt(hit.id()));
 
-    getIntValue(fields, "nameKey").ifPresent(u::setNameKey);
-    getIntValue(fields, "nubKey").ifPresent(u::setNubKey);
-    getIntValue(fields, "parentKey").ifPresent(u::setParentKey);
+    u.setNameKey(result.getNameType());
+    u.setNubKey(result.getNubKey());
+    u.setParentKey(result.getParentKey());
 
-    getStringValue(fields, "parent").ifPresent(u::setParent);
-    getStringValue(fields, "scientificName").ifPresent(u::setScientificName);
-    getStringValue(fields, "canonicalName").ifPresent(u::setCanonicalName);
+    u.setParent(result.getParent());
+    u.setScientificName(result.getScientificName());
+    u.setCanonicalName(result.getCanonicalName());
 
-    getEnumFromOrdinal(TaxonomicStatus.class, fields, "taxonomicStatusKey").ifPresent(u::setStatus);
-    getEnumFromOrdinal(Rank.class, fields, "rankKey").ifPresent(u::setRank);
+    getEnumFromOrdinal(TaxonomicStatus.class, result.getTaxonomicStatusKey()).ifPresent(u::setStatus);
+    getEnumFromOrdinal(Rank.class, result.getRankKey()).ifPresent(u::setRank);
 
-    setClassification(fields, hit, u, u);
+    setClassification(hit, u, u);
 
     return u;
   }

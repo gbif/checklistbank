@@ -21,13 +21,14 @@ import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
+import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.common.search.EsSearchRequestBuilder;
 
 import java.util.List;
 
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+
+import co.elastic.clients.elasticsearch.core.SearchRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +47,7 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
 
   private final NameUsageSuggestEsResponseParser suggestResponseParser = NameUsageSuggestEsResponseParser.create();
 
-  private final RestHighLevelClient restHighLevelClient;
+  private final ElasticsearchClient elasticsearchClient;
   private final String index;
 
   private final EsSearchRequestBuilder<NameUsageSearchParameter> searchRequestBuilder =
@@ -55,9 +56,9 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
   private final EsSearchRequestBuilder<NameUsageSearchParameter> suggestRequestBuilder =
     new EsSearchRequestBuilder<>(new NameUsageSuggestEsFieldMapper());
 
-  public NameUsageSearchServiceEs(String index, RestHighLevelClient restHighLevelClient) {
+  public NameUsageSearchServiceEs(String index, ElasticsearchClient elasticsearchClient) {
     this.index = index;
-    this.restHighLevelClient = restHighLevelClient;
+    this.elasticsearchClient = elasticsearchClient;
   }
 
   @Override
@@ -67,7 +68,7 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
       SearchRequest searchRequest =
           searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest,    true, index);
       return searchResponseParser.buildSearchResponse(
-          restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT), nameUsageSearchRequest);
+        elasticsearchClient.search(searchRequest, NameUsageAvro.class), nameUsageSearchRequest);
   }
 
   @Override
@@ -86,6 +87,6 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
       log.debug("Suggest request with offset {} found", request.getOffset());
     }
     SearchRequest searchRequest = suggestRequestBuilder.buildSearchRequest(request, index);
-    return suggestResponseParser.buildSearchResponse(restHighLevelClient.search(searchRequest, RequestOptions.DEFAULT), request).getResults();
+    return suggestResponseParser.buildSearchResponse(elasticsearchClient.search(searchRequest, NameUsageAvro.class), request).getResults();
   }
 }

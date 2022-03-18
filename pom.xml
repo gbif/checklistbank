@@ -64,6 +64,10 @@
         <dwca-io.version>2.11</dwca-io.version>
         <dwca-io.version>2.11</dwca-io.version>
         <datacite-rest-client.version>1.10</datacite-rest-client.version>
+
+        <!-- Elasticsearch -->
+        <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
+
         <!-- Spring -->
         <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
         <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
@@ -141,6 +145,8 @@
 
         <!-- Test -->
         <embedded-database-spring-test.version>1.6.2</embedded-database-spring-test.version>
+
+        <testcontainers.version>1.16.3</testcontainers.version>
     </properties>
 
     <repositories>
@@ -172,6 +178,7 @@
         <module>checklistbank-nub</module>
         <module>checklistbank-nub-ws</module>
         <module>checklistbank-cli</module>
+        <module>checklistbank-cli-it</module>
     </modules>
 
 
@@ -573,6 +580,14 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <!-- Elasticsearch-->
+
+            <dependency>
+                <groupId>jakarta.json</groupId>
+                <artifactId>jakarta.json-api</artifactId>
+                <version>${jakarta.json-api.version}</version>
             </dependency>
 
             <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
@@ -1095,6 +1110,17 @@
                 <artifactId>embedded-database-spring-test</artifactId>
                 <version>${embedded-database-spring-test.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

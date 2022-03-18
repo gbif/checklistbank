@@ -151,7 +151,7 @@ public class AvroExportJob implements Callable<Integer> {
           ext.distributions = distributionMap.get(usage.getKey());
 
           List<Integer> parents = nameUsageService.listParents(usage.getKey());
-          dataFileWriter.append(nameUsageAvroConverter.toObject(usage, parents, ext));
+          dataFileWriter.append(NameUsageAvroConverter.toObject(usage, parents, ext));
 
         } catch (Exception e) {
           log.error("Error exporting  usage {}  extension {} to avro", usage, e);

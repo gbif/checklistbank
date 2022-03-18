@@ -15,10 +15,11 @@ package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.common.search.EsResponseParser;
 
 public class NameUsageSuggestEsResponseParser
-    extends EsResponseParser<NameUsageSuggestResult, NameUsageSearchParameter> {
+    extends EsResponseParser<NameUsageSuggestResult,NameUsageAvro, NameUsageSearchParameter> {
 
   private NameUsageSuggestEsResponseParser() {
     super(new NameUsageSearchSuggestResultConverter(), new NameUsageSuggestEsFieldMapper());

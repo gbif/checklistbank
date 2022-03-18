@@ -16,7 +16,7 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.search.service.NameUsageSearchServiceEs;
 import org.gbif.common.search.es.EsClient;
 
-import org.elasticsearch.client.RestHighLevelClient;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,12 +32,12 @@ public class SpringElasticsearchConfiguration {
   }
 
   @Bean
-  public RestHighLevelClient restHighLevelClient(EsClient.EsClientConfiguration esClientConfiguration) {
+  public ElasticsearchClient restHighLevelClient(EsClient.EsClientConfiguration esClientConfiguration) {
     return EsClient.provideEsClient(esClientConfiguration);
   }
 
   @Bean
-  public NameUsageSearchService nameUsageSearchService(RestHighLevelClient client, @Value("${checklistbank.elasticsarch.index}") String index) {
+  public NameUsageSearchService nameUsageSearchService(ElasticsearchClient client, @Value("${checklistbank.elasticsarch.index}") String index) {
     return new NameUsageSearchServiceEs(index, client);
   }
 }
