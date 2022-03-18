@@ -58,28 +58,31 @@ public class EsClient implements Closeable {
               .existsAlias(new ExistsAliasRequest.Builder().name(alias).build());
 
       if (!aliasExist.value()) {
-        elasticsearchClient.indices().putAlias(new PutAliasRequest.Builder().name(alias).build());
-      }
-
-      GetAliasResponse getAliasesResponse =
-          elasticsearchClient
-              .indices()
-              .getAlias(new GetAliasRequest.Builder().name(alias).allowNoIndices(true).build());
-      Set<String> idxsToDelete = getAliasesResponse.result().keySet();
-
-      elasticsearchClient
-          .indices()
-          .updateAliases(
-              new UpdateAliasesRequest.Builder()
-                  .actions(
-                      new Action.Builder()
-                          .add(new AddAction.Builder().alias(alias).index(indexName).build())
-                          .build())
-                  .build());
-      if (!idxsToDelete.isEmpty()) {
         elasticsearchClient
             .indices()
-            .delete(new DeleteIndexRequest.Builder().index(new ArrayList<>(idxsToDelete)).build());
+            .putAlias(new PutAliasRequest.Builder().index(indexName).name(alias).build());
+      } else {
+        GetAliasResponse getAliasesResponse =
+            elasticsearchClient
+                .indices()
+                .getAlias(new GetAliasRequest.Builder().name(alias).allowNoIndices(true).build());
+        Set<String> idxsToDelete = getAliasesResponse.result().keySet();
+
+        elasticsearchClient
+            .indices()
+            .updateAliases(
+                new UpdateAliasesRequest.Builder()
+                    .actions(
+                        new Action.Builder()
+                            .add(new AddAction.Builder().alias(alias).index(indexName).build())
+                            .build())
+                    .build());
+        if (!idxsToDelete.isEmpty()) {
+          elasticsearchClient
+              .indices()
+              .delete(
+                  new DeleteIndexRequest.Builder().index(new ArrayList<>(idxsToDelete)).build());
+        }
       }
     } catch (IOException ex) {
       throw new RuntimeException(ex);
