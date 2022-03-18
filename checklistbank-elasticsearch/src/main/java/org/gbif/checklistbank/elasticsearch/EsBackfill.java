@@ -13,6 +13,8 @@
  */
 package org.gbif.checklistbank.elasticsearch;
 
+import org.gbif.common.search.es.EsClient;
+
 import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.IndexSettingBlocks;
@@ -53,6 +55,7 @@ public class EsBackfill {
 
     EsClient esClient = new EsClient(elasticsearchClient);
 
+    // Create Index
     IndexSettings indexingSettings =
         new IndexSettings.Builder()
             .refreshInterval(new Time.Builder().time("-1").build())
@@ -62,10 +65,13 @@ public class EsBackfill {
             .numberOfShards("9")
             .build();
 
-    // Create Index
+    TypeMapping typeMapping =
+        EsClient.deserializeFromFile(
+            "elasticsearch/species-schema-mapping.json", TypeMapping._DESERIALIZER);
+
     esClient.createIndex(
         configuration.getElasticsearch().getIndex(),
-        new TypeMapping.Builder().build(),
+        typeMapping,
         indexingSettings);
 
     // Reads the Elasticsearch settings used by the Spark Elasticsearch library
