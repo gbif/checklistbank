@@ -18,6 +18,7 @@ import org.gbif.api.ws.mixin.Mixins;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.elasticsearch.EsClient;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
@@ -150,7 +151,7 @@ public class SpringContextBuilder {
     }
 
     if (elasticsearchConfiguration != null) {
-      ctx.registerBean(RestClient.class, () -> elasticsearchConfiguration.buildClient());
+      ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
       ctx.registerBean(NameUsageIndexServiceEs.class);
       ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
       ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
