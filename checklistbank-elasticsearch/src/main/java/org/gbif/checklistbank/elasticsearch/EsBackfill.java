@@ -19,6 +19,7 @@ import co.elastic.clients.elasticsearch._types.Time;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.indices.IndexSettingBlocks;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
 import co.elastic.clients.elasticsearch.indices.Translog;
 import com.google.common.collect.ImmutableMap;
 import org.apache.spark.SparkConf;
@@ -58,6 +59,10 @@ public class EsBackfill {
     // Create Index
     IndexSettings indexingSettings =
         new IndexSettings.Builder()
+            .analysis(
+                EsClient.deserializeFromFile(
+                    configuration.getElasticsearch().getSettingsFile(),
+                    IndexSettingsAnalysis._DESERIALIZER))
             .refreshInterval(new Time.Builder().time("-1").build())
             .numberOfReplicas("0")
             .translog(new Translog.Builder().durability("async").build())
