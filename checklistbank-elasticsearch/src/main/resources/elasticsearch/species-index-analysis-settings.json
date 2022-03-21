@@ -1,5 +1,4 @@
 {
-  "analysis": {
     "analyzer": {
       "sciname": {
         "type": "custom",
@@ -28,11 +27,7 @@
         "tokenizer": "keyword",
         "filter": [
           "lowercase",
-          {
-            "type": "edge_ngram",
-            "min_gram": 1,
-            "max_gram": 30
-          }
+          "1_30_edge_ngram"
         ]
       },
       "autocomplete_tokenized": {
@@ -40,11 +35,7 @@
         "tokenizer": "standard",
         "filter": [
           "lowercase",
-          {
-            "type": "edge_ngram",
-            "min_gram": 1,
-            "max_gram": 20
-          }
+          "1_20_edge_ngram"
         ]
       },
       "ngram_tokenized_search": {
@@ -62,6 +53,17 @@
           "lowercase"
         ]
       }
+    },
+    "filter": {
+      "1_30_edge_ngram": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 30
+      },
+      "1_20_edge_ngram": {
+        "type": "edge_ngram",
+        "min_gram": 1,
+        "max_gram": 20
+      }
     }
-  }
 }
