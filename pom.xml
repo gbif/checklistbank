@@ -62,7 +62,6 @@
         <name-parser.version>3.7.1</name-parser.version>
         <gbif-parser.version>0.57</gbif-parser.version>
         <dwca-io.version>2.11</dwca-io.version>
-        <dwca-io.version>2.11</dwca-io.version>
         <datacite-rest-client.version>1.10</datacite-rest-client.version>
 
         <!-- Elasticsearch -->
@@ -174,8 +173,6 @@
         <module>checklistbank-common</module>
         <module>checklistbank-mybatis-service</module>
         <module>checklistbank-elasticsearch</module>
-        <module>checklistbank-lucene-plugins</module>
-        <module>checklistbank-elasticsearch-plugins</module>
         <module>checklistbank-ws</module>
         <module>checklistbank-ws-client</module>
         <module>checklistbank-nub</module>
@@ -572,6 +569,11 @@
                 <artifactId>jackson-datatype-guava</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
 
             <!-- Elasticsearch and Lucene-->
             <!-- Http libraries -->
@@ -679,7 +681,7 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.lucene</groupId>
-                <artifactId>lucene-analyzers-common</artifactId>
+                <artifactId>lucene-analysis-common</artifactId>
                 <version>${lucene.version}</version>
             </dependency>
 

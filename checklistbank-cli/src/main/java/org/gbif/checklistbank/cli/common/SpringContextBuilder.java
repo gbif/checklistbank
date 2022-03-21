@@ -18,7 +18,6 @@ import org.gbif.api.ws.mixin.Mixins;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.elasticsearch.EsClient;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
@@ -26,6 +25,7 @@ import org.gbif.common.messaging.DefaultMessagePublisher;
 import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
+import org.gbif.common.search.es.EsClient;
 import org.gbif.nameparser.NameParserGbifV1;
 
 import java.io.IOException;
@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.elasticsearch.client.RestClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
