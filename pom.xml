@@ -178,7 +178,6 @@
         <module>checklistbank-nub</module>
         <module>checklistbank-nub-ws</module>
         <module>checklistbank-cli</module>
-        <module>checklistbank-cli-it</module>
         <module>checklistbank-workflows</module>
     </modules>
 
