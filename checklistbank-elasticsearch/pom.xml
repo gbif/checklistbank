@@ -21,12 +21,6 @@
   </distributionManagement>
 
   <properties>
-    <!-- Spark -->
-    <spark.version>2.3.0</spark.version>
-    <spark.elasticsearch.version>8.1.0</spark.elasticsearch.version>
-    <databricks.version>4.0.0</databricks.version>
-    <scala.tools.version>2.11</scala.tools.version>
-
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
     <commons-compiler.version>3.0.8</commons-compiler.version>
@@ -46,99 +40,26 @@
       </testResource>
     </testResources>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <configuration>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
-          <filters>
-            <filter>
-              <artifact>*:*</artifact>
-              <excludes>
-                <exclude>META-INF/*.SF</exclude>
-                <exclude>META-INF/*.DSA</exclude>
-                <exclude>META-INF/*.RSA</exclude>
-              </excludes>
-            </filter>
-          </filters>
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <version>${spring-boot.version}</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <finalName>${project.artifactId}</finalName>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <transformers>
-                <!-- This bit merges the various lucene META-INF/services files -->
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>META-INF/spring.handlers</resource>
-                </transformer>
-                <transformer implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">
-                  <resource>META-INF/spring.factories</resource>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                  <resource>META-INF/spring.schemas</resource>
-                </transformer>
-              </transformers>
-              <relocations>
-                <!-- Clashes with the environment provided version -->
-                <relocation>
-                  <pattern>org.apache.http</pattern>
-                  <shadedPattern>shaded.org.apache.http</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.apache.httpcomponents</pattern>
-                  <shadedPattern>shaded.org.apache.httpcomponents</shadedPattern>
-                </relocation>
-                <relocation>
-                  <pattern>org.elasticsearch.client</pattern>
-                  <shadedPattern>shaded.org.elasticsearch.client</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.avro</groupId>
-        <artifactId>avro-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-              <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
-              <stringType>String</stringType>
-              <includes>
-                <include>**/*.avrsc</include>
-              </includes>
-            </configuration>
-            <goals>
-              <goal>schema</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
+    <plugin>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro-maven-plugin</artifactId>
+      <executions>
+        <execution>
+          <phase>generate-sources</phase>
+          <configuration>
+            <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
+            <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+            <stringType>String</stringType>
+            <includes>
+              <include>**/*.avrsc</include>
+            </includes>
+          </configuration>
+          <goals>
+            <goal>schema</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
     </plugins>
   </build>
 
@@ -161,20 +82,23 @@
       <artifactId>gbif-common-search</artifactId>
       <version>${gbif-common-search.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-common</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.gbif.checklistbank</groupId>
       <artifactId>checklistbank-ws-client</artifactId>
     </dependency>
 
+    <!-- Avro -->
     <dependency>
-      <groupId>org.gbif.checklistbank</groupId>
-      <artifactId>checklistbank-mybatis-service</artifactId>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro-maven-plugin</artifactId>
     </dependency>
 
     <!-- Utilities -->
@@ -191,49 +115,6 @@
       <artifactId>jsoup</artifactId>
     </dependency>
 
-    <!-- Spark -->
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-catalyst_${scala.tools.version}</artifactId>
-      <version>${spark.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_${scala.tools.version}</artifactId>
-      <version>${spark.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-sql_${scala.tools.version}</artifactId>
-      <version>${spark.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.databricks</groupId>
-      <artifactId>spark-avro_${scala.tools.version}</artifactId>
-      <version>${databricks.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.spark</groupId>
-      <artifactId>spark-yarn_${scala.tools.version}</artifactId>
-      <version>${spark.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-spark-20_2.11</artifactId>
-      <version>${spark.elasticsearch.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- Jackson and Yaml-->
     <dependency>
       <groupId>org.yaml</groupId>
@@ -247,49 +128,6 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
-
-    <!-- Http libraries -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpasyncclient</artifactId>
-    </dependency>
-
-    <!-- Elasticsearch and Lucene -->
-    <dependency>
-      <groupId>co.elastic.clients</groupId>
-      <artifactId>elasticsearch-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.elasticsearch.client</groupId>
-      <artifactId>elasticsearch-rest-client-sniffer</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.json</groupId>
-      <artifactId>jakarta.json-api</artifactId>
-    </dependency>
-
-    <!-- Avro -->
-    <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.avro</groupId>
-      <artifactId>avro-maven-plugin</artifactId>
-    </dependency>
-
 
     <!-- These needed for embedded Spark tests https://stackoverflow.com/a/50114083 -->
     <dependency>
@@ -316,59 +154,4 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>oozie</id>
-      <build>
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <includes>
-              <include>/oozie/workflow.xml</include>
-            </includes>
-          </resource>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>false</filtering>
-          </resource>
-        </resources>
-
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>process-resources</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>resources</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <finalName>oozie-workflow</finalName>
-              <descriptors>
-                <descriptor>src/main/assembly/oozie.xml</descriptor>
-              </descriptors>
-            </configuration>
-            <executions>
-              <execution>
-                <id>make-oozie</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

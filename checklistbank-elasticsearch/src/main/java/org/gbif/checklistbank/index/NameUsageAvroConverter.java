@@ -13,11 +13,7 @@
  */
 package org.gbif.checklistbank.index;
 
-import org.gbif.api.model.checklistbank.Description;
-import org.gbif.api.model.checklistbank.Distribution;
-import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.model.checklistbank.NameUsageContainer;
-import org.gbif.api.model.checklistbank.VernacularName;
+import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.model.UsageExtensions;
@@ -26,15 +22,13 @@ import org.gbif.common.parsers.core.ParseResult;
 
 import java.util.Collection;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
-import org.jsoup.Jsoup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Threadsafe class that transforms a {@link NameUsage} object into {@link org.apache.solr.common.SolrInputDocument}.

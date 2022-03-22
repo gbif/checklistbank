@@ -34,23 +34,12 @@
     </fileSet>
   </fileSets>
 
-  <files>
-    <file>
-      <source>${project.build.outputDirectory}/elasticsearch/species-schema-mapping.json</source>
-      <outputDirectory>lib</outputDirectory>
-    </file>
-    <file>
-      <source>${project.build.outputDirectory}/elasticsearch/species-schema-settings.json</source>
-      <outputDirectory>lib</outputDirectory>
-    </file>
-  </files>
-
   <dependencySets>
     <dependencySet>
       <outputDirectory>lib</outputDirectory>
       <fileMode>0644</fileMode>
       <includes>
-        <include>org.gbif.checklistbank:checklistbank-elasticsearch:jar:shaded</include>
+        <include>org.gbif.checklistbank:checklistbank-workflows:jar:shaded</include>
       </includes>
     </dependencySet>
   </dependencySets>
