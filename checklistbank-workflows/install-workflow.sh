@@ -15,6 +15,7 @@ oozie_url=`cat $P.properties| grep "oozie.url" | cut -d'=' -f2-`
 echo "Assembling jar for $ENV"
 
 mvn --settings profiles.xml -Poozie,$P clean package -DskipTests assembly:single
+mkdir target/oozie-workflow/lib
 cp target/checklistbank-workflows.jar target/oozie-workflow/lib
 
 if hdfs dfs -test -d /checklistbank-index-builder-$P/; then
