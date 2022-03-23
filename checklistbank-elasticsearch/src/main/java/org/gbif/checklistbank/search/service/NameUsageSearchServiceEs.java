@@ -14,11 +14,7 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.Constants;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestRequest;
-import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.api.model.checklistbank.search.*;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
@@ -27,13 +23,11 @@ import org.gbif.common.search.EsSearchRequestBuilder;
 import java.util.List;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-
 import co.elastic.clients.elasticsearch.core.SearchRequest;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -67,6 +61,7 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
       NameUsageSearchRequest nameUsageSearchRequest) {
       SearchRequest searchRequest =
           searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest,    true, index);
+
       return searchResponseParser.buildSearchResponse(
         elasticsearchClient.search(searchRequest, NameUsageAvro.class), nameUsageSearchRequest);
   }

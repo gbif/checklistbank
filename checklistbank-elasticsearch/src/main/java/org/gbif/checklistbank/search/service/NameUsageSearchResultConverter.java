@@ -18,29 +18,19 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
-import org.gbif.api.vocabulary.Habitat;
-import org.gbif.api.vocabulary.Language;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
+import org.gbif.common.search.EsSearchRequestBuilder;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 
 @Slf4j
 public class NameUsageSearchResultConverter
@@ -98,8 +88,8 @@ public class NameUsageSearchResultConverter
     getEnumFromOrdinal(Rank.class, result.getRankKey()).ifPresent(u::setRank);
 
 
-    getObjectList(result.getVernacularName(), NameUsageSearchResultConverter::deserializeVernacularName).ifPresent(u::setVernacularNames);
-    getObjectList(result.getDescription(), NameUsageSearchResultConverter::deserializeDescription).ifPresent(u::setDescriptions);
+    getVernacularName(result.getVernacularNameLang(), hit.highlight()).ifPresent(u::setVernacularNames);
+    getDescription(result.getDescription(), hit.highlight()).ifPresent(u::setDescriptions);
 
     return u;
   }
@@ -140,18 +130,64 @@ public class NameUsageSearchResultConverter
     return d;
   }
 
-  private static VernacularName deserializeVernacularName(String vernacularName) {
-    Matcher m = LANG_SPLIT.matcher(vernacularName);
-    VernacularName vn = new VernacularName();
-    if (m.find()) {
-      vn.setLanguage(Language.fromIsoCode(m.group(1)));
-      vn.setVernacularName(m.group(2));
-    } else {
-      vn.setVernacularName(vernacularName);
+  private Optional<List<Description>> getDescription(List<String> descriptions, Map<String, List<String>> hlFields) {
+    if (descriptions == null || descriptions.isEmpty()) {
+      return Optional.empty();
     }
-    return vn;
+
+    Map<String, String> hValuesWithSource = getHlValuesWithSource(hlFields, "description");
+    return Optional.of(descriptions.stream()
+      .map(v -> hValuesWithSource.getOrDefault(v, v))
+      .map(NameUsageSearchResultConverter::deserializeDescription)
+      .collect(Collectors.toList()));
   }
 
+  private Optional<List<VernacularName>> getVernacularName(
+      List<String> nameLangs, Map<String, List<String>> hlFields) {
+    if (nameLangs == null || nameLangs.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Map<String, String> hNamesWithSource = getHlValuesWithSource(hlFields, "vernacularName");
+    return Optional.of(
+        nameLangs.stream()
+            .map(
+                nl -> {
+                  Matcher m = LANG_SPLIT.matcher(nl);
+                  VernacularName vn = new VernacularName();
+                  if (m.find()) {
+                    vn.setLanguage(Language.fromIsoCode(m.group(1)));
+                    String name = m.group(2);
+                    vn.setVernacularName(hNamesWithSource.getOrDefault(name, name));
+                  } else {
+                    vn.setVernacularName(hNamesWithSource.getOrDefault(nl, nl));
+                  }
+                  return vn;
+                })
+            .collect(Collectors.toList()));
+  }
+
+  private Map<String, String> getHlValuesWithSource(
+      Map<String, List<String>> hlFields, String esField) {
+    Map<String, String> hValuesWithSource = new HashMap<>();
+    if (Objects.nonNull(hlFields)) {
+      Optional<List<String>> hlValue = Optional.ofNullable(hlFields.get(esField));
+
+      if (hlValue.isPresent()) {
+        // merge values
+        hValuesWithSource =
+            hlValue.get().stream()
+                .collect(
+                    Collectors.toMap(
+                        v ->
+                            StringEscapeUtils.unescapeHtml(
+                                v.replaceAll(EsSearchRequestBuilder.PRE_HL_TAG, "")
+                                    .replaceAll(EsSearchRequestBuilder.POST_HL_TAG, "")),
+                        v -> v));
+      }
+    }
+    return hValuesWithSource;
+  }
 
   public static Optional<String> getHighlightOrStringValue(Map<String, List<String>> hlFields, String value, String esField) {
     Optional<String> fieldValue = Optional.ofNullable(value);
@@ -177,12 +213,6 @@ public class NameUsageSearchResultConverter
   public static <T extends Enum<?>> Optional<T> getEnumFromOrdinal(Class<T> vocab, Integer value) {
     return Optional.ofNullable(value)
       .map(v -> vocab.getEnumConstants()[v]);
-  }
-
-  public static <T> Optional<List<T>> getObjectList(List<String> value, Function<String,T> mapper) {
-    return Optional.ofNullable(value)
-      .filter(v -> !v.isEmpty())
-      .map(v -> v.stream().map(mapper).collect(Collectors.toList()));
   }
 
 }
