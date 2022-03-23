@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
@@ -131,10 +132,10 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   }
 
   @Override
-  public String parseParamValue(String value, NameUsageSearchParameter parameter) {
+  public FieldValue parseParamValue(String value, NameUsageSearchParameter parameter) {
     if (Enum.class.isAssignableFrom(parameter.type())) {
       return VocabularyUtils.lookup(value, (Class<Enum<?>>) parameter.type())
-        .map(e -> Integer.toString(e.ordinal()))
+        .map(e -> FieldValue.of(e.ordinal()))
         .orElse(null);
     }
     return EsFieldMapper.super.parseParamValue(value, parameter);
