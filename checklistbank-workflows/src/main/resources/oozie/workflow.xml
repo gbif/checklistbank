@@ -28,7 +28,7 @@
     </configuration>
   </global>
 
-  <start to="export_to_avro" />
+  <start to="build_index" />
 
   <action name="export_to_avro">
     <java>
