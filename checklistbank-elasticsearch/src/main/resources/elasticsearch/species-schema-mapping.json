@@ -53,12 +53,14 @@
     "canonicalNameNgram": {
       "type": "text",
       "analyzer": "autocomplete",
-      "search_analyzer": "autocomplete_search_keyword"
+      "search_analyzer": "autocomplete_search_keyword",
+      "norms": false
     },
     "canonicalNameNgramTokenized": {
       "type": "text",
       "analyzer": "autocomplete_tokenized",
-      "search_analyzer": "autocomplete_search"
+      "search_analyzer": "autocomplete_search",
+      "norms": false
     },
     "nameType": {
       "type": "integer"
