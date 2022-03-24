@@ -21,21 +21,18 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
   public Query fullTextQuery(String q) {
-    return Query.of(qb -> qb.functionScore(fsb -> fsb.functions(BOOSTING_FUNCTION)
-                                                      .query(Query.of(bool -> bool.bool(QueryBuilders.bool()
-                                                                                        .must(suggestQuery(q))
-                                                                                        .should(suggestPhraseQuery(q))
-                                                                                        .should(SPECIES_BOOSTING_QUERY)
-                                                                                        .should(BOOSTING_QUERY).build())))
-                                                        ));
+    return Query.of(qb -> qb.bool(bool -> bool.must(suggestQuery(q))
+                                              .should(suggestPhraseQuery(q))
+                                              .should(BOOSTING_FUNCTION_QUERY)
+                                              .should(BOOSTING_QUERY)));
   }
 
   private Query suggestQuery(String q) {
     return  Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
-                                            .fields("canonicalNameNgram^15",
-                                                    "canonicalNameTokenized^6",
+                                            .fields("canonicalNameTokenized^10",
+                                                    "canonicalNameNgram^5",
                                                     "canonicalNameNgramTokenized^2",
-                                                    "scientificName^5")
+                                                    "scientificName")
                                             .minimumShouldMatch("1")
                                             .slop(2)
                                            .build()));
@@ -43,14 +40,8 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   private Query suggestPhraseQuery(String q) {
     return Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
-                                          .fields("canonicalNameNgram^15.0")
+                                          .fields("canonical_name^10")
                                           .slop(2)
-                                          .boost(10f)
                                           .build()));
   }
-
-  public static void main(String[] args) {
-    System.out.println(new NameUsageSuggestEsFieldMapper().fullTextQuery("puma concolor (Linnaeus, 1771)"));
-  }
-
 }

@@ -21,11 +21,10 @@ import org.gbif.checklistbank.index.model.NameUsageAvro;
 import java.util.function.Function;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
-
 import lombok.extern.slf4j.Slf4j;
 
-import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.setClassification;
 import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.getEnumFromOrdinal;
+import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.setClassification;
 
 @Slf4j
 public class NameUsageSearchSuggestResultConverter

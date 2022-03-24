@@ -20,16 +20,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.parser.ParserException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.parser.ParserException;
 
 import static org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration.DEFAULT_CONNECTION_REQUEST_TIMEOUT;
 import static org.gbif.checklistbank.elasticsearch.ElasticsearchConfiguration.DEFAULT_CONNECTION_TIMEOUT;

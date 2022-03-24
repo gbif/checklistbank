@@ -15,12 +15,6 @@ package org.gbif.checklistbank.elasticsearch;
 
 import org.gbif.common.search.es.EsClient;
 
-import co.elastic.clients.elasticsearch._types.Time;
-import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import co.elastic.clients.elasticsearch.indices.IndexSettings;
-import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
-import co.elastic.clients.elasticsearch.indices.Translog;
-import com.google.common.collect.ImmutableMap;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -28,6 +22,14 @@ import org.apache.spark.sql.SQLContext;
 import org.elasticsearch.spark.rdd.api.java.JavaEsSpark;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
+
+import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
+import co.elastic.clients.elasticsearch.indices.Translog;
 
 /**
  * Elasticsearch Checklistbank indexer. Creates a new Index using as input Avro files puts that
