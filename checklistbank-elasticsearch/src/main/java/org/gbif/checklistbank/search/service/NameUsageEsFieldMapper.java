@@ -30,18 +30,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+
 import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.Script;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
-import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScore;
-import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
-import org.apache.commons.lang3.StringUtils;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 
 public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchParameter> {
 
@@ -87,18 +87,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                               .query("0")
                                                                               .fields("taxonomicStatusKey^1.5",
                                                                                       "nameType1.5")
-                                                                              .boost(10.0f)
                                                                               .build()));
 
-  protected static final Query SPECIES_BOOSTING_QUERY = Query.of(qb -> qb.constantScore(csq -> csq.filter(Query.of(q -> q.term(QueryBuilders.term()
-                                                                                                                         .field("rankKey")
-                                                                                                                         .value(Rank.SPECIES.ordinal()).build())))
-                                                                                                          .boost(50.0f)));
-
-  protected static final FunctionScore BOOSTING_FUNCTION = FunctionScore.of( f -> f.fieldValueFactor(FunctionScoreBuilders.fieldValueFactor()
-                                                                                    .field("rankKey")
-                                                                                    .modifier(FieldValueFactorModifier.Sqrt)
-                                                                                    .missing(0d).build()));
+  //product(2,sub(" + Rank.values().length + ",rank_key))
+  public static final Query BOOSTING_FUNCTION_QUERY = Query.of(q -> q.scriptScore(ss -> ss.query(ssq -> ssq.exists(e -> e.field("rankKey")))
+                                                                                          .script(Script.of(s -> s.inline(i -> i.source("2 * (" + Rank.values().length + " - doc['rankKey'].value)"))))
+                                                                                  )
+                                                              );
 
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
                                                   .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
@@ -214,17 +209,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   @Override
   public Query fullTextQuery(String q) {
-    return Query.of(mq -> mq.functionScore(
-              QueryBuilders.functionScore()
-                .functions(BOOSTING_FUNCTION)
-                .query(qb ->  qb.bool(BoolQuery.of( bool ->
+    return Query.of(qb ->  qb.bool(BoolQuery.of( bool ->
                     bool.must(mf -> mf.bool(sf -> sf.should(sb -> sb.multiMatch(mm ->
                           mm.query(q)
                             .fields("description^0.1",
                                     "vernacularName^3",
-                                    "canonicalName^8",
-                                    "scientificName^10",
-                                    "genus",
+                                    "canonicalName^10",
+                                    "scientificName^2",
                                     "species",
                                     "subgenus",
                                     "family")
@@ -232,14 +223,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                             .minimumShouldMatch("1")
                             .slop(3)
                         ))
-                      .should(phraseQuery(q, 25f))
-                      .should(SPECIES_BOOSTING_QUERY)
+                      .should(phraseQuery(q))
+                      .should(BOOSTING_FUNCTION_QUERY)
                       .should(BOOSTING_QUERY))
-                ))))
-                .build()));
+                ))));
   }
 
-  public Query phraseQuery(String q, Float boost) {
+  public Query phraseQuery(String q) {
     return Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch()
                             .query(q)
                             .fields("description^2.0",
@@ -250,7 +240,6 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                             .minimumShouldMatch("1")
                             .slop(100)
                             .type(TextQueryType.Phrase)
-                            .boost(boost)
                             .build()));
   }
 

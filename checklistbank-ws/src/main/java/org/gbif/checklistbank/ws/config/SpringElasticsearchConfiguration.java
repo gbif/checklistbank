@@ -16,11 +16,12 @@ import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.search.service.NameUsageSearchServiceEs;
 import org.gbif.common.search.es.EsClient;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 @Configuration
 public class SpringElasticsearchConfiguration {

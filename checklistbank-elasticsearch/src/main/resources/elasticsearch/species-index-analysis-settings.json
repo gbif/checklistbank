@@ -15,6 +15,13 @@
           "lowercase"
         ]
       },
+      "autocomplete_search_keyword": {
+        "type": "custom",
+        "tokenizer": "keyword",
+        "filter": [
+          "lowercase"
+        ]
+      },
       "tokenized": {
         "type": "custom",
         "tokenizer": "standard",

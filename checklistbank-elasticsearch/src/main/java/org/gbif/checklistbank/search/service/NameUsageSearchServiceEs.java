@@ -22,12 +22,13 @@ import org.gbif.common.search.EsSearchRequestBuilder;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -61,7 +62,6 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
       NameUsageSearchRequest nameUsageSearchRequest) {
       SearchRequest searchRequest =
           searchRequestBuilder.buildFacetedSearchRequest(nameUsageSearchRequest,    true, index);
-
       return searchResponseParser.buildSearchResponse(
         elasticsearchClient.search(searchRequest, NameUsageAvro.class), nameUsageSearchRequest);
   }
