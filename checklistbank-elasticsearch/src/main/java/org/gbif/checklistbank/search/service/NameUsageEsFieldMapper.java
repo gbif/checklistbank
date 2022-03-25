@@ -218,7 +218,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   @Override
   public Query fullTextQuery(String q) {
     return Query.of(qb ->  qb.bool(BoolQuery.of( bool ->
-                    bool.must(mf -> mf.bool(sf -> sf.should(sb -> sb.multiMatch(mm ->
+                    bool.must(mf -> mf.multiMatch(mm ->
                           mm.query(q)
                             .fields("description^0.1",
                                     "vernacularName^3",
@@ -235,7 +235,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                       .should(BOOSTING_FUNCTION_QUERY)
                       .should(SPECIES_BOOSTING_QUERY)
                       .should(BOOSTING_QUERY))
-                ))));
+                ));
   }
 
   public Query phraseQuery(String q) {

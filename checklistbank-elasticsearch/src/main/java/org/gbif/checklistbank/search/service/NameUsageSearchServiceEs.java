@@ -19,7 +19,6 @@ import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.common.search.EsSearchRequestBuilder;
-import org.gbif.common.search.es.EsClient;
 
 import java.util.List;
 
@@ -83,7 +82,6 @@ public class NameUsageSearchServiceEs implements NameUsageSearchService {
       log.debug("Suggest request with offset {} found", request.getOffset());
     }
     SearchRequest searchRequest = suggestRequestBuilder.buildSearchRequest(request, index);
-    System.out.println(EsClient.prettyJsonRequest(searchRequest));
     return suggestResponseParser.buildSearchResponse(elasticsearchClient.search(searchRequest, NameUsageAvro.class), request).getResults();
   }
 }
