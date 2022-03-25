@@ -21,10 +21,11 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
   public Query fullTextQuery(String q) {
-    return Query.of(qb -> qb.bool(bool -> bool.must(suggestQuery(q))
-                                              .should(suggestPhraseQuery(q))
-                                              .should(BOOSTING_FUNCTION_QUERY)
-                                              .should(BOOSTING_QUERY)));
+    return Query.of(mq -> mq.bool(bool -> bool.must(suggestQuery(q))
+                                                    .should(suggestPhraseQuery(q))
+                                                    .should(BOOSTING_FUNCTION_QUERY)
+                                                    .should(SPECIES_BOOSTING_QUERY)
+                                                    .should(BOOSTING_QUERY)));
   }
 
   private Query suggestQuery(String q) {
@@ -33,7 +34,7 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
                                                     "canonicalNameNgram^5",
                                                     "canonicalNameNgramTokenized^2",
                                                     "scientificName")
-                                            .minimumShouldMatch("1")
+                                            .minimumShouldMatch("2")
                                             .slop(2)
                                            .build()));
   }

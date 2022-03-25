@@ -83,17 +83,25 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                      "species", "description", "vernacularName");
 
 
-  protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch()
-                                                                              .query("0")
-                                                                              .fields("taxonomicStatusKey^1.5",
-                                                                                      "nameType1.5")
-                                                                              .build()));
+  protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
+                                                                             .positive(p -> p.bool( pb ->
+                                                                              pb.should(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())),
+                                                                                        Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build()))
+                                                                                ).boost(50.0f)))
+                                                                             .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())))
+                                                                                                               .mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())))))
+                                                                             .negativeBoost(50.0)
+                                                                             .build()));
 
-  //product(2,sub(" + Rank.values().length + ",rank_key))
-  public static final Query BOOSTING_FUNCTION_QUERY = Query.of(q -> q.scriptScore(ss -> ss.query(ssq -> ssq.exists(e -> e.field("rankKey")))
-                                                                                          .script(Script.of(s -> s.inline(i -> i.source("2 * (" + Rank.values().length + " - doc['rankKey'].value)"))))
-                                                                                  )
-                                                              );
+  protected static final Query SPECIES_BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
+                                                                             .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))
+                                                                                                        .boost(100.0f)))
+                                                                             .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))))
+                                                                             .negativeBoost(100.0)
+                                                                             .build()));
+
+  //double decayNumericGauss(double origin, double scale, double offset, double decay, double docValue)
+  protected static final Query BOOSTING_FUNCTION_QUERY = Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rankKey"))).script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + Rank.SPECIES.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(25.0f)));
 
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
                                                   .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
@@ -225,6 +233,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                         ))
                       .should(phraseQuery(q))
                       .should(BOOSTING_FUNCTION_QUERY)
+                      .should(SPECIES_BOOSTING_QUERY)
                       .should(BOOSTING_QUERY))
                 ))));
   }
