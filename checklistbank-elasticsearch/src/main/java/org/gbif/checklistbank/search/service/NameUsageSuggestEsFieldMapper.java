@@ -80,11 +80,11 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   private Query suggestPhraseQuery(String q) {
     return Query.of(qb -> isPhrase(q)? qb.matchPhrase(QueryBuilders.matchPhrase().query(q)
-                                          .field("canonical_name")
+                                          .field("canonicalName")
                                           .boost(10.0f)
                                           .slop(2)
                                           .build()) : qb.match(QueryBuilders.match().query(q)
-                                          .field("canonical_name")
+                                          .field("canonicalName")
                                           .boost(10.0f)
                                           .build()));
   }
