@@ -16,8 +16,13 @@ package org.gbif.checklistbank.search.service;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 
 public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
+
+  private static boolean isPhrase(String q) {
+    return q.trim().indexOf(' ') > 0;
+  }
 
   @Override
   public Query fullTextQuery(String q) {
@@ -34,15 +39,20 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
                                                     "canonicalNameNgram^5",
                                                     "canonicalNameNgramTokenized^2",
                                                     "scientificName")
-                                            .minimumShouldMatch("2")
+                                            .minimumShouldMatch("1")
+                                            .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
                                             .slop(2)
                                            .build()));
   }
 
   private Query suggestPhraseQuery(String q) {
-    return Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
-                                          .fields("canonical_name^10")
+    return Query.of(qb -> isPhrase(q)? qb.matchPhrase(QueryBuilders.matchPhrase().query(q)
+                                          .field("canonical_name")
+                                          .boost(10.0f)
                                           .slop(2)
+                                          .build()) : qb.match(QueryBuilders.match().query(q)
+                                          .field("canonical_name")
+                                          .boost(10.0f)
                                           .build()));
   }
 }
