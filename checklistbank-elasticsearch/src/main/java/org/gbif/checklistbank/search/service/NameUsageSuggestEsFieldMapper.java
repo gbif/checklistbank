@@ -29,11 +29,15 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   @Override
   public Query fullTextQuery(String q) {
-    return Query.of(mq -> mq.bool(bool -> bool.must(suggestQuery(q))
+    return Query.of(mq -> mq.bool(bool -> { bool.must(suggestQuery(q))
                                                     .should(suggestPhraseQuery(q))
                                                     .should(BOOSTING_FUNCTION_QUERY)
-                                                    .should(SPECIES_BOOSTING_QUERY)
-                                                    .should(BOOSTING_QUERY)));
+                                                    .should(BOOSTING_QUERY);
+                                              if (isPhrase(q)) { //if it is phrase query boost species
+                                                bool.should(SPECIES_BOOSTING_QUERY);
+                                              }
+                                              return bool;
+    }));
   }
 
   @Override

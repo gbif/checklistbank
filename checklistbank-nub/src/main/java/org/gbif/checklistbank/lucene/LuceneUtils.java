@@ -18,10 +18,11 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.base.Throwables;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+
+import com.google.common.base.Throwables;
 
 /**
  *
