@@ -14,6 +14,9 @@
 package org.gbif.checklistbank.search.service;
 
 
+import java.util.Arrays;
+import java.util.List;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
@@ -33,6 +36,36 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
                                                     .should(BOOSTING_QUERY)));
   }
 
+  @Override
+  public List<String> getMappedFields() {
+    return Arrays.asList(
+      "key",
+      "nameKey",
+      "nubKey",
+      "parentKey",
+      "parent",
+      "scientificName",
+      "canonicalName",
+      "taxonomicStatusKey",
+      "rankKey",
+      "kingdomKey",
+      "kingdom",
+      "phylumKey",
+      "phylum",
+      "classKey",
+      "clazz",
+      "orderKey",
+      "order",
+      "familyKey",
+      "family",
+      "genusKey",
+      "genus",
+      "subgenusKey",
+      "subgenus",
+      "speciesKey",
+      "species");
+  }
+
   private Query suggestQuery(String q) {
     return  Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
                                             .fields("canonicalNameTokenized^10",
@@ -40,7 +73,7 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
                                                     "canonicalNameNgramTokenized^2",
                                                     "scientificName")
                                             .minimumShouldMatch("1")
-                                            .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
+                                            .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.MostFields)
                                             .slop(2)
                                            .build()));
   }

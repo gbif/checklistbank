@@ -97,7 +97,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                              .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))
                                                                                                         .boost(100.0f)))
                                                                              .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))))
-                                                                             .negativeBoost(100.0)
+                                                                             .negativeBoost(150.0)
                                                                              .build()));
 
   //double decayNumericGauss(double origin, double scale, double offset, double decay, double docValue)
