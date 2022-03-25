@@ -162,8 +162,7 @@
     },
     "vernacularName": {
       "type": "text",
-      "analyzer": "vernacular",
-      "search_analyzer": "standard"
+      "analyzer": "vernacular"
     },
     "vernacularNameLang": {
       "type": "text",
