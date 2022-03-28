@@ -70,6 +70,10 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
           .put("nomenclaturalStatusKey", NomenclaturalStatus.values().length)
           .put("habitatKey", Habitat.values().length)
           .put("nameType", NameType.values().length)
+          .put("extinct", 2)
+          .put("isSynonym", 2)
+          .put("issues", NameUsageIssue.values().length)
+          .put("rankKey", Rank.values().length)
           .build();
 
   private static final List<String> EXCLUDE_FIELDS = Collections.singletonList("all");
