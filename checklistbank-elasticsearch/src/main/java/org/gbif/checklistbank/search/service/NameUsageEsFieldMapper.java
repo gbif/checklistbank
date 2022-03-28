@@ -233,14 +233,14 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                     bool.must(mf -> mf.multiMatch(mm ->
                           mm.query(q)
                             .fields("description^0.1",
-                                    "vernacularName^3",
-                                    "canonicalName^10",
-                                    "scientificName^2",
+                                    "vernacularName",
+                                    "canonicalName",
+                                    "scientificName",
                                     "species",
                                     "subgenus",
                                     "family")
                             .minimumShouldMatch("1")
-                            .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.CrossFields)
+                            .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
                         ))
                       .should(phraseQuery(q))
                       .should(rankBoostingFunction(boostingRank))

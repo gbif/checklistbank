@@ -69,12 +69,12 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
   private Query suggestQuery(String q) {
     return  Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
-                                            .fields("canonicalNameTokenized^10",
-                                                    "canonicalNameNgram^5",
-                                                    "canonicalNameNgramTokenized^2",
+                                            .fields("canonicalNameTokenized",
+                                                    "canonicalNameNgram",
+                                                    "canonicalNameNgramTokenized",
                                                     "scientificName")
                                             .minimumShouldMatch("1")
-                                            .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.MostFields)
+                                            .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
                                             .slop(2)
                                            .build()));
   }
