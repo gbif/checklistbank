@@ -168,6 +168,9 @@
       "type": "text",
       "analyzer": "sciname"
     },
+    "vernacularLang": {
+      "type": "keyword"
+    },
     "higherTaxonKey": {
       "type": "integer"
     },

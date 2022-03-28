@@ -14,6 +14,8 @@
 package org.gbif.checklistbank.search.service;
 
 
+import org.gbif.api.vocabulary.Rank;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,19 +25,14 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 
 public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
 
-  private static boolean isPhrase(String q) {
-    return q.trim().indexOf(' ') > 0;
-  }
-
   @Override
   public Query fullTextQuery(String q) {
+    Rank boostingRank = isPhrase(q)? Rank.SPECIES: Rank.GENUS;
     return Query.of(mq -> mq.bool(bool -> { bool.must(suggestQuery(q))
                                                     .should(suggestPhraseQuery(q))
-                                                    .should(BOOSTING_FUNCTION_QUERY)
+                                                    .should(rankBoostingFunction(boostingRank))
+                                                    .should(rankBoostingQuery(boostingRank))
                                                     .should(BOOSTING_QUERY);
-                                              if (isPhrase(q)) { //if it is phrase query boost species
-                                                bool.should(SPECIES_BOOSTING_QUERY);
-                                              }
                                               return bool;
     }));
   }

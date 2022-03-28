@@ -86,11 +86,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
                                                                              .positive(p -> p.bool( pb ->
                                                                               pb.should(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())),
-                                                                                        Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build()))
+                                                                                        Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())),
+                                                                                        Query.of(m -> m.match(QueryBuilders.match().query(false).field("isSynonym").build()))
                                                                                 ).boost(50.0f)))
                                                                              .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())))
-                                                                                                               .mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())))))
-                                                                             .negativeBoost(50.0)
+                                                                                                               .mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())))
+                                                                                                               .should(Query.of(m -> m.match(QueryBuilders.match().query(true).field("isSynonym").build())))))
+                                                                             .negativeBoost(75.0)
                                                                              .build()));
 
   protected static final Query SPECIES_BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
@@ -105,6 +107,24 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
                                                   .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
+
+  protected static boolean isPhrase(String q) {
+    return q.trim().indexOf(' ') > 0;
+  }
+
+  protected Query rankBoostingFunction(Rank rank) {
+    return Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rankKey")))
+      .script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(25.0f)));
+  }
+
+  protected Query rankBoostingQuery(Rank rank) {
+    return Query.of(qb -> qb.boosting(QueryBuilders.boosting()
+                                        .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query(rank.ordinal()).field("rankKey").build())))
+                                          .boost(100.0f)))
+                                        .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query(rank.ordinal()).field("rankKey").build())))))
+                                        .negativeBoost(150.0)
+                                        .build()));
+  }
 
   @Override
   public NameUsageSearchParameter get(String esField) {
@@ -217,6 +237,8 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   @Override
   public Query fullTextQuery(String q) {
+    boolean isPhrase = isPhrase(q);
+    Rank boostingRank = isPhrase? Rank.SPECIES : Rank.GENUS;
     return Query.of(qb ->  qb.bool(BoolQuery.of( bool ->
                     bool.must(mf -> mf.multiMatch(mm ->
                           mm.query(q)
@@ -227,13 +249,12 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                     "species",
                                     "subgenus",
                                     "family")
-                            .tieBreaker(0.2d)
                             .minimumShouldMatch("1")
-                            .slop(3)
+                            .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.CrossFields)
                         ))
                       .should(phraseQuery(q))
-                      .should(BOOSTING_FUNCTION_QUERY)
-                      .should(SPECIES_BOOSTING_QUERY)
+                      .should(rankBoostingFunction(boostingRank))
+                      .should(rankBoostingQuery(boostingRank))
                       .should(BOOSTING_QUERY))
                 ));
   }
@@ -245,10 +266,8 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                     "vernacularName^20.0",
                                     "scientificName^100.0",
                                     "canonicalName^50.0")
-                            .tieBreaker(0.2d)
                             .minimumShouldMatch("1")
-                            .slop(100)
-                            .type(TextQueryType.Phrase)
+                            .type(TextQueryType.PhrasePrefix)
                             .build()));
   }
 
