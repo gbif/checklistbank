@@ -95,16 +95,6 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                              .negativeBoost(75.0)
                                                                              .build()));
 
-  protected static final Query SPECIES_BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
-                                                                             .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))
-                                                                                                        .boost(100.0f)))
-                                                                             .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("47").field("rankKey").build())))))
-                                                                             .negativeBoost(150.0)
-                                                                             .build()));
-
-  //double decayNumericGauss(double origin, double scale, double offset, double decay, double docValue)
-  protected static final Query BOOSTING_FUNCTION_QUERY = Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rankKey"))).script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + Rank.SPECIES.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(25.0f)));
-
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
                                                   .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
 
@@ -114,7 +104,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   protected Query rankBoostingFunction(Rank rank) {
     return Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rankKey")))
-      .script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(25.0f)));
+      .script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(250.0f)));
   }
 
   protected Query rankBoostingQuery(Rank rank) {
