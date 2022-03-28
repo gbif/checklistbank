@@ -22,6 +22,7 @@
 
     <properties>
         <start-class>org.gbif.checklistbank.ws.nub.NubWsApplication</start-class>
+        <lucene.version>5.4.1</lucene.version>
     </properties>
 
     <build>
