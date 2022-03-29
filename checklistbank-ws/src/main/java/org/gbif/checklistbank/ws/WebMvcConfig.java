@@ -26,6 +26,7 @@ import org.gbif.ws.server.provider.PageableHandlerMethodArgumentResolver;
 
 import java.util.*;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -118,6 +119,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
     objectMapper.addMixIn(TableOfContents.class, TableOfContentsMixin.class);
     objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
+    objectMapper.registerModule(new JavaTimeModule());
     return objectMapper;
   }
 

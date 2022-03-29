@@ -283,6 +283,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
+
         <!-- To ship JUL (e.g. Guice) logging to SLF4J -->
         <dependency>
             <groupId>org.slf4j</groupId>
