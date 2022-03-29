@@ -127,13 +127,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public XmlMapper xmlMapper() {
     XmlMapper xmlMapper = new XmlMapper();
     xmlMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    xmlMapper.registerModules(Arrays.asList(new SimpleModule(), new JaxbAnnotationModule()));
+    xmlMapper.registerModules(Arrays.asList(new SimpleModule(), new JaxbAnnotationModule(), new JavaTimeModule()));
     return xmlMapper;
   }
 
   @Bean
   public Jackson2ObjectMapperBuilderCustomizer customJson() {
-    return builder -> builder.modulesToInstall(new JaxbAnnotationModule());
+    return builder -> builder.modulesToInstall(new JaxbAnnotationModule(), new JavaTimeModule());
   }
 
   @Bean("multipartResolver")
