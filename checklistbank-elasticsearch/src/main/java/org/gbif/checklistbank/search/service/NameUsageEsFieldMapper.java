@@ -72,7 +72,6 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
           .put("nameType", NameType.values().length)
           .put("extinct", 2)
           .put("isSynonym", 2)
-          .put("issues", NameUsageIssue.values().length)
           .put("rankKey", Rank.values().length)
           .build();
 
