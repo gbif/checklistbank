@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
@@ -110,7 +111,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Primary
   @Bean
   public ObjectMapper objectMapper() {
-    return JacksonJsonObjectMapperProvider.getObjectMapper();
+    return JacksonJsonObjectMapperProvider.getObjectMapper()
+            .registerModules(new JavaTimeModule());
   }
 
   @Bean

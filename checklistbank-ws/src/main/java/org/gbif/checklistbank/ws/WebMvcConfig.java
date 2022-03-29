@@ -26,7 +26,6 @@ import org.gbif.ws.server.provider.PageableHandlerMethodArgumentResolver;
 
 import java.util.*;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -119,7 +118,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
     objectMapper.addMixIn(TableOfContents.class, TableOfContentsMixin.class);
     objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
-    objectMapper.registerModule(new JavaTimeModule());
     return objectMapper;
   }
 
@@ -127,13 +125,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public XmlMapper xmlMapper() {
     XmlMapper xmlMapper = new XmlMapper();
     xmlMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    xmlMapper.registerModules(Arrays.asList(new SimpleModule(), new JaxbAnnotationModule(), new JavaTimeModule()));
+    xmlMapper.registerModules(Arrays.asList(new SimpleModule(), new JaxbAnnotationModule()));
     return xmlMapper;
   }
 
   @Bean
   public Jackson2ObjectMapperBuilderCustomizer customJson() {
-    return builder -> builder.modulesToInstall(new JaxbAnnotationModule(), new JavaTimeModule());
+    return builder -> builder.modulesToInstall(new JaxbAnnotationModule());
   }
 
   @Bean("multipartResolver")
