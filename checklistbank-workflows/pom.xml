@@ -24,7 +24,7 @@
   <properties>
     <!-- Spark -->
     <spark.version>2.3.0</spark.version>
-    <spark.elasticsearch.version>8.1.0</spark.elasticsearch.version>
+    <spark.elasticsearch.version>8.1.1</spark.elasticsearch.version>
     <databricks.version>4.0.0</databricks.version>
     <scala.tools.version>2.11</scala.tools.version>
 
