@@ -85,7 +85,7 @@
         <amqp-client.version>5.9.0</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
         <assertj.version>3.5.2</assertj.version>
-        <avro.version>1.7.7</avro.version>
+        <avro.version>1.8.2</avro.version>
         <bval.version>0.5</bval.version>
         <commmons-lang.version>3.9</commmons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
