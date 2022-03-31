@@ -57,6 +57,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
             .withElasticsearchConfiguration(cfg.elasticsearch)
+            .withApiUrl(cfg.apiUrl)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,

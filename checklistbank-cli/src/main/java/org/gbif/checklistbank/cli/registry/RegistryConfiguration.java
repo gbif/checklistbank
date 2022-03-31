@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("PublicField")
 public class RegistryConfiguration {
@@ -57,4 +58,8 @@ public class RegistryConfiguration {
   @Parameter(names = "--pool-size")
   @Min(1)
   public int poolSize = 3;
+
+  @Parameter(names = "--api-url")
+  @Nullable
+  public String apiUrl;
 }

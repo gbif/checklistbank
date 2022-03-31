@@ -17,6 +17,7 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
@@ -62,6 +63,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   private final DescriptionServiceMyBatis descriptionService;
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
+  private final OccurrenceCountClient occurrenceCountClient;
 
   //
   private List<Integer> allIds;
@@ -120,7 +122,8 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   public NameUsageBatchProcessor(Integer threads, int batchSize, Integer logInterval,
                                  UsageService nameUsageService,
                                  VernacularNameService vernacularNameService, DescriptionService descriptionService,
-                                 DistributionService distributionService, SpeciesProfileService speciesProfileService) {
+                                 DistributionService distributionService, SpeciesProfileService speciesProfileService,
+                                 OccurrenceCountClient occurrenceCountClient) {
 
     super(threads);
     this.logInterval = logInterval;
@@ -131,6 +134,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     this.descriptionService = (DescriptionServiceMyBatis) descriptionService;
     this.distributionService = (DistributionServiceMyBatis) distributionService;
     this.speciesProfileService = (SpeciesProfileServiceMyBatis) speciesProfileService;
+    this.occurrenceCountClient = occurrenceCountClient;
   }
 
   @Override
@@ -166,10 +170,10 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     final int endKey = endIdx > allIds.size() ? allIds.get(allIds.size() - 1) : allIds.get(endIdx);
     jobCounter++;
 
-    return newBatchJob(startKey, endKey, nameUsageService, vernacularNameService, descriptionService, distributionService, speciesProfileService);
+    return newBatchJob(startKey, endKey, nameUsageService, vernacularNameService, descriptionService, distributionService, speciesProfileService, occurrenceCountClient);
   }
 
-  protected abstract Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService);
+  protected abstract Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService, OccurrenceCountClient occurrenceCountClient);
 
   private void initKeys() {
     StopWatch stopWatch = new StopWatch();

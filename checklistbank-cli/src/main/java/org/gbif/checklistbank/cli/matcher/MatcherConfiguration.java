@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("PublicField")
 public class MatcherConfiguration {
@@ -57,4 +58,8 @@ public class MatcherConfiguration {
   @Valid
   @NotNull
   public ElasticsearchConfiguration elasticsearch = new ElasticsearchConfiguration();
+
+  @Parameter(names = "--api-url")
+  @Nullable
+  public String apiUrl;
 }

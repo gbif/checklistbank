@@ -66,13 +66,13 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   private final DescriptionService descriptionService;
   private final DistributionService distributionService;
   private final SpeciesProfileService speciesProfileService;
+  private final OccurrenceCountClient occurrenceCountClient;
   // consider only some extension records at most
   private final PagingRequest page = new PagingRequest(0, 500);
   private final ExecutorService exec;
   private ConcurrentLinkedQueue<Future<?>> tasks = new ConcurrentLinkedQueue<>();
   private final Meter updMeter = new Meter();
   private final AtomicInteger updCounter = new AtomicInteger(0);
-  private final String indexName;
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -85,7 +85,8 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     DistributionService distributionService,
     SpeciesProfileService speciesProfileService,
     @Qualifier("syncThreads") Integer syncThreads,
-    @Qualifier("indexName") String indexName
+    @Qualifier("indexName") String indexName,
+    OccurrenceCountClient occurrenceCountClient
   ) {
     this.esClient = NameUsagesEsIndexingClient.builder().restClient(restClient).indexName(indexName).build();
     this.usageService = usageService;
@@ -93,9 +94,9 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
     this.speciesProfileService = speciesProfileService;
+    this.occurrenceCountClient = occurrenceCountClient;
 
     exec = Executors.newFixedThreadPool(syncThreads, new NamedThreadFactory(NAME));
-    this.indexName = indexName;
   }
 
   private <T> Future<T> addTask(Callable<T> task) {
@@ -119,7 +120,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
           ext.descriptions = descriptionService.listByUsage(key, page).getResults();
           ext.vernacularNames = vernacularNameService.listByUsage(key, page).getResults();
           ext.speciesProfiles = speciesProfileService.listByUsage(key, page).getResults();
-          return NameUsageAvroConverter.toObject(u, usageService.listParents(key), ext);
+          return NameUsageAvroConverter.toObject(u, usageService.listParents(key), ext, Optional.ofNullable(u.getNubKey()).map(occurrenceCountClient::count).orElse(null));
         }
       }
     ).collect(Collectors.toList()));
@@ -231,7 +232,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
             parents.add(u.getParentKey());
             parents.addAll(usageService.listParents(u.getParentKey()));
           }
-          return NameUsageAvroConverter.toObject(u, parents,null);
+          return NameUsageAvroConverter.toObject(u, parents,null, Optional.ofNullable(u.getNubKey()).map(occurrenceCountClient::count).orElse(null));
       }).collect(Collectors.toList()));
       return usages;
     }
@@ -261,7 +262,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
                                     ids.add(id);
                                     NameUsage u = dao.readUsage(id);
                                     UsageExtensions e = dao.readExtensions(id);
-                                    return NameUsageAvroConverter.toObject(u, usageService.listParents(u.getKey()), e);
+                                    return NameUsageAvroConverter.toObject(u, usageService.listParents(u.getKey()), e, Optional.ofNullable(u.getNubKey()).map(occurrenceCountClient::count).orElse(null));
                                   })
                        .collect(Collectors.toList()));
       return ids;

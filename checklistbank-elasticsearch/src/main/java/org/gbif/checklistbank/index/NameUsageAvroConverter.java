@@ -64,14 +64,14 @@ public class NameUsageAvroConverter {
   }
 
   /**
-   * Takes a Generic object and transform it into a {@link org.apache.solr.common.SolrInputDocument}.
+   * Takes a Generic object and transform it into a {@link NameUsageAvro}.
    *
-   * @param usage container to be transformed into a {@link org.apache.solr.common.SolrInputDocument}.
+   * @param usage container to be transformed into a {@link NameUsageAvro}.
    *              vernacular names, descriptions, species profiles and distributions are used, so populate them!
    *
-   * @return a {@link org.apache.solr.common.SolrInputDocument} using the Object parameter.
+   * @return a {@link NameUsageAvro} using the Object parameter.
    */
-  public static NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions) {
+  public static NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions, @Nullable Long occurrenceCount) {
     try {
       NameUsageAvro nameUsageAvro = new NameUsageAvro();
       nameUsageAvro.setKey(usage.getKey());
@@ -137,6 +137,10 @@ public class NameUsageAvroConverter {
         addDescriptions(nameUsageAvro, extensions);
         addDistributionsAndThreatStatus(nameUsageAvro, extensions);
         addSpeciesProfiles(nameUsageAvro, extensions);
+      }
+
+      if (occurrenceCount != null) {
+        //nameUsageAvro.setO
       }
       return nameUsageAvro;
 

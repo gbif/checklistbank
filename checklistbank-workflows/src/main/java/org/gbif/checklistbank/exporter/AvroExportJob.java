@@ -15,6 +15,7 @@ package org.gbif.checklistbank.exporter;
 
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.checklistbank.index.NameUsageAvroConverter;
+import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
@@ -27,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.avro.Schema;
@@ -44,7 +46,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 
 /**
- * Executable job that creates a list of {@link org.apache.solr.common.SolrInputDocument} using a list of {@link NameUsage} objects.
+ * Executable job that creates a list of {@link NameUsageAvro} using a list of {@link NameUsage} objects.
  */
 public class AvroExportJob implements Callable<Integer> {
 
@@ -60,9 +62,9 @@ public class AvroExportJob implements Callable<Integer> {
    */
   private final int endKey;
 
-  private String nameNode;
+  private final String nameNode;
 
-  private String targetHdfsDir;
+  private final String targetHdfsDir;
 
   /**
    * Service layer.
@@ -72,25 +74,22 @@ public class AvroExportJob implements Callable<Integer> {
   private final DescriptionServiceMyBatis descriptionService;
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
+  private final OccurrenceCountClient occurrenceCountClient;
 
-  private StopWatch stopWatch = new StopWatch();
-
-  /**
-   * {@link NameUsage}/{@link org.apache.solr.common.SolrInputDocument} converter.
-   */
-  private final NameUsageAvroConverter nameUsageAvroConverter;
+  private final StopWatch stopWatch = new StopWatch();
 
   /**
    * Default constructor.
    */
   public AvroExportJob(
-    final UsageService nameUsageService,
-    final int startKey,
-    final int endKey,
-    final VernacularNameServiceMyBatis vernacularNameService,
-    final DescriptionServiceMyBatis descriptionService,
-    final DistributionServiceMyBatis distributionService,
-    final SpeciesProfileServiceMyBatis speciesProfileService,
+    UsageService nameUsageService,
+    int startKey,
+    int endKey,
+    VernacularNameServiceMyBatis vernacularNameService,
+    DescriptionServiceMyBatis descriptionService,
+    DistributionServiceMyBatis distributionService,
+    SpeciesProfileServiceMyBatis speciesProfileService,
+    OccurrenceCountClient occurrenceCountClient,
     String nameNode,
     String targetHdfsDir
   ) {
@@ -99,16 +98,16 @@ public class AvroExportJob implements Callable<Integer> {
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
     this.speciesProfileService = speciesProfileService;
+    this.occurrenceCountClient = occurrenceCountClient;
     this.startKey = startKey;
     this.endKey = endKey;
-    nameUsageAvroConverter = new NameUsageAvroConverter();
     this.targetHdfsDir = targetHdfsDir;
     this.nameNode= nameNode;
 
   }
 
   /**
-   * Iterates over the assigned {@link NameUsage} objects to insert the corresponding {@link org.apache.solr.common.SolrInputDocument}
+   * Iterates over the assigned {@link NameUsage} objects to insert the corresponding {@link NameUsageAvro}
    * objects.
    *
    * @return the total number of documents added by this Thread.
@@ -119,8 +118,10 @@ public class AvroExportJob implements Callable<Integer> {
     stopWatch.start();
     log.info("Adding usages from id {} to {}", startKey, endKey);
     int docCount = 0;
+
     // Get all usages
     List<NameUsage> usages = nameUsageService.listRange(startKey, endKey);
+
     // get all component maps into memory first
     Map<Integer, List<VernacularName>> vernacularNameMap = vernacularNameService.listRange(startKey, endKey);
 
@@ -129,19 +130,18 @@ public class AvroExportJob implements Callable<Integer> {
     Map<Integer, List<Distribution>> distributionMap = distributionService.listRange(startKey, endKey);
 
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
+
     File file = new File(startKey+ "-" + endKey + ".avro");
     file.createNewFile();
     log.info("Creating file " + file.getAbsolutePath());
     ClassLoader classLoader = AvroExporter.class.getClassLoader();
     Schema schema = new Schema.Parser().parse(classLoader.getResource("nameusage.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
-    try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<NameUsageAvro>(datumWriter)) {
+    try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<>(datumWriter)) {
       dataFileWriter.create(schema, file);
-
-      // now we're ready to build the solr indices quicky!
       for (NameUsage usage : usages) {
         if (usage == null) {
-          log.warn("Unexpected numm usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
+          log.warn("Unexpected name usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
           continue;
         }
         try {
@@ -152,7 +152,7 @@ public class AvroExportJob implements Callable<Integer> {
           ext.distributions = distributionMap.get(usage.getKey());
 
           List<Integer> parents = nameUsageService.listParents(usage.getKey());
-          dataFileWriter.append(NameUsageAvroConverter.toObject(usage, parents, ext));
+          dataFileWriter.append(NameUsageAvroConverter.toObject(usage, parents, ext, Optional.ofNullable(usage.getNubKey()).map(occurrenceCountClient::count).orElse(null)));
 
         } catch (Exception e) {
           log.error("Error exporting  usage {}  extension {} to avro", usage, e);
@@ -166,14 +166,13 @@ public class AvroExportJob implements Callable<Integer> {
     log.info(file.getName() + " moved to hdfs");
     // job finished notice
     stopWatch.stop();
-    log.info("Finished indexing of usages in range {}-{}. Total time: {}",
-      new Object[] {startKey, endKey, stopWatch.toString()});
+    log.info("Finished indexing of usages in range {}-{}. Total time: {}", startKey, endKey, stopWatch.toString());
 
     return docCount;
   }
 
 
-  private boolean moveToHdfs(File file, String nameNode) throws IOException {
+  private boolean moveToHdfs(File file, String nameNode) {
     try {
       Configuration configuration = new Configuration();
       configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);

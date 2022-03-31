@@ -118,6 +118,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
               .withClbConfiguration(cfg.clb)
               .withElasticsearchConfiguration(cfg.elasticsearch)
               .withMessagingConfiguration(cfg.messaging)
+              .withApiUrl(cfg.apiUrl)
               .withComponents(
                   DatasetImportServiceMyBatis.class,
                   UsageSyncServiceMyBatis.class,

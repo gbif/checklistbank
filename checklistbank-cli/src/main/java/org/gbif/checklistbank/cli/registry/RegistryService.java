@@ -53,10 +53,10 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private ApplicationContext ctx;
 
   private final RegistryConfiguration cfg;
-  private DatasetImportService solrService;
+  private DatasetImportService esService;
   private DatasetImportService mybatisService;
   private DatasetMapper datasetMapper;
-  private Timer timerSolr;
+  private Timer timerEs;
   private Timer timerSql;
 
   public RegistryService(RegistryConfiguration cfg) {
@@ -68,6 +68,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
             .withClbConfiguration(cfg.clb)
             .withMessagingConfiguration(cfg.messaging)
             .withElasticsearchConfiguration(cfg.elasticsearch)
+            .withApiUrl(cfg.apiUrl)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,
@@ -85,7 +86,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   @Override
   protected void initMetrics() {
     super.initMetrics();
-    timerSolr = getRegistry().timer(regName("solr.time"));
+    timerEs = getRegistry().timer(regName("elasticsearch.time"));
     timerSql = getRegistry().timer(regName("sql.time"));
   }
 
@@ -117,10 +118,10 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private void delete(UUID key) throws RuntimeException {
     LogContext.startDataset(key);
     LOG.info("Deleting data for checklist {}", key);
-    // solr
-    Timer.Context context = timerSolr.time();
+    // Elasticsearch
+    Timer.Context context = timerEs.time();
     try {
-      solrService.deleteDataset(key);
+      esService.deleteDataset(key);
     } catch (Throwable e) {
       LOG.error("Failed to delete dataset with key [{}] from solr", key, e);
     } finally {
@@ -173,7 +174,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    solrService = ctx.getBean(NameUsageIndexServiceEs.class);
+    esService = ctx.getBean(NameUsageIndexServiceEs.class);
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 

@@ -50,5 +50,6 @@
     {"name":"vernacularLang","type":["null",{"type":"array", "items":"string"}],"default":null},
     {"name":"vernacularNameLang","type":["null",{"type":"array", "items":"string"}],"default":null},
     {"name":"higherTaxonKey","type":["null",{"type":"array", "items":"int"}],"default":null},
-    {"name":"issues","type":["null",{"type":"array", "items":"int"}],"default":null}]
+    {"name":"issues","type":["null",{"type":"array", "items":"int"}],"default":null},
+    {"name":"occurrenceCount","type":["long", "null"]}]
 }
