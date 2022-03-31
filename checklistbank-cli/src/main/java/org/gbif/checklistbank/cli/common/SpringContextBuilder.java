@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
@@ -168,6 +169,16 @@ public class SpringContextBuilder {
     }
     if (elasticsearchConfiguration != null) {
       ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
+
+      EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
+      esClientConfiguration.setHosts(elasticsearchConfiguration.hosts);
+      esClientConfiguration.setConnectionTimeOut(elasticsearchConfiguration.connectionTimeOut);
+      esClientConfiguration.setConnectionRequestTimeOut(elasticsearchConfiguration.connectionRequestTimeOut);
+      esClientConfiguration.setSocketTimeOut(elasticsearchConfiguration.socketTimeOut);
+      ctx.registerBean(EsClient.EsClientConfiguration.class, () -> esClientConfiguration);
+
+      ctx.registerBean(ElasticsearchClient.class, () -> EsClient.provideEsClient(esClientConfiguration));
+
       ctx.registerBean(NameUsageIndexServiceEs.class);
       ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
       ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
