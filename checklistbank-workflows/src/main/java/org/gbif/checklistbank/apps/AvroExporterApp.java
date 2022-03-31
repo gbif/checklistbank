@@ -14,12 +14,16 @@
 package org.gbif.checklistbank.apps;
 
 import org.gbif.checklistbank.exporter.AvroExporter;
+import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
+import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -33,7 +37,9 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -59,7 +65,7 @@ import org.springframework.stereotype.Component;
     })
 @Profile("!test")
 @Component
-@Import({SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
+@Import({AvroExporterApp.AvroExporterConfig.class, SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(
@@ -91,5 +97,17 @@ public class AvroExporterApp implements CommandLineRunner {
     }
     avroExporter.run();
     LOG.info("Indexing done. Time to exit.");
+  }
+
+  @Configuration
+  public static class AvroExporterConfig {
+
+    @Bean
+    public OccurrenceCountClient occurrenceCountClient(@Value("${apiUrl}") String apiUrl) {
+      return new ClientBuilder()
+        .withUrl(apiUrl)
+        .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
+        .build(OccurrenceCountClient.class);
+    }
   }
 }
