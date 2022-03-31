@@ -28,7 +28,16 @@
     </configuration>
   </global>
 
-  <start to="build_index" />
+  <start to="path_chooser" />
+
+  <decision name="path_chooser">
+    <switch>
+      <case to="build_index">
+        ${wf:conf('skipAvroExport')}
+      </case>
+      <default to="export_to_avro"/>
+    </switch>
+  </decision>
 
   <action name="export_to_avro">
     <java>
