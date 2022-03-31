@@ -19,14 +19,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.apache.http.HttpStatus;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.DeleteByQueryResponse;
+import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
+import co.elastic.clients.elasticsearch.core.bulk.DeleteOperation;
+import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
 
 import lombok.Builder;
 import lombok.Data;
@@ -36,74 +35,42 @@ import lombok.SneakyThrows;
 @Builder
 public class NameUsagesEsIndexingClient {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
-  static {
-    MAPPER.disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-  }
-
-  private final RestClient restClient;
+  private final ElasticsearchClient elasticsearchClient;
 
   private final String indexName;
 
   @SneakyThrows
-  public String indexRequest(String id, String jsonData) {
-    return "{ \"index\" : {\"_id\" : \"" + id + "\" } }\n" + jsonData;
+  private BulkResponse bulkRequest(List<BulkOperation> operations) {
+    return elasticsearchClient.bulk(new BulkRequest.Builder().index(indexName).operations(operations).build());
   }
 
-  @SneakyThrows
-  public String indexRequest(String id, Object value) {
-    return indexRequest(id, MAPPER.writeValueAsString(value));
-  }
-
-  @SneakyThrows
-  public String deleteRequest(String id) {
-    return "{ \"delete\" : {\"_id\" : \"" + id + "\" } }";
-  }
-
-  @SneakyThrows
-  public Response bulkRequest(String requests) {
-    Request request = new Request("POST", indexName + "/_bulk");
-    request.setJsonEntity(requests + "\n"); //bulk request must be terminated by a newline
-    request.setOptions(RequestOptions.DEFAULT);
-    return restClient.performRequest(request);
-  }
-
-  @SneakyThrows
-  public Response deleteByQuery(String jsonQuery) {
-    Request request = new Request("POST",indexName + "/_delete_by_query");
-    request.setOptions(RequestOptions.DEFAULT);
-    request.setJsonEntity(jsonQuery);
-    return restClient.performRequest(request);
-  }
-
-  private void throwIfError(Response response) {
-    if (HttpStatus.SC_OK != response.getStatusLine().getStatusCode()) {
+  private void throwIfError(DeleteByQueryResponse response) {
+    if (!response.failures().isEmpty()) {
       throw new RuntimeException("Error creating " + response);
     }
   }
 
+  private void throwIfError(BulkResponse response) {
+    if (response.errors()) {
+      throw new RuntimeException("Error creating " + response);
+    }
+  }
+
+  @SneakyThrows
   public void deleteByDatasetKey(UUID datasetKey) {
-    throwIfError(deleteByQuery("{\n"
-                         + "  \"query\": {\n"
-                         + "    \"match\": {\n"
-                         + "      \"datasetKey\": \"" + datasetKey.toString() + "\"\n"
-                         + "    }\n"
-                         + "  }\n"
-                         + "}"));
+    throwIfError(elasticsearchClient.deleteByQuery(dq -> dq.query(q -> q.match(m -> m.field("datasetKey").query(datasetKey.toString())))));
   }
 
   public void  bulkDelete(List<Integer> ids) {
     throwIfError(bulkRequest(ids.stream()
-                                .map(id -> deleteRequest(id.toString()))
-                                .collect(Collectors.joining("\n"))));
+                                .map(id -> new BulkOperation.Builder().delete(new DeleteOperation.Builder().id(id.toString()).build()).build())
+                                .collect(Collectors.toList())));
   }
 
   public void bulkAdd(List<NameUsageAvro> usages) {
     throwIfError(bulkRequest(usages.stream()
-                               .map(u -> indexRequest(u.getKey().toString(), u))
-                               .collect(Collectors.joining("\n"))));
+                               .map(u -> new BulkOperation.Builder().index(new IndexOperation.Builder<>().index(u.getKey().toString()).document(u).build()).build())
+                               .collect(Collectors.toList())));
   }
-
 
 }

@@ -38,6 +38,7 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,7 +79,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
 
   @Autowired
   public NameUsageIndexServiceEs(
-    RestClient restClient,
+    ElasticsearchClient elasticsearchClient,
     UsageService usageService,
     VernacularNameService vernacularNameService,
     DescriptionService descriptionService,
@@ -88,7 +89,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     @Qualifier("indexName") String indexName,
     OccurrenceCountClient occurrenceCountClient
   ) {
-    this.esClient = NameUsagesEsIndexingClient.builder().restClient(restClient).indexName(indexName).build();
+    this.esClient = NameUsagesEsIndexingClient.builder().elasticsearchClient(elasticsearchClient).indexName(indexName).build();
     this.usageService = usageService;
     this.vernacularNameService = vernacularNameService;
     this.descriptionService = descriptionService;
