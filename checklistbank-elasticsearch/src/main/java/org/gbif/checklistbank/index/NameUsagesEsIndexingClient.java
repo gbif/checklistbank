@@ -69,7 +69,7 @@ public class NameUsagesEsIndexingClient {
 
   public void bulkAdd(List<NameUsageAvro> usages) {
     throwIfError(bulkRequest(usages.stream()
-                               .map(u -> new BulkOperation.Builder().index(new IndexOperation.Builder<>().index(u.getKey().toString()).document(u).build()).build())
+                               .map(u -> new BulkOperation.Builder().index(new IndexOperation.Builder<>().id(u.getKey().toString()).document(u).build()).build())
                                .collect(Collectors.toList())));
   }
 
