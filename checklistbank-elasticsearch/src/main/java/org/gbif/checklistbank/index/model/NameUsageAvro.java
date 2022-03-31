@@ -3,7 +3,10 @@
  * 
  * DO NOT EDIT DIRECTLY
  */
-package org.gbif.checklistbank.index.model;  
+package org.gbif.checklistbank.index.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
@@ -123,6 +126,7 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     this.occurrenceCount = occurrenceCount;
   }
 
+  @JsonIgnore
   @Override
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
 
