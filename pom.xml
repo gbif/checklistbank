@@ -81,6 +81,9 @@
         <feign.version>10.11</feign.version>
         <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
 
+        <!-- Cache -->
+        <cache2k.version>2.6.1.Final</cache2k.version>
+
         <!-- external libs -->
         <amqp-client.version>5.9.0</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
@@ -625,6 +628,19 @@
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
                 <version>${kryo.version}</version>
+            </dependency>
+
+            <!-- Cache -->
+            <dependency>
+                <groupId>org.cache2k</groupId>
+                <artifactId>cache2k-api</artifactId>
+                <version>${cache2k.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.cache2k</groupId>
+                <artifactId>cache2k-core</artifactId>
+                <version>${cache2k.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Logging -->

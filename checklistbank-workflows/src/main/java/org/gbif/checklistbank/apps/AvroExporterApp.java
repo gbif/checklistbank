@@ -104,10 +104,10 @@ public class AvroExporterApp implements CommandLineRunner {
 
     @Bean
     public OccurrenceCountClient occurrenceCountClient(@Value("${apiUrl}") String apiUrl) {
-      return new ClientBuilder()
-        .withUrl(apiUrl)
-        .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-        .build(OccurrenceCountClient.class);
+      return OccurrenceCountClient.cachingClient(new ClientBuilder()
+                                                  .withUrl(apiUrl)
+                                                  .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
+                                                  .build(OccurrenceCountClient.class));
     }
   }
 }
