@@ -88,20 +88,20 @@ public class IndexerApp {
   }
 
   private void sync() throws Exception {
-    // init mybatis layer and solr from cfg instance
-//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(iCfg.clb), new RealTimeModule(iCfg.solr));
+    // init mybatis layer and Elasticsearch from cfg instance
+//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(iCfg.clb), new RealTimeModule(iCfg.elasticsearch));
 //    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
 //    NameUsageService nameUsageService = inj.getInstance(NameUsageService.class);
 //    UsageService usageService = inj.getInstance(UsageService.class);
 //    DatasetImportService sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-//    DatasetImportService solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+//    DatasetImportService searchIndexService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
 //
 //    try {
-//      Importer importer = Importer.create(iCfg, datasetKey, nameUsageService, usageService, sqlService, solrService);
+//      Importer importer = Importer.create(iCfg, datasetKey, nameUsageService, usageService, sqlService, searchIndexService);
 //      importer.run();
 //    } finally {
 //      sqlService.close();
-//      solrService.close();
+//      searchIndexService.close();
 //      hds.close();
 //    }
   }

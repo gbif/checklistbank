@@ -62,7 +62,7 @@ public class MultiThreadingCliTest {
   private NameUsageService usageService;
   private HikariDataSource hds;
   DatasetImportService sqlService;
-  DatasetImportService solrService;
+  DatasetImportService searchIndexService;
 
   @Before
   public void init() throws Exception {
@@ -131,13 +131,13 @@ public class MultiThreadingCliTest {
 
     PrintStream log = System.out;
 
-    // init mybatis layer and solr from cfgN instance
-    cfgI.elasticsearch.hosts = "http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    // init mybatis layer and search index from cfgN instance
+    cfgI.elasticsearch.hosts = "http://devspeciessearch1-vh.gbif.org:9200/species/";
     cfgI.elasticsearch.index = "species";
-//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.solr));
+//    Injector inj = Guice.createInjector(ChecklistBankServiceMyBatisModule.create(cfgI.clb), new RealTimeModule(cfgI.elasticSearch));
 //    usageService = inj.getInstance(NameUsageService.class);
 //    sqlService = inj.getInstance(Key.get(DatasetImportService.class, Mybatis.class));
-//    solrService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
+//    searchIndexService = inj.getInstance(Key.get(DatasetImportService.class, Solr.class));
 //
 //    hds = (HikariDataSource) inj.getInstance(InternalChecklistBankServiceMyBatisModule.DATASOURCE_KEY);
     // truncate tables
@@ -191,6 +191,6 @@ public class MultiThreadingCliTest {
   }
 
   public Importer buildImporter(UUID datasetKey) throws SQLException {
-    return Importer.create(cfgI, datasetKey, usageService, null, sqlService, solrService);
+    return Importer.create(cfgI, datasetKey, usageService, null, sqlService, searchIndexService);
   }
 }

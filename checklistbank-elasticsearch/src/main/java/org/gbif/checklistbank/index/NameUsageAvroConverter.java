@@ -33,7 +33,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 /**
- * Threadsafe class that transforms a {@link NameUsage} object into {@link org.apache.solr.common.SolrInputDocument}.
+ * Threadsafe class that transforms a {@link NameUsage} object into {@link NameUsageAvro}.
  */
 public class NameUsageAvroConverter {
 
@@ -139,9 +139,8 @@ public class NameUsageAvroConverter {
         addSpeciesProfiles(nameUsageAvro, extensions);
       }
 
-      if (occurrenceCount != null) {
-        //nameUsageAvro.setO
-      }
+      nameUsageAvro.setOccurrenceCount(occurrenceCount);
+
       return nameUsageAvro;
 
     } catch (Exception e) {

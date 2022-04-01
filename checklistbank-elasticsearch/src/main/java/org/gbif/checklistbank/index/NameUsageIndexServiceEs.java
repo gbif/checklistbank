@@ -109,7 +109,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   private void insertOrUpdateByKey(Iterable<Integer> keys) {
     insertOrUpdate(StreamSupport.stream(keys.spliterator(), false).map(key -> {
         // we use the list service for just one record cause its more effective
-        // leaving out fields that we do not index in solr
+        // leaving out fields that we do not index in the index
         List<NameUsage> range = usageService.listRange(key, key);
         if (range.isEmpty()) {
           return null;
@@ -240,7 +240,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   }
 
   /**
-   * Updates solr by loading given usage keys from the provided ImporterCallback handler.
+   * Updates the search index by loading given usage keys from the provided ImporterCallback handler.
    * This is used by the neo4j backed indexing tools to provide data from neo without coupling the service here to neo4j.
    */
   class IndexUpdateCallback implements Callable<List<Integer>> {
@@ -271,7 +271,7 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   }
 
   /**
-   * Updates solr by loading given usage keys from mybatis.
+   * Updates the search index by loading given usage keys from mybatis.
    */
   class IndexUpdateMybatis implements Callable<List<Integer>> {
     private final List<Integer> ids;

@@ -80,9 +80,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that
- * into postgres. By default solr indexing is not tested and a mock service is used instead. This is
- * done cause neo4j uses an old version of lucene which conflicts with solr, preventing the use of
- * an embedded solr server for tests. An external solr instance can be configured manually in
+ * into postgres. By default search indexing is not tested and a mock service is used instead. This is
+ * done cause neo4j uses an old version of lucene which conflicts. An external Elasticsearch instance can be configured manually in
  * cfg-importer.yaml if wanted
  */
 @Disabled
@@ -286,14 +285,14 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   }
 
   /**
-   * Reimport the same dataset and make sure ids stay the same. This test also checks solr if
-   * manually configured - default is without solr.
+   * Reimport the same dataset and make sure ids stay the same. This test also checks Elasticsearch if
+   * manually configured - default is without Elasticsearch.
    */
   @Test
   public void testStableIds() throws Exception {
     final UUID datasetKey = NormalizerTest.datasetKey(14);
 
-    // truncate solr
+    // truncate Elasticsearch
     searchIndexService.deleteDataset(datasetKey);
 
     NameUsageSearchRequest search = new NameUsageSearchRequest();
@@ -328,7 +327,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull(u, "Higher taxon key " + key + " in solr does not exist in postgres");
+        assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in postgres");
       }*/
     }
 
@@ -362,7 +361,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       }
     }
 
-    // check higher taxa again, wait a little for solr to catch up
+    // check higher taxa again, wait a little for Elasticsearch to catch up
     if (iCfg.apiUrl != null) {
       //TODO
      /* Thread.sleep(1000);
@@ -377,7 +376,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
         System.out.println(c);
         int key = Integer.valueOf(c.getName());
         NameUsage u = nameUsageService.get(key, null);
-        assertNotNull(u, "Higher taxon key " + key + " in solr does not exist in postgres");
+        assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in postgres");
       }*/
     }
   }

@@ -33,7 +33,7 @@ public class SciNameNormalizer {
   private static final Pattern removeHybridSignGenus   = Pattern.compile("^\\s*[×xX]\\s*([A-Z])");
   private static final Pattern removeHybridSignEpithet = Pattern.compile("(?:^|\\s)(?:×\\s*|[xX]\\s+)([^A-Z])");
 
-  // dont use guava or commons so we dont have to bundle it for the solr cloud plugin ...
+  // don't use guava or commons so we dont have to bundle it for the  plugin ...
   public static boolean hasContent(String s) {
     return s != null && !(s.trim().isEmpty());
   }

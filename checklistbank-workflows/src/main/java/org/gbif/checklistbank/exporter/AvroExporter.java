@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Checklist Bank multi-threaded name usage solr indexer. This class creates a pool of configurable
+ * Checklist Bank multi-threaded name usage indexer. This class creates a pool of configurable
  * <i>threads</i> that concurrently execute a number of jobs each processing a configurable number
  * of name usages (<i>batchSize</i>) using a configurable number of concurrent lucene
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank

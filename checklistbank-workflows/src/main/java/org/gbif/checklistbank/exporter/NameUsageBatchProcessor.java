@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checklist Bank multithreaded name usage solr indexer.
+ * Checklist Bank multithreaded name usage indexer.
  * This class creates a pool of configurable <i>threads</i> that concurrently execute a number of jobs
  * each processing a configurable number of name usages (<i>batchSize</i>)
  * using a configurable number of concurrent lucene <i>writers</i>.

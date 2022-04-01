@@ -127,7 +127,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
    * particular for the classification key (e.g. kingdomKey) that usages must be synced in taxonomic
    * hierarchical order. Root usages must be inserted first so that child usages can point to
    * parental usages without breaking foreign key constraints in the database. This DOES NOT update
-   * the solr index or anything else but postgres!
+   * the search index or anything else but postgres!
    */
   @Override
   public int syncUsage(boolean insert, NameUsage usage, ParsedName pn, NameUsageMetrics metrics) {
@@ -220,7 +220,7 @@ public class UsageSyncServiceMyBatis implements UsageSyncService {
 
     // update self references indicated by -1 so that the usage does not contain any bad foreign
     // keys anymore
-    // this is needed for subsequent syncing of solr!
+    // this is needed for subsequent syncing of the search index!
     updateSelfReferences(u);
 
     // insert usage metrics

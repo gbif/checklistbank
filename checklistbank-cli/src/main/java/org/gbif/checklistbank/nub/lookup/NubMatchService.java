@@ -43,15 +43,15 @@ public class NubMatchService {
   private final NeoConfiguration neo;
   protected IdLookup nubLookup;
   private final DatasetImportService sqlService;
-  private final DatasetImportService solrService;
+  private final DatasetImportService searchIndexService;
   private int counter = 0;
 
-  public NubMatchService(ClbConfiguration cfg, NeoConfiguration neo, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService solrService) {
+  public NubMatchService(ClbConfiguration cfg, NeoConfiguration neo, IdLookup nubLookup, DatasetImportService sqlService, DatasetImportService searchIndexService) {
     this.cfg = cfg;
     this.neo = neo;
     this.nubLookup = nubLookup;
     this.sqlService = sqlService;
-    this.solrService = solrService;
+    this.searchIndexService = searchIndexService;
   }
 
   /**
@@ -141,9 +141,9 @@ public class NubMatchService {
             d.getKey()
         );
         sqlService.insertNubRelations(d.getKey(), relations);
-        if (solrService != null) {
+        if (searchIndexService != null) {
           LOG.warn("No SOLR service configured to update matches in search index for dataset {}!", d.getKey());
-          solrService.insertNubRelations(d.getKey(), relations);
+          searchIndexService.insertNubRelations(d.getKey(), relations);
         }
         counter++;
       } else {

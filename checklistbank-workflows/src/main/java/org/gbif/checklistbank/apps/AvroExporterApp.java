@@ -34,7 +34,6 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +45,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 /**
- * Checklist Bank multi-threaded name usage solr indexer. This class creates a pool of configurable
+ * Checklist Bank multi-threaded name usage indexer. This class creates a pool of configurable
  * <i>threads</i> that concurrently execute a number of jobs each processing a configurable number
  * of name usages (<i>batchSize</i>) using a configurable number of concurrent lucene
  * <i>writers</i>. The indexer makes direct use of the mybatis layer and requires a checklist bank
@@ -58,7 +57,6 @@ import org.springframework.stereotype.Component;
       LiquibaseAutoConfiguration.class,
       FreeMarkerAutoConfiguration.class,
       ArchaiusAutoConfiguration.class,
-      SolrAutoConfiguration.class,
       RabbitAutoConfiguration.class,
       GsonAutoConfiguration.class,
       FeignAutoConfiguration.class

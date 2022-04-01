@@ -74,7 +74,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
 /**
- * Importer that reads a neo database and syncs it with a postgres checklistbank db and solr index.
+ * Importer that reads a neo database and syncs it with a postgres Checklistbank db and search index.
  * It understands pro parte synonym relations and creates multiple postgres usages for each accepted parent.
  */
 public class Importer extends ImportDb implements Runnable, ImporterCallback {
@@ -87,7 +87,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private int syncCounterProParte;
   private int delCounter;
   private final DatasetImportService sqlService;
-  private final DatasetImportService esService;
+  private final DatasetImportService searchIndexService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
@@ -108,14 +108,14 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
   private Importer(UUID datasetKey, UsageDao dao,
                    NameUsageService nameUsageService, UsageService usageService,
-                   DatasetImportService sqlService, DatasetImportService esService,
+                   DatasetImportService sqlService, DatasetImportService searchIndexService,
                    ImporterConfiguration cfg) {
     super(datasetKey, dao);
     this.cfg = cfg;
     this.nameUsageService = nameUsageService;
     this.usageService = usageService;
     this.sqlService = sqlService;
-    this.esService = esService;
+    this.searchIndexService = searchIndexService;
   }
 
   /**
@@ -123,11 +123,11 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
    */
   public static Importer create(ImporterConfiguration cfg, UUID datasetKey,
                                 NameUsageService nameUsageService, UsageService usageService,
-                                DatasetImportService sqlService, DatasetImportService solrService) {
+                                DatasetImportService sqlService, DatasetImportService searchService) {
     return new Importer(datasetKey,
         UsageDao.open(cfg.neo, datasetKey),
         nameUsageService, usageService,
-        sqlService, solrService,
+        sqlService, searchService,
         cfg);
   }
 
@@ -136,10 +136,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     LOG.info("Start importing checklist");
     try {
       syncDataset();
-      LOG.info("Waiting for threads to finish {} sql and {} solr jobs", usageFutures.size(), otherFutures.size());
+      LOG.info("Waiting for threads to finish {} sql and {} indexing jobs", usageFutures.size(), otherFutures.size());
       awaitUsageFutures();
       awaitProParteFuture();
-      // wait for extensions and solr jobs to finish
+      // wait for extensions and indexing jobs to finish
       awaitOtherFutures();
       LOG.info("Importing succeeded. {} main, {} subtree chunk and {} pro parte usages synced", syncCounterMain, syncCounterBatches, syncCounterProParte);
 
@@ -201,10 +201,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
           batch = subtreeBatch(n);
           chunks++;
           syncCounterBatches = syncCounterBatches + batch.size();
-          // wait for main future to finish and submit solr update ...
+          // wait for main future to finish and submit index update ...
           if (f != null) {
-            otherFutures.add(esService.sync(datasetKey, this, f.get()));
-            LOG.debug("main nodes synced. Submit solr update");
+            otherFutures.add(searchIndexService.sync(datasetKey, this, f.get()));
+            LOG.debug("main nodes synced. Submit index update");
           }
           // main nodes are in postgres. Now we can submit the sync task for the subtree
           LOG.debug("submit subtree chunk with {} usages starting with {}", batch.size(), n);
@@ -263,7 +263,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       }
       List<UsageForeignKeys> fks = ImmutableList.copyOf(postKeys.values());
       sqlService.updateForeignKeys(datasetKey, fks);
-      esService.updateForeignKeys(datasetKey, fks);
+      searchIndexService.updateForeignKeys(datasetKey, fks);
     }
   }
 
@@ -355,10 +355,10 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
 
 
     LOG.info("Deleting all usages before {}", cal.getTime());
-    // iterate over all ids to be deleted and remove them from solr first
+    // iterate over all ids to be deleted and remove them from search index first
     List<Integer> ids = usageService.listOldUsages(datasetKey, cal.getTime());
 
-    otherFutures.add(esService.deleteUsages(datasetKey, ids));
+    otherFutures.add(searchIndexService.deleteUsages(datasetKey, ids));
     otherFutures.add(sqlService.deleteUsages(datasetKey, ids));
     delCounter = ids.size();
   }
@@ -376,18 +376,18 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private void awaitProParteFuture() throws ExecutionException, InterruptedException {
     if (proParteFuture != null) {
       // wait for pro parte pg sync.
-      // solr doesnt need the parsed names
-      otherFutures.add(esService.sync(datasetKey, this, proParteFuture.get(), null));
+      // search index doesn't need the parsed names
+      otherFutures.add(searchIndexService.sync(datasetKey, this, proParteFuture.get(), null));
     }
   }
   /**
    *
-   * Waits for all core usages jobs to finish and submits solr updates for all of them once completed.
+   * Waits for all core usages jobs to finish and submits search index updates for all of them once completed.
    */
   private void awaitUsageFutures() throws ExecutionException, InterruptedException {
     for (Future<List<Integer>> f : usageFutures) {
       List<Integer> ids = f.get();
-      otherFutures.add(esService.sync(datasetKey, this, ids));
+      otherFutures.add(searchIndexService.sync(datasetKey, this, ids));
     }
     usageFutures.clear();
   }
@@ -398,7 +398,7 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
       Future<List<Integer>> f = iter.next();
       if (f.isDone()) {
         List<Integer> ids = f.get();
-        otherFutures.add(esService.sync(datasetKey, this, ids));
+        otherFutures.add(searchIndexService.sync(datasetKey, this, ids));
         iter.remove();
       }
     }

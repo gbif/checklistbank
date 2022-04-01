@@ -45,7 +45,6 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.boot.autoconfigure.solr.SolrAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -222,7 +221,6 @@ public class SpringContextBuilder {
         LiquibaseAutoConfiguration.class,
         FreeMarkerAutoConfiguration.class,
         ArchaiusAutoConfiguration.class,
-        SolrAutoConfiguration.class,
         RabbitAutoConfiguration.class
       })
   @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")

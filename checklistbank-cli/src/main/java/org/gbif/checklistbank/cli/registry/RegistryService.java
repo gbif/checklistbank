@@ -53,7 +53,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
   private ApplicationContext ctx;
 
   private final RegistryConfiguration cfg;
-  private DatasetImportService esService;
+  private DatasetImportService searchIndexService;
   private DatasetImportService mybatisService;
   private DatasetMapper datasetMapper;
   private Timer timerEs;
@@ -121,9 +121,9 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
     // Elasticsearch
     Timer.Context context = timerEs.time();
     try {
-      esService.deleteDataset(key);
+      searchIndexService.deleteDataset(key);
     } catch (Throwable e) {
-      LOG.error("Failed to delete dataset with key [{}] from solr", key, e);
+      LOG.error("Failed to delete dataset with key [{}] from search index", key, e);
     } finally {
       context.stop();
     }
@@ -174,7 +174,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    esService = ctx.getBean(NameUsageIndexServiceEs.class);
+    searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 

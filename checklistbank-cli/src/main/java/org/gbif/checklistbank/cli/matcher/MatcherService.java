@@ -44,7 +44,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   private NubMatchService matcher;
   private static final String QUEUE = "clb-matcher";
   private final DatasetImportService sqlImportService;
-  private final DatasetImportService solrImportService;
+  private final DatasetImportService searchImportService;
   private final MatcherConfiguration cfg;
   private Timer timer;
 
@@ -71,7 +71,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
                 CitationServiceMyBatis.class)
             .build();
     sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    solrImportService = ctx.getBean(NameUsageIndexServiceEs.class);
+    searchImportService = ctx.getBean(NameUsageIndexServiceEs.class);
   }
 
   @Override
@@ -84,7 +84,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   protected void startUpBeforeListening() throws Exception {
     // loads all nub usages directly from clb postgres - this can take a few minutes
     IdLookup lookup = IdLookupImpl.temp().load(ClbNubConfiguration.fromClbConfiguration(cfg.clb), false);
-    matcher = new NubMatchService(cfg.clb, cfg.neo, lookup, sqlImportService, solrImportService);
+    matcher = new NubMatchService(cfg.clb, cfg.neo, lookup, sqlImportService, searchImportService);
   }
 
   @Override
@@ -113,6 +113,6 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
   protected void shutDown() throws Exception {
     super.shutDown();
     sqlImportService.close();
-    solrImportService.close();
+    searchImportService.close();
   }
 }

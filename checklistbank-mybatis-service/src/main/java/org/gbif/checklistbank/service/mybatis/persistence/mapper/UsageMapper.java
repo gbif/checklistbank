@@ -33,7 +33,7 @@ public interface UsageMapper {
 
   /**
    * Return ids of all parents, limited to max 100 to avoid endless loops that bring down the JVM
-   * as seen during CoL solr index build
+   * as seen during CoL index build
    */
   List<Integer> listParents(@Param("key") int usageKey);
 

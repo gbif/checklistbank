@@ -48,7 +48,7 @@ import com.google.common.io.Resources;
 @Disabled("A manual test class")
 /**
  * Test to manually index an external checklist and download, normalize and import it.
- * For importing it uses the test resource yaml config file where you can turn on solr if needed!
+ * For importing it uses the test resource yaml config file where you can turn on search index if needed!
  */
 public class ManualImport implements AutoCloseable {
   UUID datasetKey;
@@ -109,12 +109,11 @@ public class ManualImport implements AutoCloseable {
     iCfg = mapper.readValue(Resources.getResource("cfg-importer.yaml"), ImporterConfiguration.class);
     iCfg.neo = nCfg.neo;
     iCfg.deleteNeo = false;
-//    iCfg.clb.serverName = "localhost";
-//    iCfg.clb.databaseName = "clb";
+    //iCfg.clb.serverName = "localhost";
+    //iCfg.clb.databaseName = "clb";
     iCfg.clb.user = "postgres";
     iCfg.clb.password = "pogo";
-    //iCfg.solr.serverType = SolrServerType.HTTP;
-    //iCfg.solr.serverHome="http://apps2.gbif-dev.org:8082/checklistbank-solr";
+    //iCfg.elasticsearch.host="http://devspeciessearch1-vh.gbif.org:9200/species/";
 
     // truncate tables?
     if (truncate) {
