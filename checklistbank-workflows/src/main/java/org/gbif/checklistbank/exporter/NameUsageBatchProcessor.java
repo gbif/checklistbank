@@ -183,11 +183,11 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     allIds = nameUsageService.listAll();
     //allIds = Lists.newArrayList(ContiguousSet.create(Range.closed(0, 13), DiscreteDomain.integers()).asList());
 
-    LOG.info("Retrieved all {} usage ids in {}", allIds.size(), stopWatch.toString());
+    LOG.info("Retrieved all {} usage ids in {}", allIds.size(), stopWatch);
     stopWatch.reset();
     stopWatch.start();
     Collections.sort(allIds);
-    LOG.info("Sorted all {} usage ids in {}", allIds.size(), stopWatch.toString());
+    LOG.info("Sorted all {} usage ids in {}", allIds.size(), stopWatch);
     LOG.info("{} full jobs each processing {} records to be created.", allIds.size() / batchSize, batchSize);
 
     // start global reporter
