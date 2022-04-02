@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +57,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 /** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {

@@ -26,7 +26,6 @@ import co.elastic.clients.elasticsearch.core.DeleteByQueryResponse;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.DeleteOperation;
 import co.elastic.clients.elasticsearch.core.bulk.IndexOperation;
-
 import lombok.Builder;
 import lombok.Data;
 import lombok.SneakyThrows;

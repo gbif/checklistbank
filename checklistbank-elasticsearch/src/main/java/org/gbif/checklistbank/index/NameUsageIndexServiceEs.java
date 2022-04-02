@@ -38,8 +38,6 @@ import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -47,6 +45,7 @@ import org.springframework.stereotype.Service;
 import com.codahale.metrics.Meter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
