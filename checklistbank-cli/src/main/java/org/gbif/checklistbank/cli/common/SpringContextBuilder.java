@@ -32,6 +32,7 @@ import org.gbif.ws.client.ClientBuilder;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -161,10 +162,10 @@ public class SpringContextBuilder {
 
     if (apiUrl != null) {
       ctx.registerBean(OccurrenceCountClient.class,
-                       () -> new ClientBuilder()
+                       () -> OccurrenceCountClient.cachingClient(new ClientBuilder()
                          .withUrl(apiUrl)
                          .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-                         .build(OccurrenceCountClient.class));
+                         .build(OccurrenceCountClient.class), Duration.ofMinutes(10)));
     }
     if (elasticsearchConfiguration != null) {
       ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
