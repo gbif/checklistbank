@@ -19,6 +19,7 @@ import org.gbif.api.vocabulary.Rank;
 import java.util.Arrays;
 import java.util.List;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
@@ -64,11 +65,15 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
       "subgenusKey",
       "subgenus",
       "speciesKey",
-      "species");
+      "species",
+      "occurrenceCount");
+
   }
 
   private Query suggestQuery(String q) {
-    return  Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
+    return
+    Query.of(mq -> mq.functionScore(FunctionScoreQuery.of(fq -> fq.functions(f -> f.fieldValueFactor(FULLTEXT_SCORE_FUNCTION))
+      .query(Query.of(qb -> qb.multiMatch(QueryBuilders.multiMatch().query(q)
                                             .fields("canonicalNameTokenized",
                                                     "canonicalNameNgram",
                                                     "canonicalNameNgramTokenized",
@@ -76,7 +81,7 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
                                             .minimumShouldMatch("1")
                                             .type(isPhrase(q)? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
                                             .slop(2)
-                                           .build()));
+                                           .build()))))));
   }
 
   private Query suggestPhraseQuery(String q) {

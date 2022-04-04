@@ -91,6 +91,7 @@ public class NameUsageSearchResultConverter
 
     getVernacularName(result.getVernacularNameLang(), hit.highlight()).ifPresent(u::setVernacularNames);
     getDescription(result.getDescription(), hit.highlight()).ifPresent(u::setDescriptions);
+    Optional.ofNullable(result.getOccurrenceCount()).ifPresent(u::setNumOccurrences);
 
     return u;
   }

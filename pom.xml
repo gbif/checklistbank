@@ -48,7 +48,7 @@
         <!-- dependency versions -->
         <depgraph-maven-plugin>3.3.0</depgraph-maven-plugin>
         <dwc-api.version>1.36-SNAPSHOT</dwc-api.version>
-        <gbif-api.version>0.163</gbif-api.version>
+        <gbif-api.version>0.166-SNAPSHOT</gbif-api.version>
         <gbif-cli.version>1.1</gbif-cli.version>
         <gbif-common.version>0.53</gbif-common.version>
         <gbif-common-mybatis.version>1.2</gbif-common-mybatis.version>

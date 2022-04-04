@@ -39,6 +39,10 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.Script;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorModifier;
+import co.elastic.clients.elasticsearch._types.query_dsl.FieldValueFactorScoreFunction;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
@@ -97,6 +101,12 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                                                                .should(Query.of(m -> m.match(QueryBuilders.match().query(true).field("isSynonym").build())))))
                                                                              .negativeBoost(75.0)
                                                                              .build()));
+
+  protected static final FieldValueFactorScoreFunction FULLTEXT_SCORE_FUNCTION = FunctionScoreBuilders.fieldValueFactor()
+                                                                                                    .field("occurrenceCount")
+                                                                                                    .modifier(FieldValueFactorModifier.Ln2p)
+                                                                                                    .missing(0d)
+                                                                                                    .build();
 
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
                                                   .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
@@ -225,31 +235,34 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
       "description",
       "vernacularName",
       "higherTaxonKey",
-      "issues");
+      "issues",
+      "occurrenceCount");
   }
 
   @Override
   public Query fullTextQuery(String q) {
     boolean isPhrase = isPhrase(q);
     Rank boostingRank = isPhrase? Rank.SPECIES : Rank.GENUS;
-    return Query.of(qb ->  qb.bool(BoolQuery.of( bool ->
-                    bool.must(mf -> mf.multiMatch(mm ->
-                          mm.query(q)
-                            .fields("description^0.1",
-                                    "vernacularName",
-                                    "canonicalName",
-                                    "scientificName",
-                                    "species",
-                                    "subgenus",
-                                    "family")
-                            .minimumShouldMatch("1")
-                            .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
-                        ))
-                      .should(phraseQuery(q))
-                      .should(rankBoostingFunction(boostingRank))
-                      .should(rankBoostingQuery(boostingRank))
-                      .should(BOOSTING_QUERY))
-                ));
+    return Query.of(mq -> mq.functionScore(
+      FunctionScoreQuery.of(fsc -> fsc.query( Query.of(qb ->
+                                                         qb.bool(BoolQuery.of(bool -> bool.must(mf -> mf.multiMatch(mm ->
+                                                                                                                      mm.query(q)
+                                                                                                                        .fields("description^0.1",
+                                                                                                                                "vernacularName",
+                                                                                                                                "canonicalName",
+                                                                                                                                "scientificName",
+                                                                                                                                "species",
+                                                                                                                                "subgenus",
+                                                                                                                                "family")
+                                                                                                                        .minimumShouldMatch("1")
+                                                                                                                        .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
+                                                                                                                    ))
+                                                                                                                  .should(phraseQuery(q))
+                                                                                                                  .should(rankBoostingFunction(boostingRank))
+                                                                                                                  .should(rankBoostingQuery(boostingRank))
+                                                                                                                  .should(BOOSTING_QUERY))
+                )))
+      .functions(f -> f.fieldValueFactor(FULLTEXT_SCORE_FUNCTION)))));
   }
 
   public Query phraseQuery(String q) {
