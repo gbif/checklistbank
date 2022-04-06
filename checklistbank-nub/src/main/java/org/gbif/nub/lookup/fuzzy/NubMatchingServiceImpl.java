@@ -804,7 +804,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
             r1.isSupraspecific() && r1 != Rank.SPECIES_AGGREGATE && r2.isSpeciesOrBelow()
         )) {
           // not good, different number of epithets means very unalike
-          similarity -= 25;
+          similarity -= 30;
+
+        } else if (either(query, ref, r -> !r.isSuprageneric(), Rank::isSuprageneric)) {
+          // we often have genus "homonyms" with higher taxa, e.g. Vertebrata, Dinosauria. Avoid this
+          similarity -= 35;
 
         } else {
           // GENERIC: rate lower the further away the ranks are
@@ -816,7 +820,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       // reference has no rank, rate it lower
       similarity -= 1;
     }
-    return minMax(-25, 5, similarity);
+    return minMax(-35, 6, similarity);
   }
 
   private static Predicate<Rank> not(Predicate<Rank> predicate) {

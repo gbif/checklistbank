@@ -63,6 +63,10 @@ public class NubMatchingServiceImplIT {
     return assertMatch(name, query, expectedKey, type, new IntRange(1, 100));
   }
 
+  private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
+    return assertMatch(name, rank, query, expectedKey, type, new IntRange(1, 100));
+  }
+
   private void print(String name, NameUsageMatch best) {
     System.out.println("\n" + name + " matches " + best.getScientificName() + " [" + best.getUsageKey() + "] with confidence " + best.getConfidence());
     if (best.getUsageKey() != null) {
@@ -77,7 +81,11 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
-    NameUsageMatch best = matcher.match(name, null, query, false, true);
+    return assertMatch(name, null, query, expectedKey, type, confidence);
+  }
+
+  private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
+    NameUsageMatch best = matcher.match(name, rank, query, false, true);
 
     print(name, best);
 
@@ -699,7 +707,7 @@ public class NubMatchingServiceImplIT {
     // http://www.gbif.org/occurrence/164267402/verbatim
     LinneanClassification cl = new NameUsageMatch();
     assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
-    assertNoMatch("Zabideus novemaculeatus", cl, new IntRange(65, 80));
+    assertMatch("Zabideus novemaculeatus", cl, 2394331, new IntRange(75, 85));
 
     cl.setFamily("Ephippidae");
     assertMatch("Zabidius novemaculeatus", cl, 2394331, new IntRange(98, 100));
@@ -728,7 +736,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(90, 99));
 
     cl.setFamily("Helicidae");
-    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(90, 99));
+    assertMatch("Iberus gualterianus minor Serradell", cl, 4564258, new IntRange(95, 100));
   }
 
 
@@ -822,6 +830,19 @@ public class NubMatchingServiceImplIT {
     assertNoMatch(null, cl);
     assertNoMatch("", cl);
     assertNoMatch("null", cl);
+  }
+
+  @Test
+  public void dinosaura() throws IOException {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Chordata");
+    cl.setClazz("Reptilia");
+
+    // we dont have dinosauria, just a bad genus match Dinosaura (4819911) and a higher match Reptilia (358)
+    assertMatch("Dinosauria", Rank.CLASS, cl, 358, NameUsageMatch.MatchType.HIGHERRANK);
+    assertMatch("Dinosauria", Rank.GENUS, cl, 4819911, NameUsageMatch.MatchType.FUZZY);
+    assertMatch("Dinosaura", Rank.GENUS, cl, 4819911, NameUsageMatch.MatchType.EXACT);
   }
 
 }
