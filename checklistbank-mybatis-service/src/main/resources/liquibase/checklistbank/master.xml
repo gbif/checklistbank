@@ -482,7 +482,7 @@
             END; $$;
         </sql>
     </changeSet>
-    <changeSet id="58" author="mlopez">
+    <changeSet id="58" author="mlopez" runInTransaction="false">
         <sql>
             ALTER TYPE threat_status ADD VALUE 'REGIONALLY_EXTINCT';
             ALTER TYPE threat_status ADD VALUE 'NOT_APPLICABLE';
