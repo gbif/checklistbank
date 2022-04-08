@@ -19,6 +19,8 @@ import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.ws.client.ClientBuilder;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
+import java.time.Duration;
+
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,7 @@ public class AvroExporterApp implements CommandLineRunner {
       return OccurrenceCountClient.cachingClient(new ClientBuilder()
                                                   .withUrl(apiUrl)
                                                   .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
+                                                  .withExponentialBackoffRetry(Duration.ofMillis(100), 1.5, 3)
                                                   .build(OccurrenceCountClient.class));
     }
   }
