@@ -107,7 +107,7 @@ public class AvroExporterApp implements CommandLineRunner {
       return OccurrenceCountClient.cachingClient(new ClientBuilder()
                                                   .withUrl(apiUrl)
                                                   .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-                                                  .withExponentialBackoffRetry(Duration.ofMillis(1_000), 1.5, 3)
+                                                  .withExponentialBackoffRetry(Duration.ofMillis(1_000), 2, 5)
                                                   .build(OccurrenceCountClient.class));
     }
   }
