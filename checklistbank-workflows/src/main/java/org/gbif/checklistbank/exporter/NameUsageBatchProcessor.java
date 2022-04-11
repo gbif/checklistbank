@@ -36,7 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Checklist Bank multithreaded name usage indexer.
+ * Checklist Bank multi-threaded name usage indexer.
  * This class creates a pool of configurable <i>threads</i> that concurrently execute a number of jobs
  * each processing a configurable number of name usages (<i>batchSize</i>)
  * using a configurable number of concurrent lucene <i>writers</i>.
@@ -112,8 +112,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
       double percCompleted = (double) cnt / (double) total;
       double percRemaining = 1d - percCompleted;
       long timeRemaining = (long) (stopWatch.getTime() * (percRemaining / percCompleted));
-      LOG.info("{} documents ({}%) added in {}",
-        new Object[] {cnt, twoDForm.format(percCompleted * 100), stopWatch.toString()});
+      LOG.info("{} documents ({}%) added in {}", cnt, twoDForm.format(percCompleted * 100), stopWatch.toString());
       LOG.info("Expected remaining time to finish {}", DurationFormatUtils.formatDurationHMS(timeRemaining));
     }
 
@@ -150,7 +149,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   /**
    * Creates a list of NameUsageIndexingJob by loading all usage ids and splitting up the jobs between those ids.
    *
-   * @return a {@link List} of {@link NameUsageIndexingJob}.
+   * @return a {@link List} of ids.
    */
   @Override
   protected Callable<Integer> newJob() {
@@ -181,7 +180,6 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     LOG.debug("Start retrieving all usage ids ...");
     stopWatch.start();
     allIds = nameUsageService.listAll();
-    //allIds = Lists.newArrayList(ContiguousSet.create(Range.closed(0, 13), DiscreteDomain.integers()).asList());
 
     LOG.info("Retrieved all {} usage ids in {}", allIds.size(), stopWatch);
     stopWatch.reset();
@@ -201,7 +199,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
       super.shutdownService(tasksCount);
       LOG.info("All jobs completed.");
     } catch (Exception e) {
-      LOG.error("Error shutingdown the indexer", e);
+      LOG.error("Error shutting down the indexer", e);
     }
   }
 }

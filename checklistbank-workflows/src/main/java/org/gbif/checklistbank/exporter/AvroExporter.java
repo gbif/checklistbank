@@ -42,8 +42,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AvroExporter extends NameUsageBatchProcessor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AvroExporter.class);
-
   private final String nameNode;
   private final String targetHdfsDir;
 
