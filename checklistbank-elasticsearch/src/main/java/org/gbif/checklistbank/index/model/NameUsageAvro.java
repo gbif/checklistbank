@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.index.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.avro.message.BinaryMessageDecoder;
 import org.apache.avro.message.BinaryMessageEncoder;
 import org.apache.avro.message.SchemaStore;
@@ -220,6 +221,7 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
     this.issues = issues;
   }
 
+  @JsonIgnore
   @Override
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call.
