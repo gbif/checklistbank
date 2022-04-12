@@ -15,7 +15,6 @@ package org.gbif.nub.lookup.fuzzy;
 
 import org.gbif.api.model.checklistbank.ParsedName;
 
-import org.gbif.nameparser.api.Rank;
 import org.junit.jupiter.api.Test;
 
 import static org.gbif.api.vocabulary.Rank.*;

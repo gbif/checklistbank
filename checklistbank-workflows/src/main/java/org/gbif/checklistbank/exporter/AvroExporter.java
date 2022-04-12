@@ -17,7 +17,6 @@ import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
-import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis;
@@ -26,8 +25,6 @@ import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBat
 
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -56,8 +53,7 @@ public class AvroExporter extends NameUsageBatchProcessor {
       VernacularNameService vernacularNameService,
       DescriptionService descriptionService,
       DistributionService distributionService,
-      SpeciesProfileService speciesProfileService,
-      OccurrenceCountClient occurrenceCountClient) {
+      SpeciesProfileService speciesProfileService) {
     super(
         threads,
         batchSize,
@@ -66,8 +62,7 @@ public class AvroExporter extends NameUsageBatchProcessor {
         vernacularNameService,
         descriptionService,
         distributionService,
-        speciesProfileService,
-        occurrenceCountClient);
+        speciesProfileService);
     this.nameNode = nameNode;
     this.targetHdfsDir = targetHdfsDir;
   }
@@ -80,8 +75,7 @@ public class AvroExporter extends NameUsageBatchProcessor {
     VernacularNameServiceMyBatis vernacularNameService,
     DescriptionServiceMyBatis descriptionService,
     DistributionServiceMyBatis distributionService,
-    SpeciesProfileServiceMyBatis speciesProfileService,
-    OccurrenceCountClient occurrenceCountClient
+    SpeciesProfileServiceMyBatis speciesProfileService
     ) {
     return new AvroExportJob(
         nameUsageService,
@@ -91,7 +85,6 @@ public class AvroExporter extends NameUsageBatchProcessor {
         descriptionService,
         distributionService,
         speciesProfileService,
-        occurrenceCountClient,
         nameNode,
         targetHdfsDir);
   }

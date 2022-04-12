@@ -71,7 +71,7 @@ public class NameUsageAvroConverter {
    *
    * @return a {@link NameUsageAvro} using the Object parameter.
    */
-  public static NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions, @Nullable Long occurrenceCount) {
+  public static NameUsageAvro toObject(NameUsage usage, List<Integer> parents, @Nullable UsageExtensions extensions) {
     try {
       NameUsageAvro nameUsageAvro = new NameUsageAvro();
       nameUsageAvro.setKey(usage.getKey());
@@ -138,8 +138,6 @@ public class NameUsageAvroConverter {
         addDistributionsAndThreatStatus(nameUsageAvro, extensions);
         addSpeciesProfiles(nameUsageAvro, extensions);
       }
-
-      nameUsageAvro.setOccurrenceCount(occurrenceCount);
 
       return nameUsageAvro;
 

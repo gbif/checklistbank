@@ -19,7 +19,6 @@ import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
-import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -28,11 +27,8 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.es.EsClient;
 import org.gbif.nameparser.NameParserGbifV1;
-import org.gbif.ws.client.ClientBuilder;
-import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -159,14 +155,6 @@ public class SpringContextBuilder {
       } else {
         ctx.registerBean("messagePublisher", MessagePublisher.class, MessagePublisherStub::new);
       }
-    }
-
-    if (apiUrl != null) {
-      ctx.registerBean(OccurrenceCountClient.class,
-                       () -> OccurrenceCountClient.cachingClient(new ClientBuilder()
-                         .withUrl(apiUrl)
-                         .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-                         .build(OccurrenceCountClient.class), Duration.ofMinutes(10)));
     }
     if (elasticsearchConfiguration != null) {
       ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());

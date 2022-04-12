@@ -176,9 +176,6 @@
     },
     "issues": {
       "type": "integer"
-    },
-    "occurrenceCount": {
-      "type": "long"
     }
   }
 }

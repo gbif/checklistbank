@@ -15,7 +15,6 @@ package org.gbif.checklistbank.exporter;
 
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.checklistbank.index.NameUsageAvroConverter;
-import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.service.UsageService;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.apache.avro.Schema;
@@ -74,7 +72,6 @@ public class AvroExportJob implements Callable<Integer> {
   private final DescriptionServiceMyBatis descriptionService;
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
-  private final OccurrenceCountClient occurrenceCountClient;
 
   private final StopWatch stopWatch = new StopWatch();
 
@@ -89,7 +86,6 @@ public class AvroExportJob implements Callable<Integer> {
     DescriptionServiceMyBatis descriptionService,
     DistributionServiceMyBatis distributionService,
     SpeciesProfileServiceMyBatis speciesProfileService,
-    OccurrenceCountClient occurrenceCountClient,
     String nameNode,
     String targetHdfsDir
   ) {
@@ -98,7 +94,6 @@ public class AvroExportJob implements Callable<Integer> {
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
     this.speciesProfileService = speciesProfileService;
-    this.occurrenceCountClient = occurrenceCountClient;
     this.startKey = startKey;
     this.endKey = endKey;
     this.targetHdfsDir = targetHdfsDir;
@@ -152,7 +147,7 @@ public class AvroExportJob implements Callable<Integer> {
           ext.distributions = distributionMap.get(usage.getKey());
 
           List<Integer> parents = nameUsageService.listParents(usage.getKey());
-          dataFileWriter.append(NameUsageAvroConverter.toObject(usage, parents, ext, Optional.ofNullable(usage.getNubKey()).map(occurrenceCountClient::count).orElse(null)));
+          dataFileWriter.append(NameUsageAvroConverter.toObject(usage, parents, ext));
 
         } catch (Exception e) {
           log.error("Error exporting  usage {}  extension {} to avro", usage, e);

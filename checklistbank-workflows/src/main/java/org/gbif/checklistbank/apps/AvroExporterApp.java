@@ -14,18 +14,12 @@
 package org.gbif.checklistbank.apps;
 
 import org.gbif.checklistbank.exporter.AvroExporter;
-import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
-import org.gbif.ws.client.ClientBuilder;
-import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
-
-import java.time.Duration;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -38,9 +32,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
@@ -65,7 +57,7 @@ import org.springframework.stereotype.Component;
     })
 @Profile("!test")
 @Component
-@Import({AvroExporterApp.AvroExporterConfig.class, SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
+@Import({SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(
@@ -97,18 +89,5 @@ public class AvroExporterApp implements CommandLineRunner {
     }
     avroExporter.run();
     LOG.info("Indexing done. Time to exit.");
-  }
-
-  @Configuration
-  public static class AvroExporterConfig {
-
-    @Bean
-    public OccurrenceCountClient occurrenceCountClient(@Value("${apiUrl}") String apiUrl) {
-      return OccurrenceCountClient.cachingClient(new ClientBuilder()
-                                                  .withUrl(apiUrl)
-                                                  .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-                                                  .withExponentialBackoffRetry(Duration.ofMillis(1_000), 2, 5)
-                                                  .build(OccurrenceCountClient.class));
-    }
   }
 }
