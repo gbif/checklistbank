@@ -148,7 +148,10 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     IntStream.range(0, (size + batchSize - 1) / batchSize)
       .mapToObj(i -> Range.closed(i * batchSize, Math.min(size, (i + 1) * batchSize)))
       .parallel()
-      .forEach(batch -> nameUsageService.listRange(batch.lowerEndpoint(), batch.upperEndpoint()).forEach(nu -> occurrenceCountClient.count(nu.getNubKey())));
+      .forEach(batch -> {
+        LOG.info("Pre-loading counts of usages {}  to {}", batch.lowerEndpoint(), batch.upperEndpoint());
+        nameUsageService.listRange(batch.lowerEndpoint(), batch.upperEndpoint()).forEach(nu -> occurrenceCountClient.count(nu.getNubKey()));
+      });
     LOG.info("Occurrence count cache warmed-up");
     int x = super.run();
 
