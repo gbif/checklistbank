@@ -13,10 +13,12 @@
  */
 package org.gbif.checklistbank.exporter;
 
+import org.gbif.api.model.Constants;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
 import org.gbif.api.service.checklistbank.VernacularNameService;
+import org.gbif.api.util.Range;
 import org.gbif.checklistbank.index.OccurrenceCountClient;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.checklistbank.service.mybatis.service.DescriptionServiceMyBatis;
@@ -29,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -138,6 +141,15 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
 
   @Override
   public int run() {
+    LOG.info("Warming-up occurrence count cache");
+    Integer minKey = nameUsageService.minUsageKey(Constants.NUB_DATASET_KEY);
+    Integer maxKey = nameUsageService.maxUsageKey(Constants.NUB_DATASET_KEY);
+    Integer size =  maxKey - minKey;
+    IntStream.range(0, (size + batchSize - 1) / batchSize)
+      .mapToObj(i -> Range.closed(i * batchSize, Math.min(size, (i + 1) * batchSize)))
+      .parallel()
+      .forEach(batch -> nameUsageService.listRange(batch.lowerEndpoint(), batch.upperEndpoint()).forEach(nu -> occurrenceCountClient.count(nu.getNubKey())));
+    LOG.info("Occurrence count cache warmed-up");
     int x = super.run();
 
     LOG.info("Time taken run and finish all jobs: {}", reporterThread.stopWatch.toString());

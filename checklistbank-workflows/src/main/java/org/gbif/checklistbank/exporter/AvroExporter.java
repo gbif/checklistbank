@@ -74,15 +74,6 @@ public class AvroExporter extends NameUsageBatchProcessor {
         occurrenceCountClient);
     this.nameNode = nameNode;
     this.targetHdfsDir = targetHdfsDir;
-    LOG.info("Warming-up occurrence count cache");
-    Integer minKey = nameUsageService.minUsageKey(Constants.NUB_DATASET_KEY);
-    Integer maxKey = nameUsageService.maxUsageKey(Constants.NUB_DATASET_KEY);
-    Integer size =  maxKey - minKey;
-    IntStream.range(0, (size+batchSize-1)/batchSize)
-      .mapToObj(i -> Range.closed(i * batchSize, Math.min(size, (i + 1) * batchSize)))
-      .parallel()
-      .forEach(batch -> nameUsageService.listRange(batch.lowerEndpoint(), batch.upperEndpoint()).forEach(nu -> occurrenceCountClient.count(nu.getNubKey())));
-    LOG.info("Occurrence count cache warmed-up");
   }
 
   @Override
