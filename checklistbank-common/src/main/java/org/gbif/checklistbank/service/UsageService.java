@@ -36,7 +36,12 @@ public interface UsageService {
   Integer maxUsageKey(UUID datasetKey);
 
   /**
-   * Lists al1l name usages with a key between start / end.
+   * @return the highest usageKey used in the dataset
+   */
+  Integer minUsageKey(UUID datasetKey);
+
+  /**
+   * Lists all name usages with a key between start / end.
    */
   List<NameUsage> listRange(int usageKeyStart, int usageKeyEnd);
 

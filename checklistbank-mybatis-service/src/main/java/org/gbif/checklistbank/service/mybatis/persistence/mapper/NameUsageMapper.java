@@ -101,6 +101,11 @@ public interface NameUsageMapper {
   Integer maxUsageKey(@Param("uuid") UUID datasetKey);
 
   /**
+   * @return the minimum usage key used in a dataset incl deleted records
+   */
+  Integer minUsageKey(@Param("uuid") UUID datasetKey);
+
+  /**
    * Insert a new name usage, setting lastInterpretedDate to current date and assigning a new usage key.
    * If higher rank keys like kingdomKey are -1 this is interpreted that they should point to the newly inserted record
    * itself, inserting the newly generated usage key for those negative properties.
