@@ -79,6 +79,11 @@ public class UsageServiceMyBatis implements UsageService {
   }
 
   @Override
+  public Integer minUsageKey(UUID datasetKey) {
+    return mapper.minUsageKey(datasetKey);
+  }
+
+  @Override
   public List<NameUsage> listRange(int usageKeyStart, int usageKeyEnd) {
     return mapper.listRange(usageKeyStart, usageKeyEnd);
   }
