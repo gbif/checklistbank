@@ -451,7 +451,7 @@ public class SpeciesResource {
   public SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> search(
       NameUsageSearchRequest searchRequest) {
     // POR-2801
-    // protect SOLR against deep paging requests which blow heap
+    // protect against deep paging requests which blow heap
     checkDeepPaging(searchRequest);
     return searchService.search(searchRequest);
   }
@@ -459,7 +459,7 @@ public class SpeciesResource {
   @GetMapping("suggest")
   public List<NameUsageSuggestResult> suggest(NameUsageSuggestRequest searchSuggestRequest) {
     // POR-2801
-    // protect SOLR against deep paging requests which blow heap
+    // protect against deep paging requests which blow heap
     checkDeepPaging(searchSuggestRequest);
     return searchService.suggest(searchSuggestRequest);
   }

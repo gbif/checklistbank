@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.ImmutableBiMap;
@@ -99,7 +100,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                              .build()));
 
   private static final List<SortOptions> SORT = Collections.singletonList(SortOptions.of(so -> so.field(fs -> fs.field("key")
-                                                  .order(co.elastic.clients.elasticsearch._types.SortOrder.Desc))));
+                                                  .order(SortOrder.Asc))));
 
   protected static boolean isPhrase(String q) {
     return q.trim().indexOf(' ') > 0;
