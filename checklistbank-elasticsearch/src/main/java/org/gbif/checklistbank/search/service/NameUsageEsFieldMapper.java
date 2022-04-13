@@ -143,7 +143,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   @Override
   public String parseIndexedValue(String value, NameUsageSearchParameter parameter) {
     if (Enum.class.isAssignableFrom(parameter.type()) && StringUtils.isNumeric(value)) {
-      return ((Class<Enum<?>>)parameter.type()).getEnumConstants()[Integer.parseInt(value) - 1].name();
+      return ((Class<Enum<?>>)parameter.type()).getEnumConstants()[Integer.parseInt(value)].name();
     }
     return EsFieldMapper.super.parseIndexedValue(value, parameter);
   }
