@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSuggestResult;
+import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
@@ -23,7 +24,6 @@ import java.util.function.Function;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
 
-import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.getEnumFromOrdinal;
 import static org.gbif.checklistbank.search.service.NameUsageSearchResultConverter.setClassification;
 
 @Slf4j
@@ -38,7 +38,7 @@ public class NameUsageSearchSuggestResultConverter
     NameUsageAvro result = hit.source();
     u.setKey(Integer.parseInt(hit.id()));
 
-    u.setNameKey(result.getNameType());
+    u.setNameKey(result.getNameKey());
     u.setNubKey(result.getNubKey());
     u.setParentKey(result.getParentKey());
 
@@ -46,8 +46,8 @@ public class NameUsageSearchSuggestResultConverter
     u.setScientificName(result.getScientificName());
     u.setCanonicalName(result.getCanonicalName());
 
-    getEnumFromOrdinal(TaxonomicStatus.class, result.getTaxonomicStatusKey()).ifPresent(u::setStatus);
-    getEnumFromOrdinal(Rank.class, result.getRankKey()).ifPresent(u::setRank);
+    VocabularyUtils.lookup(result.getTaxonomicStatus(), TaxonomicStatus.class).ifPresent(u::setStatus);
+    VocabularyUtils.lookup(result.getRank(), Rank.class).ifPresent(u::setRank);
 
     setClassification(hit, u, u);
 

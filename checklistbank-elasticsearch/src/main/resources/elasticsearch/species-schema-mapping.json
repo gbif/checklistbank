@@ -63,28 +63,31 @@
       "norms": false
     },
     "nameType": {
-      "type": "integer"
+      "type": "keyword"
     },
     "authorship": {
       "type": "text"
     },
-    "originKey": {
-      "type": "integer"
+    "origin": {
+      "type": "keyword"
     },
-    "nomenclaturalStatusKey": {
-      "type": "integer"
+    "nomenclaturalStatus": {
+      "type": "keyword"
     },
-    "taxonomicStatusKey": {
-      "type": "integer"
+    "taxonomicStatus": {
+      "type": "keyword"
     },
-    "threatStatusKey": {
-      "type": "integer"
+    "threatStatus": {
+      "type": "keyword"
+    },
+    "rank": {
+      "type": "keyword"
     },
     "rankKey": {
       "type": "integer"
     },
-    "habitatKey": {
-      "type": "integer"
+    "habitat": {
+      "type": "keyword"
     },
     "publishedIn": {
       "type": "text"
@@ -175,7 +178,7 @@
       "type": "integer"
     },
     "issues": {
-      "type": "integer"
+      "type": "keyword"
     }
   }
 }

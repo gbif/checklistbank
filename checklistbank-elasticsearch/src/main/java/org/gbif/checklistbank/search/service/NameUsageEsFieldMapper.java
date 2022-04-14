@@ -14,7 +14,6 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Habitat;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.NameUsageIssue;
@@ -30,15 +29,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.Script;
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
@@ -52,28 +48,28 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
           .put(NameUsageSearchParameter.NAME_TYPE, "nameType")
           .put(NameUsageSearchParameter.CONSTITUENT_KEY, "constituentKey")
           .put(NameUsageSearchParameter.HIGHERTAXON_KEY, "higherTaxonKey")
-          .put(NameUsageSearchParameter.HABITAT, "habitatKey")
+          .put(NameUsageSearchParameter.HABITAT, "habitat")
           .put(NameUsageSearchParameter.IS_EXTINCT, "extinct")
           .put(NameUsageSearchParameter.ISSUE, "issues")
-          .put(NameUsageSearchParameter.NOMENCLATURAL_STATUS, "nomenclaturalStatusKey")
-          .put(NameUsageSearchParameter.ORIGIN, "originKey")
-          .put(NameUsageSearchParameter.RANK, "rankKey")
-          .put(NameUsageSearchParameter.STATUS, "taxonomicStatusKey")
-          .put(NameUsageSearchParameter.THREAT, "threatStatusKey")
+          .put(NameUsageSearchParameter.NOMENCLATURAL_STATUS, "nomenclaturalStatus")
+          .put(NameUsageSearchParameter.ORIGIN, "origin")
+          .put(NameUsageSearchParameter.RANK, "rank")
+          .put(NameUsageSearchParameter.STATUS, "taxonomicStatus")
+          .put(NameUsageSearchParameter.THREAT, "threatStatus")
           .build();
 
   public static final Map<String, Integer> CARDINALITIES =
       ImmutableMap.<String, Integer>builder()
-          .put("taxonomicStatusKey", TaxonomicStatus.values().length)
-          .put("threatStatusKey", ThreatStatus.values().length)
+          .put("taxonomicStatus", TaxonomicStatus.values().length)
+          .put("threatStatus", ThreatStatus.values().length)
           .put("issues", NameUsageIssue.values().length)
-          .put("originKey", Origin.values().length)
-          .put("nomenclaturalStatusKey", NomenclaturalStatus.values().length)
-          .put("habitatKey", Habitat.values().length)
+          .put("origin", Origin.values().length)
+          .put("nomenclaturalStatus", NomenclaturalStatus.values().length)
+          .put("habitat", Habitat.values().length)
           .put("nameType", NameType.values().length)
           .put("extinct", 2)
           .put("isSynonym", 2)
-          .put("rankKey", Rank.values().length)
+          .put("rank", Rank.values().length)
           .build();
 
   private static final List<String> EXCLUDE_FIELDS = Collections.singletonList("all");
@@ -89,12 +85,12 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
                                                                              .positive(p -> p.bool( pb ->
-                                                                              pb.should(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())),
-                                                                                        Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())),
+                                                                              pb.should(Query.of(t -> t.match(QueryBuilders.match().query(TaxonomicStatus.ACCEPTED.name()).field("taxonomicStatus").build())),
+                                                                                        Query.of(t -> t.match(QueryBuilders.match().query(NameType.SCIENTIFIC.name()).field("nameType").build())),
                                                                                         Query.of(m -> m.match(QueryBuilders.match().query(false).field("isSynonym").build()))
                                                                                 ).boost(50.0f)))
-                                                                             .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("taxonomicStatusKey").build())))
-                                                                                                               .mustNot(Query.of(t -> t.match(QueryBuilders.match().query("0").field("nameType").build())))
+                                                                             .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query(TaxonomicStatus.ACCEPTED.name()).field("taxonomicStatus").build())))
+                                                                                                               .mustNot(Query.of(t -> t.match(QueryBuilders.match().query(NameType.SCIENTIFIC.name()).field("nameType").build())))
                                                                                                                .should(Query.of(m -> m.match(QueryBuilders.match().query(true).field("isSynonym").build())))))
                                                                              .negativeBoost(75.0)
                                                                              .build()));
@@ -107,15 +103,15 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   }
 
   protected Query rankBoostingFunction(Rank rank) {
-    return Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rankKey")))
+    return Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rank")))
       .script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(250.0f)));
   }
 
   protected Query rankBoostingQuery(Rank rank) {
     return Query.of(qb -> qb.boosting(QueryBuilders.boosting()
-                                        .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query(rank.ordinal()).field("rankKey").build())))
+                                        .positive(p -> p.bool(pb -> pb.must(Query.of(t -> t.match(QueryBuilders.match().query(rank.name()).field("rank").build())))
                                           .boost(100.0f)))
-                                        .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query(rank.ordinal()).field("rankKey").build())))))
+                                        .negative(n -> n.bool(bool -> bool.mustNot(Query.of(t -> t.match(QueryBuilders.match().query(rank.name()).field("rank").build())))))
                                         .negativeBoost(150.0)
                                         .build()));
   }
@@ -138,24 +134,6 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
   @Override
   public String get(NameUsageSearchParameter nameUsageSearchParameter) {
     return SEARCH_TO_ES_MAPPING.get(nameUsageSearchParameter);
-  }
-
-  @Override
-  public String parseIndexedValue(String value, NameUsageSearchParameter parameter) {
-    if (Enum.class.isAssignableFrom(parameter.type()) && StringUtils.isNumeric(value)) {
-      return ((Class<Enum<?>>)parameter.type()).getEnumConstants()[Integer.parseInt(value)].name();
-    }
-    return EsFieldMapper.super.parseIndexedValue(value, parameter);
-  }
-
-  @Override
-  public FieldValue parseParamValue(String value, NameUsageSearchParameter parameter) {
-    if (Enum.class.isAssignableFrom(parameter.type())) {
-      return VocabularyUtils.lookup(value, (Class<Enum<?>>) parameter.type())
-        .map(e -> FieldValue.of(e.ordinal()))
-        .orElse(null);
-    }
-    return EsFieldMapper.super.parseParamValue(value, parameter);
   }
 
   @Override
@@ -196,12 +174,12 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
       "canonicalName",
       "nameType",
       "authorship",
-      "originKey",
-      "nomenclaturalStatusKey",
-      "taxonomicStatusKey",
-      "threatStatusKey",
-      "rankKey",
-      "habitatKey",
+      "origin",
+      "nomenclaturalStatus",
+      "taxonomicStatus",
+      "threatStatus",
+      "rank",
+      "habitat",
       "publishedIn",
       "accordingTo",
       "kingdomKey",

@@ -47,8 +47,8 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
       "parent",
       "scientificName",
       "canonicalName",
-      "taxonomicStatusKey",
-      "rankKey",
+      "taxonomicStatus",
+      "rank",
       "kingdomKey",
       "kingdom",
       "phylumKey",
@@ -65,7 +65,6 @@ public class NameUsageSuggestEsFieldMapper extends NameUsageEsFieldMapper {
       "subgenus",
       "speciesKey",
       "species");
-
   }
 
   private Query suggestQuery(String q) {

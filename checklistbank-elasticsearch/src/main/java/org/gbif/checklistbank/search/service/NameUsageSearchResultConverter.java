@@ -18,6 +18,7 @@ import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.model.common.LinneanClassificationKeys;
+import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.common.search.EsSearchRequestBuilder;
@@ -80,14 +81,14 @@ public class NameUsageSearchResultConverter
 
     u.setTaxonID(result.getSourceId());
 
-    getEnumListFromOrdinals(ThreatStatus.class, result.getThreatStatusKey()).ifPresent(u::setThreatStatuses);
-    getEnumListFromOrdinals(NomenclaturalStatus.class, result.getNomenclaturalStatusKey()).ifPresent(u::setNomenclaturalStatus);
-    getEnumListFromOrdinals(Habitat.class, result.getHabitatKey()).ifPresent(u::setHabitats);
-    getEnumFromOrdinal(Origin.class, result.getOriginKey()).ifPresent(u::setOrigin);
-    getEnumFromOrdinal(TaxonomicStatus.class, result.getTaxonomicStatusKey()).ifPresent(u::setTaxonomicStatus);
-    getEnumFromOrdinal(NameType.class, result.getNameType()).ifPresent(u::setNameType);
-    getEnumFromOrdinal(Rank.class, result.getRankKey()).ifPresent(u::setRank);
+    getEnumList(ThreatStatus.class, result.getThreatStatus()).ifPresent(u::setThreatStatuses);
+    getEnumList(NomenclaturalStatus.class, result.getNomenclaturalStatus()).ifPresent(u::setNomenclaturalStatus);
+    getEnumList(Habitat.class, result.getHabitat()).ifPresent(u::setHabitats);
 
+    VocabularyUtils.lookup(result.getOrigin(), Origin.class).ifPresent(u::setOrigin);
+    VocabularyUtils.lookup(result.getTaxonomicStatus(), TaxonomicStatus.class).ifPresent(u::setTaxonomicStatus);
+    VocabularyUtils.lookup(result.getNameType(), NameType.class).ifPresent(u::setNameType);
+    VocabularyUtils.lookup(result.getRank(), Rank.class).ifPresent(u::setRank);
 
     getVernacularName(result.getVernacularNameLang(), hit.highlight()).ifPresent(u::setVernacularNames);
     getDescription(result.getDescription(), hit.highlight()).ifPresent(u::setDescriptions);
@@ -205,15 +206,10 @@ public class NameUsageSearchResultConverter
     return Optional.ofNullable(value).map(UUID::fromString);
   }
 
-  public static <T extends Enum<?>> Optional<List<T>> getEnumListFromOrdinals(Class<T> vocab, List<Integer> value) {
+  public static <T extends Enum<?>> Optional<List<T>> getEnumList(Class<T> vocab, List<String> value) {
     return Optional.ofNullable(value)
       .filter(v -> !v.isEmpty())
-      .map(v -> v.stream().map(val -> vocab.getEnumConstants()[val]).collect(Collectors.toList()));
-  }
-
-  public static <T extends Enum<?>> Optional<T> getEnumFromOrdinal(Class<T> vocab, Integer value) {
-    return Optional.ofNullable(value)
-      .map(v -> vocab.getEnumConstants()[v]);
+      .map(v -> v.stream().map(val -> VocabularyUtils.lookupEnum(val, vocab)).collect(Collectors.toList()));
   }
 
 }

@@ -15,14 +15,15 @@
     {"name":"scientificName","type":["string", "null"]},
     {"name":"canonicalName","type":["string", "null"]},
     {"name":"nameKey","type":["int", "null"]},
-    {"name":"nameType","type":["int", "null"]},
+    {"name":"nameType","type":["string", "null"]},
     {"name":"authorship","type":["string", "null"]},
-    {"name":"originKey","type":["int", "null"]},
-    {"name":"taxonomicStatusKey","type":["int", "null"]},
-    {"name":"nomenclaturalStatusKey","type":["null",{"type":"array", "items":"int"}],"default":null},
-    {"name":"threatStatusKey","type":["null",{"type":"array", "items":"int"}],"default":null},
+    {"name":"origin","type":["string", "null"]},
+    {"name":"taxonomicStatus","type":["string", "null"]},
+    {"name":"nomenclaturalStatus","type":["null",{"type":"array", "items":"string"}],"default":null},
+    {"name":"threatStatus","type":["null",{"type":"array", "items":"string"}],"default":null},
+    {"name":"rank","type":["string", "null"]},
     {"name":"rankKey","type":["int", "null"]},
-    {"name":"habitatKey","type":["null",{"type":"array", "items":"int"}],"default":null},
+    {"name":"habitat","type":["null",{"type":"array", "items":"string"}],"default":null},
     {"name":"publishedIn","type":["string", "null"]},
     {"name":"accordingTo","type":["string", "null"]},
     {"name":"kingdomKey","type":["int", "null"]},
@@ -50,5 +51,5 @@
     {"name":"vernacularLang","type":["null",{"type":"array", "items":"string"}],"default":null},
     {"name":"vernacularNameLang","type":["null",{"type":"array", "items":"string"}],"default":null},
     {"name":"higherTaxonKey","type":["null",{"type":"array", "items":"int"}],"default":null},
-    {"name":"issues","type":["null",{"type":"array", "items":"int"}],"default":null}]
+    {"name":"issues","type":["null",{"type":"array", "items":"string"}],"default":null}]
 }

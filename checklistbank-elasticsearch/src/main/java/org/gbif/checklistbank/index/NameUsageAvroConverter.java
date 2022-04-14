@@ -117,17 +117,18 @@ public class NameUsageAvroConverter {
       nameUsageAvro.setHigherTaxonKey(parents);
       // enums
       if(usage.getNameType() != null) {
-        nameUsageAvro.setNameType(usage.getNameType().ordinal());
+        nameUsageAvro.setNameType(usage.getNameType().name());
       }
-      nameUsageAvro.setIssues(getOrdinals(usage.getIssues()));
-      nameUsageAvro.setNomenclaturalStatusKey(getOrdinals(usage.getNomenclaturalStatus()));
+      nameUsageAvro.setIssues(getEnumValues(usage.getIssues()));
+      nameUsageAvro.setNomenclaturalStatus(getEnumValues(usage.getNomenclaturalStatus()));
       if(usage.getOrigin() != null) {
-        nameUsageAvro.setOriginKey(usage.getOrigin().ordinal());
+        nameUsageAvro.setOrigin(usage.getOrigin().name());
       }
       if(usage.getTaxonomicStatus() != null) {
-        nameUsageAvro.setTaxonomicStatusKey(usage.getTaxonomicStatus().ordinal());
+        nameUsageAvro.setTaxonomicStatus(usage.getTaxonomicStatus().name());
       }
       if(usage.getRank() != null) {
+        nameUsageAvro.setRank(usage.getRank().name());
         nameUsageAvro.setRankKey(usage.getRank().ordinal());
       }
 
@@ -148,21 +149,21 @@ public class NameUsageAvroConverter {
   }
 
 
-  private static List<Integer> getOrdinals(Collection<? extends Enum> enums){
-    List<Integer> ordinals = null;
+  private static List<String> getEnumValues(Collection<? extends Enum> enums){
+    List<String> values = null;
     try {
       if (enums != null && !enums.isEmpty()) {
-        ordinals = Lists.newArrayList();
+        values = Lists.newArrayList();
         for (Enum<?> literal : enums) {
           if(literal != null) {
-            ordinals.add(literal.ordinal());
+            values.add(literal.name());
           }
         }
       }
     } catch (Exception e) {
-      LOG.error("Error converting ordinals for enum", e);
+      LOG.error("Error converting values for enum", e);
     }
-    return ordinals;
+    return values;
   }
 
   /**
@@ -191,14 +192,14 @@ public class NameUsageAvroConverter {
     if (ext.distributions == null) {
       return;
     }
-    List<Integer> threatStatusKeys = Lists.newArrayList();
+    List<String> threatStatuses = Lists.newArrayList();
     for (Distribution distribution : ext.distributions) {
       if (distribution.getThreatStatus() != null) {
-        threatStatusKeys.add(distribution.getThreatStatus().ordinal());
+        threatStatuses.add(distribution.getThreatStatus().name());
       }
     }
 
-    nameUsageAvro.setThreatStatusKey(threatStatusKeys);
+    nameUsageAvro.setThreatStatus(threatStatuses);
   }
 
   /**
@@ -216,11 +217,11 @@ public class NameUsageAvroConverter {
     usage.setSpeciesProfiles(ext.speciesProfiles);
 
     nameUsageAvro.setExtinct(usage.isExtinct());
-    nameUsageAvro.setHabitatKey(getHabitatsKeys(usage));
+    nameUsageAvro.setHabitat(getHabitats(usage));
   }
 
-  private static List<Integer> getHabitatsKeys(NameUsageContainer usage){
-     List<Integer> habitats = Lists.newArrayList();
+  private static List<String> getHabitats(NameUsageContainer usage){
+     List<String> habitats = Lists.newArrayList();
     // derive habitat values from boolean flags
     addHabitat(habitats, usage.isFreshwater(), Habitat.FRESHWATER);
     addHabitat(habitats, usage.isMarine(), Habitat.MARINE);
@@ -236,15 +237,15 @@ public class NameUsageAvroConverter {
     return habitats;
   }
 
-  private static void addHabitat(List<Integer> habitats, Boolean add, Habitat habitat) {
+  private static void addHabitat(List<String> habitats, Boolean add, Habitat habitat) {
     if (add != null && add) {
       addHabitat(habitats, habitat);
     }
   }
 
-  private static void addHabitat(List<Integer> habitats, Habitat habitat) {
+  private static void addHabitat(List<String> habitats, Habitat habitat) {
     if (habitat != null) {
-     habitats.add(habitat.ordinal());
+     habitats.add(habitat.name());
     }
   }
 
