@@ -23,8 +23,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
 
@@ -59,8 +57,4 @@ public class RegistryConfiguration {
   @Parameter(names = "--pool-size")
   @Min(1)
   public int poolSize = 3;
-
-  @Parameter(names = "--api-url")
-  @Nullable
-  public String apiUrl;
 }

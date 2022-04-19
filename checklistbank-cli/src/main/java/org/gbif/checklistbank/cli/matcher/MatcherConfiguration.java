@@ -59,8 +59,4 @@ public class MatcherConfiguration {
   @Valid
   @NotNull
   public ElasticsearchConfiguration elasticsearch = new ElasticsearchConfiguration();
-
-  @Parameter(names = "--api-url")
-  @Nullable
-  public String apiUrl;
 }

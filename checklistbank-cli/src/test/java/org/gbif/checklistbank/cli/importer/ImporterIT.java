@@ -80,9 +80,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Importer tests, using the normalizer test dwcas to first produce a neo4j db and then import that
- * into postgres. By default search indexing is not tested and a mock service is used instead. This is
- * done cause neo4j uses an old version of lucene which conflicts. An external Elasticsearch instance can be configured manually in
- * cfg-importer.yaml if wanted
+ * into postgres. By default search indexing is not tested and a mock service is used instead. This
+ * is done cause neo4j uses an old version of lucene which conflicts. An external Elasticsearch
+ * instance can be configured manually in cfg-importer.yaml if wanted
  */
 @Disabled
 public class ImporterIT extends BaseTest implements AutoCloseable {
@@ -107,7 +107,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   /** Uses an internal metrics registry to setup the normalizer */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
     return Importer.create(
-      cfg, datasetKey, nameUsageService, usageService, sqlService, searchIndexService);
+        cfg, datasetKey, nameUsageService, usageService, sqlService, searchIndexService);
   }
 
   private void initSpring(ImporterConfiguration cfg) throws SQLException {
@@ -117,7 +117,6 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
               .withClbConfiguration(cfg.clb)
               .withElasticsearchConfiguration(cfg.elasticsearch)
               .withMessagingConfiguration(cfg.messaging)
-              .withApiUrl(cfg.apiUrl)
               .withComponents(
                   DatasetImportServiceMyBatis.class,
                   UsageSyncServiceMyBatis.class,
@@ -136,12 +135,6 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       usageService = ctx.getBean(UsageServiceMyBatis.class);
       sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
       searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
-
-      if (cfg.apiUrl != null) {
-        searchService = new ClientBuilder().withUrl(cfg.apiUrl)
-          .withObjectMapper(JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport())
-          .build(SpeciesResourceClient.class);
-      }
     }
   }
 
@@ -285,8 +278,8 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   }
 
   /**
-   * Reimport the same dataset and make sure ids stay the same. This test also checks Elasticsearch if
-   * manually configured - default is without Elasticsearch.
+   * Reimport the same dataset and make sure ids stay the same. This test also checks Elasticsearch
+   * if manually configured - default is without Elasticsearch.
    */
   @Test
   public void testStableIds() throws Exception {
@@ -300,14 +293,6 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     search.setFacetLimit(100);
     search.addFacets(NameUsageSearchParameter.HIGHERTAXON_KEY);
     search.addChecklistFilter(datasetKey);
-    if (iCfg.apiUrl != null) {
-      // make sure there are no facets anymore
-      Thread.sleep(1000);
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
-          searchService.search(search);
-      //assertEquals(1, srep.getResults().size());
-      //assertEquals(0, srep.getFacets().size());
-    }
 
     // insert neo db
     insertNeo(datasetKey);
@@ -317,19 +302,20 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
 
     // check higher taxa
     // http://dev.gbif.org/issues/browse/POR-3204
-    if (iCfg.apiUrl != null) {
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
-          searchService.search(search);
-      //TODO
-     /* List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
-      // make sure the key actually exists!
-      for (Facet.Count c : facets) {
-        System.out.println(c);
-        int key = Integer.valueOf(c.getName());
-        NameUsage u = nameUsageService.get(key, null);
-        assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in postgres");
-      }*/
-    }
+    //    if (iCfg.apiUrl != null) {
+    //      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
+    //          searchService.search(search);
+    //      //TODO
+    //     /* List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
+    //      // make sure the key actually exists!
+    //      for (Facet.Count c : facets) {
+    //        System.out.println(c);
+    //        int key = Integer.valueOf(c.getName());
+    //        NameUsage u = nameUsageService.get(key, null);
+    //        assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in
+    // postgres");
+    //      }*/
+    //    }
 
     // remember ids
     Map<Integer, String> ids = Maps.newHashMap();
@@ -362,23 +348,23 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
     }
 
     // check higher taxa again, wait a little for Elasticsearch to catch up
-    if (iCfg.apiUrl != null) {
-      //TODO
-     /* Thread.sleep(1000);
-      SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
-          searchService.search(search);
-      List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
-      for (Facet.Count c : facets) {
-        System.out.println(c);
-      }
-      // make sure the key actually exists!
-      for (Facet.Count c : facets) {
-        System.out.println(c);
-        int key = Integer.valueOf(c.getName());
-        NameUsage u = nameUsageService.get(key, null);
-        assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in postgres");
-      }*/
+    //    if (iCfg.apiUrl != null) {
+    // TODO
+    /* Thread.sleep(1000);
+    SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> srep =
+        searchService.search(search);
+    List<Facet.Count> facets = srep.getFacets().get(0).getCounts();
+    for (Facet.Count c : facets) {
+      System.out.println(c);
     }
+    // make sure the key actually exists!
+    for (Facet.Count c : facets) {
+      System.out.println(c);
+      int key = Integer.valueOf(c.getName());
+      NameUsage u = nameUsageService.get(key, null);
+      assertNotNull(u, "Higher taxon key " + key + " in Elasticsearch does not exist in postgres");
+    }*/
+    //    }
   }
 
   /**

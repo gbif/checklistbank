@@ -69,8 +69,6 @@ public class SpringContextBuilder {
 
   private ElasticsearchConfiguration elasticsearchConfiguration;
 
-  private String apiUrl;
-
   private SpringContextBuilder() {}
 
   public static SpringContextBuilder create() {
@@ -90,11 +88,6 @@ public class SpringContextBuilder {
 
   public SpringContextBuilder withElasticsearchConfiguration(ElasticsearchConfiguration elasticsearchConfiguration) {
     this.elasticsearchConfiguration = elasticsearchConfiguration;
-    return this;
-  }
-
-  public SpringContextBuilder withApiUrl(String apiUrl) {
-    this.apiUrl = apiUrl;
     return this;
   }
 

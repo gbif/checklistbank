@@ -68,7 +68,6 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             .withClbConfiguration(cfg.clb)
             .withElasticsearchConfiguration(cfg.elasticsearch)
             .withMessagingConfiguration(cfg.messaging)
-            .withApiUrl(cfg.apiUrl)
             .withComponents(
                 DatasetImportServiceMyBatis.class,
                 UsageSyncServiceMyBatis.class,

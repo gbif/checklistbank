@@ -77,9 +77,4 @@ public class ImporterConfiguration {
   @Parameter(names = "--chunk-min-size")
   @Min(0)
   public int chunkMinSize = 100;
-
-
-  @Parameter(names = "--api-url")
-  @Nullable
-  public String apiUrl;
 }
