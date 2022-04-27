@@ -45,7 +45,7 @@ public class DatasetMetricsResource {
   }
 
   @GetMapping("{key}/metrics")
-  @NullToNotFound
+  @NullToNotFound("/dataset/{key}/metrics")
   public DatasetMetrics get(@PathVariable("key") UUID key) {
     return service.get(key);
   }

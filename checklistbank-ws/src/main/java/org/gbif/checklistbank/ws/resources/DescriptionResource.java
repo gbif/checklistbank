@@ -47,7 +47,7 @@ public class DescriptionResource {
    * @return requested Description or null if none could be found
    */
   @GetMapping("{id}")
-  @NullToNotFound
+  @NullToNotFound("/description/{key}")
   public Description get(@PathVariable("id") Integer key) {
     return descriptionService.get(key);
   }

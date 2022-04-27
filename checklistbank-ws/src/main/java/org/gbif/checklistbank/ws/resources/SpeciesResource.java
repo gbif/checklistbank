@@ -162,25 +162,25 @@ public class SpeciesResource {
    * @see NameUsageService#get(int, Locale)
    */
   @GetMapping("{id}")
-  @NullToNotFound
+  @NullToNotFound("/species/{usageKey}")
   public NameUsage get(@PathVariable("id") int usageKey) {
     return nameUsageService.get(usageKey, LocaleContextHolder.getLocale());
   }
 
   @GetMapping("{id}/metrics")
-  @NullToNotFound
+  @NullToNotFound("/species/{usageKey}/metrics")
   public NameUsageMetrics getMetrics(@PathVariable("id") int usageKey) {
     return nameUsageService.getMetrics(usageKey);
   }
 
   @GetMapping("{id}/name")
-  @NullToNotFound
+  @NullToNotFound("/species/{usageKey}/name")
   public ParsedName getParsedName(@PathVariable("id") int usageKey) {
     return nameUsageService.getParsedName(usageKey);
   }
 
   @GetMapping("{id}/verbatim")
-  @NullToNotFound
+  @NullToNotFound("/species/{usageKey}/verbatim")
   public VerbatimNameUsage getVerbatim(@PathVariable("id") int usageKey) {
     return nameUsageService.getVerbatim(usageKey);
   }
@@ -303,7 +303,7 @@ public class SpeciesResource {
 
   /** This retrieves a table of contents for all descriptions of a name usage from ChecklistBank. */
   @GetMapping("{id}/toc")
-  @NullToNotFound
+  @NullToNotFound("/species/{key}/toc")
   public TableOfContents get(@PathVariable("id") Integer key) {
     return descriptionService.getToc(key);
   }
