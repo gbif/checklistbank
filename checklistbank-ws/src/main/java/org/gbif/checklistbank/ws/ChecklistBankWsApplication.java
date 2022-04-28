@@ -24,6 +24,7 @@ import org.gbif.ws.security.GbifAuthServiceImpl;
 import org.gbif.ws.security.GbifAuthenticationManagerImpl;
 import org.gbif.ws.server.filter.AppIdentityFilter;
 import org.gbif.ws.server.filter.IdentityFilter;
+import org.gbif.ws.server.mapper.WebApplicationExceptionMapper;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -66,7 +67,8 @@ import org.springframework.context.annotation.Import;
         IdentityFilter.class,
         AppIdentityFilter.class,
         GbifAuthenticationManagerImpl.class,
-        GbifAuthServiceImpl.class
+        GbifAuthServiceImpl.class,
+        WebApplicationExceptionMapper.class
       })
   })
 
