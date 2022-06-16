@@ -82,6 +82,10 @@
     WHERE rel.nub_fk between #{start} and #{end}
   </select>
 
+  <!--
+  in case there are multiple IUCN records matched to the same backbone entry,
+  we select the first ordered by the taxonomic status, i.e. accepted->doubtful->synonym
+  -->
   <select id="getIucnRedListCategory" parameterType="map" resultMap="iucnRedListCategoryResultMap">
     SELECT coalesce(dacc.threat_status,d.threat_status) AS category,
       iucn.id AS usageKey, n.scientific_name, iucn.status,
@@ -94,6 +98,7 @@
       LEFT JOIN distribution d ON d.usage_fk=iucn.id
       LEFT JOIN distribution dacc ON dacc.usage_fk=acc.id
     WHERE rel.nub_fk=#{key} AND rel.dataset_key='19491596-35ae-4a91-9a98-85cf505f1bd3'
+    ORDER BY status
     LIMIT 1
   </select>
 

@@ -737,7 +737,7 @@ public class NubBuilder implements Runnable {
   }
 
   /**
-   * Flags emtpy genera or removes them if they have an ignorable origin
+   * Flags empty genera or removes them if they have an ignorable origin
    */
   private void flagEmptyGenera() {
     LOG.info("flag empty genera as doubtful");
