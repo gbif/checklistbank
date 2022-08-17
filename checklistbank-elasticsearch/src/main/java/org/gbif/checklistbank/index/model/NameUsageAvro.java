@@ -227,7 +227,10 @@ public class NameUsageAvro extends org.apache.avro.specific.SpecificRecordBase i
 
   @Override
   @JsonIgnore
-  public org.apache.avro.Schema getSchema() { return SCHEMA$; }
+  public org.apache.avro.Schema getSchema() {
+    return SCHEMA$;
+  }
+
   // Used by DatumWriter.  Applications should not call.
   @Override
   public java.lang.Object get(int field$) {
