@@ -42,7 +42,7 @@
           <phase>generate-sources</phase>
           <configuration>
             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-            <outputDirectory>${project.basedir}/src/main/java</outputDirectory>
+            <outputDirectory>${project.basedir}/src/main/java-generated</outputDirectory>
             <stringType>String</stringType>
             <includes>
               <include>**/*.avrsc</include>
