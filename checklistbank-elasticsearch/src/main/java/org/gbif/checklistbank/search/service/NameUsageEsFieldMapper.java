@@ -203,6 +203,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
       "extinct",
       "description",
       "vernacularName",
+      "vernacularNameLang",
       "higherTaxonKey",
       "issues");
   }
