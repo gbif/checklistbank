@@ -14,23 +14,12 @@
 package org.gbif.checklistbank.search.service;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
-import org.gbif.api.vocabulary.Habitat;
-import org.gbif.api.vocabulary.NameType;
-import org.gbif.api.vocabulary.NameUsageIssue;
-import org.gbif.api.vocabulary.NomenclaturalStatus;
-import org.gbif.api.vocabulary.Origin;
-import org.gbif.api.vocabulary.Rank;
-import org.gbif.api.vocabulary.TaxonomicStatus;
-import org.gbif.api.vocabulary.ThreatStatus;
+import org.gbif.api.model.common.search.SearchRequest;
+import org.gbif.api.vocabulary.*;
 import org.gbif.common.search.EsFieldMapper;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import co.elastic.clients.elasticsearch._types.Script;
 import co.elastic.clients.elasticsearch._types.SortOptions;
@@ -39,6 +28,10 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+
+import static org.gbif.api.model.checklistbank.search.NameUsageSearchRequest.NameUsageQueryField;
 
 public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchParameter> {
 
@@ -57,6 +50,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
           .put(NameUsageSearchParameter.STATUS, "taxonomicStatus")
           .put(NameUsageSearchParameter.THREAT, "threatStatus")
           .build();
+
+  public static final Map<SearchRequest.QueryField, String> QUERY_FIELDS_TO_ES_MAPPING =
+    ImmutableMap.<SearchRequest.QueryField, String>builder()
+      .put(NameUsageQueryField.SCIENTIFIC, "scientificName")
+      .put(NameUsageQueryField.VERNACULAR, "vernacularName")
+      .put(NameUsageQueryField.DESCRIPTION, "description")
+      .build();
 
   public static final Map<String, Integer> CARDINALITIES =
       ImmutableMap.<String, Integer>builder()
@@ -82,6 +82,13 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
                                                                      "family", "genus", "subgenus",
                                                                      "species", "description", "vernacularName");
 
+  private static final List<String> DEFAULT_QUERY_FIELDS = Arrays.asList("description^0.1",
+                                                                         "vernacularName",
+                                                                         "canonicalName",
+                                                                         "scientificName",
+                                                                         "species",
+                                                                         "subgenus",
+                                                                         "family");
 
   protected static final Query BOOSTING_QUERY = Query.of(qb -> qb.boosting(QueryBuilders.boosting()
                                                                              .positive(p -> p.bool( pb ->
@@ -210,23 +217,40 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   @Override
   public Query fullTextQuery(String q) {
+    return fullTextQuery(q, Collections.emptySet());
+  }
+
+  @Override
+  public Query fullTextQuery(String q, Set<SearchRequest.QueryField> queryFields) {
     boolean isPhrase = isPhrase(q);
-    Rank boostingRank = isPhrase? Rank.SPECIES : Rank.GENUS;
-    return  Query.of(qb -> qb.bool(BoolQuery.of(bool -> bool.must(mf -> mf.multiMatch(mm -> mm.query(q)
-                                                                                              .fields("description^0.1",
-                                                                                                      "vernacularName",
-                                                                                                      "canonicalName",
-                                                                                                      "scientificName",
-                                                                                                      "species",
-                                                                                                      "subgenus",
-                                                                                                      "family")
-                                                                                              .minimumShouldMatch("1")
-                                                                                              .type(isPhrase? TextQueryType.PhrasePrefix : TextQueryType.BestFields)
-                                                                                          ))
-                                                                                        .should(phraseQuery(q))
-                                                                                        .should(rankBoostingFunction(boostingRank))
-                                                                                        .should(rankBoostingQuery(boostingRank))
-                                                                                        .should(BOOSTING_QUERY))));
+    Rank boostingRank = isPhrase ? Rank.SPECIES : Rank.GENUS;
+    return Query.of(
+        qb ->
+            qb.bool(
+                BoolQuery.of(
+                    bool ->
+                        bool.must(
+                                mf ->
+                                    mf.multiMatch(
+                                        mm ->
+                                            mm.query(q)
+                                                .fields(queryFieldsToEsFields(queryFields))
+                                                .minimumShouldMatch("1")
+                                                .type(
+                                                    isPhrase
+                                                        ? TextQueryType.PhrasePrefix
+                                                        : TextQueryType.BestFields)))
+                            .should(phraseQuery(q))
+                            .should(rankBoostingFunction(boostingRank))
+                            .should(rankBoostingQuery(boostingRank))
+                            .should(BOOSTING_QUERY))));
+  }
+
+  @Override
+  public List<String> queryFieldsToEsFields(Set<SearchRequest.QueryField> queryFields) {
+    return queryFields.isEmpty()
+        ? DEFAULT_QUERY_FIELDS
+        : queryFields.stream().map(QUERY_FIELDS_TO_ES_MAPPING::get).collect(Collectors.toList());
   }
 
   public Query phraseQuery(String q) {
