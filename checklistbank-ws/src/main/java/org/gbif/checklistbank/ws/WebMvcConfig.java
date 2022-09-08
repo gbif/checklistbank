@@ -15,8 +15,10 @@ package org.gbif.checklistbank.ws;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.checklistbank.TableOfContents;
+import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
 import org.gbif.checklistbank.ws.mixins.TableOfContentsMixin;
+import org.gbif.checklistbank.ws.mixins.VernacularNameMixin;
 import org.gbif.checklistbank.ws.provider.NameUsageSearchRequestHandlerMethodArgumentResolver;
 import org.gbif.checklistbank.ws.provider.NameUsageSuggestRequestArgumentResolver;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
@@ -69,7 +71,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
     stringHttpMessageConverter.setSupportedMediaTypes(
-        Lists.newArrayList(MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN));
+        Lists.newArrayList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN));
     converters.add(stringHttpMessageConverter);
   }
 
@@ -119,6 +121,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
     objectMapper.addMixIn(TableOfContents.class, TableOfContentsMixin.class);
     objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
+    objectMapper.addMixIn(VernacularName.class, VernacularNameMixin.class);
     objectMapper.registerModules(new JavaTimeModule());
     return objectMapper;
   }
