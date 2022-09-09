@@ -29,15 +29,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringEscapeUtils;
 
 @Slf4j
 public class NameUsageSearchResultConverter
-    implements Function<Hit<NameUsageAvro>,NameUsageSearchResult> {
-
+    implements Function<Hit<NameUsageAvro>, NameUsageSearchResult> {
 
   private static final String CONCAT = " # ";
   private static final Pattern LANG_SPLIT = Pattern.compile("^([a-zA-Z]*)" + CONCAT + "(.*)$");
@@ -50,25 +48,32 @@ public class NameUsageSearchResultConverter
     NameUsageSearchResult u = new NameUsageSearchResult();
     u.setKey(Integer.parseInt(hit.id()));
 
-    getHighlightOrStringValue(hit.highlight(), result.getAccepted(), "accepted").ifPresent(u::setAccepted);
+    getHighlightOrStringValue(hit.highlight(), result.getAccepted(), "accepted")
+        .ifPresent(u::setAccepted);
     u.setAcceptedKey(result.getAcceptedKey());
 
+    getHighlightOrStringValue(hit.highlight(), result.getCanonicalName(), "canonicalName")
+        .ifPresent(u::setCanonicalName);
 
-    getHighlightOrStringValue(hit.highlight(), result.getCanonicalName(), "canonicalName").ifPresent(u::setCanonicalName);
-
-    getHighlightOrStringValue(hit.highlight(), result.getAuthorship(),"authorship").ifPresent(u::setAuthorship);
-    getHighlightOrStringValue(hit.highlight(), result.getAccordingTo(),"accordingTo").ifPresent(u::setAccordingTo);
-    getHighlightOrStringValue(hit.highlight(), result.getPublishedIn(),"publishedIn").ifPresent(u::setPublishedIn);
+    getHighlightOrStringValue(hit.highlight(), result.getAuthorship(), "authorship")
+        .ifPresent(u::setAuthorship);
+    getHighlightOrStringValue(hit.highlight(), result.getAccordingTo(), "accordingTo")
+        .ifPresent(u::setAccordingTo);
+    getHighlightOrStringValue(hit.highlight(), result.getPublishedIn(), "publishedIn")
+        .ifPresent(u::setPublishedIn);
 
     u.setNubKey(result.getNubKey());
     u.setNumDescendants(result.getNumDescendants());
 
-    getHighlightOrStringValue(hit.highlight(), result.getParent(),"parent").ifPresent(u::setParent);
+    getHighlightOrStringValue(hit.highlight(), result.getParent(), "parent")
+        .ifPresent(u::setParent);
     u.setParentKey(result.getParentKey());
 
-    getHighlightOrStringValue(hit.highlight(), result.getScientificName(), "scientificName").ifPresent(u::setScientificName);
+    getHighlightOrStringValue(hit.highlight(), result.getScientificName(), "scientificName")
+        .ifPresent(u::setScientificName);
 
-    getHighlightOrStringValue(hit.highlight(), result.getBasionym(),"basionym").ifPresent(u::setBasionym);
+    getHighlightOrStringValue(hit.highlight(), result.getBasionym(), "basionym")
+        .ifPresent(u::setBasionym);
     u.setBasionymKey(result.getBasionymKey());
 
     setClassification(hit, u, u);
@@ -82,28 +87,34 @@ public class NameUsageSearchResultConverter
     u.setTaxonID(result.getSourceId());
 
     getEnumList(ThreatStatus.class, result.getThreatStatus()).ifPresent(u::setThreatStatuses);
-    getEnumList(NomenclaturalStatus.class, result.getNomenclaturalStatus()).ifPresent(u::setNomenclaturalStatus);
+    getEnumList(NomenclaturalStatus.class, result.getNomenclaturalStatus())
+        .ifPresent(u::setNomenclaturalStatus);
     getEnumList(Habitat.class, result.getHabitat()).ifPresent(u::setHabitats);
 
     VocabularyUtils.lookup(result.getOrigin(), Origin.class).ifPresent(u::setOrigin);
-    VocabularyUtils.lookup(result.getTaxonomicStatus(), TaxonomicStatus.class).ifPresent(u::setTaxonomicStatus);
+    VocabularyUtils.lookup(result.getTaxonomicStatus(), TaxonomicStatus.class)
+        .ifPresent(u::setTaxonomicStatus);
     VocabularyUtils.lookup(result.getNameType(), NameType.class).ifPresent(u::setNameType);
     VocabularyUtils.lookup(result.getRank(), Rank.class).ifPresent(u::setRank);
 
-    getVernacularName(result.getVernacularNameLang(), hit.highlight()).ifPresent(u::setVernacularNames);
+    getVernacularName(result.getVernacularNameLang(), hit.highlight())
+        .ifPresent(u::setVernacularNames);
     getDescription(result.getDescription(), hit.highlight()).ifPresent(u::setDescriptions);
 
     return u;
   }
 
-   static void setClassification(Hit<NameUsageAvro> hit, LinneanClassification lc, LinneanClassificationKeys lck) {
+  static void setClassification(
+      Hit<NameUsageAvro> hit, LinneanClassification lc, LinneanClassificationKeys lck) {
 
     NameUsageAvro result = hit.source();
 
-    getHighlightOrStringValue(hit.highlight(), result.getKingdom(), "kingdom").ifPresent(lc::setKingdom);
+    getHighlightOrStringValue(hit.highlight(), result.getKingdom(), "kingdom")
+        .ifPresent(lc::setKingdom);
     lck.setKingdomKey(result.getKingdomKey());
 
-    getHighlightOrStringValue(hit.highlight(), result.getPhylum(), "phylum").ifPresent(lc::setPhylum);
+    getHighlightOrStringValue(hit.highlight(), result.getPhylum(), "phylum")
+        .ifPresent(lc::setPhylum);
     lck.setPhylumKey(result.getPhylumKey());
 
     getHighlightOrStringValue(hit.highlight(), result.getClazz(), "clazz").ifPresent(lc::setClazz);
@@ -112,19 +123,21 @@ public class NameUsageSearchResultConverter
     getHighlightOrStringValue(hit.highlight(), result.getOrder(), "order").ifPresent(lc::setOrder);
     lck.setOrderKey(result.getOrderKey());
 
-    getHighlightOrStringValue(hit.highlight(), result.getFamily(),"family").ifPresent(lc::setFamily);
+    getHighlightOrStringValue(hit.highlight(), result.getFamily(), "family")
+        .ifPresent(lc::setFamily);
     lck.setFamilyKey(result.getFamilyKey());
 
     getHighlightOrStringValue(hit.highlight(), result.getGenus(), "genus").ifPresent(lc::setGenus);
     lck.setGenusKey(result.getGenusKey());
 
-    getHighlightOrStringValue(hit.highlight(), result.getSubgenus(), "subgenus").ifPresent(lc::setSubgenus);
+    getHighlightOrStringValue(hit.highlight(), result.getSubgenus(), "subgenus")
+        .ifPresent(lc::setSubgenus);
     lck.setSubgenusKey(result.getSubgenusKey());
 
-    getHighlightOrStringValue(hit.highlight(), result.getSpecies(), "species").ifPresent(lc::setSpecies);
+    getHighlightOrStringValue(hit.highlight(), result.getSpecies(), "species")
+        .ifPresent(lc::setSpecies);
     lck.setSpeciesKey(result.getSpeciesKey());
-
-   }
+  }
 
   private static Description deserializeDescription(String description) {
     Description d = new Description();
@@ -132,16 +145,18 @@ public class NameUsageSearchResultConverter
     return d;
   }
 
-  private Optional<List<Description>> getDescription(List<String> descriptions, Map<String, List<String>> hlFields) {
+  private Optional<List<Description>> getDescription(
+      List<String> descriptions, Map<String, List<String>> hlFields) {
     if (descriptions == null || descriptions.isEmpty()) {
       return Optional.empty();
     }
 
     Map<String, String> hValuesWithSource = getHlValuesWithSource(hlFields, "description");
-    return Optional.of(descriptions.stream()
-      .map(v -> hValuesWithSource.getOrDefault(v, v))
-      .map(NameUsageSearchResultConverter::deserializeDescription)
-      .collect(Collectors.toList()));
+    return Optional.of(
+        descriptions.stream()
+            .map(v -> hValuesWithSource.getOrDefault(v, v))
+            .map(NameUsageSearchResultConverter::deserializeDescription)
+            .collect(Collectors.toList()));
   }
 
   private Optional<List<VernacularName>> getVernacularName(
@@ -185,18 +200,19 @@ public class NameUsageSearchResultConverter
                             StringEscapeUtils.unescapeHtml(
                                 v.replaceAll(EsSearchRequestBuilder.PRE_HL_TAG, "")
                                     .replaceAll(EsSearchRequestBuilder.POST_HL_TAG, "")),
-                        v -> v));
+                        v -> v,
+                        (v1, v2) -> v1));
       }
     }
     return hValuesWithSource;
   }
 
-  public static Optional<String> getHighlightOrStringValue(Map<String, List<String>> hlFields, String value, String esField) {
+  public static Optional<String> getHighlightOrStringValue(
+      Map<String, List<String>> hlFields, String value, String esField) {
     Optional<String> fieldValue = Optional.ofNullable(value);
     if (Objects.nonNull(hlFields)) {
       Optional<String> hlValue =
-        Optional.ofNullable(hlFields.get(esField))
-          .map(hlField -> hlField.get(0));
+          Optional.ofNullable(hlFields.get(esField)).map(hlField -> hlField.get(0));
       return hlValue.isPresent() ? hlValue : fieldValue;
     }
     return fieldValue;
@@ -206,10 +222,14 @@ public class NameUsageSearchResultConverter
     return Optional.ofNullable(value).map(UUID::fromString);
   }
 
-  public static <T extends Enum<?>> Optional<List<T>> getEnumList(Class<T> vocab, List<String> value) {
+  public static <T extends Enum<?>> Optional<List<T>> getEnumList(
+      Class<T> vocab, List<String> value) {
     return Optional.ofNullable(value)
-      .filter(v -> !v.isEmpty())
-      .map(v -> v.stream().map(val -> VocabularyUtils.lookupEnum(val, vocab)).collect(Collectors.toList()));
+        .filter(v -> !v.isEmpty())
+        .map(
+            v ->
+                v.stream()
+                    .map(val -> VocabularyUtils.lookupEnum(val, vocab))
+                    .collect(Collectors.toList()));
   }
-
 }
