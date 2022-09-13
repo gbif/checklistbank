@@ -15,10 +15,8 @@ package org.gbif.checklistbank.ws;
 
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.checklistbank.TableOfContents;
-import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
 import org.gbif.checklistbank.ws.mixins.TableOfContentsMixin;
-import org.gbif.checklistbank.ws.mixins.VernacularNameMixin;
 import org.gbif.checklistbank.ws.provider.NameUsageSearchRequestHandlerMethodArgumentResolver;
 import org.gbif.checklistbank.ws.provider.NameUsageSuggestRequestArgumentResolver;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
@@ -28,6 +26,13 @@ import org.gbif.ws.server.provider.PageableHandlerMethodArgumentResolver;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -48,14 +53,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
-import com.google.common.collect.Lists;
-
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
@@ -71,7 +68,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
     StringHttpMessageConverter stringHttpMessageConverter = new StringHttpMessageConverter();
     stringHttpMessageConverter.setSupportedMediaTypes(
-        Lists.newArrayList(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN));
+        Lists.newArrayList(
+            MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_PLAIN));
     converters.add(stringHttpMessageConverter);
   }
 
@@ -121,7 +119,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     ObjectMapper objectMapper = JacksonJsonObjectMapperProvider.getObjectMapper();
     objectMapper.addMixIn(TableOfContents.class, TableOfContentsMixin.class);
     objectMapper.addMixIn(DatasetMetrics.class, DatasetMetricsMixin.class);
-    objectMapper.addMixIn(VernacularName.class, VernacularNameMixin.class);
     objectMapper.registerModules(new JavaTimeModule());
     return objectMapper;
   }
