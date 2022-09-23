@@ -11,11 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gbif.checklistbank.cli.config;
-
-import org.gbif.common.search.es.EsClient;
+package org.gbif.checklistbank.index;
 
 import com.beust.jcommander.Parameter;
+import org.gbif.common.search.es.EsClient;
+
+import javax.validation.constraints.Min;
 
 /**
  * Configuration specific to interfacing with elastic search.
@@ -41,7 +42,8 @@ public class ElasticsearchConfiguration {
   public String index;
 
   @Parameter(names = {"--es-sync-threads"})
-  public int syncThreads = 60000;
+  @Min(0)
+  public int syncThreads = 2;
 
   public EsClient buildClient() {
     EsClient.EsClientConfiguration elasticsearchConfiguration = new EsClient.EsClientConfiguration();
