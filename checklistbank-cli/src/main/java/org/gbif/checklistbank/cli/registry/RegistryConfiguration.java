@@ -14,9 +14,9 @@
 package org.gbif.checklistbank.cli.registry;
 
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
+import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.GangliaConfiguration;
-import org.gbif.checklistbank.index.ElasticsearchConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import javax.validation.Valid;

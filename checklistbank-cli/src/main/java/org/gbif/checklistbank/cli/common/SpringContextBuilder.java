@@ -15,9 +15,9 @@ package org.gbif.checklistbank.cli.common;
 
 import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.ws.mixin.Mixins;
+import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.index.ElasticsearchConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
@@ -115,6 +115,14 @@ public class SpringContextBuilder {
       ctx.register(ChecklistBankMyBatisConfiguration.class);
       ctx.registerBean(ClbConfiguration.class, () -> clbConfiguration);
       ctx.register(MybatisAutoConfiguration.class);
+
+      ctx.getEnvironment()
+          .getPropertySources()
+          .addLast(
+              new MapPropertySource(
+                  "clbConfigProperties",
+                  ImmutableMap.of(
+                      "checklistbank.nub.importThreads", clbConfiguration.syncThreads)));
     }
 
     if (messagingConfiguration != null) {

@@ -17,7 +17,6 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMetrics;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.model.UsageForeignKeys;
@@ -59,10 +58,10 @@ public class DatasetImportServiceMyBatis implements DatasetImportService, AutoCl
   private ConcurrentLinkedQueue<Future<?>> tasks = new ConcurrentLinkedQueue<>();
 
   @Autowired
-  public DatasetImportServiceMyBatis(UsageSyncService importService, ClbConfiguration cfg) {
+  public DatasetImportServiceMyBatis(UsageSyncService importService, @Value("${checklistbank.nub.importThreads:2}") Integer threads) {
     this.syncService = importService;
-    LOG.info("Starting data import service with {} sync threads.", cfg.syncThreads);
-    exec = Executors.newFixedThreadPool(cfg.syncThreads, new NamedThreadFactory(NAME));
+    LOG.info("Starting data import service with {} sync threads.", threads);
+    exec = Executors.newFixedThreadPool(threads, new NamedThreadFactory(NAME));
   }
 
   private <T> Future<T> addTask(Callable<T> task) {

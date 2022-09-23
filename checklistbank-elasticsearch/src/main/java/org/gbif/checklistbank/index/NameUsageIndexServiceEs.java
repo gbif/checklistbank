@@ -13,11 +13,6 @@
  */
 package org.gbif.checklistbank.index;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import com.codahale.metrics.Meter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
@@ -34,16 +29,25 @@ import org.gbif.checklistbank.service.ImporterCallback;
 import org.gbif.checklistbank.service.UsageService;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import javax.annotation.Nullable;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import com.codahale.metrics.Meter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service that updates an Elasticsearch Checklistbank index in real time.
@@ -79,7 +83,6 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     DescriptionService descriptionService,
     DistributionService distributionService,
     SpeciesProfileService speciesProfileService,
-    ElasticsearchConfiguration cfg,
     @Qualifier("syncThreads") Integer syncThreads,
     @Qualifier("indexName") String indexName
   ) {
@@ -90,7 +93,6 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
     this.distributionService = distributionService;
     this.speciesProfileService = speciesProfileService;
 
-    log.info("Setting up ES service executor with {} threads", syncThreads);
     exec = Executors.newFixedThreadPool(syncThreads, new NamedThreadFactory(NAME));
   }
 
