@@ -91,16 +91,16 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   // neo internal ids to clb usage keys
-  private ConcurrentHashMap<Integer, Integer> clbKeys = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Integer, Integer> clbKeys = new ConcurrentHashMap<>();
   // map based around internal neo4j node ids:
-  private ConcurrentHashMap<Integer, UsageForeignKeys> postKeys = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Integer, UsageForeignKeys> postKeys = new ConcurrentHashMap<>();
   // list of pro parte synonym neo node ids
   private Set<Long> proParteNodes = new HashSet<>();
   private int maxExistingNubKey = -1;
   private volatile int firstUsageKey = -1;
   private Future<List<NameUsage>> proParteFuture;
-  private Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<>();
-  private Queue<Future<?>> otherFutures = new ConcurrentLinkedQueue<>();
+  private final Queue<Future<List<Integer>>> usageFutures = new ConcurrentLinkedQueue<>();
+  private final Queue<Future<?>> otherFutures = new ConcurrentLinkedQueue<>();
 
   private final KryoPool kryoPool = new KryoPool.Builder(new CliKryoFactory()).build();
 

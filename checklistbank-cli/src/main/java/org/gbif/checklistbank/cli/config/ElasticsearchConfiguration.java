@@ -41,7 +41,7 @@ public class ElasticsearchConfiguration {
   public String index;
 
   @Parameter(names = {"--es-sync-threads"})
-  public int syncThreads = 60000;
+  public int syncThreads = 2;
 
   public EsClient buildClient() {
     EsClient.EsClientConfiguration elasticsearchConfiguration = new EsClient.EsClientConfiguration();
