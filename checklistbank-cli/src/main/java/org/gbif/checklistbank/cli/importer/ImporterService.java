@@ -44,7 +44,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
 
   private final ImporterConfiguration cfg;
   private final DatasetImportService sqlService;
-  private DatasetImportService searchIndexService;
+  private final DatasetImportService searchIndexService;
   private final NameUsageService nameUsageService;
   private final UsageService usageService;
   private final ZookeeperUtils zkUtils;
@@ -63,8 +63,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
       zkUtils = null;
     }
 
-    ctx =
-        SpringContextBuilder.create()
+    ctx = SpringContextBuilder.create()
             .withClbConfiguration(cfg.clb)
             .withElasticsearchConfiguration(cfg.elasticsearch)
             .withMessagingConfiguration(cfg.messaging)
@@ -82,7 +81,7 @@ public class ImporterService extends RabbitDatasetService<ChecklistNormalizedMes
             .build();
 
     sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
+    searchIndexService = ctx.getBean(SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
     nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
     usageService = ctx.getBean(UsageServiceMyBatis.class);
   }

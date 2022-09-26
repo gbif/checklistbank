@@ -73,8 +73,6 @@ public class NameUsageIndexServiceEs implements DatasetImportService {
   private final Meter updMeter = new Meter();
   private final AtomicInteger updCounter = new AtomicInteger(0);
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
-
   @Autowired
   public NameUsageIndexServiceEs(
     ElasticsearchClient elasticsearchClient,

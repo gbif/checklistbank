@@ -43,6 +43,9 @@ public class ElasticsearchConfiguration {
   @Parameter(names = {"--es-sync-threads"})
   public int syncThreads = 2;
 
+  @Parameter(names = {"--es-enabled"})
+  public boolean enabled = true;
+
   public EsClient buildClient() {
     EsClient.EsClientConfiguration elasticsearchConfiguration = new EsClient.EsClientConfiguration();
     elasticsearchConfiguration.setHosts(hosts);

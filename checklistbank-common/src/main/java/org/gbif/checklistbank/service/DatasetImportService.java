@@ -17,9 +17,12 @@ import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.model.UsageForeignKeys;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -77,4 +80,52 @@ public interface DatasetImportService extends AutoCloseable {
    */
   boolean isRunning();
 
+  /**
+   * A mock implementation that does nothing, but returns proper future objects which all yield empty lists.
+   */
+  static DatasetImportService passThru() {
+    return new DatasetImportService() {
+      private <T> Future<List<T>> future(){
+        return CompletableFuture.completedFuture(Collections.emptyList());
+      }
+
+      @Override
+      public Future<List<Integer>> sync(UUID datasetKey, ImporterCallback dao, Iterable<Integer> usageNeoIds) {
+        return future();
+      }
+
+      @Override
+      public Future<List<NameUsage>> sync(UUID datasetKey, ImporterCallback dao, List<NameUsage> usages, List<ParsedName> names) {
+        return future();
+      }
+
+      @Override
+      public Future<List<Integer>> updateForeignKeys(UUID datasetKey, List<UsageForeignKeys> fks) {
+        return future();
+      }
+
+      @Override
+      public void insertNubRelations(UUID datasetKey, Map<Integer, Integer> relations) {
+
+      }
+
+      @Override
+      public int deleteDataset(UUID datasetKey) {
+        return 0;
+      }
+
+      @Override
+      public Future<List<Integer>> deleteUsages(UUID datasetKey, List<Integer> usageKeys) {
+        return future();
+      }
+
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+
+      @Override
+      public void close() throws Exception {      }
+    };
+  }
 }

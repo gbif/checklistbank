@@ -19,6 +19,7 @@ import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
+import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.common.messaging.ConnectionParameters;
 import org.gbif.common.messaging.DefaultMessagePublisher;
@@ -58,6 +59,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 
 /** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {
+  public static String SEARCH_INDEX_SERVICE_BEAN_NAME = "searchIndexService";
 
   private String[] basePackages;
 
@@ -150,20 +152,26 @@ public class SpringContextBuilder {
       }
     }
     if (elasticsearchConfiguration != null) {
-      ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
+      if (elasticsearchConfiguration.enabled) {
+        ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
 
-      EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
-      esClientConfiguration.setHosts(elasticsearchConfiguration.hosts);
-      esClientConfiguration.setConnectionTimeOut(elasticsearchConfiguration.connectionTimeOut);
-      esClientConfiguration.setConnectionRequestTimeOut(elasticsearchConfiguration.connectionRequestTimeOut);
-      esClientConfiguration.setSocketTimeOut(elasticsearchConfiguration.socketTimeOut);
-      ctx.registerBean(EsClient.EsClientConfiguration.class, () -> esClientConfiguration);
+        EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
+        esClientConfiguration.setHosts(elasticsearchConfiguration.hosts);
+        esClientConfiguration.setConnectionTimeOut(elasticsearchConfiguration.connectionTimeOut);
+        esClientConfiguration.setConnectionRequestTimeOut(elasticsearchConfiguration.connectionRequestTimeOut);
+        esClientConfiguration.setSocketTimeOut(elasticsearchConfiguration.socketTimeOut);
+        ctx.registerBean(EsClient.EsClientConfiguration.class, () -> esClientConfiguration);
 
-      ctx.registerBean(ElasticsearchClient.class, () -> EsClient.provideEsClient(esClientConfiguration));
+        ctx.registerBean(ElasticsearchClient.class, () -> EsClient.provideEsClient(esClientConfiguration));
 
-      ctx.registerBean(NameUsageIndexServiceEs.class);
-      ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
-      ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
+        ctx.registerBean(NameUsageIndexServiceEs.class);
+        ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
+        ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
+
+      } else {
+        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class, () -> DatasetImportService.passThru());
+
+      }
     }
 
     if (!packages.isEmpty()) {
