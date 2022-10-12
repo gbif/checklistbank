@@ -57,7 +57,7 @@ public class NameUsagesEsIndexingClient {
 
   @SneakyThrows
   public void deleteByDatasetKey(UUID datasetKey) {
-    throwIfError(elasticsearchClient.deleteByQuery(dq -> dq.query(q -> q.match(m -> m.field("datasetKey").query(datasetKey.toString())))));
+    throwIfError(elasticsearchClient.deleteByQuery(dq -> dq.index(indexName).query(q -> q.match(m -> m.field("datasetKey").query(datasetKey.toString())))));
   }
 
   public void  bulkDelete(List<Integer> ids) {
