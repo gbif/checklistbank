@@ -82,6 +82,7 @@ public abstract class NubSource implements AutoCloseable {
   // default parser with 1s timeout
   private NameParser parser = NameParserUtils.PARSER;
   public UUID key;
+  public String shortKey;
   public String name;
   public Rank ignoreRanksAbove = Rank.FAMILY;
   public Date created;
@@ -102,6 +103,7 @@ public abstract class NubSource implements AutoCloseable {
   public NubSource(UUID key, String name, @Nullable List<RankedName> exclusion, boolean useTmpDao, NeoConfiguration cfg) {
     this.cfg = cfg;
     this.key = Preconditions.checkNotNull(key);
+    shortKey = key.toString().substring(0,8);
     this.name = name;
     this.useTmpDao = useTmpDao;
     if (exclusion != null && !exclusion.isEmpty()) {

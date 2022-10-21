@@ -938,7 +938,7 @@ public class NubBuilder implements Runnable {
               // make rank non null
               if (u.rank == null) u.rank = Rank.UNRANKED;
 
-              LOG.debug("process {} {} {}", u.status, u.rank, u.scientificName);
+              LOG.debug("process dataset {} {} {} {}", currSrc.shortKey, u.status, u.rank, u.scientificName);
               sourceUsageCounter++;
               parents.add(u);
 
@@ -1691,5 +1691,4 @@ public class NubBuilder implements Runnable {
     NormalizerStats normalizerStats = metricsHandler.getStats(0, null);
     LOG.info("Walked all taxa (root={}, total={}, synonyms={}) and built usage metrics", normalizerStats.getRoots(), normalizerStats.getCount(), normalizerStats.getSynonyms());
   }
-
 }
