@@ -44,6 +44,7 @@
   <logger name="org.gbif.nub" level="INFO"/>
   <logger name="org.gbif.checklistbank.index" level="INFO"/>
   <logger name="org.gbif.nub.lookup" level="DEBUG"/>
+  <logger name="org.gbif.nameparser.NameParserGBIF" level="DEBUG"/>
 
   <root level="WARN">
     <appender-ref ref="CONSOLE"/>
