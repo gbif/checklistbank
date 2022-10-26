@@ -86,7 +86,7 @@ public class NubResource {
                  first(authorship, authorship2),
                  specificEpithet,
                  infraspecificEpithet,
-                 r, classification, bool(strict), bool(verbose)
+                 r, classification, new ArrayList<>(), bool(strict), bool(verbose)
     );
   }
 
@@ -107,12 +107,12 @@ public class NubResource {
         first(authorship, authorship2),
         specificEpithet,
         infraspecificEpithet,
-        r, classification, bool(strict), bool(verbose)
+        r, classification, new ArrayList<>(), bool(strict), bool(verbose)
     ));
   }
 
   private NameUsageMatch match(String scientificName, String authorship, String specificEpithet, String infraSpecificEpithet,
-                       Rank rank, LinneanClassification classification, Boolean strict, Boolean verbose) {
+                       Rank rank, LinneanClassification classification, List<Object> exclusions, Boolean strict, Boolean verbose) {
     if (!Strings.isNullOrEmpty(scientificName)) {
       // prefer the given scientificName and add authorship if not there yet.
       // Ignore atomized name parameters

@@ -124,7 +124,10 @@ public class SpringContextBuilder {
               new MapPropertySource(
                   "clbConfigProperties",
                   ImmutableMap.of(
-                      "checklistbank.nub.importThreads", clbConfiguration.syncThreads)));
+                      "checklistbank.nub.importThreads", clbConfiguration.syncThreads,
+                      "checklistbank.parser.timeout", clbConfiguration.parserTimeout
+                  )
+              ));
     }
 
     if (messagingConfiguration != null) {
@@ -220,7 +223,7 @@ public class SpringContextBuilder {
   static class ApplicationConfig {
 
     @Bean
-    public NameParser nameParser(@Value("${parserTimeout:500}") long parserTimeout) {
+    public NameParser nameParser(@Value("${checklistbank.parser.timeout:2000}") long parserTimeout) {
       return new NameParserGbifV1(parserTimeout);
     }
   }

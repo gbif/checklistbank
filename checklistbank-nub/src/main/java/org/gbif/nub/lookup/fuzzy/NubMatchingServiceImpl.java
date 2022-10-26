@@ -202,7 +202,18 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     StopWatch watch = new StopWatch();
     watch.start();
 
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, strict, verbose);
+    NameUsageMatch match = matchInternal(scientificName, rank, classification, new ArrayList<>(), strict, verbose);
+
+    LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
+    return match;
+  }
+
+  @Override
+  public NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose) {
+    StopWatch watch = new StopWatch();
+    watch.start();
+
+    NameUsageMatch match = matchInternal(scientificName, rank, classification, exclusions, strict, verbose);
 
     LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
     return match;
@@ -211,7 +222,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   /**
    * Real method doing the work
    */
-  private NameUsageMatch matchInternal(@Nullable String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
+  private NameUsageMatch matchInternal(@Nullable String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
     NameType queryNameType;

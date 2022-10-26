@@ -42,7 +42,7 @@ public class XmlPrinter implements TreePrinter {
 
   public XmlPrinter(Writer writer) {
     this.writer = writer;
-    parser = new NameParserGbifV1(250);
+    parser = new NameParserGbifV1(1000);
   }
 
   @Override

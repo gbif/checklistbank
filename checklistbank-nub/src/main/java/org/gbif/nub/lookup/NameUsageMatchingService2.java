@@ -14,8 +14,13 @@
 package org.gbif.nub.lookup;
 
 import org.gbif.api.model.checklistbank.NameUsageMatch;
+import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.v2.NameUsageMatch2;
+import org.gbif.api.vocabulary.Rank;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  *
@@ -23,5 +28,7 @@ import org.gbif.api.v2.NameUsageMatch2;
 public interface NameUsageMatchingService2 extends NameUsageMatchingService {
 
   NameUsageMatch2 v2(NameUsageMatch m);
+
+  NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose);
 
 }

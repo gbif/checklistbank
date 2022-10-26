@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
 public class SpringServiceConfig {
 
   @Bean
-  public NameParser nameParser(@Value("${parserTimeout:500}") long parserTimeout) {
+  public NameParser nameParser(@Value("${checklistbank.parser.timeout:2000}") long parserTimeout) {
     return new NameParserGbifV1(parserTimeout);
   }
 }

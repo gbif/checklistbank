@@ -108,7 +108,7 @@ public class ClbNubConfiguration {
   @Value("${checklistbank.datasource.hikari.connectionTimeout:5000}")
   public int connectionTimeout = sec(5);
 
-  @Value("${checklistbank.parser.timeout:1000}")
+  @Value("${checklistbank.parser.timeout:2000}")
   public int parserTimeout = sec(1);
 
   @Value("${checklistbank.import.threads:1}")
