@@ -116,8 +116,8 @@ public class ClbConfiguration {
   public int connectionTimeout = sec(5);
 
   @Parameter(names = "--parser-timeout")
-  @Min(100)
-  public int parserTimeout = sec(1);
+  @Min(1000)
+  public int parserTimeout = sec(5);
 
   @Parameter(names = "--sync-threads")
   @Min(0)

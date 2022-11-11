@@ -81,7 +81,7 @@ public class NubBuilderIT {
     cfg.autoImport = false;
     cfg.neo = neoRepo.cfg;
     cfg.neo.batchSize = 5000;
-    cfg.parserTimeout = 250;
+    cfg.clb.parserTimeout = 250;
     cfg.blacklist = Sets.newHashSet(
         "Unaccepted",
         "Calendrella cinerea ongumaensis",  // https://github.com/gbif/checklistbank/issues/47

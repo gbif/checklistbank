@@ -150,12 +150,6 @@ public class NubConfiguration {
   @Nullable
   public File reportDir;
 
-  /**
-   * In milliseconds.
-   */
-  @Min(100)
-  public int parserTimeout = 1000;
-
   public NubConfiguration() {
   }
 

@@ -44,7 +44,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
 
   public NubSourceList(NubConfiguration cfg) {
     this.cfg = cfg;
-    parser = new NameParserGbifV1(cfg.parserTimeout);
+    parser = new NameParserGbifV1(cfg.clb.parserTimeout);
     exec = new ThreadPoolExecutor(0, cfg.sourceLoaderThreads,
         100L, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<Runnable>(),

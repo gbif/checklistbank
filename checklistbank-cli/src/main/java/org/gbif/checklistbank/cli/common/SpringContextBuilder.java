@@ -223,7 +223,7 @@ public class SpringContextBuilder {
   static class ApplicationConfig {
 
     @Bean
-    public NameParser nameParser(@Value("${checklistbank.parser.timeout:2000}") long parserTimeout) {
+    public NameParser nameParser(@Value("${checklistbank.parser.timeout:5000}") long parserTimeout) {
       return new NameParserGbifV1(parserTimeout);
     }
   }
