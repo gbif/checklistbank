@@ -28,7 +28,6 @@
     <sonar.coverage.jacoco.xmlReportPaths>
       ${project.basedir}/../checklistbank-nub/target/site/jacoco-aggregate/jacoco.xml
     </sonar.coverage.jacoco.xmlReportPaths>
-    <fastutil.version>7.0.13</fastutil.version>
   </properties>
 
   <build>
@@ -81,7 +80,6 @@
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>${fastutil.version}</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
