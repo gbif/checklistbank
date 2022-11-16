@@ -13,42 +13,33 @@
  */
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.base.Joiner;
+import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.nub.lookup.NubMatchingTestConfiguration;
-
-import java.io.IOException;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang.math.IntRange;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.base.Joiner;
+import javax.annotation.Nullable;
+import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class NubMatchingServiceImplIT {
 
   private static NubMatchingServiceImpl matcher;
   private static final Joiner CLASS_JOINER = Joiner.on("; ").useForNull("???");
-  private static final NameParserGbifV1 parser = new NameParserGbifV1();
 
   @BeforeAll
   public static void buildMatcher() throws IOException {
-    matcher = new NubMatchingServiceImpl(NubMatchingTestConfiguration.provideIndex(), NubMatchingTestConfiguration.provideSynonyms(), parser);
+    matcher = new NubMatchingServiceImpl(NubMatchingTestConfiguration.provideIndex(), NubMatchingTestConfiguration.provideSynonyms());
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey) {
@@ -180,7 +171,7 @@ public class NubMatchingServiceImplIT {
   private static boolean isParsed(NameUsageMatch x) {
     if (x.getScientificName() != null) {
       try {
-        ParsedName pn = parser.parse(x.getScientificName(), x.getRank());
+        ParsedName pn = NameParsers.INSTANCE.parse(x.getScientificName(), x.getRank());
         return pn.isParsed();
 
       } catch (UnparsableException e) {

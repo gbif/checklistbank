@@ -16,30 +16,24 @@ package org.gbif.checklistbank.service.mybatis.service;
 import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.NamePart;
 import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
-import org.gbif.nameparser.NameParserGbifV1;
-
-import javax.sql.DataSource;
-
+import org.gbif.checklistbank.utils.NameParsers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import javax.sql.DataSource;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
 public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
-
-  private NameParser parser = new NameParserGbifV1();
 
   private final ParsedNameService service;
 
@@ -99,7 +93,7 @@ public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBati
 
   private ParsedName parse(String x) {
     try {
-      return parser.parse(x, null);
+      return NameParsers.INSTANCE.parse(x, null);
     } catch (UnparsableException e) {
       ParsedName pn = new ParsedName();
       pn.setScientificName(x);

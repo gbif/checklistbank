@@ -13,12 +13,13 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.model.common.LinneanClassificationKeys;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.*;
@@ -27,23 +28,18 @@ import org.gbif.checklistbank.service.UsageSyncService;
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.sql.DataSource;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -54,8 +50,6 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
   private final UsageSyncService service;
   private final NameUsageService nameUsageService;
-
-  private static final NameParser PARSER = new NameParserGbifV1();
 
   @Autowired
   public UsageSyncServiceChecklistbankMyBatisIT(
@@ -135,7 +129,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     u.setGenusKey(g.getKey());
     u.setSpeciesKey(u.getKey());
 
-    int k1 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
+    int k1 = service.syncUsage(false, u, NameParsers.INSTANCE.parse(u.getScientificName(), u.getRank()), m);
 
     // verify props
     NameUsage u2 = nameUsageService.get(k1, null);
@@ -172,7 +166,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     v.setCoreField(DwcTerm.scientificName, name);
     v.setCoreField(DwcTerm.taxonID, taxonID);
 
-    int k2 = service.syncUsage(false, u, PARSER.parse(u.getScientificName(), u.getRank()), m);
+    int k2 = service.syncUsage(false, u, NameParsers.INSTANCE.parse(u.getScientificName(), u.getRank()), m);
     service.syncUsageExtras(false, ClbLoadTestDb.SQUIRRELS_DATASET_KEY, u.getKey(), v, e);
     assertEquals(k1, k2);
 
@@ -208,7 +202,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
     NameUsageMetrics m = new NameUsageMetrics();
 
-    ParsedName pn = PARSER.parse(u.getScientificName(), u.getRank());
+    ParsedName pn = NameParsers.INSTANCE.parse(u.getScientificName(), u.getRank());
 
     final int uID = service.syncUsage(false, u, pn, m);
     List<Integer> ids = Lists.newArrayList(uID);
@@ -263,7 +257,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
     NameUsageMetrics m = new NameUsageMetrics();
     m.setKey(key);
 
-    service.syncUsage(false, p, PARSER.parse(p.getScientificName(), p.getRank()), m);
+    service.syncUsage(false, p, NameParsers.INSTANCE.parse(p.getScientificName(), p.getRank()), m);
 
     return p;
   }

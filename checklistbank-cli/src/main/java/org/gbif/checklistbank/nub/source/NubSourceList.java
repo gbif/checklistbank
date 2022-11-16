@@ -13,21 +13,18 @@
  */
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.api.service.checklistbank.NameParser;
+import com.google.common.collect.Lists;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 /**
  * Base class for nub source lists that deals with the iterators and async loading of sources,
@@ -38,13 +35,11 @@ import com.google.common.collect.Lists;
 public class NubSourceList implements CloseableIterable<NubSource> {
   private static final Logger LOG = LoggerFactory.getLogger(ClbSourceList.class);
   private final ExecutorService exec;
-  private final NameParser parser;
   private List<Future<NubSource>> futures = Lists.newArrayList();
   protected final NubConfiguration cfg;
 
   public NubSourceList(NubConfiguration cfg) {
     this.cfg = cfg;
-    parser = new NameParserGbifV1(cfg.clb.parserTimeout);
     exec = new ThreadPoolExecutor(0, cfg.sourceLoaderThreads,
         100L, TimeUnit.MILLISECONDS,
         new LinkedBlockingQueue<Runnable>(),
@@ -60,7 +55,7 @@ public class NubSourceList implements CloseableIterable<NubSource> {
     int counter = 0;
     for (NubSource src : sources) {
       counter++;
-      src.setParser(parser);
+      src.setParser(NameParsers.INSTANCE);
       futures.add(exec.submit(new LoadSource(src)));
     }
 

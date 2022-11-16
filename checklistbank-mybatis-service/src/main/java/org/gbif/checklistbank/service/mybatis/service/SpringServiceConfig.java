@@ -14,8 +14,7 @@
 package org.gbif.checklistbank.service.mybatis.service;
 
 import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.nameparser.NameParserGbifV1;
-
+import org.gbif.checklistbank.utils.NameParsers;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +33,7 @@ public class SpringServiceConfig {
 
   @Bean
   public NameParser nameParser(@Value("${checklistbank.parser.timeout:5000}") long parserTimeout) {
-    return new NameParserGbifV1(parserTimeout);
+    NameParsers.INSTANCE.setTimeout(parserTimeout);
+    return NameParsers.INSTANCE;
   }
 }

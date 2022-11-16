@@ -13,13 +13,16 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
+import com.google.common.collect.Lists;
 import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.checklistbank.utils.NameParsers;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.sql.DataSource;
 import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,13 +32,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import javax.sql.DataSource;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Lists;
 
 public class ConcurrentCreateOrGetITChecklistbank extends ChecklistbankMyBatisServiceITBase {
 
@@ -61,7 +57,6 @@ public class ConcurrentCreateOrGetITChecklistbank extends ChecklistbankMyBatisSe
   static class ParsedNameCallable implements Callable<ParsedName> {
 
     private final String name;
-    private static final NameParser PARSER = new NameParserGbifV1();
     private final ParsedNameService parsedNameService;
     private final CitationService citationService;
 
@@ -76,10 +71,10 @@ public class ConcurrentCreateOrGetITChecklistbank extends ChecklistbankMyBatisSe
     @Override
     public ParsedName call() throws Exception {
       for (int x = 0; x < NUM_TASKS; x++) {
-        parsedNameService.createOrGet(PARSER.parse(name + " " + x + "-banales", null), true);
+        parsedNameService.createOrGet(NameParsers.INSTANCE.parse(name + " " + x + "-banales", null), true);
         citationService.createOrGet(name + " citation #" + x);
       }
-      ParsedName pn = parsedNameService.createOrGet(PARSER.parse(name, null), true);
+      ParsedName pn = parsedNameService.createOrGet(NameParsers.INSTANCE.parse(name, null), true);
       return pn;
     }
   }

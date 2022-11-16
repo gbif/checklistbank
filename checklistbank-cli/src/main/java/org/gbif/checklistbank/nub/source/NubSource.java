@@ -13,8 +13,17 @@
  */
 package org.gbif.checklistbank.nub.source;
 
-import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.api.vocabulary.*;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.gbif.api.vocabulary.NameType;
+import org.gbif.api.vocabulary.NomenclaturalStatus;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.iterable.CloseableIterator;
@@ -29,14 +38,7 @@ import org.gbif.checklistbank.neo.traverse.TreeIterablesSorted;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.postgres.TabMapperBase;
-import org.gbif.common.parsers.utils.NameParserUtils;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
-
+import org.gbif.checklistbank.utils.NameParsers;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -45,14 +47,10 @@ import org.neo4j.graphdb.traversal.Evaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Stopwatch;
-import com.google.common.base.Strings;
-
-import it.unimi.dsi.fastutil.ints.Int2IntMap;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import javax.annotation.Nullable;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A backbone source dataset with some basic metadata that allows to iterate over its source usages.
@@ -79,8 +77,6 @@ public abstract class NubSource implements AutoCloseable {
   protected final NeoConfiguration cfg;
   private final Stopwatch watch = Stopwatch.createUnstarted();
   private final Evaluator exclusionEvaluator;
-  // default parser with 1s timeout
-  private NameParser parser = NameParserUtils.PARSER;
   public UUID key;
   public String shortKey;
   public String name;
@@ -145,10 +141,6 @@ public abstract class NubSource implements AutoCloseable {
 
   public RankedName getScope() {
     return scope;
-  }
-
-  public void setParser(NameParser parser) {
-    this.parser = parser;
   }
 
   protected abstract void initNeo(NeoUsageWriter writer) throws Exception;
@@ -236,7 +228,7 @@ public abstract class NubSource implements AutoCloseable {
         }
       }
 
-      u.parsedName = parser.parseQuietly(u.scientificName, u.rank);
+      u.parsedName = NameParsers.INSTANCE.parseQuietly(u.scientificName, u.rank);
       if (u.parsedName.isParsableType() && !u.parsedName.isParsed()) {
         LOG.debug("Failed to parse {} {}: {}", u.rank, u.key, u.scientificName);
         unparsable++;
@@ -259,7 +251,7 @@ public abstract class NubSource implements AutoCloseable {
       // also add neo properties?
       if (writeNeoProperties) {
         n.setProperty(NeoProperties.SCIENTIFIC_NAME, u.scientificName);
-        String canonical = parser.parseToCanonical(u.scientificName, u.rank);
+        String canonical = NameParsers.INSTANCE.parseToCanonical(u.scientificName, u.rank);
         if (canonical != null) {
           n.setProperty(NeoProperties.CANONICAL_NAME, canonical);
         }

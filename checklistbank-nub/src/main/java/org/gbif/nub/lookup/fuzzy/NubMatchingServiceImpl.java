@@ -13,12 +13,17 @@
  */
 package org.gbif.nub.lookup.fuzzy;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.v2.NameUsageMatch2;
@@ -26,30 +31,22 @@ import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
-
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsageMatchingService2 {
@@ -61,7 +58,6 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private static ConfidenceOrder CONFIDENCE_ORDER = new ConfidenceOrder();
   private final NubIndex nubIndex;
   private final HigherTaxaComparator htComp;
-  private final NameParser parser;
   // name string to usageId
   private Map<String, NameUsageMatch> hackMap = Maps.newHashMap();
   private final StringSimilarity sim = new ScientificNameSimilarity();
@@ -95,13 +91,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   /**
    * @param nubIndex
    * @param htComp
-   * @param parser
    */
   @Autowired
-  public NubMatchingServiceImpl(NubIndex nubIndex, HigherTaxaComparator htComp, NameParser parser) {
+  public NubMatchingServiceImpl(NubIndex nubIndex, HigherTaxaComparator htComp) {
     this.nubIndex = nubIndex;
     this.htComp = htComp;
-    this.parser = parser;
     authComp = AuthorComparator.createWithAuthormap();
     initHackMap();
   }
@@ -250,7 +244,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       try {
         // use name parser to make the name a canonical one
         // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
-        pn = parser.parse(scientificName, rank);
+        pn = NameParsers.INSTANCE.parse(scientificName, rank);
         queryNameType = pn.getType();
         interpretGenus(pn, classification.getGenus());
         scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
@@ -615,7 +609,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     int similarity = 0;
     if (pn != null) {
       try {
-        ParsedName mpn = parser.parse(m.getScientificName(), m.getRank());
+        ParsedName mpn = NameParsers.INSTANCE.parse(m.getScientificName(), m.getRank());
         // authorship comparison was requested!
         Equality recomb = authComp.compare(pn.getAuthorship(), pn.getYear(), mpn.getAuthorship(), mpn.getYear());
         Equality bracket = authComp.compare(pn.getBracketAuthorship(), pn.getBracketYear(), mpn.getBracketAuthorship(), mpn.getBracketYear());

@@ -13,14 +13,19 @@
  */
 package org.gbif.checklistbank.service.mybatis.tmp;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.concurrent.ExecutorUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -28,19 +33,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
   private static final int BATCH_SIZE = 1000;
 
-  private final NameParser parser = new NameParserGbifV1();
   private final ExecutorService exec;
   private final NameUsageMapper usageMapper;
   private final ParsedNameMapper nameMapper;
@@ -122,7 +118,7 @@ public class NameUsageReparser implements Runnable {
         List<ScientificParsedName> pNames = Lists.newArrayList();
         for (RankedName n : names) {
           counter++;
-          ParsedName p = parser.parseQuietly(n.getName(), n.getRank());
+          ParsedName p = NameParsers.INSTANCE.parseQuietly(n.getName(), n.getRank());
           if (!p.isParsed()) {
             if (p.getType() == null || p.getType().isParsable()) {
               failed++;

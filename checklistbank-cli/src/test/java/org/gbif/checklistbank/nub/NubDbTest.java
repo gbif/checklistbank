@@ -13,10 +13,10 @@
  */
 package org.gbif.checklistbank.nub;
 
+import com.google.common.base.Throwables;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
@@ -26,20 +26,16 @@ import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.utils.RankUtils;
-import org.gbif.nameparser.NameParserGbifV1;
-
-import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
-import com.google.common.base.Throwables;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
 public class NubDbTest {
-  final NameParser parser = new NameParserGbifV1();
   private long counter = 1;
 
   @Test
@@ -252,7 +248,7 @@ public class NubDbTest {
     NubUsage nu = new NubUsage();
     nu.datasetKey = Constants.COL_DATASET_KEY;
     try {
-      nu.parsedName = parser.parse(sciname, rank);
+      nu.parsedName = NameParsers.INSTANCE.parse(sciname, rank);
       nu.rank = rank;
       nu.status = status;
       nu.kingdom = k;
@@ -266,7 +262,7 @@ public class NubDbTest {
     SrcUsage u = new SrcUsage();
     try {
       u.scientificName = sciname;
-      u.parsedName = parser.parse(sciname, rank);
+      u.parsedName = NameParsers.INSTANCE.parse(sciname, rank);
       u.rank = rank;
       u.status = status;
     } catch (UnparsableException e) {

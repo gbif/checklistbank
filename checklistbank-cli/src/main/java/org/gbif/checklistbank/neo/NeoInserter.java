@@ -13,11 +13,22 @@
  */
 package org.gbif.checklistbank.neo;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.checklistbank.VerbatimNameUsage;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.common.Metrics;
 import org.gbif.checklistbank.cli.normalizer.ExtensionInterpreter;
@@ -26,6 +37,7 @@ import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.model.ParsedNameUsageCompound;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
 import org.gbif.common.parsers.TaxStatusParser;
@@ -37,9 +49,13 @@ import org.gbif.dwc.DwcFiles;
 import org.gbif.dwc.record.Record;
 import org.gbif.dwc.record.StarRecord;
 import org.gbif.dwc.terms.*;
-import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.utils.ObjectUtils;
+import org.neo4j.unsafe.batchinsert.BatchInserter;
+import org.neo4j.unsafe.batchinsert.BatchInserters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,27 +63,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.io.FileUtils;
-import org.neo4j.unsafe.batchinsert.BatchInserter;
-import org.neo4j.unsafe.batchinsert.BatchInserters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.codahale.metrics.Meter;
-import com.codahale.metrics.MetricRegistry;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 import static org.gbif.dwc.terms.GbifTerm.datasetKey;
 
@@ -79,7 +74,6 @@ public class NeoInserter implements AutoCloseable {
 
   private Archive arch;
   private Map<String, UUID> constituents;
-  private NameParser nameParser = new NameParserGbifV1();
   private RankParser rankParser = RankParser.getInstance();
   private EnumParser<NomenclaturalStatus> nomStatusParser = NomStatusParser.getInstance();
   private EnumParser<TaxonomicStatus> taxStatusParser = TaxStatusParser.getInstance();
@@ -334,7 +328,7 @@ public class NeoInserter implements AutoCloseable {
     final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
     try {
       if (sciname != null) {
-        pn = nameParser.parse(sciname, rank);
+        pn = NameParsers.INSTANCE.parse(sciname, rank);
       } else {
         String genus = firstClean(v, DwcTerm.genericName, DwcTerm.genus);
         if (genus == null) {
@@ -354,7 +348,7 @@ public class NeoInserter implements AutoCloseable {
       // try to add an authorship if not yet there
       String vAuthorship = buildAuthorship(v);
       if (!Strings.isNullOrEmpty(vAuthorship) && !pn.hasAuthorship()) {
-        ParsedName auth = nameParser.parseQuietly("Abies alba " + vAuthorship, Rank.SPECIES);
+        ParsedName auth = NameParsers.INSTANCE.parseQuietly("Abies alba " + vAuthorship, Rank.SPECIES);
         if (auth.isParsed() && auth.hasAuthorship()) {
           pn.setAuthorship(auth.getAuthorship());
           pn.setYear(auth.getYear());

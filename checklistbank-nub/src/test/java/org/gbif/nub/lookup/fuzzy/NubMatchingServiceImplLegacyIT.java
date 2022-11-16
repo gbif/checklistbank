@@ -16,17 +16,13 @@ package org.gbif.nub.lookup.fuzzy;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.common.LinneanClassification;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class NubMatchingServiceImplLegacyIT {
 
@@ -40,7 +36,7 @@ public class NubMatchingServiceImplLegacyIT {
 
     NubIndex index = NubIndex.newMemoryIndex(NubIndexTest.readTestNames());
 
-    matcher = new NubMatchingServiceImpl(index, syn, new NameParserGbifV1());
+    matcher = new NubMatchingServiceImpl(index, syn);
   }
 
   /**

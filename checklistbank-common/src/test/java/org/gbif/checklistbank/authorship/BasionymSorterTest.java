@@ -13,13 +13,17 @@
  */
 package org.gbif.checklistbank.authorship;
 
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.nameparser.NameParserGbifV1;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,19 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Another autho comparator test that runs over files of names taken from the real GBIF backbone.
@@ -49,14 +41,13 @@ import static org.junit.jupiter.api.Assertions.fail;
  * See http://dev.gbif.org/issues/browse/POR-398 for more.
  */
 public class BasionymSorterTest {
-  private final NameParser parser = new NameParserGbifV1();
   private final BasionymSorter sorter = new BasionymSorter();
 
   private List<ParsedName> names(String... names) throws Exception {
     return Arrays.stream(names)
         .map(n -> {
           try {
-            return parser.parse(n);
+            return NameParsers.INSTANCE.parse(n);
           } catch (UnparsableException e) {
             Throwables.propagate(e);
           }
@@ -249,8 +240,8 @@ public class BasionymSorterTest {
   public void testAtrocincta() throws Exception {
     List<ParsedName> names = Lists.newArrayList();
 
-    names.add(parser.parse("Anthophora atrocincta Lepeletier, 1841", Rank.SPECIES));
-    names.add(parser.parse("Amegilla atrocincta (Lepeletier)", Rank.SPECIES));
+    names.add(NameParsers.INSTANCE.parse("Anthophora atrocincta Lepeletier, 1841", Rank.SPECIES));
+    names.add(NameParsers.INSTANCE.parse("Amegilla atrocincta (Lepeletier)", Rank.SPECIES));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(1, groups.size());
@@ -263,9 +254,9 @@ public class BasionymSorterTest {
   public void testPlumipes() throws Exception {
     List<ParsedName> names = Lists.newArrayList();
 
-    names.add(parser.parse("Anthophora plumipes (Fabricius)", Rank.SPECIES));
-    names.add(parser.parse("Apis plumipes Fabricius, 1781", Rank.SPECIES));
-    names.add(parser.parse("Centris plumipes (Fabricius)", Rank.SPECIES));
+    names.add(NameParsers.INSTANCE.parse("Anthophora plumipes (Fabricius)", Rank.SPECIES));
+    names.add(NameParsers.INSTANCE.parse("Apis plumipes Fabricius, 1781", Rank.SPECIES));
+    names.add(NameParsers.INSTANCE.parse("Centris plumipes (Fabricius)", Rank.SPECIES));
 
     Collection<BasionymGroup<ParsedName>> groups = sorter.groupBasionyms(names);
     assertEquals(1, groups.size());
@@ -413,7 +404,7 @@ public class BasionymSorterTest {
         }
 
         try {
-          ParsedName p = parser.parse(row[1], null);
+          ParsedName p = NameParsers.INSTANCE.parse(row[1], null);
           if (epithet != null && !epithet.trim().equalsIgnoreCase(row[0])) {
             // a new group, store this row for next call
             lastRow = row;

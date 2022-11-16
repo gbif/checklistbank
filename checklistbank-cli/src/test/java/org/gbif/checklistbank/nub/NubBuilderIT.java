@@ -13,8 +13,11 @@
  */
 package org.gbif.checklistbank.nub;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.gbif.api.model.checklistbank.NameUsage;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.cli.model.GraphFormat;
 import org.gbif.checklistbank.cli.model.RankedName;
@@ -32,19 +35,9 @@ import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.*;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
-import org.gbif.nameparser.NameParserGbifV1;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
 import org.gbif.utils.ObjectUtils;
-
-import java.io.*;
-import java.net.URL;
-import java.text.ParseException;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -57,10 +50,12 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterables;
 import org.neo4j.helpers.collection.Iterators;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import javax.annotation.Nullable;
+import java.io.*;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,7 +63,6 @@ public class NubBuilderIT {
   public NubConfiguration cfg = new NubConfiguration();
   private UsageDao dao;
   private Transaction tx;
-  private static final NameParser PARSER = new NameParserGbifV1();
 
   @RegisterExtension
   public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
