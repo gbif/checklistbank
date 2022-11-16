@@ -13,14 +13,15 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import org.gbif.api.exception.UnparsableException;
-import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
-import org.gbif.checklistbank.service.ParsedNameService;
-import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
-
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.gbif.api.exception.UnparsableException;
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.checklistbank.service.ParsedNameService;
+import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,19 +29,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-
 @Service
 public class ParsedNameServiceMyBatis implements ParsedNameService {
   private static final Logger LOG = LoggerFactory.getLogger(ParsedNameServiceMyBatis.class);
   private ParsedNameMapper mapper;
-  private NameParser parser;
 
   @Autowired
-  ParsedNameServiceMyBatis(ParsedNameMapper mapper, NameParser parser) {
+  ParsedNameServiceMyBatis(ParsedNameMapper mapper) {
     this.mapper = mapper;
-    this.parser = parser;
   }
 
   public ParsedName get(int key) {
@@ -102,7 +98,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
 
   @Override
   public int reparseAll() {
-    ReparseHandler handler = new ReparseHandler(parser, mapper);
+    ReparseHandler handler = new ReparseHandler(mapper);
     mapper.processNames(handler);
     LOG.info(
         "Reparsed all {} names, {} changed, {} failed: hybrids={}, virus={}, placeholder={}, noname={}",
@@ -126,11 +122,9 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
     int blacklisted = 0;
     int noname = 0;
 
-    private final NameParser parser;
     private final ParsedNameMapper mapper;
 
-    public ReparseHandler(NameParser parser, ParsedNameMapper mapper) {
-      this.parser = parser;
+    public ReparseHandler(ParsedNameMapper mapper) {
       this.mapper = mapper;
     }
 
@@ -140,7 +134,7 @@ public class ParsedNameServiceMyBatis implements ParsedNameService {
       counter++;
       ParsedName p2;
       try {
-        p2 = parser.parse(p1.getScientificName(), p1.getRank());
+        p2 = NameParsers.INSTANCE.parse(p1.getScientificName(), p1.getRank());
 
       } catch (UnparsableException e) {
         p2 = new ParsedName();

@@ -49,6 +49,8 @@ import java.net.URI;
 import java.util.UUID;
 
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -58,6 +60,11 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class ChecklistBankMyBatisConfiguration {
+
+  @ConfigurationProperties("checklistbank.datasource")
+  public DataSourceProperties dataSourceProperties() {
+    return new DataSourceProperties();
+  }
 
   @Bean
   ConfigurationCustomizer mybatisConfigCustomizer() {

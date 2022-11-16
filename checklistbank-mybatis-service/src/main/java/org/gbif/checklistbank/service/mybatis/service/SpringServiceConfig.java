@@ -13,9 +13,10 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.mybatis.spring.annotation.MapperScan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -30,10 +31,13 @@ import org.springframework.context.annotation.Configuration;
     })
 @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
 public class SpringServiceConfig {
+  private static final Logger LOG = LoggerFactory.getLogger(SpringServiceConfig.class);
+  public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
 
-  @Bean
-  public NameParser nameParser(@Value("${checklistbank.parser.timeout:5000}") long parserTimeout) {
-    NameParsers.INSTANCE.setTimeout(parserTimeout);
-    return NameParsers.INSTANCE;
+  @Bean("nameParserTimeoutConfig")
+  public Long nameParserConfig(@Value("${checklistbank.parser.timeout:20000}") long timeout) {
+    LOG.info("Name parser timeout in spring context: {}", timeout);
+    NameParsers.INSTANCE.setTimeout(timeout);
+    return timeout;
   }
 }

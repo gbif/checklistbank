@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
-import org.gbif.api.service.checklistbank.NameParser;
 import org.gbif.api.ws.mixin.Mixins;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
@@ -36,7 +35,6 @@ import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.es.EsClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -45,7 +43,6 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.MapPropertySource;
 
@@ -114,6 +111,7 @@ public class SpringContextBuilder {
       ctx.register(ChecklistBankMyBatisConfiguration.class);
       ctx.registerBean(ClbConfiguration.class, () -> clbConfiguration);
       ctx.register(MybatisAutoConfiguration.class);
+      NameParsers.INSTANCE.setTimeout(clbConfiguration.parserTimeout);
 
       ctx.getEnvironment()
           .getPropertySources()
@@ -219,10 +217,5 @@ public class SpringContextBuilder {
   @ComponentScan
   static class ApplicationConfig {
 
-    @Bean
-    public NameParser nameParser(@Value("${checklistbank.parser.timeout:5000}") long parserTimeout) {
-      NameParsers.INSTANCE.setTimeout(parserTimeout);
-      return NameParsers.INSTANCE;
-    }
   }
 }

@@ -18,3 +18,4 @@ java-generated
 *.jar
 *.war
 *.ear
+/checklistbank-nub-ws/local-nub-ws.yml

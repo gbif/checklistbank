@@ -33,6 +33,7 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
 
 @SpringBootApplication(
@@ -70,8 +71,7 @@ public class NubWsApplication {
   }
 
   @Bean
-  public RemoteAuthClient remoteAuthClient(
-      RestTemplateBuilder builder, @Value("${gbif.api.url}") String gbifApiUrl) {
+  public RemoteAuthClient remoteAuthClient(RestTemplateBuilder builder, @Value("${gbif.api.url}") String gbifApiUrl) {
     return RestTemplateRemoteAuthClient.createInstance(builder, gbifApiUrl);
   }
 

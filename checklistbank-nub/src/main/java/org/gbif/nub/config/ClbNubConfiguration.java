@@ -13,9 +13,15 @@
  */
 package org.gbif.nub.config;
 
+import com.google.common.collect.Sets;
+import lombok.Data;
 import org.gbif.checklistbank.config.ClbConfiguration;
+import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.checklistbank.utils.PropertiesUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -23,15 +29,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
-
-import lombok.Data;
 
 /**
  * A configuration for the checklist bank database connection pool as used by the mybatis layer.
@@ -49,7 +46,6 @@ public class ClbNubConfiguration {
       Sets.newHashSet("parserTimeout", "syncThreads", "workMem");
   private static final String CONNECTION_INIT_SQL_PROP = "connectionInitSql";
 
-  public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
   public static final String IMPORT_THREADS_PROP = "checklistbank.import.threads";
   private static final String WORK_MEM_PROP = "checklistbank.pg.workMem";
 
@@ -108,8 +104,8 @@ public class ClbNubConfiguration {
   @Value("${checklistbank.datasource.hikari.connectionTimeout:5000}")
   public int connectionTimeout = sec(5);
 
-  @Value("${checklistbank.parser.timeout:5000}")
-  public int parserTimeout = sec(5);
+  @Value("${checklistbank.parser.timeout:20000}")
+  public int parserTimeout = sec(20);
 
   @Value("${checklistbank.import.threads:1}")
   public int syncThreads = 1;
@@ -129,7 +125,7 @@ public class ClbNubConfiguration {
     Properties props = new Properties();
     props.put(prefix + "dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
     if (withPrefix) {
-      props.put(PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
+      props.put(SpringServiceConfig.PARSER_TIMEOUT_PROP, String.valueOf(parserTimeout));
       props.put(IMPORT_THREADS_PROP, String.valueOf(syncThreads));
       props.put(WORK_MEM_PROP, String.valueOf(connectionInitSql));
     }
@@ -159,7 +155,7 @@ public class ClbNubConfiguration {
 
   public static ClbNubConfiguration fromProperties(Properties props) {
     ClbNubConfiguration cfg = new ClbNubConfiguration();
-    cfg.parserTimeout = PropertiesUtils.getIntProp(props, PARSER_TIMEOUT_PROP, cfg.parserTimeout);
+    cfg.parserTimeout = PropertiesUtils.getIntProp(props, SpringServiceConfig.PARSER_TIMEOUT_PROP, cfg.parserTimeout);
     cfg.syncThreads = PropertiesUtils.getIntProp(props, IMPORT_THREADS_PROP, cfg.syncThreads);
     cfg.connectionInitSql = props.getProperty(WORK_MEM_PROP, cfg.connectionInitSql);
 
