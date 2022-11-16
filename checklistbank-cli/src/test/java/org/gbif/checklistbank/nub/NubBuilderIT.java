@@ -34,6 +34,7 @@ import org.gbif.checklistbank.neo.traverse.TreeWalker;
 import org.gbif.checklistbank.nub.model.NubUsage;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.nub.source.*;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.utils.SciNameNormalizer;
 import org.gbif.nub.lookup.straight.IdLookupImpl;
 import org.gbif.nub.lookup.straight.LookupUsage;
@@ -1679,7 +1680,7 @@ public class NubBuilderIT {
     u.usageKey = id;
     u.rank = rank;
     u.kingdom = kingdom;
-    u.parsedName = PARSER.parseQuietly(sciname, rank);
+    u.parsedName = NameParsers.INSTANCE.parseQuietly(sciname, rank);
     dao.store(u);
     return u;
   }

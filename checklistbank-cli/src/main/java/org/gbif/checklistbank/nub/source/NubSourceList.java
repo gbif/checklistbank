@@ -55,7 +55,6 @@ public class NubSourceList implements CloseableIterable<NubSource> {
     int counter = 0;
     for (NubSource src : sources) {
       counter++;
-      src.setParser(NameParsers.INSTANCE);
       futures.add(exec.submit(new LoadSource(src)));
     }
 
