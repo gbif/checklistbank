@@ -231,6 +231,11 @@
       <groupId>org.gbif</groupId>
       <artifactId>gbif-common-search</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.gbif</groupId>
+      <artifactId>name-parser-api</artifactId>
+    </dependency>
+
 
     <!-- Jackson -->
     <dependency>
