@@ -271,7 +271,7 @@ public class NubMatchingServiceImplIT {
     assertMatch("Acanthophora", cl, 3251480, new IntRange(97, 99));
 
     cl.setKingdom("Plantae"); // there are multiple plant genera, this should match to plantae now
-    assertMatch("Acanthophora", cl, 6, new IntRange(95, 100));
+    assertMatch("Acanthophora", cl, 6, new IntRange(90, 95));
 
     cl.setFamily("Araliaceae");
     assertMatch("Acanthophora", cl, 3036337, new IntRange(98, 100));
@@ -836,4 +836,14 @@ public class NubMatchingServiceImplIT {
     assertMatch("Dinosaura", Rank.GENUS, cl, 4819911, NameUsageMatch.MatchType.EXACT);
   }
 
+  /**
+   * https://github.com/gbif/checklistbank/issues/247
+   */
+  @Test
+  public void testCommonHigherDenomiator() throws Exception {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+
+    assertMatch("Jaspidia deceptoria Scopoli, 1763", Rank.FAMILY, cl, 7015, NameUsageMatch.MatchType.HIGHERRANK);
+  }
 }

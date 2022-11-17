@@ -39,6 +39,7 @@ import org.gbif.nub.lookup.similarity.StringSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.http.MatcherType;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -55,6 +56,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private static final int MIN_CONFIDENCE = 80;
   private static final int MIN_CONFIDENCE_FOR_HIGHER_MATCHES = 90;
   private static final Set<Kingdom> VAGUE_KINGDOMS = ImmutableSet.of(Kingdom.ARCHAEA, Kingdom.BACTERIA, Kingdom.FUNGI, Kingdom.CHROMISTA, Kingdom.PROTOZOA, Kingdom.INCERTAE_SEDIS);
+  private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
   private static ConfidenceOrder CONFIDENCE_ORDER = new ConfidenceOrder();
   private final NubIndex nubIndex;
   private final HigherTaxaComparator htComp;
@@ -63,8 +65,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private final StringSimilarity sim = new ScientificNameSimilarity();
 
   private static final Set<NameType> STRICT_MATCH_TYPES = ImmutableSet.of(NameType.OTU, NameType.VIRUS, NameType.HYBRID);
-  private static final List<Rank> PARSED_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS);
-  private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
+  private static final List<Rank> HIGHER_QUERY_RANK = ImmutableList.of(Rank.SPECIES, Rank.GENUS, Rank.FAMILY, Rank.ORDER, Rank.CLASS, Rank.PHYLUM, Rank.KINGDOM);
   public static final Map<TaxonomicStatus, Integer> STATUS_SCORE =
       ImmutableMap.of(TaxonomicStatus.ACCEPTED, 1, TaxonomicStatus.DOUBTFUL, -5, TaxonomicStatus.SYNONYM, 0);
   // match order by usageKey lowest to highest to preserve old ids
@@ -119,7 +120,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
 
   private static NameUsageMatch higherMatch(NameUsageMatch match, NameUsageMatch firstMatch) {
     match.setMatchType(NameUsageMatch.MatchType.HIGHERRANK);
-    setAlternatives(match, firstMatch.getAlternatives());
+    addAlternatives(match, firstMatch.getAlternatives());
     return match;
   }
 
@@ -172,19 +173,32 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   }
 
   /**
+   * Adds the given alternatives to the alternatives existing in the match,
+   * making sure we dont get infinite recursions my clearing all alternate matches on the arguments
+   */
+  private static void addAlternatives(NameUsageMatch match, List<NameUsageMatch> alts) {
+    if (match.getAlternatives() != null && alts != null) {
+      alts.addAll(match.getAlternatives());
+    }
+    setAlternatives(match, alts);
+  }
+
+  /**
    * Sets the alternative on a match making sure we dont get infinite recursions my clearing all alternate matches on the arguments
    */
   private static void setAlternatives(NameUsageMatch match, List<NameUsageMatch> alts) {
     if (alts != null) {
+      Set<Integer> keys = new HashSet<>(); // remember keys and make unique - we can have the same usages in here
       ListIterator<NameUsageMatch> iter = alts.listIterator();
       while (iter.hasNext()) {
         NameUsageMatch m = iter.next();
-        if (m.getUsageKey().equals(match.getUsageKey())) {
+        if (Objects.equals(m.getUsageKey(), match.getUsageKey()) || keys.contains(m.getUsageKey())) {
           // same usage, remove!
           iter.remove();
         } else if (m.getAlternatives() != null && !m.getAlternatives().isEmpty()) {
           m.setAlternatives(Lists.<NameUsageMatch>newArrayList());
         }
+        keys.add(m.getUsageKey());
       }
     }
     match.setAlternatives(alts);
@@ -302,6 +316,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     // try to MATCH TO HIGHER RANKS if we can
     // include species or genus only matches from parsed name?
     NameUsageMatch match;
+    boolean supraGenericOnly = false;
     if (pn != null && pn.getGenusOrAbove() != null) {
       if (pn.getSpecificEpithet() != null || (rank != null && rank.isInfrageneric())) {
         if (pn.getInfraSpecificEpithet() != null || (rank != null && rank.isInfraspecific())) {
@@ -321,23 +336,13 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
-      }
-
-    } else {
-      // use classification strings instead
-      for (Rank qr : PARSED_QUERY_RANK) {
-        String name = ClassificationUtils.getHigherRank(classification, qr);
-        if (!StringUtils.isEmpty(name)) {
-          match = match(null, null, name, qr, classification, MatchingMode.HIGHER, verbose);
-          if (isMatch(match)) {
-            return higherMatch(match, match1);
-          }
-        }
+        supraGenericOnly = true;
       }
     }
 
-    // last resort - try higher ranks above genus
+    // use classification query strings
     for (Rank qr : HIGHER_QUERY_RANK) {
+      if (supraGenericOnly && !qr.isSuprageneric()) continue;
       String name = ClassificationUtils.getHigherRank(classification, qr);
       if (!StringUtils.isEmpty(name)) {
         match = match(null, null, name, qr, classification, MatchingMode.HIGHER, verbose);
@@ -512,7 +517,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
    */
   @VisibleForTesting
   protected NameUsageMatch match(@Nullable NameType queryNameType, @Nullable ParsedName pn, @Nullable String canonicalName,
-                                 Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
+                         Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
     if (Strings.isNullOrEmpty(canonicalName)) {
       return noMatch(100, "No name given", null);
     }
@@ -572,7 +577,10 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
             best = equalMatches.get(0);
             addNote(best, equalMatches.size() + " synonym homonyms");
           } else {
-            return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
+            best = matchLowestDenominator(canonicalName, equalMatches);
+            if (!isMatch(best)) {
+              return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
+            }
           }
         }
         // boost up to 5 based on distance to next match
@@ -602,6 +610,33 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
 
     return noMatch(100, null, null);
+  }
+
+  /**
+   * Tries to match to the lowest common higher rank from all best equal matches
+   */
+  private NameUsageMatch matchLowestDenominator(String canonicalName, List<NameUsageMatch> matches) {
+    for (Rank r : DWC_RANKS_REVERSE) {
+      Integer higherKey = matches.get(0).getHigherRankKey(r);
+      if (higherKey == null) continue;
+
+      for (NameUsageMatch m : matches) {
+        if (!Objects.equals(higherKey, m.getHigherRankKey(r))) {
+          higherKey = null;
+          break;
+        }
+      }
+      // did all equal matches have the same higherKey?
+      if (higherKey != null) {
+        // NPE safetly first - maybe the key is missing in the index
+        NameUsageMatch match = nubIndex.matchByUsageId(higherKey);
+        if (match != null) {
+          match.setMatchType(NameUsageMatch.MatchType.HIGHERRANK);
+          return match;
+        }
+      }
+    }
+    return noMatch(99, "No lowest denominator in equal matches for " + canonicalName, null);
   }
 
   // -12 to 8
