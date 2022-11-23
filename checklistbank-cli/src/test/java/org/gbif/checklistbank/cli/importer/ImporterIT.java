@@ -130,7 +130,7 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
       nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
       usageService = ctx.getBean(UsageServiceMyBatis.class);
       sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-      searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
+      searchIndexService = ctx.getBean(SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
     }
   }
 

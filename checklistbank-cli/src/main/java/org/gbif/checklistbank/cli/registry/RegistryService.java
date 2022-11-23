@@ -173,7 +173,7 @@ public class RegistryService extends RabbitBaseService<RegistryChangeMessage> {
 
   @Override
   protected void startUp() throws Exception {
-    searchIndexService = ctx.getBean(NameUsageIndexServiceEs.class);
+    searchIndexService = ctx.getBean(SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
     mybatisService = ctx.getBean(DatasetImportServiceMyBatis.class);
     datasetMapper = ctx.getBean(DatasetMapper.class);
 

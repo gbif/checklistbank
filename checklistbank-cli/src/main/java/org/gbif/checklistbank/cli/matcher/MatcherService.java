@@ -70,7 +70,7 @@ public class MatcherService extends RabbitDatasetService<MatchDatasetMessage> {
                 CitationServiceMyBatis.class)
             .build();
     sqlImportService = ctx.getBean(DatasetImportServiceMyBatis.class);
-    searchImportService = ctx.getBean(NameUsageIndexServiceEs.class);
+    searchImportService = ctx.getBean(SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
   }
 
   @Override
