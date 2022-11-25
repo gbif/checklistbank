@@ -138,6 +138,7 @@ public class AdminCommandTest {
     AdminConfiguration cfg = configureLocal( (AdminConfiguration) cmd.getConfigurationObject());
     cfg.operation = AdminOperation.EXPORT;
     cfg.key = Constants.NUB_DATASET_KEY;
+    //cfg.key = UUID.fromString("f5015bc0-b466-4f0e-ad00-16b59f156471");
     cmd.doRun();
   }
 

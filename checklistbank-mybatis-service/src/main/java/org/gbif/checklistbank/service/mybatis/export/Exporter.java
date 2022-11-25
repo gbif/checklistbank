@@ -36,6 +36,7 @@ import java.io.StringWriter;
 import java.util.UUID;
 
 @Component
+@Transactional
 public class Exporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(Exporter.class);
