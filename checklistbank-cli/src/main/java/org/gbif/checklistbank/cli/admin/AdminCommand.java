@@ -107,18 +107,11 @@ public class AdminCommand extends BaseCommand {
   }
 
   private void initRegistry() {
-    ClientBuilder clientBuilder = new ClientBuilder();
-    clientBuilder.withUrl(cfg.registry.wsUrl);
-    clientBuilder.withObjectMapper(
-        JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport());
-    if (cfg.registry.password != null && cfg.registry.user != null) {
-      clientBuilder.withCredentials(cfg.registry.user, cfg.registry.password);
-    }
-    datasetService = clientBuilder.build(DatasetClient.class);
-    organizationService = clientBuilder.build(OrganizationClient.class);
-    installationService = clientBuilder.build(InstallationClient.class);
-    networkService = clientBuilder.build(NetworkClient.class);
-    nodeService = clientBuilder.build(NodeClient.class);
+    datasetService = ctx.getBean(DatasetClient.class);
+    organizationService = ctx.getBean(OrganizationClient.class);
+    installationService = ctx.getBean(InstallationClient.class);
+    networkService = ctx.getBean(NetworkClient.class);
+    nodeService = ctx.getBean(NodeClient.class);
   }
 
   private void initCfg() {
@@ -128,9 +121,10 @@ public class AdminCommand extends BaseCommand {
     setKnownKey("iucn", Constants.IUCN_DATASET_KEY);
   }
 
-  private void initContext(ClbConfiguration clbConfiguration) {
+  private void initContext(AdminConfiguration cfg) {
     ctx = SpringContextBuilder.create()
-        .withClbConfiguration(clbConfiguration)
+        .withClbConfiguration(cfg.clb)
+        .withAdminConfiguration(cfg)
         .withComponents(DatasetMetricsServiceMyBatis.class)
         .build();
     datasetMetricsService = ctx.getBean(DatasetMetricsServiceMyBatis.class);
@@ -173,7 +167,7 @@ public class AdminCommand extends BaseCommand {
   @Override
   protected void doRun() {
     initCfg();
-    initContext(cfg.clb);
+    initContext(cfg);
     try {
       if (cfg.operation.global) {
         runGlobalCommands();
@@ -413,7 +407,7 @@ public class AdminCommand extends BaseCommand {
 
   private void export(Dataset d) {
     if (exporter == null) {
-      exporter = new Exporter(cfg.exportRepository, ctx, datasetService);
+      exporter = ctx.getBean(Exporter.class);
     }
     // now export the dataset
     exporter.export(d);

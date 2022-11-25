@@ -13,6 +13,8 @@
  */
 package org.gbif.checklistbank.service.mybatis.export;
 
+import com.google.common.io.Files;
+import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
@@ -20,24 +22,23 @@ import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.registry.metadata.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
 
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.io.Files;
-
+@Component
 public class Exporter {
 
   private static final Logger LOG = LoggerFactory.getLogger(Exporter.class);
-
   private final File repository;
   private final NameUsageMapper usageMapper;
   private final VernacularNameMapper vernacularMapper;
@@ -47,6 +48,23 @@ public class Exporter {
   private final ReferenceMapper referenceMapper;
   private final TypeSpecimenMapper typeSpecimenMapper;
   private final DatasetService datasetService;
+
+  @Autowired
+  public Exporter(@Qualifier("archiveRepository") File repository,
+                  DatasetService datasetService,
+                  NameUsageMapper usageMapper, VernacularNameMapper vernacularMapper, DescriptionMapper descriptionMapper,
+                  DistributionMapper distributionMapper, MultimediaMapper mediaMapper, ReferenceMapper referenceMapper,
+                  TypeSpecimenMapper typeSpecimenMapper) {
+    this.repository = repository;
+    this.usageMapper = usageMapper;
+    this.vernacularMapper = vernacularMapper;
+    this.descriptionMapper = descriptionMapper;
+    this.distributionMapper = distributionMapper;
+    this.mediaMapper = mediaMapper;
+    this.referenceMapper = referenceMapper;
+    this.typeSpecimenMapper = typeSpecimenMapper;
+    this.datasetService = datasetService;
+  }
 
   public Exporter(File repository, ApplicationContext ctx, DatasetService datasetService) {
     this.repository = repository;
@@ -89,12 +107,32 @@ public class Exporter {
       this.dwca = new File(repository, dataset.getKey().toString() + ".zip");
     }
 
-    @Transactional
     @Override
     public void run() {
       LOG.info("Start exporting checklist {} into DwC-A at {}", dataset.getKey(), dwca.getAbsolutePath());
       File tmp = Files.createTempDir();
       try {
+        exportDataFiles(tmp);
+        // zip it up to final location
+        FileUtils.forceMkdir(dwca.getParentFile());
+        CompressionUtil.zipDir(tmp, dwca, true);
+
+        LOG.info("Done exporting checklist {} with {} usages and {} extensions into DwC-A at {}", dataset.getKey(), counter, extCounter, dwca.getAbsolutePath());
+
+      } catch (Exception e) {
+        LOG.error("Failed to create dwca for dataset {} at {}", dataset.getKey(), tmp.getAbsolutePath(), e);
+
+      } finally {
+        try {
+          FileUtils.deleteDirectory(tmp);
+        } catch (IOException e) {
+          LOG.error("Failed to remove tmp dwca dir {}", tmp.getAbsolutePath(), e);
+        }
+      }
+    }
+
+    @Transactional
+    private void exportDataFiles(File tmp) throws Exception {
         writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, DwcTerm.taxonID, true);
 
         // add EML
@@ -165,24 +203,7 @@ public class Exporter {
 
         // finish dwca
         writer.close();
-        // zip it up to final location
-        FileUtils.forceMkdir(dwca.getParentFile());
-        CompressionUtil.zipDir(tmp, dwca, true);
-
-        LOG.info("Done exporting checklist {} with {} usages and {} extensions into DwC-A at {}", dataset.getKey(), counter, extCounter, dwca.getAbsolutePath());
-
-      } catch (Exception e) {
-        LOG.error("Failed to create dwca for dataset {} at {}", dataset.getKey(), tmp.getAbsolutePath(), e);
-
-      } finally {
-        try {
-          FileUtils.deleteDirectory(tmp);
-        } catch (IOException e) {
-          LOG.error("Failed to remove tmp dwca dir {}", tmp.getAbsolutePath(), e);
-        }
-      }
     }
-
   }
 
 }

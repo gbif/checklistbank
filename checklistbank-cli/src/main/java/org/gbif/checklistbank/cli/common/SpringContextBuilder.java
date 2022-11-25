@@ -19,12 +19,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
+import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.ws.mixin.Mixins;
+import org.gbif.checklistbank.cli.admin.AdminConfiguration;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
+import org.gbif.checklistbank.registry.DatasetServiceFileImpl;
 import org.gbif.checklistbank.service.DatasetImportService;
+import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.common.messaging.ConnectionParameters;
@@ -33,6 +37,9 @@ import org.gbif.common.messaging.DefaultMessageRegistry;
 import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 import org.gbif.common.search.es.EsClient;
+import org.gbif.registry.ws.client.*;
+import org.gbif.ws.client.ClientBuilder;
+import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -46,6 +53,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.MapPropertySource;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -64,6 +72,9 @@ public class SpringContextBuilder {
   private MessagingConfiguration messagingConfiguration;
 
   private ElasticsearchConfiguration elasticsearchConfiguration;
+
+  private AdminConfiguration adminConfiguration;
+
 
   private SpringContextBuilder() {}
 
@@ -86,6 +97,12 @@ public class SpringContextBuilder {
     this.elasticsearchConfiguration = elasticsearchConfiguration;
     return this;
   }
+
+  public SpringContextBuilder withAdminConfiguration(AdminConfiguration adminConfiguration) {
+    this.adminConfiguration = adminConfiguration;
+    return this;
+  }
+
 
   public SpringContextBuilder withComponents(Class<?>... componentClasses) {
     this.componentClasses = componentClasses;
@@ -123,6 +140,27 @@ public class SpringContextBuilder {
                       "checklistbank.parser.timeout", clbConfiguration.parserTimeout
                   )
               ));
+    }
+
+    if (adminConfiguration != null) {
+      ctx.registerBean("archiveRepository", File.class, () -> adminConfiguration.archiveRepository);
+      ctx.registerBean(Exporter.class);
+
+      if (adminConfiguration.registry != null) {
+        ClientBuilder clientBuilder = new ClientBuilder();
+        clientBuilder.withUrl(adminConfiguration.registry.wsUrl);
+        clientBuilder.withObjectMapper(
+            JacksonJsonObjectMapperProvider.getObjectMapperWithBuilderSupport()
+        );
+        if (adminConfiguration.registry.password != null && adminConfiguration.registry.user != null) {
+          clientBuilder.withCredentials(adminConfiguration.registry.user, adminConfiguration.registry.password);
+        }
+        ctx.registerBean(DatasetClient.class, () -> clientBuilder.build(DatasetClient.class));
+        ctx.registerBean(OrganizationClient.class, () -> clientBuilder.build(OrganizationClient.class));
+        ctx.registerBean(InstallationClient.class, () -> clientBuilder.build(InstallationClient.class));
+        ctx.registerBean(NetworkClient.class, () -> clientBuilder.build(NetworkClient.class));
+        ctx.registerBean(NodeClient.class, () -> clientBuilder.build(NodeClient.class));
+      }
     }
 
     if (messagingConfiguration != null) {
