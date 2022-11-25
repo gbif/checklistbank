@@ -132,7 +132,7 @@ public class Exporter {
     }
 
     @Transactional
-    private void exportDataFiles(File tmp) throws Exception {
+    public void exportDataFiles(File tmp) throws Exception {
         writer = new DwcaStreamWriter(tmp, DwcTerm.Taxon, DwcTerm.taxonID, true);
 
         // add EML
