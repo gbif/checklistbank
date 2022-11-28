@@ -13,26 +13,23 @@
  */
 package org.gbif.checklistbank.ws.resources;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.ParsedName;
-import org.gbif.api.service.checklistbank.NameParser;
+import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.ws.util.LineReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 
 /**
  * The scientific name parser exposed in the API.
@@ -46,12 +43,6 @@ public class NameParserResource {
 
   private static final Logger LOG = LoggerFactory.getLogger(NameParserResource.class);
   private static final Splitter NEW_LINE_SPLITTER = Splitter.on('\n').omitEmptyStrings().trimResults();
-  private final NameParser parser;
-
-  @Autowired
-  public NameParserResource(NameParser parser) {
-    this.parser = parser;
-  }
 
   /** Parsing names as GET query parameters. */
   @GetMapping
@@ -107,7 +98,7 @@ public class NameParserResource {
 
     while (iter.hasNext()) {
       final String name = iter.next();
-      ParsedName pn = parser.parseQuietly(name);
+      ParsedName pn = NameParsers.INSTANCE.parseQuietly(name);
       pnames.add(pn);
       counter++;
       if (!pn.getType().isParsable()) {
