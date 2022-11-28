@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
 
-@Component
 @Transactional
 public class Exporter {
 

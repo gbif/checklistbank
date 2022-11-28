@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.File;
+
 @Configuration
 @ComponentScan(
     basePackages = {
@@ -34,6 +36,7 @@ public class SpringServiceConfig {
   private static final Logger LOG = LoggerFactory.getLogger(SpringServiceConfig.class);
   public static final String PARSER_TIMEOUT_PROP = "checklistbank.parser.timeout";
 
+  // we dont really need this bean, but we want to configure the singleton instance timeout
   @Bean("nameParserTimeoutConfig")
   public Long nameParserConfig(@Value("${checklistbank.parser.timeout:20000}") long timeout) {
     LOG.info("Name parser timeout in spring context: {}", timeout);

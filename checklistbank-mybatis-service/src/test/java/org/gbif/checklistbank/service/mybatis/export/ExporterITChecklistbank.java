@@ -37,10 +37,7 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
   @RegisterExtension public ClbLoadTestDb sbSetup;
 
   @Autowired
-  public ExporterITChecklistbank(
-      DataSource dataSource,
-      ApplicationContext ctx
-      ) {
+  public ExporterITChecklistbank(DataSource dataSource, ApplicationContext ctx) {
     super(dataSource);
     this.ctx = ctx;
     sbSetup = ClbLoadTestDb.squirrels(dataSource);
