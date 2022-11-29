@@ -14,6 +14,8 @@
 package org.gbif.checklistbank.cli.common;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
+import org.gbif.checklistbank.index.model.NameUsageAvro;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
@@ -187,7 +190,6 @@ public class SpringContextBuilder {
     }
     if (elasticsearchConfiguration != null) {
       if (elasticsearchConfiguration.enabled) {
-        ctx.registerBean(EsClient.class, () -> elasticsearchConfiguration.buildClient());
 
         EsClient.EsClientConfiguration esClientConfiguration = new EsClient.EsClientConfiguration();
         esClientConfiguration.setHosts(elasticsearchConfiguration.hosts);
@@ -196,7 +198,13 @@ public class SpringContextBuilder {
         esClientConfiguration.setSocketTimeOut(elasticsearchConfiguration.socketTimeOut);
         ctx.registerBean(EsClient.EsClientConfiguration.class, () -> esClientConfiguration);
 
-        ctx.registerBean(ElasticsearchClient.class, () -> EsClient.provideEsClient(esClientConfiguration));
+        final ElasticsearchClient client = EsClient.provideEsClient(esClientConfiguration);
+        // we know its using JacksonJsonpMapper
+        JacksonJsonpMapper jjm = (JacksonJsonpMapper) client._jsonpMapper();
+        jjm.objectMapper().addMixIn(NameUsageAvro.class, AvroMixin.class);
+
+        ctx.registerBean(ElasticsearchClient.class, () -> client);
+        ctx.registerBean(EsClient.class, () -> new EsClient(client));
 
         ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, NameUsageIndexServiceEs.class);
         ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
@@ -253,5 +261,10 @@ public class SpringContextBuilder {
   @ComponentScan
   static class ApplicationConfig {
 
+  }
+
+  static abstract class AvroMixin {
+    @JsonIgnore
+    public abstract org.apache.avro.Schema getSchema();
   }
 }
