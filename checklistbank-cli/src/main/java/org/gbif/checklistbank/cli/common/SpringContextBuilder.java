@@ -19,14 +19,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableMap;
-import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.ws.mixin.Mixins;
 import org.gbif.checklistbank.cli.admin.AdminConfiguration;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
 import org.gbif.checklistbank.cli.stubs.MessagePublisherStub;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
-import org.gbif.checklistbank.registry.DatasetServiceFileImpl;
 import org.gbif.checklistbank.service.DatasetImportService;
 import org.gbif.checklistbank.service.mybatis.export.Exporter;
 import org.gbif.checklistbank.service.mybatis.persistence.ChecklistBankMyBatisConfiguration;
@@ -62,6 +60,7 @@ import java.util.Set;
 /** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {
   public static String SEARCH_INDEX_SERVICE_BEAN_NAME = "searchIndexService";
+  public static String EXPORT_REPOSITORY_BEAN_NAME = "exportRepository";
 
   private String[] basePackages;
 
@@ -103,7 +102,6 @@ public class SpringContextBuilder {
     return this;
   }
 
-
   public SpringContextBuilder withComponents(Class<?>... componentClasses) {
     this.componentClasses = componentClasses;
     return this;
@@ -143,7 +141,7 @@ public class SpringContextBuilder {
     }
 
     if (adminConfiguration != null) {
-      ctx.registerBean("archiveRepository", File.class, () -> adminConfiguration.archiveRepository);
+      ctx.registerBean(EXPORT_REPOSITORY_BEAN_NAME, File.class, () -> adminConfiguration.exportRepository);
       ctx.registerBean(Exporter.class);
 
       if (adminConfiguration.registry != null) {
@@ -200,7 +198,7 @@ public class SpringContextBuilder {
 
         ctx.registerBean(ElasticsearchClient.class, () -> EsClient.provideEsClient(esClientConfiguration));
 
-        ctx.registerBean(NameUsageIndexServiceEs.class);
+        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, NameUsageIndexServiceEs.class);
         ctx.registerBean("syncThreads", Integer.class, elasticsearchConfiguration.syncThreads);
         ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
 

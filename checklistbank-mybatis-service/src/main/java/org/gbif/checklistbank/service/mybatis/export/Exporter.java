@@ -50,7 +50,7 @@ public class Exporter {
   private final DatasetService datasetService;
 
   @Autowired
-  public Exporter(@Qualifier("archiveRepository") File repository,
+  public Exporter(@Qualifier("exportRepository") File repository,
                   DatasetService datasetService,
                   NameUsageMapper usageMapper, VernacularNameMapper vernacularMapper, DescriptionMapper descriptionMapper,
                   DistributionMapper distributionMapper, MultimediaMapper mediaMapper, ReferenceMapper referenceMapper,
