@@ -216,6 +216,7 @@ public class AdminCommand extends BaseCommand {
         break;
 
       case UPDATE_NUB_DATASET:
+        initRegistry();
         updateNubDataset();
         break;
 
