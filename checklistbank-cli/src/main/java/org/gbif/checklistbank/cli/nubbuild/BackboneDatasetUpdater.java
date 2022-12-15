@@ -27,7 +27,7 @@ import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.util.iterables.Iterables;
 import org.gbif.api.vocabulary.Kingdom;
 import org.gbif.api.vocabulary.Rank;
-import org.gbif.registry.metadata.EMLWriter;
+import org.gbif.metadata.eml.EMLWriter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -55,6 +55,7 @@ public class BackboneDatasetUpdater {
   private final DatasetService datasetService;
   private final OrganizationService organizationService;
   private final NetworkService networkService;
+  private final EMLWriter emlWriter = EMLWriter.newInstance();
   @VisibleForTesting
   protected static final Pattern SOURCE_LIST_PATTERN = Pattern.compile("\\s*The following +\\d* *sources have been used .+$", Pattern.DOTALL);
 
@@ -140,7 +141,7 @@ public class BackboneDatasetUpdater {
     // convert to EML and send to registry
     try {
       StringWriter writer = new StringWriter();
-      EMLWriter.write(nub, writer);
+      emlWriter.writeTo(nub, writer);
       writer.close();
       InputStream stream = new ByteArrayInputStream(writer.getBuffer().toString().getBytes(Charsets.UTF_8));
       datasetService.insertMetadata(Constants.NUB_DATASET_KEY, stream);

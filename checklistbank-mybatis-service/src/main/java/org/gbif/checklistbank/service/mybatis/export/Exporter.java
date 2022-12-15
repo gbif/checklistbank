@@ -20,14 +20,13 @@ import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
 import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.DwcTerm;
-import org.gbif.registry.metadata.EMLWriter;
+import org.gbif.metadata.eml.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;

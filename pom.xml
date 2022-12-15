@@ -57,6 +57,7 @@
         <gbif-common-service.version>0.19</gbif-common-service.version>
         <gbif-common-ws.version>1.22</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
+        <gbif-metadata-profile.version>2.0</gbif-metadata-profile.version>
         <gbif-postal-service.version>1.3</gbif-postal-service.version>
         <registry.version>3.79</registry.version>
         <name-parser.version>3.8.3</name-parser.version>
@@ -371,9 +372,9 @@
                 <version>${registry.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.gbif.registry</groupId>
-                <artifactId>registry-metadata</artifactId>
-                <version>${registry.version}</version>
+                <groupId>org.gbif</groupId>
+                <artifactId>gbif-metadata-profile-eml</artifactId>
+                <version>${gbif-metadata-profile.version}</version>
                 <exclusions>
                     <exclusion>
                         <!-- digester via cglib brings in an old asm version, conflicting with kryo -->
