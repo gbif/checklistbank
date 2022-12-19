@@ -19,11 +19,11 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.service.checklistbank.ReferenceService;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
+
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.sql.DataSource;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,8 +36,8 @@ public class ReferenceServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   private final Integer USAGE_ID = 100000025;
 
   @Autowired
-  public ReferenceServiceChecklistbankMyBatisIT(DataSource dataSource, ReferenceService referenceService) {
-    super(dataSource);
+  public ReferenceServiceChecklistbankMyBatisIT(ReferenceService referenceService) {
+    super();
     this.service = referenceService;
   }
 

@@ -16,8 +16,6 @@ package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.boot.SpringApplication;
@@ -37,17 +35,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles("test")
 public class PostgresITBase extends BaseDBTest {
 
-  protected DataSource dataSource;
-
   @RegisterExtension public ClbLoadTestDb sbSetup;
 
-  public PostgresITBase(DataSource dataSource) {
-    this.dataSource = dataSource;
-    this.sbSetup = ClbLoadTestDb.empty(dataSource);
+  public PostgresITBase() {
+    this.sbSetup = ClbLoadTestDb.empty(createConnectionSupplier());
   }
 
-  public PostgresITBase(DataSource dataSource, ClbLoadTestDb sbSetup) {
-    this.dataSource = dataSource;
+  public PostgresITBase(ClbLoadTestDb sbSetup) {
     this.sbSetup = sbSetup;
   }
 

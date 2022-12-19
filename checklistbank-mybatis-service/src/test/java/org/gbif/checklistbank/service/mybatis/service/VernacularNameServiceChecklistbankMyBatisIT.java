@@ -24,8 +24,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,9 +37,8 @@ public class VernacularNameServiceChecklistbankMyBatisIT extends ChecklistbankMy
   private final VernacularNameService service;
 
   @Autowired
-  public VernacularNameServiceChecklistbankMyBatisIT(
-      DataSource dataSource, VernacularNameService vernacularNameService) {
-    super(dataSource);
+  public VernacularNameServiceChecklistbankMyBatisIT(VernacularNameService vernacularNameService) {
+    super();
     this.service = vernacularNameService;
   }
 

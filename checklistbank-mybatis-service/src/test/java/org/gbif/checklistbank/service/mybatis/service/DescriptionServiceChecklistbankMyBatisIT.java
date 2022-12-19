@@ -25,8 +25,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,8 +38,8 @@ public class DescriptionServiceChecklistbankMyBatisIT extends ChecklistbankMyBat
   private final Integer USAGE_ID = 100000040;
 
   @Autowired
-  public DescriptionServiceChecklistbankMyBatisIT(DataSource dataSource, DescriptionService descriptionService) {
-    super(dataSource);
+  public DescriptionServiceChecklistbankMyBatisIT(DescriptionService descriptionService) {
+    super();
     this.service = descriptionService;
   }
 

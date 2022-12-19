@@ -23,6 +23,7 @@ import org.gbif.api.service.registry.InstallationService;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.cli.nubbuild.NubSourceConfig;
 import org.gbif.checklistbank.nub.NeoTmpRepoRule;
@@ -40,16 +41,12 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.neo4j.helpers.collection.Iterables;
 
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
-import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-public class ClbSourceListTest {
+public class ClbSourceListTest extends BaseDBTest {
 
   private static final UUID CHECKLIST_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
   private static final UUID ORG_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984");
@@ -60,16 +57,10 @@ public class ClbSourceListTest {
   private InstallationService is;
   private UUID oldDKey;
 
-  @RegisterExtension
-  public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
+  @RegisterExtension public static NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @RegisterExtension
-  public static PreparedDbExtension database =
-    EmbeddedPostgresExtension.preparedDatabase(
-      LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml"));
-
-  @RegisterExtension
-  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.squirrels(database.getTestDatabase());
+  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.squirrels(createConnectionSupplier());
 
   @BeforeEach
   public void init() {
@@ -108,34 +99,37 @@ public class ClbSourceListTest {
     resp3.setCount(2l);
     resp3.getResults().add(orgD);
     resp3.getResults().add(orgD2);
-    when(os.publishedDatasets(Matchers.<UUID>any(), any(PagingRequest.class))).thenReturn(respEmpty);
-    when(os.publishedDatasets(AdditionalMatchers.not(eq(org1.getKey())), any(PagingRequest.class))).thenReturn(resp3);
+    when(os.publishedDatasets(Matchers.<UUID>any(), any(PagingRequest.class)))
+        .thenReturn(respEmpty);
+    when(os.publishedDatasets(AdditionalMatchers.not(eq(org1.getKey())), any(PagingRequest.class)))
+        .thenReturn(resp3);
 
     is = Mockito.mock(InstallationService.class);
     Installation ins1 = new Installation();
     org1.setKey(INS_KEY);
     org1.setTitle("Ins1");
     when(is.get(eq(INS_KEY))).thenReturn(ins1);
-    when(is.getHostedDatasets(Matchers.<UUID>any(), any(PagingRequest.class))).thenReturn(respEmpty);
-    when(is.getHostedDatasets(AdditionalMatchers.not(eq(ins1.getKey())), any(PagingRequest.class))).thenReturn(resp3);
+    when(is.getHostedDatasets(Matchers.<UUID>any(), any(PagingRequest.class)))
+        .thenReturn(respEmpty);
+    when(is.getHostedDatasets(AdditionalMatchers.not(eq(ins1.getKey())), any(PagingRequest.class)))
+        .thenReturn(resp3);
 
     // use default prod API
     NubConfiguration cfg = new NubConfiguration();
     cfg.neo = neoRepo.cfg;
     cfg.neoSources = neoRepo.cfg;
-    cfg.clb.serverName = "localhost:" + database.getConnectionInfo().getPort();
-    cfg.clb.databaseName = database.getConnectionInfo().getDbName();
-    cfg.clb.user = database.getConnectionInfo().getUser();
-    cfg.clb.password = "";
-    cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), Rank.PHYLUM));
+    cfg.clb.serverName = "localhost:" + PG_CONTAINER.getFirstMappedPort();
+    cfg.clb.databaseName = PG_CONTAINER.getDatabaseName();
+    cfg.clb.user = PG_CONTAINER.getUsername();
+    cfg.clb.password = PG_CONTAINER.getPassword();
+    cfg.sources.add(
+        new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4"), Rank.PHYLUM));
     cfg.sources.add(new NubSourceConfig(UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d01984")));
 
     src = new ClbSourceList(ds, os, is, cfg);
   }
 
-  /**
-   * Test reading the source list
-   */
+  /** Test reading the source list */
   @Test
   public void testListSources() throws Exception {
     List<NubSource> sources = Iterables.asList(src);
@@ -146,5 +140,4 @@ public class ClbSourceListTest {
     assertEquals(CHECKLIST_KEY, sources.get(0).key);
     assertEquals(oldDKey, sources.get(1).key);
   }
-
 }

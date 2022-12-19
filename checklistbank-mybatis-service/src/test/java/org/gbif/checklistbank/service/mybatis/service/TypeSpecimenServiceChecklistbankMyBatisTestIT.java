@@ -25,8 +25,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 
 import java.text.ParseException;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,16 +33,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestData(TestData.DATAFILE.SQUIRRELS)
-public class TypeSpecimenServiceChecklistbankMyBatisTestIT extends ChecklistbankMyBatisServiceITBase {
+public class TypeSpecimenServiceChecklistbankMyBatisTestIT
+    extends ChecklistbankMyBatisServiceITBase {
 
   private final TypeSpecimenService service;
 
   private final Integer USAGE_ID = 100000006;
 
   @Autowired
-  public TypeSpecimenServiceChecklistbankMyBatisTestIT(
-      DataSource dataSource, TypeSpecimenService typeSpecimenService) {
-    super(dataSource);
+  public TypeSpecimenServiceChecklistbankMyBatisTestIT(TypeSpecimenService typeSpecimenService) {
+    super();
     this.service = typeSpecimenService;
   }
 

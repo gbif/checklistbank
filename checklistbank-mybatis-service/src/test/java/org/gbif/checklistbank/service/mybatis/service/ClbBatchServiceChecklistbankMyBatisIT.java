@@ -22,8 +22,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.net.URI;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,8 +33,8 @@ public class ClbBatchServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisS
   private final UsageService service;
 
   @Autowired
-  public ClbBatchServiceChecklistbankMyBatisIT(DataSource dataSource, UsageService usageService) {
-    super(dataSource);
+  public ClbBatchServiceChecklistbankMyBatisIT(UsageService usageService) {
+    super();
     this.service = usageService;
   }
 

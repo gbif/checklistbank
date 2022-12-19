@@ -32,12 +32,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import javax.sql.DataSource;
-
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Lists;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -52,10 +49,8 @@ public class DatasetImportServiceChecklistbankMyBatisIT extends ChecklistbankMyB
 
   @Autowired
   public DatasetImportServiceChecklistbankMyBatisIT(
-      DataSource dataSource,
-      DatasetImportService datasetImportService,
-      NameUsageService nameUsageService) {
-    super(dataSource);
+      DatasetImportService datasetImportService, NameUsageService nameUsageService) {
+    super();
     this.service = datasetImportService;
     this.nameUsageService = nameUsageService;
   }

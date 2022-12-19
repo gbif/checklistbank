@@ -23,8 +23,6 @@ import org.gbif.ws.security.GbifAuthenticationManagerImpl;
 import org.gbif.ws.server.filter.AppIdentityFilter;
 import org.gbif.ws.server.filter.IdentityFilter;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -41,34 +39,29 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ChecklistbankMyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
+@SpringBootTest(
+    classes = ChecklistbankMyBatisServiceITBase.ChecklistBankServiceTestConfiguration.class)
 @ActiveProfiles("test")
 @ExtendWith(ClbDbLoadTestDataBeforeAll.class)
 public class ChecklistbankMyBatisServiceITBase extends BaseDBTest {
-
-  protected DataSource dataSource;
-
-  public ChecklistbankMyBatisServiceITBase(DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
 
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
   @Import(SpringServiceConfig.class) // actually not needed, it gets scanned by default
   @SpringBootApplication(exclude = {RabbitAutoConfiguration.class})
   @ComponentScan(
-    excludeFilters = {
-      @ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE,
-        classes = {
-          AppKeySigningService.class,
-          FileSystemKeyStore.class,
-          IdentityFilter.class,
-          AppIdentityFilter.class,
-          GbifAuthenticationManagerImpl.class,
-          GbifAuthServiceImpl.class
-        })
-    })
+      excludeFilters = {
+        @ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = {
+              AppKeySigningService.class,
+              FileSystemKeyStore.class,
+              IdentityFilter.class,
+              AppIdentityFilter.class,
+              GbifAuthenticationManagerImpl.class,
+              GbifAuthServiceImpl.class
+            })
+      })
   public static class ChecklistBankServiceTestConfiguration {
     public static void main(String[] args) {
       SpringApplication.run(ChecklistBankServiceTestConfiguration.class, args);

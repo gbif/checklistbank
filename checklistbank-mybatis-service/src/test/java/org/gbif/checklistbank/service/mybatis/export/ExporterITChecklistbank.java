@@ -22,8 +22,6 @@ import org.gbif.utils.file.FileUtils;
 import java.io.File;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +35,10 @@ public class ExporterITChecklistbank extends ChecklistbankMyBatisServiceITBase {
   @RegisterExtension public ClbLoadTestDb sbSetup;
 
   @Autowired
-  public ExporterITChecklistbank(DataSource dataSource, ApplicationContext ctx) {
-    super(dataSource);
+  public ExporterITChecklistbank(ApplicationContext ctx) {
+    super();
     this.ctx = ctx;
-    sbSetup = ClbLoadTestDb.squirrels(dataSource);
+    sbSetup = ClbLoadTestDb.squirrels(createConnectionSupplier());
   }
 
   @Test

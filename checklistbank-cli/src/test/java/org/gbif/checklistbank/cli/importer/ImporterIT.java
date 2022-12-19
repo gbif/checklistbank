@@ -23,6 +23,7 @@ import org.gbif.api.service.checklistbank.NameUsageService;
 import org.gbif.api.util.ClassificationUtils;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.cli.BaseTest;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.model.GraphFormat;
@@ -32,7 +33,6 @@ import org.gbif.checklistbank.cli.normalizer.NormalizerStats;
 import org.gbif.checklistbank.cli.normalizer.NormalizerTest;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
-import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.nub.NubBuilder;
 import org.gbif.checklistbank.nub.NubBuilderIT;
 import org.gbif.checklistbank.nub.source.ClasspathSourceList;
@@ -52,6 +52,11 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -61,16 +66,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 import org.springframework.context.ApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.io.Resources;
-
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
-import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,13 +88,22 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
   private SpeciesResourceClient searchService;
   private Connection dbConnection;
 
-  @RegisterExtension
-  public static PreparedDbExtension database =
-      EmbeddedPostgresExtension.preparedDatabase(
-          LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml"));
+  public static final PostgreSQLContainer PG_CONTAINER;
+
+  static {
+    PG_CONTAINER = BaseDBTest.createPostgreSQLContainer();
+    PG_CONTAINER.start();
+
+    try {
+      BaseDBTest.updateLiquibase(PG_CONTAINER);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   @RegisterExtension
-  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.empty(database.getTestDatabase());
+  public ClbLoadTestDb clbLoadTestDb =
+      ClbLoadTestDb.empty(BaseDBTest.createConnectionSupplier(PG_CONTAINER));
 
   /** Uses an internal metrics registry to setup the normalizer */
   public Importer build(ImporterConfiguration cfg, UUID datasetKey) throws SQLException {
@@ -126,21 +131,23 @@ public class ImporterIT extends BaseTest implements AutoCloseable {
                   SpeciesProfileServiceMyBatis.class)
               .build();
 
-      dbConnection = database.getTestDatabase().getConnection();
+      dbConnection = PG_CONTAINER.createConnection("");
       nameUsageService = ctx.getBean(NameUsageServiceMyBatis.class);
       usageService = ctx.getBean(UsageServiceMyBatis.class);
       sqlService = ctx.getBean(DatasetImportServiceMyBatis.class);
-      searchIndexService = ctx.getBean(SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
+      searchIndexService =
+          ctx.getBean(
+              SpringContextBuilder.SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class);
     }
   }
 
   private ClbConfiguration dbConfig() {
     // use default prod API
     ClbConfiguration clb = new ClbConfiguration();
-    clb.serverName = "localhost:" + database.getConnectionInfo().getPort();
-    clb.databaseName = database.getConnectionInfo().getDbName();
-    clb.user = database.getConnectionInfo().getUser();
-    clb.password = "";
+    clb.serverName = "localhost:" + PG_CONTAINER.getFirstMappedPort();
+    clb.databaseName = PG_CONTAINER.getDatabaseName();
+    clb.user = PG_CONTAINER.getUsername();
+    clb.password = PG_CONTAINER.getPassword();
 
     return clb;
   }

@@ -24,8 +24,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.util.Date;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +37,8 @@ public class DatasetMetricsServiceChecklistbankMyBatisIT extends ChecklistbankMy
   private final DatasetMetricsService service;
 
   @Autowired
-  public DatasetMetricsServiceChecklistbankMyBatisIT(
-      DataSource dataSource, DatasetMetricsService datasetMetricsService) {
-    super(dataSource);
+  public DatasetMetricsServiceChecklistbankMyBatisIT(DatasetMetricsService datasetMetricsService) {
+    super();
     this.service = datasetMetricsService;
   }
 
