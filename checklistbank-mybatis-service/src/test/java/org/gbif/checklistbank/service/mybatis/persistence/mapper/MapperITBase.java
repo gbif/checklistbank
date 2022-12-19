@@ -19,18 +19,14 @@ import org.gbif.api.vocabulary.NameType;
 import org.gbif.api.vocabulary.Origin;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.api.vocabulary.TaxonomicStatus;
+import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.model.Citation;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeAll;
 import org.gbif.utils.text.StringUtils;
 
-import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,26 +37,18 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.zonky.test.db.postgres.embedded.ConnectionInfo;
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = MapperITBase.ChecklistBankMappersTestConfiguration.class)
-@ContextConfiguration(initializers = {MapperITBase.ContextInitializer.class})
 @ActiveProfiles("test")
 @ExtendWith(ClbDbLoadTestDataBeforeAll.class)
-public class MapperITBase {
+public class MapperITBase extends BaseDBTest {
 
   @TestConfiguration
   @PropertySource("classpath:application-test.yml")
@@ -70,42 +58,6 @@ public class MapperITBase {
   public static class ChecklistBankMappersTestConfiguration {
     public static void main(String[] args) {
       SpringApplication.run(ChecklistBankMappersTestConfiguration.class, args);
-    }
-  }
-
-  /** Custom ContextInitializer to expose the registry DB data source and search flags. */
-  public static class ContextInitializer
-      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-    private final List<Consumer<EmbeddedPostgres.Builder>> builderCustomizers =
-        new CopyOnWriteArrayList<>();
-
-    @Override
-    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-      try {
-        LiquibasePreparer liquibasePreparer =
-            LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml");
-        PreparedDbProvider provider =
-            PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
-        ConnectionInfo connectionInfo = provider.createNewDatabase();
-
-        TestPropertyValues.of(Stream.of(dbTestPropertyPairs(connectionInfo)).toArray(String[]::new))
-            .applyTo(configurableApplicationContext.getEnvironment());
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    /** Creates the registry datasource settings from the embedded database. */
-    String[] dbTestPropertyPairs(ConnectionInfo connectionInfo) {
-      return new String[] {
-        "checklistbank.datasource.url=jdbc:postgresql://localhost:"
-            + connectionInfo.getPort()
-            + "/"
-            + connectionInfo.getDbName(),
-        "checklistbank.datasource.username=" + connectionInfo.getUser(),
-        "checklistbank.datasource.password="
-      };
     }
   }
 
@@ -197,5 +149,12 @@ public class MapperITBase {
     c.setLink(citation2link);
     citationMapper.insert(c);
     citationKey2 = c.getKey();
+  }
+
+  @DynamicPropertySource
+  static void properties(DynamicPropertyRegistry registry) {
+    registry.add("checklistbank.datasource.url", PG_CONTAINER::getJdbcUrl);
+    registry.add("checklistbank.datasource.username", PG_CONTAINER::getUsername);
+    registry.add("checklistbank.datasource.password", PG_CONTAINER::getPassword);
   }
 }

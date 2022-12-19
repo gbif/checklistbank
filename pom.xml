@@ -152,8 +152,7 @@
 
         <!-- Test -->
         <embedded-database-spring-test.version>1.6.3</embedded-database-spring-test.version>
-
-        <testcontainers.version>1.16.3</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
     </properties>
 
     <repositories>
@@ -1039,6 +1038,12 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
