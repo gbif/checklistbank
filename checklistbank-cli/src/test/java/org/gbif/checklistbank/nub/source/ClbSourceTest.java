@@ -59,7 +59,7 @@ public class ClbSourceTest {
     clb.serverName = "localhost:" + PG_CONTAINER.getFirstMappedPort();
     clb.databaseName = PG_CONTAINER.getDatabaseName();
     clb.user = PG_CONTAINER.getUsername();
-    clb.password = "PG_CONTAINER.getPassword()";
+    clb.password = PG_CONTAINER.getPassword();
 
     return clb;
   }
