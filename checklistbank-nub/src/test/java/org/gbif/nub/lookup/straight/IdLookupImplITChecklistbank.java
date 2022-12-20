@@ -29,18 +29,16 @@ import org.gbif.nub.lookup.NubMatchingTestConfiguration;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
+import com.google.common.base.Joiner;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.base.Joiner;
 
 import static org.gbif.api.vocabulary.Kingdom.ANIMALIA;
 import static org.gbif.api.vocabulary.Kingdom.INCERTAE_SEDIS;
 import static org.gbif.api.vocabulary.Kingdom.PLANTAE;
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -57,10 +55,11 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
 
   @Autowired
   public IdLookupImplITChecklistbank(
-    DataSource dataSource, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper,
-    ClbNubConfiguration cfg
-  ) {
-    super(dataSource);
+      ParsedNameMapper pnMapper,
+      NameUsageMapper nuMapper,
+      UsageMapper uMapper,
+      ClbNubConfiguration cfg) {
+    super();
     this.pnMapper = pnMapper;
     this.nuMapper = nuMapper;
     this.uMapper = uMapper;
@@ -76,7 +75,7 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
     createName("Dracula bella Engler.", SPECIES, false, pnMapper, nuMapper, uMapper);
 
     ClbNubConfiguration cfg = new ClbNubConfiguration();
-    //TODO: set cfg values
+    // TODO: set cfg values
     IdLookup l = IdLookupImpl.temp().load(cfg, true);
     for (LookupUsage u : l) {
       System.out.println(u);
@@ -86,7 +85,13 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
     assertEquals(6, l.size());
   }
 
-  int createName(String name, Rank rank, boolean deleted, ParsedNameMapper pnMapper, NameUsageMapper nuMapper, UsageMapper uMapper) {
+  int createName(
+      String name,
+      Rank rank,
+      boolean deleted,
+      ParsedNameMapper pnMapper,
+      NameUsageMapper nuMapper,
+      UsageMapper uMapper) {
     ParsedName pn = new ParsedName();
     pn.setType(NameType.SCIENTIFIC);
     pn.setScientificName(name);
@@ -140,28 +145,43 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
     assertNull(l.match("Rodentia", ORDER, PLANTAE));
     assertNull(l.match("Rodenti", ORDER, ANIMALIA));
 
-    assertEquals(10, l.match("Rodentia", "Bowdich", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bowdich", "1221", ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bowdich", null, ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", null, "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bow.", null, ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "Bow", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertEquals(10, l.match("Rodentia", "B", "1821", ORDER , ACCEPTED, ANIMALIA).getKey());
-    assertNull(l.match("Rodentia", "Mill.", "1823", ORDER , ACCEPTED, ANIMALIA));
+    assertEquals(10, l.match("Rodentia", "Bowdich", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bowdich", "1221", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bowdich", null, ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", null, "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bow.", null, ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "Bow", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertEquals(10, l.match("Rodentia", "B", "1821", ORDER, ACCEPTED, ANIMALIA).getKey());
+    assertNull(l.match("Rodentia", "Mill.", "1823", ORDER, ACCEPTED, ANIMALIA));
   }
 
-  private LookupUsage assertMatch(String name, String authorship, String year, Rank rank, Kingdom kingdom, Integer expectedKey) {
-    LookupUsage m = matcher.match(name, authorship, year, rank, ACCEPTED ,kingdom);
+  private LookupUsage assertMatch(
+      String name,
+      String authorship,
+      String year,
+      Rank rank,
+      Kingdom kingdom,
+      Integer expectedKey) {
+    LookupUsage m = matcher.match(name, authorship, year, rank, ACCEPTED, kingdom);
     if (expectedKey == null && m == null) {
       // all fine, as expected!
     } else if (m == null) {
       fail("\n" + name + " not matching, but expecting " + expectedKey);
     } else {
-      System.out.println("\n" + name + " matches " + m.getCanonical() + " " + m.getAuthorship() + " [" + COMMA_JOINER.join(m.getKingdom(), m.getRank(), m.getKey()) + "]");
+      System.out.println(
+          "\n"
+              + name
+              + " matches "
+              + m.getCanonical()
+              + " "
+              + m.getAuthorship()
+              + " ["
+              + COMMA_JOINER.join(m.getKingdom(), m.getRank(), m.getKey())
+              + "]");
       if (expectedKey != null && m.getKey() != expectedKey) {
         printAltMatches(name);
       }
-      assertEquals(expectedKey, (Integer)m.getKey());
+      assertEquals(expectedKey, (Integer) m.getKey());
     }
     return m;
   }
@@ -169,12 +189,19 @@ public class IdLookupImplITChecklistbank extends ChecklistbankMyBatisServiceITBa
   private void printAltMatches(String name) {
     System.out.println("\nALTERNATIVES for " + name);
     for (LookupUsage m : matcher.match(name)) {
-      System.out.println("\n" + m.getCanonical() + " " + m.getAuthorship() + " [" + COMMA_JOINER.join(m.getKingdom(), m.getRank(), m.getKey()) + "]");
+      System.out.println(
+          "\n"
+              + m.getCanonical()
+              + " "
+              + m.getAuthorship()
+              + " ["
+              + COMMA_JOINER.join(m.getKingdom(), m.getRank(), m.getKey())
+              + "]");
     }
   }
 
-  private void assertNoMatch(String name, String authorship, String year, Rank rank, Kingdom kingdom) {
+  private void assertNoMatch(
+      String name, String authorship, String year, Rank rank, Kingdom kingdom) {
     assertMatch(name, authorship, year, rank, kingdom, null);
   }
-
 }

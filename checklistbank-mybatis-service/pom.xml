@@ -230,8 +230,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.zonky.test</groupId>
-      <artifactId>embedded-database-spring-test</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

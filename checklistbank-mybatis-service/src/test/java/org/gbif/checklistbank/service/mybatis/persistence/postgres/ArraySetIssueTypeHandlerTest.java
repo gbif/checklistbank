@@ -20,8 +20,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +32,13 @@ public class ArraySetIssueTypeHandlerTest extends PostgresITBase {
   @Mock ResultSet rs;
 
   @Autowired
-  public ArraySetIssueTypeHandlerTest(DataSource dataSource) {
-    super(dataSource);
+  public ArraySetIssueTypeHandlerTest() {
+    super();
   }
 
   @Test
   public void testConvert() throws Exception {
-    try (Connection con = dataSource.getConnection()) {
+    try (Connection con = PG_CONTAINER.createConnection("")) {
       try (Statement st = con.createStatement()) {
         st.execute("drop table if exists tt");
         st.execute("create table tt (annes text[])");

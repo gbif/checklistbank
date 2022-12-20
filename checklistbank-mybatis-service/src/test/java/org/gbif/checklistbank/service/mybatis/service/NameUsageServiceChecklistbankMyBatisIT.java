@@ -52,11 +52,14 @@ public class NameUsageServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
   private final NameUsageService service;
 
+  private final DataSource dataSource;
+
   private final int NOT_FOUND_KEY = -10;
 
   @Autowired
   public NameUsageServiceChecklistbankMyBatisIT(DataSource dataSource, NameUsageService nameUsageService) {
-    super(dataSource);
+    super();
+    this.dataSource = dataSource;
     this.service = nameUsageService;
   }
 

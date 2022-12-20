@@ -492,25 +492,26 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.zonky.test</groupId>
-            <artifactId>embedded-database-spring-test</artifactId>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.flywaydb</groupId>
-                    <artifactId>flyway-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.flywaydb.flyway-test-extensions</groupId>
-                    <artifactId>flyway-spring-test</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>neo4j</artifactId>
             <version>${neo4j-test-containers.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>

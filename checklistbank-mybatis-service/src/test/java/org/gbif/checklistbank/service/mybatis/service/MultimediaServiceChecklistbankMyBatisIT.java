@@ -24,8 +24,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.net.URI;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,8 @@ public class MultimediaServiceChecklistbankMyBatisIT extends ChecklistbankMyBati
   private final Integer USAGE_ID = 100000025;
 
   @Autowired
-  public MultimediaServiceChecklistbankMyBatisIT(DataSource dataSource, MultimediaService multimediaService) {
-    super(dataSource);
+  public MultimediaServiceChecklistbankMyBatisIT(MultimediaService multimediaService) {
+    super();
     this.service = multimediaService;
   }
 

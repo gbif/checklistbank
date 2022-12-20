@@ -13,105 +13,116 @@
  */
 package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 
-
 import org.gbif.api.model.Constants;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
-
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import javax.sql.DataSource;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.google.common.collect.ImmutableMap;
-
-/**
- * A TestRule for Database driven Integration tests executing some dbSetup file beforehand.
- */
+/** A TestRule for Database driven Integration tests executing some dbSetup file beforehand. */
 public class ClbLoadTestDb implements BeforeEachCallback {
 
-  public static final UUID SQUIRRELS_DATASET_KEY = UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
+  public static final UUID SQUIRRELS_DATASET_KEY =
+      UUID.fromString("109aea14-c252-4a85-96e2-f5f4d5d088f4");
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
   private final String tsvFolder;
   private final Map<String, Integer> sequenceCounters;
-  private final DataSource dataSource;
+  private final Supplier<Connection> connectionSupplier;
 
   /**
-   * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence counters.
+   * Prepares an empty CLB db before any test is run, truncating tables and resetting sequence
+   * counters.
    */
-  public static ClbLoadTestDb empty(DataSource dataSource) {
-    return new ClbLoadTestDb(null, ImmutableMap.<String, Integer>builder()
-        .put("citation_id_seq", 1)
-        .put("dataset_metrics_id_seq", 1)
-        .put("description_id_seq", 1)
-        .put("distribution_id_seq", 1)
-        .put("identifier_id_seq", 1)
-        .put("literature_id_seq", 1)
-        .put("media_id_seq", 1)
-        .put("name_usage_id_seq", Constants.NUB_MAXIMUM_KEY + 1)
-        .put("name_id_seq", 1)
-        .put("species_info_id_seq", 1)
-        .put("typification_id_seq", 1)
-        .put("vernacular_name_id_seq", 1)
-        .build(), dataSource);
+  public static ClbLoadTestDb empty(Supplier<Connection> connectionSupplier) {
+    return new ClbLoadTestDb(
+        null,
+        ImmutableMap.<String, Integer>builder()
+            .put("citation_id_seq", 1)
+            .put("dataset_metrics_id_seq", 1)
+            .put("description_id_seq", 1)
+            .put("distribution_id_seq", 1)
+            .put("identifier_id_seq", 1)
+            .put("literature_id_seq", 1)
+            .put("media_id_seq", 1)
+            .put("name_usage_id_seq", Constants.NUB_MAXIMUM_KEY + 1)
+            .put("name_id_seq", 1)
+            .put("species_info_id_seq", 1)
+            .put("typification_id_seq", 1)
+            .put("vernacular_name_id_seq", 1)
+            .build(),
+        connectionSupplier);
   }
 
   /**
-   * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
+   * Prepares a squirrels test db before any test is run, adding data and adjusting sequence
+   * counters.
    */
-  public static ClbLoadTestDb squirrels(DataSource dataSource) {
-    return new ClbLoadTestDb("squirrels", ImmutableMap.<String, Integer>builder()
-        .put("citation_id_seq", 32)
-        .put("dataset_metrics_id_seq", 5)
-        .put("description_id_seq", 28)
-        .put("distribution_id_seq", 29)
-        .put("identifier_id_seq", 106)
-        .put("literature_id_seq", 23)
-        .put("media_id_seq", 100021)
-        .put("name_usage_id_seq", 110000000)
-        .put("name_id_seq", 200000)
-        .put("species_info_id_seq", 4)
-        .put("typification_id_seq", 16)
-        .put("vernacular_name_id_seq", 100011)
-        .build(), dataSource);
+  public static ClbLoadTestDb squirrels(Supplier<Connection> connectionSupplier) {
+    return new ClbLoadTestDb(
+        "squirrels",
+        ImmutableMap.<String, Integer>builder()
+            .put("citation_id_seq", 32)
+            .put("dataset_metrics_id_seq", 5)
+            .put("description_id_seq", 28)
+            .put("distribution_id_seq", 29)
+            .put("identifier_id_seq", 106)
+            .put("literature_id_seq", 23)
+            .put("media_id_seq", 100021)
+            .put("name_usage_id_seq", 110000000)
+            .put("name_id_seq", 200000)
+            .put("species_info_id_seq", 4)
+            .put("typification_id_seq", 16)
+            .put("vernacular_name_id_seq", 100011)
+            .build(),
+        connectionSupplier);
   }
 
   /**
-   * Prepares a squirrels test db before any test is run, adding data and adjusting sequence counters.
+   * Prepares a squirrels test db before any test is run, adding data and adjusting sequence
+   * counters.
    */
-  public static ClbLoadTestDb puma(DataSource dataSource) {
-    return new ClbLoadTestDb("puma", ImmutableMap.<String, Integer>builder()
-        .put("citation_id_seq", 32)
-        .put("dataset_metrics_id_seq", 5)
-        .put("description_id_seq", 28)
-        .put("distribution_id_seq", 29)
-        .put("identifier_id_seq", 106)
-        .put("literature_id_seq", 23)
-        .put("media_id_seq", 100021)
-        .put("name_usage_id_seq", 110000000)
-        .put("name_id_seq", 200000)
-        .put("species_info_id_seq", 4)
-        .put("typification_id_seq", 16)
-        .put("vernacular_name_id_seq", 100011)
-        .build(), dataSource);
+  public static ClbLoadTestDb puma(Supplier<Connection> connectionSupplier) {
+    return new ClbLoadTestDb(
+        "puma",
+        ImmutableMap.<String, Integer>builder()
+            .put("citation_id_seq", 32)
+            .put("dataset_metrics_id_seq", 5)
+            .put("description_id_seq", 28)
+            .put("distribution_id_seq", 29)
+            .put("identifier_id_seq", 106)
+            .put("literature_id_seq", 23)
+            .put("media_id_seq", 100021)
+            .put("name_usage_id_seq", 110000000)
+            .put("name_id_seq", 200000)
+            .put("species_info_id_seq", 4)
+            .put("typification_id_seq", 16)
+            .put("vernacular_name_id_seq", 100011)
+            .build(),
+        connectionSupplier);
   }
 
   /**
-   * @param tsvFolder the optional unqualified filename within the dbUnit package to be used in setting up
-   *                  the db
+   * @param tsvFolder the optional unqualified filename within the dbUnit package to be used in
+   *     setting up the db
    */
-  private ClbLoadTestDb(@Nullable String tsvFolder, Map<String, Integer> sequenceCounters, DataSource dataSource) {
-    this.dataSource = dataSource;
+  private ClbLoadTestDb(
+      @Nullable String tsvFolder,
+      Map<String, Integer> sequenceCounters,
+      Supplier<Connection> connectionSupplier) {
     this.tsvFolder = tsvFolder;
     this.sequenceCounters = sequenceCounters;
+    this.connectionSupplier = connectionSupplier;
   }
 
   @Override
@@ -121,7 +132,7 @@ public class ClbLoadTestDb implements BeforeEachCallback {
 
   public void before() throws Exception {
     SLF4JBridgeHandler.install();
-    try(Connection connection = dataSource.getConnection()) {
+    try (Connection connection = connectionSupplier.get()) {
       connection.setAutoCommit(false);
       if (tsvFolder != null) {
         DbLoader.load(connection, tsvFolder, true);
@@ -133,9 +144,7 @@ public class ClbLoadTestDb implements BeforeEachCallback {
     }
   }
 
-  /**
-   * Update postgres sequence counters.
-   */
+  /** Update postgres sequence counters. */
   private void updateSequences(Connection connection) {
     log.debug("Resetting clb sequences");
     try {
@@ -149,5 +158,4 @@ public class ClbLoadTestDb implements BeforeEachCallback {
       throw new RuntimeException(e);
     }
   }
-
 }

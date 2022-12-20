@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.nub.source;
 
 import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterator;
@@ -23,14 +24,10 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import com.google.common.collect.Lists;
-
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.junit5.EmbeddedPostgresExtension;
-import io.zonky.test.db.postgres.junit5.PreparedDbExtension;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,20 +37,29 @@ public class ClbSourceTest {
   @RegisterExtension public NeoTmpRepoRule neoRepo = new NeoTmpRepoRule();
 
   @RegisterExtension
-  public static PreparedDbExtension database =
-      EmbeddedPostgresExtension.preparedDatabase(
-          LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml"));
+  public ClbLoadTestDb clbLoadTestDb =
+      ClbLoadTestDb.squirrels(BaseDBTest.createConnectionSupplier(PG_CONTAINER));
 
-  @RegisterExtension
-  public ClbLoadTestDb clbLoadTestDb = ClbLoadTestDb.squirrels(database.getTestDatabase());
+  public static final PostgreSQLContainer PG_CONTAINER;
+
+  static {
+    PG_CONTAINER = BaseDBTest.createPostgreSQLContainer();
+    PG_CONTAINER.start();
+
+    try {
+      BaseDBTest.updateLiquibase(PG_CONTAINER);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   private ClbConfiguration config() {
     // use default prod API
     ClbConfiguration clb = new ClbConfiguration();
-    clb.serverName = "localhost:" + database.getConnectionInfo().getPort();
-    clb.databaseName = database.getConnectionInfo().getDbName();
-    clb.user = database.getConnectionInfo().getUser();
-    clb.password = "";
+    clb.serverName = "localhost:" + PG_CONTAINER.getFirstMappedPort();
+    clb.databaseName = PG_CONTAINER.getDatabaseName();
+    clb.user = PG_CONTAINER.getUsername();
+    clb.password = PG_CONTAINER.getPassword();
 
     return clb;
   }

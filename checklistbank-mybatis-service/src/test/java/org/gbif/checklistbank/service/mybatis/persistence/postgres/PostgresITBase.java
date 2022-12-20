@@ -13,15 +13,8 @@
  */
 package org.gbif.checklistbank.service.mybatis.persistence.postgres;
 
+import org.gbif.checklistbank.BaseDBTest;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import javax.sql.DataSource;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -30,37 +23,25 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.zonky.test.db.postgres.embedded.ConnectionInfo;
-import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
-import io.zonky.test.db.postgres.embedded.LiquibasePreparer;
-import io.zonky.test.db.postgres.embedded.PreparedDbProvider;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = PostgresITBase.ChecklistBankServiceTestConfiguration.class)
-@ContextConfiguration(initializers = {PostgresITBase.ContextInitializer.class})
 @ActiveProfiles("test")
-public class PostgresITBase {
-
-  protected DataSource dataSource;
+public class PostgresITBase extends BaseDBTest {
 
   @RegisterExtension public ClbLoadTestDb sbSetup;
 
-  public PostgresITBase(DataSource dataSource) {
-    this.dataSource = dataSource;
-    this.sbSetup = ClbLoadTestDb.empty(dataSource);
+  public PostgresITBase() {
+    this.sbSetup = ClbLoadTestDb.empty(createConnectionSupplier());
   }
 
-  public PostgresITBase(DataSource dataSource, ClbLoadTestDb sbSetup) {
-    this.dataSource = dataSource;
+  public PostgresITBase(ClbLoadTestDb sbSetup) {
     this.sbSetup = sbSetup;
   }
 
@@ -74,39 +55,10 @@ public class PostgresITBase {
     }
   }
 
-  /** Custom ContextInitializer to expose the registry DB data source and search flags. */
-  public static class ContextInitializer
-      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-    private final List<Consumer<EmbeddedPostgres.Builder>> builderCustomizers =
-        new CopyOnWriteArrayList<>();
-
-    @Override
-    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-      try {
-        LiquibasePreparer liquibasePreparer =
-            LiquibasePreparer.forClasspathLocation("liquibase/checklistbank/master.xml");
-        PreparedDbProvider provider =
-            PreparedDbProvider.forPreparer(liquibasePreparer, builderCustomizers);
-        ConnectionInfo connectionInfo = provider.createNewDatabase();
-
-        TestPropertyValues.of(Stream.of(dbTestPropertyPairs(connectionInfo)).toArray(String[]::new))
-            .applyTo(configurableApplicationContext.getEnvironment());
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    /** Creates the registry datasource settings from the embedded database. */
-    String[] dbTestPropertyPairs(ConnectionInfo connectionInfo) {
-      return new String[] {
-        "checklistbank.datasource.url=jdbc:postgresql://localhost:"
-            + connectionInfo.getPort()
-            + "/"
-            + connectionInfo.getDbName(),
-        "checklistbank.datasource.username=" + connectionInfo.getUser(),
-        "checklistbank.datasource.password="
-      };
-    }
+  @DynamicPropertySource
+  static void properties(DynamicPropertyRegistry registry) {
+    registry.add("checklistbank.datasource.url", PG_CONTAINER::getJdbcUrl);
+    registry.add("checklistbank.datasource.username", PG_CONTAINER::getUsername);
+    registry.add("checklistbank.datasource.password", PG_CONTAINER::getPassword);
   }
 }

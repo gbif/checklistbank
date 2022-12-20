@@ -17,8 +17,6 @@ import org.gbif.ChecklistbankMyBatisServiceITBase;
 import org.gbif.checklistbank.service.CitationService;
 import org.gbif.utils.text.StringUtils;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,8 +28,8 @@ public class CitationServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisS
   private final CitationService service;
 
   @Autowired
-  public CitationServiceChecklistbankMyBatisIT(DataSource dataSource, CitationService citationService) {
-    super(dataSource);
+  public CitationServiceChecklistbankMyBatisIT(CitationService citationService) {
+    super();
     this.service = citationService;
   }
 

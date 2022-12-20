@@ -38,8 +38,8 @@ public class DatasetAnalysisServiceChecklistbankMyBatisIT extends ChecklistbankM
 
   @Autowired
   public DatasetAnalysisServiceChecklistbankMyBatisIT(
-      DataSource dataSource, DatasetAnalysisService datasetAnalysisService) {
-    super(dataSource);
+      DatasetAnalysisService datasetAnalysisService) {
+    super();
     this.service = datasetAnalysisService;
   }
 

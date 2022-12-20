@@ -24,12 +24,9 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 import java.util.List;
 import java.util.Set;
 
-import javax.sql.DataSource;
-
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.google.common.collect.Sets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -44,8 +41,8 @@ public class IdentifierServiceChecklistbankMyBatisIT extends ChecklistbankMyBati
   private final Integer USAGE_ID = 100000007;
 
   @Autowired
-  public IdentifierServiceChecklistbankMyBatisIT(DataSource dataSource, IdentifierService identifierService) {
-    super(dataSource);
+  public IdentifierServiceChecklistbankMyBatisIT(IdentifierService identifierService) {
+    super();
     this.service = identifierService;
   }
 

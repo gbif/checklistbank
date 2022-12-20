@@ -23,13 +23,14 @@ import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
 import org.gbif.checklistbank.utils.NameParsers;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.sql.DataSource;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
@@ -38,8 +39,8 @@ public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBati
   private final ParsedNameService service;
 
   @Autowired
-  public ParsedNameServiceChecklistbankMyBatisIT(DataSource dataSource, ParsedNameService parsedNameService) {
-    super(dataSource);
+  public ParsedNameServiceChecklistbankMyBatisIT(ParsedNameService parsedNameService) {
+    super();
     this.service = parsedNameService;
   }
 
@@ -108,7 +109,7 @@ public class ParsedNameServiceChecklistbankMyBatisIT extends ChecklistbankMyBati
   }
 
   @Test
-  //TODO: it throws a time-out error
+  // TODO: it throws a time-out error
   public void testReparse() throws Exception {
     assertEquals(6, service.reparseAll());
   }

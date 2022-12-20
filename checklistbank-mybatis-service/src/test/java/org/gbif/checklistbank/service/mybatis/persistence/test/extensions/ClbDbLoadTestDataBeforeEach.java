@@ -15,6 +15,9 @@ package org.gbif.checklistbank.service.mybatis.persistence.test.extensions;
 
 import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.function.Supplier;
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -27,14 +30,14 @@ public class ClbDbLoadTestDataBeforeEach implements BeforeEachCallback {
   static void before(ExtensionContext extensionContext) throws Exception {
     ApplicationContext context = SpringExtension.getApplicationContext(extensionContext);
     DataSource dataSource = context.getBean(DataSource.class);
-    ClbLoadTestDb  clbLoadTestDb;
+    ClbLoadTestDb clbLoadTestDb;
     TestData.DATAFILE testData = getTestData(extensionContext);
     if (TestData.DATAFILE.SQUIRRELS == testData) {
-      clbLoadTestDb = ClbLoadTestDb.squirrels(dataSource);
+      clbLoadTestDb = ClbLoadTestDb.squirrels(createConnectionSupplier(dataSource));
     } else if (TestData.DATAFILE.PUMA == testData) {
-      clbLoadTestDb = ClbLoadTestDb.puma(dataSource);
-    } else { //TestData.DATAFILE.EMPTY default
-      clbLoadTestDb = ClbLoadTestDb.empty(dataSource);
+      clbLoadTestDb = ClbLoadTestDb.puma(createConnectionSupplier(dataSource));
+    } else { // TestData.DATAFILE.EMPTY default
+      clbLoadTestDb = ClbLoadTestDb.empty(createConnectionSupplier(dataSource));
     }
     clbLoadTestDb.before();
   }
@@ -45,7 +48,20 @@ public class ClbDbLoadTestDataBeforeEach implements BeforeEachCallback {
   }
 
   static TestData.DATAFILE getTestData(ExtensionContext extensionContext) {
-    return extensionContext.getTestClass().map(c -> c.getAnnotation(TestData.class))
-            .map(TestData::value).orElse(TestData.DATAFILE.EMPTY);
+    return extensionContext
+        .getTestClass()
+        .map(c -> c.getAnnotation(TestData.class))
+        .map(TestData::value)
+        .orElse(TestData.DATAFILE.EMPTY);
+  }
+
+  private static Supplier<Connection> createConnectionSupplier(DataSource dataSource) {
+    return () -> {
+      try {
+        return dataSource.getConnection();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    };
   }
 }
