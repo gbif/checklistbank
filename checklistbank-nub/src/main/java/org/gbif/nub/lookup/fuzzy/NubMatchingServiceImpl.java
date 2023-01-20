@@ -648,9 +648,22 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         // authorship comparison was requested!
         Equality recomb = authComp.compare(pn.getAuthorship(), pn.getYear(), mpn.getAuthorship(), mpn.getYear());
         Equality bracket = authComp.compare(pn.getBracketAuthorship(), pn.getBracketYear(), mpn.getBracketAuthorship(), mpn.getBracketYear());
+        if (bracket == Equality.UNKNOWN) {
+          // dont have 2 bracket authors to compare. Try with combination authors as brackets are sometimes forgotten or wrong
+          if (pn.getBracketAuthorship() != null) {
+            bracket = authComp.compare(pn.getBracketAuthorship(), pn.getBracketYear(), mpn.getAuthorship(), mpn.getYear());
+          } else if (mpn.getBracketAuthorship() != null) {
+            bracket = authComp.compare(pn.getAuthorship(), pn.getYear(), mpn.getBracketAuthorship(), mpn.getBracketYear());
+          }
+          if (bracket == Equality.EQUAL) {
+            similarity -= 1;
+          } else if (bracket == Equality.DIFFERENT) {
+            similarity += 1;
+          }
+        }
 
-        similarity = equality2Similarity(recomb, 3);
-        similarity = similarity + equality2Similarity(bracket, 1);
+        similarity += equality2Similarity(recomb, 3);
+        similarity += equality2Similarity(bracket, 1);
 
       } catch (UnparsableException e) {
         if (e.type.isParsable()) {
