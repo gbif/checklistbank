@@ -846,4 +846,16 @@ public class NubMatchingServiceImplIT {
 
     assertMatch("Jaspidia deceptoria Scopoli, 1763", Rank.FAMILY, cl, 7015, NameUsageMatch.MatchType.HIGHERRANK);
   }
+
+  /**
+   * https://github.com/gbif/portal-feedback/issues/4532
+   */
+  @Test
+  public void testAuthorBrackets() throws Exception {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+
+    assertMatch("Eristalis lineata Harris, 1776", Rank.SPECIES, cl, 7834133, NameUsageMatch.MatchType.EXACT);
+    assertMatch("Eristalis lineata (Harris, 1776)", Rank.SPECIES, cl, 7834133, NameUsageMatch.MatchType.EXACT);
+  }
 }
