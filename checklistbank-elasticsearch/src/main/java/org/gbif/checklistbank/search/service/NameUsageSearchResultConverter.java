@@ -174,7 +174,10 @@ public class NameUsageSearchResultConverter
                   Matcher m = LANG_SPLIT.matcher(nl);
                   VernacularName vn = new VernacularName();
                   if (m.find()) {
-                    vn.setLanguage(Language.fromIsoCode(m.group(1)));
+                    // matched lang can be empty
+                    if (!m.group(1).isEmpty()) {
+                      vn.setLanguage(Language.fromIsoCode(m.group(1)));
+                    }
                     String name = m.group(2);
                     vn.setVernacularName(hNamesWithSource.getOrDefault(name, name));
                   } else {
