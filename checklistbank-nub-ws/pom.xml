@@ -223,6 +223,10 @@
             <artifactId>gbif-common-mybatis</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
 
         <!-- This party libraries-->
         <dependency>

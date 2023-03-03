@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 
@@ -35,6 +36,9 @@ public class IucnRedListCategory {
 
   private Integer acceptedUsageKey;
 
+  @Schema(
+    description = "The taxonomic threat status as given in our https://api.gbif.org/v1/enumeration/basic/ThreatStatus[ThreatStatus enum]."
+  )
   public ThreatStatus getCategory() {
     return category;
   }
@@ -43,10 +47,14 @@ public class IucnRedListCategory {
     this.category = category;
   }
 
+  @Schema(
+    description = "The code for the taxonomic threat status as given in our https://api.gbif.org/v1/enumeration/basic/ThreatStatus[ThreatStatus enum]."
+  )
   public String getCode() {
     return category != null? category.getCode() : null;
   }
 
+  @Schema(description = "The name usage “taxon“ key to which this Red List category applies.")
   public Integer getUsageKey() {
     return usageKey;
   }
@@ -55,6 +63,9 @@ public class IucnRedListCategory {
     this.usageKey = usageKey;
   }
 
+  @Schema(
+    description = "The scientific name."
+  )
   public String getScientificName() {
     return scientificName;
   }
@@ -63,6 +74,9 @@ public class IucnRedListCategory {
     this.scientificName = scientificName;
   }
 
+  @Schema(
+    description = "The taxonomic status of the name."
+  )
   public TaxonomicStatus getTaxonomicStatus() {
     return taxonomicStatus;
   }
@@ -71,6 +85,9 @@ public class IucnRedListCategory {
     this.taxonomicStatus = taxonomicStatus;
   }
 
+  @Schema(
+    description = "The accepted name, if the name is a synonym."
+  )
   public String getAcceptedName() {
     return acceptedName;
   }
@@ -79,6 +96,9 @@ public class IucnRedListCategory {
     this.acceptedName = acceptedName;
   }
 
+  @Schema(
+    description = "The accepted name's usage key, if the name is a synonym."
+  )
   public Integer getAcceptedUsageKey() {
     return acceptedUsageKey;
   }

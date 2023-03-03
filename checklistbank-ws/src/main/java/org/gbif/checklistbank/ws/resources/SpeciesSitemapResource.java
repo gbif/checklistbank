@@ -39,6 +39,7 @@ import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
+import io.swagger.v3.oas.annotations.Hidden;
 
 /**
  * Species sitemap resource producing text sitemaps for all checklist bank name usages.
@@ -46,6 +47,7 @@ import freemarker.template.TemplateException;
  *
  * see https://www.sitemaps.org/protocol.html
  */
+@Hidden
 @RestController
 @RequestMapping(
   value = "/sitemap/species",
@@ -111,7 +113,7 @@ public class SpeciesSitemapResource {
     /**
      * Generate a single text sitemap with 50k entries.
      */
-    @GetMapping(path= "{page}")
+    @GetMapping(path="{page}")
     public ResponseEntity<StreamingResponseBody> sitemap(@PathVariable("page") int page) {
         Preconditions.checkArgument(page > 0, "Page parameter must be positive");
 
