@@ -98,7 +98,7 @@ public class NameUsageSearchResultConverter
     VocabularyUtils.lookup(result.getNameType(), NameType.class).ifPresent(u::setNameType);
     VocabularyUtils.lookup(result.getRank(), Rank.class).ifPresent(u::setRank);
 
-    getVernacularName(result.getVernacularNameLang(), hit.highlight())
+    getVernacularName(result.getVernacularNameLang(), hit.highlight(), result.getVernacularName())
         .ifPresent(u::setVernacularNames);
     getDescription(result.getDescription(), hit.highlight()).ifPresent(u::setDescriptions);
 
@@ -161,9 +161,16 @@ public class NameUsageSearchResultConverter
   }
 
   private Optional<List<VernacularName>> getVernacularName(
-      List<String> nameLangs, Map<String, List<String>> hlFields) {
+      List<String> nameLangs, Map<String, List<String>> hlFields, List<String> vernacularNames) {
     if (nameLangs == null || nameLangs.isEmpty()) {
-      return Optional.empty();
+      if (vernacularNames == null || vernacularNames.isEmpty()) {
+        return Optional.empty();
+      }
+      return Optional.of(vernacularNames.stream().map(v -> {
+        VernacularName vn = new VernacularName();
+        vn.setVernacularName(v);
+        return vn;
+      }).collect(Collectors.toList()));
     }
 
     Map<String, String> hNamesWithSource = getHlValuesWithSource(hlFields, "vernacularName");
