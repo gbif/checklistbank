@@ -64,6 +64,7 @@ public class NubResource {
     this.lookup = lookup;
   }
 
+  @Hidden
   @GetMapping(value = "lookup")
   public LookupUsage lookup(@RequestParam(value = "name", required = false) String canonicalName,
                             @RequestParam(value = "authorship", required = false) String authorship,
