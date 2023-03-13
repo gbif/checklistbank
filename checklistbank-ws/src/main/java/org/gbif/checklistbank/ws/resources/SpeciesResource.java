@@ -783,6 +783,7 @@ public class SpeciesResource {
   @Hidden
   @Deprecated
   @GetMapping("rootNub")
+  @Deprecated
   public TreeContainer<UsageCount, Integer> rootNub() {
     TreeContainer<UsageCount, Integer> tree = new TreeContainer<>();
     // kingdoms

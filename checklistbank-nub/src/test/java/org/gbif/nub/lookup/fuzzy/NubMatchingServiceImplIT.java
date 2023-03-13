@@ -858,4 +858,18 @@ public class NubMatchingServiceImplIT {
     assertMatch("Eristalis lineata Harris, 1776", Rank.SPECIES, cl, 7834133, NameUsageMatch.MatchType.EXACT);
     assertMatch("Eristalis lineata (Harris, 1776)", Rank.SPECIES, cl, 7834133, NameUsageMatch.MatchType.EXACT);
   }
+
+  /**
+   * https://github.com/gbif/portal-feedback/issues/2935
+   */
+  @Test
+  public void aggregates() throws Exception {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setOrder("Diptera");
+    cl.setFamily("Clusiidae");
+
+    assertMatch("Clusiodes melanostomus", Rank.SPECIES, cl, 4295121, NameUsageMatch.MatchType.EXACT);
+    assertMatch("Clusiodes melanostomus", Rank.SPECIES_AGGREGATE, cl, 1550465, NameUsageMatch.MatchType.HIGHERRANK);
+  }
 }
