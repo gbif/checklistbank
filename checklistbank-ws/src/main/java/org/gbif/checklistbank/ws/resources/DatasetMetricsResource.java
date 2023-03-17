@@ -38,11 +38,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 /**
  * DatasetMetrics resource.
  */
-@Tag(
-  name = "Dataset metrics",
-  description = "The dataset metrics API provides metrics for checklist datasets.",
-  extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0400"))
-)
+@Tag(name = "Datasets") // Part of the Registry documentation.
 @RestController
 @RequestMapping(
   value = "/dataset",
