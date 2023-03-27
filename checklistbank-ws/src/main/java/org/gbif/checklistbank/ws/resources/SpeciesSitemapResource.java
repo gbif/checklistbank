@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.ws.resources;
 
 import org.gbif.api.model.common.paging.PagingRequest;
+import org.gbif.api.model.Constants;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper;
 
 import java.io.*;
@@ -84,8 +85,11 @@ public class SpeciesSitemapResource {
     @Autowired
     public SpeciesSitemapResource(NameUsageMapper nameUsageMapper, @Value("${checklistbank.portal.url}") String portalUrl, @Value("${checklistbank.api.url}") String apiUrl) {
         this.nameUsageMapper = nameUsageMapper;
-        this.portalUrl = portalUrl;
         this.apiUrl = apiUrl;
+        if (!portalUrl.endsWith("/")) {
+            portalUrl = portalUrl + "/";
+        }
+        this.portalUrl = portalUrl;
     }
 
     /**
@@ -93,7 +97,7 @@ public class SpeciesSitemapResource {
      */
     @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
     public String sitemapIndex() throws IOException {
-        int cnt = nameUsageMapper.count(null);
+        int cnt = nameUsageMapper.count(Constants.NUB_DATASET_KEY);
         int maps = (int) Math.ceil((double) cnt/SITEMAP_SIZE);
         LOG.info("Requested sitemap index to {} index files with {} usages", maps, cnt);
 
@@ -113,14 +117,14 @@ public class SpeciesSitemapResource {
     /**
      * Generate a single text sitemap with 50k entries.
      */
-    @GetMapping(path="{page}")
+    @GetMapping(path="{page}.txt", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<StreamingResponseBody> sitemap(@PathVariable("page") int page) {
         Preconditions.checkArgument(page > 0, "Page parameter must be positive");
 
         StreamingResponseBody stream = os -> {
             Writer writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
             PagingRequest req = new PagingRequest((long) (page - 1) * SITEMAP_SIZE, SITEMAP_SIZE);
-            for (int key : nameUsageMapper.list(null, req)) {
+            for (int key : nameUsageMapper.list(Constants.NUB_DATASET_KEY, req)) {
                 writer.write(portalUrl);
                 writer.write(String.valueOf(key));
                 writer.write("\n");
