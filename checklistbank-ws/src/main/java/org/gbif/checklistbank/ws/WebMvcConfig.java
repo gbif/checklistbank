@@ -147,7 +147,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-    configurer.defaultContentType(MediaType.APPLICATION_JSON);
+    configurer.defaultContentType(MediaType.APPLICATION_JSON)
+              .favorParameter(true)
+              .parameterName("format")
+              .mediaType("xml", MediaType.APPLICATION_XML)
+              .mediaType("txt", MediaType.TEXT_PLAIN)
+              .mediaType("json", MediaType.APPLICATION_JSON);
   }
 
   @Bean

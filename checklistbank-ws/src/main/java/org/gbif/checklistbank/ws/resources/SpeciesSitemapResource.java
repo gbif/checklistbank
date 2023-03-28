@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,10 +51,7 @@ import io.swagger.v3.oas.annotations.Hidden;
  */
 @Hidden
 @RestController
-@RequestMapping(
-  value = "/sitemap/species",
-  produces = {MediaType.APPLICATION_JSON_VALUE, "application/x-javascript"}
-)
+@RequestMapping(value = "/sitemap/species")
 public class SpeciesSitemapResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeciesSitemapResource.class);
@@ -95,8 +93,8 @@ public class SpeciesSitemapResource {
     /**
      * Generate a sitemap index to all sitemaps.
      */
-    @GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-    public String sitemapIndex() throws IOException {
+    @GetMapping
+    public ResponseEntity sitemapIndex() throws IOException {
         int cnt = nameUsageMapper.count(Constants.NUB_DATASET_KEY);
         int maps = (int) Math.ceil((double) cnt/SITEMAP_SIZE);
         LOG.info("Requested sitemap index to {} index files with {} usages", maps, cnt);
@@ -107,7 +105,9 @@ public class SpeciesSitemapResource {
             data.put("maps", maps);
             data.put("cnt", cnt);
             FTL.getTemplate(INDEX_TEMPLATE).process(data, writer);
-            return writer.toString();
+            return ResponseEntity.ok()
+                                 .contentType(MediaType.APPLICATION_XML)
+                                 .body(writer.toString());
 
         } catch (TemplateException e) {
             throw new IOException("Error while processing the sitemapindex template", e);
@@ -117,7 +117,7 @@ public class SpeciesSitemapResource {
     /**
      * Generate a single text sitemap with 50k entries.
      */
-    @GetMapping(path="{page}.txt", produces = MediaType.TEXT_PLAIN_VALUE)
+    @GetMapping(path="{page}.txt")
     public ResponseEntity<StreamingResponseBody> sitemap(@PathVariable("page") int page) {
         Preconditions.checkArgument(page > 0, "Page parameter must be positive");
 
@@ -132,7 +132,9 @@ public class SpeciesSitemapResource {
             writer.flush();
         };
 
-        return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(stream);
+        return ResponseEntity.ok()
+                             .contentType(MediaType.TEXT_PLAIN)
+                             .body(stream);
     }
 
 }
