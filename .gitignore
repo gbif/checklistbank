@@ -19,3 +19,5 @@ java-generated
 *.war
 *.ear
 /checklistbank-nub-ws/local-nub-ws.yml
+/checklistbank-ws/src/main/resources/local-ws.yml
+/checklistbank-ws/local-ws.yml

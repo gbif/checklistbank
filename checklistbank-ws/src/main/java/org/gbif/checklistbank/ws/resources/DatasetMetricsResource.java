@@ -27,9 +27,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * DatasetMetrics resource.
  */
+@Tag(name = "Datasets") // Part of the Registry documentation.
 @RestController
 @RequestMapping(
   value = "/dataset",
@@ -44,15 +53,25 @@ public class DatasetMetricsResource {
     this.service = service;
   }
 
+  @Operation(
+    operationId = "getDatasetMetrics",
+    summary = "Checklist dataset metrics",
+    description = "Get various metrics for a checklist. Metrics include the number of species, the number of synonyms, " +
+      "counts by rank, counts by vernacular name language, etc."
+  )
+  @Parameter(
+    name = "key",
+    description = "Dataset key.",
+    in = ParameterIn.PATH)
   @GetMapping("{key}/metrics")
   @NullToNotFound("/dataset/{key}/metrics")
   public DatasetMetrics get(@PathVariable("key") UUID key) {
     return service.get(key);
   }
 
+  @Hidden
   @GetMapping("{key}/metrics/history")
   public List<DatasetMetrics> list(@PathVariable("key") UUID key) {
     return service.list(key);
   }
-
 }
