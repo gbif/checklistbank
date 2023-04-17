@@ -18,6 +18,7 @@ import org.gbif.api.model.checklistbank.Distribution;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.paging.PagingRequest;
 import org.gbif.api.vocabulary.*;
+import org.gbif.checklistbank.model.IucnRedListCategory;
 import org.gbif.checklistbank.model.NameUsageWritable;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.ClbDbLoadTestDataBeforeEach;
 import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestData;
@@ -110,7 +111,7 @@ public class DistributionMapperTest extends MapperITBase {
     assertObject(obj, list.get(1), datasetTitle, usageKey);
   }
 
-  private Integer setupSpecies(UUID datasetKey, Integer parentKey, TaxonomicStatus status) {
+  private Integer setupSpecies(UUID datasetKey, Integer parentKey, TaxonomicStatus status, String taxonID) {
     ParsedName pn = new ParsedName();
     pn.setType(NameType.SCIENTIFIC);
     pn.setGenusOrAbove("Abies");
@@ -123,6 +124,7 @@ public class DistributionMapperTest extends MapperITBase {
     uw.setDatasetKey(datasetKey);
     uw.setParentKey(parentKey);
     uw.setOrigin(Origin.SOURCE);
+    uw.setTaxonID(taxonID);
     uw.setTaxonomicStatus(status);
     uw.setSynonym(status.isSynonym());
     uw.setRank(pn.getRank());
@@ -139,15 +141,14 @@ public class DistributionMapperTest extends MapperITBase {
   @Test
   public void testIUCN() throws Exception {
     // setup NUB usages
-    int nub1 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
-    int nub2 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
-    int nub3 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED);
+    int nub1 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED, null);
+    int nub2 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED, null);
+    int nub3 = setupSpecies(Constants.NUB_DATASET_KEY, null, TaxonomicStatus.ACCEPTED, null);
 
     // setup IUCN record and matching nub relation
-    int acc1 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED);
-    int acc2 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED);
-    int syn =
-        setupSpecies(DistributionMapper.iucnDatasetKey, acc2, TaxonomicStatus.HETEROTYPIC_SYNONYM);
+    int acc1 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED, "iucn:001");
+    int acc2 = setupSpecies(DistributionMapper.iucnDatasetKey, null, TaxonomicStatus.ACCEPTED, "iucn:002");
+    int syn = setupSpecies(DistributionMapper.iucnDatasetKey, acc2, TaxonomicStatus.HETEROTYPIC_SYNONYM, "iucn:003");
 
     Distribution d = new Distribution();
     d.setLocality("global");
@@ -161,10 +162,18 @@ public class DistributionMapperTest extends MapperITBase {
     setupIucnNubRel(acc2, nub2);
     setupIucnNubRel(syn, nub3);
 
-    assertEquals(
-        ThreatStatus.CRITICALLY_ENDANGERED, mapper.getIucnRedListCategory(nub1).getCategory());
-    assertEquals(ThreatStatus.VULNERABLE, mapper.getIucnRedListCategory(nub2).getCategory());
-    assertEquals(ThreatStatus.VULNERABLE, mapper.getIucnRedListCategory(nub3).getCategory());
+
+    IucnRedListCategory iucn = mapper.getIucnRedListCategory(nub1);
+    assertEquals(ThreatStatus.CRITICALLY_ENDANGERED, iucn.getCategory());
+    assertEquals("iucn:001", iucn.getIucnTaxonID());
+
+    iucn = mapper.getIucnRedListCategory(nub2);
+    assertEquals(ThreatStatus.VULNERABLE, iucn.getCategory());
+    assertEquals("iucn:002", iucn.getIucnTaxonID());
+
+    iucn = mapper.getIucnRedListCategory(nub3);
+    assertEquals(ThreatStatus.VULNERABLE, iucn.getCategory());
+    assertEquals("iucn:003", iucn.getIucnTaxonID());
 
     // no usage
     assertNull(mapper.getIucnRedListCategory(99999999));

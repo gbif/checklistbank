@@ -88,7 +88,7 @@
   -->
   <select id="getIucnRedListCategory" parameterType="map" resultMap="iucnRedListCategoryResultMap">
     SELECT coalesce(dacc.threat_status,d.threat_status) AS category,
-      iucn.id AS usageKey, n.scientific_name, iucn.status,
+      iucn.id AS usageKey, iucn.taxon_id AS iucnTaxonID, n.scientific_name, iucn.status,
       acc.id AS acceptedUsageKey, accn.scientific_name AS acceptedName
     FROM nub_rel rel
       JOIN name_usage iucn ON iucn.id=rel.usage_fk
