@@ -401,15 +401,15 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private List<NameUsageMatch> queryIndex(Rank rank, String canonicalName, boolean fuzzy) {
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, fuzzy, 50);
     // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
-    for (NameUsageMatch m : matches) {
+    matches.removeIf(m -> {
       if (m.getMatchType() == NameUsageMatch.MatchType.EXACT
               && rank == Rank.SPECIES_AGGREGATE
               && m.getRank() != Rank.SPECIES_AGGREGATE) {
-        LOG.warn("Species aggregate match found for {} {}, but use type EXACT until supported in API", m.getRank(), m.getScientificName());
-        //TODO: change to MatchType.AGGREGATE once available
-        m.setMatchType(NameUsageMatch.MatchType.EXACT);
+        LOG.info("Species aggregate match found for {} {}. Ignore and prefer higher matches", m.getRank(), m.getScientificName());
+        return true;
       }
-    }
+      return false;
+    });
     return matches;
   }
 

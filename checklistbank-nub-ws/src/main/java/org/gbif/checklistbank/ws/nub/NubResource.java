@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.extensions.Extension;
+import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -80,7 +82,8 @@ public class NubResource {
     summary = "Fuzzy name match service",
     description = "Fuzzy matches scientific names against the GBIF Backbone Taxonomy with the optional " +
       "classification provided. If a classification is provided and strict is not set to true, the default matching " +
-      "will also try to match against these if no direct match is found for the name parameter alone."
+      "will also try to match against these if no direct match is found for the name parameter alone.",
+    extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0130"))
   )
   @Tag(name = "Searching names")
   @Parameters(

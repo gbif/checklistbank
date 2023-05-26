@@ -201,7 +201,8 @@ public class SpeciesResource {
   @Operation(
     operationId = "listNames",
     summary = "List all name usages",
-    description = "Lists all name usages across all checklists."
+    description = "Lists all name usages across all checklists.",
+    extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0100"))
   )
   @Tag(name = "Searching names")
   @Parameters(
@@ -281,7 +282,8 @@ public class SpeciesResource {
   @Operation(
     operationId = "getNameUsage",
     summary = "Name usage by id",
-    description = "Retrieves a single name usage."
+    description = "Retrieves a single name usage.",
+    extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0200"))
   )
   @Tag(name = "Species")
   @NameUsagePathParameter
@@ -310,7 +312,7 @@ public class SpeciesResource {
   }
 
   @Operation(
-    operationId = "getParsedNameUsage",
+    operationId = "getNameUsageNameParsed",
     summary = "Parsed name usage by id",
     description = "Retrieves the parsed name for a single name usage."
   )
@@ -334,7 +336,7 @@ public class SpeciesResource {
    */
 
   @Operation(
-    operationId = "getVerbatimNameUsage",
+    operationId = "getNameUsageVerbatim",
     summary = "Verbatim name usage by id",
     description = "Retrieves a verbatim name usage.\n\n" +
       "The response object has JSON properties for each verbatim term property."
@@ -673,7 +675,7 @@ public class SpeciesResource {
    * @see NameUsageService#listParents(int, Locale)
    */
   @Operation(
-    operationId = "getNameUsageParent",
+    operationId = "getNameUsageParents",
     summary = "Parent name usages by id",
     description = "Retrieves all parent name usages for a name usage."
   )
@@ -896,7 +898,8 @@ public class SpeciesResource {
     summary = "Full text search over name usages",
     description = "Full-text search of name usages covering the scientific and vernacular names, the species " +
       "description, distribution and the entire classification across all name usages of all or some checklists.\n\n" +
-      "Results are ordered by relevance as this search usually returns a lot of results."
+      "Results are ordered by relevance as this search usually returns a lot of results.",
+    extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0110"))
   )
   @Tag(name = "Searching names")
   @NameUsageSearchParameters
@@ -924,7 +927,8 @@ public class SpeciesResource {
     summary = "Name autocomplete service",
     description = "A quick and simple autocomplete service that returns up to 20 name usages by doing prefix " +
       "matching against the scientific name.\n\n" +
-      "Results are ordered by relevance."
+      "Results are ordered by relevance.",
+    extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0150"))
   )
   @Tag(name = "Searching names")
   @NameUsageSearchParameters
