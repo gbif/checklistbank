@@ -2,6 +2,8 @@
 
 ChecklistBank is the taxonomy store with its associated [webservices](http://www.gbif.org/developer/species) that allows GBIF to index any number of checklist datasets and match them to a global management taxonomy, the [GBIF backbone taxonomy](http://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c).
 
+**Warning!** We have evolved [ChecklistBank](https://www.checklistbank.org) together with the [Catalogue of Life](https://www.catalogueoflife.org) into a standalone service based on a [new open code base](https://github.com/CatalogueOfLife/checklistbank). This project is still in use by GBIF, but not very active any longer.
+
 This is a multi module project containing all ChecklistBank modules, from api to persistence layer to the webservice client. Integration tests are part of the respective modules, in particular in the webservice client and the mybatis modules.
 
 ### Maven profile
