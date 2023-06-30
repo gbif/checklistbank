@@ -21,6 +21,7 @@ import org.gbif.api.vocabulary.Rank;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -29,6 +30,10 @@ public interface NameUsageMatchingService2 extends NameUsageMatchingService {
 
   NameUsageMatch2 v2(NameUsageMatch m);
 
-  NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose);
+  /**
+   * @param exclude set of higher taxon nub ids to exclude from matching results
+   *
+   */
+  NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose);
 
 }

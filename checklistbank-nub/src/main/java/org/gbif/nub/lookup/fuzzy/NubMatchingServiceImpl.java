@@ -210,18 +210,18 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     StopWatch watch = new StopWatch();
     watch.start();
 
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, new ArrayList<>(), strict, verbose);
+    NameUsageMatch match = matchInternal(scientificName, rank, classification, new HashSet<>(), strict, verbose);
 
     LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
     return match;
   }
 
   @Override
-  public NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose) {
+  public NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
     StopWatch watch = new StopWatch();
     watch.start();
 
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, exclusions, strict, verbose);
+    NameUsageMatch match = matchInternal(scientificName, rank, classification, exclude, strict, verbose);
 
     LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
     return match;
@@ -230,7 +230,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   /**
    * Real method doing the work
    */
-  private NameUsageMatch matchInternal(@Nullable String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, List<Object> exclusions, boolean strict, boolean verbose) {
+  private NameUsageMatch matchInternal(@Nullable String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
 
     ParsedName pn = null;
     NameType queryNameType;
@@ -294,7 +294,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       }
     }
 
-    NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, mainMatchingMode, verbose);
+    NameUsageMatch match1 = match(queryNameType, pn, scientificName, rank, classification, exclude, mainMatchingMode, verbose);
     // use genus higher match instead of fuzzy one?
     // https://github.com/gbif/portal-feedback/issues/2930
     if (match1.getMatchType() == NameUsageMatch.MatchType.FUZZY &&
@@ -302,7 +302,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         pn != null && !match1.getCanonicalName().startsWith(pn.getGenusOrAbove()+" ") &&
         nextAboveGenusDiffers(classification, match1)
     ) {
-      NameUsageMatch genusMatch = match(pn.getType(), null, pn.getGenusOrAbove(), Rank.GENUS, classification, MatchingMode.HIGHER, verbose);
+      NameUsageMatch genusMatch = match(pn.getType(), null, pn.getGenusOrAbove(), Rank.GENUS, classification, exclude, MatchingMode.HIGHER, verbose);
       if (isMatch(genusMatch) && genusMatch.getRank() == Rank.GENUS) {
         return higherMatch(genusMatch, match1);
       }
@@ -322,7 +322,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         if (pn.getInfraSpecificEpithet() != null || (rank != null && rank.isInfraspecific())) {
           // try with species
           String species = pn.canonicalSpeciesName();
-          match = match(pn.getType(), null, species, Rank.SPECIES, classification, MatchingMode.FUZZY, verbose);
+          match = match(pn.getType(), null, species, Rank.SPECIES, classification, exclude, MatchingMode.FUZZY, verbose);
           if (isMatch(match)) {
             return higherMatch(match, match1);
           }
@@ -332,7 +332,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         // we're not sure if this is really a genus, so don't set the rank
         // we get non species names sometimes like "Chaetognatha eyecount" that refer to a phylum called
         // "Chaetognatha"
-        match = match(pn.getType(), null, pn.getGenusOrAbove(), null, classification, MatchingMode.HIGHER, verbose);
+        match = match(pn.getType(), null, pn.getGenusOrAbove(), null, classification, exclude, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
@@ -345,7 +345,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       if (supraGenericOnly && !qr.isSuprageneric()) continue;
       String name = ClassificationUtils.getHigherRank(classification, qr);
       if (!StringUtils.isEmpty(name)) {
-        match = match(null, null, name, qr, classification, MatchingMode.HIGHER, verbose);
+        match = match(null, null, name, qr, classification, exclude, MatchingMode.HIGHER, verbose);
         if (isMatch(match)) {
           return higherMatch(match, match1);
         }
@@ -517,7 +517,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
    */
   @VisibleForTesting
   protected NameUsageMatch match(@Nullable NameType queryNameType, @Nullable ParsedName pn, @Nullable String canonicalName,
-                         Rank rank, LinneanClassification lc, final MatchingMode mode, final boolean verbose) {
+                         Rank rank, LinneanClassification lc, Set<Integer> exclude, final MatchingMode mode, final boolean verbose) {
     if (Strings.isNullOrEmpty(canonicalName)) {
       return noMatch(100, "No name given", null);
     }
@@ -541,6 +541,23 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         break;
     }
 
+    // exclude any matches against the explicit exclusion list
+    if (exclude != null && !exclude.isEmpty()) {
+      for (NameUsageMatch m : matches) {
+        if (exclude.contains(m.getUsageKey())) {
+          m.setConfidence(0);
+          addNote(m, "excluded by "+m.getUsageKey());
+        } else {
+          for (Rank r : Rank.DWC_RANKS) {
+            if (exclude.contains(m.getHigherRankKey(r))) {
+              m.setConfidence(0);
+              addNote(m, "excluded by "+m.getHigherRankKey(r));
+              break;
+            }
+          }
+        }
+      }
+    }
     // order by confidence
     Collections.sort(matches, CONFIDENCE_ORDER);
 

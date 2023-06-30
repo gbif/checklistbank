@@ -45,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping(
@@ -161,12 +162,12 @@ public class NubResource {
                               @RequestParam(value = "strict", required = false) Boolean strict,
                               @RequestParam(value = "verbose", required = false) Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
-    return match(first(scientificName, scientificName2),
-                 first(authorship, authorship2),
-                 specificEpithet,
-                 infraspecificEpithet,
-                 r, classification, new ArrayList<>(), bool(strict), bool(verbose)
+    NameNRank nr = buildScientificName(
+        first(scientificName, scientificName2),
+        first(authorship, authorship2),
+        specificEpithet, infraspecificEpithet, r, classification
     );
+    return matchingService.match(nr.name, nr.rank, classification, bool(strict), bool(verbose));
   }
 
   @Hidden
@@ -180,23 +181,36 @@ public class NubResource {
                                 @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
                                 @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
                                 LinneanClassification classification,
+                                // higher taxon ids to exclude from matching, see https://github.com/gbif/portal-feedback/issues/4361
+                                @RequestParam(value = "exclude", required = false) Set<Integer> exclude,
                                 @RequestParam(value = "strict", required = false) Boolean strict,
                                 @RequestParam(value = "verbose", required = false) Boolean verbose) {
     Rank r = parseRank(first(rank, rank2));
-    return matchingService.v2(match(first(scientificName, scientificName2),
+    NameNRank nr = buildScientificName(
+        first(scientificName, scientificName2),
         first(authorship, authorship2),
-        specificEpithet,
-        infraspecificEpithet,
-        r, classification, new ArrayList<>(), bool(strict), bool(verbose)
-    ));
+        specificEpithet, infraspecificEpithet, r, classification
+    );
+    return matchingService.v2(matchingService.match2(nr.name, nr.rank, classification, exclude, bool(strict), bool(verbose)));
   }
 
-  private NameUsageMatch match(String scientificName, String authorship, String specificEpithet, String infraSpecificEpithet,
-                       Rank rank, LinneanClassification classification, List<Object> exclusions, Boolean strict, Boolean verbose) {
+  static class NameNRank {
+    public String name;
+    public Rank rank;
+
+    public NameNRank(String name, Rank rank) {
+      this.name = name;
+      this.rank = rank;
+    }
+  }
+
+  NameNRank buildScientificName(String scientificName, String authorship, String specificEpithet, String infraSpecificEpithet,
+                             Rank rank, LinneanClassification classification) {
+    final NameNRank nr = new NameNRank(scientificName, rank);
     if (!Strings.isNullOrEmpty(scientificName)) {
       // prefer the given scientificName and add authorship if not there yet.
       // Ignore atomized name parameters
-      scientificName = appendAuthorship(scientificName, authorship);
+      nr.name = appendAuthorship(scientificName, authorship);
 
     } else if (classification != null) {
       Rank clRank = lowestRank(classification);
@@ -210,14 +224,14 @@ public class NubResource {
           pn.setInfraSpecificEpithet(infraSpecificEpithet);
           pn.setRank(rank);
           pn.setAuthorship(authorship);
-          scientificName = pn.canonicalNameComplete();
+          nr.name = pn.canonicalNameComplete();
         } else {
-          rank = clRank;
-          scientificName = appendAuthorship(classification.getHigherRank(clRank), authorship);
+          nr.rank = clRank;
+          nr.name = appendAuthorship(classification.getHigherRank(clRank), authorship);
         }
       }
     }
-    return matchingService.match(scientificName, rank, classification, bool(strict), bool(verbose));
+    return nr;
   }
 
   static String appendAuthorship(String scientificName, String authorship){
