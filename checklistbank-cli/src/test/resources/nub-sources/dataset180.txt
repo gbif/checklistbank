@@ -1,0 +1,6 @@
+1			KINGDOM	ACCEPTED		Fungi	
+2	1		CLASS	ACCEPTED		Agaricomycetes	
+3	2		FAMILY	ACCEPTED		Cortinariaceae	
+4	3		GENUS	ACCEPTED		Cortinarius (Pers.) Gray, 1821	
+5	4		SPECIES	ACCEPTED		Cortinarius vesterholtii Frøslev & T.S.Jeppesen	
+6	5		SPECIES	SYNONYM		Calonarius vesterholtii (Frøslev & T.S.Jeppesen) Niskanen & Liimat., 2022	

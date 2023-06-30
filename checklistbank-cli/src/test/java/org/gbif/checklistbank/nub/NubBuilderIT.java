@@ -2132,6 +2132,18 @@ public class NubBuilderIT {
   }
 
   /**
+   * https://github.com/gbif/checklistbank/issues/252
+   */
+  @Test
+  public void otuSynonyms() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 180, 181);
+    src.setSourceRank(180, Rank.PHYLUM);
+    src.includeOTUs(181);
+    build(src);
+    assertTree("180 181.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test
