@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,7 +49,11 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence) {
-    return assertMatch(name, query, expectedKey, null, confidence);
+    return assertMatch(name, query, expectedKey, confidence, null);
+  }
+
+  private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, IntRange confidence, Set<Integer> exclude) {
+    return assertMatch(name, null, query, expectedKey, null, confidence, exclude);
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
@@ -55,7 +61,7 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, NameUsageMatch.MatchType type) {
-    return assertMatch(name, rank, query, expectedKey, type, new IntRange(1, 100));
+    return assertMatch(name, rank, query, expectedKey, type, new IntRange(1, 100), null);
   }
 
   private void print(String name, NameUsageMatch best) {
@@ -72,11 +78,11 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
-    return assertMatch(name, null, query, expectedKey, type, confidence);
+    return assertMatch(name, null, query, expectedKey, type, confidence, null);
   }
 
-  private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence) {
-    NameUsageMatch best = matcher.match(name, rank, query, false, true);
+  private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence, Set<Integer> exclude) {
+    NameUsageMatch best = matcher.match2(name, rank, query, exclude, false, true);
 
     print(name, best);
 
@@ -753,6 +759,12 @@ public class NubMatchingServiceImplIT {
     cl.setFamily("Chrysomelidae");
     m = assertMatch("Stolas costaricensis", cl, 4734997, new IntRange(95, 100));
     assertEquals(NameUsageMatch.MatchType.HIGHERRANK , m.getMatchType());
+
+    // exclude Stolas, match Stelis costaricensis again but with lower confidence now
+    Set<Integer> excl = new HashSet<>();
+    excl.add(7780); // excludes Stolas family
+    m = assertMatch("Stolas costaricensis", cl, 1334265, new IntRange(80, 90), excl);
+    assertEquals(NameUsageMatch.MatchType.FUZZY , m.getMatchType());
   }
 
   /**
