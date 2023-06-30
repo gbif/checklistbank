@@ -18,7 +18,10 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Organization;
+import org.gbif.api.model.registry.search.ContactsSearchParams;
 import org.gbif.api.model.registry.search.KeyTitleResult;
+import org.gbif.api.model.registry.search.OrganizationRequestSearchParams;
+import org.gbif.api.model.registry.view.OrganizationContactView;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.Country;
 
@@ -54,7 +57,7 @@ public class OrganizationServiceEmptyImpl extends EmptyNetworkEntityService<Orga
   }
 
   @Override
-  public PagingResponse<Organization> listDeleted(@Nullable Pageable page) {
+  public PagingResponse<Organization> listDeleted(OrganizationRequestSearchParams organizationRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 
@@ -85,6 +88,16 @@ public class OrganizationServiceEmptyImpl extends EmptyNetworkEntityService<Orga
 
   @Override
   public boolean revokeEndorsement(@NotNull UUID uuid) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Organization> list(OrganizationRequestSearchParams organizationRequestSearchParams) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<OrganizationContactView> searchContacts(ContactsSearchParams contactsSearchParams) {
     throw new UnsupportedOperationException();
   }
 }

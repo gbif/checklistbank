@@ -56,7 +56,7 @@
         <gbif-common-search.version>0.39</gbif-common-search.version>
         <gbif-common-service.version>0.19</gbif-common-service.version>
         <gbif-common-ws.version>1.25</gbif-common-ws.version>
-        <gbif-httputils.version>1.4</gbif-httputils.version>
+        <gbif-httputils.version>0.12</gbif-httputils.version>
         <gbif-metadata-profile.version>2.2-SNAPSHOT</gbif-metadata-profile.version>
         <gbif-postal-service.version>1.8.0</gbif-postal-service.version>
         <registry.version>3.94.7</registry.version>

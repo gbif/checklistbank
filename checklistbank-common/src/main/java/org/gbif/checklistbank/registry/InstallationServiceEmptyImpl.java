@@ -17,6 +17,7 @@ import org.gbif.api.model.common.paging.Pageable;
 import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
+import org.gbif.api.model.registry.search.InstallationRequestSearchParams;
 import org.gbif.api.model.registry.search.KeyTitleResult;
 import org.gbif.api.service.registry.InstallationService;
 import org.gbif.api.vocabulary.InstallationType;
@@ -38,7 +39,7 @@ public class InstallationServiceEmptyImpl extends EmptyNetworkEntityService<Inst
   }
 
   @Override
-  public PagingResponse<Installation> listDeleted(@Nullable Pageable page) {
+  public PagingResponse<Installation> listDeleted(InstallationRequestSearchParams installationRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 
@@ -59,5 +60,10 @@ public class InstallationServiceEmptyImpl extends EmptyNetworkEntityService<Inst
     {
       throw new UnsupportedOperationException();
     }
+  }
+
+  @Override
+  public PagingResponse<Installation> list(InstallationRequestSearchParams installationRequestSearchParams) {
+    return null;
   }
 }

@@ -19,6 +19,7 @@ import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Network;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.model.registry.search.KeyTitleResult;
+import org.gbif.api.model.registry.search.NetworkRequestSearchParams;
 import org.gbif.api.service.registry.NetworkService;
 
 import java.util.List;
@@ -58,6 +59,11 @@ public class NetworkServiceEmptyImpl extends EmptyNetworkEntityService<Network> 
   public List<KeyTitleResult> suggest(
     @org.jetbrains.annotations.Nullable String s
   ) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Network> list(NetworkRequestSearchParams networkRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 }

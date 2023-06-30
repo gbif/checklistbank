@@ -20,6 +20,7 @@ import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Node;
 import org.gbif.api.model.registry.Organization;
 import org.gbif.api.model.registry.search.KeyTitleResult;
+import org.gbif.api.model.registry.search.NodeRequestSearchParams;
 import org.gbif.api.service.registry.NodeService;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.TagName;
@@ -78,6 +79,11 @@ public class NodeServiceEmptyImpl extends EmptyNetworkEntityService<Node> implem
 
   @Override
   public List<KeyTitleResult> suggest(@Nullable String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Node> list(NodeRequestSearchParams nodeRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 

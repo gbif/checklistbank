@@ -20,6 +20,7 @@ import org.gbif.api.model.registry.Endpoint;
 import org.gbif.api.model.registry.Grid;
 import org.gbif.api.model.registry.Metadata;
 import org.gbif.api.model.registry.Network;
+import org.gbif.api.model.registry.search.DatasetRequestSearchParams;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.api.vocabulary.Country;
 import org.gbif.api.vocabulary.DatasetType;
@@ -178,7 +179,7 @@ public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> i
   }
 
   @Override
-  public PagingResponse<Dataset> listDeleted(@Nullable Pageable page) {
+  public PagingResponse<Dataset> listDeleted(DatasetRequestSearchParams datasetRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 
@@ -199,6 +200,11 @@ public class DatasetServiceFileImpl extends EmptyNetworkEntityService<Dataset> i
 
   @Override
   public List<Grid> listGrids(UUID uuid) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public PagingResponse<Dataset> list(DatasetRequestSearchParams datasetRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 }
