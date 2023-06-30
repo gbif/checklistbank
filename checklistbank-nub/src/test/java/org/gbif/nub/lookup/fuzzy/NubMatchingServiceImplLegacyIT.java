@@ -47,19 +47,19 @@ public class NubMatchingServiceImplLegacyIT {
     LinneanClassification cl = new NameUsageMatch();
     cl.setKingdom(null);
     cl.setPhylum(".");
-    matcher.match(null, null, "---", null, cl, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
+    matcher.match(null, null, "---", null, cl, null, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
 
     // blacklisted names turn into nulls via the synonym lookup!
     cl = new NameUsageMatch();
     cl.setKingdom(null);
     cl.setPhylum("Unknown");
-    matcher.match(null, null, "FAMILY", null, cl, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
+    matcher.match(null, null, "FAMILY", null, cl, null, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
   }
 
    @Test
    public void testNoMatch() throws IOException {
      LinneanClassification cl = new NameUsageMatch();
-     NameUsageMatch m = matcher.match(null, null, "", null, cl, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
+     NameUsageMatch m = matcher.match(null, null, "", null, cl, null, NubMatchingServiceImpl.MatchingMode.FUZZY, true);
      assertEquals(NameUsageMatch.MatchType.NONE, m.getMatchType());
    }
 

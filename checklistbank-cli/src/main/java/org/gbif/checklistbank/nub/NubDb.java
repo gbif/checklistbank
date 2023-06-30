@@ -715,15 +715,21 @@ public class NubDb {
     }
 
     // synonymize all descendants!
+    // but keep accepted OTUs as accepted children: https://github.com/gbif/checklistbank/issues/252
     Set<Node> nodes = Sets.newHashSet(u.node);
     for (Node d : Traversals.TREE_WITHOUT_PRO_PARTE.traverse(u.node).nodes()) {
       nodes.add(d);
     }
     for (Node s : nodes) {
-      s.addLabel(Labels.SYNONYM);
       NubUsage su = dao.readNub(s);
-      LOG.info("Also convert descendant {} into a synonym of {}", su, accepted);
-      su.status = TaxonomicStatus.SYNONYM;
+      if (su.status.isAccepted() && su.parsedName != null && su.parsedName.getType() == NameType.OTU) {
+        LOG.info("Keep OTU descendant {} as a child of {}", su, accepted);
+
+      } else {
+        s.addLabel(Labels.SYNONYM);
+        su.status = TaxonomicStatus.SYNONYM;
+        LOG.info("Also convert descendant {} into a synonym of {}", su, accepted);
+      }
       for (Relationship rel : s.getRelationships(RelType.SYNONYM_OF, RelType.PARENT_OF)) {
         rel.delete();
       }
@@ -740,7 +746,12 @@ public class NubDb {
         rel.getOtherNode(s).createRelationshipTo(accepted.node, RelType.PROPARTE_SYNONYM_OF);
         rel.delete();
       }
-      s.createRelationshipTo(accepted.node, RelType.SYNONYM_OF);
+      if (s.hasLabel(Labels.SYNONYM)) {
+        s.createRelationshipTo(accepted.node, RelType.SYNONYM_OF);
+      } else {
+        // OTU
+        accepted.node.createRelationshipTo(s, RelType.PARENT_OF);
+      }
       store(su);
     }
     // persist usage instance changes

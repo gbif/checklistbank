@@ -36,6 +36,8 @@ public class IucnRedListCategory {
 
   private Integer acceptedUsageKey;
 
+  private String iucnTaxonID;
+
   @Schema(
     description = "The taxonomic threat status as given in our https://api.gbif.org/v1/enumeration/basic/ThreatStatus[ThreatStatus enum]."
   )
@@ -107,6 +109,17 @@ public class IucnRedListCategory {
     this.acceptedUsageKey = acceptedUsageKey;
   }
 
+  @Schema(
+      description = "The original IUCN identifier used for the name usage."
+  )
+  public String getIucnTaxonID() {
+    return iucnTaxonID;
+  }
+
+  public void setIucnTaxonID(String iucnTaxonID) {
+    this.iucnTaxonID = iucnTaxonID;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -118,11 +131,13 @@ public class IucnRedListCategory {
                              that.scientificName)
            && taxonomicStatus == that.taxonomicStatus
            && Objects.equals(acceptedName, that.acceptedName)
-           && Objects.equals(acceptedUsageKey, that.acceptedUsageKey);
+           && Objects.equals(acceptedUsageKey, that.acceptedUsageKey)
+           && Objects.equals(iucnTaxonID, that.iucnTaxonID)
+        ;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(category, usageKey, scientificName, taxonomicStatus, acceptedName, acceptedUsageKey);
+    return Objects.hash(category, usageKey, scientificName, taxonomicStatus, acceptedName, acceptedUsageKey, iucnTaxonID);
   }
 }
