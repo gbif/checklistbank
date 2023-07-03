@@ -151,6 +151,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
     // diagnostics in all cases
     m2.getDiagnostics().setMatchType(m.getMatchType());
+    m2.getDiagnostics().setConfidence(m.getConfidence());
     m2.getDiagnostics().setStatus(m.getStatus());
     m2.getDiagnostics().setNote(m.getNote());
     if (m.getAlternatives() != null) {
