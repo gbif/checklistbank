@@ -2152,9 +2152,23 @@ public class NubBuilderIT {
     src.setSourceRank(182, Rank.KINGDOM);
     src.setSourceRank(183, Rank.KINGDOM);
     src.setSupragenericHomonymSource(182, 183);
-    src.includeUnranked(182, 183);
+    src.includeUnranked(182);
     build(src);
     assertTree("182 183.txt");
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/273
+   */
+  @Test
+  public void redundantHyla() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 184, 185);
+    src.setSourceRank(184, Rank.KINGDOM);
+    src.setSourceRank(185, Rank.GENUS);
+    src.setSupragenericHomonymSource(184);
+    cfg.blacklist.add("Hyla Quoyi-Hyla Prasina Case");
+    build(src);
+    assertTree("184 185.txt");
   }
 
   /**

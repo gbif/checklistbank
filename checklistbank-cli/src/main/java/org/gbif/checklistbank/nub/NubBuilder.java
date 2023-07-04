@@ -1199,7 +1199,7 @@ public class NubBuilder implements Runnable {
 
       if (u.status.isAccepted()) {
         // skip badly organized rank hierarchies
-        if (!p.rank.higherThan(u.rank)) {
+        if (!p.rank.higherThan(u.rank) && p.rank != Rank.UNRANKED) {
           LOG.warn("Source {} {} with inversed parent {} {}", u.rank, u.scientificName, p.rank, p.parsedName.canonicalNameComplete());
           throw new IgnoreSourceUsageException("Ignoring source with inverted rank order", u.scientificName);
         }

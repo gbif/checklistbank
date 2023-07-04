@@ -1,0 +1,20 @@
+1			UNRANKED	ACCEPTED		Biota	
+2	1		KINGDOM	ACCEPTED		Animalia	
+3	2		PHYLUM	ACCEPTED		Chordata	
+4	3		SUBPHYLUM	ACCEPTED		Vertebrata	
+5	4		INFRAPHYLUM	ACCEPTED		Gnathostomata	
+6	5		UNRANKED	ACCEPTED		Osteichthyes	
+7	6		UNRANKED	ACCEPTED		Sarcopterygii	
+8	7		UNRANKED	ACCEPTED		Tetrapoda	
+9	8		CLASS	ACCEPTED		Amphibia	
+10	9		ORDER	ACCEPTED		Anura	
+11	10		FAMILY	ACCEPTED		Hylidae Rafinesque, 1815	
+12	11		GENUS	ACCEPTED		Hyla	
+13	11		SUBFAMILY	ACCEPTED		Hylinae Rafinesque, 1815	
+14	13		GENUS	ACCEPTED		Hyla Laurenti, 1768	
+20	12		SPECIES	ACCEPTED		Hyla imitator (Barbour & Dunn, 1921)	
+21	12		SPECIES	ACCEPTED		Hyla nicefori (Cochran & Goin, 1970)	
+22	14		SPECIES	ACCEPTED		Hyla annectans (Jerdon, 1870)	
+23	14		SPECIES	ACCEPTED		Hyla arborea (Linnaeus, 1758)	
+24	14		SPECIES	ACCEPTED		Hyla chinensis Günther, 1858	
+25	14		SPECIES	ACCEPTED		Hyla hallowellii Thompson, 1912	

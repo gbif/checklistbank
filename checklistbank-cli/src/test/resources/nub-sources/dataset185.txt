@@ -1,0 +1,6 @@
+2			KINGDOM	ACCEPTED		Animalia	
+3	2		PHYLUM	ACCEPTED		Chordata	
+9	3		CLASS	ACCEPTED		Amphibia	
+10	9		ORDER	ACCEPTED		Anura	
+11	10		FAMILY	ACCEPTED		Hylidae	
+12	11		GENUS	ACCEPTED		Hyla Quoyi-Hyla Prasina Case	
