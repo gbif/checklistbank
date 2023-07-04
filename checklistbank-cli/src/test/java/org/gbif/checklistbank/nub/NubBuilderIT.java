@@ -2144,6 +2144,20 @@ public class NubBuilderIT {
   }
 
   /**
+   * Merge COL/ICTV Virus classification under single virus kingdom
+   */
+  @Test
+  public void viruses() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 182, 183);
+    src.setSourceRank(182, Rank.KINGDOM);
+    src.setSourceRank(183, Rank.KINGDOM);
+    src.setSupragenericHomonymSource(182, 183);
+    src.includeUnranked(182, 183);
+    build(src);
+    assertTree("182 183.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test

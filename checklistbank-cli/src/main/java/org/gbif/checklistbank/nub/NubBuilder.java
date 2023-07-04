@@ -92,7 +92,7 @@ public class NubBuilder implements Runnable {
     ranks.add(Rank.SUBSPECIES);
     ranks.add(Rank.VARIETY);
     ranks.add(Rank.FORM);
-    ranks.remove(Rank.KINGDOM); // we only use kingdoms from our enum
+    //ranks.remove(Rank.KINGDOM); // we only use kingdoms from our enum
     NUB_RANKS = ImmutableSet.copyOf(ranks);
   }
 
@@ -1073,7 +1073,11 @@ public class NubBuilder implements Runnable {
     NubUsageMatch match = db.findNubUsage(currSrc.key, u, parents.nubKingdom(), parent);
 
     // process only usages not to be ignored and with desired ranks
-    if (!match.ignore && (allowedRanks.contains(u.rank) || NameType.OTU == u.parsedName.getType() && Rank.UNRANKED == u.rank)) {
+    // unranked names are only considered if part of an OTU or explicitly configured source
+    if (!match.ignore && (
+          allowedRanks.contains(u.rank)
+          || Rank.UNRANKED == u.rank && (NameType.OTU == u.parsedName.getType() || currSrc.includeUnranked && parent != unknownKingdom)
+    )) {
 
       if (!match.isMatch() || (
               fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource &&
@@ -1180,7 +1184,7 @@ public class NubBuilder implements Runnable {
     }
     // ignore synonyms of low rank for higher taxa
     // http://dev.gbif.org/issues/browse/POR-3169
-    if (u.status.isSynonym() && !u.rank.higherThan(Rank.GENUS) && p.rank.higherThan(Rank.FAMILY)) {
+    if (u.status.isSynonym() && u.rank != Rank.UNRANKED && !u.rank.higherThan(Rank.GENUS) && p.rank.higherThan(Rank.FAMILY)) {
       String message = String.format("Ignoring %s synonym %s for %s %s", u.rank, u.scientificName, p.rank, p.parsedName.fullName());
       throw new IgnoreSourceUsageException(message, u.scientificName);
     }
@@ -1421,7 +1425,7 @@ public class NubBuilder implements Runnable {
   }
 
   private boolean isNewParentApplicable(NubUsage nub, NubUsage currParent, NubUsage newParent) {
-    return newParent != null
+    return newParent != null && currParent != null
         && !currParent.equals(newParent)
         && (currParent.rank.higherThan(newParent.rank) || currParent.rank == newParent.rank)
         && newParent.rank.higherThan(nub.rank);
@@ -1677,7 +1681,7 @@ public class NubBuilder implements Runnable {
   private void assignUsageKeys(Predicate<NubUsage> filter){
     for (Map.Entry<Long, NubUsage> entry : db.dao().nubUsages()) {
       NubUsage u = entry.getValue();
-      if (u.rank != Rank.KINGDOM && u.usageKey==0 && filter.test(u)) {
+      if ((u.rank != Rank.KINGDOM || u.status.isSynonym()) && u.usageKey==0 && filter.test(u)) {
         u.usageKey = idGen.issue(NameFormatter.canonicalOrScientificName(u.parsedName), u.parsedName.getAuthorship(), u.parsedName.getYear(), u.rank, u.status, u.kingdom);
         db.dao().update(entry.getKey(), u);
       }

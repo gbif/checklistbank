@@ -1,0 +1,24 @@
+1			KINGDOM	ACCEPTED		Animalia	
+2			KINGDOM	ACCEPTED		Plantae	
+3	2		KINGDOM	SYNONYM		Viridiplantae	
+4			KINGDOM	ACCEPTED		Fungi	
+5			KINGDOM	ACCEPTED		Protozoa	
+6			KINGDOM	ACCEPTED		Chromista	
+7			KINGDOM	ACCEPTED		Viruses	
+8	7		UNRANKED	SYNONYM		Adnaviria	
+9	7		UNRANKED	SYNONYM		Duplodnaviria	
+10	7		UNRANKED	SYNONYM		Monodnaviria	
+11	7		UNRANKED	SYNONYM		Riboviria	
+12	7		UNRANKED	SYNONYM		Ribozyviria	
+13	7		UNRANKED	SYNONYM		Varidnaviria	
+14	7		KINGDOM	SYNONYM		Zilligvirae	
+15	7		KINGDOM	SYNONYM		Heunggongvirae	
+16	7		KINGDOM	SYNONYM		Loebvirae	
+17	7		KINGDOM	SYNONYM		Sangervirae	
+18	7		KINGDOM	SYNONYM		Shotokuvirae	
+19	7		KINGDOM	SYNONYM		Trapavirae	
+20	7		KINGDOM	SYNONYM		Orthornavirae	
+21	7		KINGDOM	SYNONYM		Pararnavirae	
+22	7		KINGDOM	SYNONYM		Bamfordvirae	
+23	7		KINGDOM	SYNONYM		Helvetiavirae	
+24	1		PHYLUM	ACCEPTED		Arthropoda	

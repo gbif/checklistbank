@@ -56,6 +56,11 @@ public class NubSourceConfig {
     public Rank rank = Rank.FAMILY;
 
     /**
+     * If true unranked names are processed during nub builds from this dataset.
+     */
+    public boolean unranked = false;
+
+    /**
      * If true suprageneric homonyms are allowed during nub builds from this dataset.
      */
     public boolean homonyms = false;

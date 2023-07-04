@@ -106,9 +106,19 @@ public class ClasspathSourceList extends NubSourceList {
     }
   }
   
-  public void setSupragenericHomonymSource(int sourceId) {
-    if (sourceById.containsKey(sourceId)) {
-      sourceById.get(sourceId).supragenericHomonymSource = true;
+  public void setSupragenericHomonymSource(int... sourceId) {
+    for (int sid : sourceId) {
+      if (sourceById.containsKey(sid)) {
+        sourceById.get(sid).supragenericHomonymSource = true;
+      }
+    }
+  }
+
+  public void includeUnranked(int... sourceId) {
+    for (int sid : sourceId) {
+      if (sourceById.containsKey(sid)) {
+        sourceById.get(sid).includeUnranked = true;
+      }
     }
   }
 

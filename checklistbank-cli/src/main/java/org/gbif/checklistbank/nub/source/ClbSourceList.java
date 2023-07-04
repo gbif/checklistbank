@@ -108,6 +108,10 @@ public class ClbSourceList extends NubSourceList {
       src.supragenericHomonymSource = true;
       LOG.info("Allow suprageneric homonyms for nub source {}", d.getTitle());
     }
+    if (sourceConfig.unranked) {
+      src.includeUnranked = true;
+      LOG.info("Allow unranked names for nub source {}", d.getTitle());
+    }
     if (sourceConfig.OTU) {
       src.includeOTUs = true;
       LOG.info("Allow OTU names for nub source {}", d.getTitle());

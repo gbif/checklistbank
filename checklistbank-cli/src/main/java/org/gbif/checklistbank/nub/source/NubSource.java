@@ -85,6 +85,7 @@ public abstract class NubSource implements AutoCloseable {
   public boolean nomenclator = false;
   public boolean supragenericHomonymSource = false;
   public boolean includeOTUs = false;
+  public boolean includeUnranked = false;
   boolean ignoreSynonyms = false;
   public RankedName scope;
   Map<NameType, NameType> nameTypeMapping;

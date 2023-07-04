@@ -1,0 +1,28 @@
+1			UNRANKED	ACCEPTED		Biota	
+2	1		UNRANKED	ACCEPTED		Viruses	
+8	2		UNRANKED	ACCEPTED		Adnaviria	
+9	2		UNRANKED	ACCEPTED		Duplodnaviria	
+10	2		UNRANKED	ACCEPTED		Monodnaviria	
+11	2		UNRANKED	ACCEPTED		Riboviria	
+12	2		UNRANKED	ACCEPTED		Ribozyviria	
+13	2		UNRANKED	ACCEPTED		Varidnaviria	
+14	8		KINGDOM	ACCEPTED		Zilligvirae	
+15	9		KINGDOM	ACCEPTED		Heunggongvirae	
+16	10		KINGDOM	ACCEPTED		Loebvirae	
+17	10		KINGDOM	ACCEPTED		Sangervirae	
+18	10		KINGDOM	ACCEPTED		Shotokuvirae	
+19	10		KINGDOM	ACCEPTED		Trapavirae	
+20	11		KINGDOM	ACCEPTED		Orthornavirae	
+21	11		KINGDOM	ACCEPTED		Pararnavirae	
+22	13		KINGDOM	ACCEPTED		Bamfordvirae	
+23	13		KINGDOM	ACCEPTED		Helvetiavirae	
+24	12		FAMILY	ACCEPTED		Kolmioviridae	
+25	24		GENUS	ACCEPTED		Daazvirus	
+26	25		SPECIES	ACCEPTED		Daazvirus cynopis	
+27	20		PHYLUM	ACCEPTED		Duplornaviricota	
+28	27		CLASS	ACCEPTED		Chrymotiviricetes	
+29	28		ORDER	ACCEPTED		Ghabrivirales	
+30	29		FAMILY	ACCEPTED		Chrysoviridae	
+31	30		GENUS	ACCEPTED		Alphachrysovirus	
+32	31		SPECIES	ACCEPTED		Amasya cherry disease associated chrysovirus	
+33	31		SPECIES	ACCEPTED		Chrysothrix chrysovirus 1	
