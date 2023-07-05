@@ -133,6 +133,10 @@ public class ClbSourceList extends NubSourceList {
         LOG.warn("Duplicate source {} skipped", sd.key);
         continue;
       }
+      if (cfg.datasetExclusions.contains(sd.key)) {
+        LOG.warn("Source {} excluded in configs", sd.key);
+        continue;
+      }
       keys.add(sd.key);
       Dataset d = datasetService.get(sd.key);
       if (d != null) {
@@ -144,6 +148,10 @@ public class ClbSourceList extends NubSourceList {
         if (org != null) {
           int counter = 0;
           for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
+            if (cfg.datasetExclusions.contains(d2)) {
+              LOG.warn("Source {} from publisher {} excluded in configs", d2, org.getTitle());
+              continue;
+            }
             if (!keys.contains(d2.getKey())) {
               sources.add(buildSource(d2, cfg, sd));
               counter++;
@@ -156,6 +164,10 @@ public class ClbSourceList extends NubSourceList {
           if (inst != null) {
             int counter = 0;
             for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
+              if (cfg.datasetExclusions.contains(d2)) {
+                LOG.warn("Source {} from installation {} excluded in configs", d2, inst.getKey());
+                continue;
+              }
               if (!keys.contains(d2.getKey())) {
                 sources.add(buildSource(d2, cfg, sd));
                 counter++;

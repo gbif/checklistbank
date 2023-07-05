@@ -82,6 +82,13 @@ public class NubConfiguration {
   }
 
   /**
+   * Set of dataset keys to be excluded from processing that publisher sources like Plazi otherwise provide.
+   */
+  @NotNull
+  @Valid
+  public Set<UUID> datasetExclusions = new HashSet<>();
+
+  /**
    * List of higher wrong homonyms that should be removed, regardless of which source they came from.
    * Map of a canonical name to its direct parent.
    * All other names with the same canonical name, but different parent, are kept.
