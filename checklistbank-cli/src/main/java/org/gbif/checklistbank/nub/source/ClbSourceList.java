@@ -148,7 +148,7 @@ public class ClbSourceList extends NubSourceList {
         if (org != null) {
           int counter = 0;
           for (Dataset d2 : Iterables.publishedDatasets(org.getKey(), DatasetType.CHECKLIST, organizationService)) {
-            if (cfg.datasetExclusions.contains(d2)) {
+            if (cfg.datasetExclusions.contains(d2.getKey())) {
               LOG.warn("Source {} from publisher {} excluded in configs", d2, org.getTitle());
               continue;
             }
@@ -164,7 +164,7 @@ public class ClbSourceList extends NubSourceList {
           if (inst != null) {
             int counter = 0;
             for (Dataset d2 : Iterables.hostedDatasets(inst.getKey(), DatasetType.CHECKLIST, installationService)) {
-              if (cfg.datasetExclusions.contains(d2)) {
+              if (cfg.datasetExclusions.contains(d2.getKey())) {
                 LOG.warn("Source {} from installation {} excluded in configs", d2, inst.getKey());
                 continue;
               }
