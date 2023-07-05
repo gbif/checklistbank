@@ -1080,10 +1080,12 @@ public class NubBuilder implements Runnable {
     )) {
 
       if (!match.isMatch() || (
-              fromCurrentSource(match.usage) && currSrc.supragenericHomonymSource &&
-                      !IGNORABLE_ORIGINS.contains(origin) && !IGNORABLE_ORIGINS.contains(match.usage.origin)
-      )) {
-
+               currSrc.supragenericHomonymSource
+            && fromCurrentSource(match.usage)
+            && (u.rank.isSuprageneric() || !sameFamily(parent, match.usage))
+            && !IGNORABLE_ORIGINS.contains(origin) && !IGNORABLE_ORIGINS.contains(match.usage.origin)
+          )
+      ) {
         // remember if we had a doubtful match
         NubUsage doubtful = match.doubtfulUsage;
         // persistent new nub usage if there wasnt any yet
@@ -1149,6 +1151,16 @@ public class NubBuilder implements Runnable {
       LOG.debug("Ignore {} {}", u.rank, u.scientificName);
     }
     return match.usage;
+  }
+
+  private boolean sameFamily(NubUsage u1, NubUsage u2) {
+    Node f1 = family(u1);
+    Node f2 = family(u2);
+    return Objects.equals(f1, f2);
+  }
+
+  private Node family(NubUsage u) {
+    return u.rank == Rank.FAMILY ? u.node : db.parent(u.node, Rank.FAMILY);
   }
 
   private void delete(NubUsage nub) {

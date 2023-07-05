@@ -2172,6 +2172,18 @@ public class NubBuilderIT {
   }
 
   /**
+   * https://github.com/gbif/checklistbank/issues/273
+   */
+  @Test
+  public void implicitGenera() throws Exception {
+    ClasspathSourceList src = ClasspathSourceList.source(neoRepo.cfg, 186);
+    src.setSourceRank(186, Rank.KINGDOM);
+    src.setSupragenericHomonymSource(186);
+    build(src);
+    assertTree("186.txt");
+  }
+
+  /**
    * For profiling memory usage of nub builds
    */
   @Test

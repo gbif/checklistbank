@@ -422,7 +422,7 @@ public class UsageDao implements AutoCloseable {
     }
   }
 
-  private Rank readRank(Node n) {
+  public Rank readRank(Node n) {
     return readEnum(n, NeoProperties.RANK, Rank.class, Rank.UNRANKED);
   }
 

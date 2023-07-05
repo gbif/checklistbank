@@ -1,0 +1,33 @@
+1			UNRANKED	ACCEPTED		Biota	
+2	1		KINGDOM	ACCEPTED		Animalia	
+3	2		PHYLUM	ACCEPTED		Chordata	
+4	3		SUBPHYLUM	ACCEPTED		Vertebrata	
+5	4		INFRAPHYLUM	ACCEPTED		Gnathostomata	
+6	5		UNRANKED	ACCEPTED		Osteichthyes	
+7	6		UNRANKED	ACCEPTED		Sarcopterygii	
+8	7		UNRANKED	ACCEPTED		Tetrapoda	
+9	8		CLASS	ACCEPTED		Amphibia	
+10	9		ORDER	ACCEPTED		Anura	
+11	10		FAMILY	ACCEPTED		Hylidae Rafinesque, 1815	
+12	11		GENUS	ACCEPTED		Hyla	
+20	12		SPECIES	ACCEPTED		Hyla imitator (Barbour & Dunn, 1921)	
+21	12		SPECIES	ACCEPTED		Hyla nicefori (Cochran & Goin, 1970)	
+13	11		SUBFAMILY	ACCEPTED		Hylinae Rafinesque, 1815	
+14	13		GENUS	ACCEPTED		Hyla Laurenti, 1768	
+22	14		SPECIES	ACCEPTED		Hyla annectans (Jerdon, 1870)	
+23	14		SPECIES	ACCEPTED		Hyla arborea (Linnaeus, 1758)	
+24	14		SPECIES	ACCEPTED		Hyla chinensis Günther, 1858	
+25	14		SPECIES	ACCEPTED		Hyla hallowellii Thompson, 1912	
+30	10		SUPERFAMILY	ACCEPTED		Brachycephaloidea Günther, 1858	
+31	30		FAMILY	ACCEPTED		Brachycephalidae Günther, 1858	
+32	31		GENUS	ACCEPTED		Brachycephalus Fitzinger, 1826	
+37	32		SPECIES	ACCEPTED		Brachycephalus germanicus Döring, 2023	
+33	31		GENUS	ACCEPTED		Ischnocnema Reinhardt & Lütken, 1862	
+34	33		SPECIES	ACCEPTED		Ischnocnema alpina Döring, 2023	
+35	31		GENUS	ACCEPTED		Ischnocnema	
+36	35		SPECIES	ACCEPTED		Ischnocnema vulgaris Döring, 2023	
+40	10		FAMILY	ACCEPTED		Inventedidae Döring, 2023	
+41	40		GENUS	ACCEPTED		Inventeda Döring, 2023	
+42	41		SPECIES	ACCEPTED		Inventeda pulchra Döring, 2023	
+43	40		GENUS	ACCEPTED		Ischnocnema	
+44	43		SPECIES	ACCEPTED		Ischnocnema viatrix Döring, 2023	

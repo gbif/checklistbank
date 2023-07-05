@@ -134,8 +134,21 @@ public class NubDb {
   }
 
   /**
-   * @return the parent (or accepted) nodes for a given node.
+   * @return the parent (or accepted) nub usage for a given node that has the matching rank. Will be null if nothing found.
    */
+  public Node parent(Node n, Rank rank) {
+    for (Node pn : parents(n)) {
+      Rank pr = dao.readRank(pn);
+      if (pr == rank){
+        return pn;
+      }
+    }
+    return null;
+  }
+
+    /**
+     * @return the parent (or accepted) nodes for a given node.
+     */
   public List<Node> parents(Node n) {
     return Iterables.asList(Traversals.PARENTS
         .relationships(RelType.SYNONYM_OF, Direction.OUTGOING)
@@ -413,6 +426,25 @@ public class NubDb {
       return NubUsageMatch.snap(synonym);
     }
 
+    // all canonical, one with the same parent?
+    if (currNubParent != null && checked.size() >= 2) {
+      NubUsage sibling = null;
+      for (NubUsage u : checked) {
+        if (parent(u.node).equals(currNubParent.node)) {
+          if (sibling == null){
+            sibling = u;
+          } else {
+            // multiple found!
+            sibling = null;
+            break;
+          }
+        }
+      }
+      if (sibling != null) {
+        return NubUsageMatch.match(sibling);
+      }
+    }
+
     // try to do better authorship matching, remove canonical matches
     if (qualifiedName) {
       iter = checked.iterator();
@@ -454,8 +486,10 @@ public class NubDb {
     if (curr != null) {
       curr.issues.add(NameUsageIssue.HOMONYM);
       curr.addRemark("Homonym known in other sources: " + pn.getScientificName());
-      LOG.warn("{} ambigous homonyms encountered for {} in source {}, picking largest taxon", checked.size(), pn.getScientificName(), currSource);
+      LOG.warn("{} ambiguous homonyms encountered for {} in source {}, picking largest taxon", checked.size(), pn.getScientificName(), currSource);
       return NubUsageMatch.snap(curr);
+    } else if (checked.isEmpty()) {
+      return NubUsageMatch.empty();
     }
 
     throw new IgnoreSourceUsageException("homonym " + pn.getScientificName(), pn.getScientificName());
