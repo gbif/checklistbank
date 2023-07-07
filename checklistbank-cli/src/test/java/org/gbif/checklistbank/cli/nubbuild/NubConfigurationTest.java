@@ -15,6 +15,8 @@ package org.gbif.checklistbank.cli.nubbuild;
 
 import java.io.File;
 
+import org.gbif.api.model.checklistbank.ParsedName;
+import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 
@@ -35,12 +37,31 @@ public class NubConfigurationTest {
         NubConfiguration cfg = CFG_MAPPER.readValue(Resources.getResource("nub-test-cfg.yaml"), NubConfiguration.class);
         cfg.normalizeConfigs();
 
-        assertEquals(4, cfg.blacklist.size());
+        assertEquals(5, cfg.blacklist.size());
         assertEquals(129, cfg.homonymExclusions.size());
 
-        assertTrue(cfg.isBlacklisted("Incertae"));
-        assertTrue(cfg.isBlacklisted("Calendrella cinerea ongumaensis"));
-        assertFalse(cfg.isBlacklisted("Calendrella cinerea"));
+        SrcUsage u = new SrcUsage();
+        u.scientificName="Incertae";
+        assertTrue(cfg.isBlacklisted(u));
+
+        u.scientificName="Calendrella cinerea ongumaensis";
+        assertTrue(cfg.isBlacklisted(u));
+
+        u.scientificName="Calendrella cinerea";
+        assertFalse(cfg.isBlacklisted(u));
+
+        u.scientificName="Phimenes de Saussure, 1855";
+        assertTrue(cfg.isBlacklisted(u));
+
+        u.scientificName="Phimenes";
+        assertFalse(cfg.isBlacklisted(u));
+
+        u.parsedName=new ParsedName();
+        u.parsedName.setGenusOrAbove("Phimenes");
+        assertFalse(cfg.isBlacklisted(u));
+        u.parsedName.setAuthorship("de Saussure, 1855");
+        System.out.println(u.parsedName.canonicalNameComplete());
+        assertTrue(cfg.isBlacklisted(u));
 
         assertTrue(cfg.isExcludedHomonym("Glossoscolecidae", "Crassiclitellata"));
     }

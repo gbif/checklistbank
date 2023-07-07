@@ -16,6 +16,7 @@ package org.gbif.checklistbank.cli.nubbuild;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.config.RegistryServiceConfiguration;
+import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import java.io.File;
@@ -66,8 +67,18 @@ public class NubConfiguration {
   @Valid
   public Set<String> blacklist = new HashSet<>();
 
-  public boolean isBlacklisted(String name) {
-    return blacklist.contains(name.trim().toUpperCase());
+  /**
+   * Tests configured entire names to be excluded.
+   * The full scientificName with authorship as well as just the canonical name without authors is queried during backbone builds.
+   * @param u name usage to test for. Case insensitive.
+   */
+  public boolean isBlacklisted(SrcUsage u) {
+    return blacklist.contains(u.scientificName.trim().toUpperCase())
+           || (u.parsedName != null && u.parsedName.canonicalName() != null && (
+                  blacklist.contains(u.parsedName.canonicalName().trim().toUpperCase())
+               || blacklist.contains(u.parsedName.canonicalNameComplete().trim().toUpperCase())
+              )
+    );
   }
 
   /**

@@ -1291,9 +1291,7 @@ public class NubBuilder implements Runnable {
   }
 
   private boolean blacklisted(SrcUsage u) {
-    return u.parsedName.getType() == NameType.BLACKLISTED ||
-        cfg.isBlacklisted(u.scientificName) ||
-        (u.parsedName.canonicalName() != null && cfg.isBlacklisted(u.parsedName.canonicalName()));
+    return u.parsedName.getType() == NameType.BLACKLISTED || cfg.isBlacklisted(u);
   }
 
   /**
