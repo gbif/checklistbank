@@ -319,7 +319,12 @@ public class Importer extends ImportDb implements Runnable, ImporterCallback {
     }
     // convert to clb keys
     for (Rank r : Rank.DWC_RANKS) {
-      ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
+      try {
+        ClassificationUtils.setHigherRankKey(u, r, clbKey(u.getHigherRankKey(r)));
+      } catch (IllegalStateException e) {
+        // thrown when node key is not found
+        LOG.error("Nub usage for higher rank {} not found for {} {}", r, u.getScientificName(), u.getAuthorship(), e);
+      }
     }
   }
 
