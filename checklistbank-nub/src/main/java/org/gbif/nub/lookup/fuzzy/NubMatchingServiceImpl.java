@@ -402,6 +402,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private List<NameUsageMatch> queryIndex(Rank rank, String canonicalName, boolean fuzzy) {
     List<NameUsageMatch> matches = nubIndex.matchByName(canonicalName, fuzzy, 50);
     // flag aggregate matches, see https://github.com/gbif/portal-feedback/issues/2935
+    final int before = matches.size();
     matches.removeIf(m -> {
       if (m.getMatchType() == NameUsageMatch.MatchType.EXACT
               && rank == Rank.SPECIES_AGGREGATE
@@ -411,6 +412,16 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
       }
       return false;
     });
+    // did we remove matches because of aggregates? Then also remove any fuzzy matches
+    if (matches.size() < before) {
+      matches.removeIf(m -> {
+        if (m.getMatchType() == NameUsageMatch.MatchType.FUZZY) {
+          LOG.info("Species aggregate match found for {}. Ignore also fuzzy match {} {}", canonicalName, m.getRank(), m.getScientificName());
+          return true;
+        }
+        return false;
+      });
+    }
     return matches;
   }
 
