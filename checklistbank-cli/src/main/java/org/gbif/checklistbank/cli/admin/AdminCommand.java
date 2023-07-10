@@ -195,10 +195,6 @@ public class AdminCommand extends BaseCommand {
         syncDatasets();
         break;
 
-      case DUMP:
-        dumpToNeo();
-        break;
-
       case VALIDATE_NEO:
         verifyNeo();
         break;
@@ -355,6 +351,10 @@ public class AdminCommand extends BaseCommand {
           cleanup(d);
           break;
 
+        case DUMP:
+          dumpToNeo(d);
+          break;
+
         case CRAWL:
           send(new StartCrawlMessage(d.getKey()));
           break;
@@ -423,10 +423,10 @@ public class AdminCommand extends BaseCommand {
     new NameUsageReparser(cfg.clb, usageMapper, nameMapper).run();
   }
 
-  private void dumpToNeo() throws Exception {
-    LOG.info("Start dumping dataset {} from postgres into neo4j", cfg.key);
-    ClbSource src = new ClbSource(cfg.clb, cfg.neo, cfg.key, "Checklist " + cfg.key, null);
-    src.init(true, cfg.nubRanksOnly);
+  private void dumpToNeo(Dataset d) throws Exception {
+    LOG.info("Start dumping dataset {}: {} from postgres into neo4j", d.getKey(), d.getTitle());
+    ClbSource src = new ClbSource(cfg.clb, cfg.neo, d.getKey(), d.getTitle(), null);
+    src.init(true, false);
   }
 
   private void verifyNeo() {
