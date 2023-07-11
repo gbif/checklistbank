@@ -19,6 +19,11 @@ class NameNRankTest {
         "Lepidothrix iris", "L.", "iris", "", null,  cl)
     );
 
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Chordata");
+    cl.setClazz("Aves");
+    cl.setOrder("Passeriformes");
+    cl.setFamily("Pipridae");
     cl.setGenus("Lepidothrix");
     assertEquals(new NameNRank("Lepidothrix iris L.", null), NameNRank.build(
         "", "L.", "iris", "", null,  cl)

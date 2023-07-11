@@ -885,4 +885,21 @@ public class NubMatchingServiceImplIT {
     assertMatch("Clusiodes melanostomus", Rank.SPECIES, cl, 4295121, NameUsageMatch.MatchType.EXACT);
     assertMatch("Clusiodes melanostomus", Rank.SPECIES_AGGREGATE, cl, 1550465, NameUsageMatch.MatchType.HIGHERRANK);
   }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/280
+   */
+  @Test
+  public void iris() throws Exception {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setPhylum("Chordata");
+    cl.setClazz("Aves");
+    cl.setOrder("Passeriformes");
+    cl.setFamily("Pipridae");
+    cl.setGenus("Lepidothrix");
+    cl.setSpecies("iris");
+    // we still have old nub data in the lookup resources, hence the match goes wrong!
+    assertMatch("iris", null, cl, 5230524, NameUsageMatch.MatchType.EXACT);
+  }
 }

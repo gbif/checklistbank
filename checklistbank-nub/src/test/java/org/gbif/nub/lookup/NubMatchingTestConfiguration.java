@@ -87,7 +87,7 @@ public class NubMatchingTestConfiguration {
     mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     int id = 1;
-    while (id < 295) {
+    while (id < 300) {
       String file = "index/nub" + id + ".json";
       InputStream json = isu.classpathStream(file);
       if (json != null) {

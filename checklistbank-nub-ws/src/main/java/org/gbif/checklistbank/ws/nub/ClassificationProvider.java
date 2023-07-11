@@ -45,6 +45,7 @@ public class ClassificationProvider
     cl.setFamily(getFirst(params,"family"));
     cl.setGenus(getFirst(params,"genus"));
     cl.setSubgenus(getFirst(params,"subgenus"));
+    cl.setSpecies(getFirst(params,"species"));
 
     return cl;
   }
