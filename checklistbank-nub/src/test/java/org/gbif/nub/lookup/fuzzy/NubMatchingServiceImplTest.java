@@ -14,27 +14,16 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import org.gbif.api.model.checklistbank.ParsedName;
-
+import org.gbif.api.model.common.LinneanClassification;
+import org.gbif.api.vocabulary.Rank;
+import org.gbif.checklistbank.model.Classification;
 import org.junit.jupiter.api.Test;
 
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class NubMatchingServiceImplTest {
-
-  @Test
-  public void testInterpretGenus() throws Exception {
-    ParsedName pn = new ParsedName();
-    pn.setGenusOrAbove("P.");
-    pn.setSpecificEpithet("concolor");
-    NubMatchingServiceImpl.interpretGenus(pn, "Puma");
-    assertEquals("Puma concolor", pn.canonicalName());
-
-
-    pn.setGenusOrAbove("P.");
-    NubMatchingServiceImpl.interpretGenus(pn, "Felis");
-    assertEquals("P. concolor", pn.canonicalName());
-  }
 
   @Test
   public void rankSimilarity() throws Exception {

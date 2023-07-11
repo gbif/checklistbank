@@ -14,6 +14,7 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.base.Joiner;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -82,7 +83,7 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence, Set<Integer> exclude) {
-    NameUsageMatch best = matcher.match2(name, rank, query, exclude, false, true);
+    NameUsageMatch best = matcher.match2(name, null, null, null, rank, query, exclude, false, true);
 
     print(name, best);
 

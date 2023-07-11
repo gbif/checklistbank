@@ -39,7 +39,6 @@ import org.gbif.nub.lookup.similarity.StringSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.config.http.MatcherType;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -208,23 +207,20 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   // Wrapper method doing the time tracking and logging only.
   @Override
   public NameUsageMatch match(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
-    StopWatch watch = new StopWatch();
-    watch.start();
-
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, new HashSet<>(), strict, verbose);
-
-    LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
-    return match;
+    return match2(scientificName, null, null, null, rank, classification, new HashSet<>(), strict, verbose);
   }
 
   @Override
-  public NameUsageMatch match2(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
+  public NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
+                               @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
     StopWatch watch = new StopWatch();
     watch.start();
 
-    NameUsageMatch match = matchInternal(scientificName, rank, classification, exclude, strict, verbose);
+    NameNRank nr = NameNRank.build(scientificName, authorship, specificEpithet, infraSpecificEpithet, rank, classification);
+    NameUsageMatch match = matchInternal(nr.name, nr.rank, classification, exclude, strict, verbose);
 
-    LOG.debug("{} Match of scientific name >{}< to {} [{}] in {}", match.getMatchType(), scientificName, match.getUsageKey(), match.getScientificName(), watch.toString());
+    watch.stop();
+    LOG.debug("{} Match of {} >{}< to {} [{}] in {}", match.getMatchType(), nr.rank, nr.name, match.getUsageKey(), match.getScientificName(), watch);
     return match;
   }
 
@@ -261,7 +257,6 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         // we build the name with flags manually as we wanna exclude indet. names such as "Abies spec." and rather match them to Abies only
         pn = NameParsers.INSTANCE.parse(scientificName, rank);
         queryNameType = pn.getType();
-        interpretGenus(pn, classification.getGenus());
         scientificName = pn.buildName(false, false, false, false, false, false, true, true, false, false, false, false, false, false);
         // parsed genus provided for a name lower than genus?
         if (classification.getGenus() == null && pn.getGenusOrAbove() != null && pn.getRank() != null && pn.getRank().isInfragenericStrictly() ) {
@@ -376,25 +371,6 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         if (m.find()) {
           ClassificationUtils.setHigherRank(cl, r, m.group(1));
         }
-      }
-    }
-  }
-
-  /**
-   * Expands abbreviated genus names with the full genus if provided in the separate classification.
-   *
-   * @param pn
-   * @param genus
-   */
-  @VisibleForTesting
-  protected static void interpretGenus(ParsedName pn, String genus) {
-    // test if name has an abbreviated genus
-    if (pn != null && !Strings.isNullOrEmpty(genus) && pn.getGenusOrAbove() != null && genus.length() > 1) {
-      if (pn.getGenusOrAbove().length() == 2
-          && pn.getGenusOrAbove().charAt(1) == '.'
-          && pn.getGenusOrAbove().charAt(0) == genus.charAt(0)
-          || pn.getGenusOrAbove().length() == 1 && pn.getGenusOrAbove().charAt(0) == genus.charAt(0)) {
-        pn.setGenusOrAbove(genus);
       }
     }
   }

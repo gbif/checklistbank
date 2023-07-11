@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
@@ -42,10 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping(
@@ -54,10 +52,6 @@ import java.util.Set;
 )
 public class NubResource {
 
-  private static final List<Rank> REVERSED_DWC_RANKS = new ArrayList<>(Rank.DWC_RANKS);
-  static {
-    Collections.reverse(REVERSED_DWC_RANKS);
-  }
   private final NameUsageMatchingService2 matchingService;
   private final IdLookup lookup;
 
@@ -161,13 +155,8 @@ public class NubResource {
                               LinneanClassification classification,
                               @RequestParam(value = "strict", required = false) Boolean strict,
                               @RequestParam(value = "verbose", required = false) Boolean verbose) {
-    Rank r = parseRank(first(rank, rank2));
-    NameNRank nr = buildScientificName(
-        first(scientificName, scientificName2),
-        first(authorship, authorship2),
-        specificEpithet, infraspecificEpithet, r, classification
-    );
-    return matchingService.match(nr.name, nr.rank, classification, bool(strict), bool(verbose));
+    return matchingService.match2(first(scientificName, scientificName2), first(authorship, authorship2), specificEpithet, infraspecificEpithet,
+        parseRank(first(rank, rank2)), classification, null, bool(strict), bool(verbose));
   }
 
   @Hidden
@@ -185,72 +174,14 @@ public class NubResource {
                                 @RequestParam(value = "exclude", required = false) Set<Integer> exclude,
                                 @RequestParam(value = "strict", required = false) Boolean strict,
                                 @RequestParam(value = "verbose", required = false) Boolean verbose) {
-    Rank r = parseRank(first(rank, rank2));
-    NameNRank nr = buildScientificName(
+    return matchingService.v2(matchingService.match2(
         first(scientificName, scientificName2),
         first(authorship, authorship2),
-        specificEpithet, infraspecificEpithet, r, classification
-    );
-    return matchingService.v2(matchingService.match2(nr.name, nr.rank, classification, exclude, bool(strict), bool(verbose)));
+        specificEpithet, infraspecificEpithet,
+        parseRank(first(rank, rank2)),
+        classification, exclude, bool(strict), bool(verbose)));
   }
 
-  static class NameNRank {
-    public String name;
-    public Rank rank;
-
-    public NameNRank(String name, Rank rank) {
-      this.name = name;
-      this.rank = rank;
-    }
-  }
-
-  NameNRank buildScientificName(String scientificName, String authorship, String specificEpithet, String infraSpecificEpithet,
-                             Rank rank, LinneanClassification classification) {
-    final NameNRank nr = new NameNRank(scientificName, rank);
-    if (!Strings.isNullOrEmpty(scientificName)) {
-      // prefer the given scientificName and add authorship if not there yet.
-      // Ignore atomized name parameters
-      nr.name = appendAuthorship(scientificName, authorship);
-
-    } else if (classification != null) {
-      Rank clRank = lowestRank(classification);
-      if (clRank != null) {
-        // atomized binomial?
-        if (!Strings.isNullOrEmpty(classification.getGenus()) && !Strings.isNullOrEmpty(specificEpithet)) {
-          ParsedName pn = new ParsedName();
-          pn.setGenusOrAbove(classification.getGenus());
-          pn.setInfraGeneric(classification.getSubgenus());
-          pn.setSpecificEpithet(specificEpithet);
-          pn.setInfraSpecificEpithet(infraSpecificEpithet);
-          pn.setRank(rank);
-          pn.setAuthorship(authorship);
-          nr.name = pn.canonicalNameComplete();
-        } else {
-          nr.rank = clRank;
-          nr.name = appendAuthorship(classification.getHigherRank(clRank), authorship);
-        }
-      }
-    }
-    return nr;
-  }
-
-  static String appendAuthorship(String scientificName, String authorship){
-    if (!Strings.isNullOrEmpty(scientificName)
-        && !Strings.isNullOrEmpty(authorship)
-        && !scientificName.toLowerCase().contains(authorship.toLowerCase())) {
-      return scientificName + " " + authorship;
-    }
-    return scientificName;
-  }
-
-  static Rank lowestRank(LinneanClassification cl){
-    for (Rank r : REVERSED_DWC_RANKS) {
-      if (!Strings.isNullOrEmpty(cl.getHigherRank(r))) {
-        return r;
-      }
-    }
-    return null;
-  }
 
   static String first(String... values){
     if (values != null) {
