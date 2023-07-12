@@ -5,42 +5,59 @@ import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.model.Classification;
 import org.junit.jupiter.api.Test;
 
+import javax.annotation.Nullable;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class NameNRankTest {
 
   @Test
   void build() {
-    LinneanClassification cl = new Classification();
-    assertEquals(new NameNRank("Asteraceae Mill.", Rank.FAMILY), NameNRank.build(
-        "Asteraceae", "Mill.", null, "", Rank.FAMILY,  cl)
-    );
-    assertEquals(new NameNRank("Lepidothrix iris L.", null), NameNRank.build(
-        "Lepidothrix iris", "L.", "iris", "", null,  cl)
+    assertName("Asteraceae Mill.",
+        "Asteraceae", "Mill.");
+    assertName("Lepidothrix iris L.",
+        "Lepidothrix iris", "L.", "iris", "", null
     );
 
+    LinneanClassification cl = new Classification();
     cl.setKingdom("Animalia");
     cl.setPhylum("Chordata");
     cl.setClazz("Aves");
     cl.setOrder("Passeriformes");
     cl.setFamily("Pipridae");
     cl.setGenus("Lepidothrix");
-    assertEquals(new NameNRank("Lepidothrix iris L.", null), NameNRank.build(
-        "", "L.", "iris", "", null,  cl)
+
+    assertName("Lepidothrix iris L.",
+        "", "L.", null, "iris", "", cl
     );
-    assertEquals(new NameNRank("Lepidothrix iris L.", null), NameNRank.build(
-        "L. iris", "L.", null, "", null,  cl)
+    assertName("Lepidothrix iris L.",
+        "L. iris", "L.", null, "", "null",  cl
     );
-    assertEquals(new NameNRank("L. iris", null), NameNRank.build(
-        "L. iris", "L.", null, "", null,  null)
+    assertName("Lepidothrix iris L.",
+        "L. iris", "L.", "Lepidothrix", "", null
     );
-    assertEquals(new NameNRank("L. iris Miller", null), NameNRank.build(
-        "L. iris", "Miller", null, "", null,  null)
+    assertName("L. iris",
+        "L. iris", "L.", null, "", null,  null
+    );
+    assertName("L. iris Miller",
+        "L. iris", "Miller", null, "", null,  null
     );
 
     cl.setSpecies("iris");
-    assertEquals(new NameNRank("Lepidothrix iris L.", null), NameNRank.build(
-        "iris", "L.", null, "", null,  cl)
+    assertName("Lepidothrix iris L.",
+        "iris", "L.", null, "", null,  cl
+    );
+    cl.setSpecies("Lepidothrix iris");
+    assertName("Lepidothrix iris L.",
+        null, "L.", null, "", null,  cl
+    );
+
+    // without classification
+    assertName("Lepidothrix iris L.",
+        null, "L.", "Lepidothrix", "iris", null,  cl
+    );
+    assertName("Lepidothrix iris var. alpina L.", Rank.VARIETY,
+        null, "L.", "Lepidothrix", "iris", Rank.VARIETY, "alpina",  cl
     );
 
     assertGoodName("Aa calceata (Rchb.f.) Schltr.", null);
@@ -54,9 +71,35 @@ class NameNRankTest {
     assertGoodName("Polygola vulgaris var. alpina DC.", "DC.");
   }
 
+  void assertName(String expected, String name, String authorship) {
+    assertName(expected, null, name, authorship);
+  }
+  void assertName(String expected, Rank rank, String name, String authorship) {
+    assertName(expected, rank, name, authorship,null,  null, null);
+  }
+  void assertName(String expected, String name, String authorship, String genericName, String specificEpithet, String infraSpecificEpithet) {
+    assertName(expected, null, name, authorship, genericName, specificEpithet, infraSpecificEpithet);
+  }
+  void assertName(String expected, Rank rank, String name, String authorship, String genericName, String specificEpithet, String infraSpecificEpithet) {
+    assertName(expected, rank, name, authorship, null, genericName, specificEpithet, infraSpecificEpithet, null);
+  }
+  void assertName(String expected, String name, String authorship, String genericName, String specificEpithet, String infraSpecificEpithet, LinneanClassification classification) {
+    assertName(expected, null, name, authorship, null, genericName, specificEpithet, infraSpecificEpithet, classification);
+  }
+  void assertName(String expected, String name, String authorship, String genericName, String specificEpithet, Rank rank, String infraSpecificEpithet, LinneanClassification classification) {
+    assertName(expected, null, name, authorship, rank, genericName, specificEpithet, infraSpecificEpithet, classification);
+  }
+  void assertName(String expected, Rank expectedRank, String name, String authorship, String genericName, String specificEpithet, Rank rank, String infraSpecificEpithet, LinneanClassification classification) {
+    assertName(expected, expectedRank, name, authorship, rank, genericName, specificEpithet, infraSpecificEpithet, classification);
+  }
+  void assertName(String expected, Rank expectedRank, String name, String authorship, Rank rank, String genericName, String specificEpithet, String infraSpecificEpithet, LinneanClassification classification) {
+    assertEquals(new NameNRank(expected, expectedRank), NameNRank.build(
+        name, authorship, genericName, specificEpithet, infraSpecificEpithet, rank,  classification)
+    );
+  }
   void assertGoodName(String name, String authorship) {
     assertEquals(new NameNRank(name, null), NameNRank.build(
-        name, authorship, null, null, null,  null)
+        name, authorship, null, null, null, null,  null)
     );
   }
 

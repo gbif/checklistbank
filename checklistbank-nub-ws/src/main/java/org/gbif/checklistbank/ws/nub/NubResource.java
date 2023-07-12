@@ -23,9 +23,7 @@ import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
-import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.v2.NameUsageMatch2;
 import org.gbif.api.vocabulary.Kingdom;
@@ -43,7 +41,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.Set;
+
+import static org.gbif.checklistbank.utils.ParameterUtils.first;
 
 @RestController
 @RequestMapping(
@@ -85,7 +85,7 @@ public class NubResource {
     value = {
       @Parameter(
         name = "name",
-        description = "The scientific name to fuzzy match against."
+        description = "The scientific name to fuzzy match against. May include the authorship and year"
       ),
       @Parameter(name = "scientificName", hidden = true),
       @Parameter(
@@ -124,6 +124,10 @@ public class NubResource {
         description = "Genus to match."
       ),
       @Parameter(
+          name = "genericName",
+          description = "Generic part of the name to match when given as atomised parts instead of the full name parameter."
+      ),
+      @Parameter(
         name = "specificEpithet",
         description = "Specific epithet to match."
       ),
@@ -150,12 +154,14 @@ public class NubResource {
                               @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
                               @RequestParam(value = "rank", required = false) String rank2,
                               @RequestParam(value = "taxonRank", required = false) String rank,
+                              @RequestParam(value = "genericName", required = false) String genericName,
                               @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
                               @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
                               LinneanClassification classification,
                               @RequestParam(value = "strict", required = false) Boolean strict,
                               @RequestParam(value = "verbose", required = false) Boolean verbose) {
-    return matchingService.match2(first(scientificName, scientificName2), first(authorship, authorship2), specificEpithet, infraspecificEpithet,
+    return matchingService.match2(first(scientificName, scientificName2), first(authorship, authorship2),
+        genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)), classification, null, bool(strict), bool(verbose));
   }
 
@@ -167,6 +173,7 @@ public class NubResource {
                                 @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
                                 @RequestParam(value = "rank", required = false) String rank2,
                                 @RequestParam(value = "taxonRank", required = false) String rank,
+                                @RequestParam(value = "genericName", required = false) String genericName,
                                 @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
                                 @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
                                 LinneanClassification classification,
@@ -175,23 +182,10 @@ public class NubResource {
                                 @RequestParam(value = "strict", required = false) Boolean strict,
                                 @RequestParam(value = "verbose", required = false) Boolean verbose) {
     return matchingService.v2(matchingService.match2(
-        first(scientificName, scientificName2),
-        first(authorship, authorship2),
-        specificEpithet, infraspecificEpithet,
+        first(scientificName, scientificName2), first(authorship, authorship2),
+        genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)),
         classification, exclude, bool(strict), bool(verbose)));
-  }
-
-
-  static String first(String... values){
-    if (values != null) {
-      for (String val : values) {
-        if (!Strings.isNullOrEmpty(val)) {
-          return val;
-        }
-      }
-    }
-    return null;
   }
 
   private Rank parseRank(String value) throws IllegalArgumentException {

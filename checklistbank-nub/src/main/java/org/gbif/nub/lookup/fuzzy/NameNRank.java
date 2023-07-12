@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static org.gbif.checklistbank.utils.ParameterUtils.first;
 
 public class NameNRank {
   private static final Logger LOG = LoggerFactory.getLogger(NameNRank.class);
@@ -40,20 +41,22 @@ public class NameNRank {
    * @param classification
    * @return
    */
-  public static NameNRank build(@Nullable String scientificName, @Nullable String authorship, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
+  public static NameNRank build(@Nullable String scientificName, @Nullable String authorship,
+                                @Nullable String genericName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
                                 @Nullable Rank rank, @Nullable LinneanClassification classification) {
     // make sure we have a classification instance
     classification = classification == null ? new Classification() : classification;
+    final String genus = clean(first(genericName, classification.getGenus()));
     // If given primarily trust the scientific name, especially since these can be unparsable names like OTUs
     // only exceptions is when the scientific name clearly is just a part of the atoms - then reassemble it
     // authorship can be appended as this is a very common case
-    if (exists(scientificName) && useScientificName(scientificName, specificEpithet, infraSpecificEpithet, classification)) {
+    if (exists(scientificName) && useScientificName(scientificName, genericName, specificEpithet, infraSpecificEpithet, classification)) {
       // expand abbreviated or placeholder genus?
-      scientificName = expandAbbreviatedGenus(scientificName, classification.getGenus());
+      scientificName = expandAbbreviatedGenus(scientificName, genus);
       // missing authorship?
       scientificName = appendAuthorship(scientificName, authorship);
       // ignore atomized name parameters, but warn if not present
-      warnIfMissing(scientificName, classification.getGenus(), "genus");
+      warnIfMissing(scientificName, genus, "genus");
       warnIfMissing(scientificName, specificEpithet, "specificEpithet");
       warnIfMissing(scientificName, infraSpecificEpithet, "infraSpecificEpithet");
       return new NameNRank(scientificName, rank);
@@ -61,7 +64,7 @@ public class NameNRank {
     } else {
       // no name given, assemble from pieces as best as we can
       Rank clRank = lowestRank(classification);
-      if (clRank == null || clRank.isSuprageneric()) {
+      if (genus == null && (clRank == null || clRank.isSuprageneric())) {
         // use epithets if existing - otherwise higher rank if given
         if (any(specificEpithet, infraSpecificEpithet, authorship)) {
           // we dont have any genus or species binomen given, just epithets :(
@@ -81,7 +84,7 @@ public class NameNRank {
       } else {
         // try atomized
         ParsedName pn = new ParsedName();
-        pn.setGenusOrAbove(clean(classification.getGenus()));
+        pn.setGenusOrAbove(genus);
         pn.setInfraGeneric(clean(classification.getSubgenus()));
         pn.setSpecificEpithet(clean(specificEpithet));
         pn.setInfraSpecificEpithet(clean(infraSpecificEpithet));
@@ -108,7 +111,18 @@ public class NameNRank {
   }
 
   private static String clean(String x) {
-    return StringUtils.trimToNull(x);
+    x = StringUtils.trimToNull(x);
+    if (x != null) {
+      switch (x) {
+        case "\\N":
+        case "null":
+        case "Null":
+        case "NULL":
+          return null;
+        default:
+      }
+    }
+    return x;
   }
 
   private static boolean any(String... x) {
@@ -129,9 +143,9 @@ public class NameNRank {
     }
   }
 
-  private static boolean useScientificName(String scientificName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet, LinneanClassification cl) {
+  private static boolean useScientificName(String scientificName, @Nullable String genericName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet, LinneanClassification cl) {
     // without genus given we cannot assemble the name, so lets then just use it as it is
-    if (exists(cl.getGenus()) || isSimpleBinomial(cl.getSpecies())) {
+    if (exists(cl.getGenus()) || exists(genericName) || isSimpleBinomial(cl.getSpecies())) {
       // scientific name is just one of the epithets
       if (StringUtils.isAllLowerCase(scientificName) &&
           (scientificName.equals(specificEpithet) || scientificName.equals(infraSpecificEpithet) || scientificName.equals(cl.getSpecies()))

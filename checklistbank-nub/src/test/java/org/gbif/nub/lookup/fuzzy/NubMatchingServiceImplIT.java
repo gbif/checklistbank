@@ -83,7 +83,7 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence, Set<Integer> exclude) {
-    NameUsageMatch best = matcher.match2(name, null, null, null, rank, query, exclude, false, true);
+    NameUsageMatch best = matcher.match2(name, null, null, null, null, rank, query, exclude, false, true);
 
     print(name, best);
 

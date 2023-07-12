@@ -207,16 +207,17 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   // Wrapper method doing the time tracking and logging only.
   @Override
   public NameUsageMatch match(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
-    return match2(scientificName, null, null, null, rank, classification, new HashSet<>(), strict, verbose);
+    return match2(scientificName, null, null, null, null, rank, classification, new HashSet<>(), strict, verbose);
   }
 
   @Override
-  public NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
+  public NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship,
+                               @Nullable String genericName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
                                @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
     StopWatch watch = new StopWatch();
     watch.start();
 
-    NameNRank nr = NameNRank.build(scientificName, authorship, specificEpithet, infraSpecificEpithet, rank, classification);
+    NameNRank nr = NameNRank.build(scientificName, authorship, genericName, specificEpithet, infraSpecificEpithet, rank, classification);
     NameUsageMatch match = matchInternal(nr.name, nr.rank, classification, exclude, strict, verbose);
 
     watch.stop();

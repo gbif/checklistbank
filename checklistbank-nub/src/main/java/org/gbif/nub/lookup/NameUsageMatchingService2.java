@@ -34,7 +34,10 @@ public interface NameUsageMatchingService2 extends NameUsageMatchingService {
    * @param exclude set of higher taxon nub ids to exclude from matching results
    *
    */
-  NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
-                        @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose);
+  NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship,
+                        @Nullable String genericName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
+                        @Nullable Rank rank, @Nullable LinneanClassification classification,
+                        Set<Integer> exclude, boolean strict, boolean verbose
+  );
 
 }
