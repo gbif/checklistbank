@@ -70,6 +70,7 @@ public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
   private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
+  private static final Pattern NOM_YEAR_PATTERN = Pattern.compile("^(?:1[7-9]|20)\\d{2}$");
   private static final TermFactory TF = TermFactory.instance();
 
   private Archive arch;
@@ -395,10 +396,13 @@ public class NeoInserter implements AutoCloseable {
       sb.append(v.getCoreField(DwcTerm.scientificNameAuthorship));
     }
     if (v.hasCoreField(DwcTerm.namePublishedInYear) && !sb.toString().contains(v.getCoreField(DwcTerm.namePublishedInYear))) {
-      if (sb.length() > 0) {
-        sb.append(", ");
+      String year = v.getCoreField(DwcTerm.namePublishedInYear).trim();
+      if (NOM_YEAR_PATTERN.matcher(year).find()) {
+        if (sb.length() > 0) {
+          sb.append(", ");
+        }
+        sb.append(year);
       }
-      sb.append(v.getCoreField(DwcTerm.namePublishedInYear));
     }
     return sb.toString();
   }
