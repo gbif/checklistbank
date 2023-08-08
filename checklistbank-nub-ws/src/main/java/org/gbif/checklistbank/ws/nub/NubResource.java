@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -103,27 +104,33 @@ public class NubResource {
       @Parameter(name = "taxonRank", hidden = true),
       @Parameter(
         name = "kingdom",
-        description = "Kingdom to match."
+        description = "Kingdom to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "phylum",
-        description = "Phylum to match."
+        description = "Phylum to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "order",
-        description = "Order to match."
+        description = "Order to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "class",
-        description = "Class to match."
+        description = "Class to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "family",
-        description = "Family to match."
+        description = "Family to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "genus",
-        description = "Genus to match."
+        description = "Genus to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
           name = "genericName",
