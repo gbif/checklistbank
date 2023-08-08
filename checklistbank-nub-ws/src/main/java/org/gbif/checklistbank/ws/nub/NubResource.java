@@ -148,7 +148,8 @@ public class NubResource {
   )
   @ApiResponse(responseCode = "200", description = "Name usage suggestions found")
   @GetMapping(value = "match")
-  public NameUsageMatch match(@RequestParam(value = "name", required = false) String scientificName2,
+  public NameUsageMatch match(@RequestParam(value = "usageKey", required = false) Integer usageKey,
+                              @RequestParam(value = "name", required = false) String scientificName2,
                               @RequestParam(value = "scientificName", required = false) String scientificName,
                               @RequestParam(value = "authorship", required = false) String authorship2,
                               @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
@@ -160,14 +161,15 @@ public class NubResource {
                               LinneanClassification classification,
                               @RequestParam(value = "strict", required = false) Boolean strict,
                               @RequestParam(value = "verbose", required = false) Boolean verbose) {
-    return matchingService.match2(first(scientificName, scientificName2), first(authorship, authorship2),
+    return matchingService.match2(usageKey, first(scientificName, scientificName2), first(authorship, authorship2),
         genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)), classification, null, bool(strict), bool(verbose));
   }
 
   @Hidden
   @GetMapping(value = "match2")
-  public NameUsageMatch2 match2(@RequestParam(value = "name", required = false) String scientificName2,
+  public NameUsageMatch2 match2(@RequestParam(value = "usageKey", required = false) Integer usageKey,
+                                @RequestParam(value = "name", required = false) String scientificName2,
                                 @RequestParam(value = "scientificName", required = false) String scientificName,
                                 @RequestParam(value = "authorship", required = false) String authorship2,
                                 @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
@@ -182,7 +184,7 @@ public class NubResource {
                                 @RequestParam(value = "strict", required = false) Boolean strict,
                                 @RequestParam(value = "verbose", required = false) Boolean verbose) {
     return matchingService.v2(matchingService.match2(
-        first(scientificName, scientificName2), first(authorship, authorship2),
+        usageKey, first(scientificName, scientificName2), first(authorship, authorship2),
         genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)),
         classification, exclude, bool(strict), bool(verbose)));

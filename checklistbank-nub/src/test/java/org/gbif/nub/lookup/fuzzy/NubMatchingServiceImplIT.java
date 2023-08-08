@@ -14,6 +14,7 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
 import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.exception.UnparsableException;
@@ -83,7 +84,11 @@ public class NubMatchingServiceImplIT {
   }
 
   private NameUsageMatch assertMatch(String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence, Set<Integer> exclude) {
-    NameUsageMatch best = matcher.match2(name, null, null, null, null, rank, query, exclude, false, true);
+    return assertMatch(null, name, rank, query, expectedKey, type, confidence, exclude);
+  }
+
+  private NameUsageMatch assertMatch(Integer usageKey, String name, Rank rank, LinneanClassification query, Integer expectedKey, @Nullable NameUsageMatch.MatchType type, IntRange confidence, Set<Integer> exclude) {
+    NameUsageMatch best = matcher.match2(usageKey, name, null, null, null, null, rank, query, exclude, false, true);
 
     print(name, best);
 
@@ -901,5 +906,21 @@ public class NubMatchingServiceImplIT {
     cl.setSpecies("iris");
     // we still have old nub data in the lookup resources, hence the match goes wrong!
     assertMatch("iris", null, cl, 5230524, NameUsageMatch.MatchType.EXACT);
+  }
+
+  /**
+   * https://github.com/gbif/checklistbank/issues/289
+   */
+  @Test
+  public void shortCircuitUsageKey() {
+    LinneanClassification cl = new NameUsageMatch();
+    cl.setKingdom("Animalia");
+    cl.setGenus("Ablabera");
+    cl.setSpecies("rufipes");
+    int goodKey = 5230524; // Lepidothrix iris
+    int badKey = 99999999;
+    // names are ignored and a key is either found with full confidence or not found with full confidence
+    assertMatch(goodKey, "Ablabera rufipes", Rank.SPECIES, cl, goodKey, NameUsageMatch.MatchType.EXACT, new IntRange(100, 100), Sets.newHashSet());
+    assertMatch(badKey, "Ablabera rufipes", Rank.SPECIES, cl, null, NameUsageMatch.MatchType.NONE, new IntRange(100, 100), Sets.newHashSet());
   }
 }
