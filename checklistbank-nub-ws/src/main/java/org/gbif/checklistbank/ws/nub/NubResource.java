@@ -78,9 +78,9 @@ public class NubResource {
     summary = "Fuzzy name match service",
     description = "Fuzzy matches scientific names against the GBIF Backbone Taxonomy with the optional " +
       "classification provided. If a classification is provided and strict is not set to true, the default matching " +
-      "will also try to match against these if no direct match is found for the name parameter alone." +
+      "will also try to match against these if no direct match is found for the name parameter alone.\n\n" +
       "Additionally, a lookup may be performed by providing the usageKey which will short-circuit the name-based matching " +
-      "and ONLY use the given key, either finding the concept or returning no match",
+      "and ONLY use the given key, either finding the concept or returning no match.",
     extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0130"))
   )
   @Tag(name = "Searching names")
