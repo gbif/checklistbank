@@ -228,6 +228,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         match.setMatchType(NameUsageMatch.MatchType.NONE);
         match.setConfidence(100);
       } else {
+        match.setNote("All provided names were ignored since the usageKey was provided");
         match.setMatchType(NameUsageMatch.MatchType.EXACT);
       }
       watch.stop();
