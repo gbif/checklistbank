@@ -207,21 +207,39 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   // Wrapper method doing the time tracking and logging only.
   @Override
   public NameUsageMatch match(String scientificName, @Nullable Rank rank, @Nullable LinneanClassification classification, boolean strict, boolean verbose) {
-    return match2(scientificName, null, null, null, null, rank, classification, new HashSet<>(), strict, verbose);
+    return match2(null, scientificName, null, null, null, null, rank, classification, new HashSet<>(), strict, verbose);
   }
 
   @Override
-  public NameUsageMatch match2(@Nullable String scientificName, @Nullable String authorship,
+  public NameUsageMatch match2(@Nullable Integer usageKey, @Nullable String scientificName, @Nullable String authorship,
                                @Nullable String genericName, @Nullable String specificEpithet, @Nullable String infraSpecificEpithet,
                                @Nullable Rank rank, @Nullable LinneanClassification classification, Set<Integer> exclude, boolean strict, boolean verbose) {
     StopWatch watch = new StopWatch();
     watch.start();
+    NameUsageMatch match;
 
-    NameNRank nr = NameNRank.build(scientificName, authorship, genericName, specificEpithet, infraSpecificEpithet, rank, classification);
-    NameUsageMatch match = matchInternal(nr.name, nr.rank, classification, exclude, strict, verbose);
+    // When provided a usageKey is used exclusively
+    if (usageKey != null) {
+      match = nubIndex.matchByUsageId(usageKey);
 
-    watch.stop();
-    LOG.debug("{} Match of {} >{}< to {} [{}] in {}", match.getMatchType(), nr.rank, nr.name, match.getUsageKey(), match.getScientificName(), watch);
+      // maintain backward compatible API
+      if (match == null ) {
+        match = new NameUsageMatch();
+        match.setMatchType(NameUsageMatch.MatchType.NONE);
+        match.setConfidence(100);
+      } else {
+        match.setNote("All provided names were ignored since the usageKey was provided");
+        match.setMatchType(NameUsageMatch.MatchType.EXACT);
+      }
+      watch.stop();
+      LOG.debug("{} Match of usageKey[{}] in {}", match.getMatchType(), usageKey, watch);
+    } else {
+      NameNRank nr = NameNRank.build(scientificName, authorship, genericName, specificEpithet, infraSpecificEpithet, rank, classification);
+      match = matchInternal(nr.name, nr.rank, classification, exclude, strict, verbose);
+      watch.stop();
+      LOG.debug("{} Match of {} >{}< to {} [{}] in {}", match.getMatchType(), nr.rank, nr.name, match.getUsageKey(), match.getScientificName(), watch);
+    }
+
     return match;
   }
 

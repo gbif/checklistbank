@@ -820,74 +820,74 @@ public class SpeciesResource {
         description = "A UUID of a checklist dataset.",
         schema = @Schema(implementation = UUID.class),
         example = "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "constituentKey",
         description = "The (sub)dataset constituent key as a UUID. Useful to query larger assembled datasets such as " +
           "the GBIF Backbone or the Catalogue of Life",
         schema = @Schema(implementation = UUID.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "rank",
         description = "Filters by taxonomic rank as given in our https://api.gbif.org/v1/enumeration/basic/Rank[Rank enum].",
         schema = @Schema(implementation = Rank.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "higherTaxonKey",
         description = "Filters by any of the higher Linnean rank keys. Note this is within the respective checklist " +
           "and not searching NUB keys across all checklists.",
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "status",
         description = "Filters by the taxonomic status as given in our https://api.gbif.org/v1/enumeration/basic/TaxonomicStatus[TaxonomicStatus enum].",
         schema = @Schema(implementation = TaxonomicStatus.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "isExtinct",
         description = "Filters by extinction status.",
         schema = @Schema(implementation = Boolean.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "habitat",
         description = "Filters by the habitat. Currently only 3 major biomes are accepted in our https://api.gbif.org/v1/enumeration/basic/Habitat[Habitat enum].",
         schema = @Schema(implementation = Habitat.class),
-        in = ParameterIn.PATH // type
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "threat",
         description = "Filters by the taxonomic threat status as given in our https://api.gbif.org/v1/enumeration/basic/ThreatStatus[ThreatStatus enum].",
         schema = @Schema(implementation = ThreatStatus.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "nameType",
         description = "Filters by the name type as given in our https://api.gbif.org/v1/enumeration/basic/NameType[NameType enum].",
         schema = @Schema(implementation = NameType.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "nomenclaturalStatus",
         description = "Filters by the nomenclatural status as given in our https://api.gbif.org/v1/enumeration/basic/NomenclaturalStatus[Nomenclatural Status enum].",
         schema = @Schema(implementation = NomenclaturalStatus.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "origin",
         description = "Filters for name usages with a specific origin.",
         schema = @Schema(implementation = Origin.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "issue",
         description = "A specific indexing issue as defined in our https://api.gbif.org/v1/enumeration/basic/NameUsageIssue[NameUsageIssue enum].",
         schema = @Schema(implementation = NameUsageIssue.class),
-        in = ParameterIn.PATH
+        in = ParameterIn.QUERY
       )
     }
   )

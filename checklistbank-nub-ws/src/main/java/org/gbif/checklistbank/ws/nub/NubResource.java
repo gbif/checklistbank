@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.extensions.ExtensionProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -77,7 +78,9 @@ public class NubResource {
     summary = "Fuzzy name match service",
     description = "Fuzzy matches scientific names against the GBIF Backbone Taxonomy with the optional " +
       "classification provided. If a classification is provided and strict is not set to true, the default matching " +
-      "will also try to match against these if no direct match is found for the name parameter alone.",
+      "will also try to match against these if no direct match is found for the name parameter alone.\n\n" +
+      "Additionally, a lookup may be performed by providing the usageKey which will short-circuit the name-based matching " +
+      "and ONLY use the given key, either finding the concept or returning no match.",
     extensions = @Extension(name = "Order", properties = @ExtensionProperty(name = "Order", value = "0130"))
   )
   @Tag(name = "Searching names")
@@ -101,27 +104,33 @@ public class NubResource {
       @Parameter(name = "taxonRank", hidden = true),
       @Parameter(
         name = "kingdom",
-        description = "Kingdom to match."
+        description = "Kingdom to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "phylum",
-        description = "Phylum to match."
+        description = "Phylum to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "order",
-        description = "Order to match."
+        description = "Order to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "class",
-        description = "Class to match."
+        description = "Class to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "family",
-        description = "Family to match."
+        description = "Family to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
         name = "genus",
-        description = "Genus to match."
+        description = "Genus to match.",
+        in = ParameterIn.QUERY
       ),
       @Parameter(
           name = "genericName",
@@ -143,12 +152,17 @@ public class NubResource {
       @Parameter(
         name = "verbose",
         description = "If true it shows alternative matches which were considered but then rejected."
+      ),
+      @Parameter(
+        name = "usageKey",
+        description = "The usage key to look up. When provided, all other fields are ignored."
       )
     }
   )
   @ApiResponse(responseCode = "200", description = "Name usage suggestions found")
   @GetMapping(value = "match")
-  public NameUsageMatch match(@RequestParam(value = "name", required = false) String scientificName2,
+  public NameUsageMatch match(@RequestParam(value = "usageKey", required = false) Integer usageKey,
+                              @RequestParam(value = "name", required = false) String scientificName2,
                               @RequestParam(value = "scientificName", required = false) String scientificName,
                               @RequestParam(value = "authorship", required = false) String authorship2,
                               @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
@@ -160,14 +174,16 @@ public class NubResource {
                               LinneanClassification classification,
                               @RequestParam(value = "strict", required = false) Boolean strict,
                               @RequestParam(value = "verbose", required = false) Boolean verbose) {
-    return matchingService.match2(first(scientificName, scientificName2), first(authorship, authorship2),
+    return matchingService.match2(usageKey, first(scientificName, scientificName2), first(authorship, authorship2),
         genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)), classification, null, bool(strict), bool(verbose));
   }
 
+  // Not publicly documented to allow GBIF to change this API
   @Hidden
   @GetMapping(value = "match2")
-  public NameUsageMatch2 match2(@RequestParam(value = "name", required = false) String scientificName2,
+  public NameUsageMatch2 match2(@RequestParam(value = "usageKey", required = false) Integer usageKey,
+                                @RequestParam(value = "name", required = false) String scientificName2,
                                 @RequestParam(value = "scientificName", required = false) String scientificName,
                                 @RequestParam(value = "authorship", required = false) String authorship2,
                                 @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
@@ -182,7 +198,7 @@ public class NubResource {
                                 @RequestParam(value = "strict", required = false) Boolean strict,
                                 @RequestParam(value = "verbose", required = false) Boolean verbose) {
     return matchingService.v2(matchingService.match2(
-        first(scientificName, scientificName2), first(authorship, authorship2),
+        usageKey, first(scientificName, scientificName2), first(authorship, authorship2),
         genericName, specificEpithet, infraspecificEpithet,
         parseRank(first(rank, rank2)),
         classification, exclude, bool(strict), bool(verbose)));
