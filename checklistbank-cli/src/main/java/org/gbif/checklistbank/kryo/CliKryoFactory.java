@@ -108,12 +108,14 @@ public class CliKryoFactory implements KryoFactory {
     // term enums
     kryo.register(AcTerm.class);
     kryo.register(AcefTerm.class);
+    kryo.register(BibTexTerm.class);
     kryo.register(DcElement.class);
     kryo.register(DcTerm.class);
     kryo.register(DwcTerm.class);
     kryo.register(GbifInternalTerm.class);
     kryo.register(GbifTerm.class);
     kryo.register(IucnTerm.class);
+    kryo.register(PlaziTerm.class);
     kryo.register(XmpRightsTerm.class);
     kryo.register(XmpTerm.class);
     kryo.register(UnknownTerm.class, new TermSerializer());
