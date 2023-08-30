@@ -184,11 +184,11 @@ public class ManualImport implements AutoCloseable {
 //      imp.index("https://ipt.gbif.es/archive.do?r=especiessn_zoologiaugr",
 //          UUID.fromString("515c1dc0-b712-4fff-bc40-2b2ef2f9ecb9"), true);
 
-//      imp.index("http://plazi.cs.umb.edu/GgServer/dwca/87A1ADC3C0C450976B05972ED1005EFC.zip",
-//                UUID.fromString("0f66de86-d95f-47d1-af8d-b126ac38857a"), true);
+      imp.index("https://tb.plazi.org/GgServer/dwca/953AC478A34EFFE6AE00E1572B5EFFD9.zip",
+                UUID.fromString("a66592b8-63a8-4c2d-9471-e58ddb2c0559"), true);
 
-  imp.index(new File("/Users/markus/Downloads/itis.tsv"),
-    UUID.fromString("61a5f178-b5fb-4484-b6d8-111111111111"), true);
+ // imp.index(new File("/Users/markus/Downloads/itis.tsv"),
+ //   UUID.fromString("61a5f178-b5fb-4484-b6d8-111111111111"), true);
     }
 
 

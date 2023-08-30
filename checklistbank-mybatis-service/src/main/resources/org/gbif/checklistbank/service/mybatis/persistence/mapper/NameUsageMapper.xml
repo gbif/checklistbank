@@ -295,7 +295,7 @@ u.num_descendants, u.modified, u.last_interpreted, m.downloaded as last_crawled,
         <include refid="select"/>
         FROM
         <include refid="from"/>
-        WHERE u.deleted IS NULL AND u.taxon_id=#{taxonId}
+        WHERE u.deleted IS NULL AND lower(u.taxon_id)=lower(#{taxonId})
         <if test="uuid != null">
             AND u.dataset_key=#{uuid, jdbcType=OTHER}
         </if>

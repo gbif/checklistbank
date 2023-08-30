@@ -488,5 +488,9 @@
             ALTER TYPE threat_status ADD VALUE 'NOT_APPLICABLE';
         </sql>
     </changeSet>
-
+    <changeSet id="59" author="markus" runInTransaction="false">
+        <sql>
+            CREATE INDEX on name_usage(dataset_key, lower(taxon_id)) WHERE deleted IS NULL;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
