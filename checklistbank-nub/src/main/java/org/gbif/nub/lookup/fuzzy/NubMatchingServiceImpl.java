@@ -392,9 +392,11 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     for (Rank r : HIGHER_RANKS) {
       if (cl.getHigherRank(r) != null) {
         String val = CleanupUtils.clean(cl.getHigherRank(r));
-        Matcher m = FIRST_WORD.matcher(val);
-        if (m.find()) {
-          ClassificationUtils.setHigherRank(cl, r, m.group(1));
+        if (val != null) {
+          Matcher m = FIRST_WORD.matcher(val);
+          if (m.find()) {
+            ClassificationUtils.setHigherRank(cl, r, m.group(1));
+          }
         }
       }
     }
