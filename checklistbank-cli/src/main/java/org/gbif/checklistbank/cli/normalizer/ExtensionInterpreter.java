@@ -25,6 +25,7 @@ import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.model.UsageExtensions;
 import org.gbif.checklistbank.neo.NeoInserter;
+import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.common.parsers.*;
 import org.gbif.common.parsers.core.EnumParser;
 import org.gbif.common.parsers.core.ParseResult;
@@ -65,7 +66,7 @@ public class ExtensionInterpreter {
   private String value(Map<Term, String> rec, Term ... terms) {
     for (Term t : terms) {
       if (rec.containsKey(t)) {
-        String val = NeoInserter.clean(rec.get(t));
+        String val = CleanupUtils.clean(rec.get(t));
         if (val != null) {
           return val;
         }
@@ -111,7 +112,7 @@ public class ExtensionInterpreter {
     boolean valuesFound = false;
     for (Term t : terms) {
       if (rec.containsKey(t)) {
-        String val = NeoInserter.clean(rec.get(t));
+        String val = CleanupUtils.clean(rec.get(t));
         if (val != null) {
           valuesFound = true;
           T result = parser.parse(val).getPayload();

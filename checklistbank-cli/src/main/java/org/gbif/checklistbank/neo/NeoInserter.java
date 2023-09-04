@@ -37,6 +37,7 @@ import org.gbif.checklistbank.cli.normalizer.InsertMetadata;
 import org.gbif.checklistbank.cli.normalizer.NormalizationFailedException;
 import org.gbif.checklistbank.model.ParsedNameUsageCompound;
 import org.gbif.checklistbank.model.UsageExtensions;
+import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.common.parsers.NomStatusParser;
 import org.gbif.common.parsers.RankParser;
@@ -60,6 +61,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.text.Normalizer;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -69,7 +71,6 @@ import static org.gbif.dwc.terms.GbifTerm.datasetKey;
 public class NeoInserter implements AutoCloseable {
 
   private static final Logger LOG = LoggerFactory.getLogger(NeoInserter.class);
-  private static final Pattern NULL_PATTERN = Pattern.compile("^\\s*(\\\\N|\\\\?NULL)\\s*$");
   private static final Pattern NOM_YEAR_PATTERN = Pattern.compile("^(?:1[7-9]|20)\\d{2}$");
   private static final TermFactory TF = TermFactory.instance();
 
@@ -139,7 +140,7 @@ public class NeoInserter implements AutoCloseable {
         }
       }
       for (Term t : core.terms()) {
-        String val = clean(core.value(t));
+        String val = CleanupUtils.clean(core.value(t));
         if (val != null) {
           v.setCoreField(t, val);
         }
@@ -153,7 +154,7 @@ public class NeoInserter implements AutoCloseable {
           for (Record eRec : star.extension(ext.getKey())) {
             Map<Term, String> data = Maps.newHashMap();
             for (Term t : eRec.terms()) {
-              String val = clean(eRec.value(t));
+              String val = CleanupUtils.clean(eRec.value(t));
               if (val != null) {
                 data.put(t, val);
               }
@@ -326,7 +327,7 @@ public class NeoInserter implements AutoCloseable {
   @VisibleForTesting
   protected ParsedName parseName(NameUsage u, VerbatimNameUsage v, Rank rank) throws IgnoreNameUsageException {
     ParsedName pn = new ParsedName();
-    final String sciname = clean(v.getCoreField(DwcTerm.scientificName));
+    final String sciname = CleanupUtils.clean(v.getCoreField(DwcTerm.scientificName));
     try {
       if (sciname != null) {
         pn = NameParsers.INSTANCE.parse(sciname, rank);
@@ -409,7 +410,7 @@ public class NeoInserter implements AutoCloseable {
 
   private static String firstClean(VerbatimNameUsage v, Term... terms) {
     for (Term t : terms) {
-      String x = clean(v.getCoreField(t));
+      String x = CleanupUtils.clean(v.getCoreField(t));
       if (x != null) {
         return x;
       }
@@ -419,17 +420,10 @@ public class NeoInserter implements AutoCloseable {
 
   private String taxonID(Record core) {
     if (meta.isCoreIdUsed()) {
-      return clean(core.id());
+      return CleanupUtils.clean(core.id());
     } else {
-      return clean(core.value(DwcTerm.taxonID));
+      return CleanupUtils.clean(core.value(DwcTerm.taxonID));
     }
-  }
-
-  public static String clean(String x) {
-    if (Strings.isNullOrEmpty(x) || NULL_PATTERN.matcher(x).find()) {
-      return null;
-    }
-    return Strings.emptyToNull(CharMatcher.JAVA_ISO_CONTROL.trimAndCollapseFrom(x, ' ').trim());
   }
 
   @Override

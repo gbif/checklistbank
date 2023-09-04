@@ -30,6 +30,7 @@ import org.gbif.dwc.terms.Term;
 import java.net.URI;
 import java.util.List;
 
+import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
@@ -236,26 +237,6 @@ public class NeoInserterTest {
       assertNull(u.getNameType());
     }
     return u;
-  }
-
-  @Test
-  public void testClean() throws Exception {
-    assertNull(NeoInserter.clean(null));
-    assertNull(NeoInserter.clean(" "));
-    assertNull(NeoInserter.clean("   "));
-    assertNull(NeoInserter.clean("\\N"));
-    assertNull(NeoInserter.clean("NULL"));
-    assertNull(NeoInserter.clean("\t "));
-    assertNull(NeoInserter.clean("\u0000"));
-    assertNull(NeoInserter.clean("\u0001"));
-    assertNull(NeoInserter.clean("\u0002"));
-
-    assertEquals("Abies", NeoInserter.clean("Abies"));
-    assertEquals("öAbies", NeoInserter.clean("öAbies"));
-    assertEquals("Abies  mille", NeoInserter.clean(" Abies  mille"));
-    assertEquals("Abies x", NeoInserter.clean("Abies\u0000x"));
-    assertEquals("Abies x", NeoInserter.clean("Abies\u0000\u0000\u0000x"));
-    assertEquals("Abies x", NeoInserter.clean("Abies\u0000\u0001x"));
   }
 
 }

@@ -14,6 +14,7 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
@@ -31,6 +32,7 @@ import org.gbif.api.v2.RankedName;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.authorship.AuthorComparator;
 import org.gbif.checklistbank.model.Equality;
+import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
@@ -42,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -252,6 +255,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     NameType queryNameType;
     MatchingMode mainMatchingMode = strict ? MatchingMode.STRICT : MatchingMode.FUZZY;
 
+    // clean strings, replacing odd whitespace, iso controls and trimming
+    scientificName = CleanupUtils.clean(scientificName);
     if (classification == null) {
       classification = new NameUsageMatch();
     } else {
@@ -386,7 +391,8 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private void cleanClassification(LinneanClassification cl) {
     for (Rank r : HIGHER_RANKS) {
       if (cl.getHigherRank(r) != null) {
-        Matcher m = FIRST_WORD.matcher(cl.getHigherRank(r));
+        String val = CleanupUtils.clean(cl.getHigherRank(r));
+        Matcher m = FIRST_WORD.matcher(val);
         if (m.find()) {
           ClassificationUtils.setHigherRank(cl, r, m.group(1));
         }
