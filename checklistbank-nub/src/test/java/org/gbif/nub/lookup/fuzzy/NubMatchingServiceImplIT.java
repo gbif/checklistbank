@@ -14,8 +14,8 @@
 package org.gbif.nub.lookup.fuzzy;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -74,7 +74,15 @@ public class NubMatchingServiceImplIT {
     }
     if (best.getAlternatives() != null) {
       for (NameUsageMatch m : best.getAlternatives()) {
-        System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] score=" + m.getConfidence() + ". " + m.getNote());
+        System.out.println("  Alt: " + m.getScientificName() + " [" + m.getUsageKey() + "] " +
+            m.getKingdom() + "," +
+            m.getPhylum() + "," +
+            m.getClazz() + "," +
+            m.getOrder() + "," +
+            m.getFamily() + "," +
+            m.getGenus() + "," +
+            m.getSpecies() + ". " +
+            "confidence=" + m.getConfidence() + ". " + m.getNote());
       }
     }
   }
@@ -266,17 +274,15 @@ public class NubMatchingServiceImplIT {
 
     cl.setKingdom("Plantae");
     assertMatch("Oenanthe", cl, 3034893, new IntRange(96, 99));
-    assertMatch("Oenante", cl, 3034893, new IntRange(85, 95));
-
+    assertMatch("Oenante", cl, 3034893, new IntRange(84, 95));
 
     // Acanthophora
     cl = new NameUsageMatch();
     assertNoMatch("Acanthophora", cl);
 
-    // there are 3 genera in animalia, 2 synonyms and 1 accepted.
-    // We prefer to match to the single accepted in this case
+    // there are 3 genera in animalia, 2 synonyms and 1 accepted but they differ at phylum level
     cl.setKingdom("Animalia");
-    assertMatch("Acanthophora", cl, 3251480, new IntRange(90, 96));
+    assertMatch("Acanthophora", cl, 1, new IntRange(95, 96));
 
     // now try with molluscs to just get the doubtful one
     cl.setPhylum("Porifera");
@@ -349,6 +355,37 @@ public class NubMatchingServiceImplIT {
     assertMatch("Elytrigia repens", cl, 2706649, new IntRange(92, 100));
   }
 
+  /**
+   * Tests the behaviour to ensure that we are conservative enough when choosing an equally matched option.
+   * The data for this test were added in nub297.json.
+   * @see <a href="https://github.com/gbif/checklistbank/issues/295">issue 295</a>
+   * @see <a href="https://discourse.gbif.org/t/millipedes-in-the-ocean/3991">Millipedes in the ocean</a>
+   */
+  @Test
+  public void testHomonyms3() throws IOException {
+    NameUsageMatch cl = new NameUsageMatch();
+    assertMatch("Siphonophora", new NameUsageMatch(), 1, new IntRange(90, 100));
+  }
+
+  @Test
+  public void testSimilarButSpanRank() {
+    NameUsageMatch m1 = NameUsageBuilder.builder().kingdom("A").phylum("B").clazz("C").order("O").confidence(100).build();
+    NameUsageMatch m2 = NameUsageBuilder.builder().kingdom("A").phylum("B").clazz("C").order("O").confidence(99).build();
+    NameUsageMatch m3 = NameUsageBuilder.builder().kingdom("A").phylum("B").clazz("C").order("X").confidence(99).build();
+    NameUsageMatch m4 = NameUsageBuilder.builder().kingdom("A").phylum("B").clazz("C").confidence(99).build();
+    NameUsageMatch m5 = NameUsageBuilder.builder().kingdom("A").phylum("B").clazz("C").clazz("O").confidence(90).build();
+
+    assertFalse(matcher.similarButSpanRank(ImmutableList.of(m1,m1), 1, Rank.ORDER), "Same matches");
+    assertFalse(matcher.similarButSpanRank(ImmutableList.of(m1,m2), 1, Rank.ORDER), "Similar");
+    assertFalse(matcher.similarButSpanRank(ImmutableList.of(m1,m5), 1, Rank.ORDER), "Outside threshold");
+    assertFalse(matcher.similarButSpanRank(ImmutableList.of(m1,m2,m5), 1, Rank.ORDER), "Similar share classification");
+
+    assertTrue(matcher.similarButSpanRank(ImmutableList.of(m1,m3), 1, Rank.ORDER), "Different order");
+    assertTrue(matcher.similarButSpanRank(ImmutableList.of(m1,m4), 1, Rank.ORDER), "Null order is different");
+    assertTrue(matcher.similarButSpanRank(ImmutableList.of(m1,m2,m3), 1, Rank.ORDER), "Different order");
+    assertTrue(matcher.similarButSpanRank(ImmutableList.of(m1,m2,m4), 1, Rank.ORDER), "Different order");
+
+  }
   @Test
   public void testAuthorshipMatching() throws IOException {
     // this hits 2 species synonyms with no such name being accepted
