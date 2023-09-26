@@ -57,6 +57,7 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   private static final Logger LOG = LoggerFactory.getLogger(NubMatchingServiceImpl.class);
   private static final int MIN_CONFIDENCE = 80;
   private static final int MIN_CONFIDENCE_FOR_HIGHER_MATCHES = 90;
+  private static final int MIN_CONFIDENCE_ACROSS_RANKS = 1;
   private static final Set<Kingdom> VAGUE_KINGDOMS = ImmutableSet.of(Kingdom.ARCHAEA, Kingdom.BACTERIA, Kingdom.FUNGI, Kingdom.CHROMISTA, Kingdom.PROTOZOA, Kingdom.INCERTAE_SEDIS);
   private static final List<Rank> DWC_RANKS_REVERSE = ImmutableList.copyOf(Lists.reverse(Rank.DWC_RANKS));
   private static ConfidenceOrder CONFIDENCE_ORDER = new ConfidenceOrder();
@@ -576,6 +577,13 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     // order by confidence
     Collections.sort(matches, CONFIDENCE_ORDER);
 
+    // having the pre-normalized confidence is necessary to understand usage selection in some cases
+    if (verbose) {
+      for (NameUsageMatch match : matches) {
+        addNote(match, "score=" + match.getConfidence());
+      }
+    }
+
     if (matches.size() > 0) {
       // add 0 - 5 confidence based on distance to next best match
       NameUsageMatch best = matches.get(0);
@@ -590,14 +598,20 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
         }
 
       } else {
-        // we have more than one match to chose from
+        // we have more than one match to choose from
         int secondBestConfidence = matches.get(1).getConfidence();
-        if (bestConfidence == secondBestConfidence) {
-          // equally good matches, bummer!
-          // this sometimes happens when there are "homonyms" in the nub as synonyms only
-          List<NameUsageMatch> equalMatches = extractEqualMatches(matches);
+
+        // Do our results fall within the confidence score range AND differ across classes?
+        boolean ambiguousAcrossClasses = similarButSpanRank(matches, MIN_CONFIDENCE_ACROSS_RANKS, Rank.CLASS);
+
+        if (bestConfidence == secondBestConfidence || ambiguousAcrossClasses) {
+          // similarly good matches, happens when there are homonyms in the nub as synonyms only
+
+          // If we have similar results spanning classes, compare them all
+          int threshold = ambiguousAcrossClasses ? MIN_CONFIDENCE_ACROSS_RANKS : 0;
+          List<NameUsageMatch> suitableMatches = extractMatchesOfInterest(matches, threshold);
           boolean sameClassification = true;
-          for (NameUsageMatch m : equalMatches) {
+          for (NameUsageMatch m : suitableMatches) {
             if (!equalClassification(best, m)) {
               sameClassification = false;
               break;
@@ -605,16 +619,17 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
           }
           if (sameClassification) {
             // if they both have the same classification pick the one with the lowest, hence oldest id!
-            Collections.sort(equalMatches, USAGE_KEY_ORDER);
-            best = equalMatches.get(0);
-            addNote(best, equalMatches.size() + " synonym homonyms");
+            Collections.sort(suitableMatches, USAGE_KEY_ORDER);
+            best = suitableMatches.get(0);
+            addNote(best, suitableMatches.size() + " synonym homonyms");
           } else {
-            best = matchLowestDenominator(canonicalName, equalMatches);
+            best = matchLowestDenominator(canonicalName, suitableMatches);
             if (!isMatch(best)) {
               return noMatch(99, "Multiple equal matches for " + canonicalName, verbose ? matches : null);
             }
           }
         }
+
         // boost up to 5 based on distance to next match
         nextMatchDistance = Math.min(5, (bestConfidence - secondBestConfidence) / 2);
         if (verbose) {
@@ -642,6 +657,31 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     }
 
     return noMatch(100, null, null);
+  }
+
+  /**
+   * Returns true when the preferred match has a classification that differs to the other matches within the confidence
+   * threshold, when compared to the stated rank.
+   */
+  @VisibleForTesting
+  boolean similarButSpanRank(List<NameUsageMatch> matches, int confidenceThreshold, Rank rank) {
+    boolean similarButSpanRanks = false;
+    if (matches.size() > 1) {
+      NameUsageMatch best = matches.get(0);
+      for (int i=1; i<matches.size(); i++) {
+        NameUsageMatch curr = matches.get(i);
+
+        if (best.getConfidence() - curr.getConfidence() <= confidenceThreshold) {
+          if (!equalClassification(best, curr, rank)) {
+            similarButSpanRanks = true; // within confidence threshold but higher classifications differ
+            break;
+          }
+        } else {
+          break; // we're past the confidence threshold
+        }
+      }
+    }
+    return similarButSpanRanks;
   }
 
   /**
@@ -718,8 +758,18 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
   }
 
   private boolean equalClassification(LinneanClassification best, LinneanClassification m) {
+    return equalClassification(best, m, null);
+  }
+
+  /**
+   * Compares classifications starting from kingdom stopping after the stopRank if provided.
+   */
+  private boolean equalClassification(LinneanClassification best, LinneanClassification m, Rank stopRank) {
     for (Rank r : Rank.LINNEAN_RANKS) {
-      if (best.getHigherRank(r) == null) {
+      if (stopRank != null && stopRank.higherThan(r)) {
+        break;
+
+      } else if (best.getHigherRank(r) == null) {
         if (m.getHigherRank(r) != null) {
           return false;
         }
@@ -733,20 +783,23 @@ public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsa
     return true;
   }
 
-  private List<NameUsageMatch> extractEqualMatches(List<NameUsageMatch> matches) {
-    List<NameUsageMatch> equal = Lists.newArrayList();
+  /**
+   * Returns all matches that are within the given threshold of the best.
+   */
+  private List<NameUsageMatch> extractMatchesOfInterest(List<NameUsageMatch> matches, int threshold) {
+    List<NameUsageMatch> target = Lists.newArrayList();
     if (!matches.isEmpty()) {
       final int conf = matches.get(0).getConfidence();
       for (NameUsageMatch m : matches) {
-        if (m.getConfidence().equals(conf)) {
-          equal.add(m);
+        if (conf - m.getConfidence() <= threshold) {
+          target.add(m);
         } else {
           // matches are sorted by confidence!
           break;
         }
       }
     }
-    return equal;
+    return target;
   }
 
   private static void addNote(NameUsageMatch m, String note) {
