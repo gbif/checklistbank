@@ -493,4 +493,9 @@
             CREATE INDEX on name_usage(dataset_key, lower(taxon_id), id) WHERE deleted IS NULL;
         </sql>
     </changeSet>
+    <changeSet id="60" author="markus" runInTransaction="false">
+        <sql>
+            DROP INDEX identifier_identifier_idx;
+        </sql>
+    </changeSet>
 </databaseChangeLog>

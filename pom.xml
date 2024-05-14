@@ -60,8 +60,8 @@
         <gbif-metadata-profile.version>2.1</gbif-metadata-profile.version>
         <gbif-postal-service.version>1.8.0</gbif-postal-service.version>
         <registry.version>3.94.9</registry.version>
-        <name-parser.version>3.10.1</name-parser.version>
-        <gbif-parser.version>0.63-SNAPSHOT</gbif-parser.version>
+        <name-parser.version>3.12.0</name-parser.version>
+        <gbif-parser.version>0.67</gbif-parser.version>
         <dwca-io.version>2.16</dwca-io.version>
         <datacite-rest-client.version>1.12</datacite-rest-client.version>
 
