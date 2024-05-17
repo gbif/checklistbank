@@ -23,6 +23,9 @@
     <properties>
         <start-class>org.gbif.checklistbank.ws.nub.NubWsApplication</start-class>
         <lucene.version>5.4.1</lucene.version>
+
+        <!-- Using java 17 for applications -->
+        <java.version>17</java.version>
     </properties>
 
     <build>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
-        <version>56</version>
+        <version>58-SNAPSHOT</version>
     </parent>
 
     <groupId>org.gbif.checklistbank</groupId>
@@ -34,7 +34,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <!-- GBIF Motherpom -->
         <release.tagNameBase>checklistbank</release.tagNameBase>
         <main.basedir>${project.basedir}</main.basedir>
@@ -96,7 +96,6 @@
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-io.version>2.6</commons-io.version>
-        <curator.version>4.0.1</curator.version>
         <eclipse-collections.version>9.2.0</eclipse-collections.version>
         <fastutil.version>8.5.9</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
@@ -129,7 +128,8 @@
         <servlet-api.version>3.1.0</servlet-api.version>
         <slf4j.version>1.7.24</slf4j.version>
         <tika.version>1.21</tika.version>
-        <zookeeper.version>3.4.5-cdh5.16.2</zookeeper.version>
+        <zookeeper.version>3.8.1</zookeeper.version>
+        <curator.version>5.5.0</curator.version>
         <scala.version>2.11.8</scala.version>
 
         <!-- Sonar -->
