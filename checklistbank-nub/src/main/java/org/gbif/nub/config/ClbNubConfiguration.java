@@ -13,15 +13,10 @@
  */
 package org.gbif.nub.config;
 
-import com.google.common.collect.Sets;
-import lombok.Data;
 import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.checklistbank.utils.PropertiesUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.sql.Connection;
@@ -29,6 +24,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
+
+import javax.validation.constraints.NotNull;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+
+import lombok.Data;
 
 /**
  * A configuration for the checklist bank database connection pool as used by the mybatis layer.

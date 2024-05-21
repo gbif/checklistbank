@@ -17,11 +17,12 @@ import java.io.File;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Strings;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Strings;
 
 public class CleanupUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CleanupUtils.class);

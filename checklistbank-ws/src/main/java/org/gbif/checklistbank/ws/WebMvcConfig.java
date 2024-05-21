@@ -38,9 +38,12 @@ import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
@@ -53,6 +56,11 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Lists;
+
+import jakarta.servlet.MultipartConfigElement;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -138,11 +146,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   }
 
   @Bean("multipartResolver")
-  public CommonsMultipartResolver multipartResolver(
-      @Value("${upload.maxUploadSize:-1}") Long maxUploadSize) {
-    CommonsMultipartResolver multipart = new CommonsMultipartResolver();
-    multipart.setMaxUploadSize(maxUploadSize);
-    return multipart;
+  public StandardServletMultipartResolver multipartResolver() {
+    return new StandardServletMultipartResolver();
   }
 
   @Override
@@ -170,6 +175,29 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     protected boolean isHandler(Class<?> beanType) {
       return AnnotatedElementUtils.hasAnnotation(beanType, RestController.class);
+    }
+  }
+
+  public static class MainWebAppInitializer implements WebApplicationInitializer {
+    private final Integer maxUploadSize;
+    public MainWebAppInitializer(@Value("${upload.maxUploadSize:-1}") Integer maxUploadSize) {
+      this.maxUploadSize = maxUploadSize;
+    }
+
+    private static final String TMP_FOLDER = "/tmp";
+
+    @Override
+    public void onStartup(ServletContext sc) throws ServletException {
+
+      ServletRegistration.Dynamic appServlet = sc.addServlet("mvc", new DispatcherServlet(
+              new GenericWebApplicationContext()));
+
+      appServlet.setLoadOnStartup(1);
+
+      MultipartConfigElement multipartConfigElement = new MultipartConfigElement(TMP_FOLDER,
+              maxUploadSize, maxUploadSize * 2L, maxUploadSize / 2);
+
+      appServlet.setMultipartConfig(multipartConfigElement);
     }
   }
 }

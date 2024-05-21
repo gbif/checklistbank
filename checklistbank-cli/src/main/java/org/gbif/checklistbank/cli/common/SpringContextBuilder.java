@@ -13,14 +13,6 @@
  */
 package org.gbif.checklistbank.cli.common;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.common.collect.ImmutableMap;
 import org.gbif.api.ws.mixin.Mixins;
 import org.gbif.checklistbank.cli.admin.AdminConfiguration;
 import org.gbif.checklistbank.cli.config.ElasticsearchConfiguration;
@@ -41,6 +33,13 @@ import org.gbif.common.search.es.EsClient;
 import org.gbif.registry.ws.client.*;
 import org.gbif.ws.client.ClientBuilder;
 import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -49,16 +48,19 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.MapPropertySource;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.collect.ImmutableMap;
+
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 
 /** Utility class to create Spring contexts to be used later in CLI applications. */
 public class SpringContextBuilder {
@@ -253,7 +255,6 @@ public class SpringContextBuilder {
         DataSourceAutoConfiguration.class,
         LiquibaseAutoConfiguration.class,
         FreeMarkerAutoConfiguration.class,
-        ArchaiusAutoConfiguration.class,
         RabbitAutoConfiguration.class
       })
   @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")

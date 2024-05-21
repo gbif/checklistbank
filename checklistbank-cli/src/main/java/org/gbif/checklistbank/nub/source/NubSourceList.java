@@ -13,18 +13,19 @@
  */
 package org.gbif.checklistbank.nub.source;
 
-import com.google.common.collect.Lists;
 import org.gbif.checklistbank.cli.nubbuild.NubConfiguration;
 import org.gbif.checklistbank.iterable.CloseableIterable;
-import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.concurrent.ExecutorUtils;
 import org.gbif.utils.concurrent.NamedThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * Base class for nub source lists that deals with the iterators and async loading of sources,

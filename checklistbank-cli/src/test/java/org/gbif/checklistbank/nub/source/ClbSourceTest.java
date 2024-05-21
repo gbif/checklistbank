@@ -24,10 +24,11 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 
 import java.util.UUID;
 
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.containers.PostgreSQLContainer;
+
+import com.google.common.collect.Lists;
 
 import static org.junit.Assert.assertEquals;
 

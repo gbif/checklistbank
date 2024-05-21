@@ -13,17 +13,12 @@
  */
 package org.gbif.checklistbank.authorship;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +27,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 import static org.junit.jupiter.api.Assertions.*;
 

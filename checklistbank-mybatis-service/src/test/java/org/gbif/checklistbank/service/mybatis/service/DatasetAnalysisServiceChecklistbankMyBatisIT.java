@@ -24,8 +24,6 @@ import org.gbif.checklistbank.service.mybatis.persistence.test.extensions.TestDa
 
 import java.util.Date;
 
-import javax.sql.DataSource;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

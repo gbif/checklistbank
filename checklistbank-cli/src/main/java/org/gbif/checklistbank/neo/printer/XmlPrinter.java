@@ -13,21 +13,23 @@
  */
 package org.gbif.checklistbank.neo.printer;
 
-import com.google.common.base.Strings;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Lists;
-import com.google.common.xml.XmlEscapers;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.Labels;
 import org.gbif.checklistbank.neo.NeoProperties;
 import org.gbif.checklistbank.utils.NameParsers;
-import org.neo4j.graphdb.Node;
-import org.parboiled.common.StringUtils;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.LinkedList;
 import java.util.Optional;
+
+import org.neo4j.graphdb.Node;
+import org.parboiled.common.StringUtils;
+
+import com.google.common.base.Strings;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
+import com.google.common.xml.XmlEscapers;
 
 /**
  * A handler that can be used with the TaxonWalker to print a neo4j taxonomy in a simple nested text structure.

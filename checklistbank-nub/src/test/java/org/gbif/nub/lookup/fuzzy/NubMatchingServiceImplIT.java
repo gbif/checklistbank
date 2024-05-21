@@ -13,10 +13,6 @@
  */
 package org.gbif.nub.lookup.fuzzy;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang.math.IntRange;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -24,14 +20,21 @@ import org.gbif.api.model.common.LinneanClassification;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.nub.lookup.NubMatchingTestConfiguration;
+
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang.math.IntRange;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
 import static org.junit.jupiter.api.Assertions.*;
 

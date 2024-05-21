@@ -13,7 +13,6 @@
  */
 package org.gbif.checklistbank.neo;
 
-import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.NameUsage;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.vocabulary.Origin;
@@ -24,6 +23,11 @@ import org.gbif.checklistbank.cli.model.RankedName;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.neo.traverse.Traversals;
 import org.gbif.checklistbank.utils.NameParsers;
+
+import java.util.*;
+
+import javax.annotation.Nullable;
+
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.helpers.collection.Iterables;
@@ -31,8 +35,7 @@ import org.neo4j.helpers.collection.Iterators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-import java.util.*;
+import com.google.common.collect.Lists;
 
 
 public class ImportDb {

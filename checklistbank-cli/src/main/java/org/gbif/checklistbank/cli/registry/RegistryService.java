@@ -18,7 +18,6 @@ import org.gbif.api.vocabulary.DatasetType;
 import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import org.gbif.checklistbank.cli.common.RabbitBaseService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
-import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.logging.LogContext;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.service.DatasetImportService;

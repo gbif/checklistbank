@@ -29,16 +29,16 @@ import org.gbif.nub.lookup.NubMatchingTestConfiguration;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import com.google.common.base.Joiner;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.base.Joiner;
 
 import static org.gbif.api.vocabulary.Kingdom.ANIMALIA;
 import static org.gbif.api.vocabulary.Kingdom.INCERTAE_SEDIS;
 import static org.gbif.api.vocabulary.Kingdom.PLANTAE;
 import static org.gbif.api.vocabulary.Rank.*;
 import static org.gbif.api.vocabulary.TaxonomicStatus.ACCEPTED;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;

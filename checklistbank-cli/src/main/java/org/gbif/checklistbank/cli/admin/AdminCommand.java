@@ -28,7 +28,6 @@ import org.gbif.checklistbank.cli.common.SpringContextBuilder;
 import org.gbif.checklistbank.cli.common.ZookeeperUtils;
 import org.gbif.checklistbank.cli.nubbuild.BackboneDatasetUpdater;
 import org.gbif.checklistbank.cli.registry.RegistryService;
-import org.gbif.checklistbank.config.ClbConfiguration;
 import org.gbif.checklistbank.model.DatasetCore;
 import org.gbif.checklistbank.neo.UsageDao;
 import org.gbif.checklistbank.nub.NubDb;
@@ -53,7 +52,6 @@ import org.gbif.common.messaging.api.MessagePublisher;
 import org.gbif.common.messaging.api.messages.*;
 import org.gbif.registry.ws.client.*;
 import org.gbif.ws.client.ClientBuilder;
-import org.gbif.ws.json.JacksonJsonObjectMapperProvider;
 
 import java.io.File;
 import java.io.IOException;

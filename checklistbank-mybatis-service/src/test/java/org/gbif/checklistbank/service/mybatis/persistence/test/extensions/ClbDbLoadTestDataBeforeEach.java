@@ -18,6 +18,7 @@ import org.gbif.checklistbank.service.mybatis.persistence.postgres.ClbLoadTestDb
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Supplier;
+
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.extension.BeforeEachCallback;
