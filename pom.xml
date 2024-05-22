@@ -535,6 +535,10 @@
                         <groupId>org.springframework.cloud</groupId>
                         <artifactId>spring-cloud-starter-loadbalancer</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+                        <groupId>org.springframework.cloud</groupId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
