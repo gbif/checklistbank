@@ -35,7 +35,6 @@
         <postalservice.hostname>mq.gbif.org</postalservice.hostname>
 
         <neo4j-test-containers.version>1.16.3</neo4j-test-containers.version>
-        <hibernate-validator.vesrion>8.0.1.Final</hibernate-validator.vesrion>
     </properties>
 
     <build>
@@ -212,11 +211,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${hibernate-validator.vesrion}</version>
         </dependency>
 
         <!-- GBIF -->
