@@ -6,6 +6,7 @@
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
     <version>2.127-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>checklistbank-elasticsearch</artifactId>
