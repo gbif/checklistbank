@@ -57,10 +57,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Lists;
 
-import jakarta.servlet.MultipartConfigElement;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRegistration;
+import javax.servlet .MultipartConfigElement;
+import javax.servlet .ServletContext;
+import javax.servlet .ServletException;
+import javax.servlet .ServletRegistration;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
