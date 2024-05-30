@@ -23,8 +23,7 @@
     </distributionManagement>
 
     <properties>
-        <!-- Using java 17 for applications -->
-        <java.version>17</java.version>
+        <java.version>11</java.version>
 
         <!-- lucene version required by neo4j -->
         <lucene-neo4j.version>5.5.0</lucene-neo4j.version>
