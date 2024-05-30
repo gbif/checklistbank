@@ -24,7 +24,7 @@
     <start-class>org.gbif.checklistbank.ws.ChecklistBankWsApplication</start-class>
 
     <!-- Using java 17 for applications -->
-    <java.version>17</java.version>
+    <java.version>11</java.version>
   </properties>
 
   <build>
