@@ -59,7 +59,7 @@
         <gbif-httputils.version>0.12</gbif-httputils.version>
         <gbif-metadata-profile.version>2.1</gbif-metadata-profile.version>
         <gbif-postal-service.version>1.8.0</gbif-postal-service.version>
-        <registry.version>3.94.9</registry.version>
+        <registry.version>3.96.5-SNAPSHOT</registry.version>
         <name-parser.version>3.12.0</name-parser.version>
         <gbif-parser.version>0.67</gbif-parser.version>
         <dwca-io.version>2.16</dwca-io.version>
