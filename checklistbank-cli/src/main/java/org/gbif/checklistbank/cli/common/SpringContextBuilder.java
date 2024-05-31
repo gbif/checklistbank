@@ -42,6 +42,7 @@ import java.util.Set;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -126,6 +127,8 @@ public class SpringContextBuilder {
     Set<String> packages =
         basePackages == null ? new HashSet<>() : new HashSet<>(Arrays.asList(basePackages));
 
+    //ignore error: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'compositeCompatibilityVerifier'
+    ((DefaultListableBeanFactory) ctx.getBeanFactory()).destroySingleton("org.springframework.cloud.configuration.CompatibilityVerifierAutoConfiguration");
     if (clbConfiguration != null) {
       ctx.register(ApplicationConfig.class);
       ctx.register(ChecklistBankMyBatisConfiguration.class);
