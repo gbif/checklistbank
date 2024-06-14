@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.mybatis.spring.annotation.MapperScan;
@@ -58,7 +59,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.common.collect.ImmutableMap;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
@@ -141,7 +141,7 @@ public class SpringContextBuilder {
           .addLast(
               new MapPropertySource(
                   "clbConfigProperties",
-                  ImmutableMap.of(
+                  Map.of(
                       "checklistbank.nub.importThreads", clbConfiguration.syncThreads,
                       "checklistbank.parser.timeout", clbConfiguration.parserTimeout
                   )
@@ -193,6 +193,7 @@ public class SpringContextBuilder {
         ctx.registerBean("messagePublisher", MessagePublisher.class, MessagePublisherStub::new);
       }
     }
+
     if (elasticsearchConfiguration != null) {
       if (elasticsearchConfiguration.enabled) {
 
@@ -216,10 +217,17 @@ public class SpringContextBuilder {
         ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
 
       } else {
-        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class, () -> DatasetImportService.passThru());
-
+        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class, DatasetImportService::passThru);
       }
     }
+
+    ctx.getEnvironment()
+        .getPropertySources()
+        .addLast(
+            new MapPropertySource(
+                "ManagedProperties",
+                Map.of("spring.cloud.compatibility-verifier.enabled", "false")
+            ));
 
     if (!packages.isEmpty()) {
       ctx.scan(packages.toArray(new String[] {}));
@@ -267,7 +275,7 @@ public class SpringContextBuilder {
 
   }
 
-  static abstract class AvroMixin {
+  abstract static class AvroMixin {
     @JsonIgnore
     public abstract org.apache.avro.Schema getSchema();
   }
