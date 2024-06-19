@@ -74,4 +74,19 @@ public interface NubResourceClient extends NameUsageMatchingService {
       LinneanClassification classification,
       @RequestParam(value = "strict", required = false) Boolean strict,
       @RequestParam(value = "verbose", required = false) Boolean verbose);
+
+  @RequestMapping(
+    value = "match2",
+    method = RequestMethod.GET,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  NameUsageMatch2 match2Simple(
+    @RequestParam(value = "scientificName", required = false) String scientificName,
+    @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
+    @RequestParam(value = "taxonRank", required = false) String rank,
+    @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
+    @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
+    LinneanClassification classification,
+    @RequestParam(value = "strict", required = false) Boolean strict,
+    @RequestParam(value = "verbose", required = false) Boolean verbose);
 }
