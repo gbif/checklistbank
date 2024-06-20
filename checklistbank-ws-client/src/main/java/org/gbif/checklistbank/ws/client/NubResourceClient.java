@@ -53,8 +53,18 @@ public interface NubResourceClient extends NameUsageMatchingService {
       LinneanClassification classification,
       boolean strict,
       boolean verbose) {
-    return match(null, scientificName, null, null, null,
-        rank.getMarker(), null, null, classification, strict, verbose);
+    return match(
+        null,
+        scientificName,
+        null,
+        null,
+        null,
+        rank.getMarker(),
+        null,
+        null,
+        classification,
+        strict,
+        verbose);
   }
 
   @RequestMapping(
@@ -69,24 +79,35 @@ public interface NubResourceClient extends NameUsageMatchingService {
       @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
       @RequestParam(value = "rank", required = false) String rank2,
       @RequestParam(value = "taxonRank", required = false) String rank,
+      @RequestParam(value = "genericName", required = false) String genericName,
       @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
       @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
       LinneanClassification classification,
       @RequestParam(value = "strict", required = false) Boolean strict,
       @RequestParam(value = "verbose", required = false) Boolean verbose);
 
-  @RequestMapping(
-    value = "match2",
-    method = RequestMethod.GET,
-    produces = MediaType.APPLICATION_JSON_VALUE)
-  @ResponseBody
-  NameUsageMatch2 match2Simple(
-    @RequestParam(value = "scientificName", required = false) String scientificName,
-    @RequestParam(value = "scientificNameAuthorship", required = false) String authorship,
-    @RequestParam(value = "taxonRank", required = false) String rank,
-    @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
-    @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
-    LinneanClassification classification,
-    @RequestParam(value = "strict", required = false) Boolean strict,
-    @RequestParam(value = "verbose", required = false) Boolean verbose);
+  default NameUsageMatch2 match2(
+      String scientificName,
+      String authorship,
+      String rank,
+      String genericName,
+      String specificEpithet,
+      String infraspecificEpithet,
+      LinneanClassification classification,
+      Boolean strict,
+      Boolean verbose) {
+    return match2(
+        scientificName,
+        scientificName,
+        authorship,
+        authorship,
+        rank,
+        rank,
+        genericName,
+        specificEpithet,
+        infraspecificEpithet,
+        classification,
+        strict,
+        verbose);
+  }
 }
