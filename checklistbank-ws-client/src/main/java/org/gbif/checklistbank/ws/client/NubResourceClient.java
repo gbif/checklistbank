@@ -19,6 +19,7 @@ import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.v2.NameUsageMatch2;
 import org.gbif.api.vocabulary.Rank;
 
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +43,7 @@ public interface NubResourceClient extends NameUsageMatchingService {
       @RequestParam(value = "taxonRank", required = false) String rank,
       @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
       @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
-      LinneanClassification classification,
+      @SpringQueryMap LinneanClassification classification,
       @RequestParam(value = "strict", required = false) Boolean strict,
       @RequestParam(value = "verbose", required = false) Boolean verbose);
 
@@ -82,7 +83,7 @@ public interface NubResourceClient extends NameUsageMatchingService {
       @RequestParam(value = "genericName", required = false) String genericName,
       @RequestParam(value = "specificEpithet", required = false) String specificEpithet,
       @RequestParam(value = "infraspecificEpithet", required = false) String infraspecificEpithet,
-      LinneanClassification classification,
+      @SpringQueryMap LinneanClassification classification,
       @RequestParam(value = "strict", required = false) Boolean strict,
       @RequestParam(value = "verbose", required = false) Boolean verbose);
 
