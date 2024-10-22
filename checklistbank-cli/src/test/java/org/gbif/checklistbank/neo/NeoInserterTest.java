@@ -30,7 +30,6 @@ import org.gbif.dwc.terms.Term;
 import java.net.URI;
 import java.util.List;
 
-import org.gbif.nub.lookup.fuzzy.NubMatchingServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;

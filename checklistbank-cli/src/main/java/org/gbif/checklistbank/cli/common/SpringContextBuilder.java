@@ -188,6 +188,7 @@ public class SpringContextBuilder {
         ctx.registerBean("messagePublisher", MessagePublisher.class, MessagePublisherStub::new);
       }
     }
+
     if (elasticsearchConfiguration != null) {
       if (elasticsearchConfiguration.enabled) {
 
@@ -211,8 +212,7 @@ public class SpringContextBuilder {
         ctx.registerBean("indexName", String.class, elasticsearchConfiguration.alias);
 
       } else {
-        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class, () -> DatasetImportService.passThru());
-
+        ctx.registerBean(SEARCH_INDEX_SERVICE_BEAN_NAME, DatasetImportService.class, DatasetImportService::passThru);
       }
     }
 
@@ -263,7 +263,7 @@ public class SpringContextBuilder {
 
   }
 
-  static abstract class AvroMixin {
+  abstract static class AvroMixin {
     @JsonIgnore
     public abstract org.apache.avro.Schema getSchema();
   }

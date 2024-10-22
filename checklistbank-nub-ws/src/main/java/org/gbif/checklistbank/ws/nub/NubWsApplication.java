@@ -33,7 +33,6 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.*;
 
 @SpringBootApplication(
@@ -77,9 +76,8 @@ public class NubWsApplication {
 
   @Configuration
   public static class SecurityConfiguration extends RemoteAuthWebSecurityConfigurer {
-
-    public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
-      super(context, remoteAuthClient);
-    }
+      public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
+          super(context, remoteAuthClient);
+      }
   }
 }

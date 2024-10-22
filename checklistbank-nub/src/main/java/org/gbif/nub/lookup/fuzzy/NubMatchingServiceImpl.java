@@ -13,13 +13,6 @@
  */
 package org.gbif.nub.lookup.fuzzy;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Function;
-import com.google.common.base.Strings;
-import com.google.common.collect.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
@@ -38,18 +31,26 @@ import org.gbif.checklistbank.utils.RankUtils;
 import org.gbif.nub.lookup.NameUsageMatchingService2;
 import org.gbif.nub.lookup.similarity.ScientificNameSimilarity;
 import org.gbif.nub.lookup.similarity.StringSimilarity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Nullable;
-import java.text.Normalizer;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.base.Strings;
+import com.google.common.collect.*;
 
 @Service
 public class NubMatchingServiceImpl implements NameUsageMatchingService, NameUsageMatchingService2 {

@@ -13,10 +13,6 @@
  */
 package org.gbif.checklistbank.cli.normalizer;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.*;
 import org.gbif.api.model.common.Identifier;
 import org.gbif.api.vocabulary.Extension;
@@ -24,7 +20,6 @@ import org.gbif.api.vocabulary.IdentifierType;
 import org.gbif.api.vocabulary.MediaType;
 import org.gbif.api.vocabulary.NameUsageIssue;
 import org.gbif.checklistbank.model.UsageExtensions;
-import org.gbif.checklistbank.neo.NeoInserter;
 import org.gbif.checklistbank.utils.CleanupUtils;
 import org.gbif.common.parsers.*;
 import org.gbif.common.parsers.core.EnumParser;
@@ -32,14 +27,21 @@ import org.gbif.common.parsers.core.ParseResult;
 import org.gbif.common.parsers.date.DateParsers;
 import org.gbif.common.parsers.date.TemporalAccessorUtils;
 import org.gbif.dwc.terms.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.time.temporal.TemporalAccessor;
 import java.util.Iterator;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class ExtensionInterpreter {
   private static final Logger LOG = LoggerFactory.getLogger(ExtensionInterpreter.class);

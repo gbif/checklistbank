@@ -20,14 +20,16 @@ import java.sql.SQLException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
+
 import javax.annotation.Nullable;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+
+import com.google.common.collect.ImmutableMap;
 
 /** A TestRule for Database driven Integration tests executing some dbSetup file beforehand. */
 public class ClbLoadTestDb implements BeforeEachCallback {

@@ -13,7 +13,6 @@
  */
 package org.gbif.checklistbank.nub;
 
-import com.google.common.base.Throwables;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.Constants;
 import org.gbif.api.model.checklistbank.ParsedName;
@@ -28,10 +27,13 @@ import org.gbif.checklistbank.nub.model.NubUsageMatch;
 import org.gbif.checklistbank.nub.model.SrcUsage;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.checklistbank.utils.RankUtils;
+
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Transaction;
 
-import java.util.UUID;
+import com.google.common.base.Throwables;
 
 import static org.junit.Assert.*;
 

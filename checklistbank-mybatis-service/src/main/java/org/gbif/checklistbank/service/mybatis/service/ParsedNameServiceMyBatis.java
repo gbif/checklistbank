@@ -13,21 +13,23 @@
  */
 package org.gbif.checklistbank.service.mybatis.service;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.gbif.api.exception.UnparsableException;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.service.ParsedNameService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.utils.NameParsers;
+
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 @Service
 public class ParsedNameServiceMyBatis implements ParsedNameService {

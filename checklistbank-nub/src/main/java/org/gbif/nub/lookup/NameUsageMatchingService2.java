@@ -19,9 +19,9 @@ import org.gbif.api.service.checklistbank.NameUsageMatchingService;
 import org.gbif.api.v2.NameUsageMatch2;
 import org.gbif.api.vocabulary.Rank;
 
-import javax.annotation.Nullable;
-import java.util.List;
 import java.util.Set;
+
+import javax.annotation.Nullable;
 
 /**
  *

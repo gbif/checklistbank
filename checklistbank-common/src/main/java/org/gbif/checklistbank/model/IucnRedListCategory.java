@@ -13,11 +13,12 @@
  */
 package org.gbif.checklistbank.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.api.vocabulary.ThreatStatus;
 
 import java.util.Objects;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * The IUCN RedList Category associated to a species.

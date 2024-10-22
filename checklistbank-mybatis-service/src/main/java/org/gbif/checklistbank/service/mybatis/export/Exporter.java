@@ -13,8 +13,6 @@
  */
 package org.gbif.checklistbank.service.mybatis.export;
 
-import com.google.common.io.Files;
-import org.apache.commons.io.FileUtils;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.service.registry.DatasetService;
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.*;
@@ -22,6 +20,13 @@ import org.gbif.dwc.DwcaStreamWriter;
 import org.gbif.dwc.terms.DwcTerm;
 import org.gbif.metadata.eml.EMLWriter;
 import org.gbif.utils.file.CompressionUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.UUID;
+
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.UUID;
+import com.google.common.io.Files;
 
 @Transactional
 public class Exporter {

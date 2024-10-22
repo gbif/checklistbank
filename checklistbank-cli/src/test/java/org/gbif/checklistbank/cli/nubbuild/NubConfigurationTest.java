@@ -13,10 +13,11 @@
  */
 package org.gbif.checklistbank.cli.nubbuild;
 
-import java.io.File;
-
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.checklistbank.nub.model.SrcUsage;
+
+import java.io.File;
+
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
 

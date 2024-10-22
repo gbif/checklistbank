@@ -15,7 +15,6 @@ package org.gbif.checklistbank.cli.matcher;
 
 import org.gbif.checklistbank.cli.common.RabbitDatasetService;
 import org.gbif.checklistbank.cli.common.SpringContextBuilder;
-import org.gbif.checklistbank.index.NameUsageIndexServiceEs;
 import org.gbif.checklistbank.nub.lookup.DatasetMatchSummary;
 import org.gbif.checklistbank.nub.lookup.NubMatchService;
 import org.gbif.checklistbank.service.DatasetImportService;

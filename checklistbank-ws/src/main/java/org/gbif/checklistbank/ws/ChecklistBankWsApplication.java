@@ -86,10 +86,8 @@ public class ChecklistBankWsApplication {
 
   @Configuration
   public static class SecurityConfiguration extends RemoteAuthWebSecurityConfigurer {
-
     public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
       super(context, remoteAuthClient);
     }
-
   }
 }

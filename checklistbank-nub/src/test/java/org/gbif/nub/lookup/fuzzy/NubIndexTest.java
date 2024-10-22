@@ -13,10 +13,6 @@
  */
 package org.gbif.nub.lookup.fuzzy;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
 import org.gbif.api.model.checklistbank.NameUsageMatch;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.Rank;
@@ -24,12 +20,18 @@ import org.gbif.api.vocabulary.TaxonomicStatus;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.file.csv.CSVReader;
 import org.gbif.utils.file.csv.CSVReaderFactory;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.io.Resources;
 
 import static org.junit.jupiter.api.Assertions.*;
 

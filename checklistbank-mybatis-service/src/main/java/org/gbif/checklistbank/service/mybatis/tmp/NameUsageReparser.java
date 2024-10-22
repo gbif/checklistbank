@@ -13,8 +13,6 @@
  */
 package org.gbif.checklistbank.service.mybatis.tmp;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.gbif.api.model.checklistbank.ParsedName;
 import org.gbif.api.v2.RankedName;
 import org.gbif.checklistbank.config.ClbConfiguration;
@@ -22,16 +20,20 @@ import org.gbif.checklistbank.service.mybatis.persistence.mapper.NameUsageMapper
 import org.gbif.checklistbank.service.mybatis.persistence.mapper.ParsedNameMapper;
 import org.gbif.checklistbank.utils.NameParsers;
 import org.gbif.utils.concurrent.ExecutorUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 public class NameUsageReparser implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(NameUsageReparser.class);
