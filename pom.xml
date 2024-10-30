@@ -9,7 +9,7 @@
 
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>2.127-SNAPSHOT</version>
+    <version>2.130-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ChecklistBank Mother POM</name>
@@ -875,8 +875,8 @@
                 <artifactId>mapdb</artifactId>
                 <version>${mapdb.version}</version>
             </dependency>
-            <!-- 
-            mapdb and neo4j rely on eclipse collections but interfer 
+            <!--
+            mapdb and neo4j rely on eclipse collections but interfer
             and eclipse collections 12 compile for java11 only...
             -->
             <dependency>

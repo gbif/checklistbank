@@ -5,8 +5,7 @@
   <parent>
     <artifactId>checklistbank-motherpom</artifactId>
     <groupId>org.gbif.checklistbank</groupId>
-    <version>2.127-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
+    <version>2.130-SNAPSHOT</version>
   </parent>
 
   <artifactId>checklistbank-workflows</artifactId>
@@ -31,6 +30,9 @@
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
     <commons-compiler.version>3.0.8</commons-compiler.version>
+
+    <!-- Match cluster version -->
+    <guava.version>18.0</guava.version>
   </properties>
 
   <build>
