@@ -166,12 +166,6 @@
             <id>cloudera-release</id>
             <url>https://repository.gbif.org/repository/cloudera-release/</url>
         </repository>
-        <repository>
-            <!-- this is needed for modern mavens which block plain http.
-             The old solr dep we use still uses http -->
-            <id>maven-restlet</id>
-            <url>https://maven.restlet.org/</url>
-        </repository>
     </repositories>
 
     <modules>
