@@ -79,7 +79,6 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>${project.artifactId}</finalName>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <!-- This bit merges the various lucene META-INF/services files -->
