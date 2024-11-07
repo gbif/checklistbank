@@ -68,7 +68,14 @@
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
                     <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                    <argLine>-server -Xmx1024m -XX:+UseG1GC</argLine>
+                    <argLine>
+                        -server
+                        -Xmx1024m
+                        -XX:+UseG1GC
+                        --add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+                    </argLine>
                     <runOrder>random</runOrder>
                 </configuration>
             </plugin>
