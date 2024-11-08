@@ -208,7 +208,7 @@
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-spark-20_2.11</artifactId>
+      <artifactId>elasticsearch-spark-30_2.12</artifactId>
       <version>${spark.elasticsearch.version}</version>
       <scope>compile</scope>
     </dependency>
