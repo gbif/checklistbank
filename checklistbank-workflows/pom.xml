@@ -25,6 +25,7 @@
     <spark.version>3.5.1</spark.version>
     <spark.elasticsearch.version>${elasticsearch.version}</spark.elasticsearch.version>
     <scala.tools.version>2.12</scala.tools.version>
+    <scala.library.version>2.12.17</scala.library.version>
 
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
@@ -214,6 +215,7 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
+      <version>${scala.library.version}</version>
       <scope>provided</scope>
     </dependency>
 

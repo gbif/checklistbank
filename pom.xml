@@ -131,7 +131,6 @@
         <tika.version>1.21</tika.version>
         <zookeeper.version>3.8.1</zookeeper.version>
         <curator.version>5.5.0</curator.version>
-        <scala.library.version>2.12.17</scala.library.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
@@ -949,11 +948,6 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>${avro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.library.version}</version>
             </dependency>
 
             <!-- TEST SCOPE -->
