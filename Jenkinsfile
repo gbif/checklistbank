@@ -1,7 +1,8 @@
 pipeline {
   agent any
   tools {
-    maven 'Maven3.6'
+    maven 'Maven 3.8.5'
+    jdk 'OpenJDK11'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '10'))
@@ -13,10 +14,7 @@ pipeline {
   }
   stages {
 
-    stage('Maven build: Main project (Java 11)') {
-      tools {
-        jdk 'OpenJDK11'
-      }
+    stage('Maven build: Main project') {
       steps {
         configFileProvider([
             configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709', variable: 'MAVEN_SETTINGS')
