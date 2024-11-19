@@ -25,6 +25,7 @@ import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBat
 
 import java.util.concurrent.Callable;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,13 +40,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AvroExporter extends NameUsageBatchProcessor {
 
-  private final String nameNode;
   private final String targetHdfsDir;
 
   @Autowired
   public AvroExporter(
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.THREADS + "}") Integer threads,
-      @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.NAME_NODE + "}") String nameNode,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.TARGET_HDFS_DIR + "}") String targetHdfsDir,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.BATCH_SIZE + "}") Integer batchSize,
       @Value("${" + IndexingConfigKeys.KEYS_INDEXING_CONF_PREFIX + IndexingConfigKeys.LOG_INTERVAL + "}") Integer logInterval,
@@ -53,7 +52,8 @@ public class AvroExporter extends NameUsageBatchProcessor {
       VernacularNameService vernacularNameService,
       DescriptionService descriptionService,
       DistributionService distributionService,
-      SpeciesProfileService speciesProfileService) {
+      SpeciesProfileService speciesProfileService,
+      FileSystem fileSystem) {
     super(
         threads,
         batchSize,
@@ -62,8 +62,8 @@ public class AvroExporter extends NameUsageBatchProcessor {
         vernacularNameService,
         descriptionService,
         distributionService,
-        speciesProfileService);
-    this.nameNode = nameNode;
+        speciesProfileService,
+        fileSystem);
     this.targetHdfsDir = targetHdfsDir;
   }
 
@@ -75,7 +75,8 @@ public class AvroExporter extends NameUsageBatchProcessor {
     VernacularNameServiceMyBatis vernacularNameService,
     DescriptionServiceMyBatis descriptionService,
     DistributionServiceMyBatis distributionService,
-    SpeciesProfileServiceMyBatis speciesProfileService
+    SpeciesProfileServiceMyBatis speciesProfileService,
+    FileSystem fileSystem
     ) {
     return new AvroExportJob(
         nameUsageService,
@@ -85,7 +86,7 @@ public class AvroExporter extends NameUsageBatchProcessor {
         descriptionService,
         distributionService,
         speciesProfileService,
-        nameNode,
+        fileSystem,
         targetHdfsDir);
   }
 }

@@ -23,8 +23,8 @@ import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -34,21 +34,16 @@ import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Throwables;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Executable job that creates a list of {@link NameUsageAvro} using a list of {@link NameUsage} objects.
  */
+@Slf4j
 public class AvroExportJob implements Callable<Integer> {
-
-  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Minimum usage key, inclusive, to process.
@@ -60,8 +55,6 @@ public class AvroExportJob implements Callable<Integer> {
    */
   private final int endKey;
 
-  private final String nameNode;
-
   private final String targetHdfsDir;
 
   /**
@@ -72,6 +65,8 @@ public class AvroExportJob implements Callable<Integer> {
   private final DescriptionServiceMyBatis descriptionService;
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
+
+  private final FileSystem fileSystem;
 
   private final StopWatch stopWatch = new StopWatch();
 
@@ -86,7 +81,7 @@ public class AvroExportJob implements Callable<Integer> {
     DescriptionServiceMyBatis descriptionService,
     DistributionServiceMyBatis distributionService,
     SpeciesProfileServiceMyBatis speciesProfileService,
-    String nameNode,
+    FileSystem fileSystem,
     String targetHdfsDir
   ) {
     this.nameUsageService = nameUsageService;
@@ -94,11 +89,10 @@ public class AvroExportJob implements Callable<Integer> {
     this.descriptionService = descriptionService;
     this.distributionService = distributionService;
     this.speciesProfileService = speciesProfileService;
+    this.fileSystem = fileSystem;
     this.startKey = startKey;
     this.endKey = endKey;
     this.targetHdfsDir = targetHdfsDir;
-    this.nameNode= nameNode;
-
   }
 
   /**
@@ -127,13 +121,15 @@ public class AvroExportJob implements Callable<Integer> {
     Map<Integer, List<SpeciesProfile>> speciesProfileMap = speciesProfileService.listRange(startKey, endKey);
 
     File file = new File(startKey+ "-" + endKey + ".avro");
-    file.createNewFile();
-    log.info("Creating file " + file.getAbsolutePath());
+    Path path = new Path(targetHdfsDir, file.getName());
+    fileSystem.mkdirs(path.getParent());
+
+    log.info("Creating file {}", path.getName());
     ClassLoader classLoader = AvroExporter.class.getClassLoader();
     Schema schema = new Schema.Parser().parse(classLoader.getResource("nameusage.avrsc").openStream());
     DatumWriter<NameUsageAvro> datumWriter = new SpecificDatumWriter<>(NameUsageAvro.class);
     try(DataFileWriter<NameUsageAvro> dataFileWriter = new DataFileWriter<>(datumWriter)) {
-      dataFileWriter.create(schema, file);
+      dataFileWriter.create(schema, new BufferedOutputStream(fileSystem.create(path)));
       for (NameUsage usage : usages) {
         if (usage == null) {
           log.warn("Unexpected name usage found in range {}-{}, docCount={}", startKey, endKey, docCount);
@@ -157,27 +153,12 @@ public class AvroExportJob implements Callable<Integer> {
       }
     }
 
-    moveToHdfs(file,nameNode);
-    log.info(file.getName() + " moved to hdfs");
+    log.info("{} moved to hdfs", file.getName());
     // job finished notice
     stopWatch.stop();
     log.info("Finished indexing of usages in range {}-{}. Total time: {}", startKey, endKey, stopWatch.toString());
 
     return docCount;
-  }
-
-
-  private boolean moveToHdfs(File file, String nameNode) {
-    try {
-      Configuration configuration = new Configuration();
-      configuration.set(FileSystem.FS_DEFAULT_NAME_KEY, nameNode);
-      Path targetPath = new Path(targetHdfsDir, file.getName());
-      log.info("Moving file {} to HDFS path {}", file, targetPath);
-      return FileUtil.copy(file, FileSystem.get(configuration), targetPath, true, configuration);
-    } catch (IOException ioe) {
-      log.error("Error moving file to HDFS",ioe);
-      throw Throwables.propagate(ioe);
-    }
   }
 
 }
