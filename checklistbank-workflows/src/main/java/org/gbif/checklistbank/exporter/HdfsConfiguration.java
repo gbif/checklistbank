@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -29,11 +30,7 @@ public class HdfsConfiguration {
     org.apache.hadoop.conf.Configuration config = getHdfsConfiguration(hdfsSitePath, coreSitePath);
     String prefixToUse = getHdfsPrefix(config);
 
-    if (prefixToUse != null) {
-      return FileSystem.get(URI.create(prefixToUse), config);
-    } else {
-      throw new IllegalArgumentException("XML config is provided, but fs name is not found");
-    }
+    return FileSystem.get(URI.create(prefixToUse), config);
   }
 
   /**
@@ -73,6 +70,7 @@ public class HdfsConfiguration {
 
   private static String getHdfsPrefix(org.apache.hadoop.conf.Configuration hdfsSite) {
     String hdfsPrefixToUse = hdfsSite.get("fs.defaultFS");
+    Objects.requireNonNull(hdfsPrefixToUse, "XML config is provided, but fs.defaultFS is not found");
 
     log.info("HDFS Prefix - {}", hdfsPrefixToUse);
     return hdfsPrefixToUse;
