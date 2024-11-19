@@ -1,7 +1,10 @@
 package org.gbif.checklistbank.exporter;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
+import java.util.function.Function;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,8 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.common.base.Strings;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,29 +19,17 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class HdfsConfiguration {
 
-  private static final String DEFAULT_FS = "file:///";
-
   @SneakyThrows
   @Bean
   public FileSystem hdfsFileSystem(
       @Value("${hdfsSitePath}") String hdfsSitePath,
       @Value("${coreSitePath}") String coreSitePath
   ) {
-    HdfsConfigs hdfsConfigs = HdfsConfigs.of(hdfsSitePath, coreSitePath);
-    String hdfsPrefixToUse = getHdfsPrefix(hdfsConfigs);
-    String corePrefixToUse = getHdfsPrefix(hdfsConfigs);
 
-    String prefixToUse;
-    if (!DEFAULT_FS.equals(hdfsPrefixToUse)) {
-      prefixToUse = hdfsPrefixToUse;
-    } else if (!DEFAULT_FS.equals(corePrefixToUse)) {
-      prefixToUse = corePrefixToUse;
-    } else {
-      prefixToUse = hdfsPrefixToUse;
-    }
+    org.apache.hadoop.conf.Configuration config = getHdfsConfiguration(hdfsSitePath, coreSitePath);
+    String prefixToUse = getHdfsPrefix(config);
 
     if (prefixToUse != null) {
-      org.apache.hadoop.conf.Configuration config = getHdfsConfiguration(hdfsConfigs);
       return FileSystem.get(URI.create(prefixToUse), config);
     } else {
       throw new IllegalArgumentException("XML config is provided, but fs name is not found");
@@ -50,55 +39,42 @@ public class HdfsConfiguration {
   /**
    * Creates an instances of a {@link org.apache.hadoop.conf.Configuration} using a xml HDFS configuration file.
    *
-   * @param hdfsConfigs coreSiteConfig path to the hdfs-site.xml or core-site.xml
+   * @param coreSiteConfig path to the core-site.xml
+   * @param hdfsSiteConfig path to the hdfs-site.xml
    * @return a {@link org.apache.hadoop.conf.Configuration} based on the provided config file
    */
   @SneakyThrows
-  private static org.apache.hadoop.conf.Configuration getHdfsConfiguration(HdfsConfigs hdfsConfigs) {
+  private static org.apache.hadoop.conf.Configuration getHdfsConfiguration(String hdfsSiteConfig,
+      String coreSiteConfig) {
+
     // check if the hdfs-site.xml is provided
-    if (Strings.isNullOrEmpty(hdfsConfigs.getHdfsSiteConfig())
-        || Strings.isNullOrEmpty(hdfsConfigs.getCoreSiteConfig())) {
-      throw new IllegalArgumentException("Hdfs or core config values null or empty");
-    }
-
-    File hdfsSiteFile = new File(hdfsConfigs.getHdfsSiteConfig());
-    File coreSiteFile = new File(hdfsConfigs.getCoreSiteConfig());
-    if (hdfsSiteFile.exists()
-        && hdfsSiteFile.isFile()
-        && coreSiteFile.exists()
-        && coreSiteFile.isFile()) {
-      org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration(false);
-      log.info("Using XML config found at {} and {}", hdfsSiteFile, coreSiteFile);
-      config.addResource(hdfsSiteFile.toURI().toURL());
-      config.addResource(coreSiteFile.toURI().toURL());
-      return config;
-    } else {
-      log.warn(
-          "XML config does not exist - {} or {}",
-          hdfsConfigs.getHdfsSiteConfig(),
-          hdfsConfigs.getCoreSiteConfig());
-      throw new IllegalArgumentException("Hdfs or core config files do not exist");
-    }
-  }
-
-  private static String getHdfsPrefix(HdfsConfigs hdfsConfigs) {
-    String hdfsPrefixToUse = null;
-    if (!Strings.isNullOrEmpty(hdfsConfigs.getHdfsSiteConfig())
-        && !Strings.isNullOrEmpty(hdfsConfigs.getCoreSiteConfig())) {
-      org.apache.hadoop.conf.Configuration hdfsSite = getHdfsConfiguration(hdfsConfigs);
-      hdfsPrefixToUse = hdfsSite.get("fs.default.name");
-      if (hdfsPrefixToUse == null) {
-        hdfsPrefixToUse = hdfsSite.get("fs.defaultFS");
+    Function<String, URL> getFileAsUrl = fileName -> {
+      if (Strings.isNullOrEmpty(fileName)) {
+        throw new IllegalArgumentException(fileName + " value null or empty");
       }
-    }
-    return hdfsPrefixToUse;
+      File file = new File(fileName);
+      if (!file.exists() || !file.isFile()) {
+        throw new IllegalArgumentException(fileName + " doesn't exists");
+      }
+      try {
+        return file.toURI().toURL();
+      } catch (MalformedURLException ex) {
+        throw new IllegalArgumentException(ex);
+      }
+    };
+
+    org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration(false);
+    log.info("Using XML config found at {} and {}", hdfsSiteConfig, coreSiteConfig);
+    config.addResource(getFileAsUrl.apply(hdfsSiteConfig));
+    config.addResource(getFileAsUrl.apply(coreSiteConfig));
+    return config;
+
   }
 
-  @Getter
-  @AllArgsConstructor(staticName = "of")
-  private static class HdfsConfigs {
+  private static String getHdfsPrefix(org.apache.hadoop.conf.Configuration hdfsSite) {
+    String hdfsPrefixToUse = hdfsSite.get("fs.defaultFS");
 
-    private final String hdfsSiteConfig;
-    private final String coreSiteConfig;
+    log.info("HDFS Prefix - {}", hdfsPrefixToUse);
+    return hdfsPrefixToUse;
   }
 }
