@@ -56,29 +56,29 @@ public class HdfsConfiguration {
   @SneakyThrows
   private static org.apache.hadoop.conf.Configuration getHdfsConfiguration(HdfsConfigs hdfsConfigs) {
     // check if the hdfs-site.xml is provided
-    if (!Strings.isNullOrEmpty(hdfsConfigs.getHdfsSiteConfig())
-        && !Strings.isNullOrEmpty(hdfsConfigs.getCoreSiteConfig())) {
-      File hdfsSiteFile = new File(hdfsConfigs.getHdfsSiteConfig());
-      File coreSiteFile = new File(hdfsConfigs.getCoreSiteConfig());
-      if (hdfsSiteFile.exists()
-          && hdfsSiteFile.isFile()
-          && coreSiteFile.exists()
-          && coreSiteFile.isFile()) {
-        org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration(false);
-        log.info("Using XML config found at {} and {}", hdfsSiteFile, coreSiteFile);
-        config.addResource(hdfsSiteFile.toURI().toURL());
-        config.addResource(coreSiteFile.toURI().toURL());
-        return config;
-      } else {
-        log.warn(
-            "XML config does not exist - {} or {}",
-            hdfsConfigs.getHdfsSiteConfig(),
-            hdfsConfigs.getCoreSiteConfig());
-      }
-    } else {
-      log.info("XML config not provided");
+    if (Strings.isNullOrEmpty(hdfsConfigs.getHdfsSiteConfig())
+        || Strings.isNullOrEmpty(hdfsConfigs.getCoreSiteConfig())) {
+      throw new IllegalArgumentException("Hdfs or core config values null or empty");
     }
-    return new org.apache.hadoop.conf.Configuration();
+
+    File hdfsSiteFile = new File(hdfsConfigs.getHdfsSiteConfig());
+    File coreSiteFile = new File(hdfsConfigs.getCoreSiteConfig());
+    if (hdfsSiteFile.exists()
+        && hdfsSiteFile.isFile()
+        && coreSiteFile.exists()
+        && coreSiteFile.isFile()) {
+      org.apache.hadoop.conf.Configuration config = new org.apache.hadoop.conf.Configuration(false);
+      log.info("Using XML config found at {} and {}", hdfsSiteFile, coreSiteFile);
+      config.addResource(hdfsSiteFile.toURI().toURL());
+      config.addResource(coreSiteFile.toURI().toURL());
+      return config;
+    } else {
+      log.warn(
+          "XML config does not exist - {} or {}",
+          hdfsConfigs.getHdfsSiteConfig(),
+          hdfsConfigs.getCoreSiteConfig());
+      throw new IllegalArgumentException("Hdfs or core config files do not exist");
+    }
   }
 
   private static String getHdfsPrefix(HdfsConfigs hdfsConfigs) {
