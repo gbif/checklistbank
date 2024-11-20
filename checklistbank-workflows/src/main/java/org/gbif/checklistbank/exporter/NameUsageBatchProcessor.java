@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.apache.hadoop.fs.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +63,8 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   private final DescriptionServiceMyBatis descriptionService;
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
+
+  private final FileSystem fileSystem;
 
   //
   private List<Integer> allIds;
@@ -119,7 +122,8 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   public NameUsageBatchProcessor(Integer threads, int batchSize, Integer logInterval,
                                  UsageService nameUsageService,
                                  VernacularNameService vernacularNameService, DescriptionService descriptionService,
-                                 DistributionService distributionService, SpeciesProfileService speciesProfileService) {
+                                 DistributionService distributionService, SpeciesProfileService speciesProfileService,
+                                 FileSystem fileSystem) {
 
     super(threads);
     this.logInterval = logInterval;
@@ -130,6 +134,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     this.descriptionService = (DescriptionServiceMyBatis) descriptionService;
     this.distributionService = (DistributionServiceMyBatis) distributionService;
     this.speciesProfileService = (SpeciesProfileServiceMyBatis) speciesProfileService;
+    this.fileSystem = fileSystem;
   }
 
   @Override
@@ -165,10 +170,10 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
     final int endKey = endIdx > allIds.size() ? allIds.get(allIds.size() - 1) : allIds.get(endIdx);
     jobCounter++;
 
-    return newBatchJob(startKey, endKey, nameUsageService, vernacularNameService, descriptionService, distributionService, speciesProfileService);
+    return newBatchJob(startKey, endKey, nameUsageService, vernacularNameService, descriptionService, distributionService, speciesProfileService, fileSystem);
   }
 
-  protected abstract Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService);
+  protected abstract Callable<Integer> newBatchJob(int startKey, int endKey, UsageService nameUsageService, VernacularNameServiceMyBatis vernacularNameService, DescriptionServiceMyBatis descriptionService, DistributionServiceMyBatis distributionService, SpeciesProfileServiceMyBatis speciesProfileService, FileSystem fileSystem);
 
   private void initKeys() {
     StopWatch stopWatch = new StopWatch();
@@ -193,6 +198,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   protected void shutdownService(int tasksCount) {
     try {
       super.shutdownService(tasksCount);
+      fileSystem.close();
       LOG.info("All jobs completed.");
     } catch (Exception e) {
       LOG.error("Error shutting down the indexer", e);

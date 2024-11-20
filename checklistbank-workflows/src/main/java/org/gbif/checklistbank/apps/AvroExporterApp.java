@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.apps;
 
 import org.gbif.checklistbank.exporter.AvroExporter;
+import org.gbif.checklistbank.exporter.HdfsConfiguration;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
@@ -55,7 +56,7 @@ import org.springframework.stereotype.Component;
     })
 @Profile("!test")
 @Component
-@Import({SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
+@Import({SpringServiceConfig.class, HdfsConfiguration.class ,AvroExporter.class, MybatisAutoConfiguration.class})
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(

@@ -101,7 +101,7 @@
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
         <guava.version>32.1.2-jre</guava.version>
-        <hadoop.version>2.6.0-cdh5.16.2</hadoop.version>
+        <hadoop.version>3.2.4</hadoop.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hikaricp.version>3.2.0</hikaricp.version>
         <jackson.version>2.17.1</jackson.version>
