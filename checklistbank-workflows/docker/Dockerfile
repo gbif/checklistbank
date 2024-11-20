@@ -1,6 +1,6 @@
 # Simple image that copy the already previous builds shaded jar into a specific location.
 # This is used for SparkApplications to have a simple way to access the artifacts during their execution
-FROM docker.gbif.org/gbif/base-image:1.0.1
+FROM docker.gbif.org/gbif/base-image:1.0.2
 ARG JAR_FILE=${JAVA_JAR_FILE}
 USER root
 RUN mkdir /jobs
