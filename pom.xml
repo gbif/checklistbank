@@ -54,7 +54,7 @@
         <gbif-cli.version>1.2-SNAPSHOT</gbif-cli.version>
         <gbif-common.version>0.60</gbif-common.version>
         <gbif-common-mybatis.version>1.3</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.39</gbif-common-search.version>
+        <gbif-common-search.version>1.0-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.19</gbif-common-service.version>
         <gbif-common-ws.version>1.28-SNAPSHOT</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
