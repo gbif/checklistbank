@@ -60,7 +60,7 @@ If not already running start the matcher cli:
    - https://github.com/gbif/gbif-configuration/blob/master/checklistbank-nub-ws/prod/application.properties
 
 ### Rebuild solr index
-We build a new solr index for prod using oozie and the backbonebuild database, but do not yet change the production alias which will be done when we deploy the services.
+We build a new Elasticsearch index for prod using Apache Airflow and the backbonebuild database, but do not yet change the production alias which will be done when we deploy the services.
 
  - ssh c5gateway.gbif.org
   ````

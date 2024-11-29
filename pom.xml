@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.gbif</groupId>
         <artifactId>motherpom</artifactId>
-        <version>56</version>
+        <version>58</version>
     </parent>
 
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>2.129.2-SNAPSHOT</version>
+    <version>2.130-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ChecklistBank Mother POM</name>
@@ -34,7 +34,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <!-- GBIF Motherpom -->
         <release.tagNameBase>checklistbank</release.tagNameBase>
         <main.basedir>${project.basedir}</main.basedir>
@@ -48,21 +48,21 @@
         <!-- dependency versions -->
 
         <!-- GBIF -->
-        <dwc-api.version>1.46</dwc-api.version>
-        <gbif-api.version>1.6.0</gbif-api.version>
-        <gbif-cli.version>1.1</gbif-cli.version>
+        <dwc-api.version>2.0.0</dwc-api.version>
+        <dwca-io.version>3.0.0</dwca-io.version>
+        <gbif-api.version>2.0.0</gbif-api.version>
+        <gbif-cli.version>2.0.0</gbif-cli.version>
         <gbif-common.version>0.60</gbif-common.version>
-        <gbif-common-mybatis.version>1.3</gbif-common-mybatis.version>
-        <gbif-common-search.version>0.39</gbif-common-search.version>
+        <gbif-common-mybatis.version>2.0.0</gbif-common-mybatis.version>
+        <gbif-common-search.version>1.0</gbif-common-search.version>
         <gbif-common-service.version>0.19</gbif-common-service.version>
-        <gbif-common-ws.version>1.25</gbif-common-ws.version>
+        <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
-        <gbif-metadata-profile.version>2.1</gbif-metadata-profile.version>
-        <gbif-postal-service.version>1.8.0</gbif-postal-service.version>
-        <registry.version>3.94.9</registry.version>
+        <gbif-metadata-profile.version>2.6</gbif-metadata-profile.version>
+        <gbif-postal-service.version>1.8.1</gbif-postal-service.version>
+        <registry.version>3.96.29</registry.version>
         <name-parser.version>3.12.0</name-parser.version>
         <gbif-parser.version>0.67</gbif-parser.version>
-        <dwca-io.version>2.16</dwca-io.version>
         <datacite-rest-client.version>1.12</datacite-rest-client.version>
 
         <!-- Elasticsearch -->
@@ -81,7 +81,7 @@
         <mybatis-spring-boot-starter-test.version>2.0.0</mybatis-spring-boot-starter-test.version>
         <feign.version>10.11</feign.version>
         <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
-        <springdoc-openapi-ui.version>1.5.8</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
 
         <!-- Cache -->
         <cache2k.version>2.6.1.Final</cache2k.version>
@@ -95,17 +95,17 @@
         <commmons-lang.version>3.9</commmons-lang.version>
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
-        <commons-io.version>2.6</commons-io.version>
-        <curator.version>4.0.1</curator.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <eclipse-collections.version>9.2.0</eclipse-collections.version>
         <fastutil.version>8.5.9</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <freemarker.version>2.3.28</freemarker.version>
         <guava.version>32.1.2-jre</guava.version>
-        <hadoop.version>2.6.0-cdh5.16.2</hadoop.version>
+        <hadoop.version>3.2.4</hadoop.version>
         <hamcrest.version>1.3</hamcrest.version>
         <hikaricp.version>3.2.0</hikaricp.version>
-        <jackson.version>2.12.3</jackson.version>
+        <jackson.version>2.17.1</jackson.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
         <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
         <jcommander.version>1.60</jcommander.version>
         <jsoup.version>1.10.2</jsoup.version>
@@ -113,10 +113,11 @@
         <junit5.version>5.6.3</junit5.version>
         <kryo.version>4.0.2</kryo.version>
         <liquibase.version>3.8.9</liquibase.version>
+        <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
-        <logstash-logback.version>4.10</logstash-logback.version>
+        <logstash-encoder.version>6.6</logstash-encoder.version>
         <mapdb.version>3.0.8</mapdb.version>
-        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+        <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
         <maven-release-plugin.version>3.0.0-M4</maven-release-plugin.version>
         <metrics.version>3.1.2</metrics.version>
         <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
@@ -127,10 +128,9 @@
         <powermock-mockito.version>1.6.5</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
-        <slf4j.version>1.7.24</slf4j.version>
         <tika.version>1.21</tika.version>
-        <zookeeper.version>3.4.5-cdh5.16.2</zookeeper.version>
-        <scala.version>2.11.8</scala.version>
+        <zookeeper.version>3.8.1</zookeeper.version>
+        <curator.version>5.5.0</curator.version>
 
         <!-- Sonar -->
         <sonar.language>java</sonar.language>
@@ -150,7 +150,7 @@
         <depgraph-maven-plugin>3.3.0</depgraph-maven-plugin>
 
         <!-- Tools-->
-        <lombok.version>1.18.20</lombok.version>
+        <lombok.version>1.18.32</lombok.version>
 
         <!-- Test -->
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -164,12 +164,6 @@
         <repository>
             <id>cloudera-release</id>
             <url>https://repository.gbif.org/repository/cloudera-release/</url>
-        </repository>
-        <repository>
-            <!-- this is needed for modern mavens which block plain http.
-             The old solr dep we use still uses http -->
-            <id>maven-restlet</id>
-            <url>https://maven.restlet.org/</url>
         </repository>
     </repositories>
 
@@ -238,6 +232,11 @@
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
+                    <argLine>
+                        --add-opens=java.base/java.lang=ALL-UNNAMED
+                        --add-opens=java.base/java.util=ALL-UNNAMED
+                        --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+                    </argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -511,7 +510,7 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+                <artifactId>spring-cloud-starter-zookeeper-all</artifactId>
                 <version>${spring-cloud-zookeeper.version}</version>
                 <exclusions>
                     <exclusion>
@@ -534,7 +533,16 @@
                         <groupId>org.springframework.cloud</groupId>
                         <artifactId>spring-cloud-starter-loadbalancer</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <artifactId>spring-cloud-starter-zookeeper-config</artifactId>
+                        <groupId>org.springframework.cloud</groupId>
+                    </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+                <version>${spring-cloud-zookeeper.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -592,6 +600,12 @@
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
             </dependency>
 
             <!-- Elasticsearch and Lucene-->
@@ -682,7 +696,7 @@
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>${logstash-logback.version}</version>
+                <version>${logstash-encoder.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <!-- Required by logback when using EvaluatorFilter -->
@@ -859,8 +873,8 @@
                 <artifactId>mapdb</artifactId>
                 <version>${mapdb.version}</version>
             </dependency>
-            <!-- 
-            mapdb and neo4j rely on eclipse collections but interfer 
+            <!--
+            mapdb and neo4j rely on eclipse collections but interfer
             and eclipse collections 12 compile for java11 only...
             -->
             <dependency>
@@ -934,11 +948,6 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro-maven-plugin</artifactId>
                 <version>${avro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.version}</version>
             </dependency>
 
             <!-- TEST SCOPE -->

@@ -18,7 +18,6 @@ import org.gbif.checklistbank.config.ClbConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.jdbc.DataSourceInitializationMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -40,7 +39,6 @@ public class DataSourcesConfiguration {
     dataSourceProperties.setUsername(clbConfiguration.user);
     dataSourceProperties.setPassword(clbConfiguration.password);
     dataSourceProperties.setUrl(clbConfiguration.getDbUrl());
-    dataSourceProperties.setInitializationMode(DataSourceInitializationMode.ALWAYS);
     return dataSourceProperties;
   }
 

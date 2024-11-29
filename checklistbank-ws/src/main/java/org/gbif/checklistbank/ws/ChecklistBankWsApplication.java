@@ -28,9 +28,9 @@ import org.gbif.ws.server.mapper.WebApplicationExceptionMapper;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationContext;
@@ -42,8 +42,8 @@ import org.springframework.context.annotation.Import;
 
 @SpringBootApplication(
   exclude = {
-    ElasticSearchRestHealthContributorAutoConfiguration.class,
-    RabbitAutoConfiguration.class
+      ElasticsearchRestClientAutoConfiguration.class,
+      RabbitAutoConfiguration.class
   })
 @Import({SpringServiceConfig.class, SpringElasticsearchConfiguration.class})
 @EnableConfigurationProperties

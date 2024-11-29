@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>2.129.2-SNAPSHOT</version>
+    <version>2.130-SNAPSHOT</version>
   </parent>
 
   <artifactId>checklistbank-elasticsearch</artifactId>
@@ -19,6 +19,10 @@
       <url>http://gbif.github.io/checklistbank/${project.artifactId}/</url>
     </site>
   </distributionManagement>
+
+  <properties>
+    <avro-generated-path>${project.basedir}/src/main/java-generated</avro-generated-path>
+  </properties>
 
   <build>
     <resources>
@@ -42,7 +46,7 @@
           <phase>generate-sources</phase>
           <configuration>
             <sourceDirectory>${project.basedir}/src/main/resources</sourceDirectory>
-            <outputDirectory>${project.basedir}/src/main/java-generated</outputDirectory>
+            <outputDirectory>${avro-generated-path}</outputDirectory>
             <stringType>String</stringType>
             <includes>
               <include>**/*.avrsc</include>
@@ -51,6 +55,24 @@
           <goals>
             <goal>schema</goal>
           </goals>
+        </execution>
+      </executions>
+    </plugin>
+    <!-- Add the generated sources to the classpath for IDEs -->
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>build-helper-maven-plugin</artifactId>
+      <executions>
+        <execution>
+          <phase>generate-sources</phase>
+          <goals>
+            <goal>add-source</goal>
+          </goals>
+          <configuration>
+            <sources>
+              <source>${avro-generated-path}</source>
+            </sources>
+          </configuration>
         </execution>
       </executions>
     </plugin>

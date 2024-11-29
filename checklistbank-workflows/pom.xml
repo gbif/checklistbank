@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <artifactId>checklistbank-motherpom</artifactId>
     <groupId>org.gbif.checklistbank</groupId>
-    <version>2.129.2-SNAPSHOT</version>
+    <version>2.130-SNAPSHOT</version>
   </parent>
-  <modelVersion>4.0.0</modelVersion>
 
   <artifactId>checklistbank-workflows</artifactId>
   <packaging>jar</packaging>
@@ -21,17 +22,17 @@
 
   <properties>
     <!-- Spark -->
-    <spark.version>2.3.0</spark.version>
-    <spark.elasticsearch.version>8.1.1</spark.elasticsearch.version>
-    <databricks.version>4.0.0</databricks.version>
-    <scala.tools.version>2.11</scala.tools.version>
+    <spark.version>3.5.1</spark.version>
+    <spark.elasticsearch.version>${elasticsearch.version}</spark.elasticsearch.version>
+    <scala.tools.version>2.12</scala.tools.version>
+    <scala.library.version>2.12.17</scala.library.version>
 
     <!-- These must be compatible with Spark version (see https://stackoverflow.com/a/50114083) -->
     <janino.version>3.0.8</janino.version>
     <commons-compiler.version>3.0.8</commons-compiler.version>
 
     <!-- Match cluster version -->
-    <guava.version>18.0</guava.version>
+    <guava.version>27.0-jre</guava.version>
   </properties>
 
   <build>
@@ -78,7 +79,6 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>${project.artifactId}</finalName>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <transformers>
                 <!-- This bit merges the various lucene META-INF/services files -->
@@ -196,10 +196,9 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>com.databricks</groupId>
+      <groupId>org.apache.spark</groupId>
       <artifactId>spark-avro_${scala.tools.version}</artifactId>
-      <version>${databricks.version}</version>
-      <scope>compile</scope>
+      <version>${spark.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -209,14 +208,75 @@
     </dependency>
     <dependency>
       <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch-spark-20_2.11</artifactId>
+      <artifactId>elasticsearch-spark-30_2.12</artifactId>
       <version>${spark.elasticsearch.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
+      <version>${scala.library.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <!-- Hadoop -->
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>${hadoop.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs-client</artifactId>
+      <version>${hadoop.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-common</artifactId>
+      <version>${hadoop.version}</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.avro</groupId>
+          <artifactId>avro</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-auth</artifactId>
+      <version>${hadoop.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- mybatis / DB -->
+    <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
     </dependency>
 
     <!-- Jackson and Yaml-->
@@ -290,59 +350,4 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>oozie</id>
-      <build>
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <includes>
-              <include>/oozie/workflow.xml</include>
-            </includes>
-          </resource>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>false</filtering>
-          </resource>
-        </resources>
-
-        <plugins>
-          <plugin>
-            <artifactId>maven-resources-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>process-resources</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>resources</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <finalName>oozie-workflow</finalName>
-              <descriptors>
-                <descriptor>src/main/assembly/oozie.xml</descriptor>
-              </descriptors>
-            </configuration>
-            <executions>
-              <execution>
-                <id>make-oozie</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>single</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

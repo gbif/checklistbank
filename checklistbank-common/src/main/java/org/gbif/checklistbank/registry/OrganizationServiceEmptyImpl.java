@@ -18,12 +18,11 @@ import org.gbif.api.model.common.paging.PagingResponse;
 import org.gbif.api.model.registry.Dataset;
 import org.gbif.api.model.registry.Installation;
 import org.gbif.api.model.registry.Organization;
-import org.gbif.api.model.registry.search.ContactsSearchParams;
 import org.gbif.api.model.registry.search.KeyTitleResult;
 import org.gbif.api.model.registry.search.OrganizationRequestSearchParams;
-import org.gbif.api.model.registry.view.OrganizationContactView;
 import org.gbif.api.service.registry.OrganizationService;
 import org.gbif.api.vocabulary.Country;
+import org.geojson.FeatureCollection;
 
 import java.util.List;
 import java.util.UUID;
@@ -97,7 +96,7 @@ public class OrganizationServiceEmptyImpl extends EmptyNetworkEntityService<Orga
   }
 
   @Override
-  public PagingResponse<OrganizationContactView> searchContacts(ContactsSearchParams contactsSearchParams) {
+  public FeatureCollection listGeoJson(OrganizationRequestSearchParams organizationRequestSearchParams) {
     throw new UnsupportedOperationException();
   }
 }

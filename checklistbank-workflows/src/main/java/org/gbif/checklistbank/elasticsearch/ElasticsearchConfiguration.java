@@ -26,9 +26,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-/**
- * Configuration setting to access and index data in Elasticsearch.
- */
 public class ElasticsearchConfiguration {
 
   static final int DEFAULT_CONNECTION_TIMEOUT = 60000;

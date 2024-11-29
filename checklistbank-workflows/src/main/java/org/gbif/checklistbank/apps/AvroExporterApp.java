@@ -14,6 +14,7 @@
 package org.gbif.checklistbank.apps;
 
 import org.gbif.checklistbank.exporter.AvroExporter;
+import org.gbif.checklistbank.exporter.HdfsConfiguration;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 
 import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
@@ -30,7 +31,6 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.cloud.netflix.archaius.ArchaiusAutoConfiguration;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -50,14 +50,13 @@ import org.springframework.stereotype.Component;
       DataSourceAutoConfiguration.class,
       LiquibaseAutoConfiguration.class,
       FreeMarkerAutoConfiguration.class,
-      ArchaiusAutoConfiguration.class,
       RabbitAutoConfiguration.class,
       GsonAutoConfiguration.class,
       FeignAutoConfiguration.class
     })
 @Profile("!test")
 @Component
-@Import({SpringServiceConfig.class, AvroExporter.class, MybatisAutoConfiguration.class})
+@Import({SpringServiceConfig.class, HdfsConfiguration.class ,AvroExporter.class, MybatisAutoConfiguration.class})
 @ComponentScan(
     excludeFilters = {
       @ComponentScan.Filter(
