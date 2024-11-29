@@ -38,10 +38,12 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
       </plugin>
       <plugin>
         <groupId>org.liquibase</groupId>
         <artifactId>liquibase-maven-plugin</artifactId>
+        <version>${liquibase-maven-plugin.version}</version>
         <configuration>
           <changeLogFile>src/main/resources/liquibase/checklistbank/master.xml</changeLogFile>
           <defaultSchemaName>public</defaultSchemaName>
