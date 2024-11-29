@@ -41,6 +41,7 @@
     <plugin>
       <groupId>org.apache.avro</groupId>
       <artifactId>avro-maven-plugin</artifactId>
+      <version>${avro-maven-plugin.version}</version>
       <executions>
         <execution>
           <phase>generate-sources</phase>
@@ -62,6 +63,7 @@
     <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>build-helper-maven-plugin</artifactId>
+      <version>${build-helper-maven-plugin.version}</version>
       <executions>
         <execution>
           <phase>generate-sources</phase>

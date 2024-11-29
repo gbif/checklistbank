@@ -148,6 +148,8 @@
         <!-- Plugins -->
         <spring-boot-maven-plugin.version>${spring-boot.version}</spring-boot-maven-plugin.version>
         <depgraph-maven-plugin>3.3.0</depgraph-maven-plugin>
+        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <avro-maven-plugin.version>1.8.2</avro-maven-plugin.version>
 
         <!-- Tools-->
         <lombok.version>1.18.32</lombok.version>
