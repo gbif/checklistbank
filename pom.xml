@@ -82,6 +82,7 @@
         <feign.version>10.11</feign.version>
         <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
         <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
+        <swagger-annotations.version>2.2.20</swagger-annotations.version>
 
         <!-- Cache -->
         <cache2k.version>2.6.1.Final</cache2k.version>
@@ -572,6 +573,11 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc-openapi-ui.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations</artifactId>
+                <version>${swagger-annotations.version}</version>
             </dependency>
 
             <!-- JACKSON-->
