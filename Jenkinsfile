@@ -32,10 +32,22 @@ pipeline {
         configFileProvider([
             configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709', variable: 'MAVEN_SETTINGS')
           ]) {
-          sh 'mvn -s ${MAVEN_SETTINGS} -Djetty.port=${JETTY_PORT} clean test verify dependency:analyze -Pclb-build -U'
+          sh 'mvn -s ${MAVEN_SETTINGS} -Djetty.port=${JETTY_PORT} clean test verify deploy dependency:analyze -Pclb-build -U'
         }
       }
     }
+
+    stage('Trigger WS deploy dev2') {
+          when {
+            allOf {
+              not { expression { params.RELEASE } };
+              branch 'dev';
+            }
+          }
+          steps {
+            build job: "checklistbank-ws-dev-deploy", wait: false, propagate: false
+          }
+        }
 
     stage('Build and push Docker images: Checklistbank workflow') {
       when {
