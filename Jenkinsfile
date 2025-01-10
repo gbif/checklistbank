@@ -86,6 +86,7 @@ pipeline {
       when {
         allOf {
           expression { params.RELEASE };
+          not { expression { params.DRY_RUN_RELEASE } }
           branch 'master';
         }
       }
