@@ -13,6 +13,8 @@
  */
 package org.gbif.checklistbank.exporter;
 
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.Path;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -23,9 +25,12 @@ import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -39,6 +44,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AvroExporter extends NameUsageBatchProcessor {
+  private static final Logger LOG = LoggerFactory.getLogger(AvroExporter.class);
 
   private final String targetHdfsDir;
 
@@ -65,6 +71,15 @@ public class AvroExporter extends NameUsageBatchProcessor {
         speciesProfileService,
         fileSystem);
     this.targetHdfsDir = targetHdfsDir;
+  }
+
+  @Override
+  public int run() {
+    // clear avro dir from old exports first
+    var target = new File(targetHdfsDir);
+    LOG.info("Remove all content from target dir {}", target);
+    FileUtil.fullyDeleteContents(target);
+    return super.run();
   }
 
   @Override
