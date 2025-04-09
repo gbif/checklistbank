@@ -498,4 +498,9 @@
             DROP INDEX identifier_identifier_idx;
         </sql>
     </changeSet>
+    <changeSet id="61" author="markus" runInTransaction="false">
+        <sql>
+            CREATE INDEX ON name_usage (dataset_key, rank) WHERE deleted IS NULL AND parent_fk IS NULL AND is_synonym = false;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
