@@ -64,7 +64,7 @@ public abstract class NameUsageBatchProcessor extends ThreadPoolRunner<Integer> 
   private final DistributionServiceMyBatis distributionService;
   private final SpeciesProfileServiceMyBatis speciesProfileService;
 
-  private final FileSystem fileSystem;
+  protected final FileSystem fileSystem;
 
   //
   private List<Integer> allIds;
