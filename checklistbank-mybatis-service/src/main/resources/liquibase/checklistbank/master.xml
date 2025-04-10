@@ -503,4 +503,9 @@
             CREATE INDEX ON name_usage (dataset_key, rank) WHERE deleted IS NULL AND parent_fk IS NULL AND is_synonym = false;
         </sql>
     </changeSet>
+    <changeSet id="62" author="markus" runInTransaction="false">
+        <sql>
+            CREATE INDEX ON name_usage (lower(taxon_id), id) WHERE deleted IS NULL;
+        </sql>
+    </changeSet>
 </databaseChangeLog>
