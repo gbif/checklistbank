@@ -13,6 +13,8 @@
  */
 package org.gbif.checklistbank.exporter;
 
+import lombok.SneakyThrows;
+
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.gbif.api.service.checklistbank.DescriptionService;
@@ -73,12 +75,12 @@ public class AvroExporter extends NameUsageBatchProcessor {
     this.targetHdfsDir = targetHdfsDir;
   }
 
+  @SneakyThrows
   @Override
   public int run() {
     // clear avro dir from old exports first
-    var target = new File(targetHdfsDir);
-    LOG.info("Remove all content from target dir {}", target);
-    FileUtil.fullyDeleteContents(target);
+    LOG.info("Remove all content from target dir {}", targetHdfsDir);
+    fileSystem.delete(new Path(targetHdfsDir), true);
     return super.run();
   }
 
