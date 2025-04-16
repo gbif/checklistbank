@@ -707,10 +707,17 @@ public class NubMatchingServiceImplIT {
   public void testIndet() throws IOException {
     LinneanClassification cl = new NameUsageMatch();
     assertMatch("Peperomia induta", cl, 4189260, new IntRange(95, 100));
-    assertMatch("Peperomia indet", cl, 3086367, NameUsageMatch.MatchType.HIGHERRANK);
-    assertMatch("Lacerta bilineata indet", cl, 6159243, new IntRange(95, 100));
-  }
+    assertMatch("Peperomia indet", cl, 3086367);
+    assertMatch("Asteraceae indet.", cl, 3065, new IntRange(92, 100));
 
+    assertMatch("Trametes indet.", cl, 2519084, new IntRange(92, 100));
+
+    cl.setKingdom("Fungi");
+    cl.setPhylum("Basidiomycota");
+    cl.setClazz("Agaricomycetes");
+    assertMatch("Trametes spec.", cl, 2519084, new IntRange(92, 100));
+    assertMatch("Trametes indet.", cl, 2519084, new IntRange(92, 100));
+  }
 
   /**
    * http://gbif.blogspot.com/2015/03/improving-gbif-backbone-matching.html
