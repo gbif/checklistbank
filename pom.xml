@@ -92,6 +92,10 @@
         <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
         <swagger-annotations.version>2.2.20</swagger-annotations.version>
 
+        <!-- Metrics -->
+        <micrometer.version>1.12.2</micrometer.version>
+
+
         <!-- Cache -->
         <cache2k.version>2.6.1.Final</cache2k.version>
 
@@ -625,6 +629,14 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
+            </dependency>
+
+            <!-- Metrics -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Elasticsearch and Lucene-->
