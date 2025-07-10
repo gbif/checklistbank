@@ -3,7 +3,7 @@
 pipeline {
   agent any
   tools {
-    maven 'Maven 3.8.5'
+    maven 'Maven 3.9.9'
     jdk 'OpenJDK11'
   }
   options {
@@ -31,9 +31,12 @@ pipeline {
         }
       }
       steps {
-        configFileProvider([
-          configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709', variable: 'MAVEN_SETTINGS')
-        ]) {
+        withMaven(globalMavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
+                  mavenOpts: '-Xms2048m -Xmx8192m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
+                 configFileProvider([
+                    configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
+                                              variable: 'MAVEN_SETTINGS_XML')
+                    ]) {
           sh 'mvn -s ${MAVEN_SETTINGS} -Djetty.port=${JETTY_PORT} clean test verify deploy dependency:analyze -Pclb-build -U'
         }
       }
@@ -73,9 +76,12 @@ pipeline {
           RELEASE_ARGS = utils.createReleaseArgs(params.RELEASE_VERSION, params.DEVELOPMENT_VERSION, params.DRY_RUN_RELEASE)
       }
       steps {
-          configFileProvider(
-                  [configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
-                          variable: 'MAVEN_SETTINGS_XML')]) {
+        withMaven(globalMavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
+                    mavenOpts: '-Xms2048m -Xmx8192m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
+                     configFileProvider([
+                        configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
+                                                  variable: 'MAVEN_SETTINGS_XML')
+                        ]) {
               git 'https://github.com/gbif/checklistbank.git'
               sh 'mvn -s $MAVEN_SETTINGS_XML -B -Denforcer.skip=true release:prepare release:perform $RELEASE_ARGS'
           }
