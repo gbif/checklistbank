@@ -9,7 +9,7 @@
 
     <groupId>org.gbif.checklistbank</groupId>
     <artifactId>checklistbank-motherpom</artifactId>
-    <version>3.0.5-SNAPSHOT</version>
+    <version>3.0.8-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>ChecklistBank Mother POM</name>
@@ -69,7 +69,7 @@
         <gbif-metadata-profile.version>2.6</gbif-metadata-profile.version>
         <gbif-postal-service.version>1.8.1</gbif-postal-service.version>
         <registry.version>4.0.1</registry.version>
-        <name-parser.version>3.12.0</name-parser.version>
+        <name-parser.version>3.13.0</name-parser.version>
         <gbif-parser.version>0.67</gbif-parser.version>
         <datacite-rest-client.version>1.12</datacite-rest-client.version>
 

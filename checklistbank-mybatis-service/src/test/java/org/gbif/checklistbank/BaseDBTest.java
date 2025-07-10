@@ -46,7 +46,7 @@ public class BaseDBTest {
 
   public static PostgreSQLContainer createPostgreSQLContainer() {
     PostgreSQLContainer container =
-        new PostgreSQLContainer("postgres:11.1").withDatabaseName("clb");
+        new PostgreSQLContainer("postgres:17.2").withDatabaseName("clb");
     container.withReuse(true).withLabel("reuse.tag", "clb_ITs_PG_container");
     container.setWaitStrategy(
         Wait.defaultWaitStrategy().withStartupTimeout(Duration.ofSeconds(60)));
