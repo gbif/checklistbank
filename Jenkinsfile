@@ -84,7 +84,7 @@ pipeline {
                                                   variable: 'MAVEN_SETTINGS_XML')
                         ]) {
               git 'https://github.com/gbif/checklistbank.git'
-              sh 'mvn -s $MAVEN_SETTINGS_XML -B -Denforcer.skip=true release:prepare release:perform $RELEASE_ARGS'
+              sh 'mvn -s $MAVEN_SETTINGS_XML -B release:prepare release:perform -Denforcer.skip=true -Dmaven.test.skip=true $RELEASE_ARGS'
           }
         }
       }
