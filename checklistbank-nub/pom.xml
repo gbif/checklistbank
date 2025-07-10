@@ -5,7 +5,7 @@
   <parent>
     <artifactId>checklistbank-motherpom</artifactId>
     <groupId>org.gbif.checklistbank</groupId>
-    <version>3.0.9-SNAPSHOT</version>
+    <version>3.0.9</version>
   </parent>
 
   <artifactId>checklistbank-nub</artifactId>
