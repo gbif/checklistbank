@@ -37,7 +37,7 @@ pipeline {
                     configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
                                               variable: 'MAVEN_SETTINGS_XML')
                     ]) {
-          sh 'mvn -s ${MAVEN_SETTINGS_XML} -Djetty.port=${JETTY_PORT} clean test verify deploy dependency:analyze -Pclb-build -U'
+          sh 'mvn -s ${MAVEN_SETTINGS_XML} -Djetty.port=${JETTY_PORT} clean test verify deploy dependency:analyze -T 1C -Dparallel=classes -DuseUnlimitedThreads=true -Pclb-build -U'
             }
         }
       }
@@ -84,7 +84,7 @@ pipeline {
                                                   variable: 'MAVEN_SETTINGS_XML')
                         ]) {
               git 'https://github.com/gbif/checklistbank.git'
-              sh 'mvn -s $MAVEN_SETTINGS_XML -B release:prepare release:perform -Denforcer.skip=true -Dmaven.test.skip=true $RELEASE_ARGS'
+              sh 'mvn -s $MAVEN_SETTINGS_XML -B release:prepare release:perform -T 1C -Dparallel=classes -DuseUnlimitedThreads=true -Denforcer.skip=true -Dmaven.test.skip=true $RELEASE_ARGS'
           }
         }
       }
