@@ -38,6 +38,7 @@ pipeline {
                                               variable: 'MAVEN_SETTINGS_XML')
                     ]) {
           sh 'mvn -s ${MAVEN_SETTINGS} -Djetty.port=${JETTY_PORT} clean test verify deploy dependency:analyze -Pclb-build -U'
+            }
         }
       }
     }
@@ -85,6 +86,7 @@ pipeline {
               git 'https://github.com/gbif/checklistbank.git'
               sh 'mvn -s $MAVEN_SETTINGS_XML -B -Denforcer.skip=true release:prepare release:perform $RELEASE_ARGS'
           }
+        }
       }
     }
 
