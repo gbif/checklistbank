@@ -32,7 +32,7 @@ pipeline {
       }
       steps {
         withMaven(globalMavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
-                  mavenOpts: '-Xms2048m -Xmx10240m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
+                  mavenOpts: '-Xms4096m -Xmx10240m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
                  configFileProvider([
                     configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
                                               variable: 'MAVEN_SETTINGS_XML')
@@ -78,7 +78,7 @@ pipeline {
       }
       steps {
         withMaven(globalMavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
-                    mavenOpts: '-Xms2048m -Xmx10240m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
+                    mavenOpts: '-Xms4096m -Xmx10240m', mavenSettingsConfig: 'org.jenkinsci.plugins.configfiles.maven.MavenSettingsConfig1396361652540') {
                      configFileProvider([
                         configFile(fileId: 'org.jenkinsci.plugins.configfiles.maven.GlobalMavenSettingsConfig1387378707709',
                                                   variable: 'MAVEN_SETTINGS_XML')
