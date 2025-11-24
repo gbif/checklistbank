@@ -169,7 +169,7 @@
         <lombok.version>1.18.32</lombok.version>
 
         <!-- Test -->
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <testcontainers.version>2.0.2</testcontainers.version>
     </properties>
 
     <repositories>
@@ -255,6 +255,13 @@
                         --add-opens=java.base/java.util=ALL-UNNAMED
                         --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
                     </argLine>
+                    <systemPropertyVariables>
+                        <junit.jupiter.execution.parallel.enabled>false</junit.jupiter.execution.parallel.enabled>
+                        <spring.profiles.active>test</spring.profiles.active>
+                        <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
+                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
+                        <testcontainers.checks.disable>true</testcontainers.checks.disable>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>
