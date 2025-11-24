@@ -78,6 +78,13 @@
                         --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
                     </argLine>
                     <runOrder>random</runOrder>
+                    <systemPropertyVariables>
+                        <junit.jupiter.execution.parallel.enabled>false</junit.jupiter.execution.parallel.enabled>
+                        <spring.profiles.active>test</spring.profiles.active>
+                        <testcontainers.reuse.enable>true</testcontainers.reuse.enable>
+                        <testcontainers.ryuk.disabled>true</testcontainers.ryuk.disabled>
+                        <testcontainers.checks.disable>true</testcontainers.checks.disable>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
