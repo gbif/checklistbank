@@ -178,6 +178,10 @@
             <url>https://repository.gbif.org/content/groups/gbif</url>
         </repository>
         <repository>
+            <id>gbif-thirdparty</id>
+            <url>https://repository.gbif.org/content/repositories/thirdparty/</url>
+        </repository>
+        <repository>
             <id>cloudera-release</id>
             <url>https://repository.gbif.org/repository/cloudera-release/</url>
         </repository>
@@ -1090,7 +1094,7 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>elasticsearch</artifactId>
+                <artifactId>testcontainers-elasticsearch</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -1101,7 +1105,7 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
+                <artifactId>testcontainers-postgresql</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
