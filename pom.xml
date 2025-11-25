@@ -62,7 +62,7 @@
         <gbif-cli.version>2.0.0</gbif-cli.version>
         <gbif-common.version>0.60</gbif-common.version>
         <gbif-common-mybatis.version>2.0.0</gbif-common-mybatis.version>
-        <gbif-common-search.version>1.0</gbif-common-search.version>
+        <gbif-common-search.version>1.1-SNAPSHOT</gbif-common-search.version>
         <gbif-common-service.version>0.19</gbif-common-service.version>
         <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
@@ -92,6 +92,10 @@
         <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
         <swagger-annotations.version>2.2.20</swagger-annotations.version>
 
+        <!-- Metrics -->
+        <micrometer.version>1.12.2</micrometer.version>
+
+
         <!-- Cache -->
         <cache2k.version>2.6.1.Final</cache2k.version>
 
@@ -119,7 +123,7 @@
         <jcommander.version>1.60</jcommander.version>
         <jsoup.version>1.10.2</jsoup.version>
         <junit.version>4.12</junit.version>
-        <junit5.version>5.6.3</junit5.version>
+        <junit5.version>5.11.2</junit5.version>
         <kryo.version>4.0.2</kryo.version>
         <liquibase.version>3.8.9</liquibase.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -165,13 +169,17 @@
         <lombok.version>1.18.32</lombok.version>
 
         <!-- Test -->
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <testcontainers.version>2.0.2</testcontainers.version>
     </properties>
 
     <repositories>
         <repository>
             <id>gbif-all</id>
             <url>https://repository.gbif.org/content/groups/gbif</url>
+        </repository>
+        <repository>
+            <id>gbif-thirdparty</id>
+            <url>https://repository.gbif.org/content/repositories/thirdparty/</url>
         </repository>
         <repository>
             <id>cloudera-release</id>
@@ -238,6 +246,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED</argLine>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -246,11 +257,7 @@
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
-                    <argLine>
-                        --add-opens=java.base/java.lang=ALL-UNNAMED
-                        --add-opens=java.base/java.util=ALL-UNNAMED
-                        --add-opens=java.base/sun.nio.ch=ALL-UNNAMED
-                    </argLine>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -625,6 +632,14 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
+            </dependency>
+
+            <!-- Metrics -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
             <!-- Elasticsearch and Lucene-->
@@ -1071,7 +1086,13 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>elasticsearch</artifactId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-elasticsearch</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -1082,7 +1103,7 @@
             </dependency>
             <dependency>
                 <groupId>org.testcontainers</groupId>
-                <artifactId>postgresql</artifactId>
+                <artifactId>testcontainers-postgresql</artifactId>
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>

@@ -231,6 +231,13 @@
     </dependency>
 
 
+    <!-- Metrics -->
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
     <!-- Jackson -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
