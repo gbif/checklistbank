@@ -10,6 +10,10 @@ pipeline {
     buildDiscarder(logRotator(numToKeepStr: '10'))
     skipStagesAfterUnstable()
     timestamps()
+    disableConcurrentBuilds()
+  }
+  triggers {
+   snapshotDependencies()
   }
   parameters {
     separator(name: "release_separator", sectionHeader: "Release Parameters")
