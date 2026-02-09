@@ -181,10 +181,6 @@
             <id>gbif-thirdparty</id>
             <url>https://repository.gbif.org/content/repositories/thirdparty/</url>
         </repository>
-        <repository>
-            <id>cloudera-release</id>
-            <url>https://repository.gbif.org/repository/cloudera-release/</url>
-        </repository>
     </repositories>
 
     <modules>
