@@ -23,8 +23,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.Sets;

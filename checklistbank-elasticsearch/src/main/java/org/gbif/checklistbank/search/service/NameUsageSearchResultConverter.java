@@ -13,6 +13,7 @@
  */
 package org.gbif.checklistbank.search.service;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
@@ -29,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringEscapeUtils;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
@@ -208,7 +208,7 @@ public class NameUsageSearchResultConverter
                 .collect(
                     Collectors.toMap(
                         v ->
-                            StringEscapeUtils.unescapeHtml(
+                            StringEscapeUtils.unescapeHtml4(
                                 v.replaceAll(EsSearchRequestBuilder.PRE_HL_TAG, "")
                                     .replaceAll(EsSearchRequestBuilder.POST_HL_TAG, "")),
                         v -> v,

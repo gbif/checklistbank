@@ -15,7 +15,6 @@ package org.gbif.checklistbank.exporter;
 
 import lombok.SneakyThrows;
 
-import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
@@ -27,7 +26,6 @@ import org.gbif.checklistbank.service.mybatis.service.DistributionServiceMyBatis
 import org.gbif.checklistbank.service.mybatis.service.SpeciesProfileServiceMyBatis;
 import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBatis;
 
-import java.io.File;
 import java.util.concurrent.Callable;
 
 import org.apache.hadoop.fs.FileSystem;

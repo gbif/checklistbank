@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A simple implementation of a read-only DatasetService of the registry backed by a CSV file.

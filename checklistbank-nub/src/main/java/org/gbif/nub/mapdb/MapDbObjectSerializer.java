@@ -16,7 +16,7 @@ package org.gbif.nub.mapdb;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.mapdb.DataIO;

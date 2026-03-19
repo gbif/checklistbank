@@ -16,7 +16,7 @@ package org.gbif.checklistbank.neo.traverse;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;

@@ -19,7 +19,7 @@ import org.gbif.checklistbank.cli.model.RankedName;
 
 import java.util.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class NubSourceConfig {
 

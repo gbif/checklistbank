@@ -22,8 +22,7 @@
     <main.basedir>${project.parent.basedir}</main.basedir>
     <start-class>org.gbif.checklistbank.ws.ChecklistBankWsApplication</start-class>
 
-    <!-- Using java 11 for applications -->
-    <java.version>11</java.version>
+    <java.version>17</java.version>
   </properties>
 
   <build>
@@ -186,11 +185,12 @@
       <groupId>de.codecentric</groupId>
       <artifactId>spring-boot-admin-starter-client</artifactId>
     </dependency>
+
+    <!-- OpenAPI -->
     <dependency>
       <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-ui</artifactId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
     </dependency>
-    <!-- swagger for springdocs -->
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-annotations</artifactId>
@@ -267,6 +267,10 @@
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+    </dependency>
 
     <!-- Elasticsearch -->
     <dependency>
@@ -315,6 +319,10 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

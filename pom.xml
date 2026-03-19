@@ -42,7 +42,7 @@
     </distributionManagement>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <!-- GBIF Motherpom -->
         <release.tagNameBase>checklistbank</release.tagNameBase>
         <main.basedir>${project.basedir}</main.basedir>
@@ -59,86 +59,94 @@
         <dwc-api.version>2.0.0</dwc-api.version>
         <dwca-io.version>3.0.0</dwca-io.version>
         <gbif-api.version>2.0.0</gbif-api.version>
-        <gbif-cli.version>2.0.0</gbif-cli.version>
+        <gbif-cli.version>3.0.1</gbif-cli.version>
         <gbif-common.version>0.60</gbif-common.version>
         <gbif-common-mybatis.version>2.0.0</gbif-common-mybatis.version>
         <gbif-common-search.version>1.1</gbif-common-search.version>
         <gbif-common-service.version>0.19</gbif-common-service.version>
-        <gbif-common-ws.version>2.0.3</gbif-common-ws.version>
+        <gbif-common-ws.version>2.1.1</gbif-common-ws.version>
         <gbif-httputils.version>0.12</gbif-httputils.version>
         <gbif-metadata-profile.version>2.6</gbif-metadata-profile.version>
-        <gbif-postal-service.version>1.8.1</gbif-postal-service.version>
-        <registry.version>4.0.1</registry.version>
-        <name-parser.version>3.13.0</name-parser.version>
+        <gbif-postal-service.version>2.1.4</gbif-postal-service.version>
+        <registry.version>4.2.13</registry.version>
+        <name-parser.version>3.15.0</name-parser.version>
         <gbif-parser.version>0.67</gbif-parser.version>
         <datacite-rest-client.version>1.12</datacite-rest-client.version>
 
         <!-- Elasticsearch -->
-        <elasticsearch.version>8.1.1</elasticsearch.version>
-        <apache.httpcomponents.httpcore.version>4.4.14</apache.httpcomponents.httpcore.version>
-        <apache.httpcomponents.httpasyncclient.version>4.1.4</apache.httpcomponents.httpasyncclient.version>
-        <apache.httpclient.version>4.5.13</apache.httpclient.version>
-        <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
-        <lucene.version>9.0.0</lucene.version>
+        <elasticsearch.version>9.3.1</elasticsearch.version>
+        <apache.httpcomponents.httpcore.version>4.4.16</apache.httpcomponents.httpcore.version>
+        <apache.httpcomponents.httpasyncclient.version>4.1.5</apache.httpcomponents.httpasyncclient.version>
+        <apache.httpclient.version>4.5.14</apache.httpclient.version>
+        <jakarta.json-api.version>2.1.3</jakarta.json-api.version>
+        <lucene.version>10.2.1</lucene.version>
 
         <!-- Spring -->
-        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-        <spring-cloud-zookeeper.version>2.2.5.RELEASE</spring-cloud-zookeeper.version>
-        <spring-cloud-openfeign.version>2.2.6.RELEASE</spring-cloud-openfeign.version>
-        <mybatis-spring-boot-starter.version>2.1.0</mybatis-spring-boot-starter.version>
-        <mybatis-spring-boot-starter-test.version>2.0.0</mybatis-spring-boot-starter-test.version>
-        <feign.version>10.11</feign.version>
-        <spring-boot-admin.version>2.2.4</spring-boot-admin.version>
-        <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
-        <swagger-annotations.version>2.2.20</swagger-annotations.version>
+        <spring-boot.version>3.5.8</spring-boot.version>
+        <spring-boot-admin.version>3.5.6</spring-boot-admin.version>
+        <mybatis-spring-boot-starter.version>3.0.5</mybatis-spring-boot-starter.version>
+        <mybatis-spring-boot-starter-test.version>3.0.5</mybatis-spring-boot-starter-test.version>
+        <springdoc-openapi.version>2.8.14</springdoc-openapi.version>
+
+
+        <spring-cloud-zookeeper.version>4.3.0</spring-cloud-zookeeper.version>
+        <spring-cloud-openfeign.version>4.3.0</spring-cloud-openfeign.version>
+
+
+        <feign.version>13.6</feign.version>
+
+
+        <swagger-annotations.version>2.2.41</swagger-annotations.version>
 
         <!-- Metrics -->
-        <micrometer.version>1.12.2</micrometer.version>
+        <micrometer.version>1.15.6</micrometer.version>
 
 
         <!-- Cache -->
         <cache2k.version>2.6.1.Final</cache2k.version>
 
         <!-- external libs -->
-        <amqp-client.version>5.9.0</amqp-client.version>
+        <amqp-client.version>5.28.0</amqp-client.version>
         <aopalliance.version>1.0</aopalliance.version>
-        <assertj.version>3.5.2</assertj.version>
-        <avro.version>1.8.2</avro.version>
-        <bval.version>0.5</bval.version>
-        <commmons-lang.version>3.9</commmons-lang.version>
-        <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <assertj.version>3.27.7</assertj.version>
+        <avro.version>1.11.3</avro.version>
+        <bval.version>1.1.2</bval.version>
+        <commmons-lang.version>3.20.0</commmons-lang.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-digester.version>2.1</commons-digester.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
+        <commons-text.version>1.15.0</commons-text.version>
         <eclipse-collections.version>9.2.0</eclipse-collections.version>
-        <fastutil.version>8.5.9</fastutil.version>
+        <fastutil.version>8.5.18</fastutil.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
-        <freemarker.version>2.3.28</freemarker.version>
+        <freemarker.version>2.3.34</freemarker.version>
         <guava.version>32.1.2-jre</guava.version>
-        <hadoop.version>3.2.4</hadoop.version>
-        <hamcrest.version>1.3</hamcrest.version>
-        <hikaricp.version>3.2.0</hikaricp.version>
-        <jackson.version>2.17.1</jackson.version>
+        <hadoop.version>3.3.5</hadoop.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <hikaricp.version>7.0.2</hikaricp.version>
+        <jackson.version>2.19.4</jackson.version>
         <jaxb-api.version>2.3.1</jaxb-api.version>
-        <javax-validation-api.version>1.1.0.Final</javax-validation-api.version>
+        <jakarta-validation.version>3.1.1</jakarta-validation.version>
+        <jakarta-annotation.version>3.0.0</jakarta-annotation.version>
         <jcommander.version>1.60</jcommander.version>
-        <jsoup.version>1.10.2</jsoup.version>
+        <jsoup.version>1.22.1</jsoup.version>
         <junit.version>4.12</junit.version>
-        <junit5.version>5.11.2</junit5.version>
+        <junit5.version>5.12.2</junit5.version>
         <kryo.version>4.0.2</kryo.version>
-        <liquibase.version>3.8.9</liquibase.version>
-        <slf4j.version>1.7.30</slf4j.version>
-        <logback.version>1.2.3</logback.version>
-        <logstash-encoder.version>6.6</logstash-encoder.version>
-        <mapdb.version>3.0.8</mapdb.version>
-        <maven-shade-plugin.version>3.5.3</maven-shade-plugin.version>
-        <maven-release-plugin.version>3.0.0-M4</maven-release-plugin.version>
+        <liquibase.version>5.0.2</liquibase.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <logback.version>1.5.21</logback.version>
+        <logstash-encoder.version>8.1</logstash-encoder.version>
+        <mapdb.version>3.0.8</mapdb.version><!-- V -->
+        <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <metrics.version>3.1.2</metrics.version>
-        <!-- needs to match powermock ! https://github.com/jayway/powermock/wiki/MockitoUsage#supported-versions -->
-        <mockito.version>1.10.19</mockito.version>
+        <!-- Mockito 5.x compatible with Spring Boot 3.x -->
+        <mockito.version>5.14.0</mockito.version>
         <mybatis.version>3.5.2</mybatis.version>
         <neo4j.version>3.5.29</neo4j.version>
         <postgresql.version>42.3.1</postgresql.version>
-        <powermock-mockito.version>1.6.5</powermock-mockito.version>
+        <powermock-mockito.version>2.0.9</powermock-mockito.version>
         <!-- matches the jetty 9.2.7 version we use in the microservice dependency -->
         <servlet-api.version>3.1.0</servlet-api.version>
         <tika.version>1.21</tika.version>
@@ -247,7 +255,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
-                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED</argLine>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -257,7 +265,7 @@
                 <configuration>
                     <forkCount>1</forkCount>
                     <reuseForks>false</reuseForks>
-                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED</argLine>
+                    <argLine>--add-opens=java.base/java.lang.invoke=ALL-UNNAMED --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.lang.reflect=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.base/java.nio=ALL-UNNAMED</argLine>
                 </configuration>
             </plugin>
         </plugins>
@@ -440,7 +448,7 @@
                 <version>${datacite-rest-client.version}</version>
             </dependency>
 
-            <!-- neo4j -->
+            <!-- neo4j 5.x dependencies -->
             <dependency>
                 <groupId>org.neo4j</groupId>
                 <artifactId>neo4j</artifactId>
@@ -587,8 +595,13 @@
             </dependency>
             <dependency>
                 <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-ui</artifactId>
-                <version>${springdoc-openapi-ui.version}</version>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc-openapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+                <version>${springdoc-openapi.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
@@ -627,6 +640,11 @@
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jaxb-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>javax.xml.bind</groupId>
@@ -640,6 +658,11 @@
                 <artifactId>micrometer-registry-prometheus</artifactId>
                 <version>${micrometer.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-core</artifactId>
+                <version>${micrometer.version}</version>
             </dependency>
 
             <!-- Elasticsearch and Lucene-->
@@ -680,6 +703,11 @@
                 <groupId>jakarta.json</groupId>
                 <artifactId>jakarta.json-api</artifactId>
                 <version>${jakarta.json-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
             </dependency>
 
             <!-- we use kryo to serialize raw usage data which is > 10 times faster than jackson even with smile -->
@@ -779,7 +807,11 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${commmons-lang.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
 
             <!-- metrics -->
             <dependency>
@@ -969,9 +1001,9 @@
                 <version>${bval.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.validation</groupId>
-                <artifactId>validation-api</artifactId>
-                <version>${javax-validation-api.version}</version>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>${jakarta-validation.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.avro</groupId>
@@ -1005,7 +1037,7 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
+                <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -1023,7 +1055,7 @@
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
+                <artifactId>powermock-api-mockito2</artifactId>
                 <version>${powermock-mockito.version}</version>
                 <scope>test</scope>
             </dependency>

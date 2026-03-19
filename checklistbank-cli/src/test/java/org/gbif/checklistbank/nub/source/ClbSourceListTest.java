@@ -37,13 +37,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.ArgumentMatchers;
 import org.neo4j.helpers.collection.Iterables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
 import static org.mockito.Mockito.when;
 
 public class ClbSourceListTest extends BaseDBTest {
@@ -99,7 +100,7 @@ public class ClbSourceListTest extends BaseDBTest {
     resp3.setCount(2l);
     resp3.getResults().add(orgD);
     resp3.getResults().add(orgD2);
-    when(os.publishedDatasets(Matchers.<UUID>any(), any(PagingRequest.class)))
+    when(os.publishedDatasets(ArgumentMatchers.<UUID>any(), any(PagingRequest.class)))
         .thenReturn(respEmpty);
     when(os.publishedDatasets(AdditionalMatchers.not(eq(org1.getKey())), any(PagingRequest.class)))
         .thenReturn(resp3);
@@ -109,7 +110,7 @@ public class ClbSourceListTest extends BaseDBTest {
     org1.setKey(INS_KEY);
     org1.setTitle("Ins1");
     when(is.get(eq(INS_KEY))).thenReturn(ins1);
-    when(is.getHostedDatasets(Matchers.<UUID>any(), any(PagingRequest.class)))
+    when(is.getHostedDatasets(ArgumentMatchers.<UUID>any(), any(PagingRequest.class)))
         .thenReturn(respEmpty);
     when(is.getHostedDatasets(AdditionalMatchers.not(eq(ins1.getKey())), any(PagingRequest.class)))
         .thenReturn(resp3);

@@ -136,13 +136,18 @@ public class ClbLoadTestDb implements BeforeEachCallback {
     SLF4JBridgeHandler.install();
     try (Connection connection = connectionSupplier.get()) {
       connection.setAutoCommit(false);
+      // Set a lock timeout to fail fast if there's contention
+      try (java.sql.Statement st = connection.createStatement()) {
+        st.execute("SET lock_timeout = '10s'");
+      }
       if (tsvFolder != null) {
         DbLoader.load(connection, tsvFolder, true);
       } else {
         DbLoader.truncate(connection, "squirrels");
       }
+      connection.commit();
+      // Update sequences in a separate transaction to avoid holding locks
       updateSequences(connection);
-      connection.setAutoCommit(true);
     }
   }
 
@@ -150,12 +155,12 @@ public class ClbLoadTestDb implements BeforeEachCallback {
   private void updateSequences(Connection connection) {
     log.debug("Resetting clb sequences");
     try {
+      connection.setAutoCommit(true);
       for (Map.Entry<String, Integer> seq : sequenceCounters.entrySet()) {
         try (java.sql.Statement st = connection.createStatement()) {
           st.execute("ALTER SEQUENCE " + seq.getKey() + " RESTART " + seq.getValue());
         }
       }
-      connection.commit();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

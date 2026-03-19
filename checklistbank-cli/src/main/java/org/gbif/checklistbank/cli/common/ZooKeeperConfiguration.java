@@ -16,7 +16,7 @@ package org.gbif.checklistbank.cli.common;
 import java.io.IOException;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Min;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;

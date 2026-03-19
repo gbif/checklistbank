@@ -35,9 +35,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -47,6 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestData(TestData.DATAFILE.SQUIRRELS)
 @ExtendWith(ClbDbLoadTestDataBeforeEach.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatisServiceITBase {
 
   private final UsageSyncService service;
@@ -61,12 +67,14 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   }
 
   @Test
+  @Order(1)
   public void testDeleteDataset() throws Exception {
     int num = service.deleteDataset(ClbLoadTestDb.SQUIRRELS_DATASET_KEY);
     assertEquals(44, num);
   }
 
   @Test
+  @Order(2)
   public void nubRelations() throws Exception {
     Map<Integer, Integer> rels = new HashMap<>();
     rels.put(1, 1);
@@ -74,6 +82,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
   }
 
   @Test
+  @Order(3)
   public void testSyncUsage() throws Exception {
 
     // first add a classification to please constraints
@@ -187,6 +196,7 @@ public class UsageSyncServiceChecklistbankMyBatisIT extends ChecklistbankMyBatis
 
   /** Makes sure all db enums are matching the API enum values */
   @Test
+  @Order(4)
   public void testAllEnums() throws Exception {
     String name = "Abies mekka Jesus";
 

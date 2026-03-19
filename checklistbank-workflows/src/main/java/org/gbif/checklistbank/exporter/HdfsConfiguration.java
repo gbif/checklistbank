@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.google.common.base.Strings;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +45,7 @@ public class HdfsConfiguration {
 
     // check if the hdfs-site.xml is provided
     Function<String, URL> getFileAsUrl = fileName -> {
-      if (Strings.isNullOrEmpty(fileName)) {
+      if (fileName == null || fileName.isBlank()) {
         throw new IllegalArgumentException(fileName + " value null or empty");
       }
       File file = new File(fileName);
