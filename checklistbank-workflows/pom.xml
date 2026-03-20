@@ -148,6 +148,10 @@
           <groupId>com.sun.jersey</groupId>
           <artifactId>jersey-client</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>spring-cloud-starter-openfeign</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
