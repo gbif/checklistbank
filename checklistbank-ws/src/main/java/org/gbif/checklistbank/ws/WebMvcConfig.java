@@ -26,7 +26,6 @@ import org.gbif.ws.server.provider.PageableHandlerMethodArgumentResolver;
 
 import java.util.*;
 
-import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +47,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Lists;
+
+import jakarta.validation.constraints.NotNull;
 
 
 @Configuration

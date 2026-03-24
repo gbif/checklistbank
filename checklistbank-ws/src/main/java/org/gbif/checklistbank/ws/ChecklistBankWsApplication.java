@@ -13,12 +13,9 @@
  */
 package org.gbif.checklistbank.ws;
 
-import java.util.Arrays;
-import java.util.Collections;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.checklistbank.ws.config.SpringElasticsearchConfiguration;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
-import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
 import org.gbif.ws.remoteauth.RestTemplateRemoteAuthClient;
 import org.gbif.ws.security.AppKeySigningService;
 import org.gbif.ws.security.FileSystemKeyStore;
@@ -28,6 +25,9 @@ import org.gbif.ws.server.filter.AppIdentityFilter;
 import org.gbif.ws.server.filter.IdentityFilter;
 import org.gbif.ws.server.mapper.WebApplicationExceptionMapper;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -35,7 +35,6 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

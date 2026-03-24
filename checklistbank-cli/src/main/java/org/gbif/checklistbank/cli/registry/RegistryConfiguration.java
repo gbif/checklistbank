@@ -20,11 +20,12 @@ import org.gbif.checklistbank.config.GangliaConfiguration;
 import org.gbif.common.messaging.config.MessagingConfiguration;
 
 import javax.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @SuppressWarnings("PublicField")
 public class RegistryConfiguration {

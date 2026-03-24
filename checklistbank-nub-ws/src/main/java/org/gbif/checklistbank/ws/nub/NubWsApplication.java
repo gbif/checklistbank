@@ -13,8 +13,6 @@
  */
 package org.gbif.checklistbank.ws.nub;
 
-import java.util.Arrays;
-import java.util.Collections;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.nub.lookup.NubMatchingConfigurationModule;
 import org.gbif.ws.security.AppKeySigningService;
@@ -23,6 +21,9 @@ import org.gbif.ws.security.GbifAuthServiceImpl;
 import org.gbif.ws.security.GbifAuthenticationManagerImpl;
 import org.gbif.ws.server.filter.AppIdentityFilter;
 import org.gbif.ws.server.filter.IdentityFilter;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

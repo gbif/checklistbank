@@ -37,14 +37,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.AdditionalMatchers;
-import org.mockito.Mockito;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.neo4j.helpers.collection.Iterables;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-
 import static org.mockito.Mockito.when;
 
 public class ClbSourceListTest extends BaseDBTest {

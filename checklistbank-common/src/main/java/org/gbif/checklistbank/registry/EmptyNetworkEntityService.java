@@ -27,9 +27,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
+
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A simple read only implementation of a NetworkEntityService backed by a CSV file.

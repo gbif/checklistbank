@@ -19,10 +19,11 @@ import org.gbif.checklistbank.cli.common.NeoConfiguration;
 import java.util.UUID;
 
 import javax.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.constraints.NotNull;
 
 public class ShellConfiguration {
 

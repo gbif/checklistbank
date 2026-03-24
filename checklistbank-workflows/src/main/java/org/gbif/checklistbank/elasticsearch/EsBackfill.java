@@ -13,8 +13,9 @@
  */
 package org.gbif.checklistbank.elasticsearch;
 
-import java.util.Map;
 import org.gbif.common.search.es.EsClient;
+
+import java.util.Map;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;

@@ -13,9 +13,6 @@
  */
 package org.gbif.checklistbank.exporter;
 
-import lombok.SneakyThrows;
-
-import org.apache.hadoop.fs.Path;
 import org.gbif.api.service.checklistbank.DescriptionService;
 import org.gbif.api.service.checklistbank.DistributionService;
 import org.gbif.api.service.checklistbank.SpeciesProfileService;
@@ -29,11 +26,14 @@ import org.gbif.checklistbank.service.mybatis.service.VernacularNameServiceMyBat
 import java.util.concurrent.Callable;
 
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.SneakyThrows;
 
 /**
  * Checklist Bank multi-threaded name usage indexer. This class creates a pool of configurable

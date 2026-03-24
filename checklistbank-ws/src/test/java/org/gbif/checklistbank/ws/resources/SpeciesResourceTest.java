@@ -33,9 +33,9 @@ import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import com.google.common.collect.Lists;
-import org.mockito.ArgumentMatchers;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

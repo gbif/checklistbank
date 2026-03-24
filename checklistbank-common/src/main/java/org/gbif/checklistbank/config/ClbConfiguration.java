@@ -23,12 +23,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Set;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-
 import com.beust.jcommander.Parameter;
 import com.google.common.collect.Sets;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**

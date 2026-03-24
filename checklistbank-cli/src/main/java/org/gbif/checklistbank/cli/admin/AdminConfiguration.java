@@ -29,12 +29,13 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.io.LineIterator;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.constraints.NotNull;
 
 public class AdminConfiguration {
 
