@@ -15,7 +15,6 @@ package org.gbif.checklistbank.ws.provider;
 
 import org.gbif.api.model.checklistbank.search.NameUsageSearchParameter;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchRequest;
-import org.gbif.ws.server.provider.FacetedSearchRequestProvider;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;

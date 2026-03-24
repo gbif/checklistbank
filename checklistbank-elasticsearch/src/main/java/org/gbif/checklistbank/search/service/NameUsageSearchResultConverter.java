@@ -13,7 +13,6 @@
  */
 package org.gbif.checklistbank.search.service;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.gbif.api.model.checklistbank.Description;
 import org.gbif.api.model.checklistbank.VernacularName;
 import org.gbif.api.model.checklistbank.search.NameUsageSearchResult;
@@ -22,7 +21,6 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
-import org.gbif.common.search.EsSearchRequestBuilder;
 
 import java.util.*;
 import java.util.function.Function;
@@ -30,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.text.StringEscapeUtils;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
