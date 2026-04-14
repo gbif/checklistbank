@@ -18,7 +18,6 @@ import org.gbif.api.model.checklistbank.search.*;
 import org.gbif.api.model.common.search.SearchResponse;
 import org.gbif.api.service.checklistbank.NameUsageSearchService;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
-import org.gbif.common.search.EsSearchRequestBuilder;
 
 import java.util.List;
 

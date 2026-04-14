@@ -27,14 +27,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
+
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A simple read only implementation of a NetworkEntityService backed by a CSV file.
  */
-public class EmptyNetworkEntityService<T extends NetworkEntity> implements NetworkEntityService<T> {
+public abstract class EmptyNetworkEntityService<T extends NetworkEntity> implements NetworkEntityService<T> {
 
   @Override
   public UUID create(@NotNull T entity) {

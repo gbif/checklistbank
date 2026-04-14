@@ -112,7 +112,7 @@ public class NameUsageEsFieldMapper implements EsFieldMapper<NameUsageSearchPara
 
   protected Query rankBoostingFunction(Rank rank) {
     return Query.of(qb -> qb.scriptScore(ss -> ss.query(q -> q.exists(e -> e.field("rank")))
-      .script(Script.of(s -> s.inline(is -> is.source("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(250.0f)));
+      .script(Script.of(s -> s.source(src -> src.scriptString("decayNumericGauss(" + rank.ordinal() + ",1,1,0.2,doc['rankKey'].value)")))).boost(250.0f)));
   }
 
   protected Query rankBoostingQuery(Rank rank) {

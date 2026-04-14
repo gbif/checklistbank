@@ -15,10 +15,10 @@ package org.gbif.checklistbank.config;
 
 import java.util.StringJoiner;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Configuration needed to connect to the registry webservices.

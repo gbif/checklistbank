@@ -31,7 +31,6 @@ import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfigura
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
@@ -51,8 +50,7 @@ import org.springframework.stereotype.Component;
       LiquibaseAutoConfiguration.class,
       FreeMarkerAutoConfiguration.class,
       RabbitAutoConfiguration.class,
-      GsonAutoConfiguration.class,
-      FeignAutoConfiguration.class
+      GsonAutoConfiguration.class
     })
 @Profile("!test")
 @Component

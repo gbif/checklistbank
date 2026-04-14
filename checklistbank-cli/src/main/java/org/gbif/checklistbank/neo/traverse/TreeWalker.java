@@ -16,8 +16,6 @@ package org.gbif.checklistbank.neo.traverse;
 import org.gbif.api.vocabulary.Rank;
 import org.gbif.checklistbank.neo.NeoProperties;
 
-import javax.annotation.Nullable;
-
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
@@ -31,6 +29,8 @@ import com.codahale.metrics.Meter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+
+import jakarta.annotation.Nullable;
 
 /**
  * A utility class to iterate over nodes in taxonomic order and execute any number of StartEndHandler while walking.

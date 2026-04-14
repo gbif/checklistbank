@@ -16,8 +16,6 @@ package org.gbif.nub.mapdb;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import javax.validation.constraints.NotNull;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.mapdb.DataIO;
 import org.mapdb.DataInput2;
@@ -29,6 +27,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
+
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A mapDB serializer that uses kryo under the hood to quickly serialize objects into the mapdb data output/input.

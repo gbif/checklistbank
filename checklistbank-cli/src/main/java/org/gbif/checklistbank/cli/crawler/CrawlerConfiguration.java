@@ -21,11 +21,12 @@ import java.io.File;
 import java.util.UUID;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 @SuppressWarnings("PublicField")
 public class CrawlerConfiguration {

@@ -21,7 +21,6 @@ import org.gbif.api.model.common.LinneanClassificationKeys;
 import org.gbif.api.util.VocabularyUtils;
 import org.gbif.api.vocabulary.*;
 import org.gbif.checklistbank.index.model.NameUsageAvro;
-import org.gbif.common.search.EsSearchRequestBuilder;
 
 import java.util.*;
 import java.util.function.Function;
@@ -29,7 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.extern.slf4j.Slf4j;
@@ -208,7 +207,7 @@ public class NameUsageSearchResultConverter
                 .collect(
                     Collectors.toMap(
                         v ->
-                            StringEscapeUtils.unescapeHtml(
+                            StringEscapeUtils.unescapeHtml4(
                                 v.replaceAll(EsSearchRequestBuilder.PRE_HL_TAG, "")
                                     .replaceAll(EsSearchRequestBuilder.POST_HL_TAG, "")),
                         v -> v,

@@ -23,10 +23,11 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParametersDelegate;
+
+import jakarta.validation.constraints.NotNull;
 
 public class ShowConfiguration {
 

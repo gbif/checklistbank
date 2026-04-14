@@ -46,6 +46,7 @@ import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
@@ -266,7 +267,8 @@ public class SpringContextBuilder {
         DataSourceAutoConfiguration.class,
         LiquibaseAutoConfiguration.class,
         FreeMarkerAutoConfiguration.class,
-        RabbitAutoConfiguration.class
+        RabbitAutoConfiguration.class,
+        ElasticsearchRestClientAutoConfiguration.class
       })
   @MapperScan("org.gbif.checklistbank.service.mybatis.persistence.mapper")
   @EnableConfigurationProperties

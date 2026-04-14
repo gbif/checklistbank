@@ -24,8 +24,7 @@
         <start-class>org.gbif.checklistbank.ws.nub.NubWsApplication</start-class>
         <lucene.version>5.4.1</lucene.version>
 
-        <!-- Using java 11 for applications -->
-        <java.version>11</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <build>
@@ -222,11 +221,12 @@
             <artifactId>gbif-common-mybatis</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
-        <!-- swagger for springdocs -->
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
@@ -263,6 +263,10 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-jaxb-annotations</artifactId>
+        </dependency>
 
         <!-- GBIF libraries -->
         <dependency>
@@ -298,13 +302,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-
-        <!-- To ship JUL (e.g. Guice) logging to SLF4J -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jul-to-slf4j</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

@@ -16,7 +16,6 @@ package org.gbif.checklistbank.ws;
 import org.gbif.checklistbank.service.mybatis.service.SpringServiceConfig;
 import org.gbif.checklistbank.ws.config.SpringElasticsearchConfiguration;
 import org.gbif.ws.remoteauth.RemoteAuthClient;
-import org.gbif.ws.remoteauth.RemoteAuthWebSecurityConfigurer;
 import org.gbif.ws.remoteauth.RestTemplateRemoteAuthClient;
 import org.gbif.ws.security.AppKeySigningService;
 import org.gbif.ws.security.FileSystemKeyStore;
@@ -26,6 +25,9 @@ import org.gbif.ws.server.filter.AppIdentityFilter;
 import org.gbif.ws.server.filter.IdentityFilter;
 import org.gbif.ws.server.mapper.WebApplicationExceptionMapper;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -33,12 +35,19 @@ import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @SpringBootApplication(
   exclude = {
@@ -85,9 +94,36 @@ public class ChecklistBankWsApplication {
   }
 
   @Configuration
-  public static class SecurityConfiguration extends RemoteAuthWebSecurityConfigurer {
-    public SecurityConfiguration(ApplicationContext context, RemoteAuthClient remoteAuthClient) {
-      super(context, remoteAuthClient);
+  @EnableWebSecurity
+  public static class WebSecurityConfigurer {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+      http.httpBasic(AbstractHttpConfigurer::disable)
+          .csrf(AbstractHttpConfigurer::disable)
+          .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+          .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+          .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+
+      return http.build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+      // CorsFilter only applies this if the origin header is present in the request
+      CorsConfiguration configuration = new CorsConfiguration();
+      configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type"));
+      configuration.setAllowedOrigins(Collections.singletonList("*"));
+      configuration.setAllowedMethods(
+          Arrays.asList("HEAD", "GET", "POST", "DELETE", "PUT", "OPTIONS"));
+      configuration.setExposedHeaders(
+          Arrays.asList(
+              "Access-Control-Allow-Origin",
+              "Access-Control-Allow-Methods",
+              "Access-Control-Allow-Headers"));
+      UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+      source.registerCorsConfiguration("/**", configuration);
+      return source;
     }
   }
 }

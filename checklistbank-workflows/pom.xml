@@ -31,8 +31,6 @@
     <janino.version>3.0.8</janino.version>
     <commons-compiler.version>3.0.8</commons-compiler.version>
 
-    <!-- Match cluster version -->
-    <guava.version>27.0-jre</guava.version>
   </properties>
 
   <build>
@@ -54,7 +52,6 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>${maven-shade-plugin.version}</version>
         <configuration>
-          <createDependencyReducedPom>true</createDependencyReducedPom>
           <filters>
             <filter>
               <artifact>*:*</artifact>
@@ -80,7 +77,10 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <!-- keep dependency-reduced POM to avoid duplicate transitive issues -->
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <!-- do not minimize by default to avoid dropping classes used reflectively -->
+              <minimizeJar>false</minimizeJar>
               <transformers>
                 <!-- This bit merges the various lucene META-INF/services files -->
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
@@ -148,6 +148,10 @@
           <groupId>com.sun.jersey</groupId>
           <artifactId>jersey-client</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>spring-cloud-starter-openfeign</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -164,10 +168,6 @@
     </dependency>
 
     <!-- Utilities -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>

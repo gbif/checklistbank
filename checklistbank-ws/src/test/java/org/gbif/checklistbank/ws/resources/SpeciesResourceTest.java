@@ -33,7 +33,7 @@ import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 import com.google.common.collect.Lists;
 
@@ -123,7 +123,7 @@ public class SpeciesResourceTest {
 
   @Test
   public void testSearch() throws Exception {
-    when(mockSearchService.search(Matchers.any(NameUsageSearchRequest.class))).thenReturn(searchResponse);
+    when(mockSearchService.search(ArgumentMatchers.any(NameUsageSearchRequest.class))).thenReturn(searchResponse);
     SearchResponse<NameUsageSearchResult, NameUsageSearchParameter> searchResponse2 = resource.search(new NameUsageSearchRequest(1000L, 20));
     assertNotNull(searchResponse2);
   }

@@ -9,7 +9,7 @@ IMAGE=docker.gbif.org/${MODULE}:${POM_VERSION}
 IMAGE_LATEST=docker.gbif.org/${MODULE}:latest
 
 echo "Building Docker image module:version - ${MODULE}:${POM_VERSION}"
-docker build -f ./${MODULE}/docker/Dockerfile ./${MODULE} --build-arg JAR_FILE=${MODULE}-${POM_VERSION}-shaded.jar -t ${IMAGE}
+docker build -f ./${MODULE}/docker/Dockerfile ./${MODULE} --build-arg JAR_FILE=${MODULE}-${POM_VERSION}.jar -t ${IMAGE}
 
 echo "Pushing docker image to the repository"
 docker push ${IMAGE}

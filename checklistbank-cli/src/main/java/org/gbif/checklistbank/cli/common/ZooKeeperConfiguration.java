@@ -16,7 +16,6 @@ package org.gbif.checklistbank.cli.common;
 import java.io.IOException;
 
 import javax.annotation.Nullable;
-import javax.validation.constraints.Min;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -28,6 +27,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Strings;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.MoreObjects;
+
+import jakarta.validation.constraints.Min;
 
 /**
  * A configuration class which can be used to get all the details needed to persistent a connection to ZooKeeper needed by

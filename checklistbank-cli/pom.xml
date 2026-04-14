@@ -22,10 +22,11 @@
     </distributionManagement>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
 
         <!-- lucene version required by neo4j -->
         <lucene-neo4j.version>5.5.0</lucene-neo4j.version>
+        <mockito.version>2.28.2</mockito.version>
 
         <!-- default configurations for allAccepted GBIF environments -->
         <hbase.maxConnectionPool>10</hbase.maxConnectionPool>
@@ -422,6 +423,16 @@
             <artifactId>metrics-ganglia</artifactId>
         </dependency>
 
+        <!-- Elasticsearch dependencies -->
+        <dependency>
+            <groupId>co.elastic.clients</groupId>
+            <artifactId>elasticsearch-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+        </dependency>
+
         <!-- LOGGING -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -491,7 +502,7 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
