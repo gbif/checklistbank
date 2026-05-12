@@ -33,6 +33,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -82,9 +84,20 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
   })
 
 public class ChecklistBankWsApplication {
+  static final String RELAXED_REQUEST_CHARS = "|{}[]\\";
 
   public static void main(String[] args) {
     SpringApplication.run(ChecklistBankWsApplication.class, args);
+  }
+
+  @Bean
+  public WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatRequestCharCustomizer() {
+    return factory ->
+        factory.addConnectorCustomizers(
+            connector -> {
+              connector.setProperty("relaxedPathChars", RELAXED_REQUEST_CHARS);
+              connector.setProperty("relaxedQueryChars", RELAXED_REQUEST_CHARS);
+            });
   }
 
   @Bean
