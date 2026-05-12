@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class ChecklistBankWsApplicationTest {
 
   @Test
-  public void shouldRelaxTomcatQueryAndPathCharacters() {
+  public void shouldRelaxTomcatQueryCharacters() {
     ChecklistBankWsApplication app = new ChecklistBankWsApplication();
     TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
 
@@ -34,10 +34,7 @@ public class ChecklistBankWsApplicationTest {
         .forEach(customizer -> customizer.customize(connector));
 
     assertEquals(
-        ChecklistBankWsApplication.RELAXED_REQUEST_CHARS,
-        connector.getProperty("relaxedPathChars"));
-    assertEquals(
-        ChecklistBankWsApplication.RELAXED_REQUEST_CHARS,
+        ChecklistBankWsApplication.RELAXED_QUERY_CHARS,
         connector.getProperty("relaxedQueryChars"));
   }
 }

@@ -84,7 +84,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
   })
 
 public class ChecklistBankWsApplication {
-  static final String RELAXED_REQUEST_CHARS = "|{}[]\\";
+  static final String RELAXED_QUERY_CHARS = "\\";
 
   public static void main(String[] args) {
     SpringApplication.run(ChecklistBankWsApplication.class, args);
@@ -92,12 +92,11 @@ public class ChecklistBankWsApplication {
 
   @Bean
   public WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatRequestCharCustomizer() {
+    // Spring Boot/Tomcat upgrade tightened request target parsing. We only relax "\" in query strings
+    // for backwards compatibility with legacy escaped parser/name requests.
     return factory ->
         factory.addConnectorCustomizers(
-            connector -> {
-              connector.setProperty("relaxedPathChars", RELAXED_REQUEST_CHARS);
-              connector.setProperty("relaxedQueryChars", RELAXED_REQUEST_CHARS);
-            });
+            connector -> connector.setProperty("relaxedQueryChars", RELAXED_QUERY_CHARS));
   }
 
   @Bean
