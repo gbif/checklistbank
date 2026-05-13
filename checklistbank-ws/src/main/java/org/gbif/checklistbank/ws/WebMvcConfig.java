@@ -22,6 +22,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 import com.google.common.collect.Lists;
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
+import org.apache.tomcat.util.buf.EncodedSolidusHandling;
 import org.gbif.api.model.checklistbank.DatasetMetrics;
 import org.gbif.api.model.checklistbank.TableOfContents;
 import org.gbif.checklistbank.ws.mixins.DatasetMetricsMixin;
@@ -34,18 +35,23 @@ import org.gbif.ws.server.provider.CountryHandlerMethodArgumentResolver;
 import org.gbif.ws.server.provider.PageableHandlerMethodArgumentResolver;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
+import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.util.UrlPathHelper;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -138,15 +144,34 @@ public class WebMvcConfig implements WebMvcConfigurer {
   @Override
   public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
     configurer.defaultContentType(MediaType.APPLICATION_JSON)
-              .favorParameter(true)
-              .parameterName("format")
-              .mediaType("xml", MediaType.APPLICATION_XML)
-              .mediaType("txt", MediaType.TEXT_PLAIN)
-              .mediaType("json", MediaType.APPLICATION_JSON);
+        .favorParameter(true)
+        .parameterName("format")
+        .mediaType("xml", MediaType.APPLICATION_XML)
+        .mediaType("txt", MediaType.TEXT_PLAIN)
+        .mediaType("json", MediaType.APPLICATION_JSON);
   }
 
   @Override
   public void configurePathMatch(PathMatchConfigurer configurer) {
+    UrlPathHelper urlPathHelper = new UrlPathHelper();
+    urlPathHelper.setUrlDecode(false);
+    configurer.setUrlPathHelper(urlPathHelper);
     configurer.setUseTrailingSlashMatch(true);
+  }
+
+  @Bean
+  public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+    var fw = new DefaultHttpFirewall();
+    fw.setAllowUrlEncodedSlash(true);
+    return fw;
+  }
+
+  @Bean
+  public WebServerFactoryCustomizer<TomcatServletWebServerFactory> tomcatCustomizer() {
+    return factory -> factory.addConnectorCustomizers(connector -> {
+      connector.setEncodedSolidusHandling(EncodedSolidusHandling.PASS_THROUGH.getValue());
+      // Allow backslash and other special characters in query parameters
+      connector.setProperty("relaxedQueryChars", "\\");
+    });
   }
 }
