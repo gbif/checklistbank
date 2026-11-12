@@ -66,10 +66,9 @@ import static java.lang.annotation.ElementType.*;
   info = @Info(
     title = "Species API",
     version = "v1",
-    description = "This API works against data kept in the GBIF Checklist Bank which taxonomically indexes all " +
-      "registered [checklist datasets](https://www.gbif.org/dataset/search?type=CHECKLIST) in the GBIF network.\n\n" +
-      "Internally we use a [Java web service client](https://github.com/gbif/checklistbank/tree/master/checklistbank-ws-client) " +
-      "for the consumption of these HTTP-based, RESTful JSON web services.",
+    description = "This API is deprecated. Please use the new v2 Taxon API instead. " +
+        "The v1 API runs against data held in the GBIF Checklist Bank, " +
+        "which will soon become read-only and will no longer index new data.",
     termsOfService = "https://www.gbif.org/terms"),
   servers = {
     @Server(url = "https://api.gbif.org/v1/", description = "Production"),

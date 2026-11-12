@@ -50,7 +50,7 @@ import io.swagger.v3.oas.annotations.Hidden;
  */
 @Hidden
 @RestController
-@RequestMapping(value = "/sitemap/species")
+@RequestMapping(value = "/sitemap/taxon")
 public class SpeciesSitemapResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpeciesSitemapResource.class);
