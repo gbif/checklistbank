@@ -66,7 +66,7 @@ import static java.lang.annotation.ElementType.*;
   info = @Info(
     title = "Species API",
     version = "v1",
-    description = "This API is deprecated. Please use the new v2 Taxon API instead. " +
+    description = "The v1 Species API is deprecated. Please use the new v2 Taxon API instead. " +
         "The v1 API runs against data held in the GBIF Checklist Bank, " +
         "which will soon become read-only and will no longer index new data.",
     termsOfService = "https://www.gbif.org/terms"),
